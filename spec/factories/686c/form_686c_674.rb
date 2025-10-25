@@ -1067,7 +1067,7 @@ FactoryBot.define do
             },
             'student_income' => 'Y',
             'ssn' => '987654321',
-            'is_parent' => true,
+            'relationship_to_student' => 'biological',
             'full_name' => {
               'first' => 'test',
               'middle' => 'middle',

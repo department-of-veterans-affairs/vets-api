@@ -72,7 +72,13 @@ module IvcChampva
     def self.stamp_signature(stamped_template_path, form)
       form_number = form.data['form_number']
       if FORM_REQUIRES_STAMP.include? form_number
+        # multiple checks to ensure we only log in non-production environments - PII risk
+        log_stamp_text = Flipper.enabled?(:champva_stamper_logging) && Settings.vsp_environment != 'production'
+
         form.desired_stamps.each do |desired_stamp|
+          if log_stamp_text
+            Rails.logger.info "IVC Champva Forms - PdfStamper: desired stamp text: #{desired_stamp[:text]}"
+          end
           stamp(desired_stamp, stamped_template_path)
         end
       end

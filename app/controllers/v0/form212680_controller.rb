@@ -11,11 +11,11 @@ module V0
     def download_pdf
       claim = create_claim
       validate_claim(claim)
+      claim.save!
 
       pdf_path = generate_and_send_pdf(claim)
-      StatsD.increment('form212680.pdf.generated')
     ensure
-      Common::FileHelpers.delete_file_if_exists(pdf_path) if pdf_path
+      Common::FileHelpers.delete_file_if_exists(pdf_path)  if pdf_path.presence 
     end
 
     # POST /v0/form212680/submit
@@ -36,9 +36,8 @@ module V0
     def validate_claim(claim)
       return if claim.veteran_sections_complete?
 
-      validator = ::Form212680::VeteranSectionsValidator.new(claim.veteran_sections)
-      error_messages = validator.errors.join('; ')
-      raise Common::Exceptions::UnprocessableEntity.new(detail: error_messages)
+      error_messages = claim.veteran_sections_errors.join('; ')
+      raise Common::Exceptions::UnprocessableEntity.new(detail: error_messages) unless error_messages.empty?
     end
 
     def generate_and_send_pdf(claim)

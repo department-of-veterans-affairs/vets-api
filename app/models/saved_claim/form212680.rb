@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SavedClaim::Form212680 < SavedClaim
-  FORM = '21-2680'
+  add_form_and_validation('21-2680')
 
   # Skip JSON schema validation as vets-json-schema is being deprecated
   # We use our own validator instead
@@ -46,8 +46,12 @@ class SavedClaim::Form212680 < SavedClaim
 
   # Check if veteran sections are complete
   def veteran_sections_complete?
-    validator = ::Form212680::VeteranSectionsValidator.new(veteran_sections)
-    validator.valid?
+    @validator = ::Form212680::VeteranSectionsValidator.new(veteran_sections)
+    @validator.valid?
+  end
+
+  def veteran_sections_errors
+    @validator.errors
   end
 
   # Generate pre-filled PDF with veteran sections

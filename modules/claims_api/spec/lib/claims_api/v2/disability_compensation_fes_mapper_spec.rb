@@ -238,6 +238,44 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
           expect(date[:day]).to eq(15)
         end
 
+        it "removes disabilities with a disabilityActionType of none'" do
+          form_data['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NONE'
+
+          fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+          # 4 get sent in
+          expect(fes_data[:data][:form526][:disabilities].count).to eq(3)
+        end
+
+        context 'when secondary disabilities are present' do
+          it 'extracts and flattens secondary disabilities' do
+            # Add secondary disabilities to the test data
+            form_data['data']['attributes']['disabilities'][0]['secondaryDisabilities'] = [
+              {
+                'name' => 'Secondary Condition',
+                'disabilityActionType' => 'SECONDARY',
+                'diagnosticCode' => 5002,
+                'isRelatedToToxicExposure' => false
+              }
+            ]
+
+            auto_claim = create(:auto_established_claim,
+                                form_data: form_data['data']['attributes'],
+                                auth_headers: { 'va_eauth_pid' => '600061742' })
+
+            fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+
+            disabilities = fes_data[:data][:form526][:disabilities]
+            # Three primary disabilities and newly elevated secondary disability
+            expect(disabilities.count).to eq(4)
+
+            # Check the secondary condition
+            secondary = disabilities.find { |d| d[:name] == 'Secondary Condition' }
+            expect(secondary).to be_present
+            expect(secondary[:disabilityActionType]).to eq('NEW')
+            expect(secondary[:diagnosticCode]).to eq(5002)
+          end
+        end
+
         context 'PACT special issue' do
           it 'adds PACT special issue for toxic exposure when action type is NEW' do
             expect(disabilities.first[:specialIssues]).to include('PACT')
@@ -267,6 +305,36 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
 
             special_issues = fes_data[:data][:form526][:disabilities].first[:specialIssues]
             expect(special_issues).to contain_exactly('POW', 'EMP', 'PACT')
+          end
+
+          it 'applies PACT special issue to secondary disabilities when appropriate' do
+            form_data['data']['attributes']['disabilities'][0]['secondaryDisabilities'] = [
+              {
+                'name' => 'Secondary With PACT',
+                'disabilityActionType' => 'SECONDARY',
+                'isRelatedToToxicExposure' => true
+              },
+              {
+                'name' => 'Secondary Without PACT',
+                'disabilityActionType' => 'SECONDARY',
+                'isRelatedToToxicExposure' => false
+              }
+            ]
+
+            auto_claim = create(:auto_established_claim,
+                                form_data: form_data['data']['attributes'],
+                                auth_headers: { 'va_eauth_pid' => '600061742' })
+            fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+
+            disabilities = fes_data[:data][:form526][:disabilities]
+
+            # Find the secondaries
+            with_pact = disabilities.find { |d| d[:name] == 'Secondary With PACT' }
+            without_pact = disabilities.find { |d| d[:name] == 'Secondary Without PACT' }
+
+            # Verify special issues
+            expect(with_pact[:specialIssues]).to include('PACT')
+            expect(without_pact[:specialIssues]).to be_nil
           end
         end
       end

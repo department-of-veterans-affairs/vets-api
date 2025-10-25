@@ -10,14 +10,20 @@ module V0
       claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
 
       if claim.save
-        VRE::Submit1900Job.perform_async(claim.id, encrypted_user)
+        if Flipper.enabled?(:vre_modular_api)
+          Rails.logger.info 'Submitting VR&E claim via modular VRE API'
+          VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user)
+        else
+          Rails.logger.info 'Submitting VR&E claim via legacy VRE API'
+          VRE::Submit1900Job.perform_async(claim.id, encrypted_user)
+        end
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")
-        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
-        Rails.logger.error('VR&E claim was not saved', { error_messages: claim.errors,
+        Rails.logger.error('VR&E claim was not saved', { vre_modular_api_used: Flipper.enabled?(:vre_modular_api),
+                                                         error_messages: claim.errors,
                                                          user_logged_in: current_user.present?,
                                                          current_user_uuid: current_user&.uuid })
         raise Common::Exceptions::ValidationErrors, claim

@@ -293,4 +293,59 @@ RSpec.describe SimpleFormsApi::VBA214140 do
       end
     end
   end
+
+  describe '#track_user_identity' do
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    context 'when user is employed' do
+      let(:data) do
+        {
+          'employers' => [
+            {
+              'employer_name' => 'Test Company',
+              'employment_start_date' => '2020-01-01'
+            }
+          ],
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' }
+        }
+      end
+
+      it 'tracks employed identity and logs information' do
+        described_class.new(data).track_user_identity('ABC123')
+
+        expect(StatsD).to have_received(:increment).with('api.simple_forms_api.21_4140.employed')
+        expect(Rails.logger).to have_received(:info).with(
+          'Simple forms api - 21-4140 submission user identity',
+          identity: 'employed',
+          confirmation_number: 'ABC123'
+        )
+      end
+    end
+
+    context 'when user is unemployed' do
+      let(:data) do
+        {
+          'unemployment_certifications' => {
+            'unemployment_certification' => true,
+            'accuracy_certification' => true
+          },
+          'full_name' => { 'first' => 'Jane', 'last' => 'Smith' }
+        }
+      end
+
+      it 'tracks unemployed identity and logs information' do
+        described_class.new(data).track_user_identity('XYZ789')
+
+        expect(StatsD).to have_received(:increment).with('api.simple_forms_api.21_4140.unemployed')
+        expect(Rails.logger).to have_received(:info).with(
+          'Simple forms api - 21-4140 submission user identity',
+          identity: 'unemployed',
+          confirmation_number: 'XYZ789'
+        )
+      end
+    end
+  end
 end

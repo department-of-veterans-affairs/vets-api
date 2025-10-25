@@ -10,12 +10,8 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
   let(:time) { Time.zone.now }
 
   context 'with some sample claims', run_at: '2017-07-27 00:00:00 -0400' do
-    let!(:education_benefits_claim_1) do
-      create(:education_benefits_claim_1990e, processed_at: time.beginning_of_day)
-    end
-
-    let!(:education_benefits_claim_2) do
-      create(:education_benefits_claim_1990n, processed_at: time.beginning_of_day)
+    let!(:education_benefits_claim) do
+      create(:education_benefits_claim, processed_at: time.beginning_of_day)
     end
 
     before do
@@ -28,9 +24,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
           subject.create_csv_array
         ).to eq(
           csv_array: [['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO'],
-                      ['Mark Olson', nil, education_benefits_claim_1.confirmation_number, '2017-07-27 00:00:00 UTC',
-                       'eastern'],
-                      [nil, 'Mark Olson', education_benefits_claim_2.confirmation_number, '2017-07-27 00:00:00 UTC',
+                      [nil, 'Mark Olson', education_benefits_claim.confirmation_number, '2017-07-27 00:00:00 UTC',
                        'eastern']],
           stem_exists: false
         )

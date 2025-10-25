@@ -39,8 +39,9 @@ module ExceptionHandling
         when ActionController::InvalidAuthenticityToken
           Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
         when Common::Exceptions::TokenValidationError,
-            Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute,
-          Common::Exceptions::ServiceUnavailable, Common::Exceptions::BadGateway
+          Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute,
+          Common::Exceptions::ServiceUnavailable, Common::Exceptions::BadGateway,
+          Common::Exceptions::RoutingError
           exception
         when ActionController::ParameterMissing
           Common::Exceptions::ParameterMissing.new(exception.param)

@@ -18,10 +18,13 @@
     "mobilePhone": "5551234567"
   },
   "veteranStatus": true,
+  "technologyAreaOfFocus": "computerProgramming",
+  "currentSalary": "twentyToThirtyFive",
   "dateOfBirth": "1970-01-01",
   "dateReleasedFromActiveDuty": "2025-01-01",
   "activeDutyDuringHitechVets": true,
   "isEmployed": true,
+  "isInTechnologyIndustry": true,
   "highestLevelOfEducation": "BD",
   "attestationAgreementAccepted": true,
   "bankAccount": {

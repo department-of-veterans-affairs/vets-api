@@ -63,8 +63,8 @@ module MedicalExpenseReports
       }.freeze
 
       def expand(form_data = {})
-        form_data['additionalMileage'] ||= []
-        form_data['additionalMileage'] = form_data['mileage'].drop(4).map { |t| expand_traveler(t) }
+        form_data['mileageExpenses'] ||= []
+        form_data['additionalMileage'] = form_data['mileageExpenses'].drop(4).map { |t| expand_traveler(t) }
         form_data
       end
 

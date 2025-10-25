@@ -4,10 +4,16 @@ module DependentsBenefits
   # @see https://api.rubyonrails.org/classes/Rails/Engine.html
   class Engine < ::Rails::Engine
     isolate_namespace DependentsBenefits
+
     config.generators.api_only = true
 
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
+    end
+
+    # Make sure Rails autoloads lib/ properly
+    initializer :append_lib_to_autoload_paths do |_app|
+      ActiveSupport::Dependencies.autoload_paths << root.join('lib')
     end
 
     # So that the app-wide migration command notices our engine's migrations.

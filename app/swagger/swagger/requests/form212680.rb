@@ -7,19 +7,19 @@ module Swagger
 
       swagger_schema :Form212680Address do
         key :type, :object
-        property :street, type: :string, example: '123 Main St'
-        property :street2, type: :string, example: 'Apt 4B'
-        property :city, type: :string, example: 'Springfield'
-        property :state, type: :string, example: 'IL'
-        property :zipCode, type: :string, example: '62701'
-        property :country, type: :string, example: 'USA'
+        property :street, type: :string, example: '123 Main St', maxLength: 30
+        property :street2, type: :string, example: 'Apt 4B', maxLength: 5
+        property :city, type: :string, example: 'Springfield', maxLength: 18
+        property :state, type: :string, example: 'IL', maxLength: 2
+        property :zipCode, type: :string, example: '62701', maxLength: 9
+        property :country, type: :string, example: 'US', maxLength: 2
       end
 
       swagger_schema :Form212680FullName do
         key :type, :object
-        property :first, type: :string, example: 'John'
-        property :middle, type: :string, example: 'A'
-        property :last, type: :string, example: 'Doe'
+        property :first, type: :string, example: 'John', maxLength: 12
+        property :middle, type: :string, example: 'A', maxLength: 1
+        property :last, type: :string, example: 'Doe', maxLength: 18
       end
 
       swagger_path '/v0/form212680/download_pdf' do
@@ -47,53 +47,73 @@ module Swagger
               property :veteranInformation do
                 key :type, :object
                 key :required, %i[fullName ssn vaFileNumber dateOfBirth]
-                key :description, 'Section I: Veteran Information'
+                key :description, "Section I: VETERAN'S IDENTIFICATION INFORMATION"
 
                 property :fullName do
                   key :$ref, :Form212680FullName
                 end
-                property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)'
-                property :vaFileNumber, type: :string, example: '987654321', description: 'VA File Number'
+                property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)',
+                               maxLength: 9, minLength: 9
+                property :vaFileNumber, type: :string, example: '987654321', description: 'VA File Number', maxLength: 9
+                property :serviceNumber, type: :string, example: 'A2999999', description: 'VETERAN\'S SERVICE NUMBER ',
+                                         maxLength: 10, nullable: true
                 property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
               end
 
               property :claimantInformation do
                 key :type, :object
                 key :required, %i[fullName relationship address]
-                key :description, 'Section II: Claimant Information'
+                key :description, "Section II: CLAIMANT'S IDENTIFICATION INFORMATION"
 
                 property :fullName do
                   key :$ref, :Form212680FullName
                 end
-                property :relationship, type: :string, example: 'Spouse', description: 'Relationship to veteran'
+                property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
+                property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)',
+                               maxLength: 9, minLength: 9
+                property :relationship, type: :string, example: 'spouse', description: 'Relationship to veteran',
+                                        enum: PdfFill::Forms::Va212680::RELATIONSHIPS.keys, nullable: true
                 property :address do
                   key :$ref, :Form212680Address
                 end
+                property :phoneNumber, type: :string, example: '5551234567', description: 'Phone Number',
+                                       maxLength: 10, minLength: 10, nullable: true
+                property :internationalPhoneNumber, type: :string, example: '5551234567', description: 'Phone Number',
+                                                    nullable: true
+                property :agreeToElectronicCorrespondence, type: :boolean,
+                                                           example: true
+                property :email, type: :string, example: 'test@va.gov', description: 'Email Address', nullable: true,
+                                 maxLength: 70
               end
 
               property :benefitInformation do
                 key :type, :object
-                key :required, %i[claimType]
-                key :description, 'Section III: Benefit Information'
+                key :required, %i[benefitSelection]
+                key :description, 'SECTION III: CLAIM INFORMATION'
 
-                property :claimType, type: :string, example: 'Aid and Attendance',
-                                     description: 'Type of claim: "Aid and Attendance" or "Housebound"'
+                property :benefitSelection, type: :string, example: 'smc',
+                                            description: 'Type of benefit being claimed', emum: PdfFill::Forms::Va212680::BENEFITS.keys
               end
 
               property :additionalInformation do
                 key :type, :object
-                key :description, 'Section IV: Additional Information'
+                key :description, 'Section IV: IS VETERAN/CLAIMANT HOSPITALIZED?'
 
                 property :currentlyHospitalized, type: :boolean, example: false,
                                                  description: 'Is veteran currently hospitalized?'
-                property :nursingHome, type: :boolean, example: false,
-                                       description: 'Is veteran in a nursing home?'
+                property :admissionDate, type: :string, format: :date, example: '2023-01-01',
+                                         description: 'Date admitted', nullable: true
+                property :hospitalName, type: :string, example: 'VA Medical Center',
+                                        description: 'Name of hospital', nullable: true
+                property :hospitalAddress do
+                  key :$ref, :Form212680Address
+                end
               end
 
               property :veteranSignature do
                 key :type, :object
                 key :required, %i[signature date]
-                key :description, 'Section V: Veteran or Claimant Signature'
+                key :description, 'Section V: CERTIFICATION AND SIGNATURE'
 
                 property :signature, type: :string, example: 'John A Doe',
                                      description: 'Signature of veteran or claimant'
@@ -107,23 +127,21 @@ module Swagger
             key :description, 'PDF file successfully generated and ready for download'
             key :schema, type: :file
           end
-
-          response 422 do
-            key :description, 'Validation error - form data is incomplete or invalid'
-            schema do
-              key :type, :object
-              property :errors do
-                key :type, :array
-                items do
-                  key :type, :object
-                  property :title, type: :string, example: 'Validation error'
-                  property :detail, type: :string, example: 'Veteran first name is required'
-                  property :code, type: :string, example: '422'
-                  property :status, type: :string, example: '422'
-                end
-              end
-            end
-          end
+          #   key :description, 'Validation error - form data is incomplete or invalid'
+          #   schema do
+          #     key :type, :object
+          #     property :errors do
+          #       key :type, :array
+          #       items do
+          #         key :type, :object
+          #         property :title, type: :string, example: 'Validation error'
+          #         property :detail, type: :string, example: 'Veteran first name is required'
+          #         property :code, type: :string, example: '422'
+          #         property :status, type: :string, example: '422'
+          #       end
+          #     end
+          #   end
+          # end
         end
       end
 
