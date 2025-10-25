@@ -188,6 +188,21 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
           expect(response).to have_http_status(:ok)
         end
       end
+
+      response '400', 'Bad Request - schema validation failed' do
+        let(:form_data) do
+          {
+            veteranInformation: {
+              fullName: { first: 'OnlyFirst' }
+            }
+          }
+        end
+
+        it 'returns a 400 when request body fails schema validation' do |example|
+          submit_request(example.metadata)
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
     end
   end
 end
