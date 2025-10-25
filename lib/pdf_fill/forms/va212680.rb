@@ -274,8 +274,9 @@ module PdfFill
       end
 
       def split_phone
-        @form_data['claimantInformation']['phoneNumber'] =
-          expand_phone_number(@form_data['claimantInformation']['phoneNumber'])
+        phone = @form_data['claimantInformation']['phoneNumber']
+        return if phone.blank?
+         @form_data['claimantInformation']['phoneNumber'] = expand_phone_number(phone)
       end
 
       def merge_hospital_address

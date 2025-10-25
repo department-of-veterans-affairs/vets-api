@@ -14,11 +14,8 @@ module V0
       claim.save!
 
       pdf_path = generate_and_send_pdf(claim)
-      StatsD.increment('form212680.pdf.generated')
     ensure
-      if pdf_path.presence && pdf_path.exclude?('spec/fixtures/files/')
-        Common::FileHelpers.delete_file_if_exists(pdf_path)
-      end
+      Common::FileHelpers.delete_file_if_exists(pdf_path)  if pdf_path.presence 
     end
 
     # POST /v0/form212680/submit
