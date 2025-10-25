@@ -536,7 +536,6 @@ app/swagger/swagger/requests/form1010_ezrs.rb @department-of-veterans-affairs/he
 app/swagger/swagger/requests/form1010cg @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/form1095_bs.rb @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/form210779.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
-app/swagger/swagger/requests/form214192.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/forms.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-public-websites-frontend
 app/swagger/swagger/requests/gibct @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/gibct/calculator_constants.rb @department-of-veterans-affairs/backend-review-group
