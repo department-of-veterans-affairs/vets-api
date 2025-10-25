@@ -58,6 +58,18 @@ module Dependents
       SUBMISSION_STATS_KEY
     end
 
+    # lib/logging/base_monitor (on or about line 33) requires a `name` method
+    delegate :name, to: :class
+
+    # lib/logging/base_monitor (on or about line 37) requires a `form_id` method
+    def form_id
+      @claim&.form_id
+    end
+
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
+    end
+
     def use_v2
       return nil unless @claim
 
