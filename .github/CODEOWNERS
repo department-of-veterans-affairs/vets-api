@@ -1312,6 +1312,7 @@ spec/factories/va1990s.rb @department-of-veterans-affairs/govcio-vfep-codereview
 spec/factories/va1995.rb @department-of-veterans-affairs/backend-review-group
 spec/factories/va526ez.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/factories/va5490.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
+spec/factories/va21680.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/factories/va5495.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/factories/veteran_onboardings.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
 spec/factories/veteran_readiness_employment_claim.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
