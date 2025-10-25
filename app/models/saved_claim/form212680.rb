@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SavedClaim::Form212680 < SavedClaim
-  FORM = '21-2680'
+  add_form_and_validation('21-2680')
 
   # Skip JSON schema validation as vets-json-schema is being deprecated
   # We use our own validator instead

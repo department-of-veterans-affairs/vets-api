@@ -42,7 +42,7 @@ module PdfFill
       def split_postal_code(address)
         return if address.blank?
 
-        postal_code = address['postalCode'] || address['zip_code'] || address['postal_code']
+        postal_code = address['postalCode'] || address['zip_code'] || address['postal_code'] || address['zipCode']
 
         return if postal_code.blank?
 

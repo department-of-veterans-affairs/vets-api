@@ -11,6 +11,7 @@ module V0
     def download_pdf
       claim = create_claim
       validate_claim(claim)
+      claim.save!
 
       pdf_path = generate_and_send_pdf(claim)
       StatsD.increment('form212680.pdf.generated')

@@ -47,7 +47,7 @@ module Swagger
               property :veteranInformation do
                 key :type, :object
                 key :required, %i[fullName ssn vaFileNumber dateOfBirth]
-                key :description, 'Section I: Veteran Information'
+                key :description, "Section I: VETERAN'S IDENTIFICATION INFORMATION"
 
                 property :fullName do
                   key :$ref, :Form212680FullName
@@ -55,13 +55,15 @@ module Swagger
                 property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)',
                                maxLength: 9, minLength: 9
                 property :vaFileNumber, type: :string, example: '987654321', description: 'VA File Number', maxLength: 9
+                property :serviceNumber, type: :string, example: 'A2999999', description: 'VETERAN\'S SERVICE NUMBER ',
+                                         maxLength: 10, nullable: true
                 property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
               end
 
               property :claimantInformation do
                 key :type, :object
                 key :required, %i[fullName relationship address]
-                key :description, 'Section II: Claimant Information'
+                key :description, "Section II: CLAIMANT'S IDENTIFICATION INFORMATION"
 
                 property :fullName do
                   key :$ref, :Form212680FullName
@@ -69,7 +71,8 @@ module Swagger
                 property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
                 property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)',
                                maxLength: 9, minLength: 9
-                property :relationship, type: :string, example: 'Spouse', description: 'Relationship to veteran'
+                property :relationship, type: :string, example: 'spouse', description: 'Relationship to veteran',
+                                        enum: PdfFill::Forms::Va212680::RELATIONSHIPS.keys, nullable: true
                 property :address do
                   key :$ref, :Form212680Address
                 end
@@ -89,12 +92,12 @@ module Swagger
                 key :description, 'SECTION III: CLAIM INFORMATION'
 
                 property :benefitSelection, type: :string, example: 'smc',
-                                            description: 'Type of benefit being claimed', emum: %w[smc smp]
+                                            description: 'Type of benefit being claimed', emum: PdfFill::Forms::Va212680::BENEFITS.keys
               end
 
               property :additionalInformation do
                 key :type, :object
-                key :description, 'Section IV: Additional Information'
+                key :description, 'Section IV: IS VETERAN/CLAIMANT HOSPITALIZED?'
 
                 property :currentlyHospitalized, type: :boolean, example: false,
                                                  description: 'Is veteran currently hospitalized?'
@@ -110,7 +113,7 @@ module Swagger
               property :veteranSignature do
                 key :type, :object
                 key :required, %i[signature date]
-                key :description, 'Section V: Veteran or Claimant Signature'
+                key :description, 'Section V: CERTIFICATION AND SIGNATURE'
 
                 property :signature, type: :string, example: 'John A Doe',
                                      description: 'Signature of veteran or claimant'
@@ -124,23 +127,21 @@ module Swagger
             key :description, 'PDF file successfully generated and ready for download'
             key :schema, type: :file
           end
-
-          response 422 do
-            key :description, 'Validation error - form data is incomplete or invalid'
-            schema do
-              key :type, :object
-              property :errors do
-                key :type, :array
-                items do
-                  key :type, :object
-                  property :title, type: :string, example: 'Validation error'
-                  property :detail, type: :string, example: 'Veteran first name is required'
-                  property :code, type: :string, example: '422'
-                  property :status, type: :string, example: '422'
-                end
-              end
-            end
-          end
+          #   key :description, 'Validation error - form data is incomplete or invalid'
+          #   schema do
+          #     key :type, :object
+          #     property :errors do
+          #       key :type, :array
+          #       items do
+          #         key :type, :object
+          #         property :title, type: :string, example: 'Validation error'
+          #         property :detail, type: :string, example: 'Veteran first name is required'
+          #         property :code, type: :string, example: '422'
+          #         property :status, type: :string, example: '422'
+          #       end
+          #     end
+          #   end
+          # end
         end
       end
 

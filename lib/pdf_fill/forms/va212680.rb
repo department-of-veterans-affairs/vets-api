@@ -6,263 +6,301 @@ require 'pdf_fill/forms/form_base'
 module PdfFill
   module Forms
     class Va212680 < FormBase
+      include FormHelper
+      include FormHelper::PhoneNumberFormatting
+
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
+      RELATIONSHIPS = { 'self' => 1,
+                        'spouse' => 2,
+                        'parent' => 2,
+                        'child' => 4 }.freeze
+
+      BENEFITS = { 'smc' => 1,
+                   'smp' => 2 }.freeze
+
       KEY = {
-        # Section I: Veteran Information
         'veteranInformation' => {
           'fullName' => {
             'first' => {
-              key: 'form1[0].#subform[0].VeteransFirstName[0]',
-              limit: 12,
-              question_num: 1,
-              question_suffix: 'A',
-              question_text: "VETERAN'S FIRST NAME"
+              key: 'form1[0].Page1[0].Veteran_Beneficiarys_FirstName[0]',
+              limit: 12
             },
             'middle' => {
-              key: 'form1[0].#subform[0].VeteransMiddleInitial[0]',
+              key: 'form1[0].Page1[0].MiddleInitial1[0]',
               limit: 1
             },
             'last' => {
-              key: 'form1[0].#subform[0].VeteransLastName[0]',
-              limit: 18,
-              question_num: 1,
-              question_suffix: 'B',
-              question_text: "VETERAN'S LAST NAME"
+              key: 'form1[0].Page1[0].LastName[0]',
+              limit: 18
             }
           },
-          'ssn' => {
-            key: 'form1[0].#subform[0].SocialSecurityNumber[0]',
-            limit: 9,
-            question_num: 2,
-            question_text: 'SOCIAL SECURITY NUMBER'
+          'ssn1' => {
+            'first' => { key:  'form1[0].Page1[0].Veterans_SocialSecurityNumber_FirstThreeNumbers[0]' },
+            'second' => { key: 'form1[0].Page1[0].Veterans_SocialSecurityNumber_SecondTwoNumbers[0]' },
+            'third' => { key:  'form1[0].Page1[0].Veterans_SocialSecurityNumber_LastFourNumbers[0]' }
           },
+          'ssn2' => {
+            'first' => { key: 'form1[0].Page2[0].Veterans_SocialSecurityNumber_FirstThreeNumbers[0]' },
+            'second' => { key: 'form1[0].Page2[0].Veterans_SocialSecurityNumber_SecondTwoNumbers[0]' },
+            'third' => { key: 'form1[0].Page2[0].Veterans_SocialSecurityNumber_LastFourNumbers[0]' }
+          },
+          'ssn3' => {
+            'first' => { key: 'form1[0].#subform[2].Veterans_SocialSecurityNumber_FirstThreeNumbers[0]' },
+            'second' => { key: 'form1[0].#subform[2].Veterans_SocialSecurityNumber_SecondTwoNumbers[0]' },
+            'third' => { key: 'form1[0].#subform[2].Veterans_SocialSecurityNumber_LastFourNumbers[0]' }
+          },
+          'ssn4' => {
+            'first' => { key: 'form1[0].#subform[3].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]' },
+            'second' => { key: 'form1[0].#subform[3].Veterans_SocialSecurityNumber_SecondTwoNumbers[1]' },
+            'third' => { key: 'form1[0].#subform[3].Veterans_SocialSecurityNumber_LastFourNumbers[1]' }
+          },
+
           'vaFileNumber' => {
-            key: 'form1[0].#subform[0].VAFileNumber[0]',
-            limit: 9,
-            question_num: 3,
-            question_text: 'VA FILE NUMBER'
+            key: 'form1[0].Page1[0].VA_FileNumber[0]',
+            limit: 9
+          },
+          'serviceNumber' => {
+            key: 'form1[0].Page1[0].Veterans_ServiceNumber[0]',
+            limit: 10
           },
           'dateOfBirth' => {
-            key: 'form1[0].#subform[0].DateOfBirth[0]',
-            question_num: 4,
-            question_text: 'DATE OF BIRTH'
+            'month' => { key: 'form1[0].Page1[0].Veterans_DOB_Month[0]' },
+            'year' => { key: 'form1[0].Page1[0].Veterans_DOB_Year[0]' },
+            'day' => {  key: 'form1[0].Page1[0].Veterans_DOB_Day[0]' }
+          },
+
+          'phoneNumber' => {
+            'phone_area_code' => { key: 'form1[0].Page1[0].Telephone_Number_Area_Code[0]' },
+            'phone_first_three_numbers' => { key: 'form1[0].Page1[0].Telephone_Middle_Three_Numbers[0]' },
+            'phone_last_four_numbers' => { key: 'form1[0].Page1[0].Telephone_Last_Four_Numbers[0]' }
           }
         },
-
-        # Section II: Claimant Information
         'claimantInformation' => {
           'fullName' => {
             'first' => {
-              key: 'form1[0].#subform[0].ClaimantFirstName[0]',
-              limit: 12,
-              question_num: 5,
-              question_suffix: 'A',
-              question_text: "CLAIMANT'S FIRST NAME"
+              key: 'form1[0].Page1[0].Claimants_FirstName[0]',
+              limit: 12
             },
             'middle' => {
-              key: 'form1[0].#subform[0].ClaimantMiddleInitial[0]',
+              key: 'form1[0].Page1[0].Claimants_MiddleInitial1[0]',
               limit: 1
             },
             'last' => {
-              key: 'form1[0].#subform[0].ClaimantLastName[0]',
-              limit: 18,
-              question_num: 5,
-              question_suffix: 'B',
-              question_text: "CLAIMANT'S LAST NAME"
+              key: 'form1[0].Page1[0].Claimants_LastName[0]',
+              limit: 18
             }
+          },
+          'ssn' => {
+            'first' => { key: 'form1[0].Page1[0].Claimants_SocialSecurityNumber_FirstThreeNumbers[0]' },
+            'second' => { key: 'form1[0].Page1[0].Claimants_SocialSecurityNumber_SecondTwoNumbers[0]' },
+            'third' => { key: 'form1[0].Page1[0].Claimants_SocialSecurityNumber_LastFourNumbers[0]' }
+          },
+          'dateOfBirth' => {
+            'year' => { key: 'form1[0].Page1[0].Claimants_DOB_Year[0]' },
+            'day' => { key: 'form1[0].Page1[0].Claimants_DOB_Day[0]' },
+            'month' => { key: 'form1[0].Page1[0].Claimants_DOB_Month[0]' }
           },
           'relationship' => {
-            key: 'form1[0].#subform[0].RelationshipToVeteran[0]',
-            limit: 30,
-            question_num: 6,
-            question_text: 'RELATIONSHIP TO VETERAN'
+            key: 'form1[0].Page1[0].RadioButtonList[0]'
           },
+
           'address' => {
             'street' => {
-              key: 'form1[0].#subform[0].MailingAddress_Street[0]',
-              limit: 30,
-              question_num: 7,
-              question_suffix: 'A',
-              question_text: 'MAILING ADDRESS - STREET'
+              key: 'form1[0].Page1[0].Mailing_Address_NumberAndStreet[0]',
+              limit: 30
+            },
+            'street2' => {
+              key: 'form1[0].Page1[0].Mailing_Address_ApartmentOrUnitNumber[0]',
+              limit: 5
             },
             'city' => {
-              key: 'form1[0].#subform[0].MailingAddress_City[0]',
-              limit: 18,
-              question_num: 7,
-              question_suffix: 'B',
-              question_text: 'CITY'
+              key: 'form1[0].Page1[0].Mailing_Address_City[0]',
+              limit: 18
             },
             'state' => {
-              key: 'form1[0].#subform[0].MailingAddress_State[0]',
-              limit: 2,
-              question_num: 7,
-              question_suffix: 'C',
-              question_text: 'STATE'
+              key: 'form1[0].Page1[0].Mailing_Address_StateOrProvince[0]',
+              limit: 2
             },
             'zipCode' => {
-              key: 'form1[0].#subform[0].MailingAddress_ZIPCode[0]',
-              limit: 10,
-              question_num: 7,
-              question_suffix: 'D',
-              question_text: 'ZIP CODE'
+              'firstFive' => {
+                key: 'form1[0].Page1[0].Mailing_Address_ZIPOrPostalCode_FirstFiveNumbers[0]',
+                limit: 5
+
+              },
+              'lastFour' => {
+                key: 'form1[0].Page1[0].Mailing_Address_ZIPOrPostalCode_LastFourNumbers[0]',
+                limit: 4
+              }
+            },
+            'country' => {
+              key: 'form1[0].Page1[0].Mailing_Address_Country[0]',
+              limit: 2
             }
+          },
+          'phoneNumber' => {
+            'phone_area_code' => { key: 'form1[0].Page1[0].Telephone_Number_Area_Code[0]' },
+            'phone_first_three_numbers' => { key: 'form1[0].Page1[0].Telephone_Middle_Three_Numbers[0]' },
+            'phone_last_four_numbers' => { key: 'form1[0].Page1[0].Telephone_Last_Four_Numbers[0]' }
+          },
+
+          'internationalPhoneNumber' => {
+            key: 'form1[0].Page1[0].International_Telephone_Number_If_Applicable[0]',
+            limit: 14
+          },
+          'agreeToElectronicCorrespondence' => {
+            key: 'form1[0].Page1[0].CheckBox1[0]'
+          },
+          'email' => {
+            'first' => { key: 'form1[0].Page1[0].Email_Address_Optional[0]' },
+            'second' => { key: 'form1[0].Page1[0].Email_Address_Optional[1]' }
           }
         },
 
         # Section III: Benefit Information
         'benefitInformation' => {
-          'claimType' => {
-            key: 'form1[0].#subform[0].ClaimType[0]',
-            limit: 50,
-            question_num: 8,
-            question_text: 'TYPE OF CLAIM (Aid and Attendance or Housebound)'
+          'benefitSelection' => {
+            key: 'form1[0].Page1[0].RadioButtonList[1]'
           }
         },
-
         # Section IV: Additional Information
         'additionalInformation' => {
           'currentlyHospitalized' => {
-            key: 'form1[0].#subform[0].CurrentlyHospitalized[0]',
-            question_num: 9,
-            question_suffix: 'A',
-            question_text: 'IS VETERAN CURRENTLY HOSPITALIZED'
+            key: 'form1[0].Page2[0].RadioButtonList[0]'
           },
-          'nursingHome' => {
-            key: 'form1[0].#subform[0].NursingHome[0]',
-            question_num: 9,
-            question_suffix: 'B',
-            question_text: 'IS VETERAN IN A NURSING HOME'
+          'admissionDate' => {
+            'month' => { key: 'form1[0].Page2[0].Date_Admitted_Month[0]' },
+            'year' => { key: 'form1[0].Page2[0].Date_Admitted_Year[0]' },
+            'day' => {  key: 'form1[0].Page2[0].Date_Admitted_Day[0]' }
+          },
+
+          'hospitalName' => {
+            key: 'form1[0].Page2[0].NAME_OF_HOSPITAL[0]',
+            limit: 50
+          },
+          'hospitalAddress' => {
+            key: 'form1[0].Page2[0].ADDRESS_OF_HOSPITAL[0]'
           }
+
         },
 
-        # Section V: Veteran Signature
+        # SECTION V: CERTIFICATION AND SIGNATURE
         'veteranSignature' => {
           'signature' => {
-            key: 'form1[0].#subform[0].VeteranSignature[0]',
-            limit: 30,
-            question_num: 10,
-            question_suffix: 'A',
-            question_text: 'VETERAN OR CLAIMANT SIGNATURE'
+            # TODO: Figure out signature standard.
+            key: 'form1[0].Page2[0].Digital_Signature[0]',
+            limit: 30
           },
           'date' => {
-            key: 'form1[0].#subform[0].SignatureDate[0]',
-            question_num: 10,
-            question_suffix: 'B',
-            question_text: 'DATE SIGNED'
+            'month' => { key: 'form1[0].Page2[0].DATE_SIGNED_Month[0]' },
+            'year' => { key: 'form1[0].Page2[0].DATE_SIGNED_Year[0]' },
+            'day' => {  key: 'form1[0].Page2[0].DATE_SIGNED_Day[0]' }
           }
         }
 
         # NOTE: Sections VI-VIII (Physician sections) are intentionally left blank
         # These will be filled out manually by the physician on the printed form
+
       }.freeze
 
-      def merge_fields(options = {})
-        @pdf_data ||= {}
-        merge_veteran_information
-        merge_claimant_information
-        merge_benefit_information
-        merge_additional_information
-        merge_veteran_signature
-
-        @pdf_data
+      def merge_fields(_options = {})
+        expand_veteran_ssn
+        split_zips
+        split_dates
+        split_phone
+        merge_hospital_address
+        checkboxify
+        relationship
+        benefit
+        hospitalized_checkbox
+        split_email
+        @form_data
       end
 
       private
 
-      def merge_veteran_information
-        veteran_info = @form_data['veteranInformation']
-        return unless veteran_info
+      # TODO: review everything below here for nil checks
+      def relationship
+        @form_data['claimantInformation']['relationship'] =
+          RELATIONSHIPS[ @form_data['claimantInformation']['relationship'] ] || 'Off'
+      end
 
-        # Merge name fields
-        if veteran_info['fullName']
-          @pdf_data['form1[0].#subform[0].VeteransFirstName[0]'] = veteran_info['fullName']['first']
-          @pdf_data['form1[0].#subform[0].VeteransMiddleInitial[0]'] = veteran_info['fullName']['middle']
-          @pdf_data['form1[0].#subform[0].VeteransLastName[0]'] = veteran_info['fullName']['last']
+      def benefit
+        @form_data['benefitInformation']['benefitSelection'] =
+          BENEFITS[ @form_data['benefitInformation']['benefitSelection'] ] || 'Off'
+      end
+
+      def hospitalized_checkbox
+        hospitalized_checkbox_value = @form_data.dig('additionalInformation', 'currentlyHospitalized')
+        @form_data['additionalInformation']['currentlyHospitalized'] =
+          case hospitalized_checkbox_value
+          when nil
+            'Off'
+          when true
+            '1'
+          else
+            '2'
+          end
+      end
+
+      def checkboxify
+        @form_data['claimantInformation']['agreeToElectronicCorrespondence'] =
+          select_checkbox(@form_data.dig('claimantInformation', 'agreeToElectronicCorrespondence'))
+      end
+
+      def expand_veteran_ssn
+        # veteran ssn is repeated at the top of pages
+        veteran_ssn = split_ssn(@form_data['veteranInformation']['ssn'])
+        @form_data['veteranInformation']['ssn'] = {}
+        4.times do |i|
+          @form_data['veteranInformation']["ssn#{i + 1}"] = veteran_ssn
         end
 
-        # Merge SSN (formatted without dashes)
-        @pdf_data['form1[0].#subform[0].SocialSecurityNumber[0]'] =
-          veteran_info['ssn']&.gsub(/\D/, '')
-
-        # Merge VA file number
-        @pdf_data['form1[0].#subform[0].VAFileNumber[0]'] = veteran_info['vaFileNumber']
-
-        # Merge date of birth
-        @pdf_data['form1[0].#subform[0].DateOfBirth[0]'] =
-          format_date(veteran_info['dateOfBirth'])
+        @form_data['claimantInformation']['ssn'] = split_ssn(@form_data['claimantInformation']['ssn'])
       end
 
-      def merge_claimant_information
-        claimant_info = @form_data['claimantInformation']
-        return unless claimant_info
-
-        # Merge name fields
-        if claimant_info['fullName']
-          @pdf_data['form1[0].#subform[0].ClaimantFirstName[0]'] = claimant_info['fullName']['first']
-          @pdf_data['form1[0].#subform[0].ClaimantMiddleInitial[0]'] = claimant_info['fullName']['middle']
-          @pdf_data['form1[0].#subform[0].ClaimantLastName[0]'] = claimant_info['fullName']['last']
-        end
-
-        # Merge relationship
-        @pdf_data['form1[0].#subform[0].RelationshipToVeteran[0]'] = claimant_info['relationship']
-
-        # Merge address
-        if claimant_info['address']
-          address = claimant_info['address']
-          @pdf_data['form1[0].#subform[0].MailingAddress_Street[0]'] = address['street']
-          @pdf_data['form1[0].#subform[0].MailingAddress_City[0]'] = address['city']
-          @pdf_data['form1[0].#subform[0].MailingAddress_State[0]'] = address['state']
-          @pdf_data['form1[0].#subform[0].MailingAddress_ZIPCode[0]'] = address['zipCode']
-        end
+      def split_zips
+        zip_code = split_postal_code(@form_data['claimantInformation']['address'])
+        @form_data['claimantInformation']['address']['zipCode'] = zip_code
       end
 
-      def merge_benefit_information
-        benefit_info = @form_data['benefitInformation']
-        return unless benefit_info
-
-        @pdf_data['form1[0].#subform[0].ClaimType[0]'] = benefit_info['claimType']
+      def split_dates
+        @form_data['veteranInformation']['dateOfBirth'] = split_date(@form_data['veteranInformation']['dateOfBirth'])
+        @form_data['additionalInformation']['admissionDate'] =
+          split_date(@form_data['additionalInformation']['admissionDate'])
+        @form_data['veteranSignature']['date'] =
+          split_date(@form_data.dig('veteranSignature', 'date'))
+        @form_data['claimantInformation']['dateOfBirth'] = split_date(@form_data['claimantInformation']['dateOfBirth'])
       end
 
-      def merge_additional_information
-        additional_info = @form_data['additionalInformation']
-        return unless additional_info
-
-        # Convert boolean values to Yes/No or checkboxes as appropriate for the PDF
-        @pdf_data['form1[0].#subform[0].CurrentlyHospitalized[0]'] =
-          boolean_to_checkbox(additional_info['currentlyHospitalized'])
-
-        @pdf_data['form1[0].#subform[0].NursingHome[0]'] =
-          boolean_to_checkbox(additional_info['nursingHome'])
+      def split_phone
+        @form_data['claimantInformation']['phoneNumber'] =
+          expand_phone_number(@form_data['claimantInformation']['phoneNumber'])
       end
 
-      def merge_veteran_signature
-        signature_info = @form_data['veteranSignature']
-        return unless signature_info
-
-        @pdf_data['form1[0].#subform[0].VeteranSignature[0]'] = signature_info['signature']
-        @pdf_data['form1[0].#subform[0].SignatureDate[0]'] =
-          format_date(signature_info['date'])
+      def merge_hospital_address
+        @form_data['additionalInformation']['hospitalAddress'] =
+          combine_full_address_extras(@form_data['additionalInformation']['hospitalAddress'])
       end
 
-      def format_date(date_string)
-        return nil if date_string.blank?
+      def split_email
+        email = @form_data['claimantInformation']['email']
+        return if email.blank?
 
-        date = Date.parse(date_string.to_s)
-        date.strftime('%m/%d/%Y')
-      rescue ArgumentError
-        date_string
+        @form_data['claimantInformation']['email'] = {
+          'first' => email[0..34],
+          'second' => email[35..] || ''
+        }
       end
 
-      def boolean_to_checkbox(value)
-        case value
-        when true
-          'Yes'
-        when false
-          'No'
-        else
-          ''
-        end
+      def combine_full_address_extras(address)
+        return if address.blank?
+
+        [
+          address['street'],
+          address['street2'],
+          [address['city'], address['state'], address['zipCode'], address['country']].compact.join(', ')
+        ].compact.join("\n")
       end
     end
   end

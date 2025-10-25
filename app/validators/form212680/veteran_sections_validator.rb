@@ -52,13 +52,7 @@ module Form212680
 
       if info.blank?
         @errors << 'Benefit information is required'
-        return
-      end
-
-      if info['claimType'].blank?
-        @errors << 'Claim type is required (Aid and Attendance or Housebound)'
-      elsif !valid_claim_type?(info['claimType'])
-        @errors << 'Invalid claim type. Must be "Aid and Attendance" or "Housebound"'
+        nil
       end
     end
 
