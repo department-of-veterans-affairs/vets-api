@@ -29,13 +29,13 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "123456",
-                    "type": "form_submissions",
+                    "id": "12345",
+                    "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2024-06-01T12:34:56Z",
+                      "submitted_at": "2025-10-25T21:01:28Z",
                       "regional_office": [],
-                      "confirmation_number": "ABCDEF123456",
-                      "guid": "550e8400-e29b-41d4-a716-446655440000",
+                      "confirmation_number": "f73ec5ce-5447-4624-8ed9-a9e375bdecfd",
+                      "guid": "f73ec5ce-5447-4624-8ed9-a9e375bdecfd",
                       "form": "21-4192"
                     }
                   }
@@ -91,6 +91,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request - schema validation failed"
           }
         },
         "requestBody": {
