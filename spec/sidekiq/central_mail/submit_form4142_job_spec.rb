@@ -134,11 +134,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         end
 
         it 'raises a standard error' do
-          puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: starting perform"
           subject.perform_async(submission.id)
-          puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: finished perform, starting drain"
           expect { described_class.drain }.to raise_error(StandardError)
-          puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: finished drain"
         end
       end
     end
