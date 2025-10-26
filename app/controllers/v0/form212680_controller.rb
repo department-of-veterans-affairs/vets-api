@@ -10,13 +10,13 @@ module V0
     # Physician sections (VI-VIII) are left blank for manual completion
     def download_pdf
       # stubbed - returns a static pdf for now
-      pdf_path='lib/pdf_fill/forms/pdfs/21-2680.pdf'
+      pdf_path = 'lib/pdf_fill/forms/pdfs/21-2680.pdf'
       pdf_content = File.read(pdf_path)
 
       send_data pdf_content,
-            filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
-            type: 'application/pdf',
-            disposition: 'attachment'
+                filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
+                type: 'application/pdf',
+                disposition: 'attachment'
     end
 
     # POST /v0/form212680/submit

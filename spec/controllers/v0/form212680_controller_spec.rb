@@ -7,7 +7,6 @@ RSpec.describe V0::Form212680Controller, type: :controller do
     JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-2680', 'simple.json').read)
   end
 
-
   describe 'POST #download_pdf' do
     context 'with valid form data' do
       it 'returns a PDF file' do
