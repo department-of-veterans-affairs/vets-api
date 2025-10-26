@@ -284,15 +284,10 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_representative(rep)
       data_transform_for_entity(rep['representative'], 'representative', {
-                                  city: rep['workCity'],
-                                  state_code: rep['workState'],
                                   phone: rep['representative']['workNumber'],
                                   email: rep['representative']['workEmailAddress'],
-                                  address_line1: rep['workAddress1'],
-                                  address_line2: rep['workAddress2'],
-                                  address_line3: rep['workAddress3'],
-                                  zip_code: rep['workZip'],
-                                  raw_address: raw_address_for_representative(rep)
+                                  raw_address: raw_address_for_representative(rep),
+                                  registration_number: rep.dig('representative', 'id')
                                 })
     end
 
@@ -320,14 +315,42 @@ module RepresentationManagement
       individual_entity_json(record, rep, :representative)
     end
 
+    def processed_individual_types
+      # Determine which individual types were processed based on force_update_types
+      [AGENTS, ATTORNEYS, REPRESENTATIVES].filter_map do |type|
+        ENTITY_CONFIG.public_send(type.downcase).individual_type if @force_update_types.include?(type)
+      end
+    end
+
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
+    # When force_update_types is specified, only deletes records of the processed types
     #
     # @return [void]
     def delete_removed_accredited_individuals
-      AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids + @representative_ids).find_each do |record|
-        record.destroy
-      rescue => e
-        log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+      # @force_update_types are only present when manually reprocessing entity types.  They aren't present in the
+      # ordinary daily job run.
+      if @force_update_types.any?
+        # Only delete records of types that were actually processed
+
+        # If no individual types were processed, return early to avoid deleting any records.
+        # This safeguards against accidental deletion when no types were selected for processing.
+        return if processed_individual_types.empty?
+
+        # Delete only records of processed types that are not in the current ID lists
+        AccreditedIndividual.where(individual_type: processed_individual_types)
+                            .where.not(id: @agent_ids + @attorney_ids + @representative_ids)
+                            .find_each do |record|
+          record.destroy
+        rescue => e
+          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+        end
+      else
+        # Original behavior: delete all records not in current ID lists
+        AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids + @representative_ids).find_each do |record|
+          record.destroy
+        rescue => e
+          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+        end
       end
     end
 
@@ -362,8 +385,6 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_agent(agent)
       data_transform_for_entity(agent, ENTITY_CONFIG.send(AGENTS).individual_type, {
-                                  country_code_iso3: agent['workCountry'],
-                                  country_name: agent['workCountry'],
                                   phone: agent['workPhoneNumber'],
                                   email: agent['workEmailAddress'],
                                   raw_address: raw_address_for_agent(agent)
@@ -376,8 +397,6 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_attorney(attorney)
       data_transform_for_entity(attorney, ENTITY_CONFIG.send(ATTORNEYS).individual_type, {
-                                  city: attorney['workCity'],
-                                  state_code: attorney['workState'],
                                   phone: attorney['workNumber'],
                                   email: attorney['emailAddress'],
                                   raw_address: raw_address_for_attorney(attorney)
@@ -398,11 +417,7 @@ module RepresentationManagement
         ogc_id: entity['id'],
         first_name: entity['firstName'],
         middle_initial: entity['middleName'].to_s.strip.first,
-        last_name: entity['lastName'],
-        address_line1: entity['workAddress1'],
-        address_line2: entity['workAddress2'],
-        address_line3: entity['workAddress3'],
-        zip_code: entity['workZip']
+        last_name: entity['lastName']
       }.merge(extra_attrs)
     end
 
@@ -607,17 +622,25 @@ module RepresentationManagement
     end
 
     # Removes AccreditedOrganization records that are no longer present in the GCLAWS API
+    # When force_update_types is specified, only deletes when VSOs were processed
     #
     # @return [void]
     def delete_removed_accredited_organizations
-      delete_removed_records(AccreditedOrganization, @vso_ids, 'accredited organization')
+      # Only delete VSO records if VSOs were processed or no force update specified
+      if @force_update_types.empty? || @force_update_types.include?(VSOS)
+        delete_removed_records(AccreditedOrganization, @vso_ids, 'accredited organization')
+      end
     end
 
     # Removes Accreditation records that are no longer valid
+    # When force_update_types is specified, only deletes when representatives or VSOs were processed
     #
     # @return [void]
     def delete_removed_accreditations
-      delete_removed_records(Accreditation, @accreditation_ids, 'accreditation')
+      # Only delete accreditation records if representatives or VSOs were processed or no force update specified
+      if @force_update_types.empty? || @force_update_types.intersect?([REPRESENTATIVES, VSOS])
+        delete_removed_records(Accreditation, @accreditation_ids, 'accreditation')
+      end
     end
 
     # Creates or updates Accreditation records based on representative-VSO associations

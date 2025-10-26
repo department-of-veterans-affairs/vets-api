@@ -87,6 +87,15 @@ describe FakeController do
       end
     end
 
+    it 'gracefully handles nil response from tracked_item_service.find_tracked_items' do
+      allow_any_instance_of(ClaimsApi::TrackedItemService).to receive(
+        :find_tracked_items
+      ).and_return(nil)
+
+      result = subject.find_tracked_items!('600118544')
+      expect(result).to eq([])
+    end
+
     it '#map_bgs_tracked_items' do
       VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
         result = subject.map_bgs_tracked_items(bgs_claim)

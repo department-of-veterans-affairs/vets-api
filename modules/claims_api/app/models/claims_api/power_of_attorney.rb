@@ -99,7 +99,7 @@ module ClaimsApi
       end
     end
 
-    def errors
+    def process_errors
       processes.map do |p|
         error_message = p.error_messages.last
         next unless error_message

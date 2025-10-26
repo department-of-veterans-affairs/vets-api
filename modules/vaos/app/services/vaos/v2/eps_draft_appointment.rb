@@ -26,9 +26,10 @@ module VAOS
     #   end
     #
     class EpsDraftAppointment
-      LOGGER_TAG = 'Community Care Appointments'
-      REFERRAL_DRAFT_STATIONID_METRIC = 'api.vaos.referral_draft_station_id.access'
-      PROVIDER_DRAFT_NETWORK_ID_METRIC = 'api.vaos.provider_draft_network_id.access'
+      include VAOS::CommunityCareConstants
+
+      REFERRAL_DRAFT_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_draft_station_id.access".freeze
+      PROVIDER_DRAFT_NETWORK_ID_METRIC = "#{STATSD_PREFIX}.provider_draft_network_id.access".freeze
 
       # @!attribute [r] id
       #   @return [String, nil] The ID of the created draft appointment, or nil if creation failed
@@ -167,7 +168,12 @@ module VAOS
         log_referral_metrics(referral)
         referral
       rescue Redis::BaseError => e
-        Rails.logger.error("#{LOGGER_TAG}: Redis error - #{e.class}: #{e.message}")
+        error_data = {
+          error_class: e.class.name,
+          error_message: e.message,
+          user_uuid: @current_user&.uuid
+        }
+        Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
         set_error('Redis connection error', :bad_gateway)
       end
 
@@ -289,9 +295,7 @@ module VAOS
       # @return [Array<Hash>, nil] Available appointment slots, or nil if unavailable
       def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
-        return nil if appointment_type_id.nil?
-
-        eps_provider_service.get_provider_slots(
+        slots = eps_provider_service.get_provider_slots(
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
@@ -300,9 +304,31 @@ module VAOS
             appointmentId: draft_appointment_id
           }
         )
+        log_provider_slots_info(slots)
+        slots
       rescue ArgumentError => e
-        Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots - #{e.class}: #{e.message}")
+        error_data = {
+          error_class: e.class.name,
+          error_message: e.message,
+          user_uuid: @current_user&.uuid
+        }
+        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
         nil
+      end
+
+      ##
+      # Logs information about retrieved provider slots
+      #
+      # @param slots [Array<Hash>] The retrieved provider slots
+      # @return [void]
+      def log_provider_slots_info(slots)
+        Rails.logger.info(
+          "#{CC_APPOINTMENTS}: Provider slots retrieved",
+          {
+            slots_count: slots&.length || 0,
+            slots_available: slots&.any? || false
+          }
+        )
       end
 
       ##
@@ -318,29 +344,61 @@ module VAOS
       #   or no self-schedulable types are available
       def get_provider_appointment_type_id(provider)
         # Let external service BackendServiceExceptions bubble up naturally
-        if provider.appointment_types.blank?
-          Rails.logger.error("#{LOGGER_TAG}: Provider appointment types data is not available")
-          raise Common::Exceptions::BackendServiceException.new(
-            'PROVIDER_APPOINTMENT_TYPES_MISSING',
-            {},
-            502,
-            'Provider appointment types data is not available'
-          )
-        end
+        handle_missing_appointment_types_error if provider.appointment_types.blank?
 
         self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
 
-        if self_schedulable_types.blank?
-          Rails.logger.error("#{LOGGER_TAG}: No self-schedulable appointment types available for this provider")
-          raise Common::Exceptions::BackendServiceException.new(
-            'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
-            {},
-            502,
-            'No self-schedulable appointment types available for this provider'
-          )
-        end
+        handle_missing_self_schedulable_types_error if self_schedulable_types.blank?
 
         self_schedulable_types.first[:id]
+      end
+
+      ##
+      # Handles error when provider appointment types data is missing
+      #
+      # Logs the error with structured data and raises a BackendServiceException
+      # when the provider object doesn't contain appointment types information.
+      #
+      # @raise [Common::Exceptions::BackendServiceException] When appointment types are missing
+      # @return [void]
+      #
+      def handle_missing_appointment_types_error
+        error_data = {
+          error_message: 'Provider appointment types data is not available',
+          user_uuid: @current_user&.uuid
+        }
+        message = "#{CC_APPOINTMENTS}: Provider appointment types data is not available"
+        Rails.logger.error(message, error_data)
+        raise Common::Exceptions::BackendServiceException.new(
+          'PROVIDER_APPOINTMENT_TYPES_MISSING',
+          {},
+          502,
+          'Provider appointment types data is not available'
+        )
+      end
+
+      ##
+      # Handles error when no self-schedulable appointment types are available
+      #
+      # Logs the error with structured data and raises a BackendServiceException
+      # when the provider has appointment types but none are self-schedulable.
+      #
+      # @raise [Common::Exceptions::BackendServiceException] When no self-schedulable types are available
+      # @return [void]
+      #
+      def handle_missing_self_schedulable_types_error
+        error_data = {
+          error_message: 'No self-schedulable appointment types available for this provider',
+          user_uuid: @current_user&.uuid
+        }
+        message = "#{CC_APPOINTMENTS}: No self-schedulable appointment types available for this provider"
+        Rails.logger.error(message, error_data)
+        raise Common::Exceptions::BackendServiceException.new(
+          'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
+          {},
+          502,
+          'No self-schedulable appointment types available for this provider'
+        )
       end
 
       ##
@@ -386,7 +444,7 @@ module VAOS
         station_id = sanitize_log_value(referral.station_id)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
-                           'service:community_care_appointments',
+                           COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
                            "provider_npi:#{provider_npi}",
                            "station_id:#{station_id}"
@@ -406,7 +464,7 @@ module VAOS
 
         provider.network_ids.each do |network_id|
           StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC,
-                           tags: ['service:community_care_appointments', "network_id:#{network_id}"])
+                           tags: [COMMUNITY_CARE_SERVICE_TAG, "network_id:#{network_id}"])
         end
       end
 
@@ -419,11 +477,14 @@ module VAOS
       # @param referral [OpenStruct] The referral containing failed search criteria
       # @return [void] Logs error details to Rails logger
       def log_provider_not_found_error(referral)
-        Rails.logger.error("#{LOGGER_TAG}: Provider not found while creating draft appointment.",
-                           { provider_address: referral.treating_facility_address,
-                             provider_npi: referral.provider_npi,
-                             provider_specialty: referral.provider_specialty,
-                             tag: LOGGER_TAG })
+        error_data = {
+          error_message: 'Provider not found while creating draft appointment',
+          provider_address: referral.treating_facility_address,
+          provider_npi: referral.provider_npi,
+          provider_specialty: referral.provider_specialty,
+          user_uuid: @current_user&.uuid
+        }
+        Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment", error_data)
       end
 
       ##

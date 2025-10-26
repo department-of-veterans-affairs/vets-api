@@ -18,25 +18,28 @@ module AccreditedRepresentativePortal
     #   - Used to check claims' statuses afterwards
     #
     def init(saved_claim_id)
-      @claim =
-        ::SavedClaim.find(saved_claim_id)
+      @claim = ::SavedClaim.find(saved_claim_id)
+      @lighthouse_service = lighthouse_service
+    end
 
-      @lighthouse_service =
-        ##
-        # Rather than:
-        # ```
-        # BenefitsIntakeService::Service.new(with_upload_location: true)
-        # ```
-        #
-        BenefitsIntakeService::Service.new.tap do |service|
-          service.define_singleton_method(:config) do
+    def service
+      if Flipper.enabled?(:accredited_representative_portal_lighthouse_api_key)
+        ::AccreditedRepresentativePortal::BenefitsIntakeService.new
+      else
+        ::BenefitsIntakeService::Service.new.tap do |svc|
+          svc.define_singleton_method(:config) do
             BenefitsIntake::Service.configuration
           end
-
-          upload = service.get_location_and_uuid
-          service.instance_variable_set(:@uuid, upload[:uuid])
-          service.instance_variable_set(:@location, upload[:location])
         end
+      end
+    end
+
+    def lighthouse_service
+      service.tap do |service|
+        upload = service.get_location_and_uuid
+        service.instance_variable_set(:@uuid, upload[:uuid])
+        service.instance_variable_set(:@location, upload[:location])
+      end
     end
 
     ##
@@ -55,6 +58,10 @@ module AccreditedRepresentativePortal
         @claim.class::PROPER_FORM_ID,
         @claim.class::BUSINESS_LINE
       )
+    end
+
+    def stamping_form_class
+      @claim.class::STAMPING_FORM_CLASS
     end
 
     ##
@@ -78,7 +85,7 @@ module AccreditedRepresentativePortal
           # not need.
           #
           SimpleFormsApi::PdfStamper.new(
-            form: SimpleFormsApi::VBA21686C.new({}),
+            form: stamping_form_class.new({}),
             stamped_template_path:,
             current_loa: SignIn::Constants::Auth::LOA_THREE,
             timestamp: @claim.created_at

@@ -16,7 +16,7 @@ describe GenderIdentitySerializer, type: :serializer do
   end
 
   it 'includes :gender_identity' do
-    gender_identity_attributes = gender_identity_response[:gender_identity].attributes.deep_stringify_keys
+    gender_identity_attributes = gender_identity_response.gender_identity.attributes.deep_stringify_keys
     expect(attributes['gender_identity']).to eq gender_identity_attributes
   end
 end

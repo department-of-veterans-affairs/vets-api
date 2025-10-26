@@ -333,12 +333,11 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
 
       job = described_class.new
 
-      expect(Rails.logger).to receive(:error)
+      expect(Rails.logger).to receive(:error).at_least(:once)
 
       vet_info['veteran_information'].delete('ssn')
       expect do
-        job.perform(invalid_dependency_claim.id, encrypted_vet_info, true,
-                    false)
+        job.perform(invalid_dependency_claim.id, encrypted_vet_info, true, false)
       end.to raise_error(VBMS::SubmitDependentsPdfJob::Invalid686cClaim)
     end
   end

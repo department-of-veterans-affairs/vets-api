@@ -144,6 +144,21 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
         end
       end
 
+      describe 'no claims found response from lighthouse' do
+        it 'returns an empty array when lighthouse responds with resource not found' do
+          benefits_claims_service = instance_double(BenefitsClaims::Service)
+          allow(BenefitsClaims::Service).to receive(:new).and_return(benefits_claims_service)
+          allow(benefits_claims_service).to receive(:get_claims)
+            .and_raise(Common::Exceptions::ResourceNotFound.new(detail: 'Not found'))
+
+          get_claims
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']).to eq([])
+          expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
+        end
+      end
+
       describe 'no conversation id' do
         it 'raises exception when no conversation id is found' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_zero_claims') do
@@ -163,6 +178,7 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
     context 'authorized' do
       before do
+        allow(Flipper).to receive(:enabled?).and_call_original
         @mock_cxi_reporting_service = instance_double(Chatbot::ReportToCxi)
         allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
 
@@ -173,45 +189,28 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           .and_return(@mock_cxi_reporting_service)
       end
 
-      context 'when cst_override_reserve_records_website flipper is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+      it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get_single_claim
         end
-
-        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get_single_claim
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # In the cassette, this value is NEEDED_FROM_YOU
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
-        end
-      end
-
-      context 'when cst_override_reserve_records_website flipper is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
-        end
-
-        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get_single_claim
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # Do not override the cassette value
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
-        end
+        parsed_body = JSON.parse(response.body)
+        relevant_item = parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4)
+        expect(relevant_item['displayName']).to eq('RV1 - Reserve Records Request')
+        # In the cassette, this value is NEEDED_FROM_YOU
+        expect(relevant_item['status']).to eq('NEEDED_FROM_OTHERS')
+        expect(relevant_item['description']).to eq('RV1 can have its status overriden with a feature flipper.')
+        expect(relevant_item['overdue']).to be(false)
+        expect(relevant_item['friendlyName']).to eq('Reserve records')
+        expect(relevant_item['activityDescription'])
+          .to eq('We’ve requested your reserve records on your behalf. No action is needed.')
+        expect(relevant_item['shortDescription'])
+          .to eq('We’ve requested your service records or treatment records from your reserve unit.')
+        expect(relevant_item['canUploadFile']).to be(true)
+        expect(relevant_item['uploaded']).to be(true)
       end
 
       context 'when :cst_suppress_evidence_requests_website is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
         end
 
@@ -220,17 +219,15 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(13)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('PMR Pending')
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,
-                                 'displayName')).to eq('Submit buddy statement(s)')
+          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).not_to include('Attorney Fees')
+          expect(names).not_to include('Secondary Action Required')
+          expect(names).not_to include('Stage 2 Development')
         end
       end
 
       context 'when :cst_suppress_evidence_requests_website is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
         end
 
@@ -239,12 +236,10 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(14)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('PMR Pending')
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,
-                                 'displayName')).to eq('Submit buddy statement(s)')
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
+          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).to include('Attorney Fees')
+          expect(names).to include('Secondary Action Required')
+          expect(names).to include('Stage 2 Development')
         end
       end
     end

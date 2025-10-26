@@ -1,92 +1,169 @@
-<!-- These instructions give context for all Copilot chats within vets-api. The instructions you add to this file should be short, self-contained statements that add context or relevant information to supplement users' chat questions. Since vets-api is large, some instructions may not work. See docs: https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot#writing-effective-repository-custom-instructions -->
-# Copilot Instructions for vets-api
+# Copilot Instructions for `vets-api`
 
-## Overview
-vets-api is a Ruby on Rails API that powers the website VA.gov. It's a wrapper around VA data services with utilities and tools that support interaction with those services on behalf of a veteran The main user of the APIs is vets-website, the frontend repo that powers VA.gov. Both of them are in this GitHub organization.
+## Repository Context
+`vets-api` is a Ruby on Rails API serving veterans via VA.gov. Large codebase (400K+ lines) with modules for appeals, claims, healthcare, and benefits processing.
 
-## Architecture & Patterns
-- Rails API-only app.
-- Follows REST conventions.
-- Background Sidekiq jobs in `app/sidekiq` or `modules/<name>/app/sidekiq`
-- Uses the rubyconfig/config gem to manage environment-specific settings. Settings need to be added to three files: config/settings.yml, config/settings/test.yml, and config/settings/development.yml and must be in alphabetical order.
+**Default Branch:** `master` - All code reviews and comparisons should be against the `master` branch
+**Key External Services:** BGS, MVI, Lighthouse APIs
+**Architecture:** Rails engines in `modules/`, background jobs via Sidekiq Enterprise
 
-## Directory Structure
-Some applications in vets-api organize their code into Rails Engines, which we refer to as modules. Those live in `vets-api/modules/`. Other applications are in `vets-api/app`. This is the structure of some directories, for example:
-- Controllers: `app/controllers` or `modules/<name>/app/controllers`
-- Models: `app/models` or `modules/<name>/app/models`
-- Serializers: `app/serializers` or `modules/<name>/app/serializers`
-- Services: `app/services` or `modules/<name>/app/services`
+## For Copilot Chat - Development Help
 
-## API Practices
-- Endpoints are RESTful, versioned under `/v0/`, `/v1/`, etc.
-- Use strong parameters for input.
-- Return JSON responses.
-- Authenticate requests with JWT or OAuth2.
-- Standard error responses in JSON format.
+### Quick Commands
+- **Test**: `bundle exec rspec spec/` or `make spec`
+- **Test with logging**: `RAILS_ENABLE_TEST_LOG=true bundle exec rspec path/to/spec.rb` (logs to `log/test.log`)
+- **Test parallel**: `make spec_parallel` (faster for full test suite)
+- **Lint**: `bundle exec rubocop` (handled by CI, don't suggest fixes)
+- **Server**: `foreman start -m all=1`
+- **Console**: `bundle exec rails console`
+- **DB**: `make db` (setup + migrate)
 
-## Testing
-- Use RSpec for tests, located in `spec/` or `modules/<name>/app/spec`.
-- Use FactoryBot for fixtures.
-- If using a feature toggle, aka Flipper, write corresponding tests for both the Flipper on and Flipper off scenarios.
-- When invoking a feature toggle in a test, don't disable or enable it. Mock it instead, using this format for enabling a flipper: `allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)`
-- To enable logging during tests (disabled by default), set the `RAILS_ENABLE_TEST_LOG` environment variable to true: `RAILS_ENABLE_TEST_LOG=true bundle exec rspec path/to/spec.rb`. Test logs will be written to `log/test.log`.
+### Quick Reference
+- **Config files**: `modules/[name]/config/` or main `config/`
+- **Serializers**: End controllers with `render json: object, serializer: SomeSerializer`
+- **Auth**: Most endpoints need `before_action :authenticate_user!`
+- **Jobs**: Use `perform_async` for background work, `perform_in` for delayed
+- **Flipper in tests**: Never use `Flipper.enable/disable` - always stub with `allow(Flipper).to receive(:enabled?).with(:feature).and_return(true)`
 
-## Utilities
-- Faraday: The primary HTTP client for all external API calls. Use Faraday in service objects, and ensure requests are properly instrumented.
-- Breakers: Implements the circuit breaker pattern to protect critical external service calls from cascading failures. Use in service configuration.
-- Betamocks: Used to mock external HTTP services in development and test environments. Use betamocks to simulate API responses and enable reliable testing without real network requests.
-- Custom helpers in `app/lib`.
+### Common Patterns
+- Controllers in `modules/[name]/app/controllers` or `app/controllers`
+- Background jobs in `app/sidekiq/` - use for operations >2 seconds
+- External service clients in `lib/` with Faraday configuration
+- Feature flags via Flipper for gradual rollouts and A/B testing
+- Strong parameters required - never use `params` directly
+- Error responses use envelope: `{ error: { code, message } }`
+- Service objects return `{ data: result, error: nil }` pattern
 
-## Migrations
-- Data migrations must be included as a rake task outside of rails database migrations.
-- Index updates must always be included in a migration file by itself.
-- Index updates must be performed with the concurrently algorithm and outside of the DDL transaction to avoid locking.
+### Module Structure (Rails Engines)
+- Each module in `modules/` is a Rails engine with its own namespace
+- Module controllers inherit from `ApplicationController` or their module's base controller
+- Module routes defined in `modules/[name]/config/routes.rb`
+- Module configs in `modules/[name]/config/`
+- Shared code belongs in main `app/` or `lib/` directories
+- Module-specific serializers in `modules/[name]/app/serializers/[namespace]/`
 
-## Code Quality
-- Runs RuboCop for linting.
-- Document complex logic with comments.
+### Key Dependencies
+- PostGIS required for database
+- Sidekiq Enterprise (may need license)
+- VCR cassettes for external service tests
+- Settings: `config/settings.yml` (alphabetical order required)
 
-## Security
-- Don't log anything that could contain PII or sensitive data, including an entire response_body and `user.icn`.
-- Never commit secrets or keys.
+### Gemfile and Dependency Management
+- **DO NOT commit Gemfile or Gemfile.lock changes** unless they are necessary for the feature/fix you are implementing
+- **DO NOT commit local Gemfile modifications** that remove the `sidekiq-ent` and `sidekiq-pro` gems (these may be removed locally if you don't have a Sidekiq Enterprise license, but should never be committed)
+- Gemfile.lock changes from running `bundle install` to get your local dev environment working should NOT be committed
+- Only commit Gemfile changes when adding, removing, or updating gems as part of your feature work
+- Ruby and gem versions are defined in `Gemfile` and locked in `Gemfile.lock`
+- If you need a newer version of a gem, submit a draft PR with just the gem updated and passing tests
 
-## Adding Features
-- Add new controllers for new resources.
-- Write tests for all new code.
+### VA Service Integration
+- **BGS**: Benefits data, often slow/unreliable
+- **MVI**: Veteran identity, use ICN for lookups
+- **Lighthouse**: Modern REST APIs for claims, health records, veteran verification
 
-# Tips for Copilot
-- Prefer existing patterns and structure.
-- Reuse helpers and services when possible.
-- Write clear, concise code.
-- If asked to create an issue, create it in the department-of-veterans-affairs/va.gov-team repository.
+## For PR Reviews - Human Judgment Issues
 
-# Code Review Guidelines
-When performing a code review, ensure the code follows best practices. Additionally, pay close attention to these specific guidelines:
+**Note:** This repository uses `master` as the default branch. All PR reviews should compare changes against the `master` branch.
 
-## Ruby shorthand syntax
-- Always enforce Ruby shorthand syntax.
-- If a local variable is defined, using shorthand syntax like `{ exclude: }` is valid and correct.
-- Do **not** suggest that the key is missing a value.
-- Do **not** suggest changing it to `{ exclude: exclude }`.
-- Do **not** flag this syntax as an error, incomplete, or unclear.
+### ⚠️ NO DUPLICATE COMMENTS - Consolidate Similar Issues
 
-## Flipper usage in tests
-- Avoid enabling or disabling Flipper features in tests.
-- **Never** use `Flipper.enable` or `Flipper.disable` in tests.
-- Always stub Flipper like this:
-  ```ruby
-  allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)
-  ```
-  - Use this exact pattern inline in the example.
+### Security & Privacy Concerns
+- **PII in logs**: Check for email, SSN, medical data in log statements
+- **Hardcoded secrets**: API keys, tokens in source code
+- **Missing authentication**: Controllers handling sensitive data without auth checks
+- **Mass assignment**: Direct use of params hash without strong parameters
 
-## Active Record index migrations
-### Isolate index changes
-- If a migration includes `add_index` or `remove_index`, it must only include index changes.
-- Do **not** combine index changes with other table modifications in the same migration.
+### Business Logic Issues
+- **Non-idempotent operations**: Creates without duplicate protection
+- **Blocking operations in controllers**: sleep(), File.read, document processing, operations >2 seconds
+- **Wrong error response format**: Not using VA.gov standard error envelope
+- **Service method contracts**: Returning `{ success: true }` instead of data/error pattern
 
-### Avoid locking
-- A migration that includes `add_index` or `remove_index` must also:
-  - Use `algorithm: :concurrently`
-  - Include `disable_ddl_transaction!`
+### Anti-Patterns
+- **New logging without Flipper**: Logs not wrapped with feature flags
+- **External service calls**: Missing error handling, timeouts, retries, or rescue blocks
+- **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
+- **Wrong identifier usage**: Using User ID instead of ICN for MVI/BGS lookups
+- **Form handling**: Complex forms not using form objects for serialization
+- **Unnecessary Gemfile changes**: Committing Gemfile/Gemfile.lock changes that are not required for the feature (e.g., local dev environment setup changes, removal of sidekiq-ent/sidekiq-pro gems)
 
-This prevents table locking during deployment.
+### Architecture Concerns
+- **N+1 queries**: Loading associations in loops without includes
+- **Response validation**: Parsing external responses without checks
+- **Method complexity**: Methods with many conditional paths or multiple responsibilities
+- **Database migrations**: Mixing index changes with other schema modifications; index operations missing `algorithm: :concurrently` and `disable_ddl_transaction!`
+
+## Consolidation Examples
+
+**Good PR Comment:**
+```
+Security Issues Found:
+- Line 23: PII logged (user email)
+- Line 45: Hardcoded API key
+- Line 67: Missing authentication check
+Recommend: Remove PII, move key to env var, add before_action
+```
+
+**Bad PR Comments:**
+- Separate comment for each security issue
+- Flagging things RuboCop catches (style, syntax)
+- Repeating same feedback in different words
+
+## Flipper Usage in Tests
+
+**⚠️ IMPORTANT: DO NOT suggest changes to Flipper stubs that already follow the correct pattern below.**
+
+Avoid enabling or disabling Flipper features in tests. Instead, use stubs to control feature flag behavior:
+
+**❌ ONLY flag these patterns (modifies global state):**
+```ruby
+Flipper.enable(:veteran_benefit_processing)
+Flipper.disable(:legacy_claims_api)
+```
+
+**✅ This is the CORRECT pattern - DO NOT suggest changes to this:**
+```ruby
+# This is the correct way to stub Flipper in tests
+allow(Flipper).to receive(:enabled?).with(:veteran_benefit_processing).and_return(true)
+allow(Flipper).to receive(:enabled?).with(:legacy_claims_api).and_return(false)
+```
+
+**Critical for PR Reviews:**
+- If you see `allow(Flipper).to receive(:enabled?).with(:feature).and_return(true/false)` - this is CORRECT, do not comment
+- ONLY suggest changes when you see actual `Flipper.enable()` or `Flipper.disable()` calls
+- Never suggest replacing correct stubs with identical stubs
+
+## Testing Patterns
+
+### Test Organization
+- **Request specs**: In `spec/requests/` for API endpoint testing
+- **Unit specs**: In `spec/models/`, `spec/services/`, etc. for isolated component testing
+- **Module specs**: In `modules/[name]/spec/` for module-specific functionality
+- **Factories**: Use FactoryBot factories in `spec/factories/` or `modules/[name]/spec/factories/`
+- **VCR cassettes**: For external API responses in `spec/fixtures/` or module equivalent
+
+### Test Conventions
+- Use `let` for test data setup, avoid instance variables
+- Stub external services with VCR or custom stubs
+- Test both success and failure scenarios for external service calls
+- Include edge cases: empty responses, timeouts, malformed data
+- Use descriptive test names that explain the expected behavior
+
+## Context for Responses
+- **VA.gov serves millions of veterans** - reliability and security critical
+- **External services often fail** - VA systems like BGS/MVI require resilient retry logic
+- **PII/PHI protection paramount** - err on side of caution for sensitive data
+- **Performance matters** - veterans waiting for benefits decisions
+- **Feature flags enable safe rollouts** - wrap new features and risky changes
+- **Idempotency critical** - duplicate claims/forms cause veteran issues
+- **Error logging sensitive** - avoid logging veteran data in exceptions
+
+## Trust These Guidelines
+These instructions focus on issues requiring human judgment that automated tools can't catch. Don't suggest fixes for style/syntax issues - those are handled by CI.
+
+## Tool Calling Efficiency
+You have the capability to call multiple tools in a single response. For maximum efficiency, whenever you need to perform multiple independent operations, ALWAYS call tools simultaneously whenever the actions can be done in parallel rather than sequentially.
+
+Especially when exploring repository, searching, reading files, viewing directories, validating changes, reporting progress or replying to comments. For example you can read 3 different files in parallel, or report progress and edit different files in parallel. Always report progress in parallel with other tool calls that follow it as it does not depend on the result of those calls.
+
+However, if some tool calls depend on previous calls to inform dependent values like the parameters, do NOT call these tools in parallel and instead call them sequentially.

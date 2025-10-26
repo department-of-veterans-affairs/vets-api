@@ -10,6 +10,7 @@ module Mobile
         'benefit_summary_dependent',
         'benefit_verification',
         'certificate_of_eligibility',
+        'certificate_of_eligibility_home_loan',
         'civil_service',
         'commissary',
         'medicare_partd',
@@ -21,6 +22,7 @@ module Mobile
       VISIBLE_TYPES = %w[
         benefit_summary
         benefit_verification
+        certificate_of_eligibility_home_loan
         civil_service
         commissary
         medicare_partd
@@ -31,6 +33,8 @@ module Mobile
 
       attribute :name, Types::String
       attribute :letter_type, LETTER_TYPE
+      attribute :reference_number, Types::String.optional.default(nil) # only for COE home loan letters
+      attribute :coe_status, Types::String.optional.default(nil) # only for COE home loan letters
 
       def initialize(attributes)
         if attributes[:letter_type] == 'benefit_summary'

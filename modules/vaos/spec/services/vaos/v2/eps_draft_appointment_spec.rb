@@ -415,15 +415,51 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'logs provider not found error when provider is nil' do
         allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
         expect(Rails.logger).to receive(:error).with(
-          'Community Care Appointments: Provider not found while creating draft appointment.',
+          'Community Care Appointments: Provider not found while creating draft appointment',
           hash_including(
+            error_message: 'Provider not found while creating draft appointment',
             provider_npi: '1234567890',
             provider_specialty: 'Cardiology',
-            tag: 'Community Care Appointments'
+            user_uuid: current_user.uuid
           )
         )
         expect(subject.error).to be_present
         expect(subject.error[:message]).to eq('Provider not found')
+      end
+
+      it 'logs provider slots information when slots are retrieved' do
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 1,
+            slots_available: true
+          }
+        )
+        subject
+      end
+
+      it 'logs provider slots information when no slots are available' do
+        allow(eps_provider_service).to receive(:get_provider_slots).and_return([])
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+        subject
+      end
+
+      it 'logs provider slots information when slots are nil' do
+        allow(eps_provider_service).to receive(:get_provider_slots).and_return(nil)
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+        subject
       end
     end
 
@@ -491,7 +527,12 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           invalid_date_referral.referral_date = 'invalid-date'
 
           expect(Rails.logger).to receive(:error).with(
-            'Community Care Appointments: Error fetching provider slots - Date::Error: invalid date'
+            'Community Care Appointments: Error fetching provider slots',
+            hash_including(
+              error_class: 'Date::Error',
+              error_message: 'invalid date',
+              user_uuid: current_user.uuid
+            )
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
           expect(result).to be_nil
@@ -515,6 +556,54 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'returns no_value for empty string' do
         result = subject.send(:sanitize_log_value, '')
         expect(result).to eq('no_value')
+      end
+    end
+
+    describe '#log_provider_slots_info' do
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs correct information for slots with data' do
+        slots = [{ start: '2024-01-20T10:00:00Z' }, { start: '2024-01-21T10:00:00Z' }]
+
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 2,
+            slots_available: true
+          }
+        )
+
+        subject.send(:log_provider_slots_info, slots)
+      end
+
+      it 'logs correct information for empty slots array' do
+        slots = []
+
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+
+        subject.send(:log_provider_slots_info, slots)
+      end
+
+      it 'logs correct information for nil slots' do
+        slots = nil
+
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+
+        subject.send(:log_provider_slots_info, slots)
       end
     end
   end

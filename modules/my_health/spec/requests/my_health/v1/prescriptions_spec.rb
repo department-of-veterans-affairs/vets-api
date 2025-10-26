@@ -20,7 +20,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
   before do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
-    Flipper.enable(:mhv_medications_display_documentation_content)
     sign_in_as(current_user)
   end
 
@@ -59,8 +58,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to GET #show' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-          get '/my_health/v1/prescriptions/12284508'
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+          get '/my_health/v1/prescriptions/24891624'
         end
 
         expect(response).to be_successful
@@ -69,8 +68,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to GET #show with camel-inlfection' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-          get '/my_health/v1/prescriptions/12284508', headers: inflection_header
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+          get '/my_health/v1/prescriptions/24891624', headers: inflection_header
         end
 
         expect(response).to be_successful
@@ -79,6 +78,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to GET #index with no parameters' do
+        allow(UniqueUserEvents).to receive(:log_event)
+
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/my_health/v1/prescriptions'
         end
@@ -97,6 +98,12 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         recently_requested.each do |prescription|
           expect(prescription['disp_status']).to(satisfy { |status| ['Active: Refill in Process', 'Active: Submitted'].include?(status) })
         end
+
+        # Verify event logging was called
+        expect(UniqueUserEvents).to have_received(:log_event).with(
+          user: anything,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        )
       end
 
       it 'responds to GET #index with no parameters when camel-inflected' do
@@ -173,10 +180,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       context 'grouping medications' do
-        before do
-          Flipper.enable('mhv_medications_display_grouping')
-        end
-
         it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
             get '/my_health/v1/prescriptions?page=1&per_page=20'
@@ -222,8 +225,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(errors).to be_truthy
           expect(errors['detail']).to eq("The record identified by #{prescription_id} could not be found")
         end
-
-        Flipper.disable('mhv_medications_display_grouping')
       end
 
       it 'responds to GET #get_prescription_image with image' do
@@ -488,12 +489,20 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to POST #refill' do
+        allow(UniqueUserEvents).to receive(:log_event)
+
         VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-          patch '/my_health/v1/prescriptions/13650545/refill'
+          patch '/my_health/v1/prescriptions/25567989/refill'
         end
 
         expect(response).to be_successful
         expect(response.body).to be_empty
+
+        # Verify event logging was called
+        expect(UniqueUserEvents).to have_received(:log_event).with(
+          user: anything,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
       end
 
       context 'prescription documentation' do
@@ -515,15 +524,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(response).to have_http_status(:service_unavailable)
           error = JSON.parse(response.body)['error']
           expect(error).to include('Unable to fetch documentation')
-        end
-
-        it 'responds with not_found when the feature is disabled' do
-          Flipper.disable(:mhv_medications_display_documentation_content)
-          VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/21296515/documentation'
-          end
-          expect(response).to have_http_status(:not_found)
-          expect(JSON.parse(response.body)).to eq({ 'error' => 'Documentation is not available' })
         end
       end
 
@@ -622,8 +622,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
 
         it 'includes prescription description fields' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-            get '/my_health/v1/prescriptions/12284508'
+          VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+            get '/my_health/v1/prescriptions/24891624'
           end
 
           expect(response).to be_successful
