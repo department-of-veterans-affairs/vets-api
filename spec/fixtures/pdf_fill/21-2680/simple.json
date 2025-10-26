@@ -1,0 +1,56 @@
+
+{
+  "veteranInformation": {
+    "fullName": {
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
+    },
+    "ssn": "123456789",
+    "vaFileNumber": "987654321",
+    "serviceNumber": "A123456",
+    "dateOfBirth": "1951-02-03"
+  },
+  "claimantInformation": {
+    "fullName": {
+      "first": "Jane",
+      "middle": "c",
+      "last": "Dough"
+    },
+    "dateOfBirth": "1950-01-01",
+    "ssn": "987654321",
+    "relationship": "self",
+    "address": {
+      "street": "123 Main St",
+      "street2": "Apt 4B",
+      "city": "Springfield",
+      "state": "IL",
+      "postalCode": "627011234",
+      "country": "US"
+    },
+    "phoneNumber": "5551234567",
+    "internationalPhoneNumber": "1235551234567",
+    "agreeToElectronicCorrespondence": true,
+    "email": "test@va.gov"
+  },
+  "benefitInformation": {
+    "benefitSelection": "smc"
+  },
+  "additionalInformation": {
+    "currentlyHospitalized": false,
+    "admissionDate": "2023-01-01",
+    "hospitalName": "VA Medical Center",
+    "hospitalAddress": {
+      "street": "123 Main St",
+      "street2": "Apt 4B",
+      "city": "Springfield",
+      "state": "IL",
+      "zipCode": "627019867",
+      "country": "US"
+    }
+  },
+  "veteranSignature": {
+    "signature": "John A Doe",
+    "date": "2025-10-20"
+  }
+}
