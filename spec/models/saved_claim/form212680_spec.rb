@@ -18,7 +18,7 @@ RSpec.describe SavedClaim::Form212680, type: :model do
           street: '123 Main St',
           city: 'Springfield',
           state: 'IL',
-          zipCode: '62701'
+          postalCode: '62701'
         }
       },
       benefitInformation: {

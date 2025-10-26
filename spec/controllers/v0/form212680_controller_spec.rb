@@ -18,7 +18,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
           street: '123 Main St',
           city: 'Springfield',
           state: 'IL',
-          zipCode: '62701'
+          postalCode: '62701'
         }
       },
       benefitInformation: {
@@ -36,9 +36,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
   end
 
   describe 'POST #download_pdf' do
-
     context 'with valid form data' do
-
       it 'returns a PDF file' do
         post(:download_pdf, params: { form212680: valid_form_data })
 
@@ -52,7 +50,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         expect(response.headers['Content-Disposition']).to include('VA_Form_21-2680')
         expect(response.headers['Content-Disposition']).to include('.pdf')
       end
-      
+
       it 'does not require authentication' do
         post(:download_pdf, params: { form212680: valid_form_data })
 

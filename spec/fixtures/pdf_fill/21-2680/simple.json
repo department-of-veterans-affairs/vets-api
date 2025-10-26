@@ -25,7 +25,7 @@
       "street2": "Apt 4B",
       "city": "Springfield",
       "state": "IL",
-      "zipCode": "627011234",
+      "postalCode": "627011234",
       "country": "US"
     },
     "phoneNumber": "5551234567",

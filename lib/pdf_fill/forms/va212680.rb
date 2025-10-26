@@ -122,7 +122,7 @@ module PdfFill
               key: 'form1[0].Page1[0].Mailing_Address_StateOrProvince[0]',
               limit: 2
             },
-            'zipCode' => {
+            'postalCode' => {
               'firstFive' => {
                 key: 'form1[0].Page1[0].Mailing_Address_ZIPOrPostalCode_FirstFiveNumbers[0]',
                 limit: 5
@@ -205,7 +205,7 @@ module PdfFill
 
       def merge_fields(_options = {})
         expand_veteran_ssn
-        split_zips
+        split_claimant_postal_code
         split_dates
         split_phone
         merge_hospital_address
@@ -259,9 +259,9 @@ module PdfFill
         @form_data['claimantInformation']['ssn'] = split_ssn(@form_data['claimantInformation']['ssn'])
       end
 
-      def split_zips
-        zip_code = split_postal_code(@form_data['claimantInformation']['address'])
-        @form_data['claimantInformation']['address']['zipCode'] = zip_code
+      def split_claimant_postal_code
+        addr = @form_data.dig('claimantInformation','address')
+        @form_data['claimantInformation']['address']['postalCode'] = split_postal_code(addr) if addr["postalCode"].present?
       end
 
       def split_dates
@@ -276,7 +276,8 @@ module PdfFill
       def split_phone
         phone = @form_data['claimantInformation']['phoneNumber']
         return if phone.blank?
-         @form_data['claimantInformation']['phoneNumber'] = expand_phone_number(phone)
+
+        @form_data['claimantInformation']['phoneNumber'] = expand_phone_number(phone)
       end
 
       def merge_hospital_address

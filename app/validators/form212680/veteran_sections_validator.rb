@@ -139,7 +139,7 @@ module Form212680
         @errors << 'Claimant street address is required' if address['street'].blank?
         @errors << 'Claimant city is required' if address['city'].blank?
         @errors << 'Claimant state is required' if address['state'].blank?
-        @errors << 'Claimant ZIP code is required' if address['zipCode'].blank?
+        @errors << 'Claimant postalCode code is required' if address['postalCode'].blank?
       end
     end
 

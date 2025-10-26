@@ -18,7 +18,7 @@ RSpec.describe Form212680::VeteranSectionsValidator do
           'street' => '123 Main St',
           'city' => 'Springfield',
           'state' => 'IL',
-          'zipCode' => '62701'
+          'postalCode' => '62701'
         }
       },
       'benefitInformation' => {
