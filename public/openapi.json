@@ -28,7 +28,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "file",
+                  "type": "string",
+                  "format": "binary",
                   "description": "PDF file successfully generated and ready for download"
                 }
               }
@@ -52,7 +53,7 @@
                     "description": "Section I: VETERAN'S IDENTIFICATION INFORMATION",
                     "properties": {
                       "fullName": {
-                        "$ref": "#/definitions/Form212680FullName"
+                        "$ref": "#/components/schemas/Form212680FullName"
                       },
                       "ssn": {
                         "type": "string",
@@ -71,7 +72,8 @@
                         "type": "string",
                         "example": "A2999999",
                         "description": "VETERAN'S SERVICE NUMBER ",
-                        "maxLength": 10
+                        "maxLength": 10,
+                        "nullable": true
                       },
                       "dateOfBirth": {
                         "type": "string",
@@ -91,7 +93,7 @@
                     "description": "Section II: CLAIMANT'S IDENTIFICATION INFORMATION",
                     "properties": {
                       "fullName": {
-                        "$ref": "#/definitions/Form212680FullName"
+                        "$ref": "#/components/schemas/Form212680FullName"
                       },
                       "dateOfBirth": {
                         "type": "string",
@@ -109,10 +111,17 @@
                       "relationship": {
                         "type": "string",
                         "example": "spouse",
-                        "description": "Relationship to veteran"
+                        "description": "Relationship to veteran",
+                        "enum": [
+                          "self",
+                          "spouse",
+                          "parent",
+                          "child"
+                        ],
+                        "nullable": true
                       },
                       "address": {
-                        "$ref": "#/definitions/Form212680Address"
+                        "$ref": "#/components/schemas/Form212680Address"
                       },
                       "phoneNumber": {
                         "type": "string",
@@ -124,7 +133,8 @@
                       "internationalPhoneNumber": {
                         "type": "string",
                         "example": "5551234567",
-                        "description": "Phone Number"
+                        "description": "Phone Number",
+                        "nullable": true
                       },
                       "agreeToElectronicCorrespondence": {
                         "type": "boolean",
@@ -134,7 +144,8 @@
                         "type": "string",
                         "example": "test@va.gov",
                         "description": "Email Address",
-                        "maxLength": 70
+                        "maxLength": 70,
+                        "nullable": true
                       }
                     }
                   },
@@ -148,7 +159,11 @@
                       "benefitSelection": {
                         "type": "string",
                         "example": "smc",
-                        "description": "Type of benefit being claimed"
+                        "description": "Type of benefit being claimed",
+                        "enum": [
+                          "smc",
+                          "smp"
+                        ]
                       }
                     }
                   },
@@ -165,15 +180,17 @@
                         "type": "string",
                         "format": "date",
                         "example": "2023-01-01",
-                        "description": "Date admitted"
+                        "description": "Date admitted",
+                        "nullable": true
                       },
                       "hospitalName": {
                         "type": "string",
                         "example": "VA Medical Center",
-                        "description": "Name of hospital"
+                        "description": "Name of hospital",
+                        "nullable": true
                       },
                       "hospitalAddress": {
-                        "$ref": "#/definitions/Form212680Address"
+                        "$ref": "#/components/schemas/Form212680Address"
                       }
                     }
                   },
@@ -224,10 +241,10 @@
                     "id": "12345",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-10-26T19:50:04Z",
+                      "submitted_at": "2025-10-26T22:15:16Z",
                       "regional_office": [],
-                      "confirmation_number": "98dab2a6-05bc-459b-b694-97a426502401",
-                      "guid": "98dab2a6-05bc-459b-b694-97a426502401",
+                      "confirmation_number": "a14ae46e-90cb-4428-b34f-c9ebfefe3860",
+                      "guid": "a14ae46e-90cb-4428-b34f-c9ebfefe3860",
                       "form": "21-4192"
                     }
                   }
@@ -520,5 +537,119 @@
       }
     }
   },
-  "servers": []
+  "servers": [],
+  "components": {
+    "schemas": {
+      "Errors": {
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error": {
+        "required": [
+          "title",
+          "detail",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "error class name"
+          },
+          "detail": {
+            "type": "string",
+            "example": "Received a bad request response from the upstream server",
+            "description": "possibly some additional info, or just the class name again"
+          },
+          "code": {
+            "type": "string",
+            "example": "EVSS400",
+            "description": "Sometimes just the http code again, sometimes something like \"EVSS400\", where the code can be found in config/locales/exceptions.en.yml"
+          },
+          "source": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "example": "EVSS::DisabilityCompensationForm::Service",
+            "description": "error source class"
+          },
+          "status": {
+            "type": "string",
+            "example": "400",
+            "description": "http status code"
+          },
+          "meta": {
+            "type": "object",
+            "description": "additional info, like a backtrace"
+          }
+        }
+      },
+      "Form212680FullName": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "type": "string",
+            "example": "John",
+            "maxLength": 12
+          },
+          "middle": {
+            "type": "string",
+            "example": "A",
+            "maxLength": 1
+          },
+          "last": {
+            "type": "string",
+            "example": "Doe",
+            "maxLength": 18
+          }
+        }
+      },
+      "Form212680Address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "123 Main St",
+            "maxLength": 30
+          },
+          "street2": {
+            "type": "string",
+            "example": "Apt 4B",
+            "maxLength": 5
+          },
+          "city": {
+            "type": "string",
+            "example": "Springfield",
+            "maxLength": 18
+          },
+          "state": {
+            "type": "string",
+            "example": "IL",
+            "maxLength": 2
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "62701",
+            "maxLength": 9
+          },
+          "country": {
+            "type": "string",
+            "example": "US",
+            "maxLength": 2
+          }
+        }
+      }
+    }
+  }
 }
