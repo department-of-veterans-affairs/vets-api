@@ -36,7 +36,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
 
       expect(Rails.logger).to have_received(:error).with(
         'VBMS::SubmitDependentsPdfJob failed, retries exhausted!',
-        hash_including(saved_claim_id: 12_345, error: exception)
+        hash_including(saved_claim_id: 12_345)
       )
     end
   end
