@@ -15,7 +15,7 @@ module V0
 
       pdf_path = generate_and_send_pdf(claim)
     ensure
-      Common::FileHelpers.delete_file_if_exists(pdf_path)  if pdf_path.presence 
+      Common::FileHelpers.delete_file_if_exists(pdf_path) if pdf_path.presence
     end
 
     # POST /v0/form212680/submit

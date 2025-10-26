@@ -5,7 +5,6 @@ require 'pdf_fill/forms/va1010cg'
 require 'lib/pdf_fill/fill_form_examples'
 
 describe PdfFill::Forms::Va212680 do
-
   it_behaves_like 'a form filler', {
     form_id: '21-2680',
     factory: :va12680,
