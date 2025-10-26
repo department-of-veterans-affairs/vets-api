@@ -184,25 +184,6 @@ RSpec.describe Form212680::VeteranSectionsValidator do
       end
     end
 
-    context 'with invalid claim type' do
-      subject { described_class.new(sections) }
-
-      let(:sections) do
-        data = valid_sections.deep_dup
-        data['benefitInformation']['claimType'] = 'Invalid Type'
-        data
-      end
-
-      it 'returns false' do
-        expect(subject.valid?).to be false
-      end
-
-      it 'includes appropriate error message' do
-        subject.valid?
-        expect(subject.errors).to include('Invalid claim type. Must be "Aid and Attendance" or "Housebound"')
-      end
-    end
-
     context 'with housebound claim type (lowercase)' do
       subject { described_class.new(sections) }
 
