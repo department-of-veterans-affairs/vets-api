@@ -9,6 +9,7 @@ module V0
     # Generate and download a pre-filled PDF with veteran sections (I-V) completed
     # Physician sections (VI-VIII) are left blank for manual completion
     def download_pdf
+      # stubbed - returns a static pdf for now
       pdf_path='lib/pdf_fill/forms/pdfs/21-2680.pdf'
       pdf_content = File.read(pdf_path)
 
@@ -16,9 +17,6 @@ module V0
             filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
             type: 'application/pdf',
             disposition: 'attachment'
-
-    ensure
-      Common::FileHelpers.delete_file_if_exists(pdf_path) if pdf_path.presence
     end
 
     # POST /v0/form212680/submit
