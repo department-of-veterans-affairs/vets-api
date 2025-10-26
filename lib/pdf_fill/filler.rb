@@ -2,8 +2,10 @@
 
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
+require 'pdf_fill/pdf_post_processor'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va2141422024'
+require 'pdf_fill/forms/va214192'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va210781v2'
@@ -21,10 +23,16 @@ require 'pdf_fill/forms/va21674v2'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
+require 'pdf_fill/forms/va220839'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
+require 'pdf_fill/forms/va221919'
+require 'pdf_fill/forms/va228794'
+require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
+require 'pdf_fill/processors/va228794_processor'
+require 'pdf_fill/processors/va220839_processor'
 require 'utilities/date_parser'
 require 'forwardable'
 
@@ -61,6 +69,7 @@ module PdfFill
     {
       '21-4142' => PdfFill::Forms::Va214142,
       '21-4142-2024' => PdfFill::Forms::Va2141422024,
+      '21-4192' => PdfFill::Forms::Va214192,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-0781V2' => PdfFill::Forms::Va210781v2,
@@ -77,9 +86,13 @@ module PdfFill
       '21-674-V2' => PdfFill::Forms::Va21674v2,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
+      '22-0839' => PdfFill::Forms::Va220839,
+      '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
-      '22-10215a' => PdfFill::Forms::Va2210215a
+      '22-10215a' => PdfFill::Forms::Va2210215a,
+      '22-1919' => PdfFill::Forms::Va221919,
+      '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -92,12 +105,18 @@ module PdfFill
     #
     # @return [String] The path to the final combined PDF.
     #
-    def combine_extras(old_file_path, extras_generator)
+    def combine_extras(old_file_path, extras_generator, form_class)
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
-        PDF_FORMS.cat(old_file_path, extras_path, file_path)
+        merge_pdfs(old_file_path, extras_path, file_path)
+        # Adds links and destinations to the combined PDF
+        if extras_generator.try(:section_coordinates) && !extras_generator.section_coordinates.empty?
+          pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates,
+                                                    form_class)
+          pdf_post_processor.process!
+        end
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -106,6 +125,32 @@ module PdfFill
       else
         old_file_path
       end
+    end
+
+    ##
+    # Merges multiple PDF files into a single PDF file using HexaPDF.
+    #
+    # @param file_paths [Array<String>] The paths of the PDF files to merge.
+    # @param new_file_path [String] The path for the final merged PDF file.
+    #
+    # @return [void]
+    #
+    def merge_pdfs(*file_paths, new_file_path)
+      # Use the first file as the target document so that we get its metadata and
+      # other properties in the merged document without having to do extra steps.
+      target = HexaPDF::Document.open(file_paths.first)
+
+      file_paths.drop(1).each do |file_path|
+        pdf = HexaPDF::Document.open(file_path)
+        pdf.pages.each do |page|
+          target.pages << target.import(page)
+        end
+      end
+
+      # NOTE: In deployed environments we use the `flatten` flag when calling `fill_form`, which removes
+      # all of the form metadata. HexaPDF validation fails when the form metadata has been removed,
+      # so we should not validate the merged document in deployed environments
+      target.write(new_file_path, validate: !Rails.env.production?)
     end
 
     ##
@@ -141,6 +186,25 @@ module PdfFill
     end
 
     ##
+    # Fills a form using HexaPDF instead of PDFtk
+    #
+    # @param template_path [String] The path to the PDF template.
+    # @param output_path [String] The path to save the filled PDF.
+    # @param hash_data [Hash] The data to fill in the form.
+    #
+    # @return [None]
+    #
+    def fill_form_with_hexapdf(template_path, output_path, hash_data)
+      doc = HexaPDF::Document.open(template_path)
+      form = doc.acro_form
+      raise 'No AcroForm found in PDF template.' if form.nil?
+
+      form.fill(hash_data)
+
+      doc.write(output_path)
+    end
+
+    ##
     # Processes a form by filling it with data and saving it to a file.
     #
     # @param form_id [String] The form ID.
@@ -153,14 +217,29 @@ module PdfFill
     #
     # rubocop:disable Metrics/MethodLength
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
-      # Handle 22-10215 overflow with continuation sheets
-      if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
-        return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
+      unless fill_options.key?(:show_jumplinks)
+        fill_options[:show_jumplinks] = Flipper.enabled?(:pdf_fill_redesign_overflow_jumplinks)
       end
+
+      # more complex logic is handled by a dedicated 'processor' class
+      case form_id
+      when '22-10215'
+        if form_data['programs'] && form_data['programs'].length > 16
+          return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension,
+                                                       fill_options)
+        end
+      when '22-0839'
+        return PdfFill::Processors::VA220839Processor.new(form_data, self).process
+      when '22-8794'
+        return PdfFill::Processors::VA228794Processor.new(form_data, self).process
+      end
+
+      # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
+
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
       submit_date = Utilities::DateParser.parse(
         fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
@@ -171,16 +250,19 @@ module PdfFill
 
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-      unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
-                               EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
-      (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        template_path, file_path, new_hash, flatten: Rails.env.production?
-      )
+
+      if fill_options.fetch(:use_hexapdf, false)
+        fill_form_with_hexapdf(template_path, file_path, new_hash)
+      else
+        unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
+                                 EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
+        (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+          template_path, file_path, new_hash, flatten: Rails.env.production?
+        )
+      end
 
       file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
-      output = combine_extras(file_path, hash_converter.extras_generator)
-      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
-      output
+      combine_extras(file_path, hash_converter.extras_generator, form_class)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -214,10 +296,12 @@ module PdfFill
             question_key: form_class::QUESTION_KEY,
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS,
-            label_width: form_class::DEFAULT_LABEL_WIDTH
+            label_width: form_class::DEFAULT_LABEL_WIDTH,
+            show_jumplinks: fill_options.fetch(:show_jumplinks, false),
+            use_hexapdf: fill_options.fetch(:use_hexapdf, false)
           )
         else
-          ExtrasGenerator.new
+          ExtrasGenerator.new(use_hexapdf: fill_options.fetch(:use_hexapdf, false))
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end

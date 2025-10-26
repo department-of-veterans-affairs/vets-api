@@ -17,10 +17,19 @@ module Common
         extend ActiveSupport::Concern
         include MhvLockedSessionClient
 
+        included do
+          attr_reader :icn
+        end
+
+        def initialize(session:, icn: nil, **)
+          super(session:)
+          @icn = icn
+        end
+
         protected
 
         def user_key
-          session.icn
+          session.user_uuid
         end
 
         def session_config_key
@@ -40,7 +49,6 @@ module Common
           decoded_token = decode_jwt_token(jwt)
           session.expires_at = extract_token_expiration(decoded_token)
           @session.class.new(user_id: session.user_id.to_s,
-                             icn: session.icn,
                              expires_at: session.expires_at,
                              token: jwt)
         end
@@ -72,7 +80,7 @@ module Common
         end
 
         def validate_session_params
-          raise Common::Exceptions::ParameterMissing, 'ICN' if session.icn.blank?
+          raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
           raise Common::Exceptions::ParameterMissing, 'MHV MR App Token' if config.app_token.blank?
         end
 
@@ -100,7 +108,7 @@ module Common
           {
             'appId' => '103',
             'appToken' => config.app_token,
-            'subject' => session.icn,
+            'subject' => icn,
             'userType' => 'PATIENT',
             'authParams' => {
               'PATIENT_SUBJECT_ID_TYPE' => 'ICN'

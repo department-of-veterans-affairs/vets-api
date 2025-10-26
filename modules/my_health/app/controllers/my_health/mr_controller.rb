@@ -61,8 +61,9 @@ module MyHealth
 
     def create_medical_records_client
       medical_records_client = MedicalRecords::Client.new(
-        session: { user_id: current_user.mhv_correlation_id,
-                   icn: current_user.icn }
+        session: { user_uuid: current_user.user_account_uuid,
+                   user_id: current_user.mhv_correlation_id },
+        icn: current_user.icn
       )
       if Flipper.enabled?(:mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled, @current_user)
         UnifiedHealthData::LabsRefreshJob.perform_async(current_user.uuid)
@@ -75,8 +76,7 @@ module MyHealth
     end
 
     def bb_client
-      @bb_client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id,
-                                                       icn: current_user.icn })
+      @bb_client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id })
     end
 
     def authenticate_bb_client

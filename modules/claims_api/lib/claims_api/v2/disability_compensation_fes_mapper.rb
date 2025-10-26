@@ -203,7 +203,7 @@ module ClaimsApi
                 format_address_line(change_data[:numberAndStreet], change_data[:apartmentOrUnitNumber])
 
         {
-          addressChangeType: change_data[:addressChangeType],
+          addressChangeType: change_data[:typeOfAddressChange],
           beginningDate: change_data[:beginningDate] || change_data.dig(:dates, :beginDate),
           endingDate: change_data[:endingDate] || change_data.dig(:dates, :endDate),
           addressLine1: line1,
@@ -235,28 +235,35 @@ module ClaimsApi
       end
 
       def disabilities
-        return if @data[:disabilities].blank?
+        @fes_claim[:disabilities] = flatten_and_transform_disabilities(@data[:disabilities])
+      end
 
-        @fes_claim[:disabilities] = @data[:disabilities].map do |disability|
-          transform_disability_values!(disability.deep_dup)
+      def flatten_and_transform_disabilities(disabilities_array)
+        disabilities_array.flat_map do |disability|
+          primary = disability.deep_dup
+          secondaries = primary.delete(:secondaryDisabilities) || []
+
+          list = []
+          list << transform_disability_values!(primary) unless primary[:disabilityActionType] == 'NONE'
+          transformed_secondaries = secondaries.map do |secondary|
+            transform_disability_values!(secondary.deep_dup).merge!(disabilityActionType: 'NEW')
+          end
+          list.concat(transformed_secondaries)
+
+          list
         end
       end
 
       def transform_disability_values!(disability)
-        # Remove nil fields similar to EVSS mapper
         disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
         disability.delete(:classificationCode) if disability&.dig(:classificationCode).nil?
 
-        # Transform approximate date to FES format
         if disability[:approximateDate].present?
-          date_info = disability[:approximateDate]
-          disability[:approximateBeginDate] = format_approximate_date(date_info)
+          disability[:approximateBeginDate] = format_approximate_date(disability[:approximateDate])
         end
 
-        # Handle PACT special issue
         check_for_pact_special_issue(disability) if disability[:disabilityActionType] != 'INCREASE'
 
-        # Remove fields not needed for FES
         disability.except(:approximateDate, :isRelatedToToxicExposure, :serviceRelevance,
                           :exposureOrEventOrInjury, :secondaryDisabilities)
       end
@@ -289,16 +296,12 @@ module ClaimsApi
       def wrap_in_request_structure
         {
           data: {
-            serviceTransactionId: generate_service_transaction_id,
+            serviceTransactionId: @auto_claim.auth_headers['va_eauth_service_transaction_id'],
             claimantParticipantId: extract_claimant_participant_id,
             veteranParticipantId: extract_veteran_participant_id,
             form526: @fes_claim
           }
         }
-      end
-
-      def generate_service_transaction_id
-        "claims-api-#{@auto_claim.id}-#{Time.now.to_i}"
       end
 
       def format_address_line(street, unit)

@@ -5,6 +5,7 @@ require 'claims_evidence_api/service/base'
 module ClaimsEvidenceApi
   module Service
     # DocumentTypes API
+    # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Document%20Types
     class DocumentTypes < Base
       # @see #retrieve
       def self.get
@@ -12,9 +13,16 @@ module ClaimsEvidenceApi
       end
 
       # GET retrieve the list of document types
-      # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/Document%20Types/getDocumentTypes
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Document%20Types/getDocumentTypes
       def retrieve
         perform :get, 'documenttypes', {}
+      end
+
+      private
+
+      # @see ClaimsEvidenceApi::Service::Base#endpoint
+      def endpoint
+        'documenttypes'
       end
 
       # end DocumentTypes

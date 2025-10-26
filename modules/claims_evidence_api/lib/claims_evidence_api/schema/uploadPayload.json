@@ -7,11 +7,7 @@
   "additionalProperties" : false,
   "properties": {
     "contentName": {
-      "description": "The content name of the document being uploaded. This must be unique for the folder being uploaded to. For instance the document 'pdf.pdf' cannot be uploaded twice for fileNumber 987654321. The acceptable file extensions are png, pdf, tif, tiff, txt, jpg, jpeg, and bmp.",
-      "type": "string",
-      "max": 256,
-      "min": 4,
-      "pattern": "^[a-zA-Z0-9 Q`'~=+#^@$&-_\\.\\(\\){};\\[\\]E]+\\.[a-zA-Z]{3,4}$"
+      "$ref": "properties/contentName.json"
     },
     "providerData": {
       "required": ["contentSource", "dateVaReceivedDocument", "documentTypeId"],

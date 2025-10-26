@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA1010d
     ADDITIONAL_PDF_KEY = 'applicants'
     ADDITIONAL_PDF_COUNT = 3
     STATS_KEY = 'api.ivc_champva_form.10_10d'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -23,9 +25,9 @@ module IvcChampva
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
-        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
-        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
+        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('applicant_name', 'first'),
+        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('applicant_name', 'middle'),
+        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('applicant_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn_or_tin'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'country' => @data.dig('veteran', 'address', 'country') || 'USA',

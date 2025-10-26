@@ -12,6 +12,14 @@ class FakeController < ApplicationController
     @current_user.middle_name = 'Alexander'
     @current_user.suffix = 'III'
   end
+
+  def token
+    @token ||= double('Token', client_credentials_token?: false)
+  end
+
+  def target_veteran
+    @target_veteran ||= {}
+  end
 end
 
 describe FakeController do
@@ -115,45 +123,45 @@ describe FakeController do
       end
     end
 
-    context 'logging in exactly_one_rep_match?' do
-      context 'when called via find_by_poa_code' do
-        before do
-          # Set up expectations for first/last name lookup to fail, so we reach find_by_poa_code
-          allow(Veteran::Service::Representative).to receive(:all_for_user).with(
-            first_name:,
-            last_name:
-          ).and_return([])
+    describe '#verify_power_of_attorney!' do
+      before do
+        allow_any_instance_of(FakeController).to receive(:token).and_return(double(client_credentials_token?: false))
+        veteran_user = double('Veteran::User')
+        allow(Veteran::User).to receive(:new).and_return(veteran_user)
+        allow(veteran_user).to receive(:power_of_attorney).and_return(double(try: 'some_code'))
+      end
 
-          # Mock the suffix and middle_name/middle_initial search to return empty
-          allow(subject.instance_variable_get(:@current_user)).to receive_messages(suffix: nil,
-                                                                                   middle_name: 'Alexander')
-          allow(Veteran::Service::Representative).to receive(:all_for_user).with(
-            first_name:,
-            last_name:,
-            middle_initial: 'A'
-          ).and_return([])
-        end
+      it 'handles an Unauthorized error' do
+        allow_any_instance_of(FakeController).to receive(:valid_poa_code_for_current_user?).and_raise(Common::Exceptions::Unauthorized)
 
-        it 'logs when exactly one rep is found' do
-          # Create a rep with the matching POA code
-          rep = create(:representative, representative_id: '12345', first_name:,
-                                        last_name:, poa_codes: [poa_code])
+        expect do
+          subject.verify_power_of_attorney!
+        end.to raise_error(Common::Exceptions::Unauthorized)
+      end
 
-          allow(Veteran::Service::Representative).to receive(:all_for_user).with(
-            first_name:,
-            last_name:,
-            poa_code:
-          ).and_return([rep])
-
-          expect(ClaimsApi::Logger).to receive(:log).with(
-            'poa_verification',
-            rep_method: 'find_by_poa_code',
-            details: "Found 1 reps for POA code #{poa_code}"
+      context 'breakers outage' do
+        let(:mock_service) do
+          instance_double(
+            Breakers::Service,
+            name: 'Test Service'
           )
+        end
+        let(:mock_outage) do
+          instance_double(
+            Breakers::Outage,
+            start_time: Time.zone.now,
+            end_time: nil,
+            service: mock_service
+          )
+        end
+        let(:mock_exception) { Breakers::OutageException.new(mock_outage, mock_service) }
 
-          # Call the method
-          result = subject.valid_poa_code_for_current_user?(poa_code)
-          expect(result).to be(true)
+        it 'handles an Breakers Outage error' do
+          allow_any_instance_of(FakeController).to receive(:valid_poa_code_for_current_user?).and_raise(mock_exception)
+
+          expect do
+            subject.verify_power_of_attorney!
+          end.to raise_error(Breakers::OutageException)
         end
       end
     end

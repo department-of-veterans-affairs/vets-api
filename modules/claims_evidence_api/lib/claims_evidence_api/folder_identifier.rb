@@ -9,7 +9,7 @@ module ClaimsEvidenceApi
 
     # valid associated types
     TYPES = {
-      'VETERAN' => %w[FILENUMBER SSN PARTICIPANT_ID SEARCH EDIPI],
+      'VETERAN' => %w[FILENUMBER SSN PARTICIPANT_ID SEARCH ICN EDIPI],
       'PERSON' => %w[PARTICIPANT_ID SEARCH]
     }.freeze
 

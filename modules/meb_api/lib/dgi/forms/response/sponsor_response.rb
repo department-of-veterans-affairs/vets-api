@@ -7,7 +7,7 @@ module MebApi
     module Forms
       module Response
         class SponsorResponse < MebApi::DGI::Response
-          attribute :sponsors, Array
+          attribute :sponsors, Hash, array: true
 
           def initialize(response = nil)
             attributes = {

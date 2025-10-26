@@ -190,7 +190,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney-request', production: false do
+  path '/veterans/{veteranId}/power-of-attorney-request' do
     post 'Creates power of attorney request for an accredited representative' do
       description 'Request the appointment of an accredited representative, on behalf of a claimant.'
       tags 'Power of Attorney'
@@ -342,7 +342,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests', production: false do
+  path '/veterans/power-of-attorney-requests' do
     post 'Retrieves power of attorney requests for accredited representatives' do
       tags 'Power of Attorney'
       operationId 'searchPowerOfAttorneyRequests'
@@ -484,7 +484,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests/{id}', production: false do
+  path '/veterans/power-of-attorney-requests/{id}' do
     get 'Retrieves a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyRequest'
@@ -608,7 +608,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests/{id}/decide', production: false do
+  path '/veterans/power-of-attorney-requests/{id}/decide' do
     post 'Submits representative decision for a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'createPowerOfAttorneyRequestDecisions'
@@ -660,7 +660,7 @@ describe 'PowerOfAttorney',
           schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
 
           let(:data) { body_schema[:example] }
-          let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+          let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Decide) }
           let(:get_poa_request_response) do
             {
               'VSOUserEmail' => nil, 'VSOUserFirstName' => 'vets-api',
@@ -684,13 +684,16 @@ describe 'PowerOfAttorney',
                                                           poa_code: '003')
             allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController).to receive(:fetch_ptcpnt_id)
               .with(anything).and_return('600049322')
-            allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(poa_request_service)
-            allow(poa_request_service).to receive(:get_poa_request).and_return(get_poa_request_response)
+            allow(ClaimsApi::PowerOfAttorneyRequestService::Decide).to receive(:new).and_return(poa_request_service)
+            allow(poa_request_service).to receive(:handle_poa_response).and_return(get_poa_request_response)
             allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
               .to receive(:process_poa_decision).and_return(OpenStruct.new(id: '1234'))
-            allow_any_instance_of(
-              ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
-            ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
+            allow(poa_request_service).to receive(
+              :validate_decide_representative_params!
+            ).with(anything, anything).and_return(nil)
+            allow(poa_request_service).to receive(
+              :build_veteran_and_dependent_data
+            ).with(anything, anything).and_return(nil)
 
             mock_ccg(scopes) do
               VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
@@ -720,7 +723,11 @@ describe 'PowerOfAttorney',
           let(:data) do
             {
               'data' => {
-                'attributes' => {}
+                'attributes' => {
+                  'decision' => 'DECLINED',
+                  'declinedReason' => 'RSWAG POA test reason',
+                  'representativeId' => '918273645463'
+                }
               }
             }
           end

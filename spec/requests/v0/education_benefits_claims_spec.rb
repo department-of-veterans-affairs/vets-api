@@ -32,7 +32,7 @@ RSpec.describe 'V0::EducationBenefitsClaims', type: %i[request serializer] do
       end
 
       it 'increments statsd' do
-        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221995.success')
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.create.221995.success')
       end
     end
 
@@ -72,7 +72,7 @@ RSpec.describe 'V0::EducationBenefitsClaims', type: %i[request serializer] do
       end
 
       it 'increments statsd' do
-        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.success')
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.create.221990.success')
       end
     end
 
@@ -94,7 +94,7 @@ RSpec.describe 'V0::EducationBenefitsClaims', type: %i[request serializer] do
       end
 
       it 'increments statsd' do
-        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.failure')
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.create.221990.failure')
       end
     end
   end

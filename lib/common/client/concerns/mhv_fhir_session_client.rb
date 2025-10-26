@@ -25,7 +25,7 @@ module Common
         RETRY_ATTEMPTS = 10 # How many times to attempt to acquire a session lock
 
         def incomplete?(session)
-          session.icn.blank? || session.patient_fhir_id.blank? || session.token.blank? || session.expires_at.blank?
+          session.patient_fhir_id.blank? || session.token.blank? || session.expires_at.blank?
         end
 
         def invalid?(session)
@@ -77,7 +77,7 @@ module Common
           return unless session.refresh_time.nil?
 
           # Perform an async PHR refresh for the user. This job will not raise any errors, it only logs them.
-          MHV::PhrUpdateJob.perform_async(session.icn, session.user_id)
+          MHV::PhrUpdateJob.perform_async(icn, session.user_id)
           # Record that the refresh has happened for this session. Don't run this more than once per session duration.
           session.refresh_time = DateTime.now
         end
@@ -124,9 +124,9 @@ module Common
         # @return [MedicalRecords::ClientSession] the updated session
         #
         def save_session
-          new_session = @session.class.new(user_id: session.user_id.to_s,
+          new_session = @session.class.new(user_uuid: session.user_uuid,
+                                           user_id: session.user_id.to_s,
                                            patient_fhir_id: session.patient_fhir_id,
-                                           icn: session.icn,
                                            expires_at: session.expires_at,
                                            token: session.token,
                                            refresh_time: session.refresh_time)

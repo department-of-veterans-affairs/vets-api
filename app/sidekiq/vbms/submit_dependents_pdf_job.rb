@@ -15,9 +15,9 @@ module VBMS
 
     STATSD_KEY = 'worker.submit_dependents_pdf'
 
-    sidekiq_retries_exhausted do |msg, error|
+    sidekiq_retries_exhausted do |msg, _error|
       Rails.logger.error('VBMS::SubmitDependentsPdfJob failed, retries exhausted!',
-                         { saved_claim_id: msg['args'][0], error: })
+                         { saved_claim_id: msg['args'][0] })
     end
 
     # Generates PDF for 686c form and uploads to VBMS
@@ -35,8 +35,9 @@ module VBMS
       generate_pdf(submittable_686_form, submittable_674_form)
       monitor.track_event('info', 'VBMS::SubmitDependentsPdfJob succeeded!', "#{STATSD_KEY}.success")
     rescue => e
+      error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       monitor.track_event('error', 'VBMS::SubmitDependentsPdfJob failed!',
-                          "#{STATSD_KEY}.failure", { error: e.message })
+                          "#{STATSD_KEY}.failure", error:)
       @saved_claim_id = saved_claim_id
       raise
     end

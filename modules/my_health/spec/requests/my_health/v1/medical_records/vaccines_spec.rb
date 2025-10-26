@@ -68,8 +68,11 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
         get '/my_health/v1/medical_records/vaccines'
       end
 
+      body = JSON.parse(response.body)
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      expect(body['entry']).to be_a(Array)
+      expect(body['entry'][0]['resource']['resourceType']).to eq('Immunization')
+      expect(body['entry'][0]['resource']['vaccineCode']['coding'][0]['display']).to eq('SARSCOV2 VAC 5X1010VP/.5MLIM')
     end
 
     it 'responds to GET #show' do
@@ -78,7 +81,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
       end
 
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      body = JSON.parse(response.body)
+      expect(body['resourceType']).to eq('Immunization')
+      expect(body['vaccineCode']['coding'][0]['display']).to eq('SMALLPOX&MONKEYPOX VAC 0.5ML')
     end
 
     context 'when the patient is not found' do

@@ -10,7 +10,7 @@ module Veteran
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must not decrease by more than this percentage from the previous count
-    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
+    DECREASE_THRESHOLD = 0.50 # 50% maximum decrease allowed
 
     # User type constants
     USER_TYPE_ATTORNEY = 'attorney'
@@ -18,6 +18,7 @@ module Veteran
     USER_TYPE_VSO = 'veteran_service_officer'
 
     def perform
+      remove_duplicates_by_rep_id
       # Track initial counts before processing
       @initial_counts = fetch_initial_counts
       @validation_results = {}
@@ -124,40 +125,55 @@ module Veteran
       reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
+    def remove_duplicates_by_rep_id
+      klass   = Veteran::Service::Representative
+      dup_ids = klass.group(:representative_id)
+                     .having('COUNT(*) > 1')
+                     .pluck(:representative_id).to_a
+
+      # rubocop:disable Rails/WhereNotWithMultipleConditions
+      non_test_duplicates = klass.where(representative_id: dup_ids)
+                                 .where.not(first_name: 'Tamara', last_name: 'Ellis')
+                                 .where.not(first_name: 'John', last_name: 'Doe')
+      # rubocop:enable Rails/WhereNotWithMultipleConditions
+
+      non_test_duplicates.delete_all
+    end
+
     def find_or_create_attorneys(attorney)
-      rep = find_or_initialize(attorney)
-      rep.user_types << USER_TYPE_ATTORNEY unless rep.user_types.include?(USER_TYPE_ATTORNEY)
+      rep = find_or_initialize_by_id(attorney, USER_TYPE_ATTORNEY)
       rep.save
     end
 
     def find_or_create_claim_agents(claim_agent)
-      rep = find_or_initialize(claim_agent)
-      rep.user_types << USER_TYPE_CLAIM_AGENT unless rep.user_types.include?(USER_TYPE_CLAIM_AGENT)
+      rep = find_or_initialize_by_id(claim_agent, USER_TYPE_CLAIM_AGENT)
       rep.save
     end
 
     def find_or_create_vso(vso)
-      unless vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
-        ClaimsApi::Logger.log('VSO',
-                              detail: "Rep name not in expected format: #{vso['Registration Num']}")
+      unless vso['Representative']&.match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
+        ClaimsApi::Logger.log('VSO', detail: "Rep name not in expected format: #{vso['Registration Num']}")
         return
       end
 
-      last_name, first_name, middle_initial = vso['Representative']
-                                              .match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures
-
-      last_name = last_name.strip
-
-      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
-                                                                   first_name:,
-                                                                   last_name:)
-      poa_code = vso['POA'].gsub(/\W/, '')
-      rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
-
-      rep.phone = vso['Org Phone']
-      rep.user_types << USER_TYPE_VSO unless rep.user_types.include?(USER_TYPE_VSO)
-      rep.middle_initial = middle_initial.presence || ''
+      rep = find_or_initialize_by_id(convert_vso_to_useable_hash(vso), USER_TYPE_VSO)
       rep.save
+    end
+
+    def convert_vso_to_useable_hash(vso)
+      last_name, first_name, middle_initial = vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures # rubocop:disable Layout/LineLength
+
+      {
+        'Last Name' => last_name,
+        'First Name' => first_name,
+        'Middle Initial' => middle_initial || '',
+        'Registration Num' => vso['Registration Num'],
+        'POA Code' => vso['POA'],
+        'Phone' => vso['Rep Phone'] || vso['Org Phone'],
+        'City' => vso['Rep City'] || vso['Org City'],
+        'State' => vso['Rep State'] || vso['Org State'],
+        'Zip' => vso['Rep Zip']
+      }
     end
 
     def log_to_slack(message)
@@ -252,7 +268,7 @@ module Veteran
     def calculate_vso_counts(vso_data)
       {
         reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
-        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count # rubocop:disable Rails/Pluck
+        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count
       }
     end
 

@@ -70,8 +70,8 @@ properties:
         format: datetime
         example: 2023-08-04T04:00:00.000Z
       quantity:
-        type: integer
-        example: 30
+        type: string
+        example: "30"
       expirationDate:
         type: string
         format: datetime
@@ -200,6 +200,13 @@ properties:
         type: string
         nullable: true
         example: "1,1"
+      grouped_medications:
+        type: array
+        nullable: true
+        items:
+          $ref: "./PrescriptionDetail.yml"
+        example: []
+        description: "Array of related prescription objects that are grouped with this prescription"
   links:
     type: object
     required:

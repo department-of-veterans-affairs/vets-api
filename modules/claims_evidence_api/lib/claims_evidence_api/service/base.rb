@@ -8,10 +8,6 @@ require 'claims_evidence_api/folder_identifier'
 require 'common/client/base'
 
 module ClaimsEvidenceApi
-  # Proxy Service for the ClaimsEvidence API
-  #
-  # @see https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
-  # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html
   module Service
     # Base service class for API
     class Base < Common::Client::Base
@@ -29,13 +25,17 @@ module ClaimsEvidenceApi
       end
 
       # @see Common::Client::Base#perform
-      def perform(method, path, params, headers = nil, options = nil)
+      def perform(method, path, params, headers = {}, options = {})
         call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
+        headers = headers.merge(request_headers)
+
         response = super(method, path, params, headers, options) # returns Faraday::Env
-        monitor.track_api_request(method, path, response.status, response.reason_phrase, call_location:)
+
+        requested_api = endpoint || path.split('/').first
+        monitor.track_api_request(method, requested_api, response.status, response.reason_phrase, call_location:)
         response
       rescue => e
-        code = e.respond_to?(:status) ? e.status : 500
+        code = e.try(:status) || 500
         monitor.track_api_request(method, path, code, e.message, call_location:)
         raise e
       end
@@ -44,7 +44,7 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::FolderIdentifier#validate
       # @param folder_identifier [String] x_folder_uri header value
       def folder_identifier=(folder_identifier)
-        @folder_identifier = ClaimsEvidenceApi::FolderIdentifier.validate(folder_identifier)
+        @folder_identifier = validate_folder_identifier(folder_identifier)
       end
 
       # set the folder identifier that the file will be associated to
@@ -59,6 +59,21 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::Monitor::Service
       def monitor
         @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
+      end
+
+      # additional request headers
+      def request_headers
+        { 'Authorization' => "Bearer #{encode_jwt}" }
+      end
+
+      # @return [String] the encoded jwt
+      def encode_jwt
+        ClaimsEvidenceApi::JwtGenerator.encode_jwt
+      end
+
+      # the name for _this_ endpoint
+      def endpoint
+        nil
       end
     end
 

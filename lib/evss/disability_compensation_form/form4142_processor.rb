@@ -15,6 +15,7 @@ module EVSS
       def initialize(submission, jid)
         @submission = submission
         @jid = jid
+        @generate_2024_version = determine_2024_version
         super()
       end
 
@@ -25,15 +26,11 @@ module EVSS
         return incoming_data if provider_facilities.blank?
 
         incoming_data['providerFacility'] = provider_facilities.map do |facility|
-          treated_disability_hash = facility['treatedDisabilityNames']
-          treated_conditions = if treated_disability_hash.blank?
-                                 ''
-                               else
-                                 treated_disability_hash.select do |_, checked|
-                                   checked
-                                 end.keys.join(', ')
-                               end
-          facility.merge('conditionsTreated' => treated_conditions)
+          if facility['treatedDisabilityNames'].present?
+            facility.merge('conditionsTreated' => facility['treatedDisabilityNames'].join(', '))
+          else
+            facility.merge('conditionsTreated' => '')
+          end
         end
         incoming_data
       end
@@ -55,7 +52,7 @@ module EVSS
       end
 
       def form_data
-        @form_data ||= transform_form_data(set_signature_date(@submission.form[Form526Submission::FORM_4142]))
+        @form_data ||= transform_form_data(set_signature_date(submitted_form4142))
       end
 
       def pdf_identifier
@@ -72,7 +69,15 @@ module EVSS
 
       # Flip this on to use the 2024 PDF template
       def generate_2024_version?
-        Flipper.enabled?(:disability_526_form4142_use_2024_template)
+        @generate_2024_version
+      end
+
+      def determine_2024_version
+        submitted_form4142['completed2024Form'] == true
+      end
+
+      def submitted_form4142
+        @submission.form[Form526Submission::FORM_4142]
       end
 
       # Flip this on to validate the schema of the form data

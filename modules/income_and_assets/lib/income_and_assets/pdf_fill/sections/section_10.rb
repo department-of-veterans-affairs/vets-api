@@ -50,6 +50,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
           },
           'ownedPortionValueOverflow' => {
+            limit: 14,
             dollar: true,
             question_num: 10,
             question_suffix: '(3)',
@@ -79,7 +80,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         assets = form_data['unreportedAssets']
-        form_data['unreportedAsset'] = assets&.length ? 0 : 1
+        form_data['unreportedAsset'] = radio_yesno(assets&.length)
         form_data['unreportedAssets'] = assets&.map { |item| expand_item(item) }
       end
 
@@ -96,16 +97,16 @@ module IncomeAndAssets
           'otherAssetOwnerRelationshipType' => item['otherAssetOwnerRelationshipType'],
           'recipientName' => item['recipientName'],
           'assetType' => item['assetType'],
-          'ownedPortionValue' => split_currency_amount(item['ownedPortionValue']),
+          'ownedPortionValue' => split_currency_amount_lg(item['ownedPortionValue']),
           'assetLocation' => item['assetLocation']
         }
 
-        overflow = {}
-        expanded.each_key do |fieldname|
-          overflow["#{fieldname}Overflow"] = item[fieldname]
-        end
+        overrides = {
+          'assetOwnerRelationshipOverflow' => item['assetOwnerRelationship'],
+          'ownedPortionValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['ownedPortionValue'])
+        }
 
-        expanded.merge(overflow)
+        expanded.merge(overrides)
       end
     end
   end

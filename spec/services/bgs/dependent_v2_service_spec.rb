@@ -28,14 +28,15 @@ RSpec.describe BGS::DependentV2Service do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
-    allow(claim).to receive_messages(id: '1234', use_v2: true, user_account_id: user.user_account_uuid,
+    # TODO: add user_account_id back once the DB migration is done
+    allow(claim).to receive_messages(id: '1234', use_v2: true, form_id: '686C-674-V2',
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], upload_pdf: true)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(false)
   end
 
   describe '#submit_686c_form' do
@@ -58,9 +59,9 @@ RSpec.describe BGS::DependentV2Service do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           service = BGS::DependentV2Service.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
+
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -78,9 +79,9 @@ RSpec.describe BGS::DependentV2Service do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
           vet_info['veteran_information']['va_file_number'] = '12345678'
           service = BGS::DependentV2Service.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
+
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -96,9 +97,8 @@ RSpec.describe BGS::DependentV2Service do
       it 'strips out the dashes before enqueuing the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -115,10 +115,9 @@ RSpec.describe BGS::DependentV2Service do
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -135,10 +134,9 @@ RSpec.describe BGS::DependentV2Service do
         vet_info['veteran_information']['va_file_number'] = '1234567'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -155,10 +153,9 @@ RSpec.describe BGS::DependentV2Service do
         vet_info['veteran_information']['va_file_number'] = '123456789'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -168,6 +165,106 @@ RSpec.describe BGS::DependentV2Service do
         service.submit_686c_form(claim)
       end
     end
+
+    context 'on error' do
+      let(:monitor) { instance_double(Dependents::Monitor) }
+
+      before do
+        allow(Dependents::Monitor).to receive(:new).and_return(monitor).at_least(:once)
+        allow(monitor).to receive(:track_event).at_least(:once)
+      end
+
+      it 'submits to backup job on pdf submission errors' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError,
+                                                                                    'Test error')
+          service = BGS::DependentV2Service.new(user)
+
+          expect(BGS::SubmitForm686cV2Job).not_to receive(:perform_async)
+          expect(service).to receive(:submit_to_central_service)
+
+          service.submit_686c_form(claim)
+        end
+      end
+
+      it 'in case of other errors it logs the exception and raises a custom error' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          allow(BGS::SubmitForm686cV2Job).to receive(:perform_async).and_raise(StandardError,
+                                                                               'Test error')
+
+          service = BGS::DependentV2Service.new(user)
+
+          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
+
+          expect do
+            service.submit_686c_form(claim)
+          end.to raise_error(StandardError, 'Test error')
+        end
+      end
+
+      context 'when Flipper is enabled for extra error logging' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(true)
+        end
+
+        it 'increments StatsD for certain errors - 302,500,502,504' do
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            error_cause = double('ErrorCause')
+            allow(error_cause).to receive(:message).and_return('HTTP error (302)')
+
+            custom_error = StandardError.new('Test error')
+            allow(custom_error).to receive(:cause).and_return(error_cause)
+
+            allow(BGS::SubmitForm686cV2Job)
+              .to receive(:perform_async)
+              .and_raise(custom_error)
+
+            allow(StatsD).to receive(:increment)
+
+            service = BGS::DependentV2Service.new(user)
+
+            expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
+
+            expect do
+              service.submit_686c_form(claim)
+            end.to raise_error(custom_error)
+
+            expect(StatsD)
+              .to have_received(:increment)
+              .with(
+                'bgs.dependent_service.non_validation_error.302',
+                tags: ['form_id:686C-674-V2']
+              )
+          end
+        end
+
+        it 'does not increment StatsD for other errors' do
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            error_cause = double('ErrorCause')
+            allow(error_cause).to receive(:message).and_return('Some other error')
+
+            custom_error = StandardError.new('Test error')
+            allow(custom_error).to receive(:cause).and_return(error_cause)
+
+            allow(BGS::SubmitForm686cV2Job)
+              .to receive(:perform_async)
+              .and_raise(custom_error)
+
+            allow(StatsD).to receive(:increment)
+
+            service = BGS::DependentV2Service.new(user)
+
+            expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
+
+            expect do
+              service.submit_686c_form(claim)
+            end.to raise_error(custom_error)
+
+            expect(StatsD).not_to have_received(:increment)
+          end
+        end
+      end
+    end
   end
 
   describe '#get_dependents' do
@@ -175,7 +272,7 @@ RSpec.describe BGS::DependentV2Service do
       VCR.use_cassette('bgs/dependent_service/get_dependents') do
         response = BGS::DependentV2Service.new(user).get_dependents
 
-        expect(response).to include(number_of_records: '6')
+        expect(response).to include(number_of_records: '6', persons: Array)
       end
     end
 
@@ -185,6 +282,17 @@ RSpec.describe BGS::DependentV2Service do
           .with(user.participant_id, user.ssn)
 
         BGS::DependentV2Service.new(user).get_dependents
+      end
+    end
+
+    it 'returns a valid response when empty array' do
+      VCR.use_cassette('bgs/dependent_service/get_dependents') do
+        allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+          .with(user.participant_id, user.ssn).and_return([])
+
+        response = BGS::DependentV2Service.new(user).get_dependents
+
+        expect(response).to have_key(:persons)
       end
     end
   end
@@ -209,9 +317,9 @@ RSpec.describe BGS::DependentV2Service do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           service = BGS::DependentV2Service.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
+
           expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -229,9 +337,9 @@ RSpec.describe BGS::DependentV2Service do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
           vet_info['veteran_information']['va_file_number'] = '12345678'
           service = BGS::DependentV2Service.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
+
           expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -247,9 +355,8 @@ RSpec.describe BGS::DependentV2Service do
       it 'strips out the dashes before enqueuing the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -266,10 +373,9 @@ RSpec.describe BGS::DependentV2Service do
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -286,10 +392,9 @@ RSpec.describe BGS::DependentV2Service do
         vet_info['veteran_information']['va_file_number'] = '1234567'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -306,10 +411,9 @@ RSpec.describe BGS::DependentV2Service do
         vet_info['veteran_information']['va_file_number'] = '123456789'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentV2Service.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -347,21 +451,31 @@ RSpec.describe BGS::DependentV2Service do
 
     it 'submits evidence pdf via claims evidence uploader' do
       expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
-      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                                                    "#{stats_key}.submit_pdf.begin")
-      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return uploader
+      expect(monitor).to receive(:track_event).with(
+        'info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+        "#{stats_key}.submit_pdf.begin"
+      )
+      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
 
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674-V2',
                                                                    doctype: claim.document_type)
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '21-674-V2',
-                                                                   doctype: '142')
+                                                                   doctype: 142)
 
       expect(claim).to receive(:persistent_attachments).and_return([pa])
       expect(stamper).to receive(:run).and_return(pdf_path)
       expect(uploader).to receive(:upload_evidence).with(claim.id, pa.id, file_path: pdf_path, form_id: '21-674-V2',
                                                                           doctype: pa.document_type)
 
-      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentV2Service claims evidence upload of 686C-674-V2 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:686C-674-V2']
+      )
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentV2Service claims evidence upload of 21-674-V2 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:21-674-V2']
+      )
+      expect(monitor).to receive(:track_event).with('info', 'BGS::DependentV2Service#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")
 
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
@@ -383,14 +497,13 @@ RSpec.describe BGS::DependentV2Service do
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
     end
 
-    it 'in case of error it logs the exception and submits to central service' do
+    it 'in case of error it logs the exception and raises a custom error' do
       service = BGS::DependentV2Service.new(user)
-      allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError, 'Test error')
+      allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError)
       expect(Rails.logger).to receive(:warn)
-      expect(service).to receive(:submit_to_central_service).with(claim:)
-
-      # use 'send' to call the private method
-      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+      expect do
+        service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+      end.to raise_error(BGS::DependentV2Service::PDFSubmissionError)
     end
   end
 end

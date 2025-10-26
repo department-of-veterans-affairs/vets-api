@@ -45,7 +45,12 @@ module DecisionReviews
 
     def perform_all
       enabled? &&
-        (submissions.present? || submission_uploads.present? || errored_secondary_forms.present?)
+        (
+          submissions.present? ||
+          submission_uploads.present? ||
+          errored_secondary_forms.present? ||
+          permanently_errored_secondary_forms.present?
+        )
     end
 
     def get_callback_config(email_type, appeal_type)
@@ -53,9 +58,9 @@ module DecisionReviews
       when :form
         [DecisionReviews::FormNotificationCallback, 'form submission', DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type]]
       when :evidence
-        [DecisionReviews::EvidenceNotificationCallback, 'evidence submission to Lighthouse', DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type]]
+        [DecisionReviews::EvidenceNotificationCallback, 'evidence submission to lighthouse', DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type]]
       when :secondary_form
-        [DecisionReviews::EvidenceNotificationCallback, 'secondary form submission to Lighthouse', DecisionReviews::V1::SECONDARY_FORM_TEMPLATE_ID]
+        [DecisionReviews::EvidenceNotificationCallback, 'secondary form submission to lighthouse', DecisionReviews::V1::SECONDARY_FORM_TEMPLATE_ID]
       end
     end
 
@@ -103,6 +108,14 @@ module DecisionReviews
       end
     end
 
+    # New method to fetch SecondaryAppealForm records that have an error status with a final status: true
+    def permanently_errored_secondary_forms
+      return [] unless final_status_secondary_form_failure_notifications_enabled?
+
+      @permanently_errored_secondary_forms ||= SecondaryAppealForm.with_permanent_error.order(id: :asc)
+    end
+
+    # Legacy method to fetch SecondaryAppealForm records that have an error status without a final status
     def errored_secondary_forms
       @errored_secondary_forms ||= SecondaryAppealForm.needs_failure_notification.order(id: :asc)
     end
@@ -162,20 +175,43 @@ module DecisionReviews
     end
 
     def send_secondary_form_emails
-      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", errored_secondary_forms.size)
-      errored_secondary_forms.each do |form|
-        appeal_type = form.appeal_submission.type_of_appeal
-        reference = "#{appeal_type}-secondary_form-#{form.guid}"
-
-        response = send_email_with_vanotify_callback(form.appeal_submission, :secondary_form, nil,
-                                                     form.created_at, reference)
-
-        form.update(failure_notification_sent_at: DateTime.now)
-
-        record_secondary_form_email_send_successful(form, response.id)
-      rescue => e
-        record_secondary_form_email_send_failure(form, e)
+      # Branch to separate implementations for clean feature flag removal
+      if final_status_secondary_form_failure_notifications_enabled?
+        send_secondary_form_emails_enhanced
+      else
+        send_secondary_form_emails_legacy
       end
+    end
+
+    def send_secondary_form_emails_enhanced
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records",
+                       permanently_errored_secondary_forms.size)
+
+      permanently_errored_secondary_forms.each do |form|
+        send_secondary_form_email(form)
+      end
+    end
+
+    def send_secondary_form_emails_legacy
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", errored_secondary_forms.size)
+
+      errored_secondary_forms.each do |form|
+        send_secondary_form_email(form)
+      end
+    end
+
+    def send_secondary_form_email(form)
+      appeal_type = form.appeal_submission.type_of_appeal
+      reference = "#{appeal_type}-secondary_form-#{form.guid}"
+
+      response = send_email_with_vanotify_callback(form.appeal_submission, :secondary_form, nil,
+                                                   form.created_at, reference)
+
+      form.update(failure_notification_sent_at: DateTime.now)
+
+      record_secondary_form_email_send_successful(form, response.id)
+    rescue => e
+      record_secondary_form_email_send_failure(form, e)
     end
 
     def record_form_email_send_successful(submission, notification_id)
@@ -254,6 +290,11 @@ module DecisionReviews
 
     def enabled?
       Flipper.enabled? :decision_review_failure_notification_email_job_enabled
+    end
+
+    # Feature flag helpers for clean removal later
+    def final_status_secondary_form_failure_notifications_enabled?
+      Flipper.enabled?(:decision_review_final_status_secondary_form_failure_notifications)
     end
   end
 end

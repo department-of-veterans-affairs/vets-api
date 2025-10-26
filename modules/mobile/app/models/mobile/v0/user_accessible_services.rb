@@ -17,8 +17,9 @@ module Mobile
         service_auth_map.keys.sort
       end
 
-      def service_auth_map
+      def service_auth_map # rubocop:disable Metrics/MethodLength
         @service_auth_map ||= {
+          allergiesOracleHealthEnabled: Flipper.enabled?(:mhv_accelerated_delivery_allergies_enabled, @user),
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
           claims: access?(lighthouse: :access?),
@@ -29,14 +30,16 @@ module Mobile
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
+          medicationsOracleHealthEnabled: Flipper.enabled?(:mhv_medications_cerner_pilot, @user),
           paymentHistory: access?(bgs: :access?),
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
           secureMessaging: access?(mhv_messaging: :mobile_access?),
+          secureMessagingOracleHealthEnabled: Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @user),
           userProfileUpdate: access?(va_profile: :access_to_v2?)
         }
-      end
+      end # rubocop:enable Metrics/MethodLength
 
       private
 

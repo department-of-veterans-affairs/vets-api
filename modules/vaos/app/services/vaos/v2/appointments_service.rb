@@ -42,9 +42,9 @@ module VAOS
       ].freeze
 
       # Output format for preferred dates
-      # Example: "Thu, July 18, 2024 in the ..."
-      OUTPUT_FORMAT_AM = '%a, %B %-d, %Y in the morning'
-      OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
+      # Example: "Thursday, July 8, 2024 in the ..."
+      OUTPUT_FORMAT_AM = '%A, %B %-d, %Y in the morning'
+      OUTPUT_FORMAT_PM = '%A, %B %-d, %Y in the afternoon'
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, # rubocop:disable Metrics/ParameterLists
@@ -72,12 +72,34 @@ module VAOS
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
+          eps_before_appts = appointments.select do |appt|
+            appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
+          end
+          eps_before_facilities = extract_facility_identifiers(eps_before_appts)
+
           filterer = AppointmentsPresentationFilter.new
           appointments.keep_if { |appt| filterer.user_facing?(appt) }
+
+          eps_after_appts = appointments.select do |appt|
+            appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
+          end
+          eps_after_facilities = extract_facility_identifiers(eps_after_appts)
+          removed_facilities = eps_before_facilities - eps_after_facilities
+
+          removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
+          Rails.logger.info("EPS Debug: Presentation filter kept #{eps_after_facilities}#{removed_msg}")
         end
 
         # log count of C&P appointments in the appointments list, per GH#78141
         log_cnp_appt_count(cnp_count) if cnp_count.positive?
+
+        # Log final EPS appointments
+        final_eps_appts = appointments.select do |appt|
+          appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
+        end
+        final_eps_facilities = extract_facility_identifiers(final_eps_appts)
+        Rails.logger.info("EPS Debug: Final response #{final_eps_facilities.any? ? final_eps_facilities : 'none'}")
+
         {
           data: deserialized_appointments(appointments),
           meta: pagination(pagination_params).merge(partial_errors(response, __method__))
@@ -111,9 +133,10 @@ module VAOS
           return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
         end
 
-        eps_appointments = eps_appointments_service.get_appointments[:data]
+        eps_appointments = eps_appointments_service.get_appointments
+
         # Filter out draft EPS appointments when checking referral usage
-        non_draft_eps_appointments = eps_appointments.reject { |appt| appt[:state] == 'draft' }
+        non_draft_eps_appointments = eps_appointments&.reject { |appt| appt[:state] == 'draft' } || []
         { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
       end
 
@@ -199,10 +222,13 @@ module VAOS
           else
             appointment = update_appointment_vaos(appt_id, status).body
             convert_appointment_time(appointment)
+            find_and_merge_provider_name(appointment) if cc?(appointment)
             extract_appointment_fields(appointment)
             merge_clinic(appointment)
             merge_facility(appointment)
             set_type(appointment)
+            set_modality(appointment)
+            set_derived_appointment_date_fields(appointment)
             appointment[:show_schedule_link] = schedulable?(appointment)
             OpenStruct.new(appointment)
           end
@@ -273,14 +299,48 @@ module VAOS
         normalized_new = eps_appointments.map(&:serializable_hash)
         existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
         date_and_time_for_referral_list = appointments.pluck(:start)
+
+        # Track which EPS appointments get rejected as duplicates
+        rejected_ids = []
         merged_data = appointments + normalized_new.reject do |a|
-          existing_referral_ids.include?(a.dig(:referral,
-                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
+          duplicate = existing_referral_ids.include?(a.dig(:referral, :referral_number)) &&
+                      date_and_time_for_referral_list.include?(a[:start])
+          rejected_ids << a[:id] if duplicate
+          duplicate
         end
+
+        kept_eps_appts = normalized_new.reject { |appt| rejected_ids.include?(appt[:id]) }
+        kept_eps_facilities = extract_facility_identifiers(kept_eps_appts)
+        rejected_eps_appts = normalized_new.select { |appt| rejected_ids.include?(appt[:id]) }
+        rejected_facilities = extract_facility_identifiers(rejected_eps_appts)
+        duplicates_msg = rejected_facilities.any? ? ", removed duplicates #{rejected_facilities}" : ''
+        Rails.logger.info("EPS Debug: Merge kept #{kept_eps_facilities}#{duplicates_msg}")
+
         merged_data.sort_by { |appt| appt[:start] || '' }
       end
 
       memoize :get_facility_timezone_memoized
+
+      # Extract facility identifiers from appointments for privacy-safe logging
+      # Returns array of "facility_name (facility_id)" strings, or location_id if facility info unavailable
+      def extract_facility_identifiers(appointments)
+        appointments.map do |appt|
+          if appt.is_a?(Hash)
+            # For regular appointments with merged facility info
+            if appt.dig(:location, 'name') && appt.dig(:location, 'id')
+              "#{appt[:location]['name']} (#{appt[:location]['id']})"
+            elsif appt[:location_id]
+              "facility #{appt[:location_id]}"
+            else
+              'unknown facility'
+            end
+          else
+            # For EPS appointments or other objects
+            location_id = appt.try(:location_id) || appt.try(:[], :location_id)
+            location_id ? "facility #{location_id}" : 'unknown facility'
+          end
+        end
+      end
 
       private
 
@@ -382,6 +442,7 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
+      # rubocop:disable Metrics/MethodLength
       def prepare_appointment(appointment, include = {})
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
@@ -408,7 +469,12 @@ module VAOS
           find_and_merge_provider_name(appointment)
         end
 
-        merge_clinic(appointment) if include[:clinics]
+        if VAOS::AppointmentsHelper.cerner?(appointment)
+          appointment[:is_cerner] = true
+        else
+          appointment[:is_cerner] = false
+          merge_clinic(appointment) if include[:clinics]
+        end
 
         merge_facility(appointment) if include[:facilities]
 
@@ -421,7 +487,10 @@ module VAOS
         set_derived_appointment_date_fields(appointment)
 
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
+
+        log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
       end
+      # rubocop:enable Metrics/MethodLength
 
       def find_and_merge_provider_name(appointment)
         practitioners_list = appointment[:practitioners]
@@ -506,7 +575,7 @@ module VAOS
       # or nil if the input ICN was nil.
       #
       def normalize_icn(icn)
-        icn&.gsub(/V[\d]{6}$/, '')
+        icn&.gsub(/V\d{6}$/, '')
       end
 
       # Checks equality between two ICNs (Integration Control Numbers)
@@ -596,20 +665,6 @@ module VAOS
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
         VAOS::Strings.filter_ascii_characters(text) if text.present?
-      end
-
-      # Determines if the appointment is a Cerner (Oracle Health) appointment.
-      # This is determined by the presence of a 'CERN' prefix in the appointment's id.
-      #
-      # @param appt [Hash] the appointment to check
-      # @return [Boolean] true if the appointment is a Cerner appointment, false otherwise
-      #
-      # @raise [ArgumentError] if the appointment is nil
-      #
-      def cerner?(appt)
-        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
-
-        appt[:id].start_with?('CERN')
       end
 
       # Checks if the appointment is booked.
@@ -842,7 +897,7 @@ module VAOS
       end
 
       def set_type(appointment)
-        type = if cerner?(appointment)
+        type = if VAOS::AppointmentsHelper.cerner?(appointment)
                  cerner_type(appointment)
                else
                  non_cerner_type(appointment)
@@ -894,8 +949,8 @@ module VAOS
         if appointment[:telehealth] && appointment[:modality] == 'vaVideoCareAtHome' && appointment[:start]
           # if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set
           # telehealth_visible to true
-          appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
-                                                   (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
+          appointment[:telehealth][:display_link] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
+                                                    (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
         end
       end
 
@@ -927,6 +982,32 @@ module VAOS
         appointment[:future] = future?(appointment)
       end
 
+      # rubocop:disable Metrics/MethodLength
+      def log_telehealth_issue(appointment)
+        if appointment[:start]
+          start_time = appointment[:start].to_datetime
+          time_now = Time.now.utc
+          fifteen_before = start_time - 15.minutes
+          fifteen_after = start_time + 15.minutes
+          context = {
+            displayLink: appointment.dig(:telehealth, :display_link),
+            kind: appointment[:kind],
+            modality: appointment[:modality],
+            telehealthUrl: appointment.dig(:telehealth, :url),
+            vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
+            facilityId: appointment[:location_id],
+            clinicId: appointment[:clinic],
+            primaryStopCode: appointment.dig(:extension, :clinic, :primary_stop_code),
+            secondaryStopCode: appointment.dig(:extension, :clinic, :secondary_stop_code),
+            afterFiveBeforeStart: time_now >= start_time - 5.minutes
+          }
+          Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank? &&
+                                                                               time_now >= fifteen_before &&
+                                                                               time_now <= fifteen_after
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
+
       def log_modality_failure(appointment)
         context = {
           service_type: appointment[:service_type],
@@ -947,14 +1028,18 @@ module VAOS
         elsif %w[ADHOC MOBILE_ANY MOBILE_ANY_GROUP MOBILE_GFE].include?(vvs_kind)
           'vaVideoCareAtHome'
         elsif vvs_kind.nil?
-          vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
-          vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
+          if VAOS::AppointmentsHelper.cerner?(appointment)
+            appointment.dig(:telehealth, :url).nil? ? 'vaInPerson' : 'vaVideoCareAtHome'
+          else
+            vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+            vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
+          end
         end
       end
 
       # This should be called after set_type has been called
       def schedulable?(appointment)
-        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
+        return false if VAOS::AppointmentsHelper.cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
         return appointment[:type] == APPOINTMENT_TYPES[:cc_request] if cc?(appointment)
         return true if appointment[:type] == APPOINTMENT_TYPES[:request]
         if appointment[:type] == APPOINTMENT_TYPES[:va] &&
@@ -1116,15 +1201,41 @@ module VAOS
 
       def eps_appointments
         @eps_appointments ||= begin
-          appointments = eps_appointments_service.get_appointments[:data]
-          appointments = [] if appointments.blank? || appointments.all?(&:empty?)
-          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
-          appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+          eps_appts = eps_appointments_service.get_appointments_with_providers
+          if eps_appts.blank?
+            []
+          else
+            kept_appts, removed_appts = separate_appointments_by_start_time(eps_appts)
+            log_appointment_separation(kept_appts, removed_appts)
+            kept_appts
+          end
         end
       end
 
       def eps_serializer
         @eps_serializer ||= VAOS::V2::EpsAppointment.new
+      end
+
+      def separate_appointments_by_start_time(appointments)
+        kept_appts = []
+        removed_appts = []
+
+        appointments.each do |appt|
+          if appt.start.present?
+            kept_appts << appt
+          else
+            removed_appts << appt
+          end
+        end
+
+        [kept_appts, removed_appts]
+      end
+
+      def log_appointment_separation(kept_appts, removed_appts)
+        removed_facilities = extract_facility_identifiers(removed_appts)
+        kept_facilities = extract_facility_identifiers(kept_appts)
+        removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
+        Rails.logger.info("EPS Debug: Kept #{kept_facilities}#{removed_msg}")
       end
 
       ##

@@ -21,6 +21,8 @@ module VAOS
           referral_status_param
         )
 
+        log_referral_count(response)
+
         # Filter out expired referrals
         response = filter_expired_referrals(response)
         # Add encrypted UUIDs to the referrals for URL usage
@@ -43,6 +45,16 @@ module VAOS
       end
 
       private
+
+      # Logs the count of referrals returned from CCRA
+      #
+      # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
+      # @return [void]
+      def log_referral_count(referrals)
+        count = referrals&.size || 0
+        Rails.logger.info("CCRA referrals retrieved: #{count}", { referral_count: count }.to_json)
+        StatsD.gauge('api.vaos.referrals.retrieved', count, tags: ["has_referrals:#{count.positive?}"])
+      end
 
       # Adds encrypted UUIDs to referrals for use in URLs to prevent PII in logs
       #
@@ -85,6 +97,7 @@ module VAOS
       # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
       # @return [Array<Ccra::ReferralListEntry>] Filtered collection without expired referrals
       def filter_expired_referrals(referrals)
+        return [] if referrals.nil?
         raise ArgumentError, 'referrals must be an enumerable collection' unless referrals.respond_to?(:each)
 
         today = Date.current

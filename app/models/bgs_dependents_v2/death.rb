@@ -13,10 +13,18 @@ module BGSDependentsV2
         ssn: @death_info['ssn'],
         birth_date: @death_info['birth_date'],
         vet_ind: 'N',
-        dependent_income: formatted_boolean(@death_info['deceased_dependent_income'])
+        dependent_income:
       }
       info['marriage_termination_type_code'] = 'Death' if dependent_type[:family] == 'Spouse'
       info.merge(@death_info['full_name']).with_indifferent_access
+    end
+
+    def dependent_income
+      if @death_info['deceased_dependent_income'] == 'NA'
+        nil
+      else
+        @death_info['deceased_dependent_income']
+      end
     end
   end
 end

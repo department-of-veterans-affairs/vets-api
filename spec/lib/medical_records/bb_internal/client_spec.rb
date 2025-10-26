@@ -8,6 +8,7 @@ UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 describe BBInternal::Client do
   let(:client) { @client }
+  let(:icn) { '1012740022V620959' }
 
   RSpec.shared_context 'redis setup' do
     let(:redis) { instance_double(Redis::Namespace) }
@@ -30,16 +31,10 @@ describe BBInternal::Client do
   before do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
-        client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
+        client = BBInternal::Client.new(session: { user_id: '11375034' })
         client.authenticate
         client
       end
-    end
-  end
-
-  describe 'session' do
-    it 'preserves ICN' do
-      expect(client.session.icn).to equal('1012740022V620959')
     end
   end
 
@@ -56,13 +51,44 @@ describe BBInternal::Client do
   end
 
   describe '#list_imaging_studies' do
-    it 'gets the list of imaging studies' do
+    let(:cached_list_data) do
+      { 'f1c9a455-9a43-4d73-ac5b-e417bac1d3bb' => '451-72913365',
+        'a3de79e7-93d1-4df4-ab00-e38f8a31f157' => '453-2487450',
+        '2830903b-08da-49c2-89e2-7a49ea1204d9' => '453-2487448' }.to_json
+    end
+
+    include_context 'redis setup'
+
+    before do
+      allow(redis).to receive(:set)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    it 'gets the list of imaging studies with IDs from cache' do
+      allow(redis).to receive(:get).with(study_data_key).and_return(cached_list_data)
+
       VCR.use_cassette 'mr_client/bb_internal/get_imaging_studies' do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
+
+        expect(Rails.logger).not_to have_received(:info)
+          .with(message: /Assigned studyIdUrn to new UUID/i)
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
+      end
+    end
+
+    it 'gets the list of imaging studies and saves UUIDs to redis' do
+      allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
+
+      VCR.use_cassette 'mr_client/bb_internal/get_imaging_studies' do
+        studies = client.list_imaging_studies
+        expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
 
+        expect(Rails.logger).to have_received(:info)
+          .with(message: /Assigned studyIdUrn to new UUID/i).at_least(:once)
         # Check if 'studyIdUrn' was replaced by a UUID
         expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
       end
@@ -72,15 +98,33 @@ describe BBInternal::Client do
   describe '#request_study' do
     include_context 'redis setup'
 
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
     it 'requests a study by study_id' do
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(uuid)
+        result = client.request_study(icn, uuid)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
         expect(result).to have_key('studyIdUrn')
 
+        expect(Rails.logger).not_to have_received(:info)
+          .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
+
         # 'studyIdUrn' should match a specific UUID
         expect(result['studyIdUrn']).to equal(uuid)
+      end
+    end
+
+    it 'raises RecordNotFound exception and logs the uuid if not in the cache' do
+      allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
+
+      VCR.use_cassette 'mr_client/bb_internal/request_study' do
+        expect { client.request_study(icn, uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
+
+        expect(Rails.logger).to have_received(:info)
+          .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
       end
     end
   end
@@ -126,13 +170,12 @@ describe BBInternal::Client do
   end
 
   describe '#get_generate_ccd' do
-    let(:icn) { '1000000000V000000' }
     let(:last_name_with_space) { 'DOE SMITH' }
     let(:expected_escaped_last_name) { 'DOE%20SMITH' }
 
     it 'requests a CCD be generated and returns the correct structure' do
       VCR.use_cassette 'mr_client/bb_internal/generate_ccd' do
-        ccd_list = client.get_generate_ccd(client.session.icn, 'DOE')
+        ccd_list = client.get_generate_ccd(icn, 'DOE')
 
         expect(ccd_list).to be_an(Array)
         expect(ccd_list).not_to be_empty
@@ -172,7 +215,7 @@ describe BBInternal::Client do
     context 'when using VCR' do
       it 'retrieves a previously generated CCD as XML' do
         VCR.use_cassette 'mr_client/bb_internal/download_ccd' do
-          ccd = client.get_download_ccd(date)
+          ccd = client.get_download_ccd(date:)
 
           expect(ccd).to be_a(String)
           expect(ccd).to include('<ClinicalDocument')
@@ -183,10 +226,10 @@ describe BBInternal::Client do
     context 'when verifying headers with WebMock' do
       it 'sends the correct Accept header' do
         stub_request(:get, expected_url)
-          .with(headers: { 'Accept' => 'application/xml' })
+          .with(headers: { 'Accept' => '*/*' })
           .to_return(status: 200, body: response_body, headers: { 'Content-Type' => 'application/xml' })
 
-        ccd = client.get_download_ccd(date)
+        ccd = client.get_download_ccd(date:)
 
         expect(ccd).to be_a(String)
         expect(ccd).to include('<ClinicalDocument')
@@ -454,16 +497,6 @@ describe BBInternal::Client do
     context 'when session is expired' do
       let(:session_expired) { true }
       let(:icn) { '1000000000V000000' }
-      let(:patient_id) { '12345' }
-
-      it 'returns true' do
-        expect(client.send(:invalid?, session_data)).to be true
-      end
-    end
-
-    context 'when session has no icn' do
-      let(:session_expired) { false }
-      let(:icn) { nil }
       let(:patient_id) { '12345' }
 
       it 'returns true' do

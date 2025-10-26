@@ -45,7 +45,7 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
   let(:dependents_information) do
     [{
       'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
-      'dateOfBirth' => '1960-02-01',
+      'dateOfBirth' => '1960-01-02',
       'ssn' => '222883214',
       'age' => 59,
       'relationshipToVeteran' => 'Spouse'
@@ -57,7 +57,6 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
 
   before do
     Timecop.freeze(Time.zone.local(2020, 1, 1))
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(FormProfile).to receive(:prefill_enabled_forms).and_return([form_id])
   end
 
@@ -152,6 +151,32 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
         expect(subject.send(:initialize_dependents_information)).to all(
           be_a(DependentsVerification::DependentInformation)
         )
+      end
+
+      it 'handles invalid date formats gracefully' do
+        invalid_date_data = dependents_data.dup
+        invalid_date_data[:persons][0][:date_of_birth] = 'invalid-date'
+
+        allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+        allow(dependent_service).to receive(:get_dependents).and_return(invalid_date_data)
+
+        dependents = subject.send(:initialize_dependents_information)
+        expect(dependents).to all(be_a(DependentsVerification::DependentInformation))
+        expect(dependents.first.date_of_birth).to be_nil
+        expect(dependents.first.age).to be_nil
+      end
+
+      it 'handles nil date gracefully' do
+        nil_date_data = dependents_data.dup
+        nil_date_data[:persons][0][:date_of_birth] = nil
+
+        allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+        allow(dependent_service).to receive(:get_dependents).and_return(nil_date_data)
+
+        dependents = subject.send(:initialize_dependents_information)
+        expect(dependents).to all(be_a(DependentsVerification::DependentInformation))
+        expect(dependents.first.date_of_birth).to be_nil
+        expect(dependents.first.age).to be_nil
       end
     end
   end
