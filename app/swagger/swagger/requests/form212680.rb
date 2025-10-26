@@ -56,7 +56,7 @@ module Swagger
                                maxLength: 9, minLength: 9
                 property :vaFileNumber, type: :string, example: '987654321', description: 'VA File Number', maxLength: 9
                 property :serviceNumber, type: :string, example: 'A2999999', description: 'VETERAN\'S SERVICE NUMBER ',
-                                         maxLength: 10, nullable: true
+                                         maxLength: 10#, nullable: true
                 property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
               end
 
@@ -71,19 +71,20 @@ module Swagger
                 property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
                 property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)',
                                maxLength: 9, minLength: 9
-                property :relationship, type: :string, example: 'spouse', description: 'Relationship to veteran',
-                                        enum: PdfFill::Forms::Va212680::RELATIONSHIPS.keys, nullable: true
+                property :relationship, type: :string, example: 'spouse', description: 'Relationship to veteran'
+                                        #enum: PdfFill::Forms::Va212680::RELATIONSHIPS.keys, nullable: true
                 property :address do
                   key :$ref, :Form212680Address
                 end
                 property :phoneNumber, type: :string, example: '5551234567', description: 'Phone Number',
-                                       maxLength: 10, minLength: 10, nullable: true
-                property :internationalPhoneNumber, type: :string, example: '5551234567', description: 'Phone Number',
-                                                    nullable: true
+                                       maxLength: 10, minLength: 10#, nullable: true
+                property :internationalPhoneNumber, type: :string, example: '5551234567', description: 'Phone Number'
+                                                    #nullable: true
                 property :agreeToElectronicCorrespondence, type: :boolean,
                                                            example: true
-                property :email, type: :string, example: 'test@va.gov', description: 'Email Address', nullable: true,
-                                 maxLength: 70
+                property :email, type: :string, example: 'test@va.gov', description: 'Email Address', maxLength: 70
+                #, nullable: true,
+                                 
               end
 
               property :benefitInformation do
@@ -92,7 +93,7 @@ module Swagger
                 key :description, 'SECTION III: CLAIM INFORMATION'
 
                 property :benefitSelection, type: :string, example: 'smc',
-                                            description: 'Type of benefit being claimed', emum: PdfFill::Forms::Va212680::BENEFITS.keys
+                                            description: 'Type of benefit being claimed'#, emum: PdfFill::Forms::Va212680::BENEFITS.keys
               end
 
               property :additionalInformation do
@@ -102,9 +103,9 @@ module Swagger
                 property :currentlyHospitalized, type: :boolean, example: false,
                                                  description: 'Is veteran currently hospitalized?'
                 property :admissionDate, type: :string, format: :date, example: '2023-01-01',
-                                         description: 'Date admitted', nullable: true
+                                         description: 'Date admitted'#, nullable: true
                 property :hospitalName, type: :string, example: 'VA Medical Center',
-                                        description: 'Name of hospital', nullable: true
+                                        description: 'Name of hospital'#, nullable: true
                 property :hospitalAddress do
                   key :$ref, :Form212680Address
                 end
@@ -145,35 +146,35 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/form212680/submit' do
-        operation :post do
-          key :description, 'Submit form stub - not yet implemented. Use existing VA document upload system'
-          key :operationId, 'submitForm212680'
-          key :tags, %w[benefits_forms]
+      # swagger_path '/v0/form212680/submit' do
+      #   operation :post do
+      #     key :description, 'Submit form stub - not yet implemented. Use existing VA document upload system'
+      #     key :operationId, 'submitForm212680'
+      #     key :tags, %w[benefits_forms]
 
-          parameter do
-            key :name, :form212680
-            key :in, :body
-            key :description, 'Form 21-2680 submission data'
-            key :required, false
+      #     parameter do
+      #       key :name, :form212680
+      #       key :in, :body
+      #       key :description, 'Form 21-2680 submission data'
+      #       key :required, false
 
-            schema do
-              key :type, :object
-            end
-          end
+      #       schema do
+      #         key :type, :object
+      #       end
+      #     end
 
-          response 200 do
-            key :description, 'Stub response with instructions'
-            schema do
-              key :type, :object
-              property :message, type: :string,
-                                 example: 'Form submission stub - not yet implemented. ' \
-                                          'Please use the existing VA document upload system at ' \
-                                          'va.gov/upload-supporting-documents'
-            end
-          end
-        end
-      end
+      #     response 200 do
+      #       key :description, 'Stub response with instructions'
+      #       schema do
+      #         key :type, :object
+      #         property :message, type: :string,
+      #                            example: 'Form submission stub - not yet implemented. ' \
+      #                                     'Please use the existing VA document upload system at ' \
+      #                                     'va.gov/upload-supporting-documents'
+      #       end
+      #     end
+      #   end
+      # end
     end
   end
 end
