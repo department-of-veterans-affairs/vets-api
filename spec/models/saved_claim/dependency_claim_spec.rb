@@ -57,6 +57,14 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when :va_dependents_v2 is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+
+        datestamp_pdf_double = instance_double(PDFUtilities::DatestampPdf)
+        allow(PDFUtilities::DatestampPdf).to receive(:new)
+          .with(file_path)
+          .and_return(datestamp_pdf_double)
+
+        allow(datestamp_pdf_double).to receive(:run).and_return(datestamp_pdf_double)
+        allow(File).to receive(:rename).and_return(file_path)
       end
 
       it 'uploads to vbms' do
@@ -69,11 +77,32 @@ RSpec.describe SavedClaim::DependencyClaim do
         expect(uploader).to receive(:upload!)
         subject.upload_pdf('686C-674')
       end
+
+      context 'when uploading to vbms fails' do
+        before { allow(ClaimsApi::VBMSUploader).to receive(:new).and_raise(StandardError) }
+
+        it 'raises a StandardError and tracks the error when VBMS upload fails' do
+          expect(subject.monitor).to receive(:track_pdf_upload_error)
+          expect { subject.upload_pdf('686C-674') }.to raise_error(StandardError, 'VBMS Upload Error')
+        end
+      end
+
+      context 'when there is an error with PdfFill::Filler' do
+        let(:error) { StandardError.new('PDF Fill Error') }
+
+        before { allow(PdfFill::Filler).to receive(:fill_form).and_raise(error) }
+
+        it 'raises a StandardError and tracks the error when PdfFill::Filler fails' do
+          expect(subject.monitor).to receive(:track_to_pdf_failure).with(error, '686C-674')
+          expect { subject.upload_pdf('686C-674') }.to raise_error(error)
+        end
+      end
     end
 
     context 'uploader v2' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+        allow(subject_v2).to receive(:process_pdf).and_return(file_path_v2)
       end
 
       it 'when :va_dependents_v2 is enabled' do
@@ -91,7 +120,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       it 'when :va_dependents_v2 is enabled upload 674' do
         uploader = double(ClaimsApi::VBMSUploader)
         expect(ClaimsApi::VBMSUploader).to receive(:new).with(
-          filepath: "tmp/pdfs/21-674-V2_#{subject_v2.id}_0_final.pdf",
+          filepath: file_path_v2,
           file_number: va_file_number_v2,
           doc_type:
         ).and_return(uploader)
@@ -435,6 +464,255 @@ RSpec.describe SavedClaim::DependencyClaim do
         expect(Dependents::Form686c674FailureEmailJob).not_to receive(:perform_async)
 
         subject.send_failure_email('')
+      end
+    end
+
+    context 'when overflow tracking fails' do
+      let(:standard_error) { StandardError.new('test error') }
+      let(:claim_data) { build(:dependency_claim).attributes }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:saved_claim_pdf_overflow_tracking).and_return(true)
+
+        allow(PdfFill::Filler).to receive(:fill_form).and_return('fake_path.pdf')
+        allow(Common::FileHelpers).to receive(:delete_file_if_exists).and_raise(standard_error)
+      end
+
+      it 'has the monitor track the failure' do
+        claim = SavedClaim::DependencyClaim.new(claim_data)
+        expect(claim.monitor).to receive(:track_pdf_overflow_tracking_failure).with(standard_error)
+        claim.save!
+      end
+    end
+
+    context 'when address is not present' do
+      let(:claim_data) { build(:dependency_claim).attributes }
+
+      it 'flags an error if the address is not present' do
+        claim = SavedClaim::DependencyClaim.new(claim_data)
+        claim.parsed_form['dependents_application']['veteran_contact_information'].delete('veteran_address')
+
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:parsed_form)
+        expect(claim.errors[:parsed_form]).to include("Veteran address can't be blank")
+      end
+    end
+  end
+
+  context 'when 686 data is invalid' do
+    let(:claim_data) { build(:dependency_claim).attributes }
+    let(:claim) { SavedClaim::DependencyClaim.new(claim_data) }
+
+    it 'flags an error when the veteran ssn is not present' do
+      claim.parsed_form['veteran_information'].delete('ssn')
+      claim.valid?(:run_686_form_jobs)
+
+      expect(claim.errors.attribute_names).to include(:parsed_form)
+      expect(claim.errors[:parsed_form]).to include("SSN can't be blank")
+    end
+
+    it 'flags an error when dependent application data is not present' do
+      claim.parsed_form.delete('dependents_application')
+      claim.valid?(:run_686_form_jobs)
+
+      expect(claim.errors.attribute_names).to include(:parsed_form)
+      expect(claim.errors[:parsed_form]).to include("Dependent application can't be blank")
+    end
+  end
+
+  context 'when determining document_type' do
+    describe '#document_type' do
+      it 'returns the correct document type' do
+        expect(subject.document_type).to eq 148
+      end
+    end
+  end
+
+  context 'sending submitted email' do
+    context 'when form 686 only' do
+      subject { described_class.new(form: adopted_child.to_json) }
+
+      # test with form 686 for now.
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a 686 submitted email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(notification_email).to receive(:deliver).with(:submitted686)
+        expect(subject.monitor).to receive(:track_send_submitted_email_success).with(nil)
+
+        subject.send_submitted_email(nil)
+      end
+    end
+
+    context 'when form 674 only' do
+      subject { described_class.new(form: form_674_only.to_json) }
+
+      # test with form 674 for now.
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a 674 submitted email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(notification_email).to receive(:deliver).with(:submitted674)
+        expect(subject.monitor).to receive(:track_send_submitted_email_success).with(nil)
+
+        subject.send_submitted_email(nil)
+      end
+    end
+
+    context 'when form 686 and 674' do
+      subject { described_class.new(form: all_flows_payload.to_json) }
+
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a combo submitted email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(notification_email).to receive(:deliver).with(:submitted686c674)
+        expect(subject.monitor).to receive(:track_send_submitted_email_success).with(nil)
+
+        subject.send_submitted_email(nil)
+      end
+    end
+
+    context 'when neither 686 nor 674 (an error)' do
+      subject { described_class.new }
+
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a combo submitted email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(subject.monitor).to receive(:track_unknown_claim_type).with(kind_of(StandardError))
+        expect(notification_email).to receive(:deliver).with(:submitted686c674)
+        # Not sure why this is being done, but it is
+        expect(subject.monitor).to receive(:track_send_submitted_email_success).with(nil)
+
+        subject.send_submitted_email(nil)
+      end
+    end
+
+    context 'when an error occurs while sending the email' do
+      subject { described_class.new }
+
+      let(:standard_error) { StandardError.new('test error') }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+        allow(Dependents::NotificationEmail).to receive(:new).and_raise(standard_error)
+      end
+
+      it 'tracks the error' do
+        expect(subject.monitor).to receive(:track_send_submitted_email_failure).with(standard_error, nil)
+        subject.send_submitted_email(nil)
+      end
+    end
+  end
+
+  context 'sending received email' do
+    context 'when form 686 only' do
+      subject { described_class.new(form: adopted_child.to_json) }
+
+      # test with form 686 for now.
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a 686 received email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(notification_email).to receive(:deliver).with(:received686)
+        expect(subject.monitor).to receive(:track_send_received_email_success).with(nil)
+
+        subject.send_received_email(nil)
+      end
+    end
+
+    context 'when form 674 only' do
+      subject { described_class.new(form: form_674_only.to_json) }
+
+      # test with form 674 for now.
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a 674 received email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(notification_email).to receive(:deliver).with(:received674)
+        expect(subject.monitor).to receive(:track_send_received_email_success).with(nil)
+
+        subject.send_received_email(nil)
+      end
+    end
+
+    context 'when form 686 and 674' do
+      subject { described_class.new(form: all_flows_payload.to_json) }
+
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a combo received email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(notification_email).to receive(:deliver).with(:received686c674)
+        expect(subject.monitor).to receive(:track_send_received_email_success).with(nil)
+
+        subject.send_received_email(nil)
+      end
+    end
+
+    context 'when neither 686 nor 674 (an error)' do
+      subject { described_class.new }
+
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+
+      it 'delivers a combo received email' do
+        notification_email = instance_double(Dependents::NotificationEmail)
+        expect(Dependents::NotificationEmail)
+          .to receive(:new).with(subject.id, nil)
+          .and_return(notification_email)
+
+        expect(subject.monitor).to receive(:track_unknown_claim_type).with(kind_of(StandardError))
+        expect(notification_email).to receive(:deliver).with(:received686c674)
+        # Not sure why this is being done, but it is
+        expect(subject.monitor).to receive(:track_send_received_email_success).with(nil)
+
+        subject.send_received_email(nil)
+      end
+    end
+
+    context 'when an error occurs while sending the email' do
+      subject { described_class.new }
+
+      let(:standard_error) { StandardError.new('test error') }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+        allow(Dependents::NotificationEmail).to receive(:new).and_raise(standard_error)
+      end
+
+      it 'tracks the error' do
+        expect(subject.monitor).to receive(:track_send_received_email_failure).with(standard_error, nil)
+        subject.send_received_email(nil)
       end
     end
   end
