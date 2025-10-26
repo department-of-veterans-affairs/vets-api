@@ -13,6 +13,198 @@
     }
   },
   "paths": {
+    "/v0/form212680/download_pdf": {
+      "post": {
+        "summary": "Submit a 21-2680 form",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "downloadForm212680Pdf",
+        "description": "Generate and download a pre-filled 21-2680 PDF form (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Form successfully submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "file",
+                  "description": "PDF file successfully generated and ready for download"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "ssn",
+                      "vaFileNumber",
+                      "dateOfBirth"
+                    ],
+                    "description": "Section I: VETERAN'S IDENTIFICATION INFORMATION",
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/definitions/Form212680FullName"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "example": "123456789",
+                        "description": "Social Security Number (9 digits)",
+                        "maxLength": 9,
+                        "minLength": 9
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321",
+                        "description": "VA File Number",
+                        "maxLength": 9
+                      },
+                      "serviceNumber": {
+                        "type": "string",
+                        "example": "A2999999",
+                        "description": "VETERAN'S SERVICE NUMBER ",
+                        "maxLength": 10
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1950-01-01",
+                        "description": "Date of Birth"
+                      }
+                    }
+                  },
+                  "claimantInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "relationship",
+                      "address"
+                    ],
+                    "description": "Section II: CLAIMANT'S IDENTIFICATION INFORMATION",
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/definitions/Form212680FullName"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1950-01-01",
+                        "description": "Date of Birth"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "example": "123456789",
+                        "description": "Social Security Number (9 digits)",
+                        "maxLength": 9,
+                        "minLength": 9
+                      },
+                      "relationship": {
+                        "type": "string",
+                        "example": "spouse",
+                        "description": "Relationship to veteran"
+                      },
+                      "address": {
+                        "$ref": "#/definitions/Form212680Address"
+                      },
+                      "phoneNumber": {
+                        "type": "string",
+                        "example": "5551234567",
+                        "description": "Phone Number",
+                        "maxLength": 10,
+                        "minLength": 10
+                      },
+                      "internationalPhoneNumber": {
+                        "type": "string",
+                        "example": "5551234567",
+                        "description": "Phone Number"
+                      },
+                      "agreeToElectronicCorrespondence": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "test@va.gov",
+                        "description": "Email Address",
+                        "maxLength": 70
+                      }
+                    }
+                  },
+                  "benefitInformation": {
+                    "type": "object",
+                    "required": [
+                      "benefitSelection"
+                    ],
+                    "description": "SECTION III: CLAIM INFORMATION",
+                    "properties": {
+                      "benefitSelection": {
+                        "type": "string",
+                        "example": "smc",
+                        "description": "Type of benefit being claimed"
+                      }
+                    }
+                  },
+                  "additionalInformation": {
+                    "type": "object",
+                    "description": "Section IV: IS VETERAN/CLAIMANT HOSPITALIZED?",
+                    "properties": {
+                      "currentlyHospitalized": {
+                        "type": "boolean",
+                        "example": false,
+                        "description": "Is veteran currently hospitalized?"
+                      },
+                      "admissionDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2023-01-01",
+                        "description": "Date admitted"
+                      },
+                      "hospitalName": {
+                        "type": "string",
+                        "example": "VA Medical Center",
+                        "description": "Name of hospital"
+                      },
+                      "hospitalAddress": {
+                        "$ref": "#/definitions/Form212680Address"
+                      }
+                    }
+                  },
+                  "veteranSignature": {
+                    "type": "object",
+                    "required": [
+                      "signature",
+                      "date"
+                    ],
+                    "description": "Section V: CERTIFICATION AND SIGNATURE",
+                    "properties": {
+                      "signature": {
+                        "type": "string",
+                        "example": "John A Doe",
+                        "description": "Signature of veteran or claimant"
+                      },
+                      "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-10-20",
+                        "description": "Date signed (must be within last 60 days)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/form214192": {
       "post": {
         "summary": "Submit a 21-4192 form",
@@ -29,13 +221,13 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "123456",
-                    "type": "form_submissions",
+                    "id": "12345",
+                    "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2024-06-01T12:34:56Z",
+                      "submitted_at": "2025-10-26T19:50:04Z",
                       "regional_office": [],
-                      "confirmation_number": "ABCDEF123456",
-                      "guid": "550e8400-e29b-41d4-a716-446655440000",
+                      "confirmation_number": "98dab2a6-05bc-459b-b694-97a426502401",
+                      "guid": "98dab2a6-05bc-459b-b694-97a426502401",
                       "form": "21-4192"
                     }
                   }
