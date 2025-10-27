@@ -117,25 +117,7 @@
                     ],
                     "properties": {
                       "fullName": {
-                        "type": "object",
-                        "properties": {
-                          "first": {
-                            "type": "string",
-                            "example": "John",
-                            "maxLength": 12
-                          },
-                          "middle": {
-                            "type": "string",
-                            "example": "A",
-                            "maxLength": 1,
-                            "nullable": true
-                          },
-                          "last": {
-                            "type": "string",
-                            "example": "Doe",
-                            "maxLength": 18
-                          }
-                        }
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
                       },
                       "ssn": {
                         "type": "string",
@@ -153,47 +135,7 @@
                         "example": "1980-01-01"
                       },
                       "address": {
-                        "type": "object",
-                        "properties": {
-                          "street": {
-                            "type": "string",
-                            "example": "123 Main St",
-                            "maxLength": 30
-                          },
-                          "street2": {
-                            "type": "string",
-                            "example": "Apt 4B",
-                            "maxLength": 30,
-                            "nullable": true
-                          },
-                          "city": {
-                            "type": "string",
-                            "example": "Springfield",
-                            "maxLength": 18
-                          },
-                          "state": {
-                            "type": "string",
-                            "example": "IL",
-                            "maxLength": 2
-                          },
-                          "postalCode": {
-                            "type": "string",
-                            "example": "62701",
-                            "maxLength": 9
-                          },
-                          "country": {
-                            "type": "string",
-                            "example": "US",
-                            "maxLength": 2
-                          }
-                        },
-                        "required": [
-                          "street",
-                          "city",
-                          "state",
-                          "postalCode",
-                          "country"
-                        ]
+                        "$ref": "#/components/schemas/SimpleAddress"
                       }
                     }
                   },
@@ -210,47 +152,7 @@
                         "type": "string"
                       },
                       "employerAddress": {
-                        "type": "object",
-                        "properties": {
-                          "street": {
-                            "type": "string",
-                            "example": "123 Main St",
-                            "maxLength": 30
-                          },
-                          "street2": {
-                            "type": "string",
-                            "example": "Apt 4B",
-                            "maxLength": 30,
-                            "nullable": true
-                          },
-                          "city": {
-                            "type": "string",
-                            "example": "Springfield",
-                            "maxLength": 18
-                          },
-                          "state": {
-                            "type": "string",
-                            "example": "IL",
-                            "maxLength": 2
-                          },
-                          "postalCode": {
-                            "type": "string",
-                            "example": "62701",
-                            "maxLength": 9
-                          },
-                          "country": {
-                            "type": "string",
-                            "example": "US",
-                            "maxLength": 2
-                          }
-                        },
-                        "required": [
-                          "street",
-                          "city",
-                          "state",
-                          "postalCode",
-                          "country"
-                        ]
+                        "$ref": "#/components/schemas/SimpleAddress"
                       },
                       "typeOfWorkPerformed": {
                         "type": "string"
@@ -417,6 +319,10 @@
       },
       "FirstMiddleLastName": {
         "type": "object",
+        "required": [
+          "first",
+          "last"
+        ],
         "properties": {
           "first": {
             "type": "string",
@@ -438,6 +344,13 @@
       },
       "SimpleAddress": {
         "type": "object",
+        "required": [
+          "street",
+          "city",
+          "state",
+          "postalCode",
+          "country"
+        ],
         "properties": {
           "street": {
             "type": "string",

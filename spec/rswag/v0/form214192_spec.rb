@@ -5,6 +5,12 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 
 RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :request do
+  before do
+    host! Settings.hostname
+    allow(SecureRandom).to receive(:uuid).and_return('12345678-1234-1234-1234-123456789abc')
+    allow(Time).to receive(:current).and_return(Time.zone.parse('2025-01-15 10:30:00 UTC'))
+  end
+
   path '/v0/form214192' do
     post 'Submit a 21-4192 form' do
       tags 'benefits_forms'
@@ -21,7 +27,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
             type: :object,
             required: %i[fullName dateOfBirth],
             properties: {
-              fullName: Openapi::Schemas::Name::FIRST_MIDDLE_LAST,
+              fullName: { '$ref' => '#/components/schemas/FirstMiddleLastName' },
               ssn: {
                 type: :string,
                 pattern: '^\d{9}$',
@@ -30,7 +36,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               },
               vaFileNumber: { type: :string, example: '987654321' },
               dateOfBirth: { type: :string, format: :date, example: '1980-01-01' },
-              address: Openapi::Schemas::Address::SIMPLE_ADDRESS
+              address: { '$ref' => '#/components/schemas/SimpleAddress' }
             }
           },
           employmentInformation: {
@@ -39,9 +45,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                          beginningDateOfEmployment],
             properties: {
               employerName: { type: :string },
-              employerAddress: Openapi::Schemas::Address::SIMPLE_ADDRESS.merge(
-                required: %i[street city state postalCode country]
-              ),
+              employerAddress: { '$ref' => '#/components/schemas/SimpleAddress' },
               typeOfWorkPerformed: { type: :string },
               beginningDateOfEmployment: { type: :string, format: :date },
               endingDateOfEmployment: { type: :string, format: :date },
@@ -114,12 +118,6 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                  }
                },
                required: [:data]
-
-        before do
-          # Stub to return static values for reproducible OpenAPI docs
-          allow(SecureRandom).to receive(:uuid).and_return('12345678-1234-1234-1234-123456789abc')
-          allow(Time).to receive(:current).and_return(Time.zone.parse('2025-01-15 10:30:00 UTC'))
-        end
 
         let(:form_data) do
           {
