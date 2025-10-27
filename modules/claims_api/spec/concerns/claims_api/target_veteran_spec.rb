@@ -89,4 +89,51 @@ describe FakeTargetController do
       end
     end
   end
+
+  describe '#user_is_representative?' do
+    before do
+      allow(controller.current_user).to receive_messages(first_name:, last_name:)
+      controller.instance_variable_set(:@is_valid_ccg_flow, is_valid_ccg_flow)
+    end
+
+    context 'when is_valid_ccg_flow is true' do
+      let(:is_valid_ccg_flow) { true }
+      let(:first_name) { 'John' }
+      let(:last_name) { 'Doe' }
+
+      it 'returns nil' do
+        expect(controller.user_is_representative?).to be_nil
+      end
+    end
+
+    context 'when representative is found' do
+      let(:is_valid_ccg_flow) { false }
+      let(:first_name) { 'John' }
+      let(:last_name) { 'Doe' }
+      let(:representative) { double('Representative') }
+
+      before do
+        allow(Veteran::Service::Representative).to receive(:find_by).with(first_name,
+                                                                          last_name).and_return(representative)
+      end
+
+      it 'returns true' do
+        expect(controller).to be_user_is_representative
+      end
+    end
+
+    context 'when representative is not found' do
+      let(:is_valid_ccg_flow) { false }
+      let(:first_name) { 'John' }
+      let(:last_name) { 'Doe' }
+
+      before do
+        allow(Veteran::Service::Representative).to receive(:find_by).with(first_name, last_name).and_return(nil)
+      end
+
+      it 'returns false' do
+        expect(controller).not_to be_user_is_representative
+      end
+    end
+  end
 end
