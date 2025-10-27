@@ -120,7 +120,7 @@
                     <button class="copy-btn" onclick="copyToClipboard(this.nextElementSibling.textContent)">📋 Copy JSON</button>
                     <pre class="json-content"><code><%= highlight_json(format_json(interaction[:request][:body][:raw])) %></code></pre>
                   <% else %>
-                    <pre class="text-content"><code><%= interaction[:request][:body][:raw] %></code></pre>
+                    <pre class="text-content"><code><%= CGI.escapeHTML(safe_encode(interaction[:request][:body][:raw])) %></code></pre>
                   <% end %>
                 </div>
               </details>
@@ -152,11 +152,20 @@
               <details class="collapsible-section" open>
                 <summary class="section-summary">📦 Response Body</summary>
                 <div class="body-content">
-                  <% if interaction[:response][:body][:is_json] %>
+                  <% if interaction[:response][:body][:is_image] %>
+                    <div class="image-preview">
+                      <p><strong>🖼️ Image:</strong> <%= interaction[:response][:body][:image_type].upcase %></p>
+                      <img src="<%= interaction[:response][:body][:data_uri] %>" alt="Response image" style="max-width: 100%; border: 1px solid #333; margin-top: 10px;" />
+                      <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; color: #00ff00;">📄 View Base64 Data</summary>
+                        <pre class="text-content" style="margin-top: 10px;"><code><%= CGI.escapeHTML(safe_encode(truncate(interaction[:response][:body][:raw], 5000))) %></code></pre>
+                      </details>
+                    </div>
+                  <% elsif interaction[:response][:body][:is_json] %>
                     <button class="copy-btn" onclick="copyToClipboard(this.nextElementSibling.textContent)">📋 Copy JSON</button>
                     <pre class="json-content"><code><%= highlight_json(format_json(interaction[:response][:body][:raw])) %></code></pre>
                   <% else %>
-                    <pre class="text-content"><code><%= truncate(interaction[:response][:body][:raw], 5000) %></code></pre>
+                    <pre class="text-content"><code><%= CGI.escapeHTML(safe_encode(truncate(interaction[:response][:body][:raw], 5000))) %></code></pre>
                   <% end %>
                 </div>
               </details>

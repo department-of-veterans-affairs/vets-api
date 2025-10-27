@@ -216,8 +216,18 @@ module VcrInspector
       "#{text[0...length]}..."
     end
 
+    def safe_encode(str)
+      return '' if str.nil?
+      return str if str.encoding == Encoding::UTF_8 && str.valid_encoding?
+      
+      # Try to encode to UTF-8, replacing invalid characters
+      str.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+    rescue StandardError
+      str.force_encoding('UTF-8')
+    end
+
     def highlight_json(json_str)
-      CGI.escapeHTML(json_str)
+      CGI.escapeHTML(safe_encode(json_str))
     end
 
     def decode_base64_if_needed(body_str)

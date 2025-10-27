@@ -54,11 +54,39 @@ module VcrInspector
       string = body['string'] || ''
       encoding = body['encoding']
       
-      # Try to decode base64 if encoded
-      if encoding == 'ASCII-8BIT' || encoding == 'US-ASCII'
+      # Handle binary data (already decoded by YAML's !binary tag)
+      if encoding == 'ASCII-8BIT' && !string.empty?
+        # Check if it's already binary (from !binary YAML tag)
+        image_type = detect_image_type(string)
+        if image_type
+          # Re-encode to base64 for data URI
+          base64_string = Base64.strict_encode64(string)
+          return { 
+            raw: base64_string, 
+            is_json: false, 
+            is_image: true, 
+            image_type: image_type,
+            data_uri: "data:image/#{image_type};base64,#{base64_string}"
+          }
+        end
+      end
+      
+      # Handle base64 encoded text (US-ASCII encoding)
+      if encoding == 'US-ASCII' && string.match?(/^[A-Za-z0-9+\/]+=*$/)
         begin
-          decoded = Base64.decode64(string) if string.match?(/^[A-Za-z0-9+\/]+=*$/)
-          string = decoded if decoded && decoded.valid_encoding?
+          decoded = Base64.decode64(string)
+          image_type = detect_image_type(decoded)
+          if image_type
+            return { 
+              raw: string, 
+              is_json: false, 
+              is_image: true, 
+              image_type: image_type,
+              data_uri: "data:image/#{image_type};base64,#{string}"
+            }
+          end
+          # Not an image, but might be decodable text
+          string = decoded if decoded.valid_encoding?
         rescue StandardError
           # Keep original if decode fails
         end
@@ -73,6 +101,19 @@ module VcrInspector
       end
 
       { raw: string, is_json: false }
+    end
+
+    def self.detect_image_type(binary_data)
+      return nil if binary_data.nil? || binary_data.empty?
+      
+      # Check magic bytes for common image formats
+      return 'gif' if binary_data[0..5] == "GIF89a" || binary_data[0..5] == "GIF87a"
+      return 'png' if binary_data[0..3] == "\x89PNG"
+      return 'jpeg' if binary_data[0..2] == "\xFF\xD8\xFF"
+      return 'webp' if binary_data.length > 12 && binary_data[8..11] == 'WEBP'
+      return 'bmp' if binary_data[0..1] == 'BM'
+      
+      nil
     end
   end
 end

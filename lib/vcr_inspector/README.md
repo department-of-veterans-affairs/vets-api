@@ -20,6 +20,7 @@ A retro VCR-themed web UI for browsing, searching, and inspecting VCR cassettes 
 - **Collapsible JSON structures** - Click count badges to expand/collapse objects and arrays
 - **Search within responses** - Find text in large JSON responses with match highlighting
 - **Navigation controls** - Previous/next buttons to jump between search matches
+- **Binary image display** - Automatically detects and renders GIF, PNG, JPEG, WebP, and BMP images
 - Automatic base64 decoding
 - Collapsible sections for headers and bodies
 - Copy buttons for URLs and JSON payloads
@@ -65,8 +66,11 @@ Click the "SERVICES" button to see all cassettes grouped by external service (BG
    - Click count badges (e.g., `{5}` or `[10]`) to collapse/expand nested structures
    - Use the search box to find specific text within the response
    - Navigate matches with the prev/next buttons or `Enter`/`Shift+Enter`
-5. Use copy buttons to grab URLs or JSON payloads
-6. Check which tests use this cassette
+5. **For binary images:**
+   - Images (GIF, PNG, JPEG, etc.) are automatically detected and displayed
+   - View the base64 data in a collapsible section if needed
+6. Use copy buttons to grab URLs or JSON payloads
+7. Check which tests use this cassette
 
 ### Keyboard Shortcuts
 - `/` - Focus global search
@@ -123,6 +127,13 @@ Zero external dependencies! Uses only Ruby standard library.
 - Navigate between matches with prev/next buttons or keyboard shortcuts
 - Falls back to raw text for non-JSON content
 
+#### Binary Image Display
+- Automatically detects image files in response bodies (GIF, PNG, JPEG, WebP, BMP)
+- Renders images inline using data URIs
+- Shows image format and dimensions
+- Provides collapsible view of base64 data for copying
+- Handles YAML `!binary` tagged content correctly
+
 #### Base64 Decoding
 - Detects base64-encoded content
 - Attempts automatic decoding
@@ -148,9 +159,10 @@ Zero external dependencies! Uses only Ruby standard library.
 2. **Search by error codes** to find failing interactions: `?status=500`
 3. **Collapse large JSON** by clicking the count badges to focus on structure
 4. **Search within responses** to quickly find specific fields or values in large payloads
-5. **Copy JSON payloads** to use in new test fixtures
-6. **Check cassette age** - old cassettes may have outdated data structures
-7. **View test usage** to understand cassette context before modifying
+5. **View images inline** - tracking pixels, captchas, and other binary images render automatically
+6. **Copy JSON payloads** to use in new test fixtures
+7. **Check cassette age** - old cassettes may have outdated data structures
+8. **View test usage** to understand cassette context before modifying
 
 ## Visual Elements
 
