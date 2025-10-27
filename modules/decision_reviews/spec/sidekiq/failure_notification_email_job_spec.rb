@@ -485,15 +485,6 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
         context 'when already notified' do
           before do
             secondary_form1.update(failure_notification_sent_at: 1.day.ago)
-
-            # Clean up any SavedClaims with error status from previous tests to prevent pollution
-            # This test expects NO emails to be sent and NO errors logged, so we need to ensure
-            # only the SavedClaims created in this context (guid1, guid2) exist
-            # rubocop:disable Rails/SkipsModelValidations
-            SavedClaim.where('metadata LIKE ?', '%error%')
-                      .where.not(guid: [guid1, guid2])
-                      .update_all(delete_date: Time.current)
-            # rubocop:enable Rails/SkipsModelValidations
           end
 
           it 'does not send another email' do
