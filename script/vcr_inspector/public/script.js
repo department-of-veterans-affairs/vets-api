@@ -438,7 +438,102 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     initJsonCollapsing();
     initResponseSearch();
+    initBeKindRewind();
   }, 100);
 });
+
+// "Be Kind, Rewind" Easter Egg
+function initBeKindRewind() {
+  // Only on cassette detail pages
+  const cassetteViewer = document.querySelector('.cassette-viewer');
+  if (!cassetteViewer) return;
+  
+  // Add scroll listeners to individual response body containers
+  document.querySelectorAll('.body-content pre').forEach(responseBody => {
+    let easterEggShown = false;
+    const scrollThreshold = 0.90; // 90% scrolled within the response
+    
+    responseBody.addEventListener('scroll', () => {
+      const scrollHeight = responseBody.scrollHeight;
+      const scrollTop = responseBody.scrollTop;
+      const clientHeight = responseBody.clientHeight;
+      
+      // Check if response is long enough (more than 2 screen heights)
+      if (scrollHeight < clientHeight * 2) return;
+      
+      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+      
+      if (scrollPercentage >= scrollThreshold && !easterEggShown) {
+        easterEggShown = true;
+        showBeKindRewind();
+        
+        // Reset after scrolling back up significantly
+        const resetCheck = setInterval(() => {
+          if (responseBody.scrollTop < scrollHeight * 0.3) {
+            easterEggShown = false;
+            clearInterval(resetCheck);
+          }
+        }, 1000);
+      }
+    });
+  });
+}
+
+function showBeKindRewind() {
+  const overlay = document.createElement('div');
+  overlay.className = 'be-kind-rewind-overlay';
+  overlay.innerHTML = `
+    <div class="be-kind-rewind-message">
+      <button class="rewind-close" onclick="this.closest('.be-kind-rewind-overlay').remove();" title="Close">✕</button>
+      <div class="vcr-tape-icon">
+        <div class="tape-body">
+          <div class="tape-label">VCR</div>
+          <div class="tape-window">
+            <div class="tape-reel spinning"></div>
+            <div class="tape-reel spinning"></div>
+          </div>
+        </div>
+      </div>
+      <div class="rewind-text">
+        <div class="rewind-main">⏪ BE KIND, REWIND ⏪</div>
+        <div class="rewind-sub">You've reached the end of this cassette</div>
+      </div>
+      <button class="rewind-button" onclick="this.closest('.be-kind-rewind-overlay').remove(); window.scrollTo({ top: 0, behavior: 'smooth' });">
+        ⏮️ REWIND TO TOP
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  // Fade in animation
+  setTimeout(() => overlay.classList.add('visible'), 10);
+  
+  // Click overlay background to dismiss
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove('visible');
+      setTimeout(() => overlay.remove(), 500);
+    }
+  });
+  
+  // ESC key to dismiss
+  const escHandler = (e) => {
+    if (e.key === 'Escape') {
+      overlay.classList.remove('visible');
+      setTimeout(() => overlay.remove(), 500);
+      document.removeEventListener('keydown', escHandler);
+    }
+  };
+  document.addEventListener('keydown', escHandler);
+  
+  // Auto-remove after 8 seconds
+  setTimeout(() => {
+    if (overlay.parentElement) {
+      overlay.classList.remove('visible');
+      setTimeout(() => overlay.remove(), 500);
+    }
+  }, 8000);
+}
 
 console.log('🎬 VCR Inspector loaded - Press "/" to search');
