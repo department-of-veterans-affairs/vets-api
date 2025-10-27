@@ -212,7 +212,17 @@
             "reference": "Patient/1014042380V807862"
           }
         }
-      }
+      },
+      {"resource":
+       {"resourceType": "OperationOutcome",
+        "id": "23be09b8-6adc-450e-947b-99f54733c08c",
+        "issue":
+         [{"severity": "information",
+           "code": "informational",
+           "diagnostics": "Success"},
+          {"severity": "information",
+           "code": "informational",
+           "diagnostics": "Overall message outcome"}]}}
     ]
   },
   "oracle-health": {
