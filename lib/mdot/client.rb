@@ -88,7 +88,7 @@ module MDOT
     end
 
     def log_error_details(error)
-      log_message_to_rails(error.message, 'error', {url: config.base_path, body: error.try(:body)})
+      log_message_to_rails(error.message, 'error', { url: config.base_path, body: error.try(:body) })
     end
 
     def raise_backend_exception(key, source = self.class, error = nil)
