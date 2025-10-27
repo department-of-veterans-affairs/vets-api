@@ -95,15 +95,16 @@ module UnifiedHealthData
     end
 
     def refill_prescription(orders)
+      normalized_orders = normalize_orders(orders)
       with_monitoring do
-        response = uhd_client.refill_prescription_orders(build_refill_request_body(orders))
+        response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
         parse_refill_response(response)
       end
     rescue Common::Exceptions::BackendServiceException => e
       raise e if e.original_status && e.original_status >= 500
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
-      build_error_response(orders)
+      build_error_response(normalized_orders)
     end
 
     def get_care_summaries_and_notes
@@ -232,8 +233,8 @@ module UnifiedHealthData
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            orderId: order['id'].to_s,
-            stationNumber: order['stationNumber'].to_s
+            orderId: order[:id].to_s,
+            stationNumber: order[:stationNumber].to_s
           }
         end
       }
@@ -246,6 +247,16 @@ module UnifiedHealthData
           { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] }
         end
       }
+    end
+
+    def normalize_orders(orders)
+      return [] if orders.blank?
+
+      orders.map do |order|
+        next order unless order.respond_to?(:with_indifferent_access)
+
+        order.with_indifferent_access
+      end
     end
 
     def parse_refill_response(response)

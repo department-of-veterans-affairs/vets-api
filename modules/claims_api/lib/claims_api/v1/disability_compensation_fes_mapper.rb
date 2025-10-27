@@ -145,14 +145,14 @@ module ClaimsApi
 
       def extract_veteran_participant_id
         # Try auth_headers first, then fall back to other sources
-        @auto_claim.auth_headers&.dig('va_eauth_pid') ||
-          @auto_claim.auth_headers&.dig('participant_id')
+        @auto_claim.auth_headers&.dig('va_eauth_pid')&.to_i ||
+          @auto_claim.auth_headers&.dig('participant_id')&.to_i
       end
 
       def extract_claimant_participant_id
         # For dependent claims, use dependent participant ID
         if @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
-          @auto_claim.auth_headers.dig('dependent', 'participant_id')
+          @auto_claim.auth_headers.dig('dependent', 'participant_id')&.to_i
         else
           # Otherwise, claimant is the veteran
           extract_veteran_participant_id
