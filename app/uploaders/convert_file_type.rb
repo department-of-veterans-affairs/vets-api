@@ -58,6 +58,7 @@ module ConvertFileType
   end
 
   def tiff_or_incorrect_extension?(carrier_wave_sanitized_file)
+
     mimemagic_object = self.class.inspect_binary carrier_wave_sanitized_file
     self.class.tiff?(
       carrier_wave_sanitized_file:,
