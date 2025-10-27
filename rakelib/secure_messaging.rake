@@ -9,7 +9,6 @@ namespace :sm do
       raise 'Run this task like this: bundle exec rake sm:setup_test_user user_number=210 mhv_id=22336066'
     end
 
-
     idme_uuid = get_idme_uuid(user_number)
     icn = MPI::Service.new.find_profile_by_identifier(
       identifier: idme_uuid,
@@ -42,7 +41,9 @@ namespace :sm do
     json = JSON.parse(File.read(path))
     json['uuid']
   rescue => e
-    raise e
+    raise StandardError, 'Encountered an error while trying to source ID.me UUID. ' \
+                         "Is the user number you provided legitimate?\n" \
+                         "Original error: #{e.class} - #{e.message}"
   end
 
   def cache_mhv_account(icn, mhv_correlation_id)
@@ -59,6 +60,7 @@ namespace :sm do
       expires_in: 1.year
     )
   rescue => e
-    raise e
+    raise StandardError, "Something went wrong while trying to cache mhv_account for user with ICN: #{icn}. " \
+                         "Original error: #{e.class} - #{e.message}"
   end
 end
