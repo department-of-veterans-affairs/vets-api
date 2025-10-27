@@ -5,6 +5,7 @@ module Openapi
     class Name
       FIRST_MIDDLE_LAST =
         { type: 'object',
+          required: %w[first last],
           properties: { first: { type: 'string', example: 'John', maxLength: 12 },
                         middle: { type: 'string', example: 'A', maxLength: 1, nullable: true },
                         last: { type: 'string', example: 'Doe', maxLength: 18 } } }.freeze

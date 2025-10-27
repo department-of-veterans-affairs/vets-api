@@ -5,6 +5,7 @@ module Openapi
     class Address
       SIMPLE_ADDRESS =
         { type: 'object',
+          required: %w[street city state postalCode country],
           properties: { street: { type: 'string', example: '123 Main St', maxLength: 30 },
                         street2: { type: 'string', example: 'Apt 4B', maxLength: 30, nullable: true },
                         city: { type: 'string', example: 'Springfield', maxLength: 18 },

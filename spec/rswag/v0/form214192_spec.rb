@@ -30,9 +30,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               },
               vaFileNumber: { type: :string, example: '987654321' },
               dateOfBirth: { type: :string, format: :date, example: '1980-01-01' },
-              address: Openapi::Schemas::Address::SIMPLE_ADDRESS.merge(
-                required: %i[street city state postalCode country]
-              )
+              address: Openapi::Schemas::Address::SIMPLE_ADDRESS
             }
           },
           employmentInformation: {
