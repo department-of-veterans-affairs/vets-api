@@ -1,0 +1,45 @@
+{
+  "veteranInformation": {
+    "first": "John",
+    "middle": "A",
+    "last": "Doe",
+    "dateOfBirth": "1990-01-01",
+    "veteranId": {
+      "ssn": "123456789",
+      "vaFileNumber": "987654321"
+    }
+  },
+  "claimantInformation": {
+    "first": "Jane",
+    "middle": "B",
+    "last": "Doe",
+    "dateOfBirth": "1992-05-15",
+    "veteranId": {
+      "ssn": "987654321",
+      "vaFileNumber": "123456789"
+    }
+  },
+  "nursingHomeInformation": {
+    "nursingHomeName": "Sunrise Senior Living",
+    "nursingHomeAddress": {
+      "street": "123 Care Lane",
+      "street2": "Building A",
+      "city": "Springfield",
+      "state": "IL",
+      "country": "USA",
+      "postalCode": "62701"
+    }
+  },
+  "generalInformation": {
+    "admissionDate": "2024-01-01",
+    "medicaidFacility": true,
+    "medicaidApplication": true,
+    "patientMedicaidCovered": true,
+    "medicaidStartDate": "2024-02-01",
+    "monthlyCosts": "3000.00",
+    "certificationLevelOfCare": true,
+    "nursingOfficialName": "Dr. Sarah Smith",
+    "nursingOfficialTitle": "Director of Nursing",
+    "nursingOfficialPhoneNumber": "555-789-0123"
+  }
+}
