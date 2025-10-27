@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'V0::Form1095Bs', type: :request do
-  subject { create(:form1095_b) }
+  subject { create(:form1095_b, tax_year: 2021) }
 
   let(:user) { build(:user, :loa3, icn: subject.veteran_icn) }
   let(:invalid_user) { build(:user, :loa1, icn: subject.veteran_icn) }
@@ -11,27 +11,30 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   describe 'GET /download_pdf for valid user' do
     before do
       sign_in_as(user)
+      allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system).and_return(false)
     end
 
-    it 'returns http success' do
-      get '/v0/form1095_bs/download_pdf/2021'
-      expect(response).to have_http_status(:success)
-    end
+    context 'with feature flag off' do
+      it 'returns http success' do
+        get '/v0/form1095_bs/download_pdf/2021'
+        expect(response).to have_http_status(:success)
+      end
 
-    it 'returns a PDF form' do
-      get '/v0/form1095_bs/download_pdf/2021'
-      expect(response.content_type).to eq('application/pdf')
-    end
+      it 'returns a PDF form' do
+        get '/v0/form1095_bs/download_pdf/2021'
+        expect(response.content_type).to eq('application/pdf')
+      end
 
-    it 'throws 404 when form not found' do
-      get '/v0/form1095_bs/download_pdf/2018'
-      expect(response).to have_http_status(:not_found)
-    end
+      it 'throws 404 when form not found' do
+        get '/v0/form1095_bs/download_pdf/2018'
+        expect(response).to have_http_status(:not_found)
+      end
 
-    it 'throws 422 when no template exists for requested year' do
-      create(:form1095_b, tax_year: 2018)
-      get '/v0/form1095_bs/download_pdf/2018'
-      expect(response).to have_http_status(:unprocessable_entity)
+      it 'throws 422 when no template exists for requested year' do
+        create(:form1095_b, tax_year: 2018)
+        get '/v0/form1095_bs/download_pdf/2018'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
   end
 
@@ -49,27 +52,30 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   describe 'GET /download_txt for valid user' do
     before do
       sign_in_as(user)
+      allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system).and_return(false)
     end
 
-    it 'returns http success' do
-      get '/v0/form1095_bs/download_txt/2021'
-      expect(response).to have_http_status(:success)
-    end
+    context 'when Flipper feature is disabled' do
+      it 'returns http success' do
+        get '/v0/form1095_bs/download_txt/2021'
+        expect(response).to have_http_status(:success)
+      end
 
-    it 'returns a txt form' do
-      get '/v0/form1095_bs/download_txt/2021'
-      expect(response.content_type).to eq('text/plain')
-    end
+      it 'returns a txt form' do
+        get '/v0/form1095_bs/download_txt/2021'
+        expect(response.content_type).to eq('text/plain')
+      end
 
-    it 'throws 404 when form not found' do
-      get '/v0/form1095_bs/download_txt/2018'
-      expect(response).to have_http_status(:not_found)
-    end
+      it 'throws 404 when form not found' do
+        get '/v0/form1095_bs/download_txt/2018'
+        expect(response).to have_http_status(:not_found)
+      end
 
-    it 'throws 422 when no template exists for requested year' do
-      create(:form1095_b, tax_year: 2018)
-      get '/v0/form1095_bs/download_txt/2018'
-      expect(response).to have_http_status(:unprocessable_entity)
+      it 'throws 422 when no template exists for requested year' do
+        create(:form1095_b, tax_year: 2018)
+        get '/v0/form1095_bs/download_txt/2018'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
   end
 
