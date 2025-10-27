@@ -11,4 +11,3 @@ module Openapi
     end
   end
 end
-

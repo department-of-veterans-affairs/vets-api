@@ -14,7 +14,7 @@ module Openapi
                           type: 'string',
                           example: 'EVSS400',
                           description: 'Sometimes just the http code again, sometimes something like ' \
-                                         '"EVSS400", where the code can be found in config/locales/exceptions.en.yml'
+                                       '"EVSS400", where the code can be found in config/locales/exceptions.en.yml'
                         },
                         source: { type: %w[string object], example: 'EVSS::DisabilityCompensationForm::Service',
                                   description: 'error source class' },
@@ -23,4 +23,3 @@ module Openapi
     end
   end
 end
-

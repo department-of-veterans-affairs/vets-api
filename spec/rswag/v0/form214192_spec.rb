@@ -81,7 +81,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
             }
           }
         },
-        required: [:veteranInformation, :employmentInformation]
+        required: %i[veteranInformation employmentInformation]
       }
 
       # Success response
