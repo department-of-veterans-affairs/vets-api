@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'shellwords'
+
 module VcrInspector
   class TestAnalyzer
     def self.find_tests_using(spec_root, modules_root, cassette_path)
@@ -11,8 +13,9 @@ module VcrInspector
     def self.search_in_path(root, cassette_path)
       return [] unless Dir.exist?(root)
 
-      pattern = cassette_path.gsub(%r{([/\\])}, '\\\\\1')
-      cmd = "grep -r \"#{pattern}\" #{root} --include='*_spec.rb' 2>/dev/null"
+      pattern = Shellwords.shellescape(cassette_path)
+      root_escaped = Shellwords.shellescape(root)
+      cmd = "grep -r #{pattern} #{root_escaped} --include='*_spec.rb' 2>/dev/null"
       output = `#{cmd}`
 
       parse_grep_output(output, root)
@@ -46,7 +49,8 @@ module VcrInspector
       search_paths.each do |root|
         next unless Dir.exist?(root)
 
-        cmd = "grep -r 'VCR.use_cassette\\|cassette:' #{root} --include='*_spec.rb' 2>/dev/null"
+        root_escaped = Shellwords.shellescape(root)
+        cmd = "grep -r 'VCR.use_cassette\\|cassette:' #{root_escaped} --include='*_spec.rb' 2>/dev/null"
         output = `#{cmd}`
 
         output.each_line do |line|
