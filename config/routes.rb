@@ -175,6 +175,8 @@ Rails.application.routes.draw do
 
     resources :efolder, only: %i[index show]
 
+    resources :tsa_letter, only: %i[index show]
+
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
