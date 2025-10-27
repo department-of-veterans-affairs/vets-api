@@ -26,6 +26,7 @@ module SimpleFormsApi
         '21-4142' => 'vba_21_4142',
         '21P-0537' => 'vba_21p_0537',
         '21P-0847' => 'vba_21p_0847',
+        '21P-601' => 'vba_21p_601',
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
         '40-10007' => 'vba_40_10007'
@@ -56,7 +57,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+        return unless %w[40-0247 20-10207 40-10007 21-4140].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
@@ -82,7 +83,7 @@ module SimpleFormsApi
       private
 
       def validate_document_if_needed(file_path)
-        return true unless %w[40-0247 40-10007].include?(params[:form_id]) &&
+        return true unless %w[40-0247 40-10007 21-4140].include?(params[:form_id]) &&
                            File.extname(file_path).downcase == '.pdf'
 
         service = BenefitsIntakeService::Service.new
@@ -258,7 +259,7 @@ module SimpleFormsApi
           metadata: metadata.to_json,
           document: file_path,
           upload_url: location,
-          attachments: form_id == 'vba_20_10207' ? form.get_attachments : nil
+          attachments: %w[vba_20_10207 vba_21_4140].include?(form_id) ? form.get_attachments : nil
         }.compact
 
         lighthouse_service.perform_upload(**upload_params)
@@ -268,7 +269,7 @@ module SimpleFormsApi
         return unless %w[production staging test].include?(Settings.vsp_environment)
 
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
+        attachments = %w[vba_20_10207 vba_21_4140].include?(form_id) ? form.get_attachments : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )

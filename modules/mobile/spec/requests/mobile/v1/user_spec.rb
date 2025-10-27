@@ -9,6 +9,8 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   before do
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                              instance_of(User)).and_return(false)
   end
 
   let(:contact_information_service) do
@@ -192,6 +194,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
       it 'includes a complete list of mobile api services (even if the user does not have access to them)' do
         expect(JSON.parse(response.body).dig('meta', 'availableServices')).to eq(
           %w[
+            allergiesOracleHealthEnabled
             appeals
             appointments
             claims
@@ -251,6 +254,49 @@ RSpec.describe 'Mobile::V1::User', type: :request do
           expect(response).to have_http_status(:ok)
           expect(attributes['profile']).to include(
             'birthDate' => nil
+          )
+        end
+      end
+
+      context 'when Oracle Health is enabled for services' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                                    instance_of(User)).and_return(true)
+
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+                get '/mobile/v1/user', headers: sis_headers
+              end
+            end
+          end
+        end
+
+        it 'includes the OH services when flags are enabled' do
+          expect(attributes['authorizedServices']).to eq(
+            %w[
+              allergiesOracleHealthEnabled
+              appeals
+              appointments
+              claims
+              decisionLetters
+              directDepositBenefits
+              directDepositBenefitsUpdate
+              disabilityRating
+              genderIdentity
+              lettersAndDocuments
+              medicationsOracleHealthEnabled
+              militaryServiceHistory
+              paymentHistory
+              preferredName
+              scheduleAppointments
+              secureMessagingOracleHealthEnabled
+              userProfileUpdate
+            ]
           )
         end
       end
