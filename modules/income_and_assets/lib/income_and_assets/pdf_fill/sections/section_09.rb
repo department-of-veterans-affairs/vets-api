@@ -36,7 +36,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].MarketAnnuity4_9c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
-            key: "marketValueAtEstablishmentOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 13,
             dollar: true,
             question_num: 9,
@@ -78,7 +77,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].HowMuchTransferred4_9f[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
-            key: "addedFundsAmountOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 13,
             dollar: true,
             question_num: 9,
@@ -122,7 +120,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].AnnualAmountReceived4_9i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
-            key: "annualReceivedIncomeOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 13,
             dollar: true,
             question_num: 9,
@@ -152,7 +149,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].SurrenderValue4_9k[#{ITERATOR}]" }
           },
           'surrenderValueOverflow' => {
-            key: "surrenderValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 13,
             dollar: true,
             question_num: 9,
@@ -173,7 +169,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         annuities = form_data['annuities']
-        form_data['annuity'] = annuities&.length ? 0 : 1
+        form_data['annuity'] = radio_yesno(annuities&.length)
         form_data['annuities'] = annuities&.map { |item| expand_item(item) }
       end
 
