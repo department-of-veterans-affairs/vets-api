@@ -22,8 +22,8 @@ module VcrInspector
       @cassette_root = File.join(root, 'spec/support/vcr_cassettes')
       @spec_root = File.join(root, 'spec')
       @modules_root = File.join(root, 'modules')
-      @views_dir = File.join(root, 'lib/vcr_inspector/views')
-      @public_dir = File.join(root, 'lib/vcr_inspector/public')
+      @views_dir = File.join(root, 'script/vcr_inspector/views')
+      @public_dir = File.join(root, 'script/vcr_inspector/public')
       @request = nil
     end
 

@@ -84,7 +84,7 @@ Click the "SERVICES" button to see all cassettes grouped by external service (BG
 ## Architecture
 
 ```
-lib/vcr_inspector/
+script/vcr_inspector/
 ├── app.rb              # WEBrick web server (Ruby stdlib)
 ├── cassette_finder.rb  # Search and index cassettes
 ├── cassette_parser.rb  # YAML parser with JSON detection
