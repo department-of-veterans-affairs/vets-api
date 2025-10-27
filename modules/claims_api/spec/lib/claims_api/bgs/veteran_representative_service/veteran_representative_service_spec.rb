@@ -7,7 +7,7 @@ describe ClaimsApi::VeteranRepresentativeService do
   subject { described_class.new(external_uid: 'xUid', external_key: 'xKey') }
 
   before do
-    stub_request(:get, "https://fwdproxy-dev.vfs.va.gov:4447/endpoint?WSDL")
+    stub_request(:get, 'https://fwdproxy-dev.vfs.va.gov:4447/endpoint?WSDL')
       .to_return(
         status: 200,
         body: <<~XML,
@@ -16,10 +16,10 @@ describe ClaimsApi::VeteranRepresentativeService do
             <!-- fake WSDL -->
           </definitions>
         XML
-        headers: { "Content-Type" => "text/xml" }
+        headers: { 'Content-Type' => 'text/xml' }
       )
 
-    stub_request(:post, "https://fwdproxy-dev.vfs.va.gov:4447/endpoint")
+    stub_request(:post, 'https://fwdproxy-dev.vfs.va.gov:4447/endpoint')
       .to_return(
         status: 200,
         body: <<~XML,
@@ -32,7 +32,7 @@ describe ClaimsApi::VeteranRepresentativeService do
             </Body>
           </Envelope>
         XML
-        headers: { "Content-Type" => "text/xml" }
+        headers: { 'Content-Type' => 'text/xml' }
       )
   end
 
