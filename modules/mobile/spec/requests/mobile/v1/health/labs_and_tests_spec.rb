@@ -5,6 +5,7 @@ require 'unique_user_events'
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
+require 'support/shared_examples_for_labs_and_tests'
 
 RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, type: :request do
   let!(:user) { sis_user(icn: '1000123456V123456') }
@@ -58,6 +59,18 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         # The cassette has 29 DiagnosticReports with presentedForm or result
         expect(labs_data.length).to eq(29)
       end
+    end
+
+    context 'response structure validation' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        VCR.use_cassette(labs_cassette) do
+          get path, headers: sis_headers, params: default_params
+        end
+      end
+
+      include_examples 'labs and tests response structure validation', ['data']
+      include_examples 'labs and tests specific data validation', ['data']
     end
 
     context 'when UHD is disabled' do

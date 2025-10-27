@@ -6,6 +6,7 @@ require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 require 'unique_user_events'
+require 'support/shared_examples_for_labs_and_tests'
 
 RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation, type: :request do
   let(:user_id) { '11898795' }
@@ -63,6 +64,18 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
         # The cassette has 29 DiagnosticReports with presentedForm or result
         expect(json_response.length).to eq(29)
       end
+    end
+
+    context 'response structure validation' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        VCR.use_cassette(labs_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+      end
+
+      include_examples 'labs and tests response structure validation', nil
+      include_examples 'labs and tests specific data validation'
     end
 
     context 'errors' do
