@@ -69,7 +69,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
-      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return true
     end
 
     describe 'index' do
