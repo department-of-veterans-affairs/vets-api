@@ -11,11 +11,7 @@ RSpec.shared_examples 'labs and tests response structure validation' do |respons
   end
 
   it 'each record has required top-level structure' do
-    labs_data.each do |lab|
-      expect(lab).to have_key('id')
-      expect(lab).to have_key('type')
-      expect(lab).to have_key('attributes')
-    end
+    expect(labs_data).to all(have_key('id').and(have_key('type')).and(have_key('attributes')))
   end
 
   it 'each record has type DiagnosticReport' do
@@ -57,7 +53,7 @@ RSpec.shared_examples 'labs and tests response structure validation' do |respons
 
   it 'observation values have valid types when present' do
     valid_value_types = %w[quantity codeable-concept string date-time]
-    
+
     labs_with_observations = labs_data.select do |lab|
       lab['attributes']['observations'].present? && lab['attributes']['observations'].any?
     end
@@ -67,9 +63,10 @@ RSpec.shared_examples 'labs and tests response structure validation' do |respons
     labs_with_observations.each do |lab|
       lab['attributes']['observations'].each do |obs|
         next unless obs['value'] && obs['value']['type']
-        
-        expect(valid_value_types).to include(obs['value']['type']),
-          "Expected observation value type to be one of #{valid_value_types.join(', ')}, got #{obs['value']['type']}"
+
+        error_message = "Expected observation value type to be one of #{valid_value_types.join(', ')}, " \
+                        "got #{obs['value']['type']}"
+        expect(valid_value_types).to include(obs['value']['type']), error_message
       end
     end
   end
@@ -98,7 +95,7 @@ RSpec.shared_examples 'labs and tests response structure validation' do |respons
     labs_data.each do |lab|
       status = lab['attributes']['status']
       expect(valid_statuses).to include(status),
-        "Expected status to be one of #{valid_statuses.join(', ')}, got #{status}"
+                                "Expected status to be one of #{valid_statuses.join(', ')}, got #{status}"
     end
   end
 
@@ -218,7 +215,7 @@ RSpec.shared_examples 'labs and tests specific data validation' do |response_dat
   # Verify specific Vista lab record with encodedData
   it 'contains the Vista lab record with expected ID and encodedData' do
     vista_lab = labs_data.find { |lab| lab['id'] == 'f752ad57-a21d-4306-8910-7dd5dbc0a32e' }
-    expect(vista_lab).not_to be_nil, "Expected to find Vista lab with ID f752ad57-a21d-4306-8910-7dd5dbc0a32e"
+    expect(vista_lab).not_to be_nil, 'Expected to find Vista lab with ID f752ad57-a21d-4306-8910-7dd5dbc0a32e'
 
     attributes = vista_lab['attributes']
     expect(attributes['testCode']).to eq('urn:va:lab-category:MI')
@@ -226,21 +223,21 @@ RSpec.shared_examples 'labs and tests specific data validation' do |response_dat
     expect(attributes['dateCompleted']).to eq('2025-02-27T11:51:00+00:00')
     expect(attributes['encodedData']).to be_present
     expect(attributes['encodedData'].length).to eq(956)
-    
+
     # Decode and verify actual content
     decoded_data = Base64.decode64(attributes['encodedData'])
     expect(decoded_data).to include('Accession [UID]: MICRO 25 14 [1225000')
     expect(decoded_data).to include('Collection sample: BLOOD')
     expect(decoded_data).to include('Test(s) ordered: BLOOD CULTURE')
     expect(decoded_data).to include('Provider: MCGUIRE,MARCI P')
-    
+
     expect(attributes['observations']).to be_nil.or be_empty
   end
 
   # Verify specific Oracle Health lab record with observations
   it 'contains the Oracle Health lab record with expected observations' do
     oracle_lab = labs_data.find { |lab| lab['id'] == 'b9552dee-1a50-4ce9-93cd-dcd1d02165b3' }
-    expect(oracle_lab).not_to be_nil, "Expected to find Oracle Health lab with ID b9552dee-1a50-4ce9-93cd-dcd1d02165b3"
+    expect(oracle_lab).not_to be_nil, 'Expected to find Oracle Health lab with ID b9552dee-1a50-4ce9-93cd-dcd1d02165b3'
 
     attributes = oracle_lab['attributes']
     expect(attributes['testCode']).to eq('CH')
