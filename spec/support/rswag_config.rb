@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../app/openapi/openapi/schemas/errors'
-require_relative '../../app/openapi/openapi/schemas/name'
-require_relative '../../app/openapi/openapi/schemas/address'
-
 class RswagConfig
   def config
     {
