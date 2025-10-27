@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module MyHealth
   module V1
     class PrescriptionsController < RxController
@@ -29,6 +31,13 @@ module MyHealth
         resource = resource.paginate(**pagination_params) if is_using_pagination
         options = { meta: resource.metadata.merge(filter_count).merge(recently_requested:) }
         options[:links] = pagination_links(resource) if is_using_pagination
+
+        # Log unique user event for prescriptions accessed
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        )
+
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
 
@@ -43,6 +52,13 @@ module MyHealth
 
       def refill
         client.post_refill_rx(params[:id])
+
+        # Log unique user event for prescription refill requested
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+
         head :no_content
       end
 
