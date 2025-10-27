@@ -202,6 +202,10 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
+    get 'openapi', to: 'open_api#index'
+
+    # Adds Swagger UI to /v0/swagger - serves Swagger 2.0 / OpenAPI 3.0 docs
+    mount Rswag::Ui::Engine => 'swagger'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
