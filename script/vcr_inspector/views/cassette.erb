@@ -74,6 +74,17 @@
   <div class="interactions-section">
     <h2 class="section-title">🎬 HTTP Interactions</h2>
     
+    <% if @cassette[:error] %>
+      <div class="error-message" style="background: #ff000020; border: 1px solid #ff0000; padding: 20px; border-radius: 5px; color: #ff6666;">
+        <strong>❌ Error parsing cassette:</strong><br>
+        <%= @cassette[:error] %>
+      </div>
+    <% elsif @cassette[:interactions].empty? %>
+      <div class="info-message" style="background: #ffff0020; border: 1px solid #ffff00; padding: 20px; border-radius: 5px; color: #ffff88;">
+        <strong>⚠️ No HTTP interactions found in this cassette.</strong>
+      </div>
+    <% else %>
+    
     <% @cassette[:interactions].each_with_index do |interaction, index| %>
       <div class="interaction-card" id="interaction-<%= index %>">
         <div class="interaction-header">
@@ -173,6 +184,7 @@
           </div>
         </div>
       </div>
+    <% end %>
     <% end %>
   </div>
 </div>

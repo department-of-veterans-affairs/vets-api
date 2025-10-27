@@ -6,7 +6,7 @@ require_relative '../script/vcr_inspector/app'
 
 port = ENV.fetch('PORT', 4567)
 puts "\n🎬 VCR Inspector starting up..."
-puts "📼 Loading cassette library..."
+puts '📼 Loading cassette library...'
 puts "🌐 Opening at http://localhost:#{port}"
 puts "\n   Press Ctrl+C to stop\n\n"
 

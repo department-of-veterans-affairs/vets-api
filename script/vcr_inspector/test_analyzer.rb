@@ -3,35 +3,39 @@
 module VcrInspector
   class TestAnalyzer
     def self.find_tests_using(spec_root, modules_root, cassette_path)
-      # Search in both main spec and modules
       search_paths = [spec_root, modules_root]
-      tests = []
-
-      search_paths.each do |root|
-        next unless Dir.exist?(root)
-
-        # Use grep to find references
-        pattern = cassette_path.gsub(/([\/\\])/, '\\\\\1')
-        cmd = "grep -r \"#{pattern}\" #{root} --include='*_spec.rb' 2>/dev/null"
-        output = `#{cmd}`
-        
-        output.each_line do |line|
-          if line =~ /^([^:]+):(\d+):(.*)/
-            file_path = Regexp.last_match(1)
-            line_number = Regexp.last_match(2)
-            content = Regexp.last_match(3).strip
-            
-            tests << {
-              file: file_path.sub("#{root}/", ''),
-              line: line_number,
-              content: content,
-              full_path: file_path
-            }
-          end
-        end
-      end
-
+      tests = search_paths.flat_map { |root| search_in_path(root, cassette_path) }
       tests.uniq { |t| t[:full_path] }
+    end
+
+    def self.search_in_path(root, cassette_path)
+      return [] unless Dir.exist?(root)
+
+      pattern = cassette_path.gsub(%r{([/\\])}, '\\\\\1')
+      cmd = "grep -r \"#{pattern}\" #{root} --include='*_spec.rb' 2>/dev/null"
+      output = `#{cmd}`
+
+      parse_grep_output(output, root)
+    end
+
+    def self.parse_grep_output(output, root)
+      tests = []
+      output.each_line do |line|
+        test_info = extract_test_info(line, root)
+        tests << test_info if test_info
+      end
+      tests
+    end
+
+    def self.extract_test_info(line, root)
+      return nil unless line =~ /^([^:]+):(\d+):(.*)/
+
+      {
+        file: Regexp.last_match(1).sub("#{root}/", ''),
+        line: Regexp.last_match(2),
+        content: Regexp.last_match(3).strip,
+        full_path: Regexp.last_match(1)
+      }
     end
 
     def self.cassette_usage_stats(spec_root, modules_root)
@@ -44,7 +48,7 @@ module VcrInspector
 
         cmd = "grep -r 'VCR.use_cassette\\|cassette:' #{root} --include='*_spec.rb' 2>/dev/null"
         output = `#{cmd}`
-        
+
         output.each_line do |line|
           # Extract cassette name from the line
           if line =~ /['"]([^'"]+)['"]/

@@ -15,10 +15,10 @@ module VcrInspector
   # Main web application using WEBrick
   class App
     attr_reader :cassette_root, :spec_root, :modules_root, :views_dir, :public_dir, :request
-    
+
     def initialize
       # Get the actual file location, not execution location
-      root = File.expand_path('../../..', __FILE__)
+      root = File.expand_path('../..', __dir__)
       @cassette_root = File.join(root, 'spec/support/vcr_cassettes')
       @spec_root = File.join(root, 'spec')
       @modules_root = File.join(root, 'modules')
@@ -30,7 +30,7 @@ module VcrInspector
     def self.run!(options = {})
       app = new
       port = options[:port] || 4567
-      
+
       server = WEBrick::HTTPServer.new(
         Port: port,
         Logger: WEBrick::Log.new($stderr, WEBrick::Log::ERROR),
@@ -50,40 +50,51 @@ module VcrInspector
       server.start
     end
 
+    # Main request handler
     def handle_request(req, res)
       @request = req
+      route_request(req, res)
+    rescue => e
+      handle_error(res, e)
+    end
+
+    def route_request(req, res)
       path = req.path
       method = req.request_method
 
       case [method, path]
-      when ['GET', '/']
-        handle_index(req, res)
-      when ['GET', '/services']
-        handle_services(req, res)
-      when ['GET', '/search']
-        handle_search(req, res)
+      when ['GET', '/'] then handle_index(req, res)
+      when ['GET', '/services'] then handle_services(req, res)
+      when ['GET', '/search'] then handle_search(req, res)
       else
-        if path.start_with?('/cassette/')
-          handle_cassette(req, res)
-        elsif path == '/style.css'
-          serve_file(res, File.join(public_dir, 'style.css'), 'text/css')
-        elsif path == '/script.js'
-          serve_file(res, File.join(public_dir, 'script.js'), 'application/javascript')
-        else
-          handle_not_found(req, res)
-        end
+        route_path(req, res, path)
       end
-    rescue StandardError => e
+    end
+
+    def route_path(req, res, path)
+      if path.start_with?('/cassette/')
+        handle_cassette(req, res)
+      elsif path == '/style.css'
+        serve_file(res, File.join(public_dir, 'style.css'), 'text/css')
+      elsif path == '/script.js'
+        serve_file(res, File.join(public_dir, 'script.js'), 'application/javascript')
+      else
+        handle_not_found(req, res)
+      end
+    end
+
+    def handle_error(res, error)
       res.status = 500
       res['Content-Type'] = 'text/html'
-      res.body = "<h1>500 Internal Server Error</h1><pre>#{CGI.escapeHTML(e.message)}\n\n#{CGI.escapeHTML(e.backtrace.join("\n"))}</pre>"
+      error_trace = CGI.escapeHTML(error.backtrace.join("\n"))
+      res.body = "<h1>500 Internal Server Error</h1><pre>#{CGI.escapeHTML(error.message)}\n\n#{error_trace}</pre>"
     end
 
     private
 
     def handle_index(req, res)
       @cassettes = CassetteFinder.all_cassettes(cassette_root)
-      
+
       # Handle sorting
       sort = req.query['sort']
       if sort == 'recent'
@@ -91,7 +102,7 @@ module VcrInspector
       elsif sort == 'old'
         @cassettes = @cassettes.sort_by { |c| c[:recorded_at].to_i }
       end
-      
+
       @stats = {
         total: @cassettes.length,
         services: CassetteFinder.group_by_service(@cassettes).keys.length
@@ -113,16 +124,16 @@ module VcrInspector
         method: req.query['method'],
         status: req.query['status']
       }
-      
+
       @cassettes = CassetteFinder.search(cassette_root, query, filters)
-      
+
       # Handle sorting
       if sort == 'recent'
         @cassettes = @cassettes.sort_by { |c| -c[:recorded_at].to_i }
       elsif sort == 'old'
         @cassettes = @cassettes.sort_by { |c| c[:recorded_at].to_i }
       end
-      
+
       @query = query
       @filters = filters
       render(res, :search_results)
@@ -131,34 +142,44 @@ module VcrInspector
     def handle_cassette(req, res)
       cassette_path = req.path.sub('/cassette/', '')
       full_path = File.join(cassette_root, "#{cassette_path}.yml")
-      
-      unless File.exist?(full_path)
-        return handle_not_found(req, res)
-      end
+
+      return handle_not_found(req, res) unless File.exist?(full_path)
 
       @cassette_name = cassette_path
       @cassette = CassetteParser.parse(full_path)
       @file_info = File.stat(full_path)
-      
-      # Get recorded_at from the cassette
-      @recorded_at = nil
-      if @cassette[:interactions]&.any?
-        # First try to get from individual interactions
-        recorded_dates = @cassette[:interactions].map { |i| i[:recorded_at] }.compact
-        @recorded_at = recorded_dates.map { |d| Time.parse(d) rescue nil }.compact.max
-      end
-      # If not found, try the top-level recorded_at from raw YAML
-      @recorded_at ||= begin
-        Time.parse(@cassette[:raw]['recorded_at']) if @cassette[:raw]&.dig('recorded_at')
-      rescue StandardError
-        nil
-      end
-      @recorded_at ||= @file_info.mtime
-      
+      @recorded_at = extract_recorded_at(@cassette, @file_info)
       @tests_using = TestAnalyzer.find_tests_using(spec_root, modules_root, cassette_path)
-      
+
       render(res, :cassette)
     end
+
+    # rubocop:disable Rails/TimeZone - standalone script without ActiveSupport
+    def extract_recorded_at(cassette, file_info)
+      recorded_at = extract_from_interactions(cassette[:interactions])
+      recorded_at ||= extract_from_raw_yaml(cassette[:raw])
+      recorded_at || file_info.mtime
+    end
+
+    def extract_from_interactions(interactions)
+      return nil unless interactions&.any?
+
+      recorded_dates = interactions.map { |i| i[:recorded_at] }.compact
+      recorded_dates.map do |d|
+        Time.parse(d)
+      rescue ArgumentError
+        nil
+      end.compact.max
+    end
+
+    def extract_from_raw_yaml(raw)
+      return nil unless raw&.dig('recorded_at')
+
+      Time.parse(raw['recorded_at'])
+    rescue ArgumentError
+      nil
+    end
+    # rubocop:enable Rails/TimeZone
 
     def handle_not_found(_req, res)
       res.status = 404
@@ -180,37 +201,44 @@ module VcrInspector
       res['Content-Type'] = 'text/html; charset=utf-8'
       layout_path = File.join(views_dir, 'layout.erb')
       template_path = File.join(views_dir, "#{template}.erb")
-      
+
       # Render the template
       content = ERB.new(File.read(template_path), trim_mode: '-').result(binding)
-      
+
       # Render layout with content
       @content = content
       res.body = ERB.new(File.read(layout_path), trim_mode: '-').result(binding)
     end
 
     # Helper methods for ERB templates
+    # rubocop:disable Rails/Blank - standalone script without ActiveSupport
     def format_json(str)
       return str if str.nil? || str.empty?
-      
+
       JSON.pretty_generate(JSON.parse(str))
     rescue JSON::ParserError
       str
     end
+    # rubocop:enable Rails/Blank
 
+    # Format date for display
+    # rubocop:disable Rails/TimeZone - standalone script without ActiveSupport
     def format_date(date_str)
       return 'Unknown' if date_str.nil?
-      
+
       Time.parse(date_str).strftime('%B %d, %Y at %I:%M %p')
     rescue ArgumentError
       date_str
     end
 
     def format_file_date(timestamp)
+      timestamp = Time.parse(timestamp) if timestamp.is_a?(String)
       timestamp.strftime('%B %d, %Y')
     end
 
+    # Cassette age indicator helper
     def cassette_age_indicator(timestamp)
+      timestamp = Time.parse(timestamp) if timestamp.is_a?(String)
       days_old = ((Time.now - timestamp) / 86_400).to_i
       if days_old < 30
         '🆕'
@@ -222,6 +250,7 @@ module VcrInspector
         '🕰️'
       end
     end
+    # rubocop:enable Rails/TimeZone
 
     def http_method_emoji(method)
       case method.to_s.upcase
@@ -246,17 +275,17 @@ module VcrInspector
 
     def truncate(text, length = 100)
       return text if text.length <= length
-      
+
       "#{text[0...length]}..."
     end
 
     def safe_encode(str)
       return '' if str.nil?
       return str if str.encoding == Encoding::UTF_8 && str.valid_encoding?
-      
+
       # Try to encode to UTF-8, replacing invalid characters
       str.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
-    rescue StandardError
+    rescue
       str.force_encoding('UTF-8')
     end
 
@@ -264,18 +293,20 @@ module VcrInspector
       CGI.escapeHTML(safe_encode(json_str))
     end
 
+    # rubocop:disable Rails/Blank - standalone script without ActiveSupport
     def decode_base64_if_needed(body_str)
       return body_str if body_str.nil? || body_str.empty?
-      
-      if body_str.match?(/^[A-Za-z0-9+\/]+=*$/) && body_str.length > 100
+
+      if body_str.match?(%r{^[A-Za-z0-9+/]+=*$}) && body_str.length > 100
         begin
           decoded = Base64.decode64(body_str)
           return decoded if decoded.valid_encoding?
-        rescue StandardError
+        rescue
           # Not base64, return original
         end
       end
       body_str
     end
   end
+  # rubocop:enable Rails/Blank
 end
