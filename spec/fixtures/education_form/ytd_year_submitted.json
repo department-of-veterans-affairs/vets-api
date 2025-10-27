@@ -91,52 +91,6 @@
       "vrrap": 0
     }
   },
-  "1990e": {
-    "eastern": {
-      "chapter33": 1,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 0
-    },
-    "southern": {
-      "chapter33": 0,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 0
-    },
-    "central": {
-      "chapter33": 0,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 0
-    },
-    "western": {
-      "chapter33": 0,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 0
-    }
-  },
   "5490": {
     "eastern": {
       "chapter33": 1,
@@ -227,20 +181,6 @@
       "chapter1607": 0,
       "vettec": 0,
       "vrrap": 0
-    }
-  },
-  "1990n": {
-    "eastern": {
-      "all": 1
-    },
-    "southern": {
-      "all": 0
-    },
-    "central": {
-      "all": 0
-    },
-    "western": {
-      "all": 0
     }
   },
   "0993": {
@@ -347,52 +287,6 @@
       "chapter1607": 0,
       "vettec": 0,
       "vrrap": 0
-    }
-  },
-  "1990s": {
-    "eastern": {
-      "chapter33": 0,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 0
-    },
-    "southern": {
-      "chapter33": 0,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 0
-    },
-    "central": {
-      "chapter33": 0,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 0
-    },
-    "western": {
-      "chapter33": 0,
-      "chapter30": 0,
-      "chapter1606": 0,
-      "chapter32": 0,
-      "chapter35": 0,
-      "transfer_of_entitlement": 0,
-      "chapter1607": 0,
-      "vettec": 0,
-      "vrrap": 1
     }
   }
 }
