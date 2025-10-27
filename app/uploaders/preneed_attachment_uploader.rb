@@ -9,6 +9,8 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
     (1.byte)...(25.megabytes)
   end
 
+  # Use of 'process convert: format' with conditionals has an issue and doesn't work correctly.
+  # See https://github.com/carrierwaveuploader/carrierwave/issues/2723 for details.
   process(convert: 'pdf', if: :not_pdf?)
 
   def initialize(guid)
