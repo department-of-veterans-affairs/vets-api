@@ -22,7 +22,7 @@ module VeteranFacingServices
     # generic parent class for a notification callback
     class Default
       # statsd metric prefix
-      STATSD = 'api.veteran_facing_services.notification_callback'
+      STATSD = 'api.veteran_facing_services.notification.callback'
 
       # static call to handle notification callback
       # creates an instance of _this_ class and will call the status function
