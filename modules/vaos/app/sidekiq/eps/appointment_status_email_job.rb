@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'vets/shared_logging'
-
 module Eps
   ##
   # Sidekiq job responsible for sending appointment status notification emails
