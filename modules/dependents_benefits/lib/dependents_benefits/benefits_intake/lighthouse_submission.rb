@@ -20,6 +20,7 @@ module DependentsBenefits
         @saved_claim = saved_claim
         @user_data = user_data
         @proc_id = proc_id
+        @attachment_paths = []
       end
 
       def initialize_service
@@ -125,10 +126,6 @@ module DependentsBenefits
       end
 
       def split_file_and_path(path) = { file: path, file_name: path.split('/').last }
-
-      def attachment_paths
-        @attachment_paths ||= []
-      end
 
       def form_path = @form_path || nil
 
