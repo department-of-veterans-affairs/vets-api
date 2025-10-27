@@ -4,14 +4,11 @@ class EducationBenefitsClaim < ApplicationRecord
   FORM_TYPES = %w[
     1990
     1995
-    1990e
     5490
     5495
-    1990n
     0993
     0994
     10203
-    1990s
     10282
     10216
     10215
@@ -131,12 +128,8 @@ class EducationBenefitsClaim < ApplicationRecord
     case form_type
     when '1990'
       benefits = parsed_form.slice(*APPLICATION_TYPES)
-    when '1990n'
-      return benefits
     when '0994', '10297'
       benefits['vettec'] = true
-    when '1990s'
-      benefits['vrrap'] = true
     when '1995'
       benefit = parsed_form['benefit']&.underscore
       benefits['chapter33'] = true if benefit.present? && benefit.start_with?('chapter33')

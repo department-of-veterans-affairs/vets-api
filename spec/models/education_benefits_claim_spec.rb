@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s 10282 10216 10215 10297 10275].each do |form_type|
+  %w[1990 1995 5490 5495 0993 0994 10203 10282 10216 10215 10297 10275].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -156,23 +156,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-    context 'with a form type of 1990e' do
-      subject do
-        create(:va1990e)
-      end
-
-      it 'creates a submission' do
-        subject
-
-        expect(associated_submission).to eq(
-          submission_attributes.merge(
-            'chapter33' => true,
-            'form_type' => '1990e'
-          )
-        )
-      end
-    end
-
     context 'with a form type of 5490' do
       subject do
         create(:va5490)
@@ -185,22 +168,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           submission_attributes.merge(
             'chapter35' => true,
             'form_type' => '5490'
-          )
-        )
-      end
-    end
-
-    context 'with a form type of 1990n' do
-      subject do
-        create(:va1990n)
-      end
-
-      it 'creates a submission' do
-        subject
-
-        expect(associated_submission).to eq(
-          submission_attributes.merge(
-            'form_type' => '1990n'
           )
         )
       end
@@ -325,8 +292,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it 'appends 22- to passed in array' do
-      form_types = %w[1990s 10203]
-      form_headers = %w[22-1990s 22-10203]
+      form_types = %w[10203]
+      form_headers = %w[22-10203]
       expect(described_class.form_headers(form_types)).to eq(form_headers)
     end
   end

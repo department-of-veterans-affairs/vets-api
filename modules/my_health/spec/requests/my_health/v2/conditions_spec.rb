@@ -6,6 +6,7 @@ require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 require 'unified_health_data/service'
+require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, type: :request do
   let(:path) { '/my_health/v2/medical_records/conditions' }
@@ -18,6 +19,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
   describe 'GET /my_health/v2/medical_records/conditions' do
     context 'happy path' do
       it 'returns a successful response' do
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette('unified_health_data/get_conditions_200', match_requests_on: %i[method path]) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }
         end
@@ -37,6 +39,15 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
           'provider',
           'facility',
           'comments'
+        )
+
+        # Verify event logging was called
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_CONDITIONS_ACCESSED
+          ]
         )
       end
 

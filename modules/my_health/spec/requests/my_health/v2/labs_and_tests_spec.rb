@@ -5,6 +5,7 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
+require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation, type: :request do
   let(:user_id) { '11898795' }
@@ -24,6 +25,7 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
     context 'happy path' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette(labs_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
@@ -31,6 +33,16 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns a successful response' do
         expect(response).to be_successful
+      end
+
+      it 'logs unique user events for labs accessed' do
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_LABS_ACCESSED
+          ]
+        )
       end
 
       it 'returns all lab records with encodedData and/or observations' do

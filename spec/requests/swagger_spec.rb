@@ -1523,42 +1523,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    context 'with a loa1 user' do
-      let(:mhv_user) { build(:user, :loa1) }
-
-      it 'rejects getting EVSS Letters for loa1 users' do
-        expect(subject).to validate(:get, '/v0/letters', 403, headers)
-      end
-
-      it 'rejects getting EVSS benefits Letters for loa1 users' do
-        expect(subject).to validate(:get, '/v0/letters/beneficiary', 403, headers)
-      end
-    end
-
-    context 'without EVSS mock' do
-      before do
-        allow(Settings.evss).to receive_messages(mock_gi_bill_status: false, mock_letters: false)
-      end
-
-      it 'supports getting EVSS Letters' do
-        expect(subject).to validate(:get, '/v0/letters', 401)
-        VCR.use_cassette('evss/letters/letters') do
-          expect(subject).to validate(:get, '/v0/letters', 200, headers)
-        end
-      end
-
-      it 'supports getting EVSS Letters Beneficiary' do
-        expect(subject).to validate(:get, '/v0/letters/beneficiary', 401)
-        VCR.use_cassette('evss/letters/beneficiary') do
-          expect(subject).to validate(:get, '/v0/letters/beneficiary', 200, headers)
-        end
-      end
-
-      it 'supports posting EVSS Letters' do
-        expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
-      end
-    end
-
     it 'supports getting the 200 user data' do
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
                                                                                   allow_playback_repeats: true) do
@@ -2457,6 +2421,76 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'Form 21-4192' do
+      context 'submitting a 21-4192 form' do
+        let(:valid_form_data) do
+          {
+            form214192: {
+              veteranInformation: {
+                fullName: {
+                  first: 'John',
+                  middle: 'M',
+                  last: 'Doe'
+                },
+                ssn: '123456789',
+                vaFileNumber: '987654321',
+                dateOfBirth: '1980-01-01',
+                address: {
+                  street: '123 Main St',
+                  city: 'Springfield',
+                  state: 'IL',
+                  postalCode: '62701',
+                  country: 'USA'
+                },
+                phoneNumber: '555-123-4567',
+                emailAddress: 'veteran@example.com'
+              },
+              employmentInformation: {
+                employerName: 'Acme Corporation',
+                employerAddress: {
+                  street: '456 Business Blvd',
+                  city: 'Chicago',
+                  state: 'IL',
+                  postalCode: '60601',
+                  country: 'USA'
+                },
+                employerPhone: '555-987-6543',
+                employerEmail: 'hr@acme.com',
+                contactPerson: {
+                  name: 'Jane Smith',
+                  title: 'HR Manager',
+                  phone: '555-987-6544',
+                  email: 'jane.smith@acme.com'
+                },
+                typeOfWorkPerformed: 'Software Developer',
+                beginningDateOfEmployment: '2015-01-15',
+                endingDateOfEmployment: '2023-06-30',
+                amountEarnedLast12MonthsOfEmployment: 75_000,
+                timeLostLast12MonthsOfEmployment: '2 weeks',
+                hoursWorkedDaily: 8,
+                hoursWorkedWeekly: 40,
+                concessions: 'Flexible hours, ergonomic desk',
+                terminationReason: 'Medical disability',
+                dateLastWorked: '2023-06-30',
+                lastPaymentDate: '2023-07-15',
+                lastPaymentGrossAmount: 6250,
+                lumpSumPaymentMade: false
+              }
+            }
+          }
+        end
+
+        it 'successfully submits a 21-4192 form' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form214192',
+            200,
+            '_data' => valid_form_data
+          )
+        end
+      end
+    end
+
     describe '1095-B' do
       let(:user) { build(:user, :loa3, icn: '3456787654324567') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
@@ -3296,6 +3330,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
+      subject.untested_mappings.delete('/v0/form214192/download_pdf')
       subject.untested_mappings.delete('/v0/form0969')
       subject.untested_mappings.delete('/v0/form210779/download_pdf')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
