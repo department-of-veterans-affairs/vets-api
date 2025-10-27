@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../app/openapi/schemas/errors'
-require_relative '../../app/openapi/schemas/name'
-require_relative '../../app/openapi/schemas/address'
-
 class RswagConfig
   # rubocop:disable Metrics/MethodLength
   def config
