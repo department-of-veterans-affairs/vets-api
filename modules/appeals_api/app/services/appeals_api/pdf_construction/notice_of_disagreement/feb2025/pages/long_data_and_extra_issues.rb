@@ -42,8 +42,6 @@ module AppealsApi
             form_data.contestable_issues.take(Structure::MAX_ISSUES_ON_MAIN_FORM).any? do |issue|
               NoticeOfDisagreement::Feb2025::Structure.issue_text_exceeds_column_width?(issue)
             end
-
-            false
           end
 
           def preferred_email_text
