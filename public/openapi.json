@@ -13,6 +13,260 @@
     }
   },
   "paths": {
+    "/v0/form210779": {
+      "post": {
+        "summary": "Submit a 21-0779 form",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "submitForm210779",
+        "description": "Submit a 21-0779 form (Request for Nursing Home Information in Connection with Claim for Aid and Attendance) - STUB IMPLEMENTATION for frontend development",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Form successfully submitted",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "12345",
+                    "type": "saved_claims",
+                    "attributes": {
+                      "submitted_at": "2025-10-27T19:14:52Z",
+                      "regional_office": [],
+                      "confirmation_number": "aa14f005-c071-4457-85e7-de97dfcf6424",
+                      "guid": "aa14f005-c071-4457-85e7-de97dfcf6424",
+                      "form": "21-0779"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "submitted_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "regional_office": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": [
+                                "Department of Veterans Affairs",
+                                "Example Regional Office",
+                                "P.O. Box 1234",
+                                "Example City, Wisconsin 12345-6789"
+                              ]
+                            },
+                            "confirmation_number": {
+                              "type": "string"
+                            },
+                            "guid": {
+                              "type": "string"
+                            },
+                            "form": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - schema validation failed"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth",
+                      "veteranId"
+                    ],
+                    "description": "SECTION I - VETERAN'S IDENTIFICATION INFORMATION",
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1990-01-01"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "example": "123456789",
+                        "nullable": true
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321",
+                        "nullable": true
+                      }
+                    }
+                  },
+                  "claimantInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth",
+                      "veteranId"
+                    ],
+                    "description": "SECTION II - CLAIMANT'S IDENTIFICATION INFORMATION '            '(Complete this section ONLY IF the claimant is NOT the veteran)",
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1992-05-15",
+                        "nullable": true
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "example": "987654321",
+                        "nullable": true
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "123456789",
+                        "nullable": true
+                      }
+                    }
+                  },
+                  "nursingHomeInformation": {
+                    "type": "object",
+                    "required": [
+                      "nursingHomeName",
+                      "nursingHomeAddress"
+                    ],
+                    "description": "SECTION III - NURSING HOME INFORMATION",
+                    "properties": {
+                      "nursingHomeName": {
+                        "type": "string",
+                        "example": "Sunrise Senior Living"
+                      },
+                      "nursingHomeAddress": {
+                        "$ref": "#/components/schemas/SimpleAddress"
+                      }
+                    }
+                  },
+                  "generalInformation": {
+                    "type": "object",
+                    "required": [
+                      "admissionDate",
+                      "medicaidFacility",
+                      "medicaidApplication",
+                      "patientMedicaidCovered",
+                      "certificationLevelOfCare",
+                      "nursingOfficialName",
+                      "nursingOfficialTitle",
+                      "nursingOfficialPhoneNumber"
+                    ],
+                    "description": "SECTION IV - GENERAL INFORMATION (To be completed by a Nursing Home Official)",
+                    "properties": {
+                      "admissionDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-01"
+                      },
+                      "medicaidFacility": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "medicaidApplication": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "patientMedicaidCovered": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "medicaidStartDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-02-01"
+                      },
+                      "monthlyCosts": {
+                        "type": "string",
+                        "example": "3000.00",
+                        "pattern": "^\\d+(\\.\\d+)?$"
+                      },
+                      "certificationLevelOfCare": {
+                        "type": "string",
+                        "description": "I CERTIFY THAT THE CLAIMANT IS A PATIENT IN THIS FACILITY BECAUSE OF MENTAL OR PHYSICAL DISABILITY AND IS RECEIVING:",
+                        "example": "skilled",
+                        "enum": [
+                          "skilled",
+                          "intermediate"
+                        ]
+                      },
+                      "nursingOfficialName": {
+                        "type": "string",
+                        "description": "NURSING HOME OFFICIAL'S NAME (First and Last)",
+                        "example": "Dr. Sarah Smith"
+                      },
+                      "nursingOfficialTitle": {
+                        "type": "string",
+                        "example": "Director of Nursing"
+                      },
+                      "nursingOfficialPhoneNumber": {
+                        "type": "string",
+                        "example": "555-789-0123",
+                        "maxLength": 10,
+                        "format": "^d{9}$"
+                      },
+                      "nursingOfficialInternationalPhoneNumber": {
+                        "type": "string",
+                        "example": "+4 9555-789-0123"
+                      },
+                      "signature": {
+                        "type": "string",
+                        "example": "Dr. Sarah Smith",
+                        "minLength": 1
+                      },
+                      "dateSigned": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1990-01-01"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/v0/form214192": {
       "post": {
         "summary": "Submit a 21-4192 form",
@@ -32,10 +286,10 @@
                     "id": "12345",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-10-25T21:01:28Z",
+                      "submitted_at": "2025-10-27T19:14:53Z",
                       "regional_office": [],
-                      "confirmation_number": "f73ec5ce-5447-4624-8ed9-a9e375bdecfd",
-                      "guid": "f73ec5ce-5447-4624-8ed9-a9e375bdecfd",
+                      "confirmation_number": "ac33638b-8414-41f3-96a1-0154d018cb74",
+                      "guid": "ac33638b-8414-41f3-96a1-0154d018cb74",
                       "form": "21-4192"
                     }
                   }
@@ -331,5 +585,121 @@
       }
     }
   },
-  "servers": []
+  "servers": [],
+  "components": {
+    "schemas": {
+      "Errors": {
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error": {
+        "required": [
+          "title",
+          "detail",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "error class name"
+          },
+          "detail": {
+            "type": "string",
+            "example": "Received a bad request response from the upstream server",
+            "description": "possibly some additional info, or just the class name again"
+          },
+          "code": {
+            "type": "string",
+            "example": "EVSS400",
+            "description": "Sometimes just the http code again, sometimes something like \"EVSS400\", where the code can be found in config/locales/exceptions.en.yml"
+          },
+          "source": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "example": "EVSS::DisabilityCompensationForm::Service",
+            "description": "error source class"
+          },
+          "status": {
+            "type": "string",
+            "example": "400",
+            "description": "http status code"
+          },
+          "meta": {
+            "type": "object",
+            "description": "additional info, like a backtrace"
+          }
+        }
+      },
+      "FirstMiddleLastName": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "type": "string",
+            "example": "John",
+            "maxLength": 12
+          },
+          "middle": {
+            "type": "string",
+            "example": "A",
+            "maxLength": 1,
+            "nullable": true
+          },
+          "last": {
+            "type": "string",
+            "example": "Doe",
+            "maxLength": 18
+          }
+        }
+      },
+      "SimpleAddress": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "123 Main St",
+            "maxLength": 30
+          },
+          "street2": {
+            "type": "string",
+            "example": "Apt 4B",
+            "maxLength": 5,
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "example": "Springfield",
+            "maxLength": 18
+          },
+          "state": {
+            "type": "string",
+            "example": "IL",
+            "maxLength": 2
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "62701",
+            "maxLength": 9
+          },
+          "country": {
+            "type": "string",
+            "example": "US",
+            "maxLength": 2
+          }
+        }
+      }
+    }
+  }
 }

@@ -3,20 +3,22 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../../app/openapi/requests/form210779'
 
 # { post: { responses: { '200': { description: 'Form successfully submitted (stub response)',
 #                                 schema: { :$ref => '#/definitions/SavedForm' } } },
 
-RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :request do
-  path '/v0/form214192' do
-    post 'Submit a 21-4192 form' do
+RSpec.describe 'Form 21-0779 API', openapi_spec: 'public/openapi.json', type: :request do
+  path '/v0/form210779' do
+    post 'Submit a 21-0779 form' do
       tags 'benefits_forms'
       operationId 'submitForm210779'
       consumes 'application/json'
       produces 'application/json'
-      description 'Submit a 21-0779 form (Request for Nursing Home Information in Connection with Claim for Aid and Attendance) - STUB IMPLEMENTATION for frontend development'
+      description 'Submit a 21-0779 form (Request for Nursing Home Information in Connection with Claim for Aid ' \
+                  'and Attendance) - STUB IMPLEMENTATION for frontend development'
       # { :$ref => '#/parameters/optional_authorization' },
-      parameter name: :form210779, in: :body, required: true, description: 'Form 21-0779 submission data', schema: OpenAPI::Form210779::SUBMIT_SCHEMA
+      parameter name: :form210779, in: :body, required: true, description: 'Form 21-0779 submission data', schema: Openapi::Requests::Form210779::SUBMIT_SCHEMA
 
       # Success response
       response '200', 'Form successfully submitted' do
@@ -67,20 +69,20 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
         end
       end
 
-      #   response '400', 'Bad Request - schema validation failed' do
-      #     let(:form_data) do
-      #       {
-      #         veteranInformation: {
-      #           fullName: { first: 'OnlyFirst' }
-      #         }
-      #       }
-      #     end
+        response '400', 'Bad Request - schema validation failed' do
+          let(:form210779) do
+            {
+              veteranInformation: {
+                fullName: { first: 'OnlyFirst' }
+              }
+            }
+          end
 
-      #     it 'returns a 400 when request body fails schema validation' do |example|
-      #       submit_request(example.metadata)
-      #       expect(response).to have_http_status(:bad_request)
-      #     end
-      #   end
+          it 'returns a 400 when request body fails schema validation' do |example|
+            submit_request(example.metadata)
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
     end
   end
 end
