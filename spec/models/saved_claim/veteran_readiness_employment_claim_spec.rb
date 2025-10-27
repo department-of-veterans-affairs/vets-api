@@ -73,6 +73,42 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
   end
 
+  describe '#send_email' do
+    let(:notification_email) { double('notification_email') }
+
+    before do
+      allow(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+    end
+
+    context 'when email_type is a confirmation type' do
+      it 'sends VBMS confirmation email' do
+        expect(notification_email).to receive(:deliver).with(
+          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_vbms]
+        )
+
+        claim.send_email(:confirmation_vbms)
+      end
+
+      it 'sends Lighthouse confirmation email' do
+        expect(notification_email).to receive(:deliver).with(
+          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_lighthouse]
+        )
+
+        claim.send_email(:confirmation_lighthouse)
+      end
+    end
+
+    context 'when email_type is not a confirmation type' do
+      it 'sends error email' do
+        expect(notification_email).to receive(:deliver).with(
+          SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE
+        )
+
+        claim.send_email(:error)
+      end
+    end
+  end
+
   describe '#send_to_vre' do
     it 'propagates errors from send_to_lighthouse!' do
       allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')

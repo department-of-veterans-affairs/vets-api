@@ -16,11 +16,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
 
   CONFIRMATION_EMAIL_TEMPLATES = {
-    VBMS_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment.email.confirmation_vbms.template_id,
-    LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
+    VBMS_CONFIRMATION => Settings.vanotify.services
+      .veteran_readiness_and_employment.email.confirmation_vbms.template_id,
+    LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services
+      .veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
   }.freeze
 
-  ERROR_EMAIL_TEMPLATE = Settings.vanotify.services.veteran_readiness_and_employment.email.error.template_id 
+  ERROR_EMAIL_TEMPLATE = Settings.vanotify.services
+    .veteran_readiness_and_employment.email.error.template_id
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -296,7 +299,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_email(email_type)
-    if email_type in CONFIRMATION_EMAIL_TEMPLATES
+    if CONFIRMATION_EMAIL_TEMPLATES.key?(email_type)
       VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TEMPLATES[email_type])
       Rails.logger.info("VRE Submit1900Job successful. #{email_type} confirmation email sent.")
     else
