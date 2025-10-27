@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/veteran_enrollment_system/form1095_b/service'
+
 module V0
   class Form1095BsController < ApplicationController
     service_tag 'form-1095b'
@@ -26,8 +28,8 @@ module V0
 
     def form
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, @current_user)
-        service = VeteranEnrollmentSystem::Form1095B::Service.new(@current_user)
-        service.get_form_by_icn(icn: @current_user[:icn], tax_year: download_params[:tax_year])
+        service = VeteranEnrollmentSystem::Form1095B::Service.new
+        form_data = service.get_form_by_icn(icn: @current_user[:icn], tax_year: download_params[:tax_year])
       else
         find_form_record
       end
