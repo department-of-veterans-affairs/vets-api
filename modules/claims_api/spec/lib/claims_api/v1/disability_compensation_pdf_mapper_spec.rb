@@ -98,6 +98,17 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(address_base[:zip]).to eq('12345-6789')
     end
 
+    it 'maps international mailing address' do
+      form_attributes['veteran']['currentMailingAddress']['internationalPostalCode'] = '98761'
+      form_attributes['veteran']['currentMailingAddress']['country'] = 'Australia'
+      mapper.map_claim
+
+      address_base = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress]
+
+      expect(address_base[:country]).to eq('Australia')
+      expect(address_base[:zip]).to eq('98761')
+    end
+
     it 'maps the veteran personal information' do
       mapper.map_claim
 
@@ -156,6 +167,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
     it 'maps an international postal code' do
       int_zip = '96753'
+      form_attributes['veteran']['changeOfAddress']['country'] = 'Australia'
       form_attributes['veteran']['changeOfAddress']['zipFirstFive'] = nil
       form_attributes['veteran']['changeOfAddress']['zipLastFour'] = nil
       form_attributes['veteran']['changeOfAddress']['internationalPostalCode'] = int_zip
