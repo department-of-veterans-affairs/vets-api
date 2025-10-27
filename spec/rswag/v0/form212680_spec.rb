@@ -87,8 +87,7 @@ RSpec.describe 'Form 21-2680 API', openapi_spec: 'public/openapi.json', type: :r
                                                        example: 'smc',
                                                        description: 'Type of benefit being claimed',
                                                        enum: PdfFill::Forms::Va212680::BENEFITS.keys }
-                                 } 
-                                },
+                                 } },
            additionalInformation: { type: 'object',
                                     description: 'Section IV: IS VETERAN/CLAIMANT HOSPITALIZED?',
                                     properties: {

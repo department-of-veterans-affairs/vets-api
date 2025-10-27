@@ -4,6 +4,7 @@ require 'rswag/v0/shared_schemas/errors'
 require 'rswag/v0/shared_schemas/form212680'
 
 class RswagConfig
+  # rubocop:disable Metrics/MethodLength
   def config
     {
       'public/openapi.json' => {
@@ -34,4 +35,5 @@ class RswagConfig
       }
     }
   end
+  # rubocop:enable Metrics/MethodLength
 end
