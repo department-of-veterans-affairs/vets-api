@@ -46,6 +46,8 @@ module V0
       private
 
       def email_address_params
+        params.require(:email_address)
+        params.require(:id)
         params.permit(
           :email_address,
           :confirmation_date,

@@ -31,6 +31,9 @@ module VAProfile
         length: { maximum: 255, minimum: 6 }
       )
 
+      validates :id, presence: true
+      validates :source_date, presence: true
+
       # Converts an instance of the Email model to a JSON encoded string suitable for use in
       # the body of a request to VAProfile
       # @return [String] JSON-encoded string suitable for requests to VAProfile
