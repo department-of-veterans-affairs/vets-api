@@ -299,13 +299,6 @@ dgi:
   jwt:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
     public_key_path: <%= ENV['dgi__jwt__public_key_path'] %>
-  post911_sob:
-    claimants:
-      mock: <%= ENV['dgi__post911_sob__claimants__mock'] %>
-      url: <%= ENV['dgi__post911_sob__claimants__url'] %>
-    jwt:
-      private_key_path: <%= ENV['dgi__post911_sob__jwt__private_key_path'] %>
-      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
   vets:
     mock: <%= ENV['dgi__vets__mock'] %>
     url: <%= ENV['dgi__vets__url'] %>
@@ -735,6 +728,7 @@ lighthouse:
       - system/MedicationDispense.read
       - system/Encounter.read
       - system/Account.read
+      - system/Medication.read
       - launch
     timeout: 30
     use_mocks: false
