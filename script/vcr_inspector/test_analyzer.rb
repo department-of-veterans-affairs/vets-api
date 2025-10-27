@@ -11,7 +11,7 @@ module VcrInspector
         next unless Dir.exist?(root)
 
         # Use grep to find references
-        pattern = cassette_path.gsub('/', '\/')
+        pattern = cassette_path.gsub(/([\/\\])/, '\\\\\1')
         cmd = "grep -r \"#{pattern}\" #{root} --include='*_spec.rb' 2>/dev/null"
         output = `#{cmd}`
         
