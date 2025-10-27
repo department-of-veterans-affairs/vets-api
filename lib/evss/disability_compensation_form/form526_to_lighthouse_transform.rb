@@ -5,6 +5,8 @@ require 'disability_compensation/requests/form526_request_body'
 module EVSS
   module DisabilityCompensationForm
     class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
+      VALID_LH_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/
+
       TOXIC_EXPOSURE_CAUSE_MAP = {
         NEW: 'My condition was caused by an injury or exposure during my military service.',
         WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
@@ -77,21 +79,24 @@ module EVSS
         hazard: 'hazard'
       }.freeze
 
+      def initialize(pdf_request: false)
+        @pdf_request = pdf_request
+      end
+
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
       # @param evss_data will look like JSON.parse(form526_submission.form_data)
       # @return Requests::Form526
       def transform(evss_data)
         form526 = evss_data['form526']
-        lh_request_body = Requests::Form526.new
+        lh_request_body = choose_request_body(form526)
         lh_request_body.claimant_certification = true
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
         transform_veteran_section(form526, lh_request_body)
 
-        service_information = form526['serviceInformation']
-        if service_information.present?
-          lh_request_body.service_information = transform_service_information(service_information)
-        end
+        service_info = form526['serviceInformation']
+
+        lh_request_body.service_information = transform_service_information(service_info) if service_info.present?
 
         transform_disabilities_section(form526, lh_request_body)
 
@@ -108,10 +113,39 @@ module EVSS
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
         lh_request_body.claim_notes = form526['overflowText']
+
         lh_request_body
       end
 
       private
+
+      def valid_date_for_lighthouse?(date_string)
+        date_string =~ VALID_LH_DATE_REGEX
+      end
+
+      def claim_date_valid?(claim_date)
+        claim_date.present? && valid_date_for_lighthouse?(claim_date)
+      end
+
+      def choose_request_body(form526)
+        claim_date = form526['claimDate']
+        # if the request is for a PDF, and the claim date is present and valid, use the PDF request body
+        if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse) &&
+           @pdf_request &&
+           claim_date_valid?(claim_date)
+          lh_request_body = Requests::Form526Pdf.new
+          lh_request_body.claim_date = form526['claimDate']
+          lh_request_body
+        else
+          # if the request is not for a PDF, or the claim date is not present or invalid, use the standard request body
+          # that does not include claim_date, otherwise, it will error Lighthouse's validation
+          Requests::Form526.new
+        end
+      rescue => e
+        # If anything goes wrong, rescue to using the non-pdf request
+        Rails.logger.error("Error transforming Form526 to Lighthouse: #{e.message}")
+        Requests::Form526.new
+      end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
