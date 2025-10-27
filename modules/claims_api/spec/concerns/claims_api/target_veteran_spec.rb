@@ -136,4 +136,97 @@ describe FakeTargetController do
       end
     end
   end
+
+  describe '#target_veteran' do
+    let(:veteran_id) { '1234567890V123456' }
+    let(:loa) { { current: 3, highest: 3 } }
+    let(:built_veteran) { double('ClaimsApi::Veteran') }
+
+    before do
+      allow(controller).to receive(:build_target_veteran).and_return(built_veteran)
+    end
+
+    context 'when @is_valid_ccg_flow is true' do
+      before do
+        controller.instance_variable_set(:@is_valid_ccg_flow, true)
+        controller.params[:veteranId] = veteran_id
+      end
+
+      it 'builds target veteran with veteranId from params and LOA 3' do
+        expect(controller).to receive(:build_target_veteran).with(
+          veteran_id:,
+          loa: { current: 3, highest: 3 }
+        )
+        controller.target_veteran
+      end
+
+      it 'returns the built veteran' do
+        expect(controller.target_veteran).to eq(built_veteran)
+      end
+
+      it 'memoizes the result' do
+        controller.target_veteran
+        expect(controller).not_to receive(:build_target_veteran)
+        controller.target_veteran
+      end
+    end
+
+    context 'when @validated_token_payload is present and user has ICN' do
+      let(:user_icn) { '9876543210V654321' }
+
+      before do
+        controller.instance_variable_set(:@is_valid_ccg_flow, false)
+        controller.instance_variable_set(:@validated_token_payload, { 'sub' => 'some_token' })
+        allow(controller.current_user).to receive(:icn).and_return(user_icn)
+      end
+
+      it 'builds target veteran with current user ICN and LOA 3' do
+        expect(controller).to receive(:build_target_veteran).with(
+          veteran_id: user_icn,
+          loa: { current: 3, highest: 3 }
+        )
+        controller.target_veteran
+      end
+
+      it 'returns the built veteran' do
+        expect(controller.target_veteran).to eq(built_veteran)
+      end
+    end
+
+    context 'when user is a representative' do
+      let(:user_loa) { { current: 2, highest: 3 } }
+
+      before do
+        controller.instance_variable_set(:@is_valid_ccg_flow, false)
+        controller.instance_variable_set(:@validated_token_payload, nil)
+        controller.params[:veteranId] = veteran_id
+        allow(controller.current_user).to receive(:loa).and_return(user_loa)
+        allow(controller).to receive(:user_is_representative?).and_return(true)
+      end
+
+      it 'builds target veteran with veteranId from params and user LOA' do
+        expect(controller).to receive(:build_target_veteran).with(
+          veteran_id:,
+          loa: user_loa
+        )
+        controller.target_veteran
+      end
+
+      it 'returns the built veteran' do
+        expect(controller.target_veteran).to eq(built_veteran)
+      end
+    end
+
+    context 'when none of the conditions are met' do
+      before do
+        controller.instance_variable_set(:@is_valid_ccg_flow, false)
+        controller.instance_variable_set(:@validated_token_payload, nil)
+        allow(controller).to receive(:user_is_representative?).and_return(false)
+      end
+
+      it 'raises Unauthorized exception' do
+        expect { controller.target_veteran }.to raise_error(Common::Exceptions::Unauthorized)
+      end
+    end
+  end
 end
