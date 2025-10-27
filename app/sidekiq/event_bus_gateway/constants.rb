@@ -24,7 +24,7 @@ module EventBusGateway
     # Retry for 2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     SIDEKIQ_RETRY_OPTIONS = {
-      retry: NOTIFY_SETTINGS.letter_ready_email_job_retry_count.to_i
+      retry: NOTIFY_SETTINGS&.letter_ready_email_job_retry_count&.to_i || 16
     }.freeze
 
     MAX_EMAIL_ATTEMPTS = 16
