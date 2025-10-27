@@ -16,6 +16,7 @@ module IvcChampva
 
     include Vets::Model
     include Attachments
+    include StampableLogging
 
     attribute :data, Hash
     attr_reader :form_id
@@ -83,8 +84,14 @@ module IvcChampva
     private
 
     def initial_stamps
+      signature = @data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => { value: signature }
+                             })
+
       [
-        { coords: [170, 65], text: @data['statement_of_truth_signature'], page: 0 }
+        { coords: [170, 65], text: signature, page: 0 }
       ]
     end
   end
