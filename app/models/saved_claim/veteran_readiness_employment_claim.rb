@@ -16,14 +16,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
 
   CONFIRMATION_EMAIL_TEMPLATES = {
-    VBMS_CONFIRMATION => Settings.vanotify.services
-      .veteran_readiness_and_employment.email.confirmation_vbms.template_id,
-    LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services
-      .veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
+    VBMS_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
+                                 .email.confirmation_vbms.template_id,
+    LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
+                                       .email.confirmation_lighthouse.template_id
   }.freeze
 
-  ERROR_EMAIL_TEMPLATE = Settings.vanotify.services
-    .veteran_readiness_and_employment.email.error.template_id
+  ERROR_EMAIL_TEMPLATE = Settings.vanotify.services.veteran_readiness_and_employment
+                                 .email.error.template_id
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -162,7 +162,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_to_res(user)
 
-    Flipper.enabled?(:vre_use_new_vfs_notification_library) && send_email(@sent_to_lighthouse ? LIGHTHOUSE_CONFIRMATION : VBMS_CONFIRMATION)
+    Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
+      send_email(@sent_to_lighthouse ? LIGHTHOUSE_CONFIRMATION : VBMS_CONFIRMATION)
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
