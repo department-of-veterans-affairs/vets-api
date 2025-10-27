@@ -52,7 +52,7 @@ module VAOS
           failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
         end
 
-        log_message_to_sentry(
+        log_message_to_rails(
           'VAOS::V2::RelationshipsService#get_patient_relationships has response errors.',
           :info,
           failures: failures_dup.to_json
