@@ -132,6 +132,30 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
               be(true)
             )
           end
+
+          it 'persists the saved claim even when attachments are not persisted' do
+            # Build (not create) attachments so association autosave won't persist the saved_claim
+            form = build(:persistent_attachment_va_form, form_id: '21-686c')
+            doc = build(:persistent_attachment_va_form_documentation, form_id: '21-686c')
+
+            # Stub organize_attachments! to return our in-memory (non-persisted) attachments
+            allow(described_class).to receive(:organize_attachments!).and_return({ form:, documentations: [doc] })
+
+            created = nil
+            # Stub create! and do NOT call through to prevent any DB side-effects
+            allow(
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative
+            ).to receive(:create!).and_wrap_original do |_m, *args|
+              created = args.first
+              # simulate create! returning a record without touching DB
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.new(created)
+            end
+
+            claim = perform
+
+            expect(created[:saved_claim].persisted?).to be(true)
+            expect(created[:saved_claim].id).to eq(claim.id)
+          end
         end
       end
 
