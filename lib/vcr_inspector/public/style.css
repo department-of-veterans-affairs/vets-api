@@ -1033,9 +1033,12 @@ body {
   padding: 15px;
   border-radius: 6px;
   overflow-x: auto;
-  max-height: 500px;
   overflow-y: auto;
+  max-height: 500px;
   border: 1px solid var(--border-color);
+  max-width: 100%;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .json-content code,
@@ -1043,6 +1046,8 @@ body {
   color: var(--vcr-display-green);
   font-size: 13px;
   line-height: 1.6;
+  display: block;
+  overflow-wrap: anywhere;
 }
 
 /* Services View */
@@ -1323,6 +1328,197 @@ body {
 
   .cassette-physical {
     width: 100%;
+  }
+}
+
+/* JSON Collapsing */
+.json-toggle {
+  cursor: pointer;
+  user-select: none;
+  color: var(--vcr-orange);
+  font-style: italic;
+  font-size: 0.9em;
+  padding: 2px 6px;
+  margin-left: 4px;
+  background: rgba(255, 140, 66, 0.1);
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.json-toggle:hover {
+  background: rgba(255, 140, 66, 0.2);
+  transform: scale(1.05);
+}
+
+.json-toggle::before {
+  content: '▼ ';
+  font-size: 0.8em;
+  transition: transform 0.3s;
+  display: inline-block;
+}
+
+.json-toggle.collapsed::before {
+  transform: rotate(-90deg);
+}
+
+.json-collapsible {
+  display: inline;
+  transition: all 0.3s;
+}
+
+.json-collapsible.collapsed {
+  display: none;
+}
+
+.json-key {
+  color: var(--vcr-blue);
+  font-weight: bold;
+}
+
+.json-string {
+  color: var(--vcr-display-green);
+}
+
+.json-number {
+  color: var(--vcr-purple);
+}
+
+.json-boolean {
+  color: var(--vcr-orange);
+  font-weight: bold;
+}
+
+.json-null {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.json-bracket {
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+.json-comma {
+  color: var(--text-secondary);
+}
+
+/* Response Search */
+.response-search-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.body-content {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.response-search-input {
+  flex: 1 1 200px;
+  min-width: 150px;
+  padding: 8px 12px;
+  background: var(--vcr-black);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.response-search-input:focus {
+  outline: none;
+  border-color: var(--vcr-blue);
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+}
+
+.response-search-btn,
+.response-search-prev,
+.response-search-next,
+.response-search-clear {
+  padding: 8px 12px;
+  background: var(--vcr-gray-light);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-family: 'Courier New', monospace;
+}
+
+.response-search-btn:hover,
+.response-search-prev:hover,
+.response-search-next:hover,
+.response-search-clear:hover {
+  background: var(--vcr-silver);
+  transform: scale(1.05);
+}
+
+.response-search-prev,
+.response-search-next {
+  padding: 8px 10px;
+  display: none;
+}
+
+.response-search-prev:disabled,
+.response-search-next:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.response-search-clear {
+  background: var(--vcr-red);
+  color: white;
+  padding: 8px 14px;
+}
+
+.response-search-results {
+  font-size: 12px;
+  color: var(--vcr-display-green);
+  font-weight: bold;
+  display: none;
+  padding: 4px 8px;
+  background: rgba(0, 255, 65, 0.1);
+  border-radius: 3px;
+}
+
+.search-highlight {
+  background: var(--vcr-yellow);
+  color: var(--vcr-black);
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.search-highlight-current {
+  background: var(--vcr-orange);
+  color: white;
+  box-shadow: 0 0 8px rgba(255, 140, 66, 0.8);
+  animation: highlightPulse 0.5s ease-out;
+}
+
+@keyframes highlightPulse {
+  0% {
+    background: var(--vcr-orange);
+    transform: scale(1);
+  }
+  50% {
+    background: var(--vcr-red);
+    transform: scale(1.15);
+  }
+  100% {
+    background: var(--vcr-orange);
+    transform: scale(1);
   }
 }
 

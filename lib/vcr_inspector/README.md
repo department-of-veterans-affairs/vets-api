@@ -17,6 +17,9 @@ A retro VCR-themed web UI for browsing, searching, and inspecting VCR cassettes 
 ### 📦 Detailed Inspection
 - View HTTP request/response details
 - Pretty-printed JSON with syntax highlighting
+- **Collapsible JSON structures** - Click count badges to expand/collapse objects and arrays
+- **Search within responses** - Find text in large JSON responses with match highlighting
+- **Navigation controls** - Previous/next buttons to jump between search matches
 - Automatic base64 decoding
 - Collapsible sections for headers and bodies
 - Copy buttons for URLs and JSON payloads
@@ -58,18 +61,27 @@ Click the "SERVICES" button to see all cassettes grouped by external service (BG
 1. Click any cassette card to view details
 2. See the animated cassette being "inserted" into the player
 3. Expand HTTP interactions to see full request/response details
-4. Use copy buttons to grab URLs or JSON payloads
-5. Check which tests use this cassette
+4. **For JSON responses:**
+   - Click count badges (e.g., `{5}` or `[10]`) to collapse/expand nested structures
+   - Use the search box to find specific text within the response
+   - Navigate matches with the prev/next buttons or `Enter`/`Shift+Enter`
+5. Use copy buttons to grab URLs or JSON payloads
+6. Check which tests use this cassette
 
 ### Keyboard Shortcuts
-- `/` - Focus search
+- `/` - Focus global search
 - `Esc` - Clear search and blur input
+- **Within response search:**
+  - `/` - Focus response search box
+  - `Enter` - Jump to next match
+  - `Shift+Enter` - Jump to previous match
+  - `Esc` - Close search and clear highlights
 
 ## Architecture
 
 ```
 lib/vcr_inspector/
-├── app.rb              # Sinatra web application
+├── app.rb              # WEBrick web server (Ruby stdlib)
 ├── cassette_finder.rb  # Search and index cassettes
 ├── cassette_parser.rb  # YAML parser with JSON detection
 ├── test_analyzer.rb    # Find test references
@@ -81,19 +93,19 @@ lib/vcr_inspector/
 │   ├── search_results.erb
 │   └── not_found.erb
 └── public/             # Static assets
-    ├── style.css       # Retro VCR theme
-    └── script.js       # Interactive features
+    ├── style.css       # Retro VCR theme (~900 lines)
+    └── script.js       # Interactive features (JSON collapse, search)
 ```
 
 ## Technical Details
 
 ### Dependencies
-- **Sinatra** - Lightweight web framework (already in Gemfile)
+- **WEBrick** - HTTP server (Ruby stdlib)
 - **YAML** - Parse cassette files (Ruby stdlib)
 - **JSON** - Pretty-print responses (Ruby stdlib)
 - **ERB** - Template rendering (Ruby stdlib)
 
-No additional gems needed! Uses only what's already available in vets-api.
+Zero external dependencies! Uses only Ruby standard library.
 
 ### Cassette Locations
 - Main cassettes: `spec/support/vcr_cassettes/`
@@ -102,9 +114,13 @@ No additional gems needed! Uses only what's already available in vets-api.
 
 ### Features
 
-#### JSON Formatting
+#### JSON Formatting & Interaction
 - Automatically detects JSON in request/response bodies
 - Pretty-prints with proper indentation
+- **Collapsible structures**: Click badges showing `{5}` or `[3]` to expand/collapse nested objects and arrays
+- Shows count of keys (objects) or items (arrays) when collapsed
+- **Full-text search**: Search box appears on JSON responses with match highlighting
+- Navigate between matches with prev/next buttons or keyboard shortcuts
 - Falls back to raw text for non-JSON content
 
 #### Base64 Decoding
@@ -130,9 +146,11 @@ No additional gems needed! Uses only what's already available in vets-api.
 
 1. **Use service browsing** for exploring specific integrations (BGS, MVI, etc.)
 2. **Search by error codes** to find failing interactions: `?status=500`
-3. **Copy JSON payloads** to use in new test fixtures
-4. **Check cassette age** - old cassettes may have outdated data structures
-5. **View test usage** to understand cassette context before modifying
+3. **Collapse large JSON** by clicking the count badges to focus on structure
+4. **Search within responses** to quickly find specific fields or values in large payloads
+5. **Copy JSON payloads** to use in new test fixtures
+6. **Check cassette age** - old cassettes may have outdated data structures
+7. **View test usage** to understand cassette context before modifying
 
 ## Visual Elements
 
