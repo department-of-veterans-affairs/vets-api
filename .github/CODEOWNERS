@@ -320,9 +320,9 @@ app/models/webhooks/notification_attempt.rb @department-of-veterans-affairs/back
 app/models/webhooks/notification.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/subscription.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/utilities.rb @department-of-veterans-affairs/backend-review-group
-app/openapi/schemas/address.rb @department-of-veterans-affairs/backend-review-group 
-app/openapi/schemas/errors.rb @department-of-veterans-affairs/backend-review-group
-app/openapi/schemas/name.rb @department-of-veterans-affairs/backend-review-group
+app/openapi/openapi/schemas/address.rb @department-of-veterans-affairs/backend-review-group 
+app/openapi/openapi/schemas/errors.rb @department-of-veterans-affairs/backend-review-group
+app/openapi/openapi/schemas/name.rb @department-of-veterans-affairs/backend-review-group
 app/policies/appeals_policy.rb @department-of-veterans-affairs/backend-review-group
 app/policies/bgs_policy.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/policies/coe_policy.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
