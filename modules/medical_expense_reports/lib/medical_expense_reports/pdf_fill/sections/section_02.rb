@@ -94,6 +94,7 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand claimant information
       def expand(form_data = {})
         form_data['claimantFullName'] ||= {}
         form_data['claimantFullName']['first'] = form_data.dig('claimantFullName', 'first')&.titleize

@@ -60,6 +60,7 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand medical expenses
       def expand(form_data = {})
         form_data['medicalExpenses'] ||= []
         form_data['primaryMedicalExpenses'] =
@@ -67,6 +68,7 @@ module MedicalExpenseReports
         form_data
       end
 
+      # expand expense payment
       def expand_expense(expense)
         expense['recipient'] = Constants::RECIPIENTS[expense['recipient']] || 'Off'
         expense['paymentDate'] = split_date(expense['paymentDate'])

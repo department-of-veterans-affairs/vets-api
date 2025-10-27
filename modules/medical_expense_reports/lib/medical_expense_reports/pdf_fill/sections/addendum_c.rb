@@ -62,12 +62,14 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # espand mileage expenses
       def expand(form_data = {})
         form_data['mileageExpenses'] ||= []
         form_data['additionalMileage'] = form_data['mileageExpenses'].drop(4).map { |t| expand_traveler(t) }
         form_data
       end
 
+      # expand traveler
       def expand_traveler(traveler)
         traveler['travelReimbursementAmount'] =
           split_currency_amount_sm(traveler['travelReimbursementAmount'], { 'thousands' => 3 })
