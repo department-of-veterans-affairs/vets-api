@@ -41,16 +41,13 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantSerializer, type: :serial
   # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
   before do
     allow(FastImage).to receive(:size).and_return(nil)
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
   end
 
   around do |example|
     VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
       example.run
     end
-  end
-
-  before do
-    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
   end
 
   describe '#city' do
