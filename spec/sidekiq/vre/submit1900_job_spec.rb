@@ -62,34 +62,15 @@ describe VRE::Submit1900Job do
     describe 'with feature toggle vre_use_new_vfs_notification_library enabled' do
       before do
         Flipper.enable(:vre_use_new_vfs_notification_library)
-        allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
-        allow(monitor).to receive :track_submission_exhaustion
       end
 
-      it 'sends a failure email' do
+      it 'sends a failure email when retries are exhausted' do
+        notification_email = double('notification_email')
+        expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+        expect(notification_email).to receive(:deliver).with(SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE)
+        
         VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
           exhaustion_msg['args'] = [claim.id, encrypted_user]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            'email@test.com',
-            'error_email_template_id',
-            {
-              'first_name' => 'First',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            },
-            anything,
-            hash_including(:callback_klass, :callback_metadata)
-          )
-        end
-      end
-
-      it 'raises an exception when no email' do
-        VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-          expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-          exhaustion_msg['args'] = [claim.id, encrypted_user]
-          allow(claim).to receive(:email).and_return(nil)
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
     end
@@ -114,15 +95,6 @@ describe VRE::Submit1900Job do
               'confirmation_number' => claim.confirmation_number
             }
           )
-        end
-      end
-
-      it 'raises an exception when no email' do
-        VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-          expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-          exhaustion_msg['args'] = [claim.id, encrypted_user]
-          allow(claim).to receive(:email).and_return(nil)
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

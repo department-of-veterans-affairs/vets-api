@@ -38,9 +38,8 @@ module VRE
         VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
       else
         VRE::Monitor.new.track_submission_exhaustion(msg, claim.email)
+        claim.send_failure_email
       end
-
-      claim.send_failure_email if claim.present?
     end
   end
 end
