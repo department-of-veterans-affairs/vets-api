@@ -32,10 +32,10 @@
                     "id": "12345",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-10-25T21:01:28Z",
+                      "submitted_at": "2025-01-15T10:30:00Z",
                       "regional_office": [],
-                      "confirmation_number": "f73ec5ce-5447-4624-8ed9-a9e375bdecfd",
-                      "guid": "f73ec5ce-5447-4624-8ed9-a9e375bdecfd",
+                      "confirmation_number": "12345678-1234-1234-1234-123456789abc",
+                      "guid": "12345678-1234-1234-1234-123456789abc",
                       "form": "21-4192"
                     }
                   }
@@ -92,8 +92,15 @@
               }
             }
           },
-          "400": {
-            "description": "Bad Request - schema validation failed"
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -331,5 +338,64 @@
       }
     }
   },
-  "servers": []
+  "servers": [],
+  "components": {
+    "schemas": {
+      "Errors": {
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error": {
+        "required": [
+          "title",
+          "detail",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "error class name"
+          },
+          "detail": {
+            "type": "string",
+            "example": "Received a bad request response from the upstream server",
+            "description": "possibly some additional info, or just the class name again"
+          },
+          "code": {
+            "type": "string",
+            "example": "EVSS400",
+            "description": "Sometimes just the http code again, sometimes something like \"EVSS400\", where the code can be found in config/locales/exceptions.en.yml"
+          },
+          "source": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "example": "EVSS::DisabilityCompensationForm::Service",
+            "description": "error source class"
+          },
+          "status": {
+            "type": "string",
+            "example": "400",
+            "description": "http status code"
+          },
+          "meta": {
+            "type": "object",
+            "description": "additional info, like a backtrace"
+          }
+        }
+      }
+    }
+  }
 }

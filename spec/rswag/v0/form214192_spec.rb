@@ -142,6 +142,12 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                },
                required: [:data]
 
+        before do
+          # Stub to return static values for reproducible OpenAPI docs
+          allow(SecureRandom).to receive(:uuid).and_return('12345678-1234-1234-1234-123456789abc')
+          allow(Time).to receive(:current).and_return(Time.zone.parse('2025-01-15 10:30:00 UTC'))
+        end
+
         let(:form_data) do
           {
             veteranInformation: {
@@ -189,7 +195,9 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
         end
       end
 
-      response '400', 'Bad Request - schema validation failed' do
+      response '422', 'Unprocessable Entity - schema validation failed' do
+        schema '$ref' => '#/components/schemas/Errors'
+
         let(:form_data) do
           {
             veteranInformation: {
@@ -198,9 +206,9 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
           }
         end
 
-        it 'returns a 400 when request body fails schema validation' do |example|
+        it 'returns a 422 when request body fails schema validation' do |example|
           submit_request(example.metadata)
-          expect(response).to have_http_status(:bad_request)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
     end
