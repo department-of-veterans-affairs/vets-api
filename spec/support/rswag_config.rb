@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../rswag/v0/shared_schemas/errors'
+require_relative '../../app/openapi/schemas/errors'
+require_relative '../../app/openapi/schemas/name'
+require_relative '../../app/openapi/schemas/address'
 
 class RswagConfig
   def config
@@ -35,8 +37,10 @@ class RswagConfig
   def components_spec
     {
       schemas: {
-        Errors: Rswag::V0::SharedSchemas::Errors::ERRORS,
-        Error: Rswag::V0::SharedSchemas::Errors::ERROR
+        Errors: Openapi::Schemas::Errors::ERRORS,
+        Error: Openapi::Schemas::Errors::ERROR,
+        FirstMiddleLastName: Openapi::Schemas::Name::FIRST_MIDDLE_LAST,
+        SimpleAddress: Openapi::Schemas::Address::SIMPLE_ADDRESS
       }
     }
   end

@@ -14,22 +14,14 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
       description 'Submit a Form 21-4192 (Request for Employment Information in Connection with ' \
                   'Claim for Disability Benefits)'
 
-      parameter name: :form_data, in: :body, schema: {
+      parameter name: :form_data, in: :body, required: true, schema: {
         type: :object,
         properties: {
           veteranInformation: {
             type: :object,
             required: %i[fullName dateOfBirth],
             properties: {
-              fullName: {
-                type: :object,
-                properties: {
-                  first: { type: :string, example: 'John' },
-                  last: { type: :string, example: 'Doe' },
-                  middle: { type: :string, example: 'Michael' }
-                },
-                required: %i[first last]
-              },
+              fullName: Openapi::Schemas::Name::FIRST_MIDDLE_LAST,
               ssn: {
                 type: :string,
                 pattern: '^\d{9}$',
@@ -38,18 +30,9 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               },
               vaFileNumber: { type: :string, example: '987654321' },
               dateOfBirth: { type: :string, format: :date, example: '1980-01-01' },
-              address: {
-                type: :object,
-                properties: {
-                  street: { type: :string, example: '123 Main St' },
-                  street2: { type: :string, example: 'Apt 4B' },
-                  city: { type: :string, example: 'Anytown' },
-                  state: { type: :string, example: 'CA' },
-                  postalCode: { type: :string, example: '12345' },
-                  country: { type: :string, example: 'USA' }
-                },
+              address: Openapi::Schemas::Address::SIMPLE_ADDRESS.merge(
                 required: %i[street city state postalCode country]
-              }
+              )
             }
           },
           employmentInformation: {
@@ -58,18 +41,9 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                          beginningDateOfEmployment],
             properties: {
               employerName: { type: :string },
-              employerAddress: {
-                type: :object,
-                properties: {
-                  street: { type: :string, example: '456 Business Blvd' },
-                  street2: { type: :string, example: 'Suite 200' },
-                  city: { type: :string, example: 'Chicago' },
-                  state: { type: :string, example: 'IL' },
-                  postalCode: { type: :string, example: '60601' },
-                  country: { type: :string, example: 'USA' }
-                },
+              employerAddress: Openapi::Schemas::Address::SIMPLE_ADDRESS.merge(
                 required: %i[street city state postalCode country]
-              },
+              ),
               typeOfWorkPerformed: { type: :string },
               beginningDateOfEmployment: { type: :string, format: :date },
               endingDateOfEmployment: { type: :string, format: :date },
@@ -106,7 +80,8 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               remarks: { type: :string }
             }
           }
-        }
+        },
+        required: [:veteranInformation, :employmentInformation]
       }
 
       # Success response
@@ -164,7 +139,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                 city: 'Springfield',
                 state: 'IL',
                 postalCode: '62701',
-                country: 'USA'
+                country: 'US'
               }
             },
             employmentInformation: {
@@ -175,7 +150,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                 city: 'Chicago',
                 state: 'IL',
                 postalCode: '60601',
-                country: 'USA'
+                country: 'US'
               },
               typeOfWorkPerformed: 'Software Development',
               beginningDateOfEmployment: '2015-06-01'
