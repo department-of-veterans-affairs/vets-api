@@ -52,7 +52,8 @@ module EmploymentQuestionairres
 
         process_attachments(in_progress_form, claim)
 
-        EmploymentQuestionairres::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
+        EmploymentQuestionairres::BenefitsIntake::SubmitClaimJob.perform_async(claim.id,
+                                                                               current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 

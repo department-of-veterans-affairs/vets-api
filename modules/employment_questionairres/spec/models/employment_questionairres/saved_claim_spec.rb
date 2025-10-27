@@ -100,7 +100,9 @@ RSpec.describe EmploymentQuestionairres::SavedClaim do
       email_type = :error
       notification_double = instance_double(EmploymentQuestionairres::NotificationEmail)
 
-      expect(EmploymentQuestionairres::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_double)
+      expect(EmploymentQuestionairres::NotificationEmail).to receive(:new)
+        .with(claim.id).and_return(notification_double)
+
       expect(notification_double).to receive(:deliver).with(email_type)
 
       claim.send_email(email_type)

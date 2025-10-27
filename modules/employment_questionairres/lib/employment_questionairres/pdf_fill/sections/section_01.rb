@@ -1,4 +1,3 @@
-  
 # frozen_string_literal: true
 
 require 'employment_questionairres/pdf_fill/section'
@@ -11,90 +10,90 @@ module EmploymentQuestionairres
       include ::PdfFill::Forms::FormHelper
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
 
-      FIELDS =  {
-        "veteranFullName": {
-          "first": "John",
-          "middle": "A",
-          "last": "Doe"
+      FIELDS = {
+        veteranFullName: {
+          first: 'John',
+          middle: 'A',
+          last: 'Doe'
         },
-        "veteranSocialSecurityNumber": '122330203',
-        "vaFileNumber": "C12345678",
-        "dateOfBirth": "1975-03-15",
-        "veteranAddress": {
-          "street": "123 Main Street",
-          "apartment": "5B",
-          "city": "Springfield",
-          "state": "IL",
-          "postalCode": '234562323',
-          "country": "USA"
+        veteranSocialSecurityNumber: '122330203',
+        vaFileNumber: 'C12345678',
+        dateOfBirth: '1975-03-15',
+        veteranAddress: {
+          street: '123 Main Street',
+          apartment: '5B',
+          city: 'Springfield',
+          state: 'IL',
+          postalCode: '234562323',
+          country: 'USA'
         },
-        "veteranServiceNumer": '1234567',
-        "veteranContact": {
-          "email": "john.doe@example.com",
-          "primaryPhone": "2175551234",
-          "alternatePhone": "2175555678"
+        veteranServiceNumer: '1234567',
+        veteranContact: {
+          email: 'john.doe@example.com',
+          primaryPhone: '2175551234',
+          alternatePhone: '2175555678'
         },
-        "employmentStatus": {
-          "radio": "0",
-          "date_mailed": "2025-10-15"
+        employmentStatus: {
+          radio: '0',
+          date_mailed: '2025-10-15'
         },
-        "signatureSection1": {
-          "date_signed": "2025-10-15",
-          "veteranSocialSecurityNumber": "123456789",
+        signatureSection1: {
+          date_signed: '2025-10-15',
+          veteranSocialSecurityNumber: '123456789'
         },
-        "employmentHistory": [
+        employmentHistory: [
           {
-            "nameAndAddress": "ACME Corp, 456 Industrial Ave, Springfield, IL",
-            "typeOfWork": "Construction Worker",
-            "timeLost": "2 weeks",
-            "hoursPerWeek": "40",
-            "dateRange": {
-              "from": "04/04/2020",
-              "to": "06/20/2020"
+            nameAndAddress: 'ACME Corp, 456 Industrial Ave, Springfield, IL',
+            typeOfWork: 'Construction Worker',
+            timeLost: '2 weeks',
+            hoursPerWeek: '40',
+            dateRange: {
+              from: '04/04/2020',
+              to: '06/20/2020'
             },
-            "grossEarningsPerMonth": "3500"
+            grossEarningsPerMonth: '3500'
           },
           {
-            "nameAndAddress": "11 Name And Address 1",
-            "typeOfWork": "Construction",
-            "hoursPerWeek": 10,
-            "dateRange": {
-              "from": "04/04/2020",
-              "to": "06/20/2020"
+            nameAndAddress: '11 Name And Address 1',
+            typeOfWork: 'Construction',
+            hoursPerWeek: 10,
+            dateRange: {
+              from: '04/04/2020',
+              to: '06/20/2020'
             },
-            "timeLost": "40",
-            "grossEarningsPerMonth": "1000"
+            timeLost: '40',
+            grossEarningsPerMonth: '1000'
           },
           {
-            "nameAndAddress": "33 Name And Address 1",
-            "typeOfWork": "Construction",
-            "hoursPerWeek": 30,
-            "dateRange": {
-              "from": "04/04/2020",
-              "to": "06/20/2020"
+            nameAndAddress: '33 Name And Address 1',
+            typeOfWork: 'Construction',
+            hoursPerWeek: 30,
+            dateRange: {
+              from: '04/04/2020',
+              to: '06/20/2020'
             },
-            "timeLost": "40",
-            "grossEarningsPerMonth": "4000"
+            timeLost: '40',
+            grossEarningsPerMonth: '4000'
           },
           {
-            "nameAndAddress": "43 Name And Address 1",
-            "typeOfWork": "Construction",
-            "hoursPerWeek": 30,
-            "dateRange": {
-              "from": "04/04/2020",
-              "to": "06/20/2020"
+            nameAndAddress: '43 Name And Address 1',
+            typeOfWork: 'Construction',
+            hoursPerWeek: 30,
+            dateRange: {
+              from: '04/04/2020',
+              to: '06/20/2020'
             },
-            "timeLost": "40",
-            "grossEarningsPerMonth": "5000"
-          },
+            timeLost: '40',
+            grossEarningsPerMonth: '5000'
+          }
         ],
-        "signatureSection2": {
-          "signatureDate": "2025-10-15"
+        signatureSection2: {
+          signatureDate: '2025-10-15'
         },
-        "stationAddress": {
-          "address": "123 Veterans Affairs Office, Springfield, IL 62704"
-        },
-      }
+        stationAddress: {
+          address: '123 Veterans Affairs Office, Springfield, IL 62704'
+        }
+      }.freeze
 
       # Section configuration hash
       KEY = {
@@ -115,7 +114,7 @@ module EmploymentQuestionairres
             key: 'F[0].Page_1[0].VeteranLastName[0]'
           }
         },
-       'veteranSocialSecurityNumber' => {
+        'veteranSocialSecurityNumber' => {
           'first' => {
             limit: 3,
             question_num: 2,
@@ -214,7 +213,7 @@ module EmploymentQuestionairres
             question_num: 9,
             key: 'F[0].Page_1[0].CurrentMailingAddress_Country[0]'
           }
-        },
+        }
       }.freeze
 
       def expand(form_data = {})
