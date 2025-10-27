@@ -179,11 +179,13 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
       end
 
       describe 'when submission_attempt is FormSubmission' do
-
         # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
         # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
         before do
           allow(FastImage).to receive(:size).and_return(nil)
+          job.instance_variable_set(:@pending_attempts, [attempt])
+          job.instance_variable_set(:@pah, { 'uuid-1' => attempt })
+          stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'Form23-42Fake' => handler_class })
         end
 
         let(:saved_claim) { create(:saved_claim_benefits_intake) }
@@ -191,12 +193,6 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         let(:attempt) { create(:form_submission_attempt, form_submission:, benefits_intake_uuid: 'uuid-1') }
         let(:handler_instance) { double('HandlerInstance') }
         let(:handler_class) { double('HandlerClass', new: handler_instance) }
-
-        before do
-          job.instance_variable_set(:@pending_attempts, [attempt])
-          job.instance_variable_set(:@pah, { 'uuid-1' => attempt })
-          stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'Form23-42Fake' => handler_class })
-        end
 
         it 'calls update_attempt_record on the handler' do
           expect(handler_class).to receive(:new).with(form_submission.saved_claim_id).and_return(handler_instance)
