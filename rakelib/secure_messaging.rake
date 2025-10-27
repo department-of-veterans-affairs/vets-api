@@ -41,9 +41,8 @@ namespace :sm do
     json = JSON.parse(File.read(path))
     json['uuid']
   rescue => e
-    raise StandardError, 'Encountered an error while trying to source ID.me UUID. ' \
-                         "Is the user number you provided legitimate?\n" \
-                         "Original error: #{e.class} - #{e.message}"
+    puts 'Encountered an error while trying to source ID.me UUID. Is the user number you provided legitimate?'
+    raise e
   end
 
   def cache_mhv_account(icn, mhv_correlation_id)
@@ -60,7 +59,7 @@ namespace :sm do
       expires_in: 1.year
     )
   rescue => e
-    raise StandardError, "Something went wrong while trying to cache mhv_account for user with ICN: #{icn}. " \
-                         "Original error: #{e.class} - #{e.message}"
+    puts "Something went wrong while trying to cache mhv_account for user with ICN: #{icn}."
+    raise e
   end
 end
