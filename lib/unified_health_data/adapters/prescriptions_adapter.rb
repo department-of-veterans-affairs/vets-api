@@ -79,6 +79,10 @@ module UnifiedHealthData
           return true
         end
 
+        # Exclude inpatient prescriptions
+        # See https://build.fhir.org/valueset-medicationrequest-admin-location.html
+        return true if prescription.category == 'inpatient'
+
         false
       end
 

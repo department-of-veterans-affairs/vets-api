@@ -899,4 +899,107 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
   end
+
+  describe '#extract_category' do
+    context 'with category field containing inpatient code' do
+      let(:resource_with_inpatient_category) do
+        base_resource.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'inpatient'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      it 'returns inpatient' do
+        result = subject.send(:extract_category, resource_with_inpatient_category)
+        expect(result).to eq('inpatient')
+      end
+    end
+
+    context 'with category field containing outpatient code' do
+      let(:resource_with_outpatient_category) do
+        base_resource.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'outpatient'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      it 'returns outpatient' do
+        result = subject.send(:extract_category, resource_with_outpatient_category)
+        expect(result).to eq('outpatient')
+      end
+    end
+
+    context 'with category field containing community code' do
+      let(:resource_with_community_category) do
+        base_resource.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      it 'returns community' do
+        result = subject.send(:extract_category, resource_with_community_category)
+        expect(result).to eq('community')
+      end
+    end
+
+    context 'with no category field' do
+      it 'returns nil' do
+        result = subject.send(:extract_category, base_resource)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with empty category array' do
+      let(:resource_with_empty_category) do
+        base_resource.merge('category' => [])
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_category, resource_with_empty_category)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with category but no coding' do
+      let(:resource_with_category_no_coding) do
+        base_resource.merge(
+          'category' => [
+            {
+              'text' => 'Inpatient'
+            }
+          ]
+        )
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_category, resource_with_category_no_coding)
+        expect(result).to be_nil
+      end
+    end
+  end
 end

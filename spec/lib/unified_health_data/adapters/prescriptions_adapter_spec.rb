@@ -393,5 +393,112 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(oracle_prescription.facility_name).to eq('VA Medical Center - Cardiology')
       end
     end
+
+    context 'with Oracle Health inpatient prescriptions' do
+      let(:oracle_medication_inpatient) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'inpatient'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_inpatient) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_inpatient
+              }
+            ]
+          }
+        }
+      end
+
+      it 'excludes inpatient prescriptions' do
+        prescriptions = subject.parse(response_with_inpatient)
+        expect(prescriptions).to be_empty
+      end
+    end
+
+    context 'with Oracle Health outpatient prescriptions' do
+      let(:oracle_medication_outpatient) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'outpatient'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_outpatient) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_outpatient
+              }
+            ]
+          }
+        }
+      end
+
+      it 'includes outpatient prescriptions' do
+        prescriptions = subject.parse(response_with_outpatient)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.category).to eq('outpatient')
+      end
+    end
+
+    context 'with Oracle Health community prescriptions' do
+      let(:oracle_medication_community) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_community) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_community
+              }
+            ]
+          }
+        }
+      end
+
+      it 'includes community prescriptions' do
+        prescriptions = subject.parse(response_with_community)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.category).to eq('community')
+      end
+    end
   end
 end
