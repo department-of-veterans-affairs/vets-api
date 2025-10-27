@@ -22,7 +22,7 @@ RSpec.describe 'Form 21-2680 API', openapi_spec: 'public/openapi.json', type: :r
                                  required: %w[fullName ssn dateOfBirth],
                                  description: "Section I: VETERAN'S IDENTIFICATION INFORMATION",
                                  properties: {
-                                   fullName: { :$ref => '#/components/schemas/Form212680FullName' },
+                                   fullName: { :$ref => '#/components/schemas/FirstMiddleLastName' },
                                    ssn: { type: 'string',
                                           example: '123456789',
                                           description: 'Social Security Number (9 digits)',
@@ -47,7 +47,7 @@ RSpec.describe 'Form 21-2680 API', openapi_spec: 'public/openapi.json', type: :r
                                   required: %w[fullName relationship address],
                                   description: "Section II: CLAIMANT'S IDENTIFICATION INFORMATION",
                                   properties: {
-                                    fullName: { :$ref => '#/components/schemas/Form212680FullName' },
+                                    fullName: { :$ref => '#/components/schemas/FirstMiddleLastName' },
                                     dateOfBirth: { type: 'string',
                                                    format: 'date',
                                                    example: '1950-01-01',
@@ -63,14 +63,14 @@ RSpec.describe 'Form 21-2680 API', openapi_spec: 'public/openapi.json', type: :r
                                                     description: 'Relationship to veteran',
                                                     enum: PdfFill::Forms::Va212680::RELATIONSHIPS.keys,
                                                     nullable: true },
-                                    address: { :$ref => '#/components/schemas/Form212680Address' },
+                                    address: { :$ref => '#/components/schemas/SimpleAddress' },
                                     phoneNumber: { type: 'string',
                                                    example: '5551234567',
                                                    pattern: '^\d{10}$',
                                                    description: 'Phone Number',
                                                    maxLength: 10,
                                                    minLength: 10,
-                                                  nullable: true },
+                                                   nullable: true },
                                     internationalPhoneNumber: { type: 'string',
                                                                 example: '5551234567',
                                                                 description: 'Phone Number',
@@ -111,7 +111,7 @@ RSpec.describe 'Form 21-2680 API', openapi_spec: 'public/openapi.json', type: :r
                                                       description: 'Name of hospital',
                                                       nullable: true },
                                       hospitalAddress: {
-                                        :$ref => '#/components/schemas/Form212680Address'
+                                        :$ref => '#/components/schemas/SimpleAddress'
                                       }
                                     } },
            veteranSignature: { type: 'object',

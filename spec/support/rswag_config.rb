@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require 'rswag/v0/shared_schemas/errors'
-require 'rswag/v0/shared_schemas/form212680'
+require_relative '../../app/openapi/schemas/errors'
+require_relative '../../app/openapi/schemas/name'
+require_relative '../../app/openapi/schemas/address'
 
 class RswagConfig
   # rubocop:disable Metrics/MethodLength
@@ -25,12 +26,11 @@ class RswagConfig
         servers: [],
         components: {
           schemas: {
-            Errors: Rswag::V0::SharedSchemas::Errors::ERRORS,
-            Error: Rswag::V0::SharedSchemas::Errors::ERROR,
-            Form212680FullName: Rswag::V0::SharedSchemas::Form212680::FORM_212680_FULL_NAME,
-            Form212680Address: Rswag::V0::SharedSchemas::Form212680::FORM_212680_ADDRESS
+            Errors: Openapi::Schemas::Errors::ERRORS,
+            Error: Openapi::Schemas::Errors::ERROR,
+            FirstMiddleLastName: Openapi::Schemas::Name::FIRST_MIDDLE_LAST,
+            SimpleAddress: Openapi::Schemas::Address::SIMPLE_ADDRESS
           }
-
         }
       }
     }

@@ -322,6 +322,7 @@ app/models/webhooks/notification_attempt.rb @department-of-veterans-affairs/back
 app/models/webhooks/notification.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/subscription.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/utilities.rb @department-of-veterans-affairs/backend-review-group
+app/openapi/  @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/policies/appeals_policy.rb @department-of-veterans-affairs/backend-review-group
 app/policies/bgs_policy.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/policies/coe_policy.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
@@ -577,6 +578,7 @@ app/swagger/swagger/schemas/connected_applications.rb @department-of-veterans-af
 app/swagger/swagger/schemas/contacts.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/dependents_verifications.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/dependents.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
+app/swagger/swagger/schemas/errors.rb @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/form526/ @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/gibct @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/gibct/calculator_constants.rb @department-of-veterans-affairs/backend-review-group

@@ -47,18 +47,18 @@
                     "required": [
                       "fullName",
                       "ssn",
-                      "vaFileNumber",
                       "dateOfBirth"
                     ],
                     "description": "Section I: VETERAN'S IDENTIFICATION INFORMATION",
                     "properties": {
                       "fullName": {
-                        "$ref": "#/components/schemas/Form212680FullName"
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
                       },
                       "ssn": {
                         "type": "string",
                         "example": "123456789",
                         "description": "Social Security Number (9 digits)",
+                        "pattern": "^\\d{9}$",
                         "maxLength": 9,
                         "minLength": 9
                       },
@@ -93,7 +93,7 @@
                     "description": "Section II: CLAIMANT'S IDENTIFICATION INFORMATION",
                     "properties": {
                       "fullName": {
-                        "$ref": "#/components/schemas/Form212680FullName"
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
                       },
                       "dateOfBirth": {
                         "type": "string",
@@ -105,6 +105,7 @@
                         "type": "string",
                         "example": "123456789",
                         "description": "Social Security Number (9 digits)",
+                        "pattern": "^\\d{9}$",
                         "maxLength": 9,
                         "minLength": 9
                       },
@@ -121,14 +122,16 @@
                         "nullable": true
                       },
                       "address": {
-                        "$ref": "#/components/schemas/Form212680Address"
+                        "$ref": "#/components/schemas/SimpleAddress"
                       },
                       "phoneNumber": {
                         "type": "string",
                         "example": "5551234567",
+                        "pattern": "^\\d{10}$",
                         "description": "Phone Number",
                         "maxLength": 10,
-                        "minLength": 10
+                        "minLength": 10,
+                        "nullable": true
                       },
                       "internationalPhoneNumber": {
                         "type": "string",
@@ -170,6 +173,9 @@
                   "additionalInformation": {
                     "type": "object",
                     "description": "Section IV: IS VETERAN/CLAIMANT HOSPITALIZED?",
+                    "required": [
+                      "currentlyHospitalized"
+                    ],
                     "properties": {
                       "currentlyHospitalized": {
                         "type": "boolean",
@@ -190,7 +196,7 @@
                         "nullable": true
                       },
                       "hospitalAddress": {
-                        "$ref": "#/components/schemas/Form212680Address"
+                        "$ref": "#/components/schemas/SimpleAddress"
                       }
                     }
                   },
@@ -241,10 +247,10 @@
                     "id": "12345",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-10-26T22:15:16Z",
+                      "submitted_at": "2025-10-27T17:42:56Z",
                       "regional_office": [],
-                      "confirmation_number": "a14ae46e-90cb-4428-b34f-c9ebfefe3860",
-                      "guid": "a14ae46e-90cb-4428-b34f-c9ebfefe3860",
+                      "confirmation_number": "e5cc4e97-bfcb-47d9-94a1-60154d315e11",
+                      "guid": "e5cc4e97-bfcb-47d9-94a1-60154d315e11",
                       "form": "21-4192"
                     }
                   }
@@ -595,7 +601,7 @@
           }
         }
       },
-      "Form212680FullName": {
+      "FirstMiddleLastName": {
         "type": "object",
         "properties": {
           "first": {
@@ -606,7 +612,8 @@
           "middle": {
             "type": "string",
             "example": "A",
-            "maxLength": 1
+            "maxLength": 1,
+            "nullable": true
           },
           "last": {
             "type": "string",
@@ -615,7 +622,7 @@
           }
         }
       },
-      "Form212680Address": {
+      "SimpleAddress": {
         "type": "object",
         "properties": {
           "street": {
@@ -626,7 +633,8 @@
           "street2": {
             "type": "string",
             "example": "Apt 4B",
-            "maxLength": 5
+            "maxLength": 5,
+            "nullable": true
           },
           "city": {
             "type": "string",
