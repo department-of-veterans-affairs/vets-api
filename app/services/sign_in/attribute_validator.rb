@@ -51,10 +51,43 @@ module SignIn
         validate_existing_mpi_attributes
       end
 
+      get_traits_by_ssoe_async if Settings.vsp_environment == 'development'
       verified_icn
     end
 
     private
+
+    def get_traits_by_ssoe_async
+      return unless credential_uuid && credential_email
+
+      cache_key = create_cache_key
+
+      credential_method = if idme_uuid
+                            'idme'
+                          elsif logingov_uuid
+                            'logingov'
+                          else
+                            'unknown'
+                          end
+
+      Identity::GetSSOeTraitsByCspidJob.perform_async(cache_key, credential_method, credential_uuid)
+    end
+
+    def create_cache_key
+      Sidekiq::AttrPackage.create(
+        expires_in: 7.days,
+        first_name:,
+        last_name:,
+        birth_date:,
+        ssn:,
+        email: credential_email,
+        phone: nil,
+        street1: address[:street1],
+        city: address[:city],
+        state: address[:state],
+        zipcode: address[:zipcode]
+      )
+    end
 
     def validate_existing_mpi_attributes
       check_lock_flag(mpi_response_profile.id_theft_flag, 'Theft Flag', Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
