@@ -1444,6 +1444,7 @@ vanotify:
         form526_submission_failure_notification_template_id: <%= ENV['vanotify__services__benefits_disability__template_id__form526_submission_failure_notification_template_id'] %>
     benefits_management_tools:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
+      letter_ready_email_job_retry_count: <%= ENV['vanotify__services__benefits_management_tools__letter_ready_email_job_retry_count'] %>
       template_id:
         decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
         evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
