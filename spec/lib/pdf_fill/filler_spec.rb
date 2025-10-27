@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
-require 'pdf_fill/forms/filler/pdf_filler_exception'
 
 # This whole suite is approx 57 tests as of this review. It looks deceptively smaller
 # than it is.
