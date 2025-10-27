@@ -2077,6 +2077,10 @@ features:
     actor_type: user
     description: Adds chiropractic to the list of services that can be direct scheduled.
     enable_in_development: true
+  va_online_scheduling_community_care_cancellations:
+    actor_type: user
+    description: Enables community care direct scheduled cancellations.
+    enable_in_development: true
   va_online_scheduling_use_vpg:
     actor_type: user
     enable_in_development: true
