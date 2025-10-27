@@ -81,8 +81,17 @@ module VcrInspector
 
     private
 
-    def handle_index(_req, res)
+    def handle_index(req, res)
       @cassettes = CassetteFinder.all_cassettes(cassette_root)
+      
+      # Handle sorting
+      sort = req.query['sort']
+      if sort == 'recent'
+        @cassettes = @cassettes.sort_by { |c| -c[:recorded_at].to_i }
+      elsif sort == 'old'
+        @cassettes = @cassettes.sort_by { |c| c[:recorded_at].to_i }
+      end
+      
       @stats = {
         total: @cassettes.length,
         services: CassetteFinder.group_by_service(@cassettes).keys.length
@@ -98,6 +107,7 @@ module VcrInspector
 
     def handle_search(req, res)
       query = req.query['q']
+      sort = req.query['sort']
       filters = {
         service: req.query['service'],
         method: req.query['method'],
@@ -105,6 +115,14 @@ module VcrInspector
       }
       
       @cassettes = CassetteFinder.search(cassette_root, query, filters)
+      
+      # Handle sorting
+      if sort == 'recent'
+        @cassettes = @cassettes.sort_by { |c| -c[:recorded_at].to_i }
+      elsif sort == 'old'
+        @cassettes = @cassettes.sort_by { |c| c[:recorded_at].to_i }
+      end
+      
       @query = query
       @filters = filters
       render(res, :search_results)
@@ -121,6 +139,22 @@ module VcrInspector
       @cassette_name = cassette_path
       @cassette = CassetteParser.parse(full_path)
       @file_info = File.stat(full_path)
+      
+      # Get recorded_at from the cassette
+      @recorded_at = nil
+      if @cassette[:interactions]&.any?
+        # First try to get from individual interactions
+        recorded_dates = @cassette[:interactions].map { |i| i[:recorded_at] }.compact
+        @recorded_at = recorded_dates.map { |d| Time.parse(d) rescue nil }.compact.max
+      end
+      # If not found, try the top-level recorded_at from raw YAML
+      @recorded_at ||= begin
+        Time.parse(@cassette[:raw]['recorded_at']) if @cassette[:raw]&.dig('recorded_at')
+      rescue StandardError
+        nil
+      end
+      @recorded_at ||= @file_info.mtime
+      
       @tests_using = TestAnalyzer.find_tests_using(spec_root, modules_root, cassette_path)
       
       render(res, :cassette)

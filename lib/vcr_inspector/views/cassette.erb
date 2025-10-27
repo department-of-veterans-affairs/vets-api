@@ -13,7 +13,7 @@
         <div class="cassette-physical">
           <div class="cassette-top-label">
             <div class="label-text"><%= File.basename(@cassette_name) %></div>
-            <div class="label-subtext">Recorded: <%= @file_info.mtime.strftime('%Y-%m-%d') %></div>
+            <div class="label-subtext">Recorded: <%= (@recorded_at || @file_info.mtime).strftime('%Y-%m-%d') %></div>
           </div>
           <div class="cassette-body">
             <div class="reel-window">
@@ -33,8 +33,8 @@
     <div class="cassette-meta">
       <div class="meta-row">
         <span class="meta-label">📅 Recorded:</span>
-        <span class="meta-value"><%= format_file_date(@file_info.mtime) %></span>
-        <span class="age-badge"><%= cassette_age_indicator(@file_info.mtime) %></span>
+        <span class="meta-value"><%= format_file_date(@recorded_at) %></span>
+        <span class="age-badge"><%= cassette_age_indicator(@recorded_at) %></span>
       </div>
       <div class="meta-row">
         <span class="meta-label">🎬 Interactions:</span>

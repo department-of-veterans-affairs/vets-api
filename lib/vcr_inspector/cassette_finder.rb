@@ -5,12 +5,31 @@ module VcrInspector
     def self.all_cassettes(root_path)
       Dir.glob(File.join(root_path, '**/*.yml')).map do |file_path|
         relative_path = file_path.sub("#{root_path}/", '').sub('.yml', '')
+        
+        # Try to get recorded_at from the cassette
+        recorded_at = nil
+        begin
+          yaml = YAML.load_file(file_path)
+          if yaml['http_interactions']&.any?
+            # Get the latest recorded_at from all interactions
+            recorded_at = yaml['http_interactions'].map { |i| i['recorded_at'] }.compact.max
+            recorded_at = Time.parse(recorded_at) if recorded_at
+          end
+          # If not found in interactions, check top-level recorded_at
+          if !recorded_at && yaml['recorded_at']
+            recorded_at = Time.parse(yaml['recorded_at'])
+          end
+        rescue StandardError
+          # Fall back to file mtime if we can't parse
+        end
+        
         {
           path: relative_path,
           name: File.basename(file_path, '.yml'),
           service: relative_path.split('/').first,
           full_path: file_path,
-          modified_at: File.mtime(file_path)
+          modified_at: File.mtime(file_path),
+          recorded_at: recorded_at || File.mtime(file_path)
         }
       end.sort_by { |c| c[:path] }
     end
