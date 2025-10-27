@@ -20,6 +20,7 @@ module DependentsBenefits
         @saved_claim = saved_claim
         @user_data = user_data
         @proc_id = proc_id
+        # Set a default empty array for attachment_paths to avoid nil errors in cleanup_file_paths
         @attachment_paths = []
       end
 
