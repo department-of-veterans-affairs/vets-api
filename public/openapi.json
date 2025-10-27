@@ -121,21 +121,21 @@
                         "properties": {
                           "first": {
                             "type": "string",
-                            "example": "John"
-                          },
-                          "last": {
-                            "type": "string",
-                            "example": "Doe"
+                            "example": "John",
+                            "maxLength": 12
                           },
                           "middle": {
                             "type": "string",
-                            "example": "Michael"
+                            "example": "A",
+                            "maxLength": 1,
+                            "nullable": true
+                          },
+                          "last": {
+                            "type": "string",
+                            "example": "Doe",
+                            "maxLength": 18
                           }
-                        },
-                        "required": [
-                          "first",
-                          "last"
-                        ]
+                        }
                       },
                       "ssn": {
                         "type": "string",
@@ -157,27 +157,34 @@
                         "properties": {
                           "street": {
                             "type": "string",
-                            "example": "123 Main St"
+                            "example": "123 Main St",
+                            "maxLength": 30
                           },
                           "street2": {
                             "type": "string",
-                            "example": "Apt 4B"
+                            "example": "Apt 4B",
+                            "maxLength": 30,
+                            "nullable": true
                           },
                           "city": {
                             "type": "string",
-                            "example": "Anytown"
+                            "example": "Springfield",
+                            "maxLength": 18
                           },
                           "state": {
                             "type": "string",
-                            "example": "CA"
+                            "example": "IL",
+                            "maxLength": 2
                           },
                           "postalCode": {
                             "type": "string",
-                            "example": "12345"
+                            "example": "62701",
+                            "maxLength": 9
                           },
                           "country": {
                             "type": "string",
-                            "example": "USA"
+                            "example": "US",
+                            "maxLength": 2
                           }
                         },
                         "required": [
@@ -207,27 +214,34 @@
                         "properties": {
                           "street": {
                             "type": "string",
-                            "example": "456 Business Blvd"
+                            "example": "123 Main St",
+                            "maxLength": 30
                           },
                           "street2": {
                             "type": "string",
-                            "example": "Suite 200"
+                            "example": "Apt 4B",
+                            "maxLength": 30,
+                            "nullable": true
                           },
                           "city": {
                             "type": "string",
-                            "example": "Chicago"
+                            "example": "Springfield",
+                            "maxLength": 18
                           },
                           "state": {
                             "type": "string",
-                            "example": "IL"
+                            "example": "IL",
+                            "maxLength": 2
                           },
                           "postalCode": {
                             "type": "string",
-                            "example": "60601"
+                            "example": "62701",
+                            "maxLength": 9
                           },
                           "country": {
                             "type": "string",
-                            "example": "USA"
+                            "example": "US",
+                            "maxLength": 2
                           }
                         },
                         "required": [
@@ -330,10 +344,15 @@
                       }
                     }
                   }
-                }
+                },
+                "required": [
+                  "veteranInformation",
+                  "employmentInformation"
+                ]
               }
             }
-          }
+          },
+          "required": true
         }
       }
     }
@@ -393,6 +412,63 @@
           "meta": {
             "type": "object",
             "description": "additional info, like a backtrace"
+          }
+        }
+      },
+      "FirstMiddleLastName": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "type": "string",
+            "example": "John",
+            "maxLength": 12
+          },
+          "middle": {
+            "type": "string",
+            "example": "A",
+            "maxLength": 1,
+            "nullable": true
+          },
+          "last": {
+            "type": "string",
+            "example": "Doe",
+            "maxLength": 18
+          }
+        }
+      },
+      "SimpleAddress": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "123 Main St",
+            "maxLength": 30
+          },
+          "street2": {
+            "type": "string",
+            "example": "Apt 4B",
+            "maxLength": 30,
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "example": "Springfield",
+            "maxLength": 18
+          },
+          "state": {
+            "type": "string",
+            "example": "IL",
+            "maxLength": 2
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "62701",
+            "maxLength": 9
+          },
+          "country": {
+            "type": "string",
+            "example": "US",
+            "maxLength": 2
           }
         }
       }

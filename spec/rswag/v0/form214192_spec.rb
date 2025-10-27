@@ -129,7 +129,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               fullName: {
                 first: 'John',
                 last: 'Doe',
-                middle: 'Michael'
+                middle: 'A'
               },
               ssn: '123456789',
               dateOfBirth: '1980-01-01',
@@ -146,7 +146,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               employerName: 'Acme Corp',
               employerAddress: {
                 street: '456 Business Blvd',
-                street2: 'Suite 200',
+                street2: nil,
                 city: 'Chicago',
                 state: 'IL',
                 postalCode: '60601',
