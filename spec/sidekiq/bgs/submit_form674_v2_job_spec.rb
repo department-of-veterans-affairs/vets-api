@@ -47,6 +47,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
     )
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
+  let(:vanotify) { double(send_email: true) }
 
   context 'success' do
     before do
@@ -76,19 +77,27 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'fake_received686c674',
-        { 'confirmation_number' => dependency_claim.confirmation_number,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY' },
-        'fake_secret',
-        { callback_klass: 'Dependents::NotificationCallback',
-          callback_metadata: { email_template_id: 'fake_received686c674',
-                               email_type: :received686c674,
-                               form_id: '686C-674',
-                               saved_claim_id: dependency_claim.id,
-                               service_name: 'dependents' } }
+
+      callback_options = {
+        callback_klass: 'Dependents::NotificationCallback',
+        callback_metadata: { email_template_id: 'fake_received686c674',
+                             email_type: :received686c674,
+                             form_id: '686C-674',
+                             claim_id: dependency_claim.id,
+                             saved_claim_id: dependency_claim.id,
+                             service_name: 'dependents' } }
+
+      personalization = { 'confirmation_number' => dependency_claim.confirmation_number,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' }
+
+      expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: user.va_profile_email,
+          template_id: 'fake_received686c674',
+          personalisation: personalization,
+        }.compact
       )
 
       subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
@@ -134,19 +143,27 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'fake_received674',
-        { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY' },
-        'fake_secret',
-        { callback_klass: 'Dependents::NotificationCallback',
-          callback_metadata: { email_template_id: 'fake_received674',
-                               email_type: :received674,
-                               form_id: '686C-674',
-                               saved_claim_id: dependency_claim_674_only.id,
-                               service_name: 'dependents' } }
+
+      callback_options = {
+        callback_klass: 'Dependents::NotificationCallback',
+        callback_metadata: { email_template_id: 'fake_received674',
+                             email_type: :received674,
+                             form_id: '686C-674',
+                             claim_id: dependency_claim_674_only.id,
+                             saved_claim_id: dependency_claim_674_only.id,
+                             service_name: 'dependents' } }
+
+      personalization = { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' }
+
+      expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: user.va_profile_email,
+          template_id: 'fake_received674',
+          personalisation: personalization,
+        }.compact
       )
 
       subject.perform(user.uuid, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)

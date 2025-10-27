@@ -4,21 +4,34 @@ require 'rails_helper'
 
 RSpec.describe Burials::NotificationEmail do
   let(:saved_claim) { create(:burials_saved_claim) }
+  let(:vanotify) { double(send_email: true) }
 
   describe '#deliver' do
     it 'successfully sends an email' do
       expect(Burials::SavedClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:burials).and_call_original
 
-      args = [
-        saved_claim.email,
-        Settings.vanotify.services['21p_530ez'].email.confirmation.template_id,
-        anything,
-        Settings.vanotify.services['21p_530ez'].api_key,
-        { callback_klass: Burials::NotificationCallback.to_s,
-          callback_metadata: anything }
-      ]
-      expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
+      api_key = Settings.vanotify.services['21p_530ez'].api_key
+      callback_options = { callback_klass: Burials::NotificationCallback.to_s, callback_metadata: be_a(Hash) }
+
+      expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: saved_claim.email,
+          template_id: Settings.vanotify.services['21p_530ez'].email.confirmation.template_id,
+          personalisation: be_a(Hash)
+        }.compact
+      )
+
+      # args = [
+      #   saved_claim.email,
+      #   Settings.vanotify.services['21p_530ez'].email.confirmation.template_id,
+      #   anything,
+      #   Settings.vanotify.services['21p_530ez'].api_key,
+      #   { callback_klass: Burials::NotificationCallback.to_s,
+      #     callback_metadata: anything }
+      # ]
+      # expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
 
       described_class.new(23).deliver(:confirmation)
     end

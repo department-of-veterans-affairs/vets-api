@@ -64,7 +64,7 @@ describe DecisionReviews::EvidenceNotificationCallback do
         payload: notification.to_json
       )
 
-      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification.callback.delivered',
+      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification_callback.delivered',
                                                        tags: ['service:supplemental-claims',
                                                               'function:evidence submission to lighthouse'])
                                                  .exactly(1).time
@@ -98,7 +98,7 @@ describe DecisionReviews::EvidenceNotificationCallback do
         payload: notification.to_json
       )
 
-      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification.callback.permanent_failure', # rubocop:disable Layout/LineLength
+      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification_callback.permanent_failure', # rubocop:disable Layout/LineLength
                                                        tags: ['service:supplemental-claims',
                                                               'function:evidence submission to lighthouse'])
                                                  .exactly(1).time
@@ -126,7 +126,7 @@ describe DecisionReviews::EvidenceNotificationCallback do
         payload: notification.to_json
       )
 
-      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification.callback.temporary_failure', # rubocop:disable Layout/LineLength
+      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification_callback.temporary_failure', # rubocop:disable Layout/LineLength
                                                        tags: ['service:supplemental-claims',
                                                               'function:evidence submission to lighthouse'])
                                                  .exactly(1).time
