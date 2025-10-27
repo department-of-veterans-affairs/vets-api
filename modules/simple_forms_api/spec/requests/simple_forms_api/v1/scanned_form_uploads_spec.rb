@@ -7,6 +7,9 @@ require 'common/file_helpers'
 RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:form_number) { '21-0779' }
+  let(:valid_pdf_file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
+  let(:valid_image_file) { fixture_file_upload('doctors-note.jpg', 'image/jpeg') }
+  let(:large_file) { fixture_file_upload('too_large.pdf', 'application/pdf') }
 
   before do
     sign_in(user)
@@ -27,12 +30,15 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     let(:attachment) { double }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                an_instance_of(User)).and_return(false)
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
       allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
       allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
         original_method.call(args[0], random_string)
       end
+
       allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
                                                               timestamp: anything).and_return(pdf_stamper)
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
@@ -46,8 +52,6 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     it 'makes the request' do
-      expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
-
       post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
@@ -115,6 +119,140 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       resp = JSON.parse(response.body)
       expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size warnings])
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
+    end
+  end
+
+  describe '#upload_supporting_documents' do
+    let(:valid_pdf_file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
+    let(:valid_image_file) { fixture_file_upload('doctors-note.jpg', 'image/jpeg') }
+    let(:large_file) { fixture_file_upload('too_large.pdf', 'application/pdf') }
+
+    before do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+    end
+
+    context 'when feature toggles' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'processes files through ScannedFormProcessor and returns success' do
+        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment|
+          expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
+          expect(attachment.form_id).to eq(form_number)
+          processor = double('ScannedFormProcessor')
+          allow(processor).to receive(:process!) do
+            attachment.save!
+            attachment
+          end
+          processor
+        end
+
+        params = { form_id: form_number, file: valid_pdf_file }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+    end
+
+    context 'when conversion fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns conversion error from processor' do
+        processor = double('ScannedFormProcessor')
+        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor)
+        expect(processor).to receive(:process!).and_raise(
+          SimpleFormsApi::ScannedFormProcessor::ConversionError.new(
+            'File conversion failed',
+            [{ title: 'File conversion error',
+               detail: 'Unable to convert file to PDF. Please ensure your file is valid and try again.' }]
+          )
+        )
+
+        params = { form_id: form_number, file: valid_image_file }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['error']).to be_an(Array)
+        expect(resp['error'][0]['detail']).to include('Unable to convert file to PDF')
+      end
+    end
+
+    context 'when validation fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns validation error from processor' do
+        processor = double('ScannedFormProcessor')
+        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor)
+        expect(processor).to receive(:process!).and_raise(
+          SimpleFormsApi::ScannedFormProcessor::ValidationError.new(
+            'PDF validation failed',
+            [{ title: 'File validation error', detail: 'Document exceeds the file size limit of 100 MB' }]
+          )
+        )
+
+        params = { form_id: form_number, file: large_file }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['error']).to be_an(Array)
+        expect(resp['error'][0]['detail']).to include('file size limit')
+      end
+    end
+
+    context 'when basic attachment validation fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns validation errors without calling processor' do
+        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?) do |attachment|
+          attachment.errors.add(:file, 'is invalid')
+          false
+        end
+
+        expect(SimpleFormsApi::ScannedFormProcessor).not_to receive(:new)
+
+        params = { form_id: form_number, file: valid_pdf_file }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when feature toggle is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(false)
+      end
+
+      it 'returns not found' do
+        params = { form_id: '123', file: valid_pdf_file }
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 end

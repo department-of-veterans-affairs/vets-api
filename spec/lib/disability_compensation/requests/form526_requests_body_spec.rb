@@ -15,10 +15,68 @@ Rspec.describe Requests do
       expect(form).to respond_to(:claim_process_type)
     end
 
+    # this is the only difference between Form526 and Form526Pdf
+    it 'does not have claim_date attribute' do
+      expect(form).not_to respond_to(:claim_date)
+    end
+
     # TODO: revisit if LH adds it back to the request
     # it 'has claim_date attribute' do
     #   expect(form).to respond_to(:claim_date)
     # end
+
+    it 'has veteran_identification attribute' do
+      expect(form).to respond_to(:veteran_identification)
+    end
+
+    it 'has change_of_address attribute' do
+      expect(form).to respond_to(:change_of_address)
+    end
+
+    it 'has homeless attribute' do
+      expect(form).to respond_to(:homeless)
+    end
+
+    it 'has toxic_exposure attribute' do
+      expect(form).to respond_to(:toxic_exposure)
+    end
+
+    it 'has disabilities attribute' do
+      expect(form).to respond_to(:disabilities)
+    end
+
+    it 'has treatments attribute' do
+      expect(form).to respond_to(:treatments)
+    end
+
+    it 'has service_information attribute' do
+      expect(form).to respond_to(:service_information)
+    end
+
+    it 'has service_pay attribute' do
+      expect(form).to respond_to(:service_pay)
+    end
+
+    it 'has direct_deposit attribute' do
+      expect(form).to respond_to(:direct_deposit)
+    end
+  end
+
+  describe Requests::Form526Pdf do
+    let(:form) { Requests::Form526Pdf.new }
+
+    it 'has claimant_certification attribute' do
+      expect(form).to respond_to(:claimant_certification)
+    end
+
+    it 'has claim_process_type attribute' do
+      expect(form).to respond_to(:claim_process_type)
+    end
+
+    # this is the only difference between Form526 and Form526Pdf
+    it 'has claim_date attribute' do
+      expect(form).to respond_to(:claim_date)
+    end
 
     it 'has veteran_identification attribute' do
       expect(form).to respond_to(:veteran_identification)

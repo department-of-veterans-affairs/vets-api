@@ -7,7 +7,7 @@ module VRE
     # statsd key for api
     CLAIM_STATS_KEY = 'vre-application'
     # statsd key for initial sidekiq
-    SUBMISSION_STATS_KEY = 'worker.vre.submit_1900_job'
+    SUBMISSION_STATS_KEY = 'worker.vre.vre_submit_1900_job'
 
     attr_reader :tags
 
