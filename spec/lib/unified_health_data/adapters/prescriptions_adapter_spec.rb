@@ -461,7 +461,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       it 'includes outpatient prescriptions' do
         prescriptions = subject.parse(response_with_outpatient)
         expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq('outpatient')
+        expect(prescriptions.first.category).to eq(['outpatient'])
       end
     end
 
@@ -497,7 +497,94 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       it 'includes community prescriptions' do
         prescriptions = subject.parse(response_with_community)
         expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq('community')
+        expect(prescriptions.first.category).to eq(['community'])
+      end
+    end
+
+    context 'with Oracle Health prescriptions with multiple categories' do
+      let(:oracle_medication_multiple_categories) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'outpatient'
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_multiple_categories) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_multiple_categories
+              }
+            ]
+          }
+        }
+      end
+
+      it 'includes prescriptions with multiple categories' do
+        prescriptions = subject.parse(response_with_multiple_categories)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.category).to eq(['outpatient', 'community'])
+      end
+    end
+
+    context 'with Oracle Health prescriptions with inpatient in multiple categories' do
+      let(:oracle_medication_inpatient_and_community) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'inpatient'
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_inpatient_and_community) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_inpatient_and_community
+              }
+            ]
+          }
+        }
+      end
+
+      it 'excludes prescriptions if any category is inpatient' do
+        prescriptions = subject.parse(response_with_inpatient_and_community)
+        expect(prescriptions).to be_empty
       end
     end
   end

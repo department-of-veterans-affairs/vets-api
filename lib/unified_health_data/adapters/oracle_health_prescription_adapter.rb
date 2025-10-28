@@ -239,19 +239,20 @@ module UnifiedHealthData
         # Extract category from FHIR MedicationRequest
         # See https://build.fhir.org/valueset-medicationrequest-admin-location.html
         categories = resource['category'] || []
-        return nil if categories.empty?
+        return [] if categories.empty?
 
         # Category is an array of CodeableConcept objects
-        # We look for the coding with the admin location
+        # We collect all codes from all categories
+        codes = []
         categories.each do |category|
           codings = category['coding'] || []
           codings.each do |coding|
-            # Return the code value if found (e.g., 'inpatient', 'outpatient', 'community')
-            return coding['code'] if coding['code'].present?
+            # Collect the code value if found (e.g., 'inpatient', 'outpatient', 'community')
+            codes << coding['code'] if coding['code'].present?
           end
         end
 
-        nil
+        codes
       end
 
       def non_va_med?(resource)

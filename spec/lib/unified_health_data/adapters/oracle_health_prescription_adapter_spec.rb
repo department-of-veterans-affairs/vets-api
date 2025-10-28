@@ -917,9 +917,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'returns inpatient' do
+      it 'returns array with inpatient' do
         result = subject.send(:extract_category, resource_with_inpatient_category)
-        expect(result).to eq('inpatient')
+        expect(result).to eq(['inpatient'])
       end
     end
 
@@ -939,9 +939,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'returns outpatient' do
+      it 'returns array with outpatient' do
         result = subject.send(:extract_category, resource_with_outpatient_category)
-        expect(result).to eq('outpatient')
+        expect(result).to eq(['outpatient'])
       end
     end
 
@@ -961,16 +961,46 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'returns community' do
+      it 'returns array with community' do
         result = subject.send(:extract_category, resource_with_community_category)
-        expect(result).to eq('community')
+        expect(result).to eq(['community'])
+      end
+    end
+
+    context 'with multiple category codes' do
+      let(:resource_with_multiple_categories) do
+        base_resource.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'inpatient'
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      it 'returns array with all category codes' do
+        result = subject.send(:extract_category, resource_with_multiple_categories)
+        expect(result).to eq(['inpatient', 'community'])
       end
     end
 
     context 'with no category field' do
-      it 'returns nil' do
+      it 'returns empty array' do
         result = subject.send(:extract_category, base_resource)
-        expect(result).to be_nil
+        expect(result).to eq([])
       end
     end
 
@@ -979,9 +1009,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         base_resource.merge('category' => [])
       end
 
-      it 'returns nil' do
+      it 'returns empty array' do
         result = subject.send(:extract_category, resource_with_empty_category)
-        expect(result).to be_nil
+        expect(result).to eq([])
       end
     end
 
@@ -996,9 +1026,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'returns nil' do
+      it 'returns empty array' do
         result = subject.send(:extract_category, resource_with_category_no_coding)
-        expect(result).to be_nil
+        expect(result).to eq([])
       end
     end
   end
