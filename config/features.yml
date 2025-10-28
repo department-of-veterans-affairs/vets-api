@@ -1449,10 +1449,6 @@ features:
     actor_type: user
     description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
-  mhv_medical_records_redact_fhir_client_logs:
-    actor_type: user
-    description: Replaces IDs in fhir_client INFO-level logs with X's when enabled
-    enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medical Records on VA.gov (intial transition from MHV to VA.gov)
