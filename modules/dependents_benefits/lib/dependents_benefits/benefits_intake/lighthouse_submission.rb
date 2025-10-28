@@ -14,7 +14,7 @@ module DependentsBenefits
     class LighthouseSubmission
       FOREIGN_POSTALCODE = '00000'
 
-      attr_reader :saved_claim, :user_data, :proc_id, :lighthouse_service
+      attr_reader :saved_claim, :user_data, :proc_id, :lighthouse_service, :attachment_paths, :form_path, :uuid
 
       def initialize(saved_claim, user_data, proc_id = nil)
         @saved_claim = saved_claim
@@ -22,6 +22,8 @@ module DependentsBenefits
         @proc_id = proc_id
         # Set a default empty array for attachment_paths to avoid nil errors in cleanup_file_paths
         @attachment_paths = []
+        @form_path = nil
+        @uuid = nil
       end
 
       def initialize_service
@@ -127,10 +129,6 @@ module DependentsBenefits
       end
 
       def split_file_and_path(path) = { file: path, file_name: path.split('/').last }
-
-      def form_path = @form_path || nil
-
-      def uuid = @uuid || nil
     end
   end
 end
