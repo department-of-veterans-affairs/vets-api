@@ -534,7 +534,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       subject { described_class.new(form: adopted_child.to_json) }
 
       # test with form 686 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a 686 submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -553,7 +553,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       subject { described_class.new(form: form_674_only.to_json) }
 
       # test with form 674 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a 674 submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -571,7 +571,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when form 686 and 674' do
       subject { described_class.new(form: all_flows_payload.to_json) }
 
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a combo submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -589,7 +589,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when neither 686 nor 674 (an error)' do
       subject { described_class.new }
 
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a combo submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -612,7 +612,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       let(:standard_error) { StandardError.new('test error') }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
         allow(Dependents::NotificationEmail).to receive(:new).and_raise(standard_error)
       end
 
@@ -628,7 +628,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       subject { described_class.new(form: adopted_child.to_json) }
 
       # test with form 686 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a 686 received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -647,7 +647,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       subject { described_class.new(form: form_674_only.to_json) }
 
       # test with form 674 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a 674 received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -665,7 +665,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when form 686 and 674' do
       subject { described_class.new(form: all_flows_payload.to_json) }
 
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a combo received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -683,7 +683,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when neither 686 nor 674 (an error)' do
       subject { described_class.new }
 
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false) }
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a combo received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -706,7 +706,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       let(:standard_error) { StandardError.new('test error') }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
         allow(Dependents::NotificationEmail).to receive(:new).and_raise(standard_error)
       end
 
