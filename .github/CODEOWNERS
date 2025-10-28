@@ -322,6 +322,9 @@ app/models/webhooks/notification_attempt.rb @department-of-veterans-affairs/back
 app/models/webhooks/notification.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/subscription.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/utilities.rb @department-of-veterans-affairs/backend-review-group
+app/openapi/openapi/schemas/address.rb @department-of-veterans-affairs/backend-review-group 
+app/openapi/openapi/schemas/errors.rb @department-of-veterans-affairs/backend-review-group
+app/openapi/openapi/schemas/name.rb @department-of-veterans-affairs/backend-review-group
 app/policies/appeals_policy.rb @department-of-veterans-affairs/backend-review-group
 app/policies/bgs_policy.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/policies/coe_policy.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
@@ -540,7 +543,6 @@ app/swagger/swagger/requests/form1010_ezrs.rb @department-of-veterans-affairs/he
 app/swagger/swagger/requests/form1010cg @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/form1095_bs.rb @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/form210779.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
-app/swagger/swagger/requests/form214192.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/forms.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-public-websites-frontend
 app/swagger/swagger/requests/gibct @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/gibct/calculator_constants.rb @department-of-veterans-affairs/backend-review-group
@@ -700,6 +702,7 @@ config/initializers/aal.rb @department-of-veterans-affairs/octo-identity
 config/initializers/app_info.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/application_controller_renderer.rb @department-of-veterans-affairs/octo-identity
 config/initializers/authn_context.rb @department-of-veterans-affairs/octo-identity
+config/initializers/committee.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/backtrace_silencers.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/benefits_intake_submission_status_handlers.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 config/initializers/betamocks.rb @department-of-veterans-affairs/backend-review-group
@@ -828,6 +831,7 @@ lib/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @
 lib/claim_documents/monitor.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 lib/claim_letters @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 lib/clamav @department-of-veterans-affairs/backend-review-group
+lib/committee @department-of-veterans-affairs/backend-review-group
 lib/common @department-of-veterans-affairs/backend-review-group
 lib/common/client/base.rb @department-of-veterans-affairs/backend-review-group
 lib/common/client/concerns/mhv_fhir_session_client.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
@@ -1389,6 +1393,7 @@ spec/lib/caseflow @department-of-veterans-affairs/lighthouse-banana-peels @depar
 spec/lib/central_mail @department-of-veterans-affairs/backend-review-group
 spec/lib/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
 spec/lib/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
+spec/lib/committee @department-of-veterans-affairs/backend-review-group
 spec/lib/claim_documents/monitor_spec.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 spec/lib/claim_letters @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
 spec/lib/claim_status_tool @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
@@ -1754,6 +1759,7 @@ spec/requests/v1/post911_gi_bill_status_spec.rb @department-of-veterans-affairs/
 spec/requests/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/routing/v0/map_services_routing_spec.rb @department-of-veterans-affairs/octo-identity
 spec/rswag/v0/form214192_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
+spec/rswag/v0/shared_schemas @department-of-veterans-affairs/backend-review-group
 spec/rswag_override.rb @department-of-veterans-affairs/backend-review-group
 spec/scripts/import_va_certs_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/serializers/appointment_serializer_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
