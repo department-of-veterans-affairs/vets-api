@@ -140,16 +140,130 @@ RSpec.describe TestSavedClaim, type: :model do
     end
   end
 
+  describe 'openapi validations' do
+    context 'when operation id is set' do
+      before do
+        stub_const('TestSavedClaim::OPENAPI_OPERATION_ID', 'submitForm214192')
+        stub_const('TestSavedClaim::SCHEMA_SOURCE', :openapi3)
+        stub_const('TestSavedClaim::FORM', '21-4192')
+      end
+
+      let(:valid_payload) do
+        {
+          veteranInformation: {
+            fullName: { first: 'John', last: 'Doe' },
+            dateOfBirth: '1980-01-01'
+          },
+          employmentInformation: {
+            employerName: 'ACME',
+            employerAddress: {
+              street: '123 Main', city: 'Town', state: 'CA', postalCode: '90210', country: 'USA'
+            },
+            typeOfWorkPerformed: 'Work',
+            beginningDateOfEmployment: '2020-01-01'
+          }
+        }
+      end
+    
+      let(:openapi_doc) do
+        {
+          'openapi' => '3.0.3',
+          'paths' => {
+            '/v0/form214192' => {
+              'post' => {
+                'operationId' => 'submitForm214192',
+                'requestBody' => {
+                  'content' => {
+                    'application/json' => {
+                      'schema' => {
+                        'type' => 'object',
+                        'properties' => {
+                          'veteranInformation' => {
+                            'type' => 'object',
+                            'required' => %w[fullName dateOfBirth],
+                            'properties' => {
+                              'fullName' => {
+                                'type' => 'object',
+                                'required' => %w[first last],
+                                'properties' => {
+                                  'first' => { 'type' => 'string' },
+                                  'last' => { 'type' => 'string' }
+                                }
+                              },
+                              'dateOfBirth' => { 'type' => 'string' }
+                            }
+                          },
+                          'employmentInformation' => {
+                            'type' => 'object',
+                            'required' => %w[employerName employerAddress typeOfWorkPerformed beginningDateOfEmployment],
+                            'properties' => {
+                              'employerName' => { 'type' => 'string' },
+                              'employerAddress' => {
+                                'type' => 'object',
+                                'required' => %w[street city state postalCode country],
+                                'properties' => {
+                                  'street' => { 'type' => 'string' },
+                                  'city' => { 'type' => 'string' },
+                                  'state' => { 'type' => 'string' },
+                                  'postalCode' => { 'type' => 'string' },
+                                  'country' => { 'type' => 'string' }
+                                }
+                              },
+                              'typeOfWorkPerformed' => { 'type' => 'string' },
+                              'beginningDateOfEmployment' => { 'type' => 'string' }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+    
+      before do
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(Rails.public_path.join('openapi.json')).and_return(openapi_doc.to_json)
+      end
+    
+      context 'when feature flag is enabled' do
+        before do
+          Flipper.enable(:saved_claim_openapi_validation)
+        end
+    
+        after do
+          Flipper.disable(:saved_claim_openapi_validation)
+        end
+    
+        it 'validates against the OpenAPI requestBody schema' do
+          claim = described_class.new(form: valid_payload.to_json)
+          expect(claim).to be_valid
+        end
+    
+        it 'adds errors for invalid payload' do
+          invalid = valid_payload.dup
+          invalid[:veteranInformation].delete(:dateOfBirth)
+          claim = described_class.new(form: invalid.to_json)
+          expect(claim).not_to be_valid
+          expect(claim.errors).not_to be_empty
+        end
+      end
+    end
+  end
+
   describe '#process_attachments!' do
     let(:confirmation_code) { SecureRandom.uuid }
     let(:form_data) { { some_key: [{ confirmationCode: confirmation_code }] }.to_json }
 
     it 'processes attachments associated with the claim' do
       attachment = create(:persistent_attachment, guid: confirmation_code, saved_claim:)
-      expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(saved_claim.id)
       saved_claim.process_attachments!
 
       expect(attachment.reload.saved_claim_id).to eq(saved_claim.id)
+      expect(Lighthouse::SubmitBenefitsIntakeClaim).to have_enqueued_sidekiq_job(saved_claim.id)
     end
   end
 
