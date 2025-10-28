@@ -68,6 +68,8 @@ module DependentsBenefits
         # set main form_path to be first 674 in array if needed
         @form_path = form_686c_path.presence || form_674_paths.shift
 
+        raise 'No main form PDF generated for Lighthouse submission' if form_path.blank?
+
         # prepend any 674s to attachments
         @attachment_paths = form_674_paths + saved_claim.persistent_attachments.map do |pa|
           process_pdf(pa.to_pdf, saved_claim.created_at)
