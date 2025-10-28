@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'unified_health_data/models/prescription'
 require 'unified_health_data/adapters/prescriptions_adapter'
-require 'unified_health_data/adapters/oracle_health_prescription_adapter'
 
 describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
   subject { described_class.new(user) }
@@ -92,6 +91,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         ]
       }
     }
+  end
+
+  before do
+    allow(Rails.cache).to receive(:exist?).and_return(false)
   end
 
   describe '#parse' do
@@ -344,12 +347,12 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
         # Should use the most recent whenHandedOver date: '2025-01-29T14:30:00Z'
-        expect(oracle_prescription.dispensed_date).to eq('2025-01-29T14:30:00Z')
+        expect(oracle_prescription.refill_date).to eq('2025-01-29T14:30:00Z')
       end
     end
 
-    context 'with Oracle Health data containing encounter location' do
-      let(:oracle_medication_with_encounter) do
+    context 'with Oracle Health data containing dispense location' do
+      let(:oracle_medication_with_dispense) do
         {
           'resourceType' => 'MedicationRequest',
           'id' => '15208365735',
@@ -360,277 +363,237 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
           },
           'contained' => [
             {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'VA Medical Center - Cardiology'
-                  }
-                }
-              ]
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T14:30:00Z',
+              'location' => {
+                'display' => '648-PHARMACY-MAIN'
+              }
             }
           ]
         }
       end
 
-      let(:response_with_encounter) do
+      let(:response_with_dispense) do
         {
           'vista' => nil,
           'oracle-health' => {
             'entry' => [
               {
-                'resource' => oracle_medication_with_encounter
+                'resource' => oracle_medication_with_dispense
               }
             ]
           }
         }
       end
 
-      it 'extracts facility name from encounter location' do
-        prescriptions = subject.parse(response_with_encounter)
+      before do
+        # Mock Rails cache to return a facility name for station 648
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'extracts facility name from dispense location via cache' do
+        prescriptions = subject.parse(response_with_dispense)
         oracle_prescription = prescriptions.first
 
-        expect(oracle_prescription.facility_name).to eq('VA Medical Center - Cardiology')
-      end
-    end
-  end
-
-  describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
-    subject { described_class.new }
-
-    let(:base_resource) do
-      {
-        'resourceType' => 'MedicationRequest',
-        'id' => '12345',
-        'status' => 'active',
-        'authoredOn' => '2025-01-29T19:41:43Z',
-        'medicationCodeableConcept' => {
-          'text' => 'Test Medication'
-        },
-        'dosageInstruction' => [
-          {
-            'text' => 'Take as directed'
-          }
-        ]
-      }
-    end
-
-    describe '#parse' do
-      context 'with valid resource' do
-        it 'returns a UnifiedHealthData::Prescription object' do
-          result = subject.parse(base_resource)
-
-          expect(result).to be_a(UnifiedHealthData::Prescription)
-          expect(result.id).to eq('12345')
-        end
-      end
-
-      context 'with reportedBoolean true' do
-        let(:reported_resource) { base_resource.merge('reportedBoolean' => true) }
-
-        it 'returns prescription source NV' do
-          result = subject.parse(reported_resource)
-          expect(result.prescription_source).to eq('NV') # Should be marked as NV for filtering
-        end
-      end
-
-      context 'with reportedBoolean false' do
-        let(:not_reported_resource) { base_resource.merge('reportedBoolean' => false) }
-
-        it 'returns prescription object for non-reported medications' do
-          result = subject.parse(not_reported_resource)
-          expect(result.prescription_source).to eq('')
-        end
-      end
-
-      context 'with nil resource' do
-        it 'returns nil' do
-          expect(subject.parse(nil)).to be_nil
-        end
-      end
-
-      context 'with resource missing id' do
-        let(:resource_without_id) { base_resource.except('id') }
-
-        it 'returns nil' do
-          expect(subject.parse(resource_without_id)).to be_nil
-        end
-      end
-
-      context 'when parsing raises an error' do
-        let(:adapter_with_error) do
-          adapter = described_class.new
-          allow(adapter).to receive(:extract_refill_date).and_raise(StandardError, 'Test error')
-          adapter
-        end
-
-        before do
-          allow(Rails.logger).to receive(:error)
-        end
-
-        it 'logs the error and returns nil' do
-          result = adapter_with_error.parse(base_resource)
-
-          expect(result).to be_nil
-          expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
-        end
+        expect(oracle_prescription.facility_name).to eq('Portland VA Medical Center')
       end
     end
 
-    describe '#extract_prescription_source' do
-      context 'with reportedBoolean nil' do
-        it 'returns empty string for default VA medications' do
-          result = subject.send(:extract_prescription_source, base_resource)
-          expect(result).to eq('')
-        end
-      end
-    end
-
-    describe '#extract_facility_name' do
-      context 'with dispenseRequest performer' do
-        let(:resource_with_performer) do
-          base_resource.merge(
-            'dispenseRequest' => {
-              'performer' => {
-                'display' => 'Main Pharmacy'
-              }
+    context 'with Oracle Health inpatient prescriptions' do
+      let(:oracle_medication_inpatient) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'inpatient'
+                }
+              ]
             }
-          )
-        end
-
-        it 'returns the performer display name' do
-          result = subject.send(:extract_facility_name, resource_with_performer)
-          expect(result).to eq('Main Pharmacy')
-        end
+          ]
+        )
       end
 
-      context 'with encounter location in contained resources' do
-        let(:resource_with_encounter) do
-          base_resource.merge(
-            'contained' => [
+      let(:response_with_inpatient) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
               {
-                'resourceType' => 'Encounter',
-                'id' => 'encounter-1',
-                'location' => [
-                  {
-                    'location' => {
-                      'display' => 'VA Medical Center - Emergency'
-                    }
-                  }
-                ]
+                'resource' => oracle_medication_inpatient
               }
             ]
-          )
-        end
-
-        it 'returns the encounter location display name' do
-          result = subject.send(:extract_facility_name, resource_with_encounter)
-          expect(result).to eq('VA Medical Center - Emergency')
-        end
+          }
+        }
       end
 
-      context 'with multiple contained resources including encounter' do
-        let(:resource_with_multiple_contained) do
-          base_resource.merge(
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'id' => 'dispense-1'
-              },
-              {
-                'resourceType' => 'Encounter',
-                'id' => 'encounter-1',
-                'location' => [
-                  {
-                    'location' => {
-                      'display' => 'Outpatient Clinic'
-                    }
-                  }
-                ]
-              },
-              {
-                'resourceType' => 'Organization',
-                'id' => 'org-1'
-              }
-            ]
-          )
-        end
-
-        it 'finds and returns the encounter location display name' do
-          result = subject.send(:extract_facility_name, resource_with_multiple_contained)
-          expect(result).to eq('Outpatient Clinic')
-        end
-      end
-
-      context 'with encounter but no location' do
-        let(:resource_with_encounter_no_location) do
-          base_resource.merge(
-            'contained' => [
-              {
-                'resourceType' => 'Encounter',
-                'id' => 'encounter-1'
-              }
-            ],
-            'requester' => {
-              'display' => 'Fallback Provider'
-            }
-          )
-        end
-      end
-
-      context 'with no performer, encounter, or requester' do
-        it 'returns nil' do
-          result = subject.send(:extract_facility_name, base_resource)
-          expect(result).to be_nil
-        end
+      it 'excludes inpatient prescriptions' do
+        prescriptions = subject.parse(response_with_inpatient)
+        expect(prescriptions).to be_empty
       end
     end
 
-    describe '#extract_is_refillable' do
-      context 'with active status and remaining refills' do
-        let(:resource) do
-          {
-            'status' => 'active',
-            'dispenseRequest' => {
-              'numberOfRepeatsAllowed' => 5
+    context 'with Oracle Health outpatient prescriptions' do
+      let(:oracle_medication_outpatient) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'outpatient'
+                }
+              ]
             }
-          }
-        end
-
-        it 'returns true' do
-          expect(subject.send(:extract_is_refillable, resource)).to be true
-        end
+          ]
+        )
       end
 
-      context 'with active status but no remaining refills' do
-        let(:resource) do
-          {
-            'status' => 'active',
-            'dispenseRequest' => {
-              'numberOfRepeatsAllowed' => 0
-            }
+      let(:response_with_outpatient) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_outpatient
+              }
+            ]
           }
-        end
-
-        it 'returns false' do
-          expect(subject.send(:extract_is_refillable, resource)).to be false
-        end
+        }
       end
 
-      context 'with inactive status' do
-        let(:resource) do
-          {
-            'status' => 'completed',
-            'dispenseRequest' => {
-              'numberOfRepeatsAllowed' => 5
-            }
-          }
-        end
+      it 'includes outpatient prescriptions' do
+        prescriptions = subject.parse(response_with_outpatient)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.category).to eq(['outpatient'])
+      end
+    end
 
-        it 'returns false' do
-          expect(subject.send(:extract_is_refillable, resource)).to be false
-        end
+    context 'with Oracle Health community prescriptions' do
+      let(:oracle_medication_community) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_community) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_community
+              }
+            ]
+          }
+        }
+      end
+
+      it 'includes community prescriptions' do
+        prescriptions = subject.parse(response_with_community)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.category).to eq(['community'])
+      end
+    end
+
+    context 'with Oracle Health prescriptions with multiple categories' do
+      let(:oracle_medication_multiple_categories) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'outpatient'
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_multiple_categories) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_multiple_categories
+              }
+            ]
+          }
+        }
+      end
+
+      it 'includes prescriptions with multiple categories' do
+        prescriptions = subject.parse(response_with_multiple_categories)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.category).to eq(%w[outpatient community])
+      end
+    end
+
+    context 'with Oracle Health prescriptions with inpatient in multiple categories' do
+      let(:oracle_medication_inpatient_and_community) do
+        oracle_health_medication_data.merge(
+          'category' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'inpatient'
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
+                  'code' => 'community'
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      let(:response_with_inpatient_and_community) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_inpatient_and_community
+              }
+            ]
+          }
+        }
+      end
+
+      it 'excludes prescriptions if any category is inpatient' do
+        prescriptions = subject.parse(response_with_inpatient_and_community)
+        expect(prescriptions).to be_empty
       end
     end
   end

@@ -10,4 +10,12 @@ class MessagingSignature
   attribute :include_signature, Bool, default: false
 
   validates :signature_name, :signature_title, :include_signature, presence: true
+
+  def to_h
+    {
+      signatureName: signature_name,
+      signatureTitle: signature_title,
+      includeSignature: include_signature
+    }
+  end
 end

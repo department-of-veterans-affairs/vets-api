@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter33/claimsubmission
+    uri: <DGI_VETS_URL>claimType/Chapter33/claimsubmission
     body:
       encoding: UTF-8
       string: '{"educationBenefit":{"claimant":{"firstName":"Herbert","middleName":"Hoover","lastName":"Hoover","dateOfBirth":"1980-03-11","contactInfo":{"addressLine1":"503

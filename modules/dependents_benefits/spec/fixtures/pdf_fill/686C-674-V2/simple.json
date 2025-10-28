@@ -1,0 +1,51 @@
+{
+  "veteran_information": {
+      "birth_date": "1980-01-01",
+      "full_name": {
+        "first": "Mark",
+        "last": "Webb"
+      },
+      "ssn": "000000000",
+      "va_file_number": "000000000"
+    },
+  "dependents_application" : {
+    "veteran_contact_information": {
+      "phone_number": "1112223333",
+      "international_phone_number": "1234567890123",
+      "email_address": "vets.gov.user+228@gmail.com",
+      "electronic_correspondence": true,
+      "veteran_address": {
+        "country": "USA",
+        "street": "123 Fake Street",
+        "city": "Portland",
+        "state": "ME",
+        "postal_code": "04102"
+      }
+    },
+    "household_income": true,
+    "spouse_information": {
+      "ssn": "987654321",
+      "birth_date": "1980-01-01",
+      "is_veteran": false,
+      "full_name": {
+        "first": "Firstname",
+        "last": "Lastname"
+      }
+    },
+    "current_marriage_information": {
+      "type_of_marriage": "CEREMONIAL",
+      "location": {
+        "city": "Washington",
+        "state": "DC"
+      },
+      "date": "2024-01-04"
+    },
+    "does_live_with_spouse": {
+      "spouse_income": true,
+      "spouse_does_live_with_veteran": true
+    },
+    "use_v2": true,
+    "days_till_expires": 365,
+    "privacy_agreement_accepted": true
+  }
+}

@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/generators/claim674_generator'
+require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
-  let(:parent_claim_id) { 123 }
   let(:form_data) { create(:dependents_claim).parsed_form }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:parent_claim_group) do
+    create(:saved_claim_group, parent_claim_id: parent_claim.id, saved_claim_id: parent_claim.id)
+  end
+  let(:parent_claim_id) { parent_claim_group.parent_claim_id }
 
   before do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
@@ -39,11 +45,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
 
         # Should have correct form_id
         expect(claim_686c.form_id).to eq('21-686C')
-
-        # Should log TODO message for claim linking
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim_686c.id} to parent #{parent_claim_id}"
-        )
       end
     end
 
@@ -62,7 +63,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         # Should include student-specific data with exactly one student
         expect(parsed_form['dependents_application']['student_information']).to be_present
 
-        student = parsed_form['dependents_application']['student_information']
+        student = parsed_form['dependents_application']['student_information'].first
         expect(student['full_name']['first']).to eq('test')
         expect(student['student_earnings_from_school_year']).to be_present
         expect(student['school_information']).to be_present
@@ -70,16 +71,14 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         # Should include veteran contact and household info
         expect(parsed_form['dependents_application']['veteran_contact_information']).to be_present
 
+        # Should include 686c options
+        expect(parsed_form['view:selectable686_options']).to be_present
+
         # Should NOT include dependent-specific data
         expect(parsed_form['dependents_application']).not_to have_key('children_to_add')
 
         # Should have correct form_id
         expect(claim674.form_id).to eq('21-674')
-
-        # Should log TODO message for claim linking
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim674.id} to parent #{parent_claim_id}"
-        )
       end
     end
 
@@ -104,14 +103,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         expect(form_686c['dependents_application']).not_to have_key('student_information')
 
         expect(form674['dependents_application']).to have_key('student_information')
-
-        # Should log TODO messages for both claims
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim_686c.id} to parent #{parent_claim_id}"
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim674.id} to parent #{parent_claim_id}"
-        )
       end
     end
   end

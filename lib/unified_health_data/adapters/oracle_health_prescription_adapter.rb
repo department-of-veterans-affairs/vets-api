@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/v1/client'
+
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
@@ -18,8 +20,15 @@ module UnifiedHealthData
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(resource)
+        tracking_data = build_tracking_information(resource)
+
+        build_core_attributes(resource)
+          .merge(build_tracking_attributes(tracking_data))
+          .merge(build_contact_and_source_attributes(resource))
+      end
+
+      def build_core_attributes(resource)
         {
           id: resource['id'],
           type: 'Prescription',
@@ -33,38 +42,118 @@ module UnifiedHealthData
           expiration_date: extract_expiration_date(resource),
           prescription_number: extract_prescription_number(resource),
           prescription_name: extract_prescription_name(resource),
-          dispensed_date: extract_dispensed_date(resource),
+          dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource),
-          is_trackable: false, # Default for Oracle Health
-          instructions: extract_instructions(resource),
-          cmop_division_phone: extract_facility_phone_number(resource),
-          prescription_source: extract_prescription_source(resource)
+          is_refillable: extract_is_refillable(resource)
         }
       end
-      # rubocop:enable Metrics/MethodLength
+
+      def build_tracking_attributes(tracking_data)
+        {
+          is_trackable: tracking_data.any?,
+          tracking: tracking_data
+        }
+      end
+
+      def build_contact_and_source_attributes(resource)
+        {
+          instructions: extract_instructions(resource),
+          facility_phone_number: extract_facility_phone_number(resource),
+          prescription_source: extract_prescription_source(resource),
+          category: extract_category(resource)
+        }
+      end
+
+      def build_tracking_information(resource)
+        contained_resources = resource['contained'] || []
+        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
+
+        dispenses.filter_map do |dispense|
+          extract_tracking_from_dispense(resource, dispense)
+        end
+      end
+
+      def extract_tracking_from_dispense(resource, dispense)
+        identifiers = dispense['identifier'] || []
+
+        tracking_number = find_identifier_value(identifiers, 'Tracking Number')
+        return nil unless tracking_number # Only create tracking record if we have a tracking number
+
+        prescription_number = find_identifier_value(identifiers, 'Prescription Number')
+        carrier = find_identifier_value(identifiers, 'Carrier')
+        shipped_date = find_identifier_value(identifiers, 'Shipped Date')
+
+        {
+          prescription_name: extract_prescription_name(resource),
+          prescription_number: prescription_number || extract_prescription_number(resource),
+          ndc_number: extract_ndc_number(dispense),
+          prescription_id: resource['id'],
+          tracking_number:,
+          shipped_date:,
+          carrier:,
+          other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
+        }
+      end
+
+      def find_identifier_value(identifiers, type_text)
+        identifier = identifiers.find { |id| id.dig('type', 'text') == type_text }
+        identifier&.dig('value')
+      end
+
+      def extract_ndc_number(dispense)
+        coding = dispense.dig('medicationCodeableConcept', 'coding') || []
+        ndc_coding = coding.find { |c| c['system'] == 'http://hl7.org/fhir/sid/ndc' }
+        ndc_coding&.dig('code')
+      end
 
       def extract_refill_date(resource)
-        resource.dig('dispenseRequest', 'validityPeriod', 'start')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
+
+        nil
       end
 
       def extract_refill_remaining(resource)
-        resource.dig('dispenseRequest', 'numberOfRepeatsAllowed') || 0
+        # non-va meds are never refillable
+        return 0 if non_va_med?(resource)
+
+        repeats_allowed = resource.dig('dispenseRequest', 'numberOfRepeatsAllowed') || 0
+        # subtract dispenses in completed status, except for the first fill
+        dispenses_completed = if resource['contained']
+                                resource['contained'].count do |c|
+                                  c['resourceType'] == 'MedicationDispense' && c['status'] == 'completed'
+                                end
+                              else
+                                0
+                              end
+        remaining = repeats_allowed - [dispenses_completed - 1, 0].max
+        remaining.positive? ? remaining : 0
       end
 
       def extract_facility_name(resource)
-        # Primary: dispenseRequest.performer
-        performer_display = resource.dig('dispenseRequest', 'performer', 'display')
-        return performer_display if performer_display
+        # Get latest dispense using existing helper
+        latest_dispense = find_most_recent_medication_dispense(resource['contained'])
+        return nil unless latest_dispense
 
-        # Fallback: check contained Encounter for location
-        if resource['contained']
-          encounter = resource['contained'].find { |c| c['resourceType'] == 'Encounter' }
-          if encounter
-            location_display = encounter.dig('location', 0, 'location', 'display')
-            return location_display if location_display
-          end
+        # Get .location.display from latest dispense
+        location_display = latest_dispense.dig('location', 'display')
+        return nil unless location_display
+
+        # First try the legacy 3-digit station number
+        three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
+        facility_name = attempt_facility_lookup(three_digit_station)
+        return facility_name if facility_name
+
+        # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
+        facility_identifier = location_display.split('-').first
+        # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
+        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
+        if facility_identifier.present? && facility_identifier != three_digit_station &&
+           facility_identifier.match?(valid_station_regex)
+          return attempt_facility_lookup(facility_identifier)
         end
+
+        Rails.logger.error("Unable to extract valid station number from: #{location_display}")
 
         nil
       end
@@ -75,10 +164,8 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense.dig('quantity', 'value') if dispense
-        end
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense.dig('quantity', 'value') if dispense
 
         nil
       end
@@ -99,27 +186,36 @@ module UnifiedHealthData
           resource.dig('medicationReference', 'display')
       end
 
-      def extract_dispensed_date(resource)
-        # Check for contained MedicationDispense resources
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
-        end
-
-        # Fallback to initial fill date
-        resource.dig('dispenseRequest', 'initialFill', 'date')
-      end
-
       def extract_station_number(resource)
-        resource.dig('dispenseRequest', 'performer', 'identifier', 'value')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        raw_station_number = dispense&.dig('location', 'display')
+        return nil unless raw_station_number
+
+        # Extract first 3 digits from format like "556-RX-MAIN-OP"
+        match = raw_station_number.match(/^(\d{3})/)
+        if match
+          match[1]
+        else
+          Rails.logger.warn("Unable to extract 3-digit station number from: #{raw_station_number}")
+          raw_station_number
+        end
       end
 
       def extract_is_refillable(resource)
-        status = resource['status']
-        refills_remaining = extract_refill_remaining(resource)
+        refillable = true
 
-        # Only active prescriptions with remaining refills are refillable
-        status == 'active' && refills_remaining.positive?
+        # non VA meds are never refillable
+        refillable = false if non_va_med?(resource)
+        # must be active
+        refillable = false unless resource['status'] == 'active'
+        # must not be expired
+        refillable = false unless prescription_not_expired?(resource)
+        # must have refills remaining
+        refillable = false unless extract_refill_remaining(resource).positive?
+        # must have at least one dispense record
+        refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
+
+        refillable
       end
 
       def extract_instructions(resource)
@@ -149,7 +245,52 @@ module UnifiedHealthData
       end
 
       def extract_prescription_source(resource)
-        resource['reportedBoolean'] == true ? 'NV' : ''
+        non_va_med?(resource) ? 'NV' : ''
+      end
+
+      def extract_category(resource)
+        # Extract category from FHIR MedicationRequest
+        # See https://build.fhir.org/valueset-medicationrequest-admin-location.html
+        categories = resource['category'] || []
+        return [] if categories.empty?
+
+        # Category is an array of CodeableConcept objects
+        # We collect all codes from all categories
+        codes = []
+        categories.each do |category|
+          codings = category['coding'] || []
+          codings.each do |coding|
+            # Collect the code value if found (e.g., 'inpatient', 'outpatient', 'community')
+            codes << coding['code'] if coding['code'].present?
+          end
+        end
+
+        codes
+      end
+
+      def non_va_med?(resource)
+        resource['reportedBoolean'] == true
+      end
+
+      def prescription_not_expired?(resource)
+        expiration_date = extract_expiration_date(resource)
+        return false unless expiration_date # No expiration date = not refillable for safety
+
+        begin
+          parsed_date = Time.zone.parse(expiration_date)
+          return parsed_date&.> Time.zone.now if parsed_date
+
+          # If we get here, parsing returned nil (invalid date)
+          log_invalid_expiration_date(resource, expiration_date)
+          false
+        rescue ArgumentError
+          log_invalid_expiration_date(resource, expiration_date)
+          false
+        end
+      end
+
+      def log_invalid_expiration_date(resource, expiration_date)
+        Rails.logger.warn("Invalid expiration date for prescription #{resource['id']}: #{expiration_date}")
       end
 
       def build_instruction_text(instruction)
@@ -178,6 +319,45 @@ module UnifiedHealthData
           when_handed_over = dispense['whenHandedOver']
           when_handed_over ? Time.zone.parse(when_handed_over) : Time.zone.at(0)
         end
+      end
+
+      def fetch_facility_name_from_api(station_number)
+        facility_id = "vha_#{station_number}"
+        cache_key = "uhd:facility_names:#{station_number}"
+
+        begin
+          facilities_client = Lighthouse::Facilities::V1::Client.new
+          facilities = facilities_client.get_facilities(facilityIds: facility_id)
+
+          facility_name = if facilities&.any?
+                            facilities.first.name
+                          else
+                            Rails.logger.warn(
+                              "No facility found for station number #{station_number} in Lighthouse API"
+                            )
+                            nil
+                          end
+
+          # Cache the result (including nil) to avoid repeated API calls
+          # Keep TTL aligned with FacilityNameCacheJob refresh cadence (4 hours)
+          Rails.cache.write(cache_key, facility_name, expires_in: 4.hours)
+
+          facility_name
+        rescue => e
+          Rails.logger.error("Failed to fetch facility name from API for station #{station_number}: #{e.message}")
+          StatsD.increment('unified_health_data.facility_name_fallback.api_error')
+          nil
+        end
+      end
+
+      def attempt_facility_lookup(station_identifier)
+        return nil if station_identifier.blank?
+
+        cache_key = "uhd:facility_names:#{station_identifier}"
+        cached_name = Rails.cache.read(cache_key)
+        return cached_name if Rails.cache.exist?(cache_key)
+
+        fetch_facility_name_from_api(station_identifier)
       end
     end
   end

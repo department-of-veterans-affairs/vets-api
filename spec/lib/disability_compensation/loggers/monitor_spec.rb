@@ -14,7 +14,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         user_account_uuid: '1234',
         claim_id: '1234',
         form_id: described_class::FORM_ID,
-        tags: [],
+        tags: ['form_id:21-526EZ-ALLCLAIMS'],
         additional_context_key: 'value'
       }
 
@@ -31,7 +31,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         :error,
         'Example message',
         described_class::CLAIM_STATS_KEY,
-        payload
+        **payload
       )
     end
   end
@@ -53,8 +53,8 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       expect(monitor).to receive(:submit_event).with(
         :error,
         "#{described_class} Form526 SavedClaim save error",
-        described_class::CLAIM_STATS_KEY,
-        form_id: '21-526EZ-ALLCLAIMS',
+        "#{described_class::CLAIM_STATS_KEY}.failure",
+        form_id: described_class::FORM_ID,
         in_progress_form_id: in_progress_form.id,
         errors: [{ form: mock_form_error }].to_s,
         user_account_uuid: user.uuid
@@ -82,6 +82,84 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         in_progress_form.id,
         user.uuid
       )
+    end
+  end
+
+  describe('#track_saved_claim_save_success') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+    let(:claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
+
+    it 'logs the success' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
+        "#{described_class::CLAIM_STATS_KEY}.success",
+        claim:,
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
+      )
+
+      monitor.track_saved_claim_save_success(
+        claim,
+        user.uuid
+      )
+    end
+  end
+
+  describe('#track_526_submission_with_banking_info') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+
+    it 'logs the submission' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        'Form 526 submitted with Veteran-supplied banking info',
+        "#{described_class::SUBMISSION_STATS_KEY}.with_banking_info",
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
+      )
+
+      monitor.track_526_submission_with_banking_info(user.uuid)
+    end
+
+    it 'increments the correct metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::SUBMISSION_STATS_KEY}.with_banking_info",
+        tags: [
+          'service:disability-compensation',
+          'function:track_526_submission_with_banking_info',
+          "form_id:#{described_class::FORM_ID}"
+        ]
+      )
+
+      monitor.track_526_submission_with_banking_info(user.uuid)
+    end
+  end
+
+  describe('#track_526_submission_without_banking_info') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+
+    it 'logs the submission and increments the correct metric' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        'Form 526 submitted without Veteran-supplied banking info',
+        "#{described_class::SUBMISSION_STATS_KEY}.without_banking_info",
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
+      )
+
+      monitor.track_526_submission_without_banking_info(user.uuid)
+    end
+
+    it 'increments the correct metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::SUBMISSION_STATS_KEY}.without_banking_info",
+        tags: [
+          'service:disability-compensation',
+          'function:track_526_submission_without_banking_info',
+          "form_id:#{described_class::FORM_ID}"
+        ]
+      )
+      monitor.track_526_submission_without_banking_info(user.uuid)
     end
   end
 end
