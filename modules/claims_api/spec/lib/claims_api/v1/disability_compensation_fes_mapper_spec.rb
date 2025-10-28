@@ -47,7 +47,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           auth_headers['dependent'] = {}
           auth_headers['dependent']['participant_id'] = '8675309'
 
-          expect(fes_data[:data][:claimantParticipantId]).to eq('8675309')
+          expect(fes_data[:data][:claimantParticipantId]).to eq(8_675_309)
         end
       end
 
