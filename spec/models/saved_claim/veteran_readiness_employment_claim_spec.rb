@@ -151,7 +151,9 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         end
 
         it 'sends confirmation email' do
-          Flipper.disable(:vre_use_new_vfs_notification_library)
+          allow(Flipper).to receive(:enabled?)
+            .with(:vre_use_new_vfs_notification_library)
+            .and_return(false)
           expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
             .with('VBMS', 'confirmation_vbms_email_template_id')
 
