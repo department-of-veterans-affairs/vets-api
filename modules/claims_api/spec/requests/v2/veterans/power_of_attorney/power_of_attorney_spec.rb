@@ -44,7 +44,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
             context 'when BGS returns a POA code with an endDate in the past' do
               before do
                 create(:representative, :with_rep_id, poa_codes: ['074'], first_name: 'Abraham',
-                                        last_name: 'Lincoln')
+                                                      last_name: 'Lincoln')
               end
 
               it 'returns an empty 200 response' do
