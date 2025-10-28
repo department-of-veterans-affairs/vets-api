@@ -6,6 +6,7 @@ module Burials
   module PdfFill
     # Section V: Burial Allowance Information
     class Section5 < Section
+      # rubocop:disable Layout/LineLength
       # Section configuration hash
       KEY = {
         # 20A
@@ -74,6 +75,7 @@ module Burials
           key: 'form1[0].#subform[83].CertifyUnclaimed[0]'
         }
       }.freeze
+      # rubocop:enable Layout/LineLength
 
       ##
       # Expands the form data for Section 5.

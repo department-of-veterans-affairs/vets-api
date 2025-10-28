@@ -6,6 +6,7 @@ module Burials
   module PdfFill
     # Section IV: Final Resting Place Information
     class Section4 < Section
+      # rubocop:disable Layout/LineLength
       # Section configuration hash
       KEY = {
         'veteranSocialSecurityNumber2' => {
@@ -83,6 +84,7 @@ module Burials
           limit: 5
         }
       }.freeze
+      # rubocop:emable Layout/LineLength
 
       ##
       # Expands the form data for Section 4.
