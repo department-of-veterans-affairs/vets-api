@@ -146,6 +146,8 @@ RSpec.describe TestSavedClaim, type: :model do
         stub_const('TestSavedClaim::OPENAPI_OPERATION_ID', 'submitForm214192')
         stub_const('TestSavedClaim::SCHEMA_SOURCE', :openapi3)
         stub_const('TestSavedClaim::FORM', '21-4192')
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(Rails.public_path.join('openapi.json')).and_return(openapi_doc.to_json)
       end
 
       let(:valid_payload) do
@@ -164,7 +166,7 @@ RSpec.describe TestSavedClaim, type: :model do
           }
         }
       end
-    
+
       let(:openapi_doc) do
         {
           'openapi' => '3.0.3',
@@ -195,7 +197,8 @@ RSpec.describe TestSavedClaim, type: :model do
                           },
                           'employmentInformation' => {
                             'type' => 'object',
-                            'required' => %w[employerName employerAddress typeOfWorkPerformed beginningDateOfEmployment],
+                            'required' => %w[employerName employerAddress typeOfWorkPerformed
+                                             beginningDateOfEmployment],
                             'properties' => {
                               'employerName' => { 'type' => 'string' },
                               'employerAddress' => {
@@ -223,26 +226,21 @@ RSpec.describe TestSavedClaim, type: :model do
           }
         }
       end
-    
-      before do
-        allow(File).to receive(:read).and_call_original
-        allow(File).to receive(:read).with(Rails.public_path.join('openapi.json')).and_return(openapi_doc.to_json)
-      end
-    
+
       context 'when feature flag is enabled' do
         before do
           Flipper.enable(:saved_claim_openapi_validation)
         end
-    
+
         after do
           Flipper.disable(:saved_claim_openapi_validation)
         end
-    
+
         it 'validates against the OpenAPI requestBody schema' do
           claim = described_class.new(form: valid_payload.to_json)
           expect(claim).to be_valid
         end
-    
+
         it 'adds errors for invalid payload' do
           invalid = valid_payload.dup
           invalid[:veteranInformation].delete(:dateOfBirth)
@@ -327,168 +325,6 @@ RSpec.describe TestSavedClaim, type: :model do
 
     it 'returns nil if the notification does not exist' do
       expect(saved_claim.va_notification?('non_existent_template')).to be_nil
-    end
-  end
-end
-
-# ---- OpenAPI validation specs ----
-
-class SavedClaim::OpenApiTest < SavedClaim
-  FORM = '21-4192'
-  SCHEMA_SOURCE = :openapi3
-  OPENAPI_OPERATION_ID = 'submitForm214192'
-end
-
-class SavedClaim::OpenApiNoOpId < SavedClaim
-  FORM = '21-4192'
-  SCHEMA_SOURCE = :openapi3
-end
-
-RSpec.describe SavedClaim::OpenApiTest, type: :model do
-  let(:valid_payload) do
-    {
-      veteranInformation: {
-        fullName: { first: 'John', last: 'Doe' },
-        dateOfBirth: '1980-01-01'
-      },
-      employmentInformation: {
-        employerName: 'ACME',
-        employerAddress: {
-          street: '123 Main', city: 'Town', state: 'CA', postalCode: '90210', country: 'USA'
-        },
-        typeOfWorkPerformed: 'Work',
-        beginningDateOfEmployment: '2020-01-01'
-      }
-    }
-  end
-
-  let(:openapi_doc) do
-    {
-      'openapi' => '3.0.3',
-      'paths' => {
-        '/v0/form214192' => {
-          'post' => {
-            'operationId' => 'submitForm214192',
-            'requestBody' => {
-              'content' => {
-                'application/json' => {
-                  'schema' => {
-                    'type' => 'object',
-                    'properties' => {
-                      'veteranInformation' => {
-                        'type' => 'object',
-                        'required' => %w[fullName dateOfBirth],
-                        'properties' => {
-                          'fullName' => {
-                            'type' => 'object',
-                            'required' => %w[first last],
-                            'properties' => {
-                              'first' => { 'type' => 'string' },
-                              'last' => { 'type' => 'string' }
-                            }
-                          },
-                          'dateOfBirth' => { 'type' => 'string' }
-                        }
-                      },
-                      'employmentInformation' => {
-                        'type' => 'object',
-                        'required' => %w[employerName employerAddress typeOfWorkPerformed beginningDateOfEmployment],
-                        'properties' => {
-                          'employerName' => { 'type' => 'string' },
-                          'employerAddress' => {
-                            'type' => 'object',
-                            'required' => %w[street city state postalCode country],
-                            'properties' => {
-                              'street' => { 'type' => 'string' },
-                              'city' => { 'type' => 'string' },
-                              'state' => { 'type' => 'string' },
-                              'postalCode' => { 'type' => 'string' },
-                              'country' => { 'type' => 'string' }
-                            }
-                          },
-                          'typeOfWorkPerformed' => { 'type' => 'string' },
-                          'beginningDateOfEmployment' => { 'type' => 'string' }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  end
-
-  before do
-    allow(File).to receive(:read).and_call_original
-    allow(File).to receive(:read).with(Rails.public_path.join('openapi.json')).and_return(openapi_doc.to_json)
-  end
-
-  context 'when feature flag is enabled' do
-    before do
-      Flipper.enable(:saved_claim_openapi_validation)
-    end
-
-    after do
-      Flipper.disable(:saved_claim_openapi_validation)
-    end
-
-    it 'validates against the OpenAPI requestBody schema' do
-      claim = described_class.new(form: valid_payload.to_json)
-      expect(claim).to be_valid
-    end
-
-    it 'adds errors for invalid payload' do
-      invalid = valid_payload.dup
-      invalid[:veteranInformation].delete(:dateOfBirth)
-      claim = described_class.new(form: invalid.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors).not_to be_empty
-    end
-  end
-
-  context 'when feature flag is disabled' do
-    before do
-      Flipper.disable(:saved_claim_openapi_validation)
-      stub_const('VetsJsonSchema::SCHEMAS', { '21-4192' => { 'type' => 'object' } })
-    end
-
-    it 'falls back to VetsJsonSchema' do
-      claim = described_class.new(form: valid_payload.to_json)
-      expect(claim).to be_valid
-    end
-  end
-end
-
-RSpec.describe SavedClaim::OpenApiNoOpId, type: :model do
-  let(:payload) { { foo: 'bar' } }
-
-  before do
-    allow(File).to receive(:read).and_call_original
-  end
-
-  context 'when feature flag is enabled' do
-    before { Flipper.enable(:saved_claim_openapi_validation) }
-    after { Flipper.disable(:saved_claim_openapi_validation) }
-
-    it 'raises a KeyError requiring OPENAPI_OPERATION_ID' do
-      claim = described_class.new(form: payload.to_json)
-      expect { claim.valid? }.to raise_error(KeyError, /OPENAPI_OPERATION_ID must be defined/)
-    end
-  end
-
-  context 'when feature flag is disabled' do
-    before do
-      Flipper.disable(:saved_claim_openapi_validation)
-      stub_const('VetsJsonSchema::SCHEMAS', { '21-4192' => { 'type' => 'object' } })
-    end
-
-    it 'falls back to VetsJsonSchema and does not require OPENAPI_OPERATION_ID' do
-      claim = described_class.new(form: payload.to_json)
-      expect { claim.valid? }.not_to raise_error
-      expect(claim).to be_valid
     end
   end
 end
