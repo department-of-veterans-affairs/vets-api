@@ -87,18 +87,19 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
                              form_id: '686C-674',
                              claim_id: dependency_claim.id,
                              saved_claim_id: dependency_claim.id,
-                             service_name: 'dependents' } }
+                             service_name: 'dependents' }
+      }
 
       personalization = { 'confirmation_number' => dependency_claim.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY' }
+                          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                          'first_name' => 'WESLEY' }
 
       expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
       expect(vanotify).to receive(:send_email).with(
         {
           email_address: user.va_profile_email,
           template_id: 'fake_received686c674',
-          personalisation: personalization,
+          personalisation: personalization
         }.compact
       )
 
@@ -153,18 +154,19 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
                              form_id: '686C-674',
                              claim_id: dependency_claim_674_only.id,
                              saved_claim_id: dependency_claim_674_only.id,
-                             service_name: 'dependents' } }
+                             service_name: 'dependents' }
+      }
 
       personalization = { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY' }
+                          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                          'first_name' => 'WESLEY' }
 
       expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
       expect(vanotify).to receive(:send_email).with(
         {
           email_address: user.va_profile_email,
           template_id: 'fake_received674',
-          personalisation: personalization,
+          personalisation: personalization
         }.compact
       )
 

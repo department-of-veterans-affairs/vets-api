@@ -153,18 +153,19 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
                                form_id: '686C-674-V2',
                                claim_id: claim_v2.id,
                                saved_claim_id: claim_v2.id,
-                               service_name: 'dependents' } }
+                               service_name: 'dependents' }
+        }
 
         personalization = { 'confirmation_number' => claim_v2.confirmation_number,
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => 'MARK' }
+                            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                            'first_name' => 'MARK' }
 
         expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
         expect(vanotify).to receive(:send_email).with(
           {
             email_address: user_struct.va_profile_email,
             template_id: 'fake_received686',
-            personalisation: personalization,
+            personalisation: personalization
           }.compact
         )
 

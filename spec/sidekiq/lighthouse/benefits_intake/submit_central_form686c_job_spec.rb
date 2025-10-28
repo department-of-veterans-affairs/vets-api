@@ -138,20 +138,46 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       end
 
       it 'submits the saved claim and updates submission to success' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user_struct.va_profile_email,
-          'fake_received686',
-          { 'confirmation_number' => claim.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'MARK' },
-          'fake_secret',
-          { callback_klass: 'Dependents::NotificationCallback',
-            callback_metadata: { email_template_id: 'fake_received686',
-                                 email_type: :received686,
-                                 form_id: '686C-674',
-                                 saved_claim_id: claim.id,
-                                 service_name: 'dependents' } }
+        vanotify = double(send_email: true)
+        api_key = 'fake_secret'
+        callback_options = {
+          callback_klass: 'Dependents::NotificationCallback',
+          callback_metadata: { email_template_id: 'fake_received686',
+                               email_type: :received686,
+                               form_id: '686C-674',
+                               claim_id: claim.id,
+                               saved_claim_id: claim.id,
+                               service_name: 'dependents' }
+        }
+
+        personalization = { 'confirmation_number' => claim.confirmation_number,
+                            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                            'first_name' => 'MARK' }
+
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
+        expect(vanotify).to receive(:send_email).with(
+          {
+            email_address: user_struct.va_profile_email,
+            template_id: 'fake_received686',
+            personalisation: personalization
+          }.compact
         )
+
+        # expect(VANotify::EmailJob).to receive(:perform_async).with(
+        #   user_struct.va_profile_email,
+        #   'fake_received686',
+        #   { 'confirmation_number' => claim.confirmation_number,
+        #     'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+        #     'first_name' => 'MARK' },
+        #   'fake_secret',
+        #   { callback_klass: 'Dependents::NotificationCallback',
+        #     callback_metadata: { email_template_id: 'fake_received686',
+        #                          email_type: :received686,
+        #                          form_id: '686C-674',
+        #                          saved_claim_id: claim.id,
+        #                          service_name: 'dependents' } }
+        # )
+
         expect(claim).to receive(:submittable_686?).and_return(true).exactly(4).times
         expect(claim).to receive(:submittable_674?).and_return(false).at_least(:once)
         subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
@@ -344,20 +370,45 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       end
 
       it 'submits the saved claim and updates submission to success' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user_struct.va_profile_email,
-          'fake_received686',
-          { 'confirmation_number' => claim.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'MARK' },
-          'fake_secret',
-          { callback_klass: 'Dependents::NotificationCallback',
-            callback_metadata: { email_template_id: 'fake_received686',
-                                 email_type: :received686,
-                                 form_id: '686C-674',
-                                 saved_claim_id: claim.id,
-                                 service_name: 'dependents' } }
+        vanotify = double(send_email: true)
+        callback_options = {
+          callback_klass: 'Dependents::NotificationCallback',
+          callback_metadata: { email_template_id: 'fake_received686',
+                               email_type: :received686,
+                               form_id: '686C-674',
+                               claim_id: claim.id,
+                               saved_claim_id: claim.id,
+                               service_name: 'dependents' }
+        }
+
+        personalization = { 'confirmation_number' => claim.confirmation_number,
+                            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                            'first_name' => 'MARK' }
+
+        expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
+        expect(vanotify).to receive(:send_email).with(
+          {
+            email_address: user_struct.va_profile_email,
+            template_id: 'fake_received686',
+            personalisation: personalization
+          }.compact
         )
+
+        # expect(VANotify::EmailJob).to receive(:perform_async).with(
+        #   user_struct.va_profile_email,
+        #   'fake_received686',
+        #   { 'confirmation_number' => claim.confirmation_number,
+        #     'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+        #     'first_name' => 'MARK' },
+        #   'fake_secret',
+        #   { callback_klass: 'Dependents::NotificationCallback',
+        #     callback_metadata: { email_template_id: 'fake_received686',
+        #                          email_type: :received686,
+        #                          form_id: '686C-674',
+        #                          saved_claim_id: claim.id,
+        #                          service_name: 'dependents' } }
+        # )
+
         expect(claim).to receive(:submittable_686?).and_return(true).exactly(4).times
         expect(claim).to receive(:submittable_674?).and_return(false).at_least(:once)
         subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
