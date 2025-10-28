@@ -106,6 +106,12 @@ module IvcChampva
 
           response = build_json(statuses, error_messages)
 
+          if should_generate_ves_json?(form_id)
+            # Remove the VES JSON file from disk after upload
+            ves_json_file = file_paths.find { |path| path.end_with?('_ves.json') }
+            FileUtils.rm_f(ves_json_file) if ves_json_file
+          end
+
           # if the response is successful, submit the VES request
           submit_ves_request(ves_request, metadata) if response[:status] == 200
 
@@ -115,6 +121,37 @@ module IvcChampva
 
           build_json(statuses, error_messages)
         end
+      end
+
+      ##
+      # Determines if VES JSON should be generated as a supporting document
+      #
+      # @param [String] form_id The ID of the current form
+      # @return [Boolean] true if VES JSON should be generated
+      def should_generate_ves_json?(form_id)
+        Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && form_id == 'vha_10_10d'
+      end
+
+      ##
+      # Generates VES JSON file and returns the file path
+      #
+      # @param [Object] form The form instance with proper UUID and form_id
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @return [String] The path to the generated VES JSON file
+      def generate_ves_json_file(form, parsed_form_data)
+        # Generate VES data
+        ves_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+
+        # Create temporary JSON file using form.uuid (absolute path like PDF files)
+        ves_file_path = Rails.root.join("tmp/#{form.uuid}_#{form.form_id}_ves.json").to_s
+        File.write(ves_file_path, ves_data.to_json)
+
+        Rails.logger.info "VES JSON file generated for form #{form.form_id}: #{ves_file_path}"
+        ves_file_path
+      rescue => e
+        # Don't raise - we don't want VES JSON generation failure to break the entire submission
+        Rails.logger.error "Error generating VES JSON file for form #{form.form_id}: #{e.message}"
+        nil
       end
 
       # Prepares data for VES, raising an exception if this cannot be done
@@ -846,6 +883,15 @@ module IvcChampva
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
 
         file_paths = form.handle_attachments(file_path)
+
+        # Generate VES JSON file and add to file_paths if conditions are met
+        if should_generate_ves_json?(form.form_id)
+          ves_json_path = generate_ves_json_file(form, parsed_form_data)
+          if ves_json_path
+            file_paths << ves_json_path
+            attachment_ids << 'VES JSON'
+          end
+        end
 
         [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
       end

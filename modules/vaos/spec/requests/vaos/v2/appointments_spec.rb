@@ -473,6 +473,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
 
           it 'has access and returns va appointments and honors includes' do
+            allow(UniqueUserEvents).to receive(:log_event)
+
             stub_facilities
             stub_clinics
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
@@ -486,6 +488,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
               expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+
+              # Verify event logging was called
+              expect(UniqueUserEvents).to have_received(:log_event).with(
+                user: anything,
+                event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+              )
             end
           end
 
