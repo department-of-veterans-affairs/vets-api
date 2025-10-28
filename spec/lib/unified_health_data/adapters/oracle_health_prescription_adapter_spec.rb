@@ -993,7 +993,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns array with all category codes' do
         result = subject.send(:extract_category, resource_with_multiple_categories)
-        expect(result).to eq(['inpatient', 'community'])
+        expect(result).to eq(%w[inpatient community])
       end
     end
 
