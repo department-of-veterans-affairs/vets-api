@@ -153,5 +153,60 @@ RSpec.describe AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob,
         expect(request_new_unresolved.reload).to be_unresolved
       end
     end
+
+    context 'metrics' do
+      let(:monitor_double) do
+        instance_double(
+          AccreditedRepresentativePortal::Monitoring,
+          track_duration: true,
+          track_count: true
+        )
+      end
+
+      before do
+        # Ensure a consistent POA code for tag assertions (covers reloaded records too)
+        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+          .to receive(:power_of_attorney_holder_poa_code)
+          .and_return('YHZ')
+
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new)
+          .with(
+            'accredited-representative-portal',
+            default_tags: ['job:expire_power_of_attorney_requests']
+          )
+          .and_return(monitor_double)
+      end
+
+      it 'emits duration and count metrics with expected tags for each expired request, and memoizes monitor' do
+        expect(request_old_unresolved).to be_unresolved
+        expect(request_just_expired).to be_unresolved
+
+        job.perform
+
+        expect(AccreditedRepresentativePortal::Monitoring).to have_received(:new).once
+
+        expected_tags = array_including(
+          'resolution:expired',
+          'source:expire_job',
+          'poa_code:YHZ'
+        )
+
+        expect(monitor_double).to have_received(:track_duration).with(
+          'vets_api.statsd.ar_poa_request_duration',
+          from: request_old_unresolved.created_at,
+          tags: expected_tags
+        )
+        expect(monitor_double).to have_received(:track_duration).with(
+          'vets_api.statsd.ar_poa_request_duration',
+          from: request_just_expired.created_at,
+          tags: expected_tags
+        )
+
+        expect(monitor_double).to have_received(:track_count).with(
+          'vets_api.statsd.ar_poa_request_count',
+          tags: expected_tags
+        ).twice
+      end
+    end
   end
 end
