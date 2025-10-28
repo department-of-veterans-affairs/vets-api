@@ -106,6 +106,12 @@ module IvcChampva
 
           response = build_json(statuses, error_messages)
 
+          if should_generate_ves_json?(form_id)
+            # Remove the VES JSON file from disk after upload
+            ves_json_file = file_paths.find { |path| path.end_with?('_ves.json') }
+            FileUtils.rm_f(ves_json_file) if ves_json_file
+          end
+
           # if the response is successful, submit the VES request
           submit_ves_request(ves_request, metadata) if response[:status] == 200
 
