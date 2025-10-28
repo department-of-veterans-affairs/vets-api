@@ -53,6 +53,7 @@ module UnifiedHealthData
         return unless status == 'final' && encoded_data.blank? && observations.blank?
 
         patient_reference = record['resource']&.dig('subject', 'reference')
+        # Last four of FHIR Patient.id
         patient_last_four = patient_reference&.split('/')&.last&.last(4) || 'unknown'
 
         Rails.logger.warn(
