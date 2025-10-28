@@ -5,7 +5,7 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require_relative 'configuration'
 require_relative 'error'
-require_relative 'push_client'
+require_relative 'client'
 
 module VaNotify
   class Service < Common::Client::Base
@@ -21,7 +21,7 @@ module VaNotify
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
-      @push_client ||= VaNotify::PushClient.new(api_key, callback_options)
+      @push_client ||= VaNotify::Client.new(api_key, callback_options)
       @callback_options = callback_options || {}
     rescue => e
       handle_error(e)
@@ -71,21 +71,8 @@ module VaNotify
 
     def send_push(args)
       @template_id = args[:template_id]
-      if Flipper.enabled?(:va_notify_notification_creation)
-        response = with_monitoring do
-          if Flipper.enabled?(:va_notify_request_level_callbacks)
-            push_client.send_push(append_callback_url(args))
-          else
-            push_client.send_push(args)
-          end
-        end
-        create_notification(response)
-        response
-      else
-        with_monitoring do
-          push_client.send_push(args)
-        end
-      end
+      # Push notifications currently do not support notification creation or callbacks
+      push_client.send_push(args)
     rescue => e
       handle_error(e)
     end

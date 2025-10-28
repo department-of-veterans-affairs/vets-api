@@ -8,7 +8,7 @@ require_relative 'error'
 
 module VaNotify
   # Client for VA Notify Push Notification API
-  class PushClient < Common::Client::Base
+  class Client < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 
     configuration VaNotify::Configuration
@@ -18,6 +18,7 @@ module VaNotify
     attr_reader :api_key, :service_id, :secret_token, :callback_options, :template_id
 
     def initialize(api_key, callback_options = {})
+      super()
       @api_key = api_key
       @callback_options = callback_options || {}
 
@@ -25,7 +26,7 @@ module VaNotify
       @service_id = api_key[(api_key.length - 73)..(api_key.length - 38)]
       @secret_token = api_key[(api_key.length - 36)..api_key.length]
 
-      # validate_tokens!
+      validate_tokens!
     end
 
     # Send push notification
@@ -39,10 +40,10 @@ module VaNotify
     def send_push(args)
       @template_id = args[:template_id]
 
-      payload = build_payload(args)
-
+      # Add callback URL if request-level callbacks are enabled
+      payload = args.dup
       with_monitoring do
-        response = perform(:post, 'v2/notifications/push', payload, auth_headers)
+        response = perform(:post, 'v2/notifications/push', payload.to_json, auth_headers)
         # Parse the response body if it's a Faraday::Env object
         response_body = response.is_a?(Faraday::Env) ? response.body : response
         response_body
@@ -52,26 +53,6 @@ module VaNotify
     end
 
     private
-
-    def build_payload(args)
-      payload = {
-        mobile_app: args[:mobile_app],
-        template_id: args[:template_id],
-        recipient_identifier: {
-          id_type: args[:recipient_identifier][:id_type],
-          id_value: args[:recipient_identifier][:id_value]
-        }
-      }
-
-      # Add personalisation if provided
-      payload[:personalisation] = args[:personalisation] if args[:personalisation]
-
-      # Add callback URL if request-level callbacks are enabled
-      payload[:callback_url] = Settings.vanotify.callback_url if Flipper.enabled?(:va_notify_request_level_callbacks)
-
-      # Convert to JSON string for HTTP request body
-      payload.to_json
-    end
 
     def auth_headers
       {
