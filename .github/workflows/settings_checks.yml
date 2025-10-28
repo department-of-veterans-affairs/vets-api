@@ -74,7 +74,6 @@ jobs:
         run: git fetch origin master
 
       - name: Check ENV diff for aws_ssm_custom lookups
-        # shell: bash
         run: |
 
           diff_output=$(git diff origin/master config/settings.yml)
