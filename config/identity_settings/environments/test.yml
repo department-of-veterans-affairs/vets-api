@@ -1,2 +1,5 @@
 mvi:
   url: http://www.example.com
+sign_in:
+  credential_attributes_digester:
+    pepper: 5740e000be940493231f85324c413bd2
