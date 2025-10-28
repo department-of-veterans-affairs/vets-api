@@ -1545,6 +1545,9 @@ module DependentsBenefits
           @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
         end
 
+        # We add the user data to the form data in some jobs. It should always be present here.
+        raise 'Veteran information is missing' unless @form_data['veteran_information']
+
         veteran_information = @form_data['veteran_information']
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
