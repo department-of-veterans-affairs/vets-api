@@ -57,6 +57,7 @@ class SavedClaim < ApplicationRecord
     validates(:form_id, inclusion: [form_id])
   end
 
+  # TODO: Build a service object to handle retrieval/caching of OpenAPI specs
   def self.openapi_doc
     Rails.cache.fetch('saved_claim/openapi_doc') do
       doc = JSON.parse(Rails.public_path.join('openapi.json').read)
