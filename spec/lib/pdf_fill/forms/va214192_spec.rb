@@ -2,63 +2,23 @@
 
 require 'rails_helper'
 require 'pdf_fill/filler'
+require 'lib/pdf_fill/fill_form_examples'
 
 RSpec.describe PdfFill::Forms::Va214192 do
   let(:form_data) do
-    {
-      'veteranInformation' => {
-        'fullName' => {
-          'first' => 'John',
-          'middle' => 'M',
-          'last' => 'Doe'
-        },
-        'ssn' => '123456789',
-        'vaFileNumber' => '987654321',
-        'dateOfBirth' => '1980-01-15'
-      },
-      'employmentInformation' => {
-        'employerName' => 'Acme Corporation',
-        'employerAddress' => {
-          'street' => '456 Business Ave',
-          'city' => 'Commerce City',
-          'state' => 'CA',
-          'postalCode' => '54321'
-        },
-        'typeOfWorkPerformed' => 'Software Developer',
-        'beginningDateOfEmployment' => '2015-01-15',
-        'endingDateOfEmployment' => '2023-06-30',
-        'amountEarnedLast12Months' => 75_000,
-        'timeLostLast12MonthsOfEmployment' => '2 weeks',
-        'hoursWorkedDaily' => 8,
-        'hoursWorkedWeekly' => 40,
-        'concessions' => 'Flexible hours, ergonomic desk',
-        'terminationReason' => 'Medical disability',
-        'dateLastWorked' => '2023-06-30',
-        'lastPaymentDate' => '2023-07-15',
-        'lastPaymentGrossAmount' => '6250.00',
-        'lumpSumPaymentMade' => false,
-        'grossAmountPaid' => '0',
-        'datePaid' => '2023-07-15'
-      },
-      'militaryDutyStatus' => {
-        'currentDutyStatus' => 'Active Reserve',
-        'veteranDisabilitiesPreventMilitaryDuties' => true
-      },
-      'benefitEntitlementPayments' => {
-        'sickRetirementOtherBenefits' => false,
-        'typeOfBenefit' => 'Retirement',
-        'grossMonthlyAmountOfBenefit' => 1500,
-        'dateBenefitBegan' => '2023-01-01',
-        'dateFirstPaymentIssued' => '2023-02-01',
-        'dateBenefitWillStop' => '2025-12-31',
-        'remarks' => 'Additional information'
-      },
-      'employerCertification' => {
-        'certificationDate' => '2024-01-15',
-        'signature' => 'Jane Smith'
-      }
-    }
+    JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4192', 'simple.json').read)
   end
+
+  it_behaves_like 'a form filler', {
+    form_id: '21-4192',
+    factory: :fake_saved_claim,
+    input_data_fixture_dir: 'spec/fixtures/pdf_fill/21-4192',
+    output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/21-4192',
+    test_data_types: %w[simple kitchen_sink],
+    fill_options: {
+      sign: false
+    }
+  }
 
   describe '#merge_fields' do
     let(:form) { described_class.new(form_data) }
@@ -78,7 +38,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
 
       expect(merged['veteranInformation']['dateOfBirth']).to eq(
         'month' => '01',
-        'day' => '15',
+        'day' => '01',
         'year' => '1980'
       )
     end
@@ -95,7 +55,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
       merged = form.merge_fields
 
       expect(merged['employmentInformation']['amountEarnedLast12Months']).to eq(
-        'thousands' => '075',
+        'thousands' => '095',
         'hundreds' => '000',
         'cents' => '00'
       )
@@ -104,9 +64,9 @@ RSpec.describe PdfFill::Forms::Va214192 do
     it 'converts booleans to YES/NO' do
       merged = form.merge_fields
 
-      expect(merged['employmentInformation']['lumpSumPaymentMade']).to eq('NO')
+      expect(merged['employmentInformation']['lumpSumPaymentMade']).to eq('YES')
       expect(merged['militaryDutyStatus']['veteranDisabilitiesPreventMilitaryDuties']).to eq('YES')
-      expect(merged['benefitEntitlementPayments']['sickRetirementOtherBenefits']).to eq('NO')
+      expect(merged['benefitEntitlementPayments']['sickRetirementOtherBenefits']).to eq('YES')
     end
   end
 
