@@ -33,7 +33,7 @@ module ClaimsApi
       end
 
       def claim_meta
-        @fes_claim[:claimDate] = @data[:claimDate] if @data[:claimDate].present?
+        @fes_claim[:claimDate] = @data[:claimDate].presence || Date.current.strftime('%Y-%m-%d')
       end
 
       # a 'disability' is required via the schema

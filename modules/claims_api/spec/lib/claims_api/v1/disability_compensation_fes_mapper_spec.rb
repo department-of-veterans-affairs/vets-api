@@ -51,6 +51,36 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         end
       end
 
+      describe 'claim meta' do
+        let(:form526) { fes_data[:data][:form526] }
+
+        context 'when claimDate is provided' do
+          it 'uses the provided claimDate' do
+            form_data['data']['attributes']['claimDate'] = '2023-05-15'
+
+            expect(form526[:claimDate]).to eq('2023-05-15')
+          end
+        end
+
+        context 'when claimDate is not provided' do
+          it 'defaults to current date in YYYY-MM-DD format' do
+            form_data['data']['attributes'].delete('claimDate')
+
+            expected_date = Date.current.strftime('%Y-%m-%d')
+            expect(form526[:claimDate]).to eq(expected_date)
+          end
+        end
+
+        context 'when claimDate is blank' do
+          it 'defaults to current date' do
+            form_data['data']['attributes']['claimDate'] = ''
+
+            expected_date = Date.current.strftime('%Y-%m-%d')
+            expect(form526[:claimDate]).to eq(expected_date)
+          end
+        end
+      end
+
       describe 'veteran information' do
         let(:veteran) { fes_data[:data][:form526][:veteran] }
 
