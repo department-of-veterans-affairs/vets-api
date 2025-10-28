@@ -174,6 +174,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         end
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
+        expect(response_data['data']['attributes']).to have_key('hasAppointments')
+        expect(response_data['data']['attributes']).to have_key('appointments')
       end
 
       it 'increments the view metric' do
@@ -228,6 +230,10 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           expect(appointments['VAOS']['data']).to be_an(Array)
           expect(appointments['EPS']['data'].first['id']).to eq('12345')
           expect(appointments['VAOS']['data'].first['id']).to eq('56789')
+
+          # Check has_appointments attribute
+          expect(response_data['data']['attributes']).to have_key('hasAppointments')
+          expect(response_data['data']['attributes']['hasAppointments']).to be(true)
         end
 
         it 'returns empty data when no appointments found' do
@@ -246,6 +252,10 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           appointments = response_data['data']['attributes']['appointments']
           expect(appointments['EPS']['data']).to eq([])
           expect(appointments['VAOS']['data']).to eq([])
+
+          # Check has_appointments attribute when no appointments
+          expect(response_data['data']['attributes']).to have_key('hasAppointments')
+          expect(response_data['data']['attributes']['hasAppointments']).to be(false)
         end
 
         it 'returns error response when appointment service raises BackendServiceException' do

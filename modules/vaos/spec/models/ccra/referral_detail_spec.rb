@@ -7,7 +7,9 @@ describe Ccra::ReferralDetail do
   shared_examples 'has nil attributes' do
     it 'sets all attributes to nil' do
       # Use reflection to iterate through the object's instance variables
-      instance_variables = subject.instance_variables.reject { |v| %i[@uuid @appointments].include?(v) }
+      instance_variables = subject.instance_variables.reject do |v|
+        %i[@uuid @appointments @has_appointments].include?(v)
+      end
       instance_variables.each do |var|
         value = subject.instance_variable_get(var)
         expect(value).to be_nil, "Expected #{var} to be nil, but got #{value.inspect}"
@@ -65,6 +67,7 @@ describe Ccra::ReferralDetail do
       expect(subject.station_id).to eq('528A6')
       expect(subject.uuid).to be_nil
       expect(subject.appointments).to eq({})
+      expect(subject.has_appointments).to be_nil
 
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
@@ -113,19 +116,25 @@ describe Ccra::ReferralDetail do
       it 'can be set to appointments data after initialization' do
         detail = described_class.new({})
         detail.appointments = { 'system' => 'VAOS', 'data' => [{ 'id' => '12345' }] }
+        detail.has_appointments = true
         expect(detail.appointments).to eq({ 'system' => 'VAOS', 'data' => [{ 'id' => '12345' }] })
+        expect(detail.has_appointments).to be(true)
       end
 
       it 'can be set to empty array after initialization' do
         detail = described_class.new({})
         detail.appointments = []
+        detail.has_appointments = false
         expect(detail.appointments).to eq([])
+        expect(detail.has_appointments).to be(false)
       end
 
       it 'can be set to nil after initialization' do
         detail = described_class.new({})
         detail.appointments = nil
+        detail.has_appointments = nil
         expect(detail.appointments).to be_nil
+        expect(detail.has_appointments).to be_nil
       end
     end
 
@@ -198,6 +207,7 @@ describe Ccra::ReferralDetail do
       expect(subject.referral_date).to eq('2024-07-24')
       expect(subject.station_id).to eq('528A6')
       expect(subject.appointments).to eq({})
+      expect(subject.has_appointments).to be_nil
 
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')

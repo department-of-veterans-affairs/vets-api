@@ -160,6 +160,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           expect(serialized_data[:data][:attributes][attr]).to be_nil
         end
 
+        # appointments is initialized as empty hash, not nil
+        expect(serialized_data[:data][:attributes][:appointments]).to eq({})
+
         # The provider is a hash with nil values, not nil itself
         expect(serialized_data[:data][:attributes][:provider].values.all?(&:nil?)).to be(true)
 

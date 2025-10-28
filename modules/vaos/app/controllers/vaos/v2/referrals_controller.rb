@@ -50,14 +50,22 @@ module VAOS
       def add_appointment_data_to_referral(referral)
         result = appointments_service.get_active_appointments_for_referral(referral.referral_number)
 
+        eps_appointments = result[:EPS][:data]
+        vaos_appointments = result[:VAOS][:data]
+
         referral.appointments = {
           EPS: {
-            data: result[:EPS][:data].map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+            data: eps_appointments.map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
           },
           VAOS: {
-            data: result[:VAOS][:data].map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+            data: vaos_appointments.map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
           }
         }
+
+        # Only set has_appointments to true if there are appointments with status "active"
+        eps_has_active = eps_appointments.any? { |appt| appt[:status] == 'active' }
+        vaos_has_active = vaos_appointments.any? { |appt| appt[:status] == 'active' }
+        referral.has_appointments = eps_has_active || vaos_has_active
       end
 
       def appointments_service

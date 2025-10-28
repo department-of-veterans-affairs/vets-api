@@ -13,7 +13,7 @@ module Ccra
                 :referral_date, :station_id, :referral_consult_id,
                 :treating_facility_name, :treating_facility_code, :treating_facility_phone,
                 :treating_facility_address
-    attr_accessor :uuid, :appointments
+    attr_accessor :uuid, :appointments, :has_appointments
 
     ##
     # Initializes a new instance of ReferralDetail.
@@ -73,6 +73,7 @@ module Ccra
         'provider_npi' => @provider_npi,
         'provider_specialty' => @provider_specialty,
         'referral_number' => @referral_number,
+        'has_appointments' => @has_appointments,
         'appointments' => @appointments,
         'referral_date' => @referral_date,
         'station_id' => @station_id,
@@ -106,6 +107,7 @@ module Ccra
       @referral_number = hash['referral_number']
       @referral_date = hash['referral_date']
       @station_id = hash['station_id']
+      @has_appointments = hash['has_appointments']
       @appointments = hash['appointments'] || {}
       @referral_consult_id = hash['referral_consult_id']
       @uuid = hash['uuid']
