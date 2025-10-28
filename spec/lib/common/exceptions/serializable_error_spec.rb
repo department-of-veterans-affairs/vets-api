@@ -33,4 +33,18 @@ describe Common::Exceptions::SerializableError do
       expect(subject.to_hash).to eq(attributes)
     end
   end
+
+  context 'with source as a hash' do
+    let(:attributes) do
+      {
+        title: 'title', detail: 'detail', code: '123',
+        source: { vamf_url: 'https://example.com', vamf_body: 'error body', vamf_status: 500 },
+        status: '500'
+      }
+    end
+
+    it 'responds to #to_hash with hash source' do
+      expect(subject.to_hash).to eq(attributes)
+    end
+  end
 end
