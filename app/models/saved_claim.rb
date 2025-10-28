@@ -96,26 +96,10 @@ class SavedClaim < ApplicationRecord
     return unless form_is_string
 
     schema = resolved_validation_schema
-    return true if schema.nil?
+    return handle_missing_schema unless schema
 
-    schema_errors = validate_schema(schema)
-    unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation.',
-                         { form_id:, errors: schema_errors })
-    end
-
-    validation_errors = validate_form(schema)
-    validation_errors.each do |e|
-      errors.add(e[:fragment], e[:message])
-      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
-    end
-
-    unless validation_errors.empty?
-      Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
-    end
-
-    # Only form instance validation determines validity; schema meta errors are logged but non-blocking
-    validation_errors.empty?
+    log_and_validate_schema(schema)
+    log_and_validate_form(schema)
   end
 
   def to_pdf(file_name = nil)
@@ -175,6 +159,42 @@ class SavedClaim < ApplicationRecord
   end
 
   private
+
+  def handle_missing_schema
+    message = "Schema for #{self.class.name} (form_id: #{form_id}) could not be resolved"
+    Rails.logger.error(message)
+    if Rails.env.development? || Rails.env.test?
+      raise KeyError, message
+    else
+      errors.add(:base, message)
+      false
+    end
+  end
+
+  def log_and_validate_schema(schema)
+    schema_errors = validate_schema(schema)
+    return if schema_errors.empty?
+
+    Rails.logger.error('SavedClaim schema failed validation.',
+                       { form_id:, errors: schema_errors })
+  end
+
+  def log_and_validate_form(schema)
+    validation_errors = validate_form(schema)
+    validation_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each do |nested|
+        errors.add(nested[:fragment], nested[:message]) if nested.is_a?(Hash)
+      end
+    end
+
+    unless validation_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation',
+                         { form_id:, guid:, errors: validation_errors })
+    end
+
+    validation_errors.empty?
+  end
 
   def validate_schema(schema)
     # Validate the schema itself against the chosen meta schema/dialect

@@ -2,28 +2,26 @@
 
 require 'rails_helper'
 
-RSpec.describe SavedClaim, type: :model do
-  subject(:saved_claim) { described_class.new(form: form_data) }
+class TestSavedClaim < SavedClaim
+  FORM = 'some_form_id'
+  CONFIRMATION = 'test'
 
-  before(:all) do
-    stub_const('TestSavedClaim', Class.new(SavedClaim) do
-      def regional_office
-        'test_office'
-      end
-
-      def attachment_keys
-        %i[some_key]
-      end
-    end)
+  def regional_office
+    'test_office'
   end
 
-  let(:test_class) { TestSavedClaim }
+  def attachment_keys
+    %i[some_key]
+  end
+end
+
+RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFilePathFormat
+  subject(:saved_claim) { described_class.new(form: form_data) }
+
   let(:form_data) { { some_key: 'some_value' }.to_json }
   let(:schema) { { some_key: 'some_value' }.to_json }
 
   before do
-    stub_const('TestSavedClaim::FORM', 'some_form_id')
-    stub_const('TestSavedClaim::CONFIRMATION', 'test')
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
