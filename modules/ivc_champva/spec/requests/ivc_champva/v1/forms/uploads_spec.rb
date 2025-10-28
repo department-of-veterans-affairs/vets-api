@@ -94,7 +94,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             controller = IvcChampva::V1::UploadsController.new
             allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
                                                   call_upload_form: [[200], nil],
-                                                  get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                  get_file_paths_and_metadata: [['path'], {}],
                                                   params: ActionController::Parameters.new(data))
             allow(controller).to receive(:render)
 
@@ -152,7 +152,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             if data['form_number'] == '10-10D'
               controller = IvcChampva::V1::UploadsController.new
               allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
-                                                    get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                    get_file_paths_and_metadata: [['path'], {}],
                                                     params: ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
