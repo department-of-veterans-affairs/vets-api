@@ -217,6 +217,27 @@ module UnifiedHealthData
       end
     end
 
+    # Retrieves CCD binary data for download
+    # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
+    # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
+    # @raise [ArgumentError] if the format is invalid or not available
+    def get_ccd_binary(format: 'xml')
+      with_monitoring do
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+
+        document_ref = body['entry']&.find do |entry|
+          entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
+        end
+        return nil unless document_ref
+
+        clinical_notes_adapter.parse_ccd_binary(document_ref, format)
+      end
+    end
+
     private
 
     # Shared
