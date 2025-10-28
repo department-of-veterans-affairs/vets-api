@@ -657,7 +657,7 @@ config/environments @department-of-veterans-affairs/backend-review-group
 config/features.yml @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/0873.yml @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/10-10EZR.yml @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
-config/form_profile_mappings/10-7959c.yml @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
+config/form_profile_mappings/10-7959C.yml @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/1010ez.yml @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/10182.yml @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/20-0995.yml @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
