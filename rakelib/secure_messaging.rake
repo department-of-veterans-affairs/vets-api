@@ -9,12 +9,16 @@ namespace :sm do
       raise 'Run this task like this: bundle exec rake sm:setup_test_user user_number=210 mhv_id=22336066'
     end
 
+    Rails.logger.info("\nCorrelating mock user: vets.gov.user+#{user_number}@gmail.com to MHV ID: #{mhv_correlation_id}")
+
     idme_uuid = get_idme_uuid(user_number)
     icn = MPI::Service.new.find_profile_by_identifier(
       identifier: idme_uuid,
       identifier_type: MPI::Constants::IDME_UUID
     )&.profile&.icn
 
+    Rails.logger.info("\nID.me UUID: #{idme_uuid}")
+    Rails.logger.info("ICN: #{icn}")
     user_verification = Login::UserVerifier.new(
       login_type: SAML::User::IDME_CSID,
       auth_broker: nil,
@@ -27,13 +31,27 @@ namespace :sm do
 
     user_account = user_verification.user_account
 
+    Rails.logger.info("User verification: ")
+    Rails.logger.info(user_verification.attributes)
+
+    Rails.logger.info("User Account: ")
+    Rails.logger.info(user_account.attributes)
+
     if user_account.needs_accepted_terms_of_use?
+      Rails.logger.info("Accepting Terms of Use...")
       user_account.terms_of_use_agreements.new(
         agreement_version: IdentitySettings.terms_of_use.current_version
       ).accepted!
     end
 
+    Rails.logger.info("Accepted TOU:")
+    Rails.logger.info(user_account.terms_of_use_agreements.current.last.attributes)
+
+    Rails.logger.info("Caching MHV account... (this is the important part)")
     cache_mhv_account(icn, mhv_correlation_id)
+
+    Rails.logger.info('Cached MHV account:')
+    Rails.logger.info(Rails.cache.read("mhv_account_creation_#{icn}"))
   end
 
   def get_idme_uuid(number)
