@@ -146,7 +146,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         # Check that both claims with claimTypeCode get default titles (since these codes aren't in our mapping)
         code_only_claims.each do |claim|
-          expect(claim['attributes']['displayTitle']).to eq('disability compensation')
+          expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
           expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
         end
       end

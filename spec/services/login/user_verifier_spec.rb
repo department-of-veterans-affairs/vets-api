@@ -11,7 +11,8 @@ RSpec.describe Login::UserVerifier do
                           idme_uuid:,
                           dslogon_uuid:,
                           logingov_uuid:,
-                          icn:).perform
+                          icn:,
+                          credential_attributes_digest:).perform
     end
 
     let(:auth_broker) { 'some-auth-broker' }
@@ -20,9 +21,10 @@ RSpec.describe Login::UserVerifier do
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:logingov_uuid) { 'some-logingov-uuid' }
     let(:locked) { false }
-
     let(:icn) { nil }
     let(:login_type) { nil }
+    let(:credential_attributes_digest) { 'some-digest' }
+
     let(:time_freeze_time) { '10-10-2021' }
 
     before do
@@ -90,7 +92,8 @@ RSpec.describe Login::UserVerifier do
                                      user_account:,
                                      backing_idme_uuid:,
                                      verified_at:,
-                                     locked:)
+                                     locked:,
+                                     credential_attributes_digest:)
           end
           let(:verified_at) { 1.day.ago }
 
@@ -114,6 +117,36 @@ RSpec.describe Login::UserVerifier do
 
             it 'updates user verification with the new determined backing idme uuid' do
               expect(subject.backing_idme_uuid).to eq(backing_idme_uuid)
+            end
+          end
+
+          context 'and the credential_attributes_digest is different' do
+            let!(:user_verification) do
+              UserVerification.create!(authn_identifier_type => authn_identifier,
+                                       user_account:,
+                                       backing_idme_uuid:,
+                                       verified_at:,
+                                       locked:,
+                                       credential_attributes_digest: 'some-old-digest')
+            end
+
+            it 'updates the user verification with the new credential_attributes_digest' do
+              expect do
+                subject
+                user_verification.reload
+              end.to change(user_verification,
+                            :credential_attributes_digest).from('some-old-digest').to(credential_attributes_digest)
+            end
+          end
+
+          context 'and the credential_attributes_digest is the same' do
+            let(:credential_attributes_digest) { 'some-digest' }
+
+            it 'does not update the user verification credential_attributes_digest' do
+              expect do
+                subject
+                user_verification.reload
+              end.not_to change(user_verification, :credential_attributes_digest)
             end
           end
 
@@ -210,6 +243,10 @@ RSpec.describe Login::UserVerifier do
 
                 it 'updates the user verification with the existing user account' do
                   expect(subject.user_account).to eq(other_user_account)
+                end
+
+                it 'updates the credential_attributes_digest if different' do
+                  expect(subject.credential_attributes_digest).to eq(credential_attributes_digest)
                 end
               end
             end
@@ -359,6 +396,17 @@ RSpec.describe Login::UserVerifier do
           it 'returns existing user_verification' do
             expect(subject).to eq(user_verification)
           end
+
+          context 'and the credential_attributes_digest is different' do
+            let(:credential_attributes_digest) { 'some-new-digest' }
+
+            it 'does not update the user verification with the new credential_attributes_digest' do
+              expect do
+                subject
+                user_verification.reload
+              end.not_to change(user_verification, :credential_attributes_digest)
+            end
+          end
         end
 
         context 'and user_verification for user credential does not already exist' do
@@ -378,6 +426,16 @@ RSpec.describe Login::UserVerifier do
 
           it 'returns created user_verification' do
             expect(subject).to eq(UserVerification.last)
+          end
+
+          context 'and the credential_attributes_digest is different' do
+            let(:credential_attributes_digest) { 'some-new-digest' }
+
+            it 'does not create the user verification with the new credential_attributes_digest' do
+              subject
+              user_verification = UserVerification.where(authn_identifier_type => authn_identifier).first
+              expect(user_verification.credential_attributes_digest).to be_nil
+            end
           end
         end
       end

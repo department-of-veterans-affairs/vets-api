@@ -47,7 +47,7 @@ RSpec.describe EducationForm::EducationFacility do
       end
     end
 
-    %w[1990E 5490 5495].each do |form_type|
+    %w[5490 5495].each do |form_type|
       context "22-#{form_type}" do
         let(:form) { OpenStruct.new(relativeAddress: western_address) }
 
@@ -122,13 +122,6 @@ RSpec.describe EducationForm::EducationFacility do
     context '22-0993' do
       it 'routes to Western RPO' do
         education_benefits_claim.saved_claim.form_id = '22-0993'
-        expect(described_class.region_for(education_benefits_claim)).to eq(:western)
-      end
-    end
-
-    context '22-1990s' do
-      it 'routes to Western RPO' do
-        education_benefits_claim.saved_claim.form_id = '22-1990s'
         expect(described_class.region_for(education_benefits_claim)).to eq(:western)
       end
     end
