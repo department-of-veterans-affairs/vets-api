@@ -3,8 +3,6 @@
 require 'support/vcr'
 require 'support/vcr_multipart_matcher_helper'
 
-VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
-
 module VCR
   def self.all_matches
     %i[method uri body]
