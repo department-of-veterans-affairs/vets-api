@@ -1,7 +1,7 @@
 ---
 acc_rep_management:
   prefill: true
-  xyz: <%= ENV['accredited_representative_portal__allow_list__github__path'] %>
+  xyz: <%= ENV['accredited_representative_portal__allow_list__github__typo'] %>
 account:
   enabled: ~
 accredited_representative_portal:
