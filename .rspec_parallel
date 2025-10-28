@@ -1,6 +1,7 @@
 --color
 --require spec_helper
---format progress
+--require ./spec/support/formatters/vets_rspec_formatter
+--format VetsRspecFormatter
 <% if ENV['CI'] %>
 --format RspecJunitFormatter
 --out log/rspec<%= ENV['TEST_ENV_NUMBER'] %>.xml
