@@ -299,13 +299,6 @@ dgi:
   jwt:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
-  post911_sob:
-    claimants:
-      mock: false
-      url: ~
-    jwt:
-      private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
-      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -734,6 +727,7 @@ lighthouse:
       - system/MedicationDispense.read
       - system/Encounter.read
       - system/Account.read
+      - system/Medication.read
       - launch
     timeout: 30
     use_mocks: false
@@ -840,11 +834,12 @@ maintenance:
     dslogon: P9DJJAV
     es: PH7OPR4
     evss: PZKWB6Y
-    form1010d: P69N8ZY
-    form107959a: POTKY39
-    form107959c: PEP32F2
-    form107959f1: P63EKXC
-    form107959f2: PZWR9XI
+    form1010d: ~
+    form1010d_ext: ~
+    form107959a: ~
+    form107959c: ~
+    form107959f1: ~
+    form107959f2: ~
     global: PLPSIB0
     hcq: PWGA814
     idme: PVWB4R8
