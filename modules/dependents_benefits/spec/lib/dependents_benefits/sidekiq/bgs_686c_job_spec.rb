@@ -62,7 +62,8 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
         # Mock permanent_failure? to return true for the original error
         allow(job).to receive(:permanent_failure?).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError)).and_return(true)
 
-        expect(job).to receive(:send_backup_job)
+        expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim.id,
+                                                                                                proc_id)
 
         expect { job.perform(saved_claim.id, proc_id) }.to raise_error(Sidekiq::JobRetry::Skip)
       end
