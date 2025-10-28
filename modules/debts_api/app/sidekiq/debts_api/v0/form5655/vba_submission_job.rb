@@ -5,7 +5,6 @@ require 'debts_api/v0/financial_status_report_service'
 module DebtsApi
   class V0::Form5655::VBASubmissionJob
     include Sidekiq::Job
-    include SentryLogging
     STATS_KEY = 'api.vba_submission'
 
     sidekiq_options retry: 5

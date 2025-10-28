@@ -29,13 +29,13 @@ module AccreditedRepresentativePortal
         # with this overworking problem.
         #
         def define_claim_type(form_id:, proper_form_id:, business_line:,
-                              stamping_form_class:, feature_flag:)
+                              stamping_form_class:, feature_flag: nil)
           Class.new(self) do
             const_set(:FORM_ID, form_id)
             const_set(:PROPER_FORM_ID, proper_form_id)
             const_set(:BUSINESS_LINE, business_line)
             const_set(:STAMPING_FORM_CLASS, stamping_form_class)
-            const_set(:FEATURE_FLAG, feature_flag)
+            const_set(:FEATURE_FLAG, feature_flag) if feature_flag
             const_set(:STATUS_WARNING_THRESHOLD, DEFAULT_STATUS_WARNING_THRESHOLD)
 
             validates! :form_id, inclusion: [form_id]
@@ -59,8 +59,7 @@ module AccreditedRepresentativePortal
              form_id: '21-686C_BENEFITS-INTAKE',
              proper_form_id: '21-686c',
              business_line: BusinessLines::COMPENSATION,
-             stamping_form_class: SimpleFormsApi::VBA21686C,
-             feature_flag: 'accredited_representative_portal_submissions'
+             stamping_form_class: SimpleFormsApi::VBA21686C
            )
         ),
         (DisabilityClaim =
@@ -68,8 +67,7 @@ module AccreditedRepresentativePortal
              form_id: '21-526EZ_BENEFITS-INTAKE',
              proper_form_id: '21-526EZ',
              business_line: BusinessLines::COMPENSATION,
-             stamping_form_class: SimpleFormsApi::VBA21526EZ,
-             feature_flag: 'accredited_representative_portal_form_526ez'
+             stamping_form_class: SimpleFormsApi::VBA21526EZ
            )
         )
       ].freeze
