@@ -1783,6 +1783,10 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
+  saved_claim_openapi_validation:
+    actor_type: user
+    description: When enabled, validate saved claims using OpenAPI 3.0 schema if they are configured within the OpenAPI 3.0 docs
+    enable_in_development: true
   saved_claim_pdf_overflow_tracking:
     actor_type: user
     description: When enabled, record metrics for claims which have overflow in the generated pdf
