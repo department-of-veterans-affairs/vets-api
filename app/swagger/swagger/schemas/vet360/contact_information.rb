@@ -46,6 +46,10 @@ module Swagger
                            type: :string,
                            format: 'date-time',
                            example: '2018-04-21T20:09:50Z'
+                  property :verification_date,
+                           type: %i[string null],
+                           format: 'date-time',
+                           example: '2018-04-21T20:09:50Z'
                 end
 
                 property :residential_address, type: :object do
