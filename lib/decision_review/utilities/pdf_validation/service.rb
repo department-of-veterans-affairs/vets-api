@@ -8,7 +8,6 @@ module DecisionReview
   #
   module PdfValidation
     class Service < Common::Client::Base
-      include SentryLogging
       include Common::Client::Concerns::Monitoring
 
       configuration DecisionReview::PdfValidation::Configuration
