@@ -345,4 +345,121 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
       end
     end
   end
+
+  describe '#download_document' do
+    context 'successful download' do
+      it 'downloads a travel pay document and returns binary data' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        mock_document_data = {
+          body: 'binary_pdf_content',
+          type: 'application/pdf',
+          disposition: 'attachment; filename="DecisionLetter.pdf"',
+          filename: 'DecisionLetter.pdf'
+        }
+
+        documents_service = instance_double(TravelPay::DocumentsService)
+        allow(TravelPay::DocumentsService).to receive(:new).and_return(documents_service)
+        allow(documents_service).to receive(:download_document)
+          .with('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'doc1-decision-letter')
+          .and_return(mock_document_data)
+
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        document_id = 'doc1-decision-letter'
+
+        get("/mobile/v0/travel-pay/claims/#{claim_id}/documents/#{document_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to eq('application/pdf')
+        expect(response.headers['Content-Disposition']).to eq('attachment; filename="DecisionLetter.pdf"')
+        expect(response.body).to eq('binary_pdf_content')
+      end
+
+      it 'handles URL-encoded document IDs' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        mock_document_data = {
+          body: 'binary_pdf_content',
+          type: 'application/pdf',
+          disposition: 'attachment; filename="DecisionLetter.pdf"',
+          filename: 'DecisionLetter.pdf'
+        }
+
+        documents_service = instance_double(TravelPay::DocumentsService)
+        allow(TravelPay::DocumentsService).to receive(:new).and_return(documents_service)
+        # Expect the service to receive the decoded document ID
+        allow(documents_service).to receive(:download_document)
+          .with('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'doc1-decision-letter')
+          .and_return(mock_document_data)
+
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        # URL-encoded document ID
+        encoded_document_id = 'doc1%2Ddecision%2Dletter'
+
+        get("/mobile/v0/travel-pay/claims/#{claim_id}/documents/#{encoded_document_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to eq('application/pdf')
+        expect(response.body).to eq('binary_pdf_content')
+      end
+    end
+
+    context 'error scenarios' do
+      it 'returns 404 when document is not found' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        documents_service = instance_double(TravelPay::DocumentsService)
+        allow(TravelPay::DocumentsService).to receive(:new).and_return(documents_service)
+        allow(documents_service).to receive(:download_document)
+          .and_raise(Faraday::ResourceNotFound.new('Document not found'))
+
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        document_id = 'nonexistent-doc'
+
+        get("/mobile/v0/travel-pay/claims/#{claim_id}/documents/#{document_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:not_found)
+        expect(response.body).to be_empty
+      end
+
+      it 'returns 400 for invalid claim or document ID format' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        documents_service = instance_double(TravelPay::DocumentsService)
+        allow(TravelPay::DocumentsService).to receive(:new).and_return(documents_service)
+        allow(documents_service).to receive(:download_document)
+          .and_raise(ArgumentError.new('Invalid UUID format'))
+
+        claim_id = 'invalid-uuid'
+        document_id = 'doc1-decision-letter'
+
+        get("/mobile/v0/travel-pay/claims/#{claim_id}/documents/#{document_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.body).to be_empty
+      end
+
+      it 'returns 500 when travel pay service fails' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        documents_service = instance_double(TravelPay::DocumentsService)
+        allow(TravelPay::DocumentsService).to receive(:new).and_return(documents_service)
+        allow(documents_service).to receive(:download_document)
+          .and_raise(Faraday::Error.new('Service unavailable'))
+
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        document_id = 'doc1-decision-letter'
+
+        get("/mobile/v0/travel-pay/claims/#{claim_id}/documents/#{document_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.body).to be_empty
+      end
+    end
+  end
 end
