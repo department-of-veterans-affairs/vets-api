@@ -57,6 +57,26 @@ class SavedClaim < ApplicationRecord
     validates(:form_id, inclusion: [form_id])
   end
 
+  def self.openapi_doc
+    Rails.cache.fetch('saved_claim/openapi_doc') do
+      doc = JSON.parse(Rails.public_path.join('openapi.json').read)
+      doc.freeze
+    end
+  end
+
+  # Get cached request body schema for a given operation_id
+  def self.openapi_request_body_schema(operation_id)
+    Rails.cache.fetch("saved_claim/openapi_schema/#{operation_id}") do
+      # Will be populated by the instance method
+      nil
+    end
+  end
+
+  # Set cached request body schema for a given operation_id
+  def self.cache_openapi_request_body_schema(operation_id, schema)
+    Rails.cache.write("saved_claim/openapi_schema/#{operation_id}", schema)
+  end
+
   # Run after a claim is saved, this processes any files and workflows that are present
   # and sends them to our internal partners for processing.
   def process_attachments!
@@ -98,7 +118,9 @@ class SavedClaim < ApplicationRecord
     schema = resolved_validation_schema
     return handle_missing_schema unless schema
 
-    log_and_validate_schema(schema)
+    schema_valid = log_and_validate_schema(schema)
+    return unless schema_valid
+
     log_and_validate_form(schema)
   end
 
@@ -173,10 +195,12 @@ class SavedClaim < ApplicationRecord
 
   def log_and_validate_schema(schema)
     schema_errors = validate_schema(schema)
-    return if schema_errors.empty?
+    return true if schema_errors.empty?
 
     Rails.logger.error('SavedClaim schema failed validation.',
                        { form_id:, errors: schema_errors })
+
+    false
   end
 
   def log_and_validate_form(schema)
@@ -285,7 +309,7 @@ class SavedClaim < ApplicationRecord
 
   def schema_source
     # Subclasses may override or set SCHEMA_SOURCE = :openapi3 to opt into OpenAPI validation
-    desired = if self.class.const_defined?(:SCHEMA_SOURCE)
+    desired = if self.class.const_defined?(:SCHEMA_SOURCE, false)
                 self.class::SCHEMA_SOURCE.to_s.downcase.to_sym
               else
                 :vets_json_schema
@@ -308,21 +332,26 @@ class SavedClaim < ApplicationRecord
   end
 
   def openapi_request_body_schema
-    @openapi_request_body_schema ||= begin
-      openapi = JSON.parse(Rails.public_path.join('openapi.json').read)
-      op_id = openapi_operation_id
-      operation = find_openapi_operation(openapi, op_id)
-      raise KeyError, "OpenAPI operation not found: #{op_id}" unless operation
+    op_id = openapi_operation_id
 
-      request_schema = operation.dig('requestBody', 'content', 'application/json', 'schema')
-      raise KeyError, "OpenAPI requestBody schema not found for: #{op_id}" unless request_schema
+    # Check cache first
+    cached = self.class.openapi_request_body_schema(op_id)
+    return cached if cached
 
-      # Deep merge components into the request schema so $ref pointers can resolve
-      schema_with_components = request_schema.deep_dup
-      schema_with_components['components'] = openapi['components'] if openapi['components']
+    # Build and cache the schema
+    operation = find_openapi_operation(self.class.openapi_doc, op_id)
+    raise KeyError, "OpenAPI operation not found: #{op_id}" unless operation
 
-      schema_with_components
-    end
+    request_schema = operation.dig('requestBody', 'content', 'application/json', 'schema')
+    raise KeyError, "OpenAPI requestBody schema not found for: #{op_id}" unless request_schema
+
+    schema_with_components = request_schema.deep_dup
+    schema_with_components['components'] = self.class.openapi_doc['components'] if self.class.openapi_doc['components']
+
+    # Cache for future requests
+    self.class.cache_openapi_request_body_schema(op_id, schema_with_components.freeze)
+
+    schema_with_components
   end
 
   def openapi_operation_id

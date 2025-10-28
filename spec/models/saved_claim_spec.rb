@@ -15,6 +15,21 @@ class TestSavedClaim < SavedClaim
   end
 end
 
+class TestOpenApiClaim < SavedClaim
+  FORM = 'test_form'
+  SCHEMA_SOURCE = :openapi3
+  OPENAPI_OPERATION_ID = 'submitTestForm'
+  CONFIRMATION = 'test'
+
+  def regional_office
+    []
+  end
+
+  def attachment_keys
+    []
+  end
+end
+
 RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFilePathFormat
   subject(:saved_claim) { described_class.new(form: form_data) }
 
@@ -141,53 +156,146 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   end
 
   describe 'openapi validations' do
-    context 'when operation id is set' do
-      before do
-        stub_const('SavedClaim::OPENAPI_OPERATION_ID', 'submitForm214192')
-        stub_const('SavedClaim::SCHEMA_SOURCE', :openapi3)
-        stub_const('SavedClaim::FORM', '21-4192')
-      end
-
-      let(:valid_payload) do
-        {
-          veteranInformation: {
-            fullName: { first: 'John', last: 'Doe' },
-            dateOfBirth: '1980-01-01'
-          },
-          employmentInformation: {
-            employerName: 'ACME',
-            employerAddress: {
-              street: '123 Main', city: 'Town', state: 'CA', postalCode: '90210', country: 'US'
-            },
-            typeOfWorkPerformed: 'Work',
-            beginningDateOfEmployment: '2020-01-01'
+    let(:mock_openapi_doc) do
+      {
+        'paths' => {
+          '/test_form' => {
+            'post' => {
+              'operationId' => 'submitTestForm',
+              'requestBody' => {
+                'content' => {
+                  'application/json' => {
+                    'schema' => {
+                      'type' => 'object',
+                      'required' => %w[firstName lastName],
+                      'properties' => {
+                        'firstName' => { 'type' => 'string', 'minLength' => 1 },
+                        'lastName' => { 'type' => 'string', 'minLength' => 1 },
+                        'age' => { 'type' => 'integer', 'minimum' => 0 }
+                      },
+                      'additionalProperties' => false
+                    }
+                  }
+                }
+              }
+            }
           }
         }
+      }
+    end
+
+    let(:valid_form_data) do
+      {
+        firstName: 'John',
+        lastName: 'Doe',
+        age: 30
+      }
+    end
+
+    let(:invalid_form_data_missing_required) do
+      {
+        firstName: 'John'
+        # Missing lastName (required field)
+      }
+    end
+
+    let(:invalid_form_data_wrong_type) do
+      {
+        firstName: 'John',
+        lastName: 'Doe',
+        age: 'thirty' # Should be integer
+      }
+    end
+
+    let(:valid_claim) { TestOpenApiClaim.new(form: valid_form_data.to_json) }
+    let(:invalid_claim_missing_required) { TestOpenApiClaim.new(form: invalid_form_data_missing_required.to_json) }
+    let(:invalid_claim_wrong_type) { TestOpenApiClaim.new(form: invalid_form_data_wrong_type.to_json) }
+
+    before do
+      # Clear Rails cache to ensure tests get fresh mocks
+      Rails.cache.clear
+
+      # Mock the OpenAPI document file read
+      allow(Rails).to receive(:public_path).and_return(
+        double(join: double(read: mock_openapi_doc.to_json))
+      )
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_openapi_validation).and_return(true)
       end
 
-      let(:openapi_doc) { Rails.public_path.join('openapi.json').read }
+      it 'validates successfully with valid data' do
+        expect(valid_claim).to be_valid
+        expect(valid_claim.errors).to be_empty
+      end
 
-      context 'when feature flag is enabled' do
-        before do
-          Flipper.enable(:saved_claim_openapi_validation)
-        end
+      it 'adds validation errors when required fields are missing' do
+        expect(invalid_claim_missing_required).not_to be_valid
+        expect(invalid_claim_missing_required.errors).not_to be_empty
+        expect(invalid_claim_missing_required.errors.full_messages).to include(match(/lastName/i))
+      end
 
-        after do
-          Flipper.disable(:saved_claim_openapi_validation)
-        end
+      it 'adds validation errors when data types are incorrect' do
+        expect(invalid_claim_wrong_type).not_to be_valid
+        expect(invalid_claim_wrong_type.errors).not_to be_empty
+      end
 
-        it 'validates against the OpenAPI requestBody schema' do
-          claim = described_class.new(form: valid_payload.to_json)
-          expect(claim).to be_valid
-        end
+      it 'uses OpenAPI 3.0 meta schema for validation' do
+        expect(valid_claim.send(:schema_source)).to eq(:openapi3)
+        expect(valid_claim.send(:selected_meta_schema)).to eq(JSONSchemer.openapi30)
+      end
 
-        it 'adds errors for invalid payload' do
-          invalid = valid_payload.dup
-          invalid[:veteranInformation].delete(:dateOfBirth)
-          claim = described_class.new(form: invalid.to_json)
-          expect(claim).not_to be_valid
-          expect(claim.errors).not_to be_empty
-        end
+      it 'logs errors when validation fails' do
+        expect(Rails.logger).to receive(:error).with(
+          'SavedClaim form did not pass validation',
+          hash_including(:form_id, :guid, :errors)
+        )
+        invalid_claim_missing_required.valid?
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_openapi_validation).and_return(false)
+      end
+
+      it 'falls back to vets-json-schema validation' do
+        expect(valid_claim.send(:schema_source)).to eq(:vets_json_schema)
+        expect(valid_claim.send(:selected_meta_schema)).to eq(JSONSchemer.draft202012)
+      end
+
+      it 'uses vets-json-schema even when SCHEMA_SOURCE is openapi3' do
+        # Should fall back to vets-json-schema when FF is disabled
+        expect(valid_claim.send(:resolved_validation_schema)).to eq(schema)
+      end
+
+      it 'does not use OpenAPI validation path' do
+        # Should not attempt to read openapi.json when FF is disabled
+        expect(valid_claim).not_to receive(:openapi_request_body_schema)
+        valid_claim.valid?
+      end
+    end
+
+    context 'schema resolution' do
+      it 'resolves to OpenAPI schema when opted in and FF enabled' do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_openapi_validation).and_return(true)
+        resolved = valid_claim.send(:resolved_validation_schema)
+        expect(resolved['type']).to eq('object')
+        expect(resolved['required']).to eq(%w[firstName lastName])
+      end
+
+      it 'resolves to vets-json-schema when opted in but FF disabled' do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_openapi_validation).and_return(false)
+        resolved = valid_claim.send(:resolved_validation_schema)
+        expect(resolved).to eq(schema) # Falls back to mocked vets-json-schema
+      end
+
+      it 'resolves to vets-json-schema when not opted into OpenAPI' do
+        # Use the original TestSavedClaim which doesn't have SCHEMA_SOURCE set
+        claim = described_class.new(form: form_data)
+        expect(claim.send(:schema_source)).to eq(:vets_json_schema)
       end
     end
   end
