@@ -2,26 +2,17 @@
 
 require 'rails_helper'
 
-class TestSavedClaim < SavedClaim
-  FORM = 'some_form_id'
-  CONFIRMATION = 'test'
-
-  def regional_office
-    'test_office'
-  end
-
-  def attachment_keys
-    %i[some_key]
-  end
-end
-
-RSpec.describe TestSavedClaim, type: :model do
+RSpec.describe SavedClaim, type: :model do
   subject(:saved_claim) { described_class.new(form: form_data) }
 
   let(:form_data) { { some_key: 'some_value' }.to_json }
   let(:schema) { { some_key: 'some_value' }.to_json }
 
   before do
+    stub_const('SavedClaim::FORM', 'some_form_id')
+    stub_const('SavedClaim::CONFIRMATION', 'test')
+    allow(saved_claim).to receive(:regional_office).and_return('test_office')
+    allow(saved_claim).to receive(:attachment_keys).and_return(%i[some_key])
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
@@ -143,11 +134,9 @@ RSpec.describe TestSavedClaim, type: :model do
   describe 'openapi validations' do
     context 'when operation id is set' do
       before do
-        stub_const('TestSavedClaim::OPENAPI_OPERATION_ID', 'submitForm214192')
-        stub_const('TestSavedClaim::SCHEMA_SOURCE', :openapi3)
-        stub_const('TestSavedClaim::FORM', '21-4192')
-        allow(File).to receive(:read).and_call_original
-        allow(File).to receive(:read).with(Rails.public_path.join('openapi.json')).and_return(openapi_doc.to_json)
+        stub_const('SavedClaim::OPENAPI_OPERATION_ID', 'submitForm214192')
+        stub_const('SavedClaim::SCHEMA_SOURCE', :openapi3)
+        stub_const('SavedClaim::FORM', '21-4192')
       end
 
       let(:valid_payload) do
@@ -159,7 +148,7 @@ RSpec.describe TestSavedClaim, type: :model do
           employmentInformation: {
             employerName: 'ACME',
             employerAddress: {
-              street: '123 Main', city: 'Town', state: 'CA', postalCode: '90210', country: 'USA'
+              street: '123 Main', city: 'Town', state: 'CA', postalCode: '90210', country: 'US'
             },
             typeOfWorkPerformed: 'Work',
             beginningDateOfEmployment: '2020-01-01'
@@ -167,65 +156,7 @@ RSpec.describe TestSavedClaim, type: :model do
         }
       end
 
-      let(:openapi_doc) do
-        {
-          'openapi' => '3.0.3',
-          'paths' => {
-            '/v0/form214192' => {
-              'post' => {
-                'operationId' => 'submitForm214192',
-                'requestBody' => {
-                  'content' => {
-                    'application/json' => {
-                      'schema' => {
-                        'type' => 'object',
-                        'properties' => {
-                          'veteranInformation' => {
-                            'type' => 'object',
-                            'required' => %w[fullName dateOfBirth],
-                            'properties' => {
-                              'fullName' => {
-                                'type' => 'object',
-                                'required' => %w[first last],
-                                'properties' => {
-                                  'first' => { 'type' => 'string' },
-                                  'last' => { 'type' => 'string' }
-                                }
-                              },
-                              'dateOfBirth' => { 'type' => 'string' }
-                            }
-                          },
-                          'employmentInformation' => {
-                            'type' => 'object',
-                            'required' => %w[employerName employerAddress typeOfWorkPerformed
-                                             beginningDateOfEmployment],
-                            'properties' => {
-                              'employerName' => { 'type' => 'string' },
-                              'employerAddress' => {
-                                'type' => 'object',
-                                'required' => %w[street city state postalCode country],
-                                'properties' => {
-                                  'street' => { 'type' => 'string' },
-                                  'city' => { 'type' => 'string' },
-                                  'state' => { 'type' => 'string' },
-                                  'postalCode' => { 'type' => 'string' },
-                                  'country' => { 'type' => 'string' }
-                                }
-                              },
-                              'typeOfWorkPerformed' => { 'type' => 'string' },
-                              'beginningDateOfEmployment' => { 'type' => 'string' }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      end
+      let(:openapi_doc) { File.read(Rails.public_path.join('openapi.json')) }
 
       context 'when feature flag is enabled' do
         before do

@@ -294,10 +294,14 @@ class SavedClaim < ApplicationRecord
       operation = find_openapi_operation(openapi, op_id)
       raise KeyError, "OpenAPI operation not found: #{op_id}" unless operation
 
-      schema = operation.dig('requestBody', 'content', 'application/json', 'schema')
-      raise KeyError, "OpenAPI requestBody schema not found for: #{op_id}" unless schema
+      request_schema = operation.dig('requestBody', 'content', 'application/json', 'schema')
+      raise KeyError, "OpenAPI requestBody schema not found for: #{op_id}" unless request_schema
 
-      schema
+      # Deep merge components into the request schema so $ref pointers can resolve
+      schema_with_components = request_schema.deep_dup
+      schema_with_components['components'] = openapi['components'] if openapi['components']
+
+      schema_with_components
     end
   end
 
