@@ -121,26 +121,6 @@ module Mobile
 
       private
 
-      # Sends a message to the client API with or without attachments
-      #
-      # @param message [Message] the message object to send
-      # @param create_message_params [Hash] the parameters for creating the message
-      # @return [Object] the client response
-      def send_message_to_client(message, create_message_params)
-        if message.uploads.present?
-          begin
-            client.post_create_message_with_attachment(create_message_params)
-          rescue Common::Client::Errors::Serialization => e
-            Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
-                                                                        error_body: e&.body,
-                                                                        message: e&.message)
-            raise e
-          end
-        else
-          client.post_create_message(message_params.to_h)
-        end
-      end
-
       # When we get message parameters as part of a multipart payload (i.e. with attachments),
       # ActionController::Parameters leaves the message part as a string so we have to turn it into
       # an object
