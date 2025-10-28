@@ -41,11 +41,16 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(fes_data[:data]).to have_key(:form526)
         end
 
+        it 'casts the participant IDs as integers' do
+          expect(fes_data[:data][:veteranParticipantId]).to eq(600_061_742)
+          expect(fes_data[:data][:claimantParticipantId]).to eq(600_061_742)
+        end
+
         it 'finds the dependent participant_id as expected' do
           auth_headers['dependent'] = {}
           auth_headers['dependent']['participant_id'] = '8675309'
 
-          expect(fes_data[:data][:claimantParticipantId]).to eq('8675309')
+          expect(fes_data[:data][:claimantParticipantId]).to eq(8_675_309)
         end
       end
 
@@ -120,6 +125,89 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(disability_object[0]).not_to have_key(:ratedDisabilityId)
           expect(disability_object[0]).not_to have_key(:diagnosticCode)
           expect(disability_object[0]).not_to have_key(:specialIssues)
+        end
+
+        it "removes disabilities with disabilityActionType 'none'" do
+          form_data['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NONE'
+
+          disability_object = fes_data[:data][:form526][:disabilities]
+          # 2 disabilities sent
+          expect(disability_object.count).to eq(1)
+        end
+      end
+
+      context 'section 6 service information' do
+        let(:confinements_data) do
+          [
+            {
+              'confinementBeginDate' => '2018-06-04',
+              'confinementEndDate' => '2018-07-04'
+            },
+            {
+              'confinementBeginDate' => '2020-06',
+              'confinementEndDate' => '2020-07'
+            }
+          ]
+        end
+        let(:title_10_activation) do
+          {
+            'anticipatedSeparationDate' => '2025-12-01',
+            'title10ActivationDate' => '2023-01-01'
+          }
+        end
+
+        it 'maps the attributes' do
+          form_data['data']['attributes']['serviceInformation']['servicePeriods'][0]['separationLocationCode'] = '98282'
+
+          service_info_object = fes_data[:data][:form526][:serviceInformation]
+          first_service_period_info = service_info_object[:servicePeriods][0]
+
+          expect(first_service_period_info[:serviceBranch]).to eq('Air Force')
+          expect(first_service_period_info[:activeDutyBeginDate]).to eq('1980-02-05')
+          expect(first_service_period_info[:activeDutyEndDate]).to eq('1990-01-02')
+          expect(first_service_period_info[:separationLocationCode]).to eq('98282')
+          expect(service_info_object).not_to have_key(:confinements)
+        end
+
+        it 'removes nil values from the servicePeriods' do
+          form_service_info_data = form_data['data']['attributes']['serviceInformation']
+          form_service_info_data['servicePeriods'][0]['separationLocationCode'] = nil
+
+          service_info_object = fes_data[:data][:form526][:serviceInformation]
+
+          expect(service_info_object[:servicePeriods][0]).not_to have_key(:separationLocationCode)
+        end
+
+        it 'maps the confinements attribute correctly' do
+          form_data['data']['attributes']['serviceInformation']['confinements'] =
+            confinements_data
+
+          first_confinement = fes_data[:data][:form526][:serviceInformation][:confinements][0]
+          second_confinement = fes_data[:data][:form526][:serviceInformation][:confinements][1]
+
+          expect(first_confinement[:confinementBeginDate]).to eq('2018-06-04')
+          expect(first_confinement[:confinementEndDate]).to eq('2018-07-04')
+          expect(second_confinement[:confinementBeginDate]).to eq('2020-06')
+          expect(second_confinement[:confinementEndDate]).to eq('2020-07')
+        end
+
+        it 'maps the reserves attributes' do
+          reserves_info_data = fes_data[:data][:form526][:serviceInformation][:reservesNationalGuardService]
+
+          expect(reserves_info_data[:obligationTermOfServiceFromDate]).to eq('2000-01-01')
+          expect(reserves_info_data[:obligationTermOfServiceToDate]).to eq('2000-01-02')
+          expect(reserves_info_data).not_to have_key(:title10Activation)
+        end
+
+        it 'maps the optional title 10 attributes' do
+          form_service_info_data = form_data['data']['attributes']['serviceInformation']
+          form_service_info_data['reservesNationalGuardService']['title10Activation'] = title_10_activation
+
+          reserves_info_data = fes_data[:data][:form526][:serviceInformation][:reservesNationalGuardService]
+
+          expect(reserves_info_data).to have_key(:title10Activation)
+          expect(reserves_info_data[:title10Activation][:anticipatedSeparationDate]).to eq('2025-12-01')
+          expect(reserves_info_data[:title10Activation][:title10ActivationDate]).to eq('2023-01-01')
         end
       end
     end
