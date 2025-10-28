@@ -56,32 +56,19 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
       end.to change(subject.jobs, :size).by(1)
     end
 
-    context 'when claims_api_526_v2_uploads_bd_refactor is disabled' do
-      it 'the claim should still be established on a successful BD submission' do
-        VCR.use_cassette('claims_api/bd/upload') do
-          expect(claim.status).to eq('pending') # where we start
-          allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
-          service.perform(claim.id)
+    it 'the claim should still be established on a successful BD submission' do
+      VCR.use_cassette('claims_api/bd/upload') do
+        expect(claim.status).to eq('pending') # where we start
 
-          claim.reload
-          expect(claim.status).to eq('established') # where we end
-        end
-      end
-
-      it 'submits successfully with BD' do
-        expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
-        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
         service.perform(claim.id)
 
         claim.reload
-        expect(claim.uploader.blank?).to be(false)
+        expect(claim.status).to eq('established') # where we end
       end
     end
 
-    context 'when claims_api_526_v2_uploads_bd_refactor is enabled' do
-      it 'submits successfully with refactored BD' do
-        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return true
-        expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document).and_return true
+    it 'submits successfully with BD' do
+      VCR.use_cassette('claims_api/bd/upload') do
         service.perform(claim.id)
 
         claim.reload
@@ -90,10 +77,32 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
   end
 
-  context 'when the pdf is mocked and claims_api_526_v2_uploads_bd_refactor is disabled' do
+  context 'errored submission' do
+    service = described_class.new
+
+    let(:error) { StandardError.new('Connection timeout') }
+
+    before do
+      allow_any_instance_of(subject).to receive(:get_file_body).and_raise(error)
+    end
+
+    it 'logs the error message and re-raises' do
+      expect(service).to receive(:log_job_progress).with(
+        claim.id,
+        'BD upload job started'
+      )
+      expect(service).to receive(:log_job_progress).with(
+        claim.id,
+        'BD failure StandardError: Connection timeout'
+      )
+
+      expect { service.perform(claim.id) }.to raise_error(StandardError)
+    end
+  end
+
+  context 'when the pdf is mocked' do
     it 'uploads to BD' do
       with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
-        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
         subject.perform_async(claim.id)
 
         claim.reload
