@@ -1364,21 +1364,21 @@ vanotify:
         error_674_only:
           flipper_id: dependents_benefits_error_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__error_674_only__template_id'] %>
-        error_686c_only:
-          flipper_id: dependents_benefits_error_email_notification
-          template_id: <%= ENV['vanotify__services__21_686c_674__email__error_686c_only__template_id'] %>
         error_686c_674:
           flipper_id: dependents_benefits_error_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__error_686c_674__template_id'] %>
+        error_686c_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__error_686c_only__template_id'] %>
         received_674_only:
           flipper_id: dependents_benefits_received_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__received_674_only__template_id'] %>
-        received_686c_only:
-          flipper_id: dependents_benefits_received_email_notification
-          template_id: <%= ENV['vanotify__services__21_686c_674__email__received_686c_only__template_id'] %>
         received_686c_674:
           flipper_id: dependents_benefits_received_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__received_686c_674__template_id'] %>
+        received_686c_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__received_686c_only__template_id'] %>
         submitted:
           flipper_id: dependents_benefits_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted__template_id'] %>
