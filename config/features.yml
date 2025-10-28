@@ -2676,4 +2676,7 @@ features:
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21-2680 on vets-website 
+    description: Enables form 21-2680 on vets-website
+  fetch_1095b_from_enrollment_system:
+    actor_type: user
+    description: Enables fetching of form 1095b from enrollment system instead of from local database
