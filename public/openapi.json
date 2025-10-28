@@ -29,13 +29,13 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "123456",
-                    "type": "form_submissions",
+                    "id": "12345",
+                    "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2024-06-01T12:34:56Z",
+                      "submitted_at": "2025-01-15T10:30:00Z",
                       "regional_office": [],
-                      "confirmation_number": "ABCDEF123456",
-                      "guid": "550e8400-e29b-41d4-a716-446655440000",
+                      "confirmation_number": "12345678-1234-1234-1234-123456789abc",
+                      "guid": "12345678-1234-1234-1234-123456789abc",
                       "form": "21-4192"
                     }
                   }
@@ -91,6 +91,16 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -107,25 +117,7 @@
                     ],
                     "properties": {
                       "fullName": {
-                        "type": "object",
-                        "properties": {
-                          "first": {
-                            "type": "string",
-                            "example": "John"
-                          },
-                          "last": {
-                            "type": "string",
-                            "example": "Doe"
-                          },
-                          "middle": {
-                            "type": "string",
-                            "example": "Michael"
-                          }
-                        },
-                        "required": [
-                          "first",
-                          "last"
-                        ]
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
                       },
                       "ssn": {
                         "type": "string",
@@ -143,40 +135,7 @@
                         "example": "1980-01-01"
                       },
                       "address": {
-                        "type": "object",
-                        "properties": {
-                          "street": {
-                            "type": "string",
-                            "example": "123 Main St"
-                          },
-                          "street2": {
-                            "type": "string",
-                            "example": "Apt 4B"
-                          },
-                          "city": {
-                            "type": "string",
-                            "example": "Anytown"
-                          },
-                          "state": {
-                            "type": "string",
-                            "example": "CA"
-                          },
-                          "postalCode": {
-                            "type": "string",
-                            "example": "12345"
-                          },
-                          "country": {
-                            "type": "string",
-                            "example": "USA"
-                          }
-                        },
-                        "required": [
-                          "street",
-                          "city",
-                          "state",
-                          "postalCode",
-                          "country"
-                        ]
+                        "$ref": "#/components/schemas/SimpleAddress"
                       }
                     }
                   },
@@ -193,40 +152,7 @@
                         "type": "string"
                       },
                       "employerAddress": {
-                        "type": "object",
-                        "properties": {
-                          "street": {
-                            "type": "string",
-                            "example": "456 Business Blvd"
-                          },
-                          "street2": {
-                            "type": "string",
-                            "example": "Suite 200"
-                          },
-                          "city": {
-                            "type": "string",
-                            "example": "Chicago"
-                          },
-                          "state": {
-                            "type": "string",
-                            "example": "IL"
-                          },
-                          "postalCode": {
-                            "type": "string",
-                            "example": "60601"
-                          },
-                          "country": {
-                            "type": "string",
-                            "example": "USA"
-                          }
-                        },
-                        "required": [
-                          "street",
-                          "city",
-                          "state",
-                          "postalCode",
-                          "country"
-                        ]
+                        "$ref": "#/components/schemas/SimpleAddress"
                       },
                       "typeOfWorkPerformed": {
                         "type": "string"
@@ -320,13 +246,145 @@
                       }
                     }
                   }
-                }
+                },
+                "required": [
+                  "veteranInformation",
+                  "employmentInformation"
+                ]
               }
             }
-          }
+          },
+          "required": true
         }
       }
     }
   },
-  "servers": []
+  "servers": [],
+  "components": {
+    "schemas": {
+      "Errors": {
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error": {
+        "required": [
+          "title",
+          "detail",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "error class name"
+          },
+          "detail": {
+            "type": "string",
+            "example": "Received a bad request response from the upstream server",
+            "description": "possibly some additional info, or just the class name again"
+          },
+          "code": {
+            "type": "string",
+            "example": "EVSS400",
+            "description": "Sometimes just the http code again, sometimes something like \"EVSS400\", where the code can be found in config/locales/exceptions.en.yml"
+          },
+          "source": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "example": "EVSS::DisabilityCompensationForm::Service",
+            "description": "error source class"
+          },
+          "status": {
+            "type": "string",
+            "example": "400",
+            "description": "http status code"
+          },
+          "meta": {
+            "type": "object",
+            "description": "additional info, like a backtrace"
+          }
+        }
+      },
+      "FirstMiddleLastName": {
+        "type": "object",
+        "required": [
+          "first",
+          "last"
+        ],
+        "properties": {
+          "first": {
+            "type": "string",
+            "example": "John",
+            "maxLength": 12
+          },
+          "middle": {
+            "type": "string",
+            "example": "A",
+            "maxLength": 1,
+            "nullable": true
+          },
+          "last": {
+            "type": "string",
+            "example": "Doe",
+            "maxLength": 18
+          }
+        }
+      },
+      "SimpleAddress": {
+        "type": "object",
+        "required": [
+          "street",
+          "city",
+          "state",
+          "postalCode",
+          "country"
+        ],
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "123 Main St",
+            "maxLength": 30
+          },
+          "street2": {
+            "type": "string",
+            "example": "Apt 4B",
+            "maxLength": 30,
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "example": "Springfield",
+            "maxLength": 18
+          },
+          "state": {
+            "type": "string",
+            "example": "IL",
+            "maxLength": 2
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "62701",
+            "maxLength": 9
+          },
+          "country": {
+            "type": "string",
+            "example": "US",
+            "maxLength": 2
+          }
+        }
+      }
+    }
+  }
 }
