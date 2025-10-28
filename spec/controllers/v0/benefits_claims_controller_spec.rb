@@ -56,6 +56,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
 
       it 'returns claimType language modifications' do
+        allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
         VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
           get(:index)
         end
@@ -65,6 +66,134 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           .select { |claim| claim['attributes']['claimType'] == 'expenses related to death or burial' }.count).to eq 1
         expect(parsed_body['data']
           .select { |claim| claim['attributes']['claimType'] == 'Death' }.count).to eq 0
+      end
+
+      it 'adds correct displayTitle and claimTypeBase attributes to all claims' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        claims = parsed_body['data']
+
+        # All claims should have displayTitle and claimTypeBase attributes
+        claims.each do |claim|
+          expect(claim['attributes']).to have_key('displayTitle')
+          expect(claim['attributes']).to have_key('claimTypeBase')
+        end
+      end
+
+      it 'sets correct titles for Compensation claims' do
+        allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        compensation_claims = parsed_body['data'].select { |claim| claim['attributes']['claimType'] == 'Compensation' }
+
+        compensation_claims.each do |claim|
+          expect(claim['attributes']['displayTitle']).to eq('Claim for compensation')
+          expect(claim['attributes']['claimTypeBase']).to eq('compensation claim')
+        end
+
+        expect(compensation_claims.count).to be > 0
+      end
+
+      it 'sets correct titles for Death claims using special case transformation' do
+        allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        death_claims = parsed_body['data'].select do |claim|
+          claim['attributes']['claimType'] == 'expenses related to death or burial'
+        end
+
+        expect(death_claims.count).to eq(1)
+      end
+
+      it 'sets correct disaply title and claim type base for Death claims using title generator' do
+        allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        death_claims = parsed_body['data'].select do |claim|
+          claim['attributes']['claimType'] == 'Death'
+        end
+
+        expect(death_claims.count).to eq(1)
+        death_claim = death_claims.first
+
+        expect(death_claim['attributes']['displayTitle']).to eq('Claim for expenses related to death or burial')
+        expect(death_claim['attributes']['claimTypeBase']).to eq('expenses related to death or burial claim')
+      end
+
+      it 'sets correct titles for claims with claimTypeCode but null claimType' do
+        # rubocop:disable Naming/VariableNumber
+        allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return false
+        allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return false
+        # rubocop:enable Naming/VariableNumber
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        code_only_claims = parsed_body['data'].select do |claim|
+          claim['attributes']['claimType'].nil? &&
+            !claim['attributes']['claimTypeCode'].nil?
+        end
+
+        expect(code_only_claims.count).to eq(2)
+
+        # Check that both claims with claimTypeCode get default titles (since these codes aren't in our mapping)
+        code_only_claims.each do |claim|
+          expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
+          expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
+        end
+      end
+
+      it 'handles claims with specific pension and dependency codes correctly' do
+        # Create a mock claim with dependency code to verify the TitleGenerator mapping
+        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(
+          {
+            'data' => [
+              {
+                'id' => '123456',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => nil,
+                  'claimTypeCode' => '130DPNDCY', # This is a dependency code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              },
+              {
+                'id' => '123457',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => nil,
+                  'claimTypeCode' => '180AILP', # This is a veterans pension code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              }
+            ]
+          }
+        )
+
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+        claims = parsed_body['data']
+
+        dependency_claim = claims.find { |claim| claim['attributes']['claimTypeCode'] == '130DPNDCY' }
+        pension_claim = claims.find { |claim| claim['attributes']['claimTypeCode'] == '180AILP' }
+
+        # Dependency claim should get dependency title
+        expect(dependency_claim['attributes']['displayTitle']).to eq('Request to add or remove a dependent')
+        expect(dependency_claim['attributes']['claimTypeBase']).to eq('request to add or remove a dependent')
+
+        # Veterans pension claim should get veterans pension title
+        expect(pension_claim['attributes']['displayTitle']).to eq('Claim for Veterans Pension')
+        expect(pension_claim['attributes']['claimTypeBase']).to eq('Veterans Pension claim')
       end
 
       context 'when :cst_show_document_upload_status is disabled' do
@@ -501,14 +630,28 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   tracked_item_status: 'NEEDED_FROM_YOU' })
       end
 
-      it 'returns claimType language modifications' do
-        VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
-          get(:show, params: { id: '600229972' })
-        end
-        parsed_body = JSON.parse(response.body)
+      context 'claim title generator' do
+        it 'returns claimType language modifications' do
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
+            get(:show, params: { id: '600229972' })
+          end
+          parsed_body = JSON.parse(response.body)
 
-        expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
-        expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
+          expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
+          expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
+        end
+
+        it 'does not return claimType language modifications' do
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
+            get(:show, params: { id: '600229972' })
+          end
+          parsed_body = JSON.parse(response.body)
+
+          expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be false
+          expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be true
+        end
       end
     end
 
@@ -764,6 +907,296 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
 
           expect(JSON.parse(response.body)).to eq({ 'data' => [] })
+        end
+      end
+    end
+  end
+
+  describe 'duplicate prevention integration tests' do
+    let(:claim_id) { 600_383_363 }
+
+    context 'when :cst_show_document_upload_status is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(
+          :cst_show_document_upload_status,
+          instance_of(User)
+        ).and_return(true)
+      end
+
+      context 'when evidence submission exists without duplicates' do
+        let(:tracked_item_id) { 394_443 } # This is a tracked item in the VCR cassette
+        let(:file_name) { 'unique_document.pdf' }
+
+        before do
+          # Create an evidence submission that should appear in "files in progress"
+          create(:bd_evidence_submission_pending,
+                 claim_id:,
+                 tracked_item_id:,
+                 user_account:,
+                 template_metadata: {
+                   personalisation: {
+                     file_name:,
+                     document_type: 'Medical Record'
+                   }
+                 }.to_json)
+        end
+
+        it 'includes the evidence submission in the response' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: claim_id })
+          end
+
+          expect(response).to have_http_status(:ok)
+          parsed_body = JSON.parse(response.body)
+          evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
+
+          # The evidence submission should be included because no duplicate exists in VCR cassette
+          expect(evidence_submissions.size).to eq(1)
+          expect(evidence_submissions[0]['file_name']).to eq(file_name)
+          expect_metric('show', 'IN_PROGRESS', 1)
+        end
+      end
+
+      context 'when filter_duplicate_evidence_submissions is called directly' do
+        let(:controller) { described_class.new }
+        let(:mock_evidence_submission) do
+          double('EvidenceSubmission',
+                 id: 1,
+                 template_metadata: {
+                   personalisation: {
+                     file_name: 'test_document.pdf'
+                   }
+                 }.to_json)
+        end
+
+        it 'correctly filters duplicates when supporting documents match' do
+          claim_data = {
+            'attributes' => {
+              'supportingDocuments' => [
+                { 'originalFileName' => 'test_document.pdf' },
+                { 'originalFileName' => 'other_document.pdf' }
+              ]
+            }
+          }
+
+          result = controller.send(:filter_duplicate_evidence_submissions, [mock_evidence_submission], claim_data)
+          expect(result).to be_empty
+        end
+
+        it 'correctly includes evidence submissions when no duplicates exist' do
+          claim_data = {
+            'attributes' => {
+              'supportingDocuments' => [
+                { 'originalFileName' => 'different_document.pdf' },
+                { 'originalFileName' => 'other_document.pdf' }
+              ]
+            }
+          }
+
+          result = controller.send(:filter_duplicate_evidence_submissions, [mock_evidence_submission], claim_data)
+          expect(result).to eq([mock_evidence_submission])
+        end
+      end
+    end
+  end
+
+  describe 'private methods' do
+    let(:controller) { described_class.new }
+    let(:claim_id) { '600383363' }
+
+    describe '#filter_duplicate_evidence_submissions' do
+      let(:evidence_submission1) do
+        double('EvidenceSubmission',
+               id: 1,
+               template_metadata: { personalisation: { file_name: 'document1.pdf' } }.to_json)
+      end
+      let(:evidence_submission2) do
+        double('EvidenceSubmission',
+               id: 2,
+               template_metadata: { personalisation: { file_name: 'document2.pdf' } }.to_json)
+      end
+      let(:evidence_submission3) do
+        double('EvidenceSubmission',
+               id: 3,
+               template_metadata: { personalisation: { file_name: 'document3.pdf' } }.to_json)
+      end
+      let(:evidence_submissions) { [evidence_submission1, evidence_submission2, evidence_submission3] }
+
+      let(:claim_data) do
+        {
+          'id' => claim_id,
+          'attributes' => {
+            'supportingDocuments' => supporting_documents
+          }
+        }
+      end
+
+      context 'when no supporting documents exist' do
+        let(:supporting_documents) { [] }
+
+        it 'returns all evidence submissions unchanged' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq(evidence_submissions)
+        end
+      end
+
+      context 'when supportingDocuments is nil' do
+        let(:claim_data) do
+          {
+            'id' => claim_id,
+            'attributes' => {}
+          }
+        end
+
+        it 'returns all evidence submissions unchanged' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq(evidence_submissions)
+        end
+      end
+
+      context 'when supporting documents exist but no file names match' do
+        let(:supporting_documents) do
+          [
+            { 'originalFileName' => 'different1.pdf' },
+            { 'originalFileName' => 'different2.pdf' }
+          ]
+        end
+
+        it 'returns all evidence submissions unchanged' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq(evidence_submissions)
+        end
+      end
+
+      context 'when supporting documents contain matching file names' do
+        let(:supporting_documents) do
+          [
+            { 'originalFileName' => 'document1.pdf' },  # matches evidence_submission1
+            { 'originalFileName' => 'different.pdf' },
+            { 'originalFileName' => 'document3.pdf' }   # matches evidence_submission3
+          ]
+        end
+
+        it 'filters out evidence submissions with matching file names' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq([evidence_submission2])
+          expect(result).not_to include(evidence_submission1)
+          expect(result).not_to include(evidence_submission3)
+        end
+      end
+
+      context 'when supporting documents have nil originalFileName' do
+        let(:supporting_documents) do
+          [
+            { 'originalFileName' => nil },
+            { 'originalFileName' => 'document2.pdf' }
+          ]
+        end
+
+        it 'handles nil originalFileName gracefully and filters matching files' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq([evidence_submission1, evidence_submission3])
+          expect(result).not_to include(evidence_submission2)
+        end
+      end
+
+      context 'when evidence submission has invalid JSON metadata' do
+        let(:evidence_submission_invalid) do
+          double('EvidenceSubmission',
+                 id: 4,
+                 template_metadata: 'invalid json')
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_invalid] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'logs warning but does not filter out submission with invalid metadata' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_invalid])
+          expect(result).not_to include(evidence_submission1)
+          expect(Rails.logger).to have_received(:error).with(
+            '[BenefitsClaimsController] Error parsing evidence submission metadata',
+            { evidence_submission_id: 4 }
+          )
+        end
+      end
+
+      context 'when evidence submission has nil template_metadata' do
+        let(:evidence_submission_nil) do
+          double('EvidenceSubmission',
+                 id: 5,
+                 template_metadata: nil)
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_nil] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        it 'does not filter out submission with nil metadata' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_nil])
+          expect(result).not_to include(evidence_submission1)
+        end
+      end
+
+      context 'when evidence submission has valid JSON but missing personalisation key' do
+        let(:evidence_submission_missing_key) do
+          double('EvidenceSubmission',
+                 id: 6,
+                 template_metadata: { other_data: 'value' }.to_json)
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_missing_key] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'logs warning about missing personalisation and does not filter out submission' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_missing_key])
+          expect(result).not_to include(evidence_submission1)
+          expect(Rails.logger).to have_received(:warn).with(
+            '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+            { evidence_submission_id: 6 }
+          )
+        end
+      end
+
+      context 'when evidence submission has personalisation as non-hash' do
+        let(:evidence_submission_invalid_personalisation) do
+          double('EvidenceSubmission',
+                 id: 7,
+                 template_metadata: { personalisation: 'not a hash' }.to_json)
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_invalid_personalisation] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'logs warning about invalid personalisation and does not filter out submission' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_invalid_personalisation])
+          expect(result).not_to include(evidence_submission1)
+          expect(Rails.logger).to have_received(:warn).with(
+            '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+            { evidence_submission_id: 7 }
+          )
         end
       end
     end

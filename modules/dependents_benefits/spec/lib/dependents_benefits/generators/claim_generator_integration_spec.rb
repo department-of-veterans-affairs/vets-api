@@ -6,7 +6,10 @@ require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
   let(:form_data) { create(:dependents_claim).parsed_form }
-  let(:parent_claim_group) { create(:saved_claim_group) }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:parent_claim_group) do
+    create(:saved_claim_group, parent_claim_id: parent_claim.id, saved_claim_id: parent_claim.id)
+  end
   let(:parent_claim_id) { parent_claim_group.parent_claim_id }
 
   before do
@@ -16,7 +19,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
   describe 'Creating 686c and 674 claims from combined form data' do
     before do
       allow(Rails.logger).to receive(:info)
-      allow(SavedClaimGroup).to receive(:find_by).and_return(parent_claim_group)
     end
 
     context 'when creating a 686c claim' do
@@ -61,13 +63,16 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         # Should include student-specific data with exactly one student
         expect(parsed_form['dependents_application']['student_information']).to be_present
 
-        student = parsed_form['dependents_application']['student_information']
+        student = parsed_form['dependents_application']['student_information'].first
         expect(student['full_name']['first']).to eq('test')
         expect(student['student_earnings_from_school_year']).to be_present
         expect(student['school_information']).to be_present
 
         # Should include veteran contact and household info
         expect(parsed_form['dependents_application']['veteran_contact_information']).to be_present
+
+        # Should include 686c options
+        expect(parsed_form['view:selectable686_options']).to be_present
 
         # Should NOT include dependent-specific data
         expect(parsed_form['dependents_application']).not_to have_key('children_to_add')

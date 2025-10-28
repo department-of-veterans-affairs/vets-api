@@ -36,7 +36,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
-            key: 'marketValueAtEstablishmentOverflow', # Fake key for overflow handling
             limit: 13,
             dollar: true,
             question_num: 8,
@@ -88,7 +87,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
-            key: 'addedFundsAmountOverflow', # Fake key for overflow handling
             limit: 11,
             dollar: true,
             question_num: 8,
@@ -192,7 +190,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         trusts = form_data['trusts']
-        form_data['trust'] = trusts&.length ? 0 : 1
+        form_data['trust'] = radio_yesno(trusts&.length)
         form_data['trusts'] = trusts&.map { |item| expand_item(item) }
       end
 

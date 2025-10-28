@@ -1,0 +1,24 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  annotations:
+    github.com/project-slug: department-of-veterans-affairs/vets-api
+  description: APIs for the MyHealth namespace within vets-api
+  namespace: vagov-platform
+  name: my-health-api
+  tags:
+    - ruby
+    - rails
+  title: VA.gov MyHealth API
+  links:
+    - url: https://app.mural.co/t/departmentofveteransaffairs9999/m/departmentofveteransaffairs9999/1730488367312/7cbdf7fb9a9829b0371f684e887c0c4c4135bfa1
+      title: Medications Data Flow Diagram
+    - url: https://backstage.io/docs/features/software-catalog/descriptor-format/#kind-api
+      title: Backstage API entity docs
+spec:
+  definition:
+    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/my_health/docs/openapi_merged.yaml
+  lifecycle: production
+  owner: vfs-mhv-integration
+  system: vets-api
+  type: openapi
