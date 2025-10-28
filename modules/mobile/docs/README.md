@@ -2,6 +2,21 @@
 
 This directory contains the OpenAPI specification and documentation for the VA Mobile API.
 
+## Local Testing
+
+For instructions on testing mobile API endpoints locally without the mobile app, see [LOCAL_TESTING.md](LOCAL_TESTING.md).
+
+For testing with **real MHV staging data** (Secure Messaging, Medications, Medical Records), see [MHV_STAGING_SETUP.md](MHV_STAGING_SETUP.md).
+
+Quick start:
+```bash
+# Basic token (mock data)
+bundle exec rake mobile:generate_token
+
+# Token for staging MHV user (real data with socat tunnels)
+bundle exec rake mobile:generate_mhv_token user_number=81
+```
+
 ## Files
 
 - `openapi.yaml` - Source of truth for API documentation (edit this file)
