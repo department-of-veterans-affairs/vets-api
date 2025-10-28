@@ -77,11 +77,12 @@ module DependentsBenefits
       end
 
       def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+        template = template_for_form(form_id)
         stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(
-          text: 'VA.GOV', x: 5, y: 5, timestamp:, template: "#{DependentsBenefits::PDF_PATH_BASE}/#{form_id}.pdf"
+          text: 'VA.GOV', x: 5, y: 5, timestamp:, template:
         )
         stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
-          text: 'FDC Reviewed - va.gov Submission', x: 400, y: 770, text_only: true, template: "#{DependentsBenefits::PDF_PATH_BASE}/#{form_id}.pdf"
+          text: 'FDC Reviewed - va.gov Submission', x: 400, y: 770, text_only: true, template:
         )
         if form_id.present?
           stamped_pdf_with_form(form_id, stamped_path2, timestamp)
@@ -100,7 +101,11 @@ module DependentsBenefits
       def user_zipcode
         address = saved_claim.parsed_form.dig('dependents_application', 'veteran_contact_information',
                                               'veteran_address')
-        address['country_name'] == 'USA' ? address['postal_code'] : FOREIGN_POSTALCODE
+        if address.present? && address['country_name'] == 'USA' && address['postal_code'].present?
+          address['postal_code']
+        else
+          FOREIGN_POSTALCODE
+        end
       end
 
       def generate_metadata_lh
@@ -125,9 +130,13 @@ module DependentsBenefits
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp:,
           page_number: %w[686C-674 686C-674-V2].include?(form_id) ? 6 : 0,
-          template: "#{DependentsBenefits::PDF_PATH_BASE}/#{form_id}.pdf",
+          template: template_for_form(form_id),
           multistamp: true
         )
+      end
+
+      def template_for_form(form_id)
+        form_id ? "#{DependentsBenefits::PDF_PATH_BASE}/#{form_id}.pdf" : DependentsBenefits::PDF_PATH_21_686C
       end
 
       def split_file_and_path(path) = { file: path, file_name: path.split('/').last }
