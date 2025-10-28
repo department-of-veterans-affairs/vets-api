@@ -95,7 +95,8 @@ class SavedClaim < ApplicationRecord
   def form_matches_schema
     return unless form_is_string
 
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+    schema = resolved_validation_schema
+    return true if schema.nil?
 
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
@@ -113,7 +114,8 @@ class SavedClaim < ApplicationRecord
       Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
     end
 
-    schema_errors.empty? && validation_errors.empty?
+    # Only form instance validation determines validity; schema meta errors are logged but non-blocking
+    validation_errors.empty?
   end
 
   def to_pdf(file_name = nil)
@@ -175,14 +177,18 @@ class SavedClaim < ApplicationRecord
   private
 
   def validate_schema(schema)
-    errors = JSONSchemer.validate_schema(schema).to_a
+    # Validate the schema itself against the chosen meta schema/dialect
+    meta = selected_meta_schema
+    errors = JSONSchemer.validate_schema(schema, meta_schema: meta).to_a
     return [] if errors.empty?
 
     reformatted_schemer_errors(errors)
   end
 
   def validate_form(schema)
-    errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
+    # Validate the form instance against the selected schema and dialect
+    meta = selected_meta_schema
+    errors = JSONSchemer.schema(schema, meta_schema: meta).validate(parsed_form).to_a
     return [] if errors.empty?
 
     reformatted_schemer_errors(errors)
@@ -245,5 +251,70 @@ class SavedClaim < ApplicationRecord
     Rails.logger.warn("#{self.class} Error tracking PDF overflow", form_id:, saved_claim_id: id, error: e)
   ensure
     Common::FileHelpers.delete_file_if_exists(filename)
+  end
+
+  # Schema resolution and dialect selection
+  def resolved_validation_schema
+    case schema_source
+    when :openapi3
+      openapi_request_body_schema
+    else
+      VetsJsonSchema::SCHEMAS[self.class::FORM]
+    end
+  end
+
+  def schema_source
+    # Subclasses may override or set SCHEMA_SOURCE = :openapi3 to opt into OpenAPI validation
+    desired = if self.class.const_defined?(:SCHEMA_SOURCE)
+                self.class::SCHEMA_SOURCE.to_s.downcase.to_sym
+              else
+                :vets_json_schema
+              end
+
+    return :openapi3 if desired == :openapi3 && Flipper.enabled?(:saved_claim_openapi_validation)
+
+    :vets_json_schema
+  end
+
+  def selected_meta_schema
+    case schema_source
+    when :openapi3
+      # Use OpenAPI 3.0 dialect for schema and instance validation
+      JSONSchemer.openapi30
+    else
+      # Default to JSON Schema 2020-12 for legacy vets-json-schema validations
+      JSONSchemer.draft202012
+    end
+  end
+
+  def openapi_request_body_schema
+    @openapi_request_body_schema ||= begin
+      openapi = JSON.parse(Rails.public_path.join('openapi.json').read)
+      op_id = openapi_operation_id
+      operation = find_openapi_operation(openapi, op_id)
+      raise KeyError, "OpenAPI operation not found: #{op_id}" unless operation
+
+      schema = operation.dig('requestBody', 'content', 'application/json', 'schema')
+      raise KeyError, "OpenAPI requestBody schema not found for: #{op_id}" unless schema
+
+      schema
+    end
+  end
+
+  def openapi_operation_id
+    # Subclasses must define OPENAPI_OPERATION_ID when using OpenAPI validation
+    return self.class::OPENAPI_OPERATION_ID if self.class.const_defined?(:OPENAPI_OPERATION_ID)
+
+    raise KeyError, "OPENAPI_OPERATION_ID must be defined for #{self.class.name} when using :openapi3 schema_source"
+  end
+
+  def find_openapi_operation(openapi_doc, operation_id)
+    paths = openapi_doc['paths'] || {}
+    paths.each_value do |methods|
+      methods.each_value do |operation|
+        return operation if operation.is_a?(Hash) && operation['operationId'] == operation_id
+      end
+    end
+    nil
   end
 end
