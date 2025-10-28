@@ -56,9 +56,18 @@ module Pensions
 
       military_information_data
     rescue => e
-      log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
+      monitor.track_request(
+        :error,
+        "VA Profile military information prefill failed due to #{e.message}",
+        'api.pensions.form_profile.military_prefill_error',
+        call_location: caller_locations.first
+      )
 
       {}
+    end
+
+    def monitor
+      @monitor ||= Logging::Monitor.new('pensions-form-profile')
     end
   end
 end
