@@ -21,6 +21,7 @@ module ClaimsApi
 
       def claim_attributes
         disabilities
+        service_information
       end
 
       # a 'disability' is required via the schema
@@ -33,36 +34,24 @@ module ClaimsApi
       end
 
       def transform_disability_values!(disability)
-        # Remove nil values for the optional fields
         %i[diagnosticCode classificationCode ratedDisabilityId specialIssues].each do |field|
           disability.delete(field) if disability[field].blank?
         end
 
-        # Transform approximate date to FES format
         begin_date = disability[:approximateBeginDate]
         disability[:approximateBeginDate] = make_date_object(begin_date, begin_date.length) if begin_date.present?
 
-        # Remove fields not needed for FES
         disability.except(*IGNORED_DISABILITY_FIELDS)
       end
 
       def flatten_disabilities(disabilities_array)
         disabilities_array.flat_map do |disability|
-          primary_disablity = disability.dup
-          # Remove secondaryDisabilities from primary_disablity before adding to list
-          secondary_disability_data = primary_disablity.delete(:secondaryDisabilities)
+          primary_disability = disability.dup
+          secondaries = primary_disability.delete(:secondaryDisabilities) || []
 
-          list = [primary_disablity]
-
-          if secondary_disability_data.present?
-            secondaries = secondary_disability_data.map do |secondary|
-              secondary_copy = secondary.dup
-              secondary_copy[:name] = secondary[:name]
-              secondary_copy[:disabilityActionType] = 'NEW'
-              secondary_copy
-            end
-            list.concat(secondaries)
-          end
+          list = []
+          list << primary_disability unless primary_disability[:disabilityActionType] == 'NONE'
+          list.concat(secondaries.map { |s| s.dup.merge(disabilityActionType: 'NEW') })
 
           list
         end
@@ -99,16 +88,71 @@ module ClaimsApi
         }
       end
 
+      # 'servicePeriods' are required via the schema
+      def service_information
+        info = @data[:serviceInformation]
+
+        map_service_periods(info)
+        map_confinements(info) if info&.dig(:confinements).present?
+        map_reserves(info) if info&.dig(:reservesNationalGuardService).present?
+        map_title_10_activation(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
+      end
+
+      # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
+      def map_service_periods(info)
+        @fes_claim[:serviceInformation] = {
+          servicePeriods: info[:servicePeriods].map(&:compact)
+        }
+      end
+
+      # 'confinementBeginDate' & 'confinementEndDate' are required via the schema
+      def map_confinements(info)
+        @fes_claim[:serviceInformation].merge!(
+          { confinements: info[:confinements] }
+        )
+      end
+
+      def map_reserves(info)
+        reserves_info = info[:reservesNationalGuardService]
+
+        @fes_claim[:serviceInformation][:reservesNationalGuardService] ||= {}
+        @fes_claim[:serviceInformation][:reservesNationalGuardService].merge!({
+          obligationTermOfServiceFromDate: reserves_info&.dig(:obligationTermOfServiceFromDate),
+          obligationTermOfServiceToDate: reserves_info&.dig(:obligationTermOfServiceToDate)
+        }.compact_blank)
+      end
+
+      def map_title_10_activation(info)
+        title_ten_info = info[:reservesNationalGuardService][:title10Activation]
+
+        title_ten = build_title_10_activation(title_ten_info)
+
+        @fes_claim[:serviceInformation][:reservesNationalGuardService].merge!({
+          title10Activation: title_ten
+        }.compact_blank)
+      end
+
+      def build_title_10_activation(title_ten_info)
+        title_ten = {}
+        if title_ten_info[:title10ActivationDate].present?
+          title_ten[:title10ActivationDate] = title_ten_info[:title10ActivationDate]
+        end
+        if title_ten_info[:anticipatedSeparationDate].present?
+          title_ten[:anticipatedSeparationDate] = title_ten_info[:anticipatedSeparationDate]
+        end
+        title_ten
+      end
+
       def extract_veteran_participant_id
         # Try auth_headers first, then fall back to other sources
-        @auto_claim.auth_headers&.dig('va_eauth_pid') ||
-          @auto_claim.auth_headers&.dig('participant_id')
+        @auto_claim.auth_headers&.dig('va_eauth_pid')&.to_i ||
+          @auto_claim.auth_headers&.dig('participant_id')&.to_i
       end
 
       def extract_claimant_participant_id
         # For dependent claims, use dependent participant ID
         if @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
-          @auto_claim.auth_headers.dig('dependent', 'participant_id')
+          @auto_claim.auth_headers.dig('dependent', 'participant_id')&.to_i
         else
           # Otherwise, claimant is the veteran
           extract_veteran_participant_id
