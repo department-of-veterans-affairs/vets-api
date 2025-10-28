@@ -9,6 +9,7 @@ Rails.application.configure do
   # Specify environment specific hostname and protocol
   config.hostname = Settings.hostname
   config.hosts = Settings.virtual_hosts
+  config.hosts << /.*\.ngrok-free\.app/
   config.protocol = 'http'
   routes.default_url_options = { host: config.hostname, protocol: config.protocol }
 

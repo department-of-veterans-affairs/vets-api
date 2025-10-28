@@ -87,7 +87,9 @@ sign_in:
     - okta_stg
   usip_uri: http://localhost:3001/sign-in
   vaweb_client_id: vaweb
-  vamobile_client_id: vamobile
+  vamobile_client_id: 
+    - vamobile
+    - vamobile_local_auth
   web_origins:
     - http://localhost:4000
 

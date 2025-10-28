@@ -12,3 +12,4 @@ Rails.application.reloader.to_prepare do
 end
 
 Faraday::Response::RaiseError.default_options = { include_request: false }
+Faraday.default_connection_options = { ssl: { verify: false } }
