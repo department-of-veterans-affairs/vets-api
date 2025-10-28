@@ -2663,6 +2663,7 @@ features:
       Owned by Simple Forms API team.
   form_0779_enabled:
     actor_type: user
+    enable_in_development: true
     description: Enables form 21-0779 on vets-website
   form_530a_enabled:
     actor_type: user
