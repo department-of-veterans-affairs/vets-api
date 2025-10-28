@@ -84,7 +84,7 @@ module Burials
           limit: 5
         }
       }.freeze
-      # rubocop:emable Layout/LineLength
+      # rubocop:enable Layout/LineLength
 
       ##
       # Expands the form data for Section 4.

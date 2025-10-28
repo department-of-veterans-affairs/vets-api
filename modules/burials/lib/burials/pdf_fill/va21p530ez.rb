@@ -12,6 +12,8 @@ require_relative 'sections/section_04'
 require_relative 'sections/section_05'
 require_relative 'sections/section_06'
 require_relative 'sections/section_07'
+
+# rubocop:disable Metrics/ClassLength
 module Burials
   module PdfFill
     # Forms module
@@ -828,3 +830,4 @@ module Burials
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
