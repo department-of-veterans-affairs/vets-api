@@ -299,13 +299,6 @@ dgi:
   jwt:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
     public_key_path: <%= ENV['dgi__jwt__public_key_path'] %>
-  post911_sob:
-    claimants:
-      mock: <%= ENV['dgi__post911_sob__claimants__mock'] %>
-      url: <%= ENV['dgi__post911_sob__claimants__url'] %>
-    jwt:
-      private_key_path: <%= ENV['dgi__post911_sob__jwt__private_key_path'] %>
-      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
   vets:
     mock: <%= ENV['dgi__vets__mock'] %>
     url: <%= ENV['dgi__vets__url'] %>
@@ -833,7 +826,8 @@ maintenance:
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
     es: <%= ENV['maintenance__services__es'] %>
     evss: <%= ENV['maintenance__services__evss'] %>
-    form1010d:  <%= ENV['maintenance__services__form1010d'] %>
+    form1010d: <%= ENV['maintenance__services__form1010d'] %>
+    form1010d_ext: <%= ENV['maintenance__services__form1010d_ext'] %>
     form107959a: <%= ENV['maintenance__services__form107959a'] %>
     form107959c: <%= ENV['maintenance__services__form107959c'] %>
     form107959f1: <%= ENV['maintenance__services__form107959f1'] %>
