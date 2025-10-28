@@ -29,6 +29,9 @@ module RepresentationManagement
     # Maximum allowed decrease percentage for entity counts before updates are blocked
     DECREASE_THRESHOLD = RepresentationManagement::AccreditationApiEntityCount::DECREASE_THRESHOLD
 
+    # Maximum allowed percentage difference between expected and processed counts
+    COUNT_MISMATCH_THRESHOLD = 1.0
+
     # Number of records to process in each address validation batch
     SLICE_SIZE = 30
 
@@ -54,6 +57,7 @@ module RepresentationManagement
       process_entity_type(AGENTS)
       process_entity_type(ATTORNEYS)
       process_orgs_and_reps
+      remove_skipped_deletions
       delete_removed_accredited_individuals
       delete_removed_accredited_organizations
       delete_removed_accreditations
@@ -77,6 +81,9 @@ module RepresentationManagement
       @representative_json_for_address_validation = []
       @rep_to_vso_associations = {}
       @accreditation_ids = []
+      @processing_error_types = []
+      @expected_counts = {}
+      @count_mismatch_types = []
     end
 
     def setup_daily_report
@@ -89,8 +96,50 @@ module RepresentationManagement
       end_time = Time.current
       duration = calculate_duration(@start_time, end_time)
 
+      # Add deletion skip summary
+      add_deletion_skip_summary
+
       @report << "\nJob Duration: #{duration}\n"
       log_to_slack_channel(@report)
+    end
+
+    # Adds a summary of skipped deletions to the report
+    #
+    # @return [void]
+    def add_deletion_skip_summary
+      skipped_types = (@processing_error_types + @count_mismatch_types.map(&:to_s)).uniq
+      return if skipped_types.empty?
+
+      @report << "\n⚠️ **Deletion Skipped for Some Entity Types:**\n"
+
+      if @processing_error_types.any?
+        @report << "Due to errors during processing:\n"
+        @processing_error_types.each { |type| @report << "  - #{type.humanize}\n" }
+      end
+
+      if @count_mismatch_types.any?
+        @report << "Due to count mismatches (>#{COUNT_MISMATCH_THRESHOLD}% difference):\n"
+        @count_mismatch_types.each do |type|
+          expected = @expected_counts[type]
+          actual = get_processed_count_for_type(type)
+          diff = ((expected - actual).abs.to_f / expected * 100).round(2)
+          @report << "  - #{type.to_s.humanize}: Expected #{expected}, Processed #{actual} (#{diff}% diff)\n"
+        end
+      end
+    end
+
+    # Gets the processed count for a given entity type
+    #
+    # @param type [Symbol] The entity type
+    # @return [Integer] The number of processed records
+    def get_processed_count_for_type(type)
+      case type
+      when :agents then @agent_ids.uniq.compact.size
+      when :attorneys then @attorney_ids.uniq.compact.size
+      when :veteran_service_organizations then @vso_ids.uniq.compact.size
+      when :representatives then @representative_ids.uniq.compact.size
+      else 0
+      end
     end
 
     # Processes entities of a specific type based on count validation and force update settings
@@ -102,6 +151,9 @@ module RepresentationManagement
       return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
 
       if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
+        # Capture expected count before processing
+        @expected_counts[entity_type.to_sym] = @entity_counts.current_api_counts[entity_type.to_sym]
+
         if entity_type == AGENTS
           update_agents
           @report << "Agents processed: #{@agent_ids.uniq.compact.size}\n"
@@ -133,6 +185,11 @@ module RepresentationManagement
         log_error('Both Orgs and Reps must have valid counts to process together - skipping update for both')
         return
       end
+
+      # Capture expected counts before processing
+      api_counts = @entity_counts.current_api_counts
+      @expected_counts[:veteran_service_organizations] = api_counts[:veteran_service_organizations]
+      @expected_counts[:representatives] = api_counts[:representatives]
 
       # Process VSOs first (must exist before representatives can reference them)
       update_vsos
@@ -178,6 +235,7 @@ module RepresentationManagement
         page += 1
       end
     rescue => e
+      @processing_error_types << entity_type unless @processing_error_types.include?(entity_type)
       log_error("Error updating #{entity_type}s: #{e.message}")
     end
 
@@ -196,6 +254,7 @@ module RepresentationManagement
         page += 1
       end
     rescue => e
+      @processing_error_types << VSOS unless @processing_error_types.include?(VSOS)
       log_error("Error updating VSOs: #{e.message}")
     end
 
@@ -320,6 +379,85 @@ module RepresentationManagement
       [AGENTS, ATTORNEYS, REPRESENTATIVES].filter_map do |type|
         ENTITY_CONFIG.public_send(type.downcase).individual_type if @force_update_types.include?(type)
       end
+    end
+
+    def remove_skipped_deletions
+      # If @processing_error_types includes an entity type, we skip deletions for that type
+      # by preloading the current IDs into the respective ID arrays.
+      # Also skip deletions if processed counts don't match expected counts.
+
+      # Validate all processed counts
+      validate_all_counts
+
+      individual_types = {
+        AGENTS => :@agent_ids,
+        ATTORNEYS => :@attorney_ids,
+        REPRESENTATIVES => :@representative_ids
+      }
+
+      individual_types.each do |type, ivar|
+        skip_due_to_error = @processing_error_types.include?(type)
+        skip_due_to_mismatch = @count_mismatch_types.include?(type.to_sym)
+
+        next unless skip_due_to_error || skip_due_to_mismatch
+
+        ids = AccreditedIndividual.where(
+          individual_type: ENTITY_CONFIG.send(type).individual_type
+        ).pluck(:id)
+        instance_variable_set(ivar, ids)
+      end
+
+      skip_vso_deletion = @processing_error_types.include?(VSOS) ||
+                          @count_mismatch_types.include?(:veteran_service_organizations)
+      @vso_ids = AccreditedOrganization.all.pluck(:id) if skip_vso_deletion
+    end
+
+    # Validates processed counts for all entity types against expected counts
+    #
+    # @return [void]
+    def validate_all_counts
+      entity_mappings = {
+        agents: @agent_ids,
+        attorneys: @attorney_ids,
+        veteran_service_organizations: @vso_ids,
+        representatives: @representative_ids
+      }
+
+      entity_mappings.each do |type_key, ids|
+        next unless @expected_counts[type_key]
+
+        type_string = type_key == :veteran_service_organizations ? VSOS : type_key.to_s
+        counts_match_expected?(type_string, ids.uniq.compact.size)
+      end
+    end
+
+    # Validates that the processed count matches the expected count within tolerance
+    #
+    # @param entity_type [String, Symbol] The type of entity to validate
+    # @param processed_count [Integer] The number of records actually processed
+    # @return [Boolean] true if counts match within tolerance, false otherwise
+    def counts_match_expected?(entity_type, processed_count)
+      entity_type = entity_type.to_sym
+      expected_count = @expected_counts[entity_type]
+
+      # If we don't have an expected count, we can't validate
+      return true if expected_count.nil? || expected_count.zero?
+
+      # Calculate percentage difference
+      difference = (expected_count - processed_count).abs
+      percentage_difference = (difference.to_f / expected_count) * 100
+
+      # Check if within tolerance
+      within_tolerance = percentage_difference <= COUNT_MISMATCH_THRESHOLD
+
+      # Track mismatch if outside tolerance
+      unless within_tolerance
+        @count_mismatch_types << entity_type unless @count_mismatch_types.include?(entity_type)
+        log_error("Count mismatch for #{entity_type}: expected #{expected_count}, " \
+                  "processed #{processed_count} (#{percentage_difference.round(2)}% difference)")
+      end
+
+      within_tolerance
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
