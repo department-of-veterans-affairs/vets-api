@@ -1,7 +1,7 @@
 # frozen_string_literal: false
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
-require 'claims_api/v2/lighthouse_military_address_validator'
+require 'claims_api/lighthouse_military_address_validator'
 
 module ClaimsApi
   module V2
