@@ -30,6 +30,7 @@ module V0
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, @current_user)
         service = VeteranEnrollmentSystem::Form1095B::Service.new
         form_data = service.get_form_by_icn(icn: @current_user[:icn], tax_year: download_params[:tax_year])
+        VeteranEnrollmentSystem::Form1095B::Form1095B.parse(form_data)
       else
         find_form_record
       end
