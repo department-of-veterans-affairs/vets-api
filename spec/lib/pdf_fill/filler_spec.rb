@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
+require 'pdf_fill/forms/filler/pdf_filler_exception'
 
 # This whole suite is approx 57 tests as of this review. It looks deceptively smaller
 # than it is.
@@ -196,6 +197,23 @@ describe PdfFill::Filler, type: :model do
             end
           end
         end
+      end
+    end
+  end
+
+  describe '#process_form' do
+    context 'any old form' do
+      let(:form_id) { '21-4142' }
+      let(:form_data) { get_fixture("pdf_fill/#{form_id}/simple") }
+      let(:form_class) { PdfFill::Forms::Va214142 }
+      let(:file_name_extension) { nil }
+
+      it 'raises if file_name_extension is nil so that tempfiles never collide' do
+        expect do
+          described_class.process_form(form_id, form_data, form_class, file_name_extension,
+                                       { show_jumplinks: true })
+        end.to raise_error(PdfFill::Filler::PdfFillerException,
+                           "Form #{form_id} must provide file_name_extension to prevent tmpfile collisions")
       end
     end
   end

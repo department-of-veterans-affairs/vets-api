@@ -234,6 +234,11 @@ module PdfFill
         return PdfFill::Processors::VA228794Processor.new(form_data, self).process
       end
 
+      if file_name_extension.blank?
+        raise PdfFillerException,
+              "Form #{form_id} must provide file_name_extension to prevent tmpfile collisions"
+      end
+
       # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
 
       folder = 'tmp/pdfs'
