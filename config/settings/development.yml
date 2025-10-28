@@ -1,6 +1,7 @@
 ---
 acc_rep_management:
   prefill: true
+  xyz: true
 account:
   enabled: true
 accredited_representative_portal:

@@ -74,7 +74,7 @@ jobs:
         run: git fetch origin master
 
       - name: Check ENV diff for aws_ssm_custom lookups
-        shell: bash
+        # shell: bash
         run: |
 
           diff_output=$(git diff origin/master config/settings.yml)
@@ -93,6 +93,11 @@ jobs:
             line=$(echo "$line" | tr -d "'")
             keys+=("$line")
           done
+
+          if [[ ${#keys[@]} -eq 0 ]]; then
+            echo "No ENV variables found in changes."
+            exit 0
+          fi
 
           echo "Found the following ENV keys:"
           for key in "${keys[@]}"; do
