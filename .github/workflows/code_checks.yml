@@ -1,7 +1,7 @@
 name: Code Checks
 on:
   push:
-    branches: [master, production-bypass]
+    branches: [master]
   pull_request:
     types: [opened, reopened, synchronize]
 permissions:
