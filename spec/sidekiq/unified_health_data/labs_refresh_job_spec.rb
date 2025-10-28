@@ -20,7 +20,7 @@ RSpec.describe UnifiedHealthData::LabsRefreshJob, type: :job do
     context 'when the user exists' do
       it 'fetches labs data using the configured date range' do
         end_date = Date.current
-        days_back = Settings.mhv.uhd.labs_logging_date_range_days
+        days_back = Settings.mhv.uhd.labs_logging_date_range_days.to_i
         start_date = end_date - days_back.days
 
         expect(uhd_service).to receive(:get_labs).with(
