@@ -1501,7 +1501,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'when both EPS and VAOS have appointments' do
-      it 'returns appointments from both sources with normalized status' do
+      it 'returns appointments from both sources with normalized status and ordered most to least recent' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
                          match_requests_on: %i[method query]) do
           VCR.use_cassette('vaos/eps/token/token_200',
@@ -1512,24 +1512,23 @@ describe VAOS::V2::AppointmentsService do
                              allow_playback_repeats: true, tag: :force_utf8) do
               result = subject.get_active_appointments_for_referral('ref-123')
 
-              # Verify EPS appointments
-              expect(result[:EPS][:data]).to be_an(Array)
-              expect(result[:EPS][:data].length).to be_positive
-              result[:EPS][:data].each do |appt|
-                expect(appt).to have_key(:id)
-                expect(appt).to have_key(:status)
-                expect(appt).to have_key(:start)
-                expect(appt[:status]).to be_in(%w[active cancelled])
-              end
+              # EPS appointments should be ordered most to least recent
+              # Expected order: appt2 (2024-11-21T18:00:00Z), appt1 (2024-11-20T17:00:00Z), appt4 (2024-11-19T18:00:00Z)
+              # appt3 is filtered out because state is "draft"
+              mapped_eps = result[:EPS][:data].map { |a| { id: a[:id], status: a[:status], start: a[:start] } }
+              expect(mapped_eps).to eq([
+                                         { id: 'appt2', status: 'cancelled', start: '2024-11-21T18:00:00Z' },
+                                         { id: 'appt1', status: 'active', start: '2024-11-20T17:00:00Z' },
+                                         { id: 'appt4', status: 'active', start: '2024-11-19T18:00:00Z' }
+                                       ])
 
-              # Verify VAOS appointments
-              expect(result[:VAOS][:data]).to be_an(Array)
-              result[:VAOS][:data].each do |appt|
-                expect(appt).to have_key(:id)
-                expect(appt).to have_key(:status)
-                expect(appt).to have_key(:start)
-                expect(appt[:status]).to be_in(%w[active cancelled])
-              end
+              # VAOS appointments should be ordered most to least recent
+              # Expected order: 50060 (2024-11-22T18:00:00Z), 50061 (2024-11-21T10:00:00Z)
+              mapped_vaos = result[:VAOS][:data].map { |a| { id: a[:id], status: a[:status], start: a[:start] } }
+              expect(mapped_vaos).to eq([
+                                          { id: '50060', status: 'cancelled', start: '2024-11-22T18:00:00Z' },
+                                          { id: '50061', status: 'active', start: '2024-11-21T10:00:00Z' }
+                                        ])
             end
           end
         end

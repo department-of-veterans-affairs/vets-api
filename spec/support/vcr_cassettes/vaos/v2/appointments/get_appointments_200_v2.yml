@@ -146,6 +146,53 @@ http_interactions:
               "cancellable":false
             },
             {
+              "id":"50060",
+              "identifier":[
+                {
+                  "system":"http://med.va.gov/fhir/urn/vaos/vista/984/appointment/id",
+                  "value":"3583;20241122.100000"
+                }
+              ],
+              "referralID": "ref-123",
+              "kind":"clinic",
+              "status":"cancelled",
+              "created":"2024-11-20T12:00:00Z",
+              "serviceType":"primaryCare",
+              "patientIcn":"1012845331V153043",
+              "locationId":"984",
+              "clinic":"3583",
+              "start":"2024-11-22T18:00:00Z",
+              "cancellationReason":{"code":"other"},
+              "cancelationReason":{
+                "coding":[
+                  {
+                    "system":"http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason",
+                    "code":"pat","display":"The appointment was cancelled by the patient"
+                  }
+                ]
+              },
+              "cancellable":false
+            },
+            {
+              "id":"50061",
+              "identifier":[
+                {
+                  "system":"http://med.va.gov/fhir/urn/vaos/vista/984/appointment/id",
+                  "value":"3583;20241121.080000"
+                }
+              ],
+              "referralID": "ref-123",
+              "kind":"clinic",
+              "status":"booked",
+              "created":"2024-11-19T12:00:00Z",
+              "serviceType":"primaryCare",
+              "patientIcn":"1012845331V153043",
+              "locationId":"984",
+              "clinic":"3583",
+              "start":"2024-11-21T10:00:00Z",
+              "cancellable":true
+            },
+            {
               "id":"41121",
               "identifier":[
                 {

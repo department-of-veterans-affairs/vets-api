@@ -385,7 +385,7 @@ module VAOS
         end
 
         deduplicated = deduplicate_eps_appointments(normalized)
-        deduplicated.sort_by { |appt| appt[:start] || '' }
+        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
       rescue Common::Exceptions::BackendServiceException => e
         log_fetch_error('EPS', referral_number, "#{e.class.name} - #{e.message}")
         raise
@@ -420,7 +420,7 @@ module VAOS
         end
 
         deduplicated = deduplicate_vaos_appointments(normalized)
-        deduplicated.sort_by { |appt| appt[:start] || '' }
+        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
       end
 
       def log_fetch_error(source, referral_number, error_details)
