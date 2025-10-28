@@ -396,7 +396,7 @@ module VAOS
         check_vaos_response_for_failures(vaos_response, referral_number)
         process_vaos_appointments(vaos_response[:data], referral_number)
       rescue Common::Exceptions::BackendServiceException => e
-        log_fetch_error('VAOS', referral_number, "#{e.class.name} - #{e.message}")
+        log_fetch_error('VAOS', referral_number, e.class.name.to_s)
         raise
       end
 
