@@ -47,7 +47,42 @@ module SimpleFormsApi
       Rails.logger.info('Simple forms api - 21P-601 submission user identity', identity:, confirmation_number:)
     end
 
+    def handle_attachments(file_path)
+      attachments = get_attachments
+      merged_pdf = HexaPDF::Document.open(file_path)
+
+      if attachments.count.positive?
+        attachments.each do |attachment|
+          attachment_pdf = HexaPDF::Document.open(attachment)
+          attachment_pdf.pages.each do |page|
+            merged_pdf.pages << merged_pdf.import(page)
+          end
+        rescue => e
+          Rails.logger.error(
+            'Simple forms api - failed to load attachment for 21P-601',
+            { message: e.message, attachment: attachment.inspect }
+          )
+          raise
+        end
+      end
+      merged_pdf.write(file_path, optimize: true)
+    end
+
     private
+
+    def get_attachments
+      attachments = []
+
+      supporting_documents = @data['veteran_supporting_documents']
+      if supporting_documents
+        confirmation_codes = []
+        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
+
+        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
+      end
+
+      attachments
+    end
 
     def get_form_identity
       # Using relationship as the identity tracker, which is a standard field
