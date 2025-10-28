@@ -61,7 +61,7 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
       end
 
       it '#start_bd_uploader_job' do
-        expect(ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader)
+        expect(ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader)
           .to receive(:perform_async).with('456')
         controller.send(:start_bd_uploader_job, double(id: '456'))
       end
@@ -72,7 +72,7 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
 
       it '#bd_service' do
         expect(controller.send(:bd_service))
-          .to eq(ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader)
+          .to eq(ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader)
       end
 
       it '#sandbox_request' do
