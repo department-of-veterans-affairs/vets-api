@@ -94,27 +94,27 @@ module VeteranEnrollmentSystem
       end
 
       def country_and_zip
-        "#{data[:country]} #{data[:zip_code] || data[:foreign_zip]}"
+        "#{country} #{zip_code || foreign_zip}"
       end
 
       def middle_initial
-        data[:middle_name] ? data[:middle_name][0] : ''
+        middle_name ? middle_name[0] : ''
       end
 
       def birthdate_unless_ssn
-        data[:last_4_ssn].present? ? '' : data[:birth_date]
+        last_4_ssn.present? ? '' : birth_date
       end
 
       def txt_form_data
         text_data = {
           birth_date_field: birthdate_unless_ssn,
-          state_or_province: data[:state] || data[:province],
+          state_or_province: state || province,
           country_and_zip:,
           middle_init: middle_initial,
-          corrected: data[:is_corrected] ? 'X' : '--'
+          corrected: is_corrected ? 'X' : '--'
         }
 
-        data[:coverage_months].each_with_index do |val, ndx|
+        coverage_months.each_with_index do |val, ndx|
           field_name = "coverage_month_#{ndx}"
           text_data[field_name.to_sym] = val ? 'X' : '--'
         end
@@ -128,15 +128,15 @@ module VeteranEnrollmentSystem
           pdf_template_path,
           tmp_file,
           {
-            'topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]': data[:is_corrected] && 2,
-            'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_01[0]': data[:first_name],
-            'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_02[0]': data[:middle_name],
-            'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_03[0]': data[:last_name],
-            'topmostSubform[0].Page1[0].Part1Contents[0].f1_04[0]': data[:last_4_ssn] || '',
+            'topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]': is_corrected && 2,
+            'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_01[0]': first_name,
+            'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_02[0]': middle_name,
+            'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_03[0]': last_name,
+            'topmostSubform[0].Page1[0].Part1Contents[0].f1_04[0]': last_4_ssn || '',
             'topmostSubform[0].Page1[0].Part1Contents[0].f1_05[0]': birthdate_unless_ssn,
-            'topmostSubform[0].Page1[0].Part1Contents[0].f1_06[0]': data[:address],
-            'topmostSubform[0].Page1[0].Part1Contents[0].f1_07[0]': data[:city],
-            'topmostSubform[0].Page1[0].Part1Contents[0].f1_08[0]': data[:state] || data[:province],
+            'topmostSubform[0].Page1[0].Part1Contents[0].f1_06[0]': address,
+            'topmostSubform[0].Page1[0].Part1Contents[0].f1_07[0]': city,
+            'topmostSubform[0].Page1[0].Part1Contents[0].f1_08[0]': state || province,
             'topmostSubform[0].Page1[0].Part1Contents[0].f1_09[0]': country_and_zip,
             'topmostSubform[0].Page1[0].Part1Contents[0].f1_10[0]': 'C',
             'topmostSubform[0].Page1[0].f1_18[0]': 'US Department of Veterans Affairs',
@@ -146,24 +146,24 @@ module VeteranEnrollmentSystem
             'topmostSubform[0].Page1[0].f1_22[0]': 'Austin',
             'topmostSubform[0].Page1[0].f1_23[0]': 'TX',
             'topmostSubform[0].Page1[0].f1_24[0]': '78714-8957',
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_25[0]': data[:first_name],
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_25[0]': first_name,
             'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_26[0]': middle_initial,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_27[0]': data[:last_name],
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_28[0]': data[:last_4_ssn] || '',
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_27[0]': last_name,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_28[0]': last_4_ssn || '',
             'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_29[0]': birthdate_unless_ssn,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_01[0]': data[:coverage_months][0] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_02[0]': data[:coverage_months][1] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_03[0]': data[:coverage_months][2] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_04[0]': data[:coverage_months][3] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_05[0]': data[:coverage_months][4] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_06[0]': data[:coverage_months][5] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_07[0]': data[:coverage_months][6] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_08[0]': data[:coverage_months][7] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_09[0]': data[:coverage_months][8] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_10[0]': data[:coverage_months][9] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_11[0]': data[:coverage_months][10] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_12[0]': data[:coverage_months][11] && 1,
-            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_13[0]': data[:coverage_months][12] && 1
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_01[0]': coverage_months[0] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_02[0]': coverage_months[1] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_03[0]': coverage_months[2] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_04[0]': coverage_months[3] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_05[0]': coverage_months[4] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_06[0]': coverage_months[5] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_07[0]': coverage_months[6] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_08[0]': coverage_months[7] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_09[0]': coverage_months[8] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_10[0]': coverage_months[9] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_11[0]': coverage_months[10] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_12[0]': coverage_months[11] && 1,
+            'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_13[0]': coverage_months[12] && 1
           },
           flatten: true
         )
@@ -179,10 +179,6 @@ module VeteranEnrollmentSystem
         raise
       end
       # rubocop:enable Metrics/MethodLength
-
-      def data
-        @data ||= JSON.parse(form_data, { symbolize_names: true })
-      end
 
       def proper_form_data_schema
         JSON::Validator.validate!(form_data_schema, form_data)
