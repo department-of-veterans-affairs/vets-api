@@ -92,10 +92,14 @@ class SavedClaim < ApplicationRecord
     errors.add(:form, :invalid_format, message: 'must be a json string') unless form_is_string
   end
 
+  def form_schema
+    VetsJsonSchema::SCHEMAS[self.class::FORM]
+  end
+
   def form_matches_schema
     return unless form_is_string
 
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+    schema = form_schema
 
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
@@ -146,7 +150,7 @@ class SavedClaim < ApplicationRecord
     nil
   end
 
-  # insert notifcation after VANotify email send
+  # insert notification after VANotify email send
   #
   # @see ClaimVANotification
   def insert_notification(email_template_id)
@@ -157,7 +161,7 @@ class SavedClaim < ApplicationRecord
     )
   end
 
-  # Find notifcation by args*
+  # Find notification by args*
   #
   # @param email_template_id
   # @see ClaimVANotification

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Openapi
-  module Schemas
+  module Components
     class Address
       SIMPLE_ADDRESS =
         { type: 'object',

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Openapi
-  module Schemas
+  module Components
     class Name
       FIRST_MIDDLE_LAST =
         { type: 'object',

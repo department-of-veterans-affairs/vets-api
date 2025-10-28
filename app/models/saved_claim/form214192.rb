@@ -8,8 +8,9 @@ class SavedClaim::Form214192 < SavedClaim
 
   # Skip JSON schema validation since we're using custom validator and moving away from vets-json-schema
   def form_matches_schema
-    # Custom validation handled by Form214192Validator
-    true
+    schema_with_components = Openapi::Requests::Form214192::FORM_SCHEMA.dup
+    schema_with_components['components'] = Openapi::Components::ALL
+    schema_with_components
   end
 
   def process_attachments!
