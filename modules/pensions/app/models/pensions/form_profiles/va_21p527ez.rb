@@ -66,6 +66,10 @@ module Pensions
       {}
     end
 
+    # Returns a memoized instance of Logging::Monitor for tracking pensions form profile events.
+    # The monitor is initialized with the identifier 'pensions-form-profile'.
+    #
+    # @return [Logging::Monitor] the monitor instance for pensions form profile logging
     def monitor
       @monitor ||= Logging::Monitor.new('pensions-form-profile')
     end
