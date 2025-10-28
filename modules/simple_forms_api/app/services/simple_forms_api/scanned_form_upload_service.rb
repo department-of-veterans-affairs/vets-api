@@ -33,8 +33,12 @@ module SimpleFormsApi
       )
     end
 
+    def find_main_attachment_path(attachment)
+      attachment.to_pdf.to_s
+    end
+
     def stamp_main_file(attachment)
-      file_path = attachment.to_pdf.to_s
+      file_path = find_main_attachment_path(attachment)
       stamper = SimpleFormsApi::PdfStamper.new(
         stamped_template_path: file_path,
         current_loa: current_user.loa[:current],
