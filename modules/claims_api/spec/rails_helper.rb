@@ -22,7 +22,7 @@ RSpec.configure do |config|
       end
     end
 
-    if @results.present?
+    unless @results.empty?
       puts ''
       puts '======================================='
       puts 'Start check for PII in test log'
