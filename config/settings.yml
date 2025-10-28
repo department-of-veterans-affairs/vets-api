@@ -299,6 +299,11 @@ dgi:
   jwt:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
     public_key_path: <%= ENV['dgi__jwt__public_key_path'] %>
+  sob:
+    jwt:
+      private_key_path: <%= ENV['dgi__sob__jwt__private_key_path'] %>
+      public_ica11_rca2_key_path: <%= ENV['dgi__sob__jwt__public_ica11_rca2_key_path'] %>
+      public_key_path: <%= ENV['dgi__sob__jwt__public_key_path'] %>
   vets:
     mock: <%= ENV['dgi__vets__mock'] %>
     url: <%= ENV['dgi__vets__url'] %>
