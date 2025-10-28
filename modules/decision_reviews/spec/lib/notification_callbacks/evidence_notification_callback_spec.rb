@@ -64,14 +64,10 @@ describe DecisionReviews::EvidenceNotificationCallback do
         payload: notification.to_json
       )
 
-      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification.callback.delivered',
-                                                       tags: ['service:supplemental-claims',
-                                                              'function:evidence submission to lighthouse'])
-                                                 .exactly(1).time
-      expect(StatsD).to have_received(:increment).with('silent_failure_avoided',
-                                                       tags: ['service:supplemental-claims',
-                                                              'function:evidence submission to lighthouse'])
-                                                 .exactly(1).time
+      statsd = 'api.veteran_facing_services.notification_callback.delivered'
+      tags = include('service:supplemental-claims', 'function:evidence submission to lighthouse')
+      expect(StatsD).to have_received(:increment).with(statsd, tags:).exactly(1).time
+      expect(StatsD).to have_received(:increment).with('silent_failure_avoided', tags:).exactly(1).time
     end
   end
 
@@ -98,14 +94,10 @@ describe DecisionReviews::EvidenceNotificationCallback do
         payload: notification.to_json
       )
 
-      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification.callback.permanent_failure', # rubocop:disable Layout/LineLength
-                                                       tags: ['service:supplemental-claims',
-                                                              'function:evidence submission to lighthouse'])
-                                                 .exactly(1).time
-      expect(StatsD).to have_received(:increment).with('silent_failure',
-                                                       tags: ['service:supplemental-claims',
-                                                              'function:evidence submission to lighthouse'])
-                                                 .exactly(1).time
+      statsd = 'api.veteran_facing_services.notification_callback.permanent_failure'
+      tags = include('service:supplemental-claims', 'function:evidence submission to lighthouse')
+      expect(StatsD).to have_received(:increment).with(statsd, tags:).exactly(1).time
+      expect(StatsD).to have_received(:increment).with('silent_failure', tags:).exactly(1).time
     end
   end
 
@@ -126,10 +118,9 @@ describe DecisionReviews::EvidenceNotificationCallback do
         payload: notification.to_json
       )
 
-      expect(StatsD).to have_received(:increment).with('api.veteran_facing_services.notification.callback.temporary_failure', # rubocop:disable Layout/LineLength
-                                                       tags: ['service:supplemental-claims',
-                                                              'function:evidence submission to lighthouse'])
-                                                 .exactly(1).time
+      statsd = 'api.veteran_facing_services.notification_callback.temporary_failure'
+      tags = include('service:supplemental-claims', 'function:evidence submission to lighthouse')
+      expect(StatsD).to have_received(:increment).with(statsd, tags:).exactly(1).time
     end
   end
 
