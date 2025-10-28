@@ -61,8 +61,8 @@ describe VRE::Submit1900Job do
 
     describe 'with feature toggle vre_use_new_vfs_notification_library enabled' do
       before do
-        allow(Flipper).to
-        receive(:enabled?).with(:vre_use_new_vfs_notification_library).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:vre_use_new_vfs_notification_library).and_return(true)
       end
 
       it 'sends a failure email when retries are exhausted' do
@@ -78,8 +78,8 @@ describe VRE::Submit1900Job do
 
     describe 'with feature toggle disabled' do
       before do
-        allow(Flipper).to
-        receive(:enabled?).with(:vre_use_new_vfs_notification_library).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:vre_use_new_vfs_notification_library).and_return(false)
         allow(VRE::Monitor).to receive(:new).and_return(monitor)
         allow(monitor).to receive :track_submission_exhaustion
       end
