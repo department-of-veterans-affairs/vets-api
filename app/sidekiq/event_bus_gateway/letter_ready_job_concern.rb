@@ -19,23 +19,21 @@ module EventBusGateway
     def get_mpi_profile(participant_id)
       @mpi_profile ||= begin
         person = get_bgs_person(participant_id)
-        mpi_response = MPI::Service.new.find_profile_by_attributes(
-          first_name: person[:first_nm]&.capitalize,
-          last_name: person[:last_nm]&.capitalize,
-          birth_date: person[:brthdy_dt]&.strftime('%Y%m%d'),
+        mpi = MPI::Service.new.find_profile_by_attributes(
+          first_name: person[:first_nm].capitalize,
+          last_name: person[:last_nm].capitalize,
+          birth_date: person[:brthdy_dt].strftime('%Y%m%d'),
           ssn: person[:ssn_nbr]
-        )
+        )&.profile
+        raise 'Failed to fetch MPI profile' if mpi.nil?
 
-        profile = mpi_response&.profile
-        raise 'Failed to fetch MPI profile' if profile.nil?
-
-        profile
+        mpi
       end
     end
 
     def get_first_name_from_participant_id(participant_id)
       person = get_bgs_person(participant_id)
-      person&.dig(:first_nm)&.capitalize
+      person[:first_nm].capitalize
     end
 
     def get_icn(participant_id)
@@ -45,13 +43,8 @@ module EventBusGateway
     def record_notification_send_failure(error, job_type)
       error_message = "LetterReady#{job_type}Job #{job_type.downcase} error"
       ::Rails.logger.error(error_message, { message: error.message })
-
       tags = Constants::DD_TAGS + ["function: #{error_message}"]
       StatsD.increment("#{self.class::STATSD_METRIC_PREFIX}.failure", tags:)
-    end
-
-    def user_account(icn)
-      UserAccount.find_by(icn:)
     end
   end
 end

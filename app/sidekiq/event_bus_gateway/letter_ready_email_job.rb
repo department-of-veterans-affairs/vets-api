@@ -63,10 +63,12 @@ module EventBusGateway
     end
 
     def notify_client
-      @notify_client ||= VaNotify::Service.new(
-        Constants::NOTIFY_SETTINGS.api_key,
-        { callback_klass: 'EventBusGateway::VANotifyEmailStatusCallback' }
-      )
+      @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.api_key,
+                                               { callback_klass: 'EventBusGateway::VANotifyEmailStatusCallback' })
+    end
+
+    def user_account(participant_id)
+      UserAccount.find_by(icn: get_mpi_profile(participant_id).icn)
     end
   end
 end
