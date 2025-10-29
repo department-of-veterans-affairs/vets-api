@@ -1,6 +1,6 @@
 {
   "veteranInformation": {
-    "fullName": { "first": "John", "middle": "Michael", "last": "Doe" },
+    "fullName": { "first": "John", "middle": "M", "last": "Doe" },
     "ssn": "123456789",
     "vaFileNumber": "987654321",
     "dateOfBirth": "1980-01-01"
@@ -12,7 +12,7 @@
       "street2": "Suite 200",
       "city": "Commerce City",
       "state": "CA",
-      "country": "USA",
+      "country": "US",
       "postalCode": "54321"
     },
     "typeOfWorkPerformed": "Software Developer",

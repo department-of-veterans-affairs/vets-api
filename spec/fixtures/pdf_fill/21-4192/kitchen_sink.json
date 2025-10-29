@@ -2,7 +2,7 @@
   "veteranInformation": {
     "fullName": {
       "first": "Maximilian",
-      "middle": "Alexander",
+      "middle": "A",
       "last": "Wellington-Smythe"
     },
     "ssn": "987654321",
@@ -13,7 +13,7 @@
       "street2": "Apartment 567B",
       "city": "San Francisco",
       "state": "CA",
-      "country": "USA",
+      "country": "US",
       "postalCode": "94102"
     }
   },
