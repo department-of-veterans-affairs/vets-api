@@ -14,7 +14,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         employerInformation: { employerName: 'Acme Corp' }
       }
 
-      post(:create, params: { form214192: form_data })
+      post(:create, body: form_data.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
 
@@ -33,10 +33,10 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         employerInformation: { employerName: 'Acme Corp' }
       }
 
-      post(:create, params: { form214192: form_data })
+      post(:create, body: form_data.to_json, as: :json)
       first_confirmation = JSON.parse(response.body)['data']['attributes']['confirmation_number']
 
-      post(:create, params: { form214192: form_data })
+      post(:create, body: form_data.to_json, as: :json)
       second_confirmation = JSON.parse(response.body)['data']['attributes']['confirmation_number']
 
       expect(first_confirmation).not_to eq(second_confirmation)
@@ -48,7 +48,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         employerInformation: { employerName: 'Acme Corp' }
       }
 
-      post(:create, params: { form214192: form_data })
+      post(:create, body: form_data.to_json, as: :json)
 
       json = JSON.parse(response.body)
       confirmation = json['data']['attributes']['confirmation_number']
@@ -62,7 +62,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         employerInformation: { employerName: 'Acme Corp' }
       }
 
-      post(:create, params: { form214192: form_data })
+      post(:create, body: form_data.to_json, as: :json)
 
       json = JSON.parse(response.body)
       submitted_at = json['data']['attributes']['submitted_at']
@@ -77,7 +77,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       }
 
       # Post without signing in
-      post(:create, params: { form214192: form_data })
+      post(:create, body: form_data.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
     end
@@ -98,7 +98,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
 
     it 'generates and downloads PDF' do
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
       expect(response.headers['Content-Type']).to eq('application/pdf')
@@ -106,7 +106,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
 
     it 'includes proper filename with UUID' do
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
 
       expect(response.headers['Content-Disposition']).to include('attachment')
       expect(response.headers['Content-Disposition']).to include('21-4192_')
@@ -114,10 +114,10 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
 
     it 'generates unique filename for each request' do
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
       first_filename = response.headers['Content-Disposition']
 
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
       second_filename = response.headers['Content-Disposition']
 
       expect(first_filename).not_to eq(second_filename)
@@ -130,12 +130,12 @@ RSpec.describe V0::Form214192Controller, type: :controller do
               '21-4192')
         .and_return(temp_file_path)
 
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
     end
 
     it 'deletes temporary PDF file after sending' do
       expect(File).to receive(:delete).with(temp_file_path)
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
     end
 
     it 'deletes temporary file even when PDF generation fails' do
@@ -143,7 +143,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       # File.delete should not be called since source_file_path is nil
       expect(File).not_to receive(:delete)
 
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
       expect(response).to have_http_status(:internal_server_error)
 
       json = JSON.parse(response.body)
@@ -156,7 +156,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
       expect(File).to receive(:delete).with(temp_file_path)
 
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
       expect(response).to have_http_status(:internal_server_error)
 
       json = JSON.parse(response.body)
@@ -165,28 +165,16 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
 
     it 'does not require authentication' do
-      post(:download_pdf, params: { form: form_data.to_json })
+      post(:download_pdf, body: form_data.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
     end
 
     context 'error handling' do
-      it 'returns 400 for invalid JSON' do
-        post(:download_pdf, params: { form: 'invalid json {not valid}' })
-
-        expect(response).to have_http_status(:bad_request)
-
-        json = JSON.parse(response.body)
-        expect(json['errors']).to be_present
-        expect(json['errors'].first['title']).to eq('Invalid JSON')
-        expect(json['errors'].first['detail']).to eq('The form data provided is not valid JSON')
-        expect(json['errors'].first['status']).to eq('400')
-      end
-
       it 'returns 500 for PDF generation failures' do
         allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
 
-        post(:download_pdf, params: { form: form_data.to_json })
+        post(:download_pdf, body: form_data.to_json, as: :json)
 
         expect(response).to have_http_status(:internal_server_error)
 

@@ -54,7 +54,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
     it 'formats dollar amounts correctly' do
       merged = form.merge_fields
 
-      expect(merged['employmentInformation']['amountEarnedLast12Months']).to eq(
+      expect(merged['employmentInformation']['amountEarnedLast12MonthsOfEmployment']).to eq(
         'thousands' => '095',
         'hundreds' => '000',
         'cents' => '00'
