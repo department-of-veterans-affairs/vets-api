@@ -34,7 +34,9 @@ module VeteranEnrollmentSystem
 
         template_file = File.open(txt_template_path, 'r')
 
-        rv = template_file.read % data.merge(txt_form_data)
+        foo = attributes.merge(txt_form_data)
+
+        rv = template_file.read % foo.symbolize_keys
 
         template_file.close
 
@@ -57,6 +59,10 @@ module VeteranEnrollmentSystem
       end
 
       def self.parse(form_data)
+        months = form_data['data']['coveredIndividual']['monthsCovered']
+        coverage_months = Date::MONTHNAMES.compact.map { |month| months&.include?(month.upcase) ? month.upcase : nil }
+        covered_all = form_data['data']['coveredIndividual']['coveredAll12Months']
+        coverage_map = [covered_all, *coverage_months]
         prepared_data = {
           first_name: form_data['data']['coveredIndividual']['name']['firstName'],
           middle_name: form_data['data']['coveredIndividual']['name']['middleName'],
@@ -70,9 +76,9 @@ module VeteranEnrollmentSystem
           country: form_data['data']['responsibleIndividual']['address']['country'],
           zip_code: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
           foreign_zip: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
-          # is_beneficiary: form_data['data']['responsibleIndividual']['isBeneficiary'],
-          # is_corrected: form_data['data']['responsibleIndividual']['isCorrected'],
-          coverage_months: form_data['data']['coveredIndividual']['monthsCovered'],
+          is_beneficiary: form_data['data']['responsibleIndividual']['isBeneficiary'],
+          is_corrected: form_data['data']['responsibleIndividual']['isCorrected'],
+          coverage_months: coverage_map,
           tax_year: form_data['data']['taxYear']
         }
         new(prepared_data)

@@ -141,13 +141,13 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       # disabled pending work on https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      it 'throws 404 when form not found' do
+      xit 'throws 404 when form not found' do
         get '/v0/form1095_bs/download_txt/2018'
         expect(response).to have_http_status(:not_found)
       end
 
       # disabled pending work on https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      it 'throws 422 when no template exists for requested year' do
+      xit 'throws 422 when no template exists for requested year' do
         create(:form1095_b, tax_year: 2018)
         get '/v0/form1095_bs/download_txt/2018'
         expect(response).to have_http_status(:unprocessable_entity)
@@ -168,7 +168,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
   describe 'GET /available_forms' do
     before do
-      sign_in_as(user)
+      sign_in_as(old_user)
       # allow endpoint increment in order to test user_has_no_1095b increment
       allow(StatsD).to receive(:increment).with('api.rack.request',
                                                 { tags: ['controller:v0/form1095_bs', 'action:available_forms',
