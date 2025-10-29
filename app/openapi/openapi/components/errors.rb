@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Openapi
-  module Schemas
+  module Components
     class Errors
       ERRORS = { required: ['errors'],
                  properties: { errors: { type: 'array', items: { :$ref => '#/components/schemas/Error' } } } }.freeze
