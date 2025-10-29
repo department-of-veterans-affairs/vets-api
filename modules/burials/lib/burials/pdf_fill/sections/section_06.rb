@@ -7,7 +7,19 @@ module Burials
     # Section VI: Plot / Transportation allowance Information
     class Section6 < Section
       # Section configuration hash
-      KEY = {}.freeze
+      KEY = {
+        # 23
+        'hasPlotExpenseResponsibility' => {
+          key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostYes[0]'
+        },
+        'noPlotExpenseResponsibility' => {
+          key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostNo[0]'
+        },
+        # 24
+        'hasTransportation' => {
+          key: 'form1[0].#subform[83].ResponsibleForTransportation[0]'
+        }
+      }.freeze
 
       ##
       # Expands the form data for Section 6.

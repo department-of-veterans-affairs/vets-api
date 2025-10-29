@@ -5,6 +5,12 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
+require_relative 'sections/section_01'
+require_relative 'sections/section_02'
+require_relative 'sections/section_03'
+require_relative 'sections/section_04'
+require_relative 'sections/section_05'
+require_relative 'sections/section_06'
 require_relative 'sections/section_07'
 
 # rubocop:disable Metrics/ClassLength
@@ -564,7 +570,7 @@ module Burials
         # rubocop:enable Layout/LineLength
 
         # The list of section classes for form expansion and key building
-        SECTION_CLASSES = [Section7].freeze
+        SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
         SECTION_CLASSES.each { |section| key.merge!(section::KEY) }
 
@@ -739,7 +745,6 @@ module Burials
         # rubocop:disable Metrics/MethodLength
         def merge_fields(_options = {})
           expand_signature(@form_data['claimantFullName'])
-
           %w[veteranFullName claimantFullName].each do |attr|
             extract_middle_i(@form_data, attr)
           end
@@ -815,6 +820,8 @@ module Burials
           ].each do |attr|
             expand_checkbox_in_place(@form_data, attr)
           end
+
+          SECTION_CLASSES.each { |section| section.new.expand(@form_data) }
 
           @form_data
         end

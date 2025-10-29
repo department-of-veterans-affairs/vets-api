@@ -25,6 +25,8 @@ module UnifiedHealthData
         observations = get_observations(record)
         return nil unless code && (encoded_data || observations)
 
+        log_warnings(record, encoded_data, observations)
+
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
@@ -41,6 +43,45 @@ module UnifiedHealthData
       end
 
       private
+
+      def log_warnings(record, encoded_data, observations)
+        log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
+        log_missing_date_warning(record)
+      end
+
+      def log_final_status_warning(record, status, encoded_data, observations)
+        return unless status == 'final' && encoded_data.blank? && observations.blank?
+
+        patient_reference = record['resource']&.dig('subject', 'reference')
+        # Last four of FHIR Patient.id
+        patient_last_four = patient_reference&.split('/')&.last&.last(4) || 'unknown'
+
+        Rails.logger.warn(
+          "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing " \
+          "both encoded data and observations (Patient: #{patient_last_four})",
+          { service: 'unified_health_data' }
+        )
+      end
+
+      def log_missing_date_warning(record)
+        resource = record['resource']
+        effective_date_time = resource['effectiveDateTime']
+        effective_period = resource['effectivePeriod']
+
+        # effectiveDateTime and effectivePeriod are mutually exclusive per FHIR R4
+        # Log when both are missing OR when effectivePeriod exists but has no start
+        if effective_date_time.blank? && effective_period.blank?
+          Rails.logger.warn(
+            "DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod",
+            { service: 'unified_health_data' }
+          )
+        elsif effective_period.present? && effective_period['start'].blank?
+          Rails.logger.warn(
+            "DiagnosticReport #{resource['id']} is missing effectivePeriod.start",
+            { service: 'unified_health_data' }
+          )
+        end
+      end
 
       def get_location(record)
         if record['resource']['contained'].nil?

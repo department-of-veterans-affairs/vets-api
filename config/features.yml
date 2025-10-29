@@ -171,6 +171,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
+  event_bus_gateway_pension_email_template:
+    description: Toggle to enable pension email template in eventbus-gateway
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -316,6 +318,9 @@ features:
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
+  champva_send_ves_to_pega:
+    actor_type: user
+    description: Enables sending VES JSON to PEGA for form submissions
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
@@ -803,6 +808,10 @@ features:
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
   disability_526_toxic_exposure_opt_out_data_purge:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge_by_user:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
@@ -2606,6 +2615,10 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  tsa_safe_travel_letter:
+    actor_type: user
+    description: Enables displaying TSA Safe Travel Letter on Letters page
+    enable_in_development: true
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
@@ -2661,6 +2674,9 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-0779 on vets-website
+  vre_eligibility_status_phase_2_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates for phase 2
   form_530a_enabled:
     actor_type: user
     enable_in_development: true
@@ -2673,3 +2689,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-2680 on vets-website
+  fetch_1095b_from_enrollment_system:
+    actor_type: user
+    description: Enables fetching of form 1095b from enrollment system instead of from local database
