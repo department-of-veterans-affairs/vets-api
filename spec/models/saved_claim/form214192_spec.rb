@@ -3,146 +3,128 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::Form214192, type: :model do
-  let(:form_data) do
-    {
-      veteranInformation: {
-        fullName: { first: 'John', middle: 'M', last: 'Doe' },
-        ssn: '123456789',
-        dateOfBirth: '1980-01-01'
-      },
-      employmentInformation: {
-        employerName: 'Acme Corporation',
-        employerAddress: {
-          street: '456 Business Ave',
-          city: 'Commerce City',
-          state: 'CA',
-          postalCode: '54321'
-        },
-        employerEmail: 'hr@acme.com',
-        employerPhone: '555-987-6543',
-        contactPerson: {
-          name: 'Jane Smith',
-          title: 'HR Manager'
-        },
-        typeOfWorkPerformed: 'Software Developer',
-        beginningDateOfEmployment: '2015-01-15',
-        endingDateOfEmployment: '2023-06-30',
-        amountEarnedLast12MonthsOfEmployment: 75_000,
-        timeLostLast12MonthsOfEmployment: '2 weeks',
-        hoursWorkedDaily: 8,
-        hoursWorkedWeekly: 40,
-        concessions: 'Flexible hours, ergonomic desk, modified duties',
-        terminationReason: 'Medical disability',
-        dateLastWorked: '2023-06-30',
-        lastPaymentDate: '2023-07-15',
-        lastPaymentGrossAmount: 6250,
-        lumpSumPaymentMade: false,
-        grossAmountPaid: 0,
-        datePaid: '2023-07-15'
-      },
-      militaryDutyStatus: {
-        currentDutyStatus: 'Active Reserve',
-        veteranDisabilitiesPreventMilitaryDuties: true
-      },
-      benefitEntitlementPayments: {
-        sickRetirementOtherBenefits: false,
-        typeOfBenefit: 'Retirement',
-        grossMonthlyAmountOfBenefit: 1500,
-        dateBenefitBegan: '2023-01-01',
-        dateFirstPaymentIssued: '2023-02-01',
-        dateBenefitWillStop: '2025-12-31',
-        remarks: 'Additional information about benefits and payments'
-      }
-    }
+  let(:valid_form_data) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
+  let(:invalid_form_data) do
+    JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'invalid_form.json').read)
   end
 
+  let(:claim) { described_class.new(form: valid_form_data.to_json) }
+
   describe 'validations' do
-    it 'validates required fields' do
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).to be_valid
+    let(:claim) { described_class.new(form: form.to_json) }
+    let(:form) { valid_form_data.dup }
+
+    context 'with valid form data' do
+      it 'validates successfully' do
+        claim = described_class.new(form: valid_form_data.to_json)
+        expect(claim).to be_valid
+      end
     end
 
-    it 'requires veteran information' do
-      form_data.delete(:veteranInformation)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Veteran information is required')
+    context 'with invalid form data from fixture' do
+      it 'fails validation for multiple reasons' do
+        claim = described_class.new(form: invalid_form_data.to_json)
+        expect(claim).not_to be_valid
+        # Should fail because:
+        # - middle name exceeds maxLength of 1
+        # - missing SSN or VA file number
+        # - missing required employment fields
+      end
     end
 
-    it 'requires employment information' do
-      form_data.delete(:employmentInformation)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Employment information is required')
-    end
+    context 'OpenAPI schema validation' do
+      it 'rejects middle name longer than 1 character' do
+        form['veteranInformation']['fullName']['middle'] = 'AB'
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('string length')
+        expect(claim.errors.full_messages.join).to include('is greater than: 1')
+      end
 
-    it 'requires either SSN or VA file number' do
-      form_data[:veteranInformation].delete(:ssn)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Either SSN or VA file number is required for veteran')
-    end
+      it 'rejects first name longer than 12 characters' do
+        form['veteranInformation']['fullName']['first'] = 'A' * 13
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('string length')
+        expect(claim.errors.full_messages.join).to include('is greater than: 12')
+      end
 
-    it 'accepts VA file number instead of SSN' do
-      form_data[:veteranInformation].delete(:ssn)
-      form_data[:veteranInformation][:vaFileNumber] = '123456789'
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).to be_valid
-    end
+      it 'rejects last name longer than 18 characters' do
+        form['veteranInformation']['fullName']['last'] = 'A' * 19
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('string length')
+        expect(claim.errors.full_messages.join).to include('is greater than: 18')
+      end
 
-    it 'requires veteran full name' do
-      form_data[:veteranInformation].delete(:fullName)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Veteran full name is required')
-    end
+      it 'rejects invalid SSN format' do
+        form['veteranInformation']['ssn'] = '12345' # Too short
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('pattern')
+      end
 
-    it 'requires veteran date of birth' do
-      form_data[:veteranInformation].delete(:dateOfBirth)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Veteran date of birth is required')
-    end
+      it 'rejects address street exceeding maxLength' do
+        form['veteranInformation']['address']['street'] = 'A' * 31 # Max is 30
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('string length')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
+      end
 
-    it 'requires employer name' do
-      form_data[:employmentInformation].delete(:employerName)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Employer name is required')
-    end
+      it 'requires country field in address' do
+        form['veteranInformation']['address'].delete('country')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
 
-    it 'requires employer address' do
-      form_data[:employmentInformation].delete(:employerAddress)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Employer address is required')
-    end
+      it 'requires veteran information' do
+        form.delete('veteranInformation')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
 
-    it 'requires employer email' do
-      form_data[:employmentInformation].delete(:employerEmail)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Employer email is required')
-    end
+      it 'requires employment information' do
+        form.delete('employmentInformation')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
 
-    it 'requires type of work performed' do
-      form_data[:employmentInformation].delete(:typeOfWorkPerformed)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Type of work performed is required')
-    end
+      it 'requires veteran full name' do
+        form['veteranInformation'].delete('fullName')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
 
-    it 'requires beginning date of employment' do
-      form_data[:employmentInformation].delete(:beginningDateOfEmployment)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Beginning date of employment is required')
+      it 'requires veteran date of birth' do
+        form['veteranInformation'].delete('dateOfBirth')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
+
+      it 'requires employer name' do
+        form['employmentInformation'].delete('employerName')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
+
+      it 'requires employer address' do
+        form['employmentInformation'].delete('employerAddress')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
+
+      it 'requires type of work performed' do
+        form['employmentInformation'].delete('typeOfWorkPerformed')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
+
+      it 'requires beginning date of employment' do
+        form['employmentInformation'].delete('beginningDateOfEmployment')
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('missing required properties')
+      end
     end
   end
 
   describe '#send_confirmation_email' do
     it 'does not send email (MVP does not include email)' do
-      claim = described_class.new(form: form_data.to_json)
       expect(VANotify::EmailJob).not_to receive(:perform_async)
       claim.send_confirmation_email
     end
@@ -150,28 +132,24 @@ RSpec.describe SavedClaim::Form214192, type: :model do
 
   describe '#business_line' do
     it 'returns CMP for compensation claims' do
-      claim = described_class.new(form: form_data.to_json)
       expect(claim.business_line).to eq('CMP')
     end
   end
 
   describe '#document_type' do
     it 'returns 119 for employment information' do
-      claim = described_class.new(form: form_data.to_json)
       expect(claim.document_type).to eq(119)
     end
   end
 
   describe '#regional_office' do
     it 'returns empty array' do
-      claim = described_class.new(form: form_data.to_json)
       expect(claim.regional_office).to eq([])
     end
   end
 
   describe '#process_attachments!' do
     it 'queues Lighthouse submission job without attachments' do
-      claim = described_class.create!(form: form_data.to_json)
       expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
       claim.process_attachments!
     end
@@ -179,7 +157,6 @@ RSpec.describe SavedClaim::Form214192, type: :model do
 
   describe '#attachment_keys' do
     it 'returns empty array (no attachments in MVP)' do
-      claim = described_class.new(form: form_data.to_json)
       expect(claim.attachment_keys).to eq([])
     end
   end
