@@ -5,6 +5,45 @@ module Burials
     # Helpers used for PDF mapping
     module Helpers
       ##
+      # Expands a date range from a hash into start and end date fields
+      #
+      # @param hash [Hash]
+      # @param key [Symbol]
+      #
+      # @return [Hash]
+      #
+      def expand_date_range(hash, key)
+        return if hash.blank?
+
+        date_range = hash[key]
+        return if date_range.blank?
+
+        hash["#{key}Start"] = date_range['from']
+        hash["#{key}End"] = date_range['to']
+        hash.delete(key)
+
+        hash
+      end
+
+      ##
+      # Combines multiple fields from a hash into a single string
+      #
+      # @param hash [Hash]
+      # @param keys [Array<String, Symbol>]
+      # @param separator [String]
+      #
+      # @return [String]
+      #
+      def combine_hash(hash, keys, separator = ' ')
+        return if hash.blank?
+
+        keys
+          .map { |key| hash[key] }
+          .compact_blank # removes both nil and empty strings
+          .join(separator)
+      end
+
+      ##
       # Converts a boolean value into a checkbox selection
       #
       # This method returns 'On' if the value is truthy, otherwise it returns 'Off'
@@ -12,7 +51,7 @@ module Burials
       #
       # @param value [Boolean]
       #
-      # @return [String]e
+      # @return [String]
       def select_checkbox(value)
         value ? 'On' : 'Off'
       end

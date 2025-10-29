@@ -104,68 +104,6 @@ module Burials
         KEY = key.freeze
 
         ##
-        # Expands tours of duty by formatting a few fields
-        #
-        # @param tours_of_duty [Array<Hash>]
-        #
-        # @return [Hash]
-        def expand_tours_of_duty(tours_of_duty)
-          return if tours_of_duty.blank?
-
-          tours_of_duty.each do |tour_of_duty|
-            expand_date_range(tour_of_duty, 'dateRange')
-            tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank unit], ', ')
-            tour_of_duty['militaryServiceNumber'] = @form_data['militaryServiceNumber']
-          end
-        end
-
-        ##
-        # Converts the location of death by formatting facility details and adjusting specific location values
-        #
-        # @return [Hash]
-        def convert_location_of_death
-          location_of_death = @form_data['locationOfDeath']
-          return if location_of_death.blank?
-
-          home_hospice_care = @form_data['homeHospiceCare']
-          home_hospice_care_after_discharge = @form_data['homeHospiceCareAfterDischarge']
-
-          location = location_of_death['location']
-          options = @form_data[location]
-          if options.present? && location != 'other'
-            location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
-          end
-
-          @form_data.delete(location)
-
-          if location == 'atHome' && home_hospice_care && home_hospice_care_after_discharge
-            location_of_death['location'] = 'nursingHomePaid'
-          elsif location == 'atHome' && !(home_hospice_care && home_hospice_care_after_discharge)
-            location_of_death['location'] = 'nursingHomeUnpaid'
-          end
-
-          expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
-        end
-
-        ##
-        # Expands the burial allowance request by ensuring values are formatted as 'On' or nil
-        #
-        # @return [void]
-        def expand_burial_allowance
-          @form_data['hasPreviouslyReceivedAllowance'] = select_radio(@form_data['previouslyReceivedAllowance'])
-          burial_allowance = @form_data['burialAllowanceRequested']
-          return if burial_allowance.blank?
-
-          burial_allowance.each do |key, value|
-            burial_allowance[key] = value.present? ? 'On' : nil
-          end
-
-          @form_data['burialAllowanceRequested'] = {
-            'checkbox' => burial_allowance
-          }
-        end
-
-        ##
         # Expands cemetery location details by extracting relevant information
         #
         # @return [void]
@@ -323,15 +261,9 @@ module Burials
 
           split_postal_code(@form_data)
 
-          expand_tours_of_duty(@form_data['toursOfDuty'])
-
           @form_data['previousNames'] = combine_previous_names_and_service(@form_data['previousNames'])
 
           @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
-
-          expand_burial_allowance
-
-          convert_location_of_death
 
           @form_data['hasGovtContributions'] = select_radio(@form_data['govtContributions'])
 

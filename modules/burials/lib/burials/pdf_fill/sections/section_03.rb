@@ -80,7 +80,14 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        # Add expansion logic here
+        tours_of_duty = form_data['toursOfDuty']
+        return if tours_of_duty.blank?
+
+        tours_of_duty.each do |tour_of_duty|
+          expand_date_range(tour_of_duty, 'dateRange')
+          tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank unit], ', ')
+          tour_of_duty['militaryServiceNumber'] = form_data['militaryServiceNumber']
+        end
       end
     end
   end
