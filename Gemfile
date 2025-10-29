@@ -35,6 +35,7 @@ path 'modules' do
   gem 'pensions'
   gem 'representation_management'
   gem 'simple_forms_api'
+  gem 'sob'
   gem 'test_user_dashboard'
   gem 'travel_pay'
   gem 'va_notify'
