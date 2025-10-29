@@ -28,11 +28,11 @@
     },
     "student_information": [
       {
-        "student_networth_information": {
-          "savings": "100",
-          "securities": "100",
-          "real_estate": "100",
-          "other_assets": "100",
+      "student_networth_information": {
+        "savings": "100",
+        "securities": "100",
+        "real_estate": "100",
+        "other_assets": "100",
           "total_value": "100"
         },
         "student_expected_earnings_next_year": {
