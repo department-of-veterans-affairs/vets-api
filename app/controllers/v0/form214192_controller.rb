@@ -30,7 +30,10 @@ module V0
     end
 
     def download_pdf
-      parsed_form = JSON.parse(params[:form])
+      # permit! is ok here because:
+      # - no mass assignment is occurring. nothing is changing at all in the db.
+      # - the paramaters are being validated by committee-rails.
+      parsed_form = params.permit!.to_h
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
@@ -41,8 +44,6 @@ module V0
       file_contents = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
-    rescue JSON::ParserError => e
-      handle_json_parse_error(e)
     rescue => e
       handle_pdf_generation_error(e)
     ensure
@@ -50,17 +51,6 @@ module V0
     end
 
     private
-
-    def handle_json_parse_error(error)
-      Rails.logger.error('Form214192: Invalid JSON in form parameter', error: error.message)
-      render json: {
-        errors: [{
-          title: 'Invalid JSON',
-          detail: 'The form data provided is not valid JSON',
-          status: '400'
-        }]
-      }, status: :bad_request
-    end
 
     def handle_pdf_generation_error(error)
       Rails.logger.error('Form214192: Error generating PDF', error: error.message, backtrace: error.backtrace)

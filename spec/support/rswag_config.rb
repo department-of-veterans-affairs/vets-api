@@ -8,7 +8,7 @@ class RswagConfig
         info: info_spec,
         paths: {},
         servers: [],
-        components: components_spec
+        components: Openapi::Components::ALL
       }
     }
   end
@@ -26,17 +26,6 @@ class RswagConfig
       },
       license: {
         name: 'Creative Commons Zero v1.0 Universal'
-      }
-    }
-  end
-
-  def components_spec
-    {
-      schemas: {
-        Errors: Openapi::Schemas::Errors::ERRORS,
-        Error: Openapi::Schemas::Errors::ERROR,
-        FirstMiddleLastName: Openapi::Schemas::Name::FIRST_MIDDLE_LAST,
-        SimpleAddress: Openapi::Schemas::Address::SIMPLE_ADDRESS
       }
     }
   end

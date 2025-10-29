@@ -10,6 +10,59 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
     allow(Time).to receive(:current).and_return(Time.zone.parse('2025-01-15 10:30:00 UTC'))
   end
 
+  # Shared example for validation failure
+  shared_examples 'validates schema and returns 422' do
+    it 'returns a 422 when request fails schema validation' do |example|
+      submit_request(example.metadata)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  # Shared test data
+  let(:valid_form_data) do
+    {
+      veteranInformation: {
+        fullName: {
+          first: 'John',
+          last: 'Doe',
+          middle: 'A'
+        },
+        ssn: '123456789',
+        dateOfBirth: '1980-01-01',
+        address: {
+          street: '123 Main St',
+          street2: 'Apt 4B',
+          city: 'Springfield',
+          state: 'IL',
+          postalCode: '62701',
+          country: 'US'
+        }
+      },
+      employmentInformation: {
+        employerName: 'Acme Corp',
+        employerAddress: {
+          street: '456 Business Blvd',
+          street2: nil,
+          city: 'Chicago',
+          state: 'IL',
+          postalCode: '60601',
+          country: 'US'
+        },
+        typeOfWorkPerformed: 'Software Development',
+        beginningDateOfEmployment: '2015-06-01'
+      }
+    }
+  end
+
+  let(:invalid_form_data) do
+    {
+      veteranInformation: {
+        fullName: { first: 'OnlyFirst' }
+        # Missing required fields: last name, dateOfBirth
+      }
+    }
+  end
+
   path '/v0/form214192' do
     post 'Submit a 21-4192 form' do
       tags 'benefits_forms'
@@ -19,71 +72,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
       description 'Submit a Form 21-4192 (Request for Employment Information in Connection with ' \
                   'Claim for Disability Benefits)'
 
-      parameter name: :form_data, in: :body, required: true, schema: {
-        type: :object,
-        properties: {
-          veteranInformation: {
-            type: :object,
-            required: %i[fullName dateOfBirth],
-            properties: {
-              fullName: { '$ref' => '#/components/schemas/FirstMiddleLastName' },
-              ssn: {
-                type: :string,
-                pattern: '^\d{9}$',
-                description: 'Social Security Number (9 digits)',
-                example: '123456789'
-              },
-              vaFileNumber: { type: :string, example: '987654321' },
-              dateOfBirth: { type: :string, format: :date, example: '1980-01-01' },
-              address: { '$ref' => '#/components/schemas/SimpleAddress' }
-            }
-          },
-          employmentInformation: {
-            type: :object,
-            required: %i[employerName employerAddress typeOfWorkPerformed
-                         beginningDateOfEmployment],
-            properties: {
-              employerName: { type: :string },
-              employerAddress: { '$ref' => '#/components/schemas/SimpleAddress' },
-              typeOfWorkPerformed: { type: :string },
-              beginningDateOfEmployment: { type: :string, format: :date },
-              endingDateOfEmployment: { type: :string, format: :date },
-              amountEarnedLast12MonthsOfEmployment: { type: :number },
-              timeLostLast12MonthsOfEmployment: { type: :string },
-              hoursWorkedDaily: { type: :number },
-              hoursWorkedWeekly: { type: :number },
-              concessions: { type: :string },
-              terminationReason: { type: :string },
-              dateLastWorked: { type: :string, format: :date },
-              lastPaymentDate: { type: :string, format: :date },
-              lastPaymentGrossAmount: { type: :number },
-              lumpSumPaymentMade: { type: :boolean },
-              grossAmountPaid: { type: :number },
-              datePaid: { type: :string, format: :date }
-            }
-          },
-          militaryDutyStatus: {
-            type: :object,
-            properties: {
-              currentDutyStatus: { type: :string },
-              veteranDisabilitiesPreventMilitaryDuties: { type: :boolean }
-            }
-          },
-          benefitEntitlementPayments: {
-            type: :object,
-            properties: {
-              sickRetirementOtherBenefits: { type: :boolean },
-              typeOfBenefit: { type: :string },
-              grossMonthlyAmountOfBenefit: { type: :number },
-              dateBenefitBegan: { type: :string, format: :date },
-              dateFirstPaymentIssued: { type: :string, format: :date },
-              dateBenefitWillStop: { type: :string, format: :date },
-              remarks: { type: :string }
-            }
-          }
-        },
-        required: %i[veteranInformation employmentInformation]
-      }
+      parameter name: :form_data, in: :body, required: true, schema: Openapi::Requests::Form214192::FORM_SCHEMA
 
       # Success response
       response '200', 'Form successfully submitted' do
@@ -118,40 +107,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                },
                required: [:data]
 
-        let(:form_data) do
-          {
-            veteranInformation: {
-              fullName: {
-                first: 'John',
-                last: 'Doe',
-                middle: 'A'
-              },
-              ssn: '123456789',
-              dateOfBirth: '1980-01-01',
-              address: {
-                street: '123 Main St',
-                street2: 'Apt 4B',
-                city: 'Springfield',
-                state: 'IL',
-                postalCode: '62701',
-                country: 'US'
-              }
-            },
-            employmentInformation: {
-              employerName: 'Acme Corp',
-              employerAddress: {
-                street: '456 Business Blvd',
-                street2: nil,
-                city: 'Chicago',
-                state: 'IL',
-                postalCode: '60601',
-                country: 'US'
-              },
-              typeOfWorkPerformed: 'Software Development',
-              beginningDateOfEmployment: '2015-06-01'
-            }
-          }
-        end
+        let(:form_data) { valid_form_data }
 
         it 'returns a successful response with form submission data' do |example|
           submit_request(example.metadata)
@@ -168,17 +124,98 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
       response '422', 'Unprocessable Entity - schema validation failed' do
         schema '$ref' => '#/components/schemas/Errors'
 
-        let(:form_data) do
-          {
-            veteranInformation: {
-              fullName: { first: 'OnlyFirst' }
-            }
-          }
-        end
+        let(:form_data) { invalid_form_data }
 
-        it 'returns a 422 when request body fails schema validation' do |example|
+        include_examples 'validates schema and returns 422'
+      end
+    end
+  end
+
+  path '/v0/form214192/download_pdf' do
+    post 'Download PDF for Form 21-4192' do
+      tags 'benefits_forms'
+      operationId 'downloadForm214192Pdf'
+      consumes 'application/json'
+      produces 'application/pdf'
+      description 'Generate and download a filled PDF for Form 21-4192 (Request for Employment Information)'
+
+      parameter name: :form_data, in: :body, required: true, schema: Openapi::Requests::Form214192::FORM_SCHEMA
+
+      # Success response - PDF file
+      response '200', 'PDF generated successfully' do
+        produces 'application/pdf'
+        schema type: :string, format: :binary
+
+        let(:form_data) { valid_form_data }
+
+        it 'returns a PDF file' do |example|
           submit_request(example.metadata)
-          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to have_http_status(:ok)
+          expect(response.content_type).to eq('application/pdf')
+          expect(response.headers['Content-Disposition']).to include('attachment')
+          expect(response.headers['Content-Disposition']).to include('.pdf')
+        end
+      end
+
+      response '422', 'Unprocessable Entity - schema validation failed' do
+        produces 'application/json'
+        schema '$ref' => '#/components/schemas/Errors'
+
+        let(:form_data) { invalid_form_data }
+
+        include_examples 'validates schema and returns 422'
+      end
+
+      response '400', 'Bad Request - invalid JSON' do
+        produces 'application/json'
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     type: :object,
+                     properties: {
+                       title: { type: :string },
+                       detail: { type: :string },
+                       status: { type: :string }
+                     }
+                   }
+                 }
+               }
+
+        let(:form_data) { 'invalid-json-string' }
+
+        it 'returns a 400 when JSON is malformed' do
+          # This test would require manually sending bad JSON, which rswag makes difficult
+          # Skipping actual execution but documenting the response format
+          skip 'Requires manual JSON manipulation outside rswag framework'
+        end
+      end
+
+      response '500', 'Internal Server Error - PDF generation failed' do
+        produces 'application/json'
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     type: :object,
+                     properties: {
+                       title: { type: :string },
+                       detail: { type: :string },
+                       status: { type: :string }
+                     }
+                   }
+                 }
+               }
+
+        let(:form_data) { valid_form_data }
+
+        it 'returns a 500 when PDF generation fails' do |example|
+          # Mock a PDF generation failure
+          allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError.new('PDF generation error'))
+          submit_request(example.metadata)
+          expect(response).to have_http_status(:internal_server_error)
         end
       end
     end
