@@ -19,7 +19,7 @@ module BGS
                 :uuid,
                 :file_number
 
-    attr_accessor :form_email
+    attr_accessor :notification_email
 
     STATS_KEY = 'bgs.dependent_service'
 
@@ -280,7 +280,7 @@ module BGS
         'veteran_information' => {
           'full_name' => full_name,
           'common_name' => common_name,
-          'va_profile_email' => @va_profile_email,
+          'va_profile_email' => @notification_email,
           'email' => email,
           'participant_id' => participant_id,
           'ssn' => ssn,

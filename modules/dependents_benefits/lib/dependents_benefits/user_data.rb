@@ -11,7 +11,7 @@ module DependentsBenefits
                 :birth_date,
                 :common_name,
                 :email,
-                :va_profile_email,
+                :notification_email,
                 :icn,
                 :participant_id,
                 :uuid,
@@ -28,8 +28,8 @@ module DependentsBenefits
       @email = user.email.presence || claim_data.dig('veteran_contact_information', 'email_address')
       @icn = user.icn.presence
       @participant_id = user.participant_id.presence
-      @va_profile_email = user.va_profile_email.presence
-
+      # Set notification_email from form's email if va_profile_email is not available
+      @notification_email = get_user_email(user) || @email
       @va_file_number = get_file_number || ssn
     rescue => e
       monitor.track_user_data_error('DependentsBenefits::UserData#initialize error',
@@ -43,7 +43,7 @@ module DependentsBenefits
       veteran_information = {
         'full_name' => full_name,
         'common_name' => common_name,
-        'va_profile_email' => va_profile_email,
+        'va_profile_email' => notification_email,
         'email' => email,
         'participant_id' => participant_id,
         'ssn' => ssn,
@@ -90,6 +90,19 @@ module DependentsBenefits
         key = common_name.presence || email
         key.first(BGS::Constants::EXTERNAL_KEY_MAX_LENGTH)
       end
+    end
+
+    def get_user_email(user)
+      # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
+      # Failure is expected occasionally due to 404 errors from the redis cache
+      # New users, users that have not logged on in over a month, users who created an account on web,
+      # and users who have not visited their profile page will need to obtain/refresh VAProfile_ID
+      # Originates here: lib/va_profile/contact_information/v2/service.rb
+      user.va_profile_email.presence
+    rescue => e
+      monitor.track_user_data_warning('DependentsBenefits::UserData#get_user_email failed to get va_profile_email',
+                                      'get_va_profile_email.failure', error: e.message)
+      nil
     end
 
     def monitor
