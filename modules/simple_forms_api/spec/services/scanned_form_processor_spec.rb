@@ -52,7 +52,7 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       let(:attachment) do
         PersistentAttachments::VAForm.new.tap do |att|
           att.form_id = '21-0779'
-          att.file = File.open(encrypted_pdf_path, 'rb')
+          att.file_attacher.attach(File.open(encrypted_pdf_path, 'rb'), validate: false)
         end
       end
       let(:processor) { described_class.new(attachment, password: correct_password) }
@@ -60,7 +60,10 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       before do
         allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
           double(validate: double(valid_pdf?: true, errors: []))
-        )
+
+          )
+        allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_unlocked_pdf)
+        allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_pdf_page_count)
       end
 
       it 'calls Common::PdfHelpers.unlock_pdf with correct parameters' do
@@ -76,6 +79,29 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       it 'processes successfully after decryption' do
         expect { processor.process! }.not_to raise_error
         expect(attachment.persisted?).to be true
+      end
+    end
+
+    context 'with encrypted PDF and wrong password' do
+      let(:attachment) do
+        PersistentAttachments::VAForm.new.tap do |att|
+          att.form_id = '21-0779'
+          att.file_attacher.attach(File.open(encrypted_pdf_path, 'rb'), validate: false)
+        end
+      end
+      let(:processor) { described_class.new(attachment, password: wrong_password) }
+
+      it 'raises ValidationError with password message' do
+        expect { processor.process! }
+          .to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError) do |error|
+            expect(error.message).to eq('PDF decryption failed')
+            expect(error.errors).to include(
+              hash_including(
+                title: 'Invalid password',
+                detail: 'We couldn’t unlock your PDF. Save the PDF without a password and try again.'
+              )
+            )
+          end
       end
     end
 

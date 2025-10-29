@@ -36,11 +36,19 @@ module SimpleFormsApi
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        password = params['password']
 
-        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment)
+        if password.present?
+          # Skip Shrine validations for encrypted PDFs
+          attachment.file_attacher.attach(params['file'], validate: false)
+        else
+          # Normal flow with Shrine validations
+          attachment.file = params['file']
+          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        end
+
+        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: password)
         processed_attachment = processor.process!
-
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
