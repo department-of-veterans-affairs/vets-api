@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'ssoe/configuration'
+require 'ssoe/errors'
 
 module SSOe
   class Service < Common::Client::Base
@@ -88,7 +89,7 @@ module SSOe
         }
       end
 
-      raise StandardError, 'Unable to parse SOAP response'
+      raise SSOe::Errors::SOAPParseError, 'Unable to parse SOAP response'
     end
   end
 end
