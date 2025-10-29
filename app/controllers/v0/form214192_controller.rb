@@ -9,8 +9,6 @@ module V0
       # Body parsed by Rails; schema validated by committee before hitting here.
       payload = request.request_parameters
 
-      puts "payload: #{payload}" * 100
-
       claim = SavedClaim::Form214192.new(form: payload.to_json)
 
       if claim.save
@@ -29,7 +27,7 @@ module V0
       # Include validation errors when present; helpful in logs/Sentry.
       Rails.logger.error(
         'Form214192: error submitting claim',
-        { error: e.message, claim_errors: (defined?(claim) && claim&.errors&.full_messages) }
+        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
       )
       raise
     end
