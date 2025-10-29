@@ -43,18 +43,7 @@ class EmailVerificationService
     stored_token = @redis.get(redis_key)
     if stored_token == token
       @redis.del(redis_key)
-      # email = VAProfile::Models::Email.new(
-      #  verification_date: Time.now.utc.iso8601
-      # )
-      # VAProfile::ContactInformation::V2::Service.new(@user).update_email(email)
-
-      # Trigger background job to send success verification email
-      template_type = 'verification_success'
-      personalisation = {
-        'first_name' => @user.first_name,
-        'email_address' => @user.email
-      }
-      EmailVerificationJob.perform_async(template_type, @user.email, personalisation)
+      send_verification_success_email
       true
     else
       Rails.logger.warn("Email verification failed: invalid token for user #{@user.uuid}")
@@ -101,5 +90,17 @@ class EmailVerificationService
       user_uuid: @user&.uuid
     }
     Rails.logger.error(message, error_data)
+  end
+
+  def send_verification_success_email
+    # TODO: Update VA Profile with verification date once integration is complete
+    # email = VAProfile::Models::Email.new(verification_date: Time.now.utc.iso8601)
+    # VAProfile::ContactInformation::V2::Service.new(@user).update_email(email)
+
+    personalisation = {
+      'first_name' => @user.first_name,
+      'email_address' => @user.email
+    }
+    EmailVerificationJob.perform_async('verification_success', @user.email, personalisation)
   end
 end
