@@ -10,6 +10,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
   describe '#perform' do
     let(:notification_client) { double('Notifications::Client') }
+    let(:va_notify_client) { double('VaNotify::Client') }
 
     context 'with default attributes' do
       let(:email_address) { 'foo@example.com' }
@@ -70,6 +71,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           }
         }
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
         allow(notification_client).to receive(:send_email).and_return(email_response)
 
         expect(notification_client).to receive(:send_email).with(requirements)
@@ -78,6 +80,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
       it 'handles 4xx errors when sending an email' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
 
         error = Common::Exceptions::BackendServiceException.new(
           'VANOTIFY_400',
@@ -94,6 +97,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
       it 'handles 5xx errors when sending an email' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
 
         error = Common::Exceptions::BackendServiceException.new(
           'VANOTIFY_500',
@@ -111,6 +115,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
       it 'returns one job triggered' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
         allow(notification_client).to receive(:send_email).and_return(email_response)
 
         expect do

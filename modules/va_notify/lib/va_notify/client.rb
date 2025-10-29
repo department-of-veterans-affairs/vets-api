@@ -71,10 +71,9 @@ module VaNotify
     end
 
     def validate_tokens!
-      # Basic validation similar to Notifications::Client::Speaker
-      raise ArgumentError, 'Invalid API key format' if service_id.nil? || secret_token.nil?
-      raise ArgumentError, 'Invalid service_id length' unless service_id.length == 36
-      raise ArgumentError, 'Invalid secret_token length' unless secret_token.length == 36
+      # Validate using Notifications::UuidValidator from notifications-ruby-client gem
+      Notifications::UuidValidator.validate!(service_id, 'Invalid service_id format in API key')
+      Notifications::UuidValidator.validate!(secret_token, 'Invalid secret_token format in API key')
     end
 
     def handle_error(error)

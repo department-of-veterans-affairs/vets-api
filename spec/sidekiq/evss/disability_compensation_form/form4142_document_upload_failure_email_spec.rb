@@ -7,6 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
 
   let!(:form526_submission) { create(:form526_submission) }
   let(:notification_client) { double('Notifications::Client') }
+  let(:va_notify_client) { double('VaNotify::Client') }
   let(:formatted_submit_date) do
     # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
     form526_submission.created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
@@ -15,6 +16,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
   before do
     Sidekiq::Job.clear_all
     allow(Notifications::Client).to receive(:new).and_return(notification_client)
+    allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
     allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
   end
 

@@ -15,7 +15,7 @@ RSpec.describe VaNotify::Client do
   let(:client) { described_class.new(api_key, callback_options) }
 
   describe '#initialize' do
-    context 'with API key parsing' do
+    context 'with valid API key' do
       it 'sets the service_id and secret_token from parsed API key' do
         expect(client.service_id).to eq('550e8400-e29b-41d4-a716-446655440000')
         expect(client.secret_token).to eq('123e4567-e89b-12d3-a456-426614174000')
@@ -23,6 +23,31 @@ RSpec.describe VaNotify::Client do
 
       it 'sets callback_options' do
         expect(client.callback_options).to eq(callback_options)
+      end
+    end
+
+    context 'with invalid API key format' do
+      it 'raises ArgumentError when service_id is not a valid UUID' do
+        # API key with invalid service_id - replace valid UUID with non-UUID of same length
+        invalid_api_key = 'test-key-invalid-service-id-not-valid-uuid-123e4567-e89b-12d3-a456-426614174000'
+
+        expect { described_class.new(invalid_api_key, callback_options) }
+          .to raise_error(ArgumentError, /is not a valid uuid.*Invalid service_id format in API key/m)
+      end
+
+      it 'raises ArgumentError for invalid tokens' do
+        # Test that validation is called - any invalid API key will trigger validation
+        invalid_api_key = 'invalid-api-key-format'
+
+        expect { described_class.new(invalid_api_key, callback_options) }
+          .to raise_error(ArgumentError, /is not a valid uuid/)
+      end
+
+      it 'raises ArgumentError when API key is too short' do
+        short_api_key = 'too-short'
+
+        expect { described_class.new(short_api_key, callback_options) }
+          .to raise_error(ArgumentError, /is not a valid uuid/)
       end
     end
   end
