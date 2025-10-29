@@ -387,7 +387,7 @@ module VAOS
         deduplicated = deduplicate_eps_appointments(normalized)
         deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
       rescue Common::Exceptions::BackendServiceException => e
-        log_fetch_error('EPS', referral_number, "#{e.class.name} - #{e.message}")
+        log_fetch_error('EPS', referral_number, e.class.name.to_s)
         raise
       end
 
@@ -429,7 +429,7 @@ module VAOS
       end
 
       def normalize_eps_status(appointment)
-        if appointment[:state] == 'cancelled' || appointment.dig(:appointment_details, :status) == 'cancelled'
+        if appointment.dig(:appointment_details, :status) == 'cancelled'
           'cancelled'
         else
           'active'
