@@ -53,7 +53,6 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       post(:create, body: valid_payload.to_json, as: :json)
 
       confirmation = JSON.parse(response.body).dig('data', 'attributes', 'confirmation_number')
-      # Uses your custom matcher; if you don't have it, assert a UUID regex instead.
       expect(confirmation).to be_a_uuid
     end
 

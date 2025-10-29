@@ -17,6 +17,7 @@ module V0
         Rails.logger.info(
           "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
         )
+        StatsD.increment("#{stats_key}.success")
 
         render json: SavedClaimSerializer.new(claim)
       else
@@ -36,6 +37,12 @@ module V0
       render json: {
         message: 'PDF download stub - not yet implemented'
       }, status: :ok
+    end
+
+    private
+
+    def stats_key
+      'api.form214192'
     end
   end
 end
