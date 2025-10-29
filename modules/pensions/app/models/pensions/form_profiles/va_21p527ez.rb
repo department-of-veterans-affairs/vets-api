@@ -58,7 +58,7 @@ module Pensions
     rescue => e
       monitor.track_request(
         :error,
-        "VA Profile military information prefill failed",
+        'VA Profile military information prefill failed',
         'api.pensions.form_profile.military_prefill_error',
         call_location: caller_locations.first,
         exception: { message: e.message, backtrace: e.backtrace }

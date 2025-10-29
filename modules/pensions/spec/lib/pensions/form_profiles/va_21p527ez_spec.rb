@@ -71,9 +71,13 @@ RSpec.describe Pensions::FormProfiles::VA21p527ez, type: :model do
       it 'logs the exception and returns an empty hash' do
         expect(monitor).to receive(:track_request).with(
           :error,
-          'VA Profile military information prefill failed due to test error',
+          'VA Profile military information prefill failed',
           'api.pensions.form_profile.military_prefill_error',
-          call_location: instance_of(Thread::Backtrace::Location)
+          call_location: instance_of(Thread::Backtrace::Location),
+          exception: {
+            message: 'test error',
+            backtrace: instance_of(Array)
+          }
         )
 
         expect(form.send(:initialize_va_profile_prefill_military_information)).to eq({})
