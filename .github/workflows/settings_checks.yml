@@ -86,17 +86,17 @@ jobs:
           new_env_keys=$(git diff --unified=0 origin/master config/settings.yml | \
             grep '^+' | grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
+          if [[ -z "$new_env_keys" ]]; then
+            echo "No ENV variables found in changes."
+            exit 0
+          fi
+
           keys=()
           for line in $new_env_keys; do
             # Remove any quotes that might be present
             line=$(echo "$line" | tr -d "'")
             keys+=("$line")
           done
-
-          if [[ ${#keys[@]} -eq 0 ]]; then
-            echo "No ENV variables found in changes."
-            exit 0
-          fi
 
           echo "Found the following ENV keys:"
           for key in "${keys[@]}"; do
