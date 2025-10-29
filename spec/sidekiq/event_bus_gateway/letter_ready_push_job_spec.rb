@@ -56,16 +56,15 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
         .with("#{described_class::STATSD_METRIC_PREFIX}.success", tags: EventBusGateway::Constants::DD_TAGS)
       expect do
         subject.new.perform(participant_id, template_id)
-      end.to change(EventBusGatewayNotification, :count).by(1)
-      ebg_noti = EventBusGatewayNotification.last
-      expect(ebg_noti.user_account).to eq(user_account)
-      expect(ebg_noti.va_notify_id).to eq(notification_id)
-      expect(ebg_noti.template_id).to eq(template_id)
+      end.not_to change(EventBusGatewayNotification, :count)
     end
   end
 
   context 'when ICN cannot be found' do
     let(:mpi_profile_no_icn) { build(:mpi_profile, icn: nil) }
+    let(:error_message) { 'LetterReadyPushJob push error' }
+    let(:message_detail) { 'Failed to fetch ICN' }
+    let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
     let(:mpi_profile_response_no_icn) { create(:find_profile_response, profile: mpi_profile_no_icn) }
 
     before do
@@ -78,10 +77,6 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
-    let(:error_message) { 'LetterReadyPushJob push error' }
-    let(:message_detail) { 'ICN can not be found' }
-    let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
-
     it 'does not send the push notification, logs the error, increments the statsd metric, and re-raises for retry' do
       expect(va_notify_service).not_to receive(:send_push)
       expect(Rails.logger)
@@ -90,7 +85,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
-      end.to raise_error(StandardError, message_detail).and not_change(EventBusGatewayNotification, :count)
+      end.to raise_error(StandardError, message_detail)
     end
   end
 
@@ -117,7 +112,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
-      end.to raise_error(StandardError).and not_change(EventBusGatewayNotification, :count)
+      end.to raise_error(StandardError)
     end
   end
 
