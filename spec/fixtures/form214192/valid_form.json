@@ -17,7 +17,7 @@
     "employerName": "Acme Corporation",
     "employerAddress": {
       "street": "456 Business Ave",
-      "street2": "Suite 200",
+      "street2": "200",
       "city": "Commerce City",
       "state": "CA",
       "country": "US",
