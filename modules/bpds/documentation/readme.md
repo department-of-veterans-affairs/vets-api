@@ -2,7 +2,7 @@
 
 
 
-## ADR's
+## ADRs
 
 | Path | Description |
 |------|-------------|
