@@ -102,7 +102,9 @@ RSpec.describe SSOe::Service, type: :service do
     context 'when the response is unexpected' do
       it 'raises an error' do
         body = '<unexpected>response</unexpected>'
-        expect { service.send(:parse_response, body) }.to raise_error(SSOe::Errors::SOAPParseError, 'Unable to parse SOAP response')
+        expect do
+          service.send(:parse_response, body)
+        end.to raise_error(SSOe::Errors::SOAPParseError, 'Unable to parse SOAP response')
       end
     end
 
