@@ -1,6 +1,5 @@
 ---
 acc_rep_management:
-  path: "/services/vba_documents"
   prefill: true
 account:
   enabled: true

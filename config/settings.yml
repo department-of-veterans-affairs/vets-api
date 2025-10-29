@@ -1,6 +1,5 @@
 ---
 acc_rep_management:
-  path: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__path_nope'] %>
   prefill: true
 account:
   enabled: ~
