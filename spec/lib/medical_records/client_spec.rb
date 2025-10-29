@@ -243,6 +243,7 @@ describe MedicalRecords::Client do
           ).to have_been_made.at_least_once
         end
       end
+    end
 
     it 'gets a list of allergies', :vcr do
       VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
