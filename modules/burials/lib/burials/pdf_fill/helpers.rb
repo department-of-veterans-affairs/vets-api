@@ -44,6 +44,17 @@ module Burials
       end
 
       ##
+      # Combines a full name from its components into a single string
+      #
+      # @param full_name [Hash]
+      #
+      # @return [String]
+      #
+      def combine_full_name(full_name)
+        combine_hash(full_name, %w[first middle last suffix])
+      end
+
+      ##
       # Converts a boolean value into a checkbox selection
       #
       # This method returns 'On' if the value is truthy, otherwise it returns 'Off'

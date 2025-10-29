@@ -86,6 +86,7 @@ module Burials
       #
       def expand(form_data)
         expand_burial_allowance(form_data)
+        expand_confirmation_question(form_data)
         expand_location_of_death(form_data)
       end
 
@@ -105,6 +106,17 @@ module Burials
         form_data['burialAllowanceRequested'] = {
           'checkbox' => burial_allowance
         }
+      end
+
+      ##
+      # Expands the 'confirmation' field in the form data
+      #
+      # @return [void]
+      def expand_confirmation_question(form_data)
+        if form_data['confirmation'].present?
+          confirmation = form_data['confirmation']
+          form_data['hasConfirmation'] = select_radio(confirmation['checkBox'])
+        end
       end
 
       ##

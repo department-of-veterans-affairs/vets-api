@@ -88,6 +88,22 @@ module Burials
           tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank unit], ', ')
           tour_of_duty['militaryServiceNumber'] = form_data['militaryServiceNumber']
         end
+
+        form_data['previousNames'] = expand_previous_names_and_service(form_data['previousNames'])
+      end
+
+      ##
+      # Combines the previous names and their corresponding service branches into a formatted string
+      #
+      # @param previous_names [Array<Hash>]
+      #
+      # @return [String, nil]
+      def expand_previous_names_and_service(previous_names)
+        return if previous_names.blank?
+
+        previous_names.map do |previous_name|
+          "#{combine_full_name(previous_name)} (#{previous_name['serviceBranch']})"
+        end.join('; ')
       end
     end
   end

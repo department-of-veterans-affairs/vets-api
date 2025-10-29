@@ -69,25 +69,6 @@ describe Burials::PdfFill::Forms::Va21p530ez do
     ]
   )
 
-  describe 'set_state_to_no_if_national' do
-    subject do
-      new_form_class.set_state_to_no_if_national
-    end
-
-    context 'with a regular location of death' do
-      let(:form_data) do
-        {
-          'nationalOrFederal' => true
-        }
-      end
-
-      it 'returns the directly mapped location' do
-        subject
-        expect(class_form_data['cemetaryLocationQuestion']).to eq('none')
-      end
-    end
-  end
-
   describe '#merge_fields' do
     let(:fixture_path) { "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}" }
 
