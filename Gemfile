@@ -22,6 +22,7 @@ path 'modules' do
   gem 'dependents_benefits'
   gem 'dependents_verification'
   gem 'dhp_connected_devices'
+  gem 'employment_questionairres'
   gem 'facilities_api'
   gem 'income_and_assets'
   gem 'income_limits'
