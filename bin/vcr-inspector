@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler/setup'
+require_relative '../script/vcr_inspector/app'
+
+port = ENV.fetch('PORT', 4567)
+puts "\n🎬 VCR Inspector starting up..."
+puts '📼 Loading cassette library...'
+puts "🌐 Opening at http://localhost:#{port}"
+puts "\n   Press Ctrl+C to stop\n\n"
+
+VcrInspector::App.run!(port: port.to_i, bind: '0.0.0.0')
