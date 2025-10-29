@@ -167,36 +167,65 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   end
 
   describe 'GET /available_forms' do
-    before do
-      sign_in_as(old_user)
-      # allow endpoint increment in order to test user_has_no_1095b increment
-      allow(StatsD).to receive(:increment).with('api.rack.request',
-                                                { tags: ['controller:v0/form1095_bs', 'action:available_forms',
-                                                         'source_app:not_provided', 'status:200'] })
+    context 'when Flipper feature is disabled' do
+      before do
+        sign_in_as(old_user)
+        allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(false)
+        # allow endpoint increment in order to test user_has_no_1095b increment
+        allow(StatsD).to receive(:increment).with('api.rack.request',
+                                                  { tags: ['controller:v0/form1095_bs', 'action:available_forms',
+                                                           'source_app:not_provided', 'status:200'] })
+      end
+
+      it 'returns success with only the most recent tax year form data' do
+        this_year = Date.current.year
+        last_year_form = create(:form1095_b, tax_year: this_year - 1)
+        create(:form1095_b, tax_year: this_year)
+        create(:form1095_b, tax_year: this_year - 2)
+
+        expect(StatsD).not_to receive(:increment).with('api.user_has_no_1095b')
+        get '/v0/form1095_bs/available_forms'
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body.deep_symbolize_keys).to eq(
+          { available_forms: [{ year: last_year_form.tax_year,
+                                last_updated: last_year_form.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ') }] }
+        )
+      end
+
+      it 'returns success with no available forms and increments statsd when user has no form data' do
+        expect(StatsD).to receive(:increment).with('api.user_has_no_1095b')
+        get '/v0/form1095_bs/available_forms'
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body.symbolize_keys).to eq(
+          { available_forms: [] }
+        )
+      end
     end
 
-    it 'returns success with only the most recent tax year form data' do
-      this_year = Date.current.year
-      last_year_form = create(:form1095_b, tax_year: this_year - 1)
-      create(:form1095_b, tax_year: this_year)
-      create(:form1095_b, tax_year: this_year - 2)
+    context 'when Flipper feature is enabled' do
+      before do
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
+      end
 
-      expect(StatsD).not_to receive(:increment).with('api.user_has_no_1095b')
-      get '/v0/form1095_bs/available_forms'
-      expect(response).to have_http_status(:success)
-      expect(response.parsed_body.deep_symbolize_keys).to eq(
-        { available_forms: [{ year: last_year_form.tax_year,
-                              last_updated: last_year_form.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ') }] }
-      )
-    end
+      it 'returns success with only the most recent tax year form data' do
+        this_year = Date.current.year
+        last_year_form = create(:form1095_b, tax_year: this_year - 1)
+        create(:form1095_b, tax_year: this_year)
+        create(:form1095_b, tax_year: this_year - 2)
 
-    it 'returns success with no available forms and increments statsd when user has no form data' do
-      expect(StatsD).to receive(:increment).with('api.user_has_no_1095b')
-      get '/v0/form1095_bs/available_forms'
-      expect(response).to have_http_status(:success)
-      expect(response.parsed_body.symbolize_keys).to eq(
-        { available_forms: [] }
-      )
+        expect(StatsD).not_to receive(:increment).with('api.user_has_no_1095b')
+
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/available_forms'
+        end
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body.deep_symbolize_keys).to eq(
+          { available_forms: [{ year: 2024,
+                                last_updated: nil }] }
+        )
+      end
     end
   end
 

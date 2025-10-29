@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../lib/veteran_enrollment_system/form1095_b/service'
+require_relative '../../../lib/veteran_enrollment_system/enrollment_periods/service'
 
 module V0
   class Form1095BsController < ApplicationController
@@ -8,10 +9,19 @@ module V0
     before_action { authorize :form1095, :access? }
 
     def available_forms
-      form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
-      forms = form.nil? ? [] : [{ year: form.tax_year, last_updated: form.updated_at }]
-      StatsD.increment('api.user_has_no_1095b') if forms.empty?
-      render json: { available_forms: forms }
+      if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
+        periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
+        # StatsD.increment('api.user_has_no_1095b') if forms.empty?
+        # periods = [{"startDate"=>"2024-03-05", "endDate"=>"2024-03-05"}]
+        years = periods.map { |period| [period['startDate'].split('-').first.to_i, period['endDate'].split('-').first.to_i] }.flatten.uniq
+        forms = years.map { |year| { year: year, last_updated: nil } }
+        render json: { available_forms: forms }
+      else
+        form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
+        forms = form.nil? ? [] : [{ year: form.tax_year, last_updated: form.updated_at }]
+        StatsD.increment('api.user_has_no_1095b') if forms.empty?
+        render json: { available_forms: forms }
+      end
     end
 
     def download_pdf
