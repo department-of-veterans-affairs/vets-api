@@ -22,8 +22,9 @@ module SimpleFormsApi
     class ConversionError < ProcessingError; end
     class ValidationError < ProcessingError; end
 
-    def initialize(attachment)
+    def initialize(attachment,  password: nil)
       @attachment = attachment
+      @password = password
     end
 
     def process!
@@ -45,7 +46,7 @@ module SimpleFormsApi
 
     private
 
-    attr_reader :attachment
+    attr_reader :attachment, :password
 
     def convert_to_pdf
       Rails.logger.info("Converting file to PDF for attachment #{attachment.guid}")
