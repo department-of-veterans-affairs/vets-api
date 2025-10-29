@@ -165,16 +165,13 @@ module ClaimsApi
           # Choose the appropriate validator module based on FF status - using self.extend
           # so that if validator (instance) methods call other instance methods within the module
           # they all have access to the the same instance
-          # rubocop:disable Style/IdenticalConditionalBranches
           @claims_api_forms_validation_errors = if Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES)
                                                   extend(ClaimsApi::V2::AltRevisedDisabilityCompensationValidation)
-                                                  validate_form_526_submission_values(target_veteran)
+                                                  alt_rev_validate_form_526_submission_values(target_veteran)
                                                 else
                                                   extend(ClaimsApi::V2::DisabilityCompensationValidation)
                                                   validate_form_526_submission_values(target_veteran)
                                                 end
-          # rubocop:enable Style/IdenticalConditionalBranches
-
           # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
           validate_veteran_name(true)
@@ -241,7 +238,7 @@ module ClaimsApi
         end
 
         def bd_service
-          ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
+          ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader
         end
 
         def sandbox_request(request)
