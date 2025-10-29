@@ -5,6 +5,7 @@ require 'ssoe/service'
 require 'ssoe/get_ssoe_traits_by_cspid_message'
 require 'ssoe/models/user'
 require 'ssoe/models/address'
+require 'ssoe/errors'
 
 # rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe SSOe::Service, type: :service do
@@ -101,7 +102,7 @@ RSpec.describe SSOe::Service, type: :service do
     context 'when the response is unexpected' do
       it 'raises an error' do
         body = '<unexpected>response</unexpected>'
-        expect { service.send(:parse_response, body) }.to raise_error(StandardError, 'Unable to parse SOAP response')
+        expect { service.send(:parse_response, body) }.to raise_error(SSOe::Errors::SOAPParseError, 'Unable to parse SOAP response')
       end
     end
 
