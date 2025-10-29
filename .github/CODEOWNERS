@@ -1060,6 +1060,7 @@ modules/my_health/spec/request/v1/prescriptions_request_spec.rb @department-of-v
 modules/pensions @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
 modules/representation_management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/accredited-representative-crew
 modules/simple_forms_api @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
+modules/sob @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 modules/test_user_dashboard @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 modules/travel_pay @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
 modules/va_notify @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/backend-review-group
