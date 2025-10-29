@@ -1,14 +1,12 @@
 ---
 acc_rep_management:
   prefill: true
-  xyz: true
 account:
   enabled: true
 accredited_representative_portal:
   allow_list:
     github:
       access_token: ~
-      base_uri: ~
       path: ~
       repo: ~
   frontend_base_url: http://localhost:3001/representative

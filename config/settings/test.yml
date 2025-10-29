@@ -1,13 +1,11 @@
 acc_rep_management:
   prefill: true
-  xyz: true
 account:
   enabled: true
 accredited_representative_portal:
   allow_list:
     github:
       access_token: some_fake_token
-      base_uri: https://not.real.com
       path: not_real.csv
       repo: faked/fakeness
   frontend_base_url: http://localhost:3001/representative
