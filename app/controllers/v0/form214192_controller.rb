@@ -1,30 +1,38 @@
 # frozen_string_literal: true
 
-# Temporary stub implementation for Form 21-4192 to enable parallel frontend development
-# This entire file will be replaced with the full implementation in Phase 1
-
 module V0
   class Form214192Controller < ApplicationController
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    skip_before_action :verify_authenticity_token
 
     def create
-      confirmation_number = SecureRandom.uuid
-      submitted_at = Time.current
+      # Body parsed by Rails; schema validated by committee before hitting here.
+      payload = request.request_parameters
 
-      render json: {
-        data: {
-          id: '12345',
-          type: 'saved_claims',
-          attributes: {
-            submitted_at: submitted_at.iso8601,
-            regional_office: [],
-            confirmation_number:,
-            guid: confirmation_number,
-            form: '21-4192'
-          }
-        }
-      }, status: :ok
+      puts "payload: #{payload}" * 100
+
+      claim = SavedClaim::Form214192.new(form: payload.to_json)
+
+      if claim.save
+        claim.process_attachments!
+
+        Rails.logger.info(
+          "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+        )
+
+        render json: SavedClaimSerializer.new(claim)
+      else
+        StatsD.increment("#{stats_key}.failure")
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+    rescue => e
+      # Include validation errors when present; helpful in logs/Sentry.
+      Rails.logger.error(
+        'Form214192: error submitting claim',
+        { error: e.message, claim_errors: (defined?(claim) && claim&.errors&.full_messages) }
+      )
+      raise
     end
 
     def download_pdf
