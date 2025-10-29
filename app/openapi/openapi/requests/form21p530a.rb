@@ -154,7 +154,8 @@ module Openapi
             }
           },
           remarks: {
-            type: %i[string null]
+            type: :string,
+            nullable: true
           }
         }
       }.freeze

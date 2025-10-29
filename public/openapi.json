@@ -242,7 +242,8 @@
                         "format": "date"
                       },
                       "remarks": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                       }
                     }
                   }
