@@ -106,6 +106,126 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
     end
   end
 
+  describe('#track_toxic_exposure_changes') do
+    let(:in_progress_form_data) do
+      {
+        'toxicExposure' => {
+          'conditions' => { 'asthma' => true },
+          'gulfWar1990' => { 'iraq' => true }
+        }
+      }
+    end
+    let(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', form_data: in_progress_form_data.to_json) }
+    let(:submitted_claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
+    let(:submission) { instance_double(Form526Submission, id: 67_890) }
+
+    shared_examples 'logs changes event' do |removed_keys:, completely_removed:|
+      it 'logs with correct keys' do
+        expect(monitor).to receive(:submit_event).with(
+          :info,
+          'Form526Submission toxic exposure orphaned dates purged',
+          "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_changes",
+          hash_including(
+            submission_id: submission.id,
+            removed_keys:,
+            completely_removed:
+          )
+        )
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+      end
+    end
+
+    context 'when key removed' do
+      before do
+        form_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true }
+          }
+        }
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      include_examples 'logs changes event', removed_keys: ['gulfWar1990'], completely_removed: false
+    end
+
+    context 'when conditions key removed' do
+      before do
+        form_data = {
+          'toxicExposure' => {
+            'gulfWar1990' => { 'iraq' => true }
+          }
+        }
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      include_examples 'logs changes event', removed_keys: ['conditions'], completely_removed: false
+    end
+
+    context 'when all keys removed but toxicExposure object exists (empty hash)' do
+      before do
+        form_data = {
+          'toxicExposure' => {}
+        }
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      include_examples 'logs changes event', removed_keys: %w[conditions gulfWar1990], completely_removed: false
+
+      it 'distinguishes empty object from nil' do
+        expect(monitor).to receive(:submit_event).with(
+          :info,
+          'Form526Submission toxic exposure orphaned dates purged',
+          "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_changes",
+          hash_including(
+            submission_id: submission.id,
+            removed_keys: %w[conditions gulfWar1990],
+            completely_removed: false
+          )
+        )
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+      end
+    end
+
+    context 'when multiple keys removed (2 keys)' do
+      before do
+        # Setup InProgressForm with 3 keys
+        in_progress_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true },
+            'gulfWar1990' => { 'iraq' => true },
+            'gulfWar2001' => { 'afghanistan' => true }
+          }
+        }
+        allow(in_progress_form).to receive(:form_data).and_return(in_progress_data.to_json)
+
+        # Submitted only has conditions (2 keys removed)
+        form_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true }
+          }
+        }
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      include_examples 'logs changes event', removed_keys: %w[gulfWar1990 gulfWar2001], completely_removed: false
+    end
+
+    context 'when completely removed' do
+      before { allow(submitted_claim).to receive(:form).and_return({}.to_json) }
+
+      include_examples 'logs changes event', removed_keys: %w[conditions gulfWar1990], completely_removed: true
+    end
+
+    context 'when unchanged' do
+      before { allow(submitted_claim).to receive(:form).and_return(in_progress_form_data.to_json) }
+
+      it 'does not log' do
+        expect(monitor).not_to receive(:submit_event)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+      end
+    end
+  end
+
   describe('#track_526_submission_with_banking_info') do
     let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
 
