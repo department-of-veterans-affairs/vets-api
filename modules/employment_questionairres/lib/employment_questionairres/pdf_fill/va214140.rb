@@ -5,8 +5,8 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'employment_questionairres/constants'
 require 'employment_questionairres/helpers'
-require 'employment_questionairres/pdf_fill/sections/section_01'
-require 'employment_questionairres/pdf_fill/sections/section_2'
+# require 'employment_questionairres/pdf_fill/sections/section_01'
+# require 'employment_questionairres/pdf_fill/sections/section_2'
 
 module EmploymentQuestionairres
   module PdfFill
