@@ -1291,7 +1291,7 @@ describe UnifiedHealthData::Service, type: :service do
           result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
 
           expect(result[:success]).to eq([])
-          expect(result[:failed]).to eq([])
+          expect(result[:failed]).to eq([{ id: '12345', error: 'Service unavailable', station_number: '570' }])
         end
       end
     end
@@ -1418,6 +1418,134 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to eq([
                                { id: '456', error: 'Failed', station_number: '571' }
                              ])
+      end
+    end
+
+    context 'validate_refill_response_count' do
+      it 'does not raise error when counts match' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'raises error when response has fewer items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' },
+          { id: '789', stationNumber: '572' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 3 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when response has more items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 1 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when no responses received for multiple orders' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: []
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 2 orders, received 0 responses'
+        )
+      end
+
+      it 'does not raise error when both orders and responses are empty' do
+        normalized_orders = []
+        result = {
+          success: [],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all success responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [
+            { id: '123', status: 'submitted', station_number: '570' },
+            { id: '456', status: 'submitted', station_number: '571' }
+          ],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all failed responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: [
+            { id: '123', error: 'Failed', station_number: '570' },
+            { id: '456', error: 'Failed', station_number: '571' }
+          ]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
       end
     end
   end

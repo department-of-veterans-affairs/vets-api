@@ -245,6 +245,23 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       end
     end
 
+    context 'when response count does not match request count' do
+      it 'returns an error for each order id when response count does not match request count' do
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [
+                { stationNumber: '123', id: '25804851' },
+                { stationNumber: '124', id: '25804852' },
+                { stationNumber: '125', id: '25804853' }
+              ].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data']['attributes']['failedPrescriptionIds'].length).to eq(3)
+      end
+    end
+
     context 'with feature flag enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
@@ -256,7 +273,10 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             VCR.use_cassette('unified_health_data/refill_prescription_success') do
               put '/mobile/v1/health/rx/prescriptions/refill',
-                  params: [{ stationNumber: '358', id: '25804851' }].to_json,
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
                   headers: sis_headers.merge('Content-Type' => 'application/json')
 
               expect(response).to have_http_status(:ok)

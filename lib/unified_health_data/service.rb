@@ -99,7 +99,9 @@ module UnifiedHealthData
       normalized_orders = normalize_orders(orders)
       with_monitoring do
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
-        parse_refill_response(response)
+        result = parse_refill_response(response)
+        validate_refill_response_count(normalized_orders, result)
+        result
       end
     rescue Common::Exceptions::BackendServiceException => e
       raise e if e.original_status && e.original_status >= 500
@@ -343,6 +345,18 @@ module UnifiedHealthData
         success: successes || [],
         failed: failures || []
       }
+    end
+
+    def validate_refill_response_count(normalized_orders, result)
+      orders_sent = normalized_orders.size
+      orders_received = result[:success].size + result[:failed].size
+
+      return if orders_sent == orders_received
+
+      error_message = "Refill response count mismatch: sent #{orders_sent} orders, " \
+                      "received #{orders_received} responses"
+      Rails.logger.error(error_message)
+      raise Common::Exceptions::PrescriptionRefillResponseMismatch.new(orders_sent, orders_received)
     end
 
     def extract_successful_refills(refill_items)

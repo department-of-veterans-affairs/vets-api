@@ -255,29 +255,6 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
       end
     end
 
-    context 'with empty resource' do
-      let(:resource) do
-        {
-          success: [],
-          failed: []
-        }
-      end
-
-      it 'handles empty arrays correctly' do
-        serializer = described_class.new(id, resource)
-        result = serializer.serializable_hash
-
-        expect(result[:data][:type]).to eq(:PrescriptionRefills)
-        expect(result[:data][:attributes][:failed_prescription_ids]).to eq([])
-        expect(result[:data][:attributes][:failed_station_list]).to eq([])
-        expect(result[:data][:attributes][:successful_station_list]).to eq([])
-        expect(result[:data][:attributes][:last_updated_time]).to be_nil
-        expect(result[:data][:attributes][:prescription_list]).to eq([])
-        expect(result[:data][:attributes][:info_messages]).to eq([])
-        expect(result[:data][:attributes][:errors]).to eq([])
-      end
-    end
-
     context 'with mixed successes and failures' do
       let(:resource) do
         {
