@@ -85,7 +85,67 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        # Add expansion logic here
+        expand_burial_allowance(form_data)
+        expand_confirmation_question(form_data)
+        expand_location_of_death(form_data)
+      end
+
+      ##
+      # Expands the burial allowance request by ensuring values are formatted as 'On' or nil
+      #
+      # @return [void]
+      def expand_burial_allowance(form_data)
+        form_data['hasPreviouslyReceivedAllowance'] = select_radio(form_data['previouslyReceivedAllowance'])
+        burial_allowance = form_data['burialAllowanceRequested']
+        return if burial_allowance.blank?
+
+        burial_allowance.each do |key, value|
+          burial_allowance[key] = value.present? ? 'On' : nil
+        end
+
+        form_data['burialAllowanceRequested'] = {
+          'checkbox' => burial_allowance
+        }
+      end
+
+      ##
+      # Expands the 'confirmation' field in the form data
+      #
+      # @return [void]
+      def expand_confirmation_question(form_data)
+        if form_data['confirmation'].present?
+          confirmation = form_data['confirmation']
+          form_data['hasConfirmation'] = select_radio(confirmation['checkBox'])
+        end
+      end
+
+      ##
+      # Converts the location of death by formatting facility details and adjusting specific location values
+      #
+      # @return [Hash]
+      #
+      def expand_location_of_death(form_data)
+        location_of_death = form_data['locationOfDeath']
+        return if location_of_death.blank?
+
+        home_hospice_care = form_data['homeHospiceCare']
+        home_hospice_care_after_discharge = form_data['homeHospiceCareAfterDischarge']
+
+        location = location_of_death['location']
+        options = form_data[location]
+        if options.present? && location != 'other'
+          location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
+        end
+
+        form_data.delete(location)
+
+        if location == 'atHome' && home_hospice_care && home_hospice_care_after_discharge
+          location_of_death['location'] = 'nursingHomePaid'
+        elsif location == 'atHome' && !(home_hospice_care && home_hospice_care_after_discharge)
+          location_of_death['location'] = 'nursingHomeUnpaid'
+        end
+
+        expand_checkbox_as_hash(form_data['locationOfDeath'], 'location')
       end
     end
   end
