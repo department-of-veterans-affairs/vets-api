@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unified_health_data/service'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
@@ -353,10 +354,42 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         let(:current_user) { build(:user, :vaos) }
         let(:start_date) { Time.zone.parse('2023-10-13T14:25:00Z') }
         let(:end_date) { Time.zone.parse('2023-10-13T17:45:00Z') }
+        # let(:included) {'avs,binary'}
         let(:params) { { start: start_date, end: end_date } }
-        let(:avs_error_message) { 'Error retrieving AVS link' }
+        let(:avs_error_message) { 'Error retrieving AVS info' }
         let(:avs_path) do
           '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
+        end
+        let(:avs_pdf) do
+          [
+            {
+              'apptId' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loincCodes' => %w[4189669 96345-4],
+              'noteType' => 'ambulatory_patient_summary',
+              'contentType' => 'application/pdf',
+              'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+              # avs binary when rendered as json string: "(?i-mx:JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e)"
+              # raw avs binary (no quotes): /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+            }
+          ]
+        end
+
+        let(:rendered_avs_pdf) do
+          [
+            {
+              'apptId' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loincCodes' => %w[4189669 96345-4],
+              'noteType' => 'ambulatory_patient_summary',
+              'contentType' => 'application/pdf',
+              'binary' => '(?i-mx:JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e)'
+              # avs binary when rendered as json string: "(?i-mx:JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e)"
+              # raw avs binary (no quotes): /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+            }
+          ]
         end
 
         context 'using VAOS' do
@@ -384,6 +417,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response.body).to be_a(String)
 
               expect(data[0]['attributes']['avsPath']).to eq(avs_path)
+
+              expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            end
+          end
+
+          it 'fetches appointment list and includes OH avs binary on past booked appointments' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner_avs',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              # allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_pdf)
+              #   .and_return(avs_pdf)
+              allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
+              get '/vaos/v2/appointments' \
+                  '?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&_include=avs,binary',
+                  params:, headers: inflection_header
+
+              data = JSON.parse(response.body)['data']
+
+              expect(response).to have_http_status(:ok)
+              expect(response.body).to be_a(String)
+
+              expect(data[0]['attributes']['avsPdf']).to eq(rendered_avs_pdf)
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -753,6 +807,38 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
         end
 
+        let(:avs_pdf) do
+          [
+            {
+              'apptId' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loincCodes' => %w[4189669 96345-4],
+              'noteType' => 'ambulatory_patient_summary',
+              'contentType' => 'application/pdf',
+              'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+              # avs binary when rendered as json string: "(?i-mx:JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e)"
+              # raw avs binary (no quotes): /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+            }
+          ]
+        end
+
+        let(:rendered_avs_pdf) do
+          [
+            {
+              'apptId' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loincCodes' => %w[4189669 96345-4],
+              'noteType' => 'ambulatory_patient_summary',
+              'contentType' => 'application/pdf',
+              'binary' => '(?i-mx:JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e)'
+              # avs binary when rendered as json string: "(?i-mx:JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e)"
+              # raw avs binary (no quotes): /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+            }
+          ]
+        end
+
         it 'has access and returns appointment - va proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                            match_requests_on: %i[method path query]) do
@@ -800,9 +886,30 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
+        it 'has access and returns appointment with OH avs binary included' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs_cerner',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
+            get '/vaos/v2/appointments/70060?_include=avs,binary', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            data = JSON.parse(response.body)['data']
+
+            expect(data['id']).to eq('70060')
+            expect(data['attributes']['kind']).to eq('clinic')
+            expect(data['attributes']['status']).to eq('booked')
+            expect(data['attributes']['avsPdf']).to eq(rendered_avs_pdf)
+            expect(Rails.logger).to have_received(:info).with(
+              'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
+              { created: '2021-12-13T14:03:02Z' }.to_json
+            )
+          end
+        end
+
         context 'with judy morrison test appointment' do
           let(:current_user) { build(:user, :vaos) }
-          let(:avs_error_message) { 'Error retrieving AVS link' }
+          let(:avs_error_message) { 'Error retrieving AVS info' }
 
           it 'includes an avs error message in response when appointment has no available avs' do
             stub_clinics

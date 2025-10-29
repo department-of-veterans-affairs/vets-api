@@ -569,6 +569,16 @@ module VAOS
         identifier[:value]&.split(':', 2)
       end
 
+      def extract_cerner_identifier(appointment)
+        return nil if appointment[:identifier].nil?
+
+        identifier = appointment[:identifier].find { |id| id[:system].include? 'cerner' }
+
+        return if identifier.nil?
+
+        identifier[:value]&.split('/', 2)&.last
+      end
+
       # Normalizes an Integration Control Number (ICN) by removing the 'V' character and the trailing six digits.
       # The ICN format consists of 17 alpha-numeric characters (10 digits + "V" + 6 digits) with
       # V being a deliminator, and the 6 trailing digits a checksum.
@@ -619,19 +629,15 @@ module VAOS
       end
 
       def get_avs_pdf(appt, binary)
-        return nil if appt[:station].nil? || appt[:ien].nil?
+        cerner_system_id = extract_cerner_identifier(appt)
 
-        avs_resp = unified_health_data_service.get_appt_avs(appt[:id], binary)
+        return nil if cerner_system_id.nil?
 
-        return nil if avs_resp.empty? # TODO: other conditions?
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: binary)
 
-        data = avs_resp.first # This will grab first avs in array (includes id, binary, metadata, etc)
+        return nil if avs_resp.empty?
 
-        # TODO: is this check relevant? what is the response data structure? awaiting swagger...
-        # if data[:icn].nil? || !icns_match?(data[:icn], user[:icn])
-        #   Rails.logger.warn('VAOS: AVS response ICN does not match user ICN')
-        #   return nil
-        # end
+        avs_resp
       end
 
       # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..
@@ -640,10 +646,11 @@ module VAOS
       #
       # @param [Hash] appt The object representing the appointment. Must be an object that allows hash-like access
       #
-      # @param [boolean] binary Indicates if Oracle Health AVS binary data should be returned
+      # @param [boolean] binary Indicates if Oracle Health AVS binary data should be returned for cerner appts
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
-      def fetch_avs_and_update_appt_body(appt, binary: false)
+      # rubocop:disable Style/OptionalBooleanParameter
+      def fetch_avs_and_update_appt_body(appt, binary = false)
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
@@ -655,9 +662,10 @@ module VAOS
         end
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
-        Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
+        Rails.logger.error("VAOS: Error retrieving AVS info: #{e.class}, #{e.message} \n   #{err_stack}")
         appt[:avs_error] = AVS_ERROR_MESSAGE
       end
+      # rubocop:enable Style/OptionalBooleanParameter
 
       # Determines if the appointment cannot be cancelled.
       #
