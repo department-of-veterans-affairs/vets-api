@@ -99,7 +99,7 @@ class SavedClaim < ApplicationRecord
   def form_matches_schema
     return unless form_is_string
 
-    schema = form_schema
+    schema = form_schema || VetsJsonSchema::SCHEMAS[self.class::FORM]
 
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
