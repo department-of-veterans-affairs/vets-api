@@ -96,8 +96,8 @@ class FormProfile
     dependents: %w[686C-674 686C-674-V2],
     dependents_verification: %w[21-0538],
     dispute_debt: ['DISPUTE-DEBT'],
-    edu: %w[22-1990 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ
+    edu: %w[22-1990 22-1990EMEB 22-1995 22-5490 22-5490E
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990EZ
             22-10297],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
@@ -131,7 +131,7 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
@@ -158,10 +158,8 @@ class FormProfile
     '22-10203' => ::FormProfiles::VA10203,
     '22-10297' => ::FormProfiles::VA10297,
     '22-1990' => ::FormProfiles::VA1990,
-    '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
-    '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
@@ -175,6 +173,7 @@ class FormProfile
     '5655' => ::FormProfiles::VA5655,
     '686C-674-V2' => ::FormProfiles::VA686c674v2,
     '686C-674' => ::FormProfiles::VA686c674,
+    '21-2680' => ::FormProfiles::VA212680,
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,

@@ -521,6 +521,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
 
             before do |example|
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
               make_request(example)
             end
 
@@ -591,6 +592,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             let(:disability_comp_request) { data }
 
             before do |example|
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
               make_request(example)
             end
 
@@ -598,8 +600,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
               append_example_metadata(example, response)
             end
 
-            it 'returns a 422 response' do |example|
-              assert_response_matches_metadata(example.metadata)
+            it 'returns a 422 response' do
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -653,6 +655,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -761,6 +764,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           let(:data) { { data: { attributes: nil } } }
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end

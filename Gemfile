@@ -25,6 +25,7 @@ path 'modules' do
   gem 'facilities_api'
   gem 'income_and_assets'
   gem 'income_limits'
+  gem 'increase_compensation'
   gem 'ivc_champva'
   gem 'meb_api'
   gem 'medical_expense_reports'
@@ -65,6 +66,7 @@ gem 'carrierwave'
 gem 'carrierwave-aws'
 gem 'clamav-client', require: 'clamav/client'
 gem 'combine_pdf'
+gem 'committee-rails'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.1.1', require: 'vbms'
 gem 'csv'
@@ -192,7 +194,6 @@ end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
-  gem 'committee-rails'
   gem 'hashdiff'
   gem 'mock_redis'
   gem 'pdf-inspector'

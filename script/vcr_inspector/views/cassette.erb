@@ -1,0 +1,190 @@
+<div class="cassette-viewer">
+  <div class="viewer-header">
+    <a href="/" class="back-button">← Back to Library</a>
+    <h1 class="cassette-title">
+      <span class="title-icon">📼</span>
+      <%= @cassette_name %>
+    </h1>
+  </div>
+
+  <div class="cassette-player">
+    <div class="player-cassette">
+      <div class="cassette-insert-animation">
+        <div class="cassette-physical">
+          <div class="cassette-top-label">
+            <div class="label-text"><%= File.basename(@cassette_name) %></div>
+            <div class="label-subtext">Recorded: <%= (@recorded_at || @file_info.mtime).strftime('%Y-%m-%d') %></div>
+          </div>
+          <div class="cassette-body">
+            <div class="reel-window">
+              <div class="reel left"><div class="reel-inner"></div></div>
+              <div class="tape-path"></div>
+              <div class="reel right"><div class="reel-inner"></div></div>
+            </div>
+            <div class="cassette-holes">
+              <div class="hole"></div>
+              <div class="hole"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cassette-meta">
+      <div class="meta-row">
+        <span class="meta-label">📅 Recorded:</span>
+        <span class="meta-value"><%= format_file_date(@recorded_at) %></span>
+        <span class="age-badge"><%= cassette_age_indicator(@recorded_at) %></span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">🎬 Interactions:</span>
+        <span class="meta-value"><%= @cassette[:interactions].length %></span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">💾 File Size:</span>
+        <span class="meta-value"><%= (@file_info.size / 1024.0).round(2) %> KB</span>
+      </div>
+      <% if @tests_using.any? %>
+      <div class="meta-row">
+        <span class="meta-label">🧪 Used by:</span>
+        <span class="meta-value"><%= @tests_using.length %> test(s)</span>
+      </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @tests_using.any? %>
+  <div class="tests-section">
+    <h2 class="section-title">🧪 Tests Using This Cassette</h2>
+    <div class="tests-list">
+      <% @tests_using.each do |test| %>
+        <div class="test-item">
+          <div class="test-file">
+            <span class="file-icon">📄</span>
+            <code><%= test[:file] %></code>
+            <span class="line-number">Line <%= test[:line] %></span>
+          </div>
+          <div class="test-content"><code><%= truncate(test[:content], 120) %></code></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <% end %>
+
+  <div class="interactions-section">
+    <h2 class="section-title">🎬 HTTP Interactions</h2>
+    
+    <% if @cassette[:error] %>
+      <div class="error-message" style="background: #ff000020; border: 1px solid #ff0000; padding: 20px; border-radius: 5px; color: #ff6666;">
+        <strong>❌ Error parsing cassette:</strong><br>
+        <%= @cassette[:error] %>
+      </div>
+    <% elsif @cassette[:interactions].empty? %>
+      <div class="info-message" style="background: #ffff0020; border: 1px solid #ffff00; padding: 20px; border-radius: 5px; color: #ffff88;">
+        <strong>⚠️ No HTTP interactions found in this cassette.</strong>
+      </div>
+    <% else %>
+    
+    <% @cassette[:interactions].each_with_index do |interaction, index| %>
+      <div class="interaction-card" id="interaction-<%= index %>">
+        <div class="interaction-header">
+          <span class="interaction-number">#<%= index + 1 %></span>
+          <% if interaction[:recorded_at] %>
+            <span class="recorded-time">⏱ <%= format_date(interaction[:recorded_at]) %></span>
+          <% end %>
+        </div>
+
+        <div class="request-response-container">
+          <!-- Request -->
+          <div class="request-panel">
+            <h3 class="panel-title">
+              <%= http_method_emoji(interaction[:request][:method]) %>
+              REQUEST
+              <span class="method-badge <%= interaction[:request][:method] %>">
+                <%= interaction[:request][:method].upcase %>
+              </span>
+            </h3>
+            
+            <div class="http-url">
+              <span class="url-label">URL:</span>
+              <code class="url-value"><%= interaction[:request][:uri] %></code>
+              <button class="copy-btn" onclick="copyToClipboard('<%= CGI.escapeHTML(interaction[:request][:uri]) %>')">📋</button>
+            </div>
+
+            <details class="collapsible-section">
+              <summary class="section-summary">📨 Request Headers (<%= interaction[:request][:headers].length %>)</summary>
+              <div class="headers-content">
+                <% interaction[:request][:headers].each do |key, values| %>
+                  <div class="header-row">
+                    <span class="header-key"><%= key %>:</span>
+                    <span class="header-value"><%= Array(values).join(', ') %></span>
+                  </div>
+                <% end %>
+              </div>
+            </details>
+
+            <% if interaction[:request][:body] && interaction[:request][:body][:raw] && !interaction[:request][:body][:raw].empty? %>
+              <details class="collapsible-section" open>
+                <summary class="section-summary">📦 Request Body</summary>
+                <div class="body-content">
+                  <% if interaction[:request][:body][:is_json] %>
+                    <button class="copy-btn" onclick="copyToClipboard(this.nextElementSibling.textContent)">📋 Copy JSON</button>
+                    <pre class="json-content"><code><%= highlight_json(format_json(interaction[:request][:body][:raw])) %></code></pre>
+                  <% else %>
+                    <pre class="text-content"><code><%= CGI.escapeHTML(safe_encode(interaction[:request][:body][:raw])) %></code></pre>
+                  <% end %>
+                </div>
+              </details>
+            <% end %>
+          </div>
+
+          <!-- Response -->
+          <div class="response-panel">
+            <h3 class="panel-title">
+              ✅ RESPONSE
+              <span class="status-badge <%= status_class(interaction[:response][:status][:code]) %>">
+                <%= interaction[:response][:status][:code] %> <%= interaction[:response][:status][:message] %>
+              </span>
+            </h3>
+
+            <details class="collapsible-section">
+              <summary class="section-summary">📨 Response Headers (<%= interaction[:response][:headers].length %>)</summary>
+              <div class="headers-content">
+                <% interaction[:response][:headers].each do |key, values| %>
+                  <div class="header-row">
+                    <span class="header-key"><%= key %>:</span>
+                    <span class="header-value"><%= Array(values).join(', ') %></span>
+                  </div>
+                <% end %>
+              </div>
+            </details>
+
+            <% if interaction[:response][:body] && interaction[:response][:body][:raw] && !interaction[:response][:body][:raw].empty? %>
+              <details class="collapsible-section" open>
+                <summary class="section-summary">📦 Response Body</summary>
+                <div class="body-content">
+                  <% if interaction[:response][:body][:is_image] %>
+                    <div class="image-preview">
+                      <p><strong>🖼️ Image:</strong> <%= interaction[:response][:body][:image_type].upcase %></p>
+                      <img src="<%= interaction[:response][:body][:data_uri] %>" alt="Response image" style="max-width: 100%; border: 1px solid #333; margin-top: 10px;" />
+                      <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; color: #00ff00;">📄 View Base64 Data</summary>
+                        <pre class="text-content" style="margin-top: 10px;"><code><%= CGI.escapeHTML(safe_encode(truncate(interaction[:response][:body][:raw], 5000))) %></code></pre>
+                      </details>
+                    </div>
+                  <% elsif interaction[:response][:body][:is_json] %>
+                    <button class="copy-btn" onclick="copyToClipboard(this.nextElementSibling.textContent)">📋 Copy JSON</button>
+                    <pre class="json-content"><code><%= highlight_json(format_json(interaction[:response][:body][:raw])) %></code></pre>
+                  <% else %>
+                    <pre class="text-content"><code><%= CGI.escapeHTML(safe_encode(truncate(interaction[:response][:body][:raw], 5000))) %></code></pre>
+                  <% end %>
+                </div>
+              </details>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <% end %>
+  </div>
+</div>

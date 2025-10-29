@@ -294,6 +294,169 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           end
         end
 
+        describe 'toxic exposure purge tracking' do
+          let(:monitor) { instance_double(DisabilityCompensation::Loggers::Monitor) }
+          let(:parsed_payload) { JSON.parse(all_claims_form) }
+
+          before do
+            allow(DisabilityCompensation::Loggers::Monitor).to receive(:new).and_return(monitor)
+            allow(monitor).to receive(:track_saved_claim_save_success)
+            allow(monitor).to receive(:track_526_submission_with_banking_info)
+            allow(monitor).to receive(:track_526_submission_without_banking_info)
+
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_toxic_exposure_opt_out_data_purge, anything)
+              .and_return(true)
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_toxic_exposure_opt_out_data_purge_by_user, anything)
+              .and_return(false)
+          end
+
+          context 'when toxic exposure keys are removed' do
+            it 'logs the removal' do
+              # Update InProgressForm to have gulfWar1990 and gulfWar2001
+              in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
+              in_progress_form_data = JSON.parse(in_progress_form.form_data)
+              in_progress_form_data['toxicExposure'] = {
+                'conditions' => { 'arthritis' => true },
+                'gulfWar1990' => { 'iraq' => true },
+                'gulfWar2001' => { 'djibouti' => true }
+              }
+              in_progress_form.update!(form_data: in_progress_form_data.to_json)
+
+              # Submit with only gulfWar1990 (gulfWar2001 removed)
+              parsed_payload['form526']['toxicExposure'] = {
+                'conditions' => { 'arthritis' => true },
+                'gulfWar1990' => { 'iraq' => true }
+              }
+
+              expect(monitor).to receive(:track_toxic_exposure_changes).with(
+                hash_including(
+                  in_progress_form:,
+                  submitted_claim: kind_of(SavedClaim::DisabilityCompensation::Form526AllClaim),
+                  submission: kind_of(Form526Submission)
+                )
+              )
+
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: JSON.generate(parsed_payload),
+                   headers:)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          context 'when toxic exposure is completely removed' do
+            it 'logs the complete removal' do
+              # Update InProgressForm to have toxic exposure
+              in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
+              in_progress_form_data = JSON.parse(in_progress_form.form_data)
+              in_progress_form_data['toxicExposure'] = {
+                'conditions' => { 'arthritis' => true },
+                'gulfWar1990' => { 'iraq' => true }
+              }
+              in_progress_form.update!(form_data: in_progress_form_data.to_json)
+
+              # Submit without any toxic exposure
+              parsed_payload['form526'].delete('toxicExposure')
+
+              expect(monitor).to receive(:track_toxic_exposure_changes)
+
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: JSON.generate(parsed_payload),
+                   headers:)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          context 'when toxic exposure is unchanged' do
+            it 'does not log' do
+              # Update InProgressForm to match submitted data
+              in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
+              in_progress_form_data = JSON.parse(in_progress_form.form_data)
+              in_progress_form_data['toxicExposure'] = {
+                'conditions' => { 'arthritis' => true },
+                'gulfWar1990' => { 'iraq' => true }
+              }
+              in_progress_form.update!(form_data: in_progress_form_data.to_json)
+
+              # Submit with same toxic exposure
+              parsed_payload['form526']['toxicExposure'] = {
+                'conditions' => { 'arthritis' => true },
+                'gulfWar1990' => { 'iraq' => true }
+              }
+
+              # track_toxic_exposure_changes will still be called, but monitor.submit_event should not
+              # (the method returns early if no changes)
+              allow(monitor).to receive(:track_toxic_exposure_changes)
+              expect(monitor).not_to receive(:submit_event)
+
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: JSON.generate(parsed_payload),
+                   headers:)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          context 'when no toxic exposure in InProgressForm' do
+            it 'does not log' do
+              # Update InProgressForm to have no toxic exposure
+              in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
+              in_progress_form_data = JSON.parse(in_progress_form.form_data)
+              in_progress_form_data.delete('toxicExposure')
+              in_progress_form.update!(form_data: in_progress_form_data.to_json)
+
+              allow(monitor).to receive(:track_toxic_exposure_changes)
+              expect(monitor).not_to receive(:submit_event)
+
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: all_claims_form,
+                   headers:)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          context 'when flipper flag is disabled' do
+            it 'does not call track_toxic_exposure_changes' do
+              # Disable both toxic exposure purge flags to prevent logging
+              allow(Flipper).to receive(:enabled?)
+                .with(:disability_526_toxic_exposure_opt_out_data_purge, anything)
+                .and_return(false)
+              allow(Flipper).to receive(:enabled?)
+                .with(:disability_526_toxic_exposure_opt_out_data_purge_by_user, anything)
+                .and_return(false)
+
+              expect(monitor).not_to receive(:track_toxic_exposure_changes)
+
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: all_claims_form,
+                   headers:)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          context 'when logging raises an error' do
+            it 'does not fail the submission' do
+              # Simulate an error in the logging method
+              allow(monitor).to receive(:track_toxic_exposure_changes).and_raise(StandardError, 'Logging failed')
+
+              # Expect the error to be logged
+              expect(Rails.logger).to receive(:error).with(
+                'Error logging toxic exposure changes',
+                hash_including(
+                  user_uuid: user.uuid,
+                  error: 'Logging failed'
+                )
+              )
+
+              # Submission should still succeed
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: all_claims_form,
+                   headers:)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+
         it 'matches the rated disabilities schema with camel-inflection' do
           post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers_with_camel
           expect(response).to have_http_status(:ok)

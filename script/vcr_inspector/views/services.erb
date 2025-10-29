@@ -1,0 +1,19 @@
+<div class="services-view">
+  <div class="view-header">
+    <h1>📂 Browse by Service</h1>
+    <p class="subtitle">Organized collection of <%= @services.length %> services</p>
+  </div>
+
+  <div class="services-grid">
+    <% @services.each do |service, count| %>
+      <a href="/search?service=<%= service %>" class="service-card">
+        <div class="service-icon">📁</div>
+        <div class="service-name"><%= service %></div>
+        <div class="service-count"><%= count %> cassettes</div>
+        <div class="service-bar">
+          <div class="service-bar-fill" style="width: <%= (count.to_f / @services.values.max * 100).round %>%"></div>
+        </div>
+      </a>
+    <% end %>
+  </div>
+</div>
