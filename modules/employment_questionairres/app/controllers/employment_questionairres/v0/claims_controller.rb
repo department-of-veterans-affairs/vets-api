@@ -10,7 +10,7 @@ module EmploymentQuestionairres
     # The Medical Expense Reports claim controller that handles form submissions
     #
     class ClaimsController < ClaimsBaseController
-      # before_action :check_flipper_flag
+      before_action :check_flipper_flag
       service_tag 'employment-questionairres-application'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
