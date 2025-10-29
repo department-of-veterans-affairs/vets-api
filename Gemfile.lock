@@ -47,10 +47,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/fhir_client.git
-  revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
-  tag: v6.0.0
+  revision: 81d0c0c98f317e7ad25c8211011d81f52d6e31a2
+  tag: v6.1.0
   specs:
-    fhir_client (6.0.0)
+    fhir_client (6.1.0)
       activesupport (>= 3)
       addressable (>= 2.3)
       fhir_dstu2_models (>= 1.1.1)
