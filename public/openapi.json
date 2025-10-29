@@ -877,8 +877,7 @@
           "middle": {
             "type": "string",
             "example": "A",
-            "maxLength": 1,
-            "nullable": true
+            "maxLength": 1
           },
           "last": {
             "type": "string",

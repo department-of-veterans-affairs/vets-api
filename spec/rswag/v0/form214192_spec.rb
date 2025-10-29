@@ -77,7 +77,6 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               employerName: 'Acme Corp',
               employerAddress: {
                 street: '456 Business Blvd',
-                street2: nil,
                 city: 'Chicago',
                 state: 'IL',
                 postalCode: '60601',
