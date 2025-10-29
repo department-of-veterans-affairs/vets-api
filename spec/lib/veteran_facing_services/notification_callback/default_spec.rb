@@ -32,7 +32,7 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
     context 'correct class is called for the notification' do
       before do
         allow(klass).to receive(:new).and_return callback
-        allow(Logging::Monitor).to receive(:new).with(klass.to_s).and_return monitor
+        allow(Logging::Monitor).to receive(:new).with(klass.to_s, allowlist: anything).and_return monitor
       end
 
       it 'tracks a `delivered` notification' do

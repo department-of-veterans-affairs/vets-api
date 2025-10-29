@@ -8,10 +8,12 @@ require 'pdf_fill/hash_converter'
 
 module DependentsBenefits
   module PdfFill
-    class Va686c674v2 < ::PdfFill::Forms::FormBase
+    class Va21686c < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
 
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+      TEMPLATE = DependentsBenefits::PDF_PATH_21_686C
 
       KEY = {
         'veteran_information' => {

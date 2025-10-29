@@ -171,6 +171,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
+  event_bus_gateway_pension_email_template:
+    description: Toggle to enable pension email template in eventbus-gateway
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -806,6 +808,10 @@ features:
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
   disability_526_toxic_exposure_opt_out_data_purge:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge_by_user:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
@@ -2284,7 +2290,6 @@ features:
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
-    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2675,11 +2680,11 @@ features:
   form_530a_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21P-530a on vets-website 
+    description: Enables form 21P-530a on vets-website
   form_4192_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21-4192 on vets-website 
+    description: Enables form 21-4192 on vets-website
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
