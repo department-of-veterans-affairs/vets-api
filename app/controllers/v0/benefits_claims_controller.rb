@@ -69,13 +69,8 @@ module V0
 
       # Add Evidence Submissions section for document uploads that were added
       if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-        # Fetch all evidence submissions for this claim once
-        evidence_submissions = EvidenceSubmission.where(claim_id: claim['data']['id'])
-
-        # Poll for updated statuses on pending evidence submissions before adding them to response
-        if Flipper.enabled?(:cst_update_evidence_submission_on_show, @current_user)
-          update_evidence_submissions_for_claim(claim['data']['id'], evidence_submissions)
-        end
+        # Fetch all evidence submissions for this claim once, polling for updates if enabled
+        evidence_submissions = update_evidence_submissions_for_claim(claim['data']['id'])
 
         claim['data']['attributes']['evidenceSubmissions'] =
           add_evidence_submissions(claim['data'], evidence_submissions)
@@ -344,20 +339,27 @@ module V0
       )
     end
 
-    def update_evidence_submissions_for_claim(claim_id, evidence_submissions)
-      # Get pending evidence submissions as an ActiveRecord relation
-      # PENDING = successfully sent to Lighthouse with request_id, awaiting final status
-      # Note: We chain scopes on the provided relation because UpdateDocumentsStatusService
-      # requires an ActiveRecord::Relation with find_by! method (not an Array)
-      pending_submissions = evidence_submissions.where(
-        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
-      ).where.not(request_id: nil)
+    def update_evidence_submissions_for_claim(claim_id)
+      # Fetch all evidence submissions for this claim
+      evidence_submissions = EvidenceSubmission.where(claim_id:)
 
-      return if pending_submissions.empty?
+      # Poll for updated statuses on pending evidence submissions if feature flag is enabled
+      if Flipper.enabled?(:cst_update_evidence_submission_on_show, @current_user)
+        # Get pending evidence submissions as an ActiveRecord relation
+        # PENDING = successfully sent to Lighthouse with request_id, awaiting final status
+        # Note: We chain scopes on the provided relation because UpdateDocumentsStatusService
+        # requires an ActiveRecord::Relation with find_by! method (not an Array)
+        pending_submissions = evidence_submissions.where(
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+        ).where.not(request_id: nil)
 
-      request_ids = pending_submissions.pluck(:request_id)
+        unless pending_submissions.empty?
+          request_ids = pending_submissions.pluck(:request_id)
+          process_evidence_submissions(claim_id, pending_submissions, request_ids)
+        end
+      end
 
-      process_evidence_submissions(claim_id, pending_submissions, request_ids)
+      evidence_submissions
     end
 
     def process_evidence_submissions(claim_id, pending_submissions, request_ids)
