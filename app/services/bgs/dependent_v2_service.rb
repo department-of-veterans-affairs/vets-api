@@ -19,6 +19,8 @@ module BGS
                 :uuid,
                 :file_number
 
+    attr_accessor :form_email
+
     STATS_KEY = 'bgs.dependent_service'
 
     class PDFSubmissionError < StandardError; end
@@ -35,7 +37,7 @@ module BGS
       @email = user.email
       @icn = user.icn
       @participant_id = user.participant_id
-      @va_profile_email = get_user_email(user)
+      @notification_email = get_user_email(user)
     end
 
     def get_dependents
@@ -51,6 +53,13 @@ module BGS
     end
 
     def submit_686c_form(claim)
+      # Set email for BGS service and notification emails from form email if va_profile_email is not available
+      # Form email is required
+      if @notification_email.nil?
+        form = claim.parsed_form
+        @notification_email = form['dependents_application']['veteran_contact_information']['email_address']
+      end
+
       @monitor = init_monitor(claim&.id)
       @monitor.track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start")
 
@@ -286,7 +295,8 @@ module BGS
     def get_user_email(user)
       # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
       # Failure is expected occasionally due to 404 errors from the redis cache
-      # New users or users that have not logged on in over a month will need to obtain/refresh VAProfile_ID
+      # New users, users that have not logged on in over a month, users who created an account on web,
+      # and users who have not visited their profile page will need to obtain/refresh VAProfile_ID
       # Originates here: lib/va_profile/contact_information/v2/service.rb
       user.va_profile_email
     rescue => e

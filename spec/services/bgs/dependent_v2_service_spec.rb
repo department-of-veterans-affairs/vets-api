@@ -22,9 +22,13 @@ RSpec.describe BGS::DependentV2Service do
         'ssn' => '796043735',
         'va_file_number' => '796043735',
         'birth_date' => birth_date
+      },
+      'veteran_contact_information' => {
+        'email_address' => 'test@test.com'
       }
     }
   end
+  let(:parsed_form) { { 'dependents_application' => vet_info } }
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
@@ -172,9 +176,10 @@ RSpec.describe BGS::DependentV2Service do
       before do
         allow(Dependents::Monitor).to receive(:new).and_return(monitor)
         allow(monitor).to receive(:track_event)
+        allow(claim).to receive_messages(parsed_form:)
       end
 
-      it 'still submits a PDF, enqueues the SubmitForm686cJob, and tracks the error' do
+      it 'still submits a PDF, enqueues the SubmitForm686cJob with the form email, and tracks the error' do
         allow_any_instance_of(User)
           .to receive(:va_profile_email)
           .and_raise(StandardError.new('404 person not found'))
@@ -186,7 +191,7 @@ RSpec.describe BGS::DependentV2Service do
 
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
-          vet_info['veteran_information']['va_profile_email'] = nil
+          vet_info['veteran_information']['va_profile_email'] = 'test@test.com'
           vet_info['veteran_information']['va_file_number'] = '12345678'
           service = BGS::DependentV2Service.new(user)
 
