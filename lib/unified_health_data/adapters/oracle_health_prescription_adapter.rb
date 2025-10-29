@@ -59,7 +59,8 @@ module UnifiedHealthData
         {
           instructions: extract_instructions(resource),
           facility_phone_number: extract_facility_phone_number(resource),
-          prescription_source: extract_prescription_source(resource)
+          prescription_source: extract_prescription_source(resource),
+          category: extract_category(resource)
         }
       end
 
@@ -245,6 +246,26 @@ module UnifiedHealthData
 
       def extract_prescription_source(resource)
         non_va_med?(resource) ? 'NV' : ''
+      end
+
+      def extract_category(resource)
+        # Extract category from FHIR MedicationRequest
+        # See https://build.fhir.org/valueset-medicationrequest-admin-location.html
+        categories = resource['category'] || []
+        return [] if categories.empty?
+
+        # Category is an array of CodeableConcept objects
+        # We collect all codes from all categories
+        codes = []
+        categories.each do |category|
+          codings = category['coding'] || []
+          codings.each do |coding|
+            # Collect the code value if found (e.g., 'inpatient', 'outpatient', 'community')
+            codes << coding['code'] if coding['code'].present?
+          end
+        end
+
+        codes
       end
 
       def non_va_med?(resource)
