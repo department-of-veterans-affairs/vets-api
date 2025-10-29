@@ -67,6 +67,16 @@ module UnifiedHealthData
 
       def build_errors(resource)
         resource[:failed]&.map do |failed_item|
+          prescription_id = failed_item[:id]
+          last_four = prescription_id&.to_s&.last(4) || 'unknown'
+          
+          Rails.logger.warn(
+            'Prescription refill failed',
+            developer_message: failed_item[:error],
+            prescription_id_last_four: last_four,
+            station_number: failed_item[:station_number]
+          )
+          
           {
             developer_message: failed_item[:error],
             prescription_id: failed_item[:id],

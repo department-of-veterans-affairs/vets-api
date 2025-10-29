@@ -40,6 +40,17 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
                                                             }
                                                           ])
       end
+
+      it 'logs failed refills with correct format' do
+        expect(Rails.logger).to receive(:warn).with(
+          'Prescription refill failed',
+          developer_message: '^ER:Error:',
+          prescription_id_last_four: '8543',
+          station_number: '556'
+        )
+
+        described_class.new(id, resource)
+      end
     end
 
     context 'with successful refills format' do
