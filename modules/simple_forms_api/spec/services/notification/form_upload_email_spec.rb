@@ -29,7 +29,7 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
       end
 
       it 'succeeds' do
-        expect { described_class.new(config, notification_type: :confirmation) }.not_to raise_error(ArgumentError)
+        expect { described_class.new(config, notification_type: :confirmation) }.not_to raise_error
       end
     end
 

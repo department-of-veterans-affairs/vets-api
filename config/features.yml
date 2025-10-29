@@ -2614,6 +2614,10 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  tsa_safe_travel_letter:
+    actor_type: user
+    description: Enables displaying TSA Safe Travel Letter on Letters page
+    enable_in_development: true
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
@@ -2668,7 +2672,10 @@ features:
   form_0779_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21-0779 on vets-website 
+    description: Enables form 21-0779 on vets-website
+  vre_eligibility_status_phase_2_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates for phase 2
   form_530a_enabled:
     actor_type: user
     enable_in_development: true
@@ -2680,4 +2687,7 @@ features:
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21-2680 on vets-website 
+    description: Enables form 21-2680 on vets-website
+  fetch_1095b_from_enrollment_system:
+    actor_type: user
+    description: Enables fetching of form 1095b from enrollment system instead of from local database
