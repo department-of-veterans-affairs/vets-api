@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimant/600010259/effectiveDate/2021-02-09/eligibility
+    uri: <DGI_VETS_URL>claimant/600010259/effectiveDate/2021-02-09/eligibility
     body:
       encoding: US-ASCII
       string: ''
