@@ -7,7 +7,6 @@ RSpec::Mocks.configuration.allow_message_expectations_on_nil = true
 RSpec.describe EmailVerificationService do
   let(:service) { described_class.new(user) }
   let(:user) { build(:user, :loa3) }
-  let(:redis) { Redis::Namespace.new('email_verification', redis: $redis) }
   let(:key) { "email_verification:#{user.uuid}" }
   let(:token) { service.initiate_verification }
 
@@ -81,7 +80,7 @@ RSpec.describe EmailVerificationService do
     context 'with invalid token' do
       let(:verify_token) { 'wrongtoken' }
 
-      before { redis.set("email_verification:#{user.uuid}", 'othertoken') }
+      before { $redis.set(key, 'othertoken') }
 
       it 'returns false' do
         expect(verify).to be_falsey

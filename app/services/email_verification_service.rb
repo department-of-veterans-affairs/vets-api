@@ -3,8 +3,7 @@
 require 'email_verification/jwt_generator'
 
 class EmailVerificationService
-  TOKEN_BYTES = 32 # 256 bits
-  REDIS_EXPIRATION = 15.minutes.to_i
+  REDIS_EXPIRATION = 30.minutes.to_i
 
   REDIS_NAMESPACE = 'email_verification'
 
@@ -52,7 +51,6 @@ class EmailVerificationService
       # Trigger background job to send success verification email
       template_type = 'verification_success'
       personalisation = {
-        'verification_link' => generate_verification_link(token),
         'first_name' => @user.first_name,
         'email_address' => @user.email
       }
@@ -64,7 +62,15 @@ class EmailVerificationService
     end
   rescue Redis::BaseError, Redis::CannotConnectError => e
     log_redis_error('Redis error during email verification', e)
-    raise Common::Exceptions::BackendServiceException.new('Redis', e)
+    raise Common::Exceptions::BackendServiceException.new(
+      'VA900',
+      {
+        detail: "Redis error during email verification: #{e.class} - #{e.message}",
+        operation: 'verify_email',
+        user_uuid: @user&.uuid,
+        backtrace: e.backtrace&.take(10)
+      }
+    )
   end
 
   private
