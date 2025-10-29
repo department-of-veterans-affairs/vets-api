@@ -36,11 +36,6 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
-  accredited_representative_portal_form_526ez:
-    actor_type: user
-    description: >
-      When enabled, shows form 526ez in the accredited representative portal.
-    enable_in_development: true
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
     description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
@@ -321,6 +316,9 @@ features:
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
+  champva_send_ves_to_pega:
+    actor_type: user
+    description: Enables sending VES JSON to PEGA for form submissions
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
@@ -2608,6 +2606,10 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  tsa_safe_travel_letter:
+    actor_type: user
+    description: Enables displaying TSA Safe Travel Letter on Letters page
+    enable_in_development: true
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
@@ -2662,7 +2664,10 @@ features:
   form_0779_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21-0779 on vets-website 
+    description: Enables form 21-0779 on vets-website
+  vre_eligibility_status_phase_2_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates for phase 2
   form_530a_enabled:
     actor_type: user
     enable_in_development: true
@@ -2674,4 +2679,7 @@ features:
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21-2680 on vets-website 
+    description: Enables form 21-2680 on vets-website
+  fetch_1095b_from_enrollment_system:
+    actor_type: user
+    description: Enables fetching of form 1095b from enrollment system instead of from local database
