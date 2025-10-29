@@ -58,6 +58,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
         }
       },
       modality: 'communityCareEps',
+      past: true,
       location: {
         id: 'Aq7wgAux',
         type: 'appointments',
@@ -89,6 +90,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
                                                                   }
                                                                 }
                                                               })
+      expect(serialized[:data][:attributes][:past]).to be(true)
     end
 
     it 'includes provider details' do
@@ -145,6 +147,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           provider: nil,
           provider_details: nil,
           modality: 'communityCareEps',
+          past: true,
           location: nil
         )
       end
@@ -166,6 +169,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           provider: nil,
           provider_details: nil,
           modality: 'communityCareEps',
+          past: true,
           location: {}
         )
       end
@@ -189,6 +193,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           provider: nil,
           provider_details: nil,
           modality: 'communityCareEps',
+          past: true,
           location: nil
         )
       end

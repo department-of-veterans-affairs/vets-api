@@ -1,0 +1,390 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "VA.gov OpenAPI Docs",
+    "version": "1.0",
+    "description": "OpenAPI 3.0.3 Documentation for the VA.gov API",
+    "contact": {
+      "name": "VA Platform Support",
+      "url": "https://depo-platform-documentation.scrollhelp.site/support/"
+    },
+    "license": {
+      "name": "Creative Commons Zero v1.0 Universal"
+    }
+  },
+  "paths": {
+    "/v0/form214192": {
+      "post": {
+        "summary": "Submit a 21-4192 form",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "submitForm214192",
+        "description": "Submit a Form 21-4192 (Request for Employment Information in Connection with Claim for Disability Benefits)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Form successfully submitted",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "12345",
+                    "type": "saved_claims",
+                    "attributes": {
+                      "submitted_at": "2025-01-15T10:30:00Z",
+                      "regional_office": [],
+                      "confirmation_number": "12345678-1234-1234-1234-123456789abc",
+                      "guid": "12345678-1234-1234-1234-123456789abc",
+                      "form": "21-4192"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "submitted_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "regional_office": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": [
+                                "Department of Veterans Affairs",
+                                "Example Regional Office",
+                                "P.O. Box 1234",
+                                "Example City, Wisconsin 12345-6789"
+                              ]
+                            },
+                            "confirmation_number": {
+                              "type": "string"
+                            },
+                            "guid": {
+                              "type": "string"
+                            },
+                            "form": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth"
+                    ],
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "pattern": "^\\d{9}$",
+                        "description": "Social Security Number (9 digits)",
+                        "example": "123456789"
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "address": {
+                        "$ref": "#/components/schemas/SimpleAddress"
+                      }
+                    }
+                  },
+                  "employmentInformation": {
+                    "type": "object",
+                    "required": [
+                      "employerName",
+                      "employerAddress",
+                      "typeOfWorkPerformed",
+                      "beginningDateOfEmployment"
+                    ],
+                    "properties": {
+                      "employerName": {
+                        "type": "string"
+                      },
+                      "employerAddress": {
+                        "$ref": "#/components/schemas/SimpleAddress"
+                      },
+                      "typeOfWorkPerformed": {
+                        "type": "string"
+                      },
+                      "beginningDateOfEmployment": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "endingDateOfEmployment": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "amountEarnedLast12MonthsOfEmployment": {
+                        "type": "number"
+                      },
+                      "timeLostLast12MonthsOfEmployment": {
+                        "type": "string"
+                      },
+                      "hoursWorkedDaily": {
+                        "type": "number"
+                      },
+                      "hoursWorkedWeekly": {
+                        "type": "number"
+                      },
+                      "concessions": {
+                        "type": "string"
+                      },
+                      "terminationReason": {
+                        "type": "string"
+                      },
+                      "dateLastWorked": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "lastPaymentDate": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "lastPaymentGrossAmount": {
+                        "type": "number"
+                      },
+                      "lumpSumPaymentMade": {
+                        "type": "boolean"
+                      },
+                      "grossAmountPaid": {
+                        "type": "number"
+                      },
+                      "datePaid": {
+                        "type": "string",
+                        "format": "date"
+                      }
+                    }
+                  },
+                  "militaryDutyStatus": {
+                    "type": "object",
+                    "properties": {
+                      "currentDutyStatus": {
+                        "type": "string"
+                      },
+                      "veteranDisabilitiesPreventMilitaryDuties": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "benefitEntitlementPayments": {
+                    "type": "object",
+                    "properties": {
+                      "sickRetirementOtherBenefits": {
+                        "type": "boolean"
+                      },
+                      "typeOfBenefit": {
+                        "type": "string"
+                      },
+                      "grossMonthlyAmountOfBenefit": {
+                        "type": "number"
+                      },
+                      "dateBenefitBegan": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "dateFirstPaymentIssued": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "dateBenefitWillStop": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "remarks": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "veteranInformation",
+                  "employmentInformation"
+                ]
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "servers": [],
+  "components": {
+    "schemas": {
+      "Errors": {
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error": {
+        "required": [
+          "title",
+          "detail",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "error class name"
+          },
+          "detail": {
+            "type": "string",
+            "example": "Received a bad request response from the upstream server",
+            "description": "possibly some additional info, or just the class name again"
+          },
+          "code": {
+            "type": "string",
+            "example": "EVSS400",
+            "description": "Sometimes just the http code again, sometimes something like \"EVSS400\", where the code can be found in config/locales/exceptions.en.yml"
+          },
+          "source": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "example": "EVSS::DisabilityCompensationForm::Service",
+            "description": "error source class"
+          },
+          "status": {
+            "type": "string",
+            "example": "400",
+            "description": "http status code"
+          },
+          "meta": {
+            "type": "object",
+            "description": "additional info, like a backtrace"
+          }
+        }
+      },
+      "FirstMiddleLastName": {
+        "type": "object",
+        "required": [
+          "first",
+          "last"
+        ],
+        "properties": {
+          "first": {
+            "type": "string",
+            "example": "John",
+            "maxLength": 12
+          },
+          "middle": {
+            "type": "string",
+            "example": "A",
+            "maxLength": 1,
+            "nullable": true
+          },
+          "last": {
+            "type": "string",
+            "example": "Doe",
+            "maxLength": 18
+          }
+        }
+      },
+      "SimpleAddress": {
+        "type": "object",
+        "required": [
+          "street",
+          "city",
+          "state",
+          "postalCode",
+          "country"
+        ],
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "123 Main St",
+            "maxLength": 30
+          },
+          "street2": {
+            "type": "string",
+            "example": "Apt 4B",
+            "maxLength": 30,
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "example": "Springfield",
+            "maxLength": 18
+          },
+          "state": {
+            "type": "string",
+            "example": "IL",
+            "maxLength": 2
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "62701",
+            "maxLength": 9
+          },
+          "country": {
+            "type": "string",
+            "example": "US",
+            "maxLength": 2
+          }
+        }
+      }
+    }
+  }
+}

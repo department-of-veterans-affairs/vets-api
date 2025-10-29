@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../../support/helpers/rails_helper'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
   include SchemaMatchers
@@ -130,6 +131,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
         context 'message' do
           it 'without attachments' do
+            allow(UniqueUserEvents).to receive(:log_event)
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
               post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: { message: params }
             end
@@ -141,6 +143,12 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response).to match_camelized_response_schema('message')
             included = response.parsed_body.dig('included', 0)
             expect(included).to be_nil
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+            )
           end
 
           it 'with attachments' do
@@ -162,6 +170,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           let(:reply_message_id) { 674_838 }
 
           it 'without attachments' do
+            allow(UniqueUserEvents).to receive(:log_event)
             VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
               post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
                    headers: sis_headers, params: { message: params }
@@ -172,6 +181,12 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
             expect(response).to match_camelized_response_schema('message')
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+            )
           end
 
           it 'with attachments' do

@@ -373,7 +373,8 @@ describe SignIn::Idme::Service do
         all_csp_emails: emails_confirmed,
         multifactor:,
         authn_context:,
-        auto_uplevel:
+        auto_uplevel:,
+        digest:
       }
     end
     let(:service_name) { SignIn::Constants::Auth::IDME }
@@ -383,6 +384,14 @@ describe SignIn::Idme::Service do
     let(:credential_level) do
       create(:credential_level, current_ial: SignIn::Constants::Auth::IAL_TWO,
                                 max_ial: SignIn::Constants::Auth::IAL_TWO)
+    end
+    let(:digest) { SecureRandom.hex }
+
+    let(:credential_digester) { instance_double(SignIn::CredentialAttributesDigester) }
+
+    before do
+      allow(SignIn::CredentialAttributesDigester).to receive(:new).and_return(credential_digester)
+      allow(credential_digester).to receive(:perform).and_return(digest)
     end
 
     context 'when type is idme' do

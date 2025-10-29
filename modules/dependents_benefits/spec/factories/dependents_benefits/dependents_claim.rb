@@ -231,6 +231,8 @@ FactoryBot.define do
               is_biological_child_of_spouse: true,
               relationship_to_child: { stepchild: true },
               is_biological_child: false,
+              biological_parent_name: { first: 'bio', middle: 'log', last: 'cal' },
+              biological_parent_ssn: '000000000',
               does_child_have_permanent_disability: true,
               birth_location: {
                 location: {
@@ -292,6 +294,8 @@ FactoryBot.define do
               relationship_to_child: { adopted: true },
               is_biological_child: false,
               birth_location: { location: { state: 'NH', city: 'durham', postal_code: '03301' } },
+              biological_parent_name: { first: 'bio', middle: 'log', last: 'cal' },
+              biological_parent_ssn: '000000000',
               ssn: '987654321',
               full_name: { first: 'test', middle: 'middle', last: 'childfive' },
               birth_date: '2019-10-08',
@@ -363,7 +367,7 @@ FactoryBot.define do
             },
             student_income: true,
             ssn: '987654321',
-            is_parent: true,
+            relationship_to_student: 'biological',
             full_name: {
               first: 'test',
               middle: 'middle',
@@ -480,6 +484,9 @@ FactoryBot.define do
 
     form do
       {
+        'view:selectable686_options' => {
+          'report674' => true
+        },
         'veteran_information' => {
           'birth_date' => '1980-01-01',
           'full_name' => { 'first' => 'Mark', 'last' => 'Webb' },
@@ -533,7 +540,7 @@ FactoryBot.define do
           }],
           'days_till_expires' => 365,
           'privacy_agreement_accepted' => true,
-          'student_information' => {
+          'student_information' => [{
             'remarks' => 'test additional information',
             'student_networth_information' => {
               'savings' => '500',
@@ -587,14 +594,14 @@ FactoryBot.define do
             },
             'student_income' => true,
             'ssn' => '987654321',
-            'is_parent' => true,
+            'relationship_to_student' => 'biological',
             'full_name' => {
               'first' => 'test',
               'middle' => 'middle',
               'last' => 'student'
             },
             'birth_date' => '2005-01-01'
-          }
+          }]
         }
       }.to_json
     end
@@ -776,6 +783,8 @@ FactoryBot.define do
               'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childtwo' },
               'birth_date' => '2009-04-05',
               'date_entered_household' => '2024-05-04',
+              'biological_parent_name' => { 'first' => 'bio', 'middle' => 'log', 'last' => 'cal' },
+              'biological_parent_ssn' => '000000000',
               'school_age_in_school' => false
             },
             {
@@ -818,7 +827,9 @@ FactoryBot.define do
               'ssn' => '987654321',
               'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childfive' },
               'birth_date' => '2019-10-08',
-              'school_age_in_school' => false
+              'school_age_in_school' => false,
+              'biological_parent_name' => { 'first' => 'bio', 'middle' => 'log', 'last' => 'cal' },
+              'biological_parent_ssn' => '000000000'
             },
             {
               'income_in_last_year' => false,
@@ -913,6 +924,17 @@ FactoryBot.define do
             'ssn' => '987654321',
             'birth_date' => '2005-05-01'
           }]
+        },
+        'view:selectable686_options' => {
+          'add_spouse' => true,
+          'add_child' => true,
+          'report674' => true,
+          'add_disabled_child' => true,
+          'report_divorce' => true,
+          'report_death' => true,
+          'report_stepchild_not_in_household' => true,
+          'report_marriage_of_child_under18' => true,
+          'report_child18_or_older_is_not_attending_school' => true
         }
       }.to_json
     end

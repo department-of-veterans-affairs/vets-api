@@ -36,11 +36,6 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
-  accredited_representative_portal_form_526ez:
-    actor_type: user
-    description: >
-      When enabled, shows form 526ez in the accredited representative portal.
-    enable_in_development: true
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
     description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
@@ -176,6 +171,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
+  event_bus_gateway_pension_email_template:
+    description: Toggle to enable pension email template in eventbus-gateway
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -321,9 +318,15 @@ features:
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
+  champva_send_ves_to_pega:
+    actor_type: user
+    description: Enables sending VES JSON to PEGA for form submissions
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
+  champva_stamper_logging:
+    actor_type: user
+    description: Enables logging of the desired stamp text
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -484,6 +487,13 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses synchronous evidence uploads
     enable_in_development: true
+  cst_timezone_discrepancy_mitigation:
+    actor_type: user
+    description: >
+      Shows contextual timezone messages in Claims Status when uploaded documents
+      display with next-day dates due to UTC handling. Temporary mitigation while
+      awaiting Lighthouse API timestamp changes.
+    enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
@@ -512,6 +522,10 @@ features:
   cst_claim_letters_use_lighthouse_api_provider_mobile:
     actor_type: user
     description: When enabled, claims_letters from the Lighthouse API Provider in mobile endpoints
+  cst_use_claim_title_generator_web:
+    description: When enabled, use the title generator to insert claim titles into claim list responses.
+  cst_use_claim_title_generator_mobile:
+    description: When enabled, use the title generator to insert claim titles into mobile claim list responses.
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -657,6 +671,9 @@ features:
   decision_review_final_status_secondary_form_failure_notifications:
     actor_type: user
     description: Enables failure notifications for secondary forms in decision review applications with final status
+  decision_review_stuck_records_monitoring:
+    actor_type: user
+    description: Enables monitoring for stuck records in decision review applications
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -791,6 +808,10 @@ features:
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
   disability_526_toxic_exposure_opt_out_data_purge:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge_by_user:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
@@ -959,10 +980,6 @@ features:
   form1995_confirmation_email:
     actor_type: user
     description: Enables form 1995 email submission confirmation (VaNotify)
-    enable_in_development: true
-  form1990e_confirmation_email:
-    actor_type: user
-    description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0966_confirmation_email:
     actor_type: user
@@ -1199,6 +1216,10 @@ features:
   lighthouse_claims_api_use_birls_id:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
+    enable_in_development: true
+  lighthouse_claims_api_save_failed_soap_requests:
+    actor_type: user
+    description: Enable saving the request/response of failed SOAP requests made by ClaimsApi
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
@@ -1794,12 +1815,6 @@ features:
   show_edu_benefits_1990_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1990 introduction page
-  show_edu_benefits_1990e_wizard:
-    actor_type: user
-    description: This determines when the wizard should show up on the 1990e introduction page
-  show_edu_benefits_1990n_wizard:
-    actor_type: user
-    description: This determines when the wizard should show up on the 1990N introduction page
   show_edu_benefits_1995_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1995 introduction page
@@ -2063,6 +2078,10 @@ features:
     actor_type: user
     description: Adds chiropractic to the list of services that can be direct scheduled.
     enable_in_development: true
+  va_online_scheduling_community_care_cancellations:
+    actor_type: user
+    description: Enables community care direct scheduled cancellations.
+    enable_in_development: true
   va_online_scheduling_use_vpg:
     actor_type: user
     enable_in_development: true
@@ -2271,7 +2290,6 @@ features:
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
-    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2354,6 +2372,28 @@ features:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
   income_and_assets_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
+  increase_compensation_form_enabled:
+    enable_in_development: true
+    actor_type: user
+    description: Enable form 21-8940 APPLICATION FOR INCREASED COMPENSATION BASED ON UNEMPLOYABILITY
+  increase_compensation_browser_monitoring_enabled:
+    actor_type: user
+    description: Increase Compensation form Datadog RUM monitoring
+  increase_compensation_content_updates:
+    actor_type: user
+    description: Implement plain language and content updates
+  increase_compensation_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  increase_compensation_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  increase_compensation_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  increase_compensation_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
   pbb_forms_require_loa3:
@@ -2550,9 +2590,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  disable_bdn_processing:
-    actor_type: user
-    description: If enabled, skip all BDN-related processing for VYE
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
@@ -2578,6 +2615,10 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  tsa_safe_travel_letter:
+    actor_type: user
+    description: Enables displaying TSA Safe Travel Letter on Letters page
+    enable_in_development: true
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
@@ -2596,6 +2637,10 @@ features:
   va_online_scheduling_add_substance_use_disorder:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
+  va_online_scheduling_add_primary_care_mental_health_initiative:
+    actor_type: user
+    description: Enables PCMHI as care related to mental health appointments with new codes
     enable_in_development: true
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
@@ -2625,3 +2670,25 @@ features:
     description: >
       Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
       Owned by Simple Forms API team.
+  form_0779_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: Enables form 21-0779 on vets-website
+  vre_eligibility_status_phase_2_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates for phase 2
+  form_530a_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: Enables form 21P-530a on vets-website
+  form_4192_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: Enables form 21-4192 on vets-website
+  form_2680_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: Enables form 21-2680 on vets-website
+  fetch_1095b_from_enrollment_system:
+    actor_type: user
+    description: Enables fetching of form 1095b from enrollment system instead of from local database

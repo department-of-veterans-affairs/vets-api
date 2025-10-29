@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'vye/vye_serializer'
 
-# rubocop:disable Rspec/MultipleDescribes
+# rubocop:disable RSpec/MultipleDescribes
 RSpec.describe Vye::ClaimantLookupSerializer, type: :serializer do
   subject { described_class.new(response) }
 
@@ -165,7 +165,7 @@ RSpec.shared_examples 'handles error responses' do |factory_name|
   end
 end
 
-# rubocop:disable Rspec/DescribeClass
+# rubocop:disable RSpec/DescribeClass
 RSpec.describe 'Error handling' do
   describe Vye::ClaimantLookupSerializer do
     include_examples 'handles error responses', :claimant_lookup_response
@@ -179,5 +179,5 @@ RSpec.describe 'Error handling' do
     include_examples 'handles error responses', :verify_claimant_response
   end
 end
-# rubocop:enable Rspec/DescribeClass
-# rubocop:enable Rspec/MultipleDescribes
+# rubocop:enable RSpec/DescribeClass
+# rubocop:enable RSpec/MultipleDescribes

@@ -5,7 +5,7 @@ require 'dependents_benefits/sidekiq/dependent_submission_job'
 require 'dependents_benefits/monitor'
 require 'sidekiq/job_retry'
 
-RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job do
   let(:saved_claim) { create(:dependents_claim) }
   let(:claim_id) { saved_claim.id }
   let(:proc_id) { 'test-proc-123' }
@@ -21,6 +21,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
     allow(job).to receive(:create_form_submission_attempt)
+    allow(job).to receive(:find_or_create_form_submission)
   end
 
   describe '#perform' do
@@ -82,7 +83,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
 
       it 'handles failed submissions' do
         allow(job).to receive(:submit_to_service).and_return(failed_response)
-        expect(job).to receive(:handle_job_failure).with(failed_response.error)
+        expect(job).to receive(:handle_job_failure).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError))
         job.perform(child_claim.id)
       end
 
@@ -158,6 +159,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     end
 
     it 'raises NotImplementedError for find_or_create_form_submission' do
+      allow(job).to receive(:find_or_create_form_submission).and_call_original
       expect do
         job.send(:find_or_create_form_submission)
       end.to raise_error(NotImplementedError, 'Subclasses must implement find_or_create_form_submission')

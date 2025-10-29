@@ -162,4 +162,97 @@ describe VAOS::V2::EpsAppointment do
       expect(subject.send(:determine_status, 'proposed')).to eq('proposed')
     end
   end
+
+  describe '#provider_details' do
+    context 'when provider is nil' do
+      it 'returns nil' do
+        appointment = described_class.new(params, nil)
+        expect(appointment.provider_details).to be_nil
+      end
+    end
+
+    context 'when provider has contact_details with phone numbers' do
+      let(:provider_with_multiple_phones) do
+        {
+          id: 'provider-123',
+          name: 'Dr. Smith',
+          provider_organization: { name: 'Smith Medical' },
+          location: { name: 'Main Office' },
+          contact_details: [
+            { system: 'email', value: 'test@example.com' },
+            { system: 'phone', value: '555-1234', use: 'work' },
+            { system: 'phone', value: '555-5678', use: 'for_patient' }
+          ]
+        }
+      end
+
+      it 'returns provider details with phone number preferring for_patient use' do
+        appointment = described_class.new(params, provider_with_multiple_phones)
+        result = appointment.provider_details
+
+        expect(result[:id]).to eq('provider-123')
+        expect(result[:name]).to eq('Dr. Smith')
+        expect(result[:practice]).to eq('Smith Medical')
+        expect(result[:phone]).to eq('555-5678')
+      end
+    end
+
+    context 'when provider has contact_details with only non-for_patient phone numbers' do
+      let(:provider_with_regular_phone) do
+        {
+          id: 'provider-456',
+          name: 'Dr. Jones',
+          contact_details: [
+            { system: 'email', value: 'jones@example.com' },
+            { system: 'phone', value: '555-9999', use: 'work' }
+          ]
+        }
+      end
+
+      it 'returns provider details with the first phone number' do
+        appointment = described_class.new(params, provider_with_regular_phone)
+        result = appointment.provider_details
+
+        expect(result[:phone]).to eq('555-9999')
+      end
+    end
+
+    context 'when provider has contact_details without phone system entries' do
+      let(:provider_without_phone) do
+        {
+          id: 'provider-789',
+          name: 'Dr. Brown',
+          contact_details: [
+            { system: 'email', value: 'brown@example.com' },
+            { system: 'fax', value: '555-0000' }
+          ]
+        }
+      end
+
+      it 'returns provider details without phone' do
+        appointment = described_class.new(params, provider_without_phone)
+        result = appointment.provider_details
+
+        expect(result[:phone]).to be_nil
+        expect(result.key?(:phone)).to be false
+      end
+    end
+
+    context 'when provider has no contact_details' do
+      let(:provider_without_contact_details) do
+        {
+          id: 'provider-999',
+          name: 'Dr. White'
+        }
+      end
+
+      it 'returns provider details without phone' do
+        appointment = described_class.new(params, provider_without_contact_details)
+        result = appointment.provider_details
+
+        expect(result[:phone]).to be_nil
+        expect(result.key?(:phone)).to be false
+      end
+    end
+  end
 end
