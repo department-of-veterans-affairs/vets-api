@@ -131,6 +131,12 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
 
       context 'when both SavedClaim and SecondaryAppealForm records have delete_dates' do
         let(:guid1) { SecureRandom.uuid }
+        let!(:secondary_form2) do
+          create(:secondary_appeal_form4142_module, appeal_submission: appeal_submission2, delete_date: delete_date3)
+        end
+        let!(:secondary_form1) do
+          create(:secondary_appeal_form4142_module, appeal_submission: appeal_submission1, delete_date: delete_date1)
+        end
         let(:guid2) { SecureRandom.uuid }
         let!(:appeal_submission1) { create(:appeal_submission) }
         let!(:appeal_submission2) { create(:appeal_submission) }
@@ -140,12 +146,6 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
           SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}', delete_date: delete_date3)
         end
 
-        let!(:secondary_form1) do
-          create(:secondary_appeal_form4142_module, appeal_submission: appeal_submission1, delete_date: delete_date1)
-        end
-        let!(:secondary_form2) do
-          create(:secondary_appeal_form4142_module, appeal_submission: appeal_submission2, delete_date: delete_date3)
-        end
 
         it 'deletes both record types with past or current delete_times' do
           Timecop.freeze(delete_date2) do
