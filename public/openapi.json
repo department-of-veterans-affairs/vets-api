@@ -257,6 +257,558 @@
           "required": true
         }
       }
+    },
+    "/v0/form21p530a": {
+      "post": {
+        "summary": "Submit a 21P-530a form",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "submitForm21p530a",
+        "description": "Submit a Form 21P-530a (Application for Burial Allowance - State/Tribal Organizations). This endpoint is unauthenticated and may be used by cemetery officials.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Form successfully submitted",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "12345",
+                    "type": "saved_claims",
+                    "attributes": {
+                      "submitted_at": "2025-01-15T10:30:00Z",
+                      "regional_office": [],
+                      "confirmation_number": "12345678-1234-1234-1234-123456789abc",
+                      "guid": "12345678-1234-1234-1234-123456789abc",
+                      "form": "21-0779"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "saved_claims"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "submitted_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp of when the form was submitted"
+                            },
+                            "regional_office": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "Array of strings representing the regional office address",
+                              "example": [
+                                "Department of Veterans Affairs",
+                                "Pension Management Center",
+                                "P.O. Box 5365",
+                                "Janesville, WI 53547-5365"
+                              ]
+                            },
+                            "confirmation_number": {
+                              "type": "string",
+                              "description": "Confirmation number (GUID) for tracking the submission"
+                            },
+                            "guid": {
+                              "type": "string",
+                              "description": "Unique identifier (same as confirmation_number)"
+                            },
+                            "form": {
+                              "type": "string",
+                              "description": "Form identifier (e.g., \"21P-530a\", \"21-4192\")"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "json-schemer://openapi30/schema",
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth",
+                      "dateOfDeath"
+                    ],
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "pattern": "^\\d{9}$",
+                        "description": "Social Security Number (9 digits)",
+                        "example": "123456789"
+                      },
+                      "vaServiceNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "dateOfDeath": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "placeOfBirth": {
+                        "type": "object",
+                        "properties": {
+                          "city": {
+                            "type": "string",
+                            "example": "Kansas City"
+                          },
+                          "state": {
+                            "type": "string",
+                            "example": "MO"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "veteranServicePeriods": {
+                    "type": "object",
+                    "properties": {
+                      "periods": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "serviceBranch": {
+                              "type": "string",
+                              "example": "Army"
+                            },
+                            "dateEnteredService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1968-06-01"
+                            },
+                            "placeEnteredService": {
+                              "type": "string",
+                              "example": "Fort Benning, GA"
+                            },
+                            "rankAtSeparation": {
+                              "type": "string",
+                              "example": "Sergeant"
+                            },
+                            "dateLeftService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1972-05-31"
+                            },
+                            "placeLeftService": {
+                              "type": "string",
+                              "example": "Fort Hood, TX"
+                            }
+                          }
+                        }
+                      },
+                      "servedUnderDifferentName": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Name the veteran served under, if different from veteranInformation/fullName",
+                        "example": "John Smith"
+                      }
+                    }
+                  },
+                  "burialInformation": {
+                    "type": "object",
+                    "properties": {
+                      "nameOfStateCemeteryOrTribalOrganization": {
+                        "type": "string",
+                        "description": "Name of state cemetery or tribal organization claiming interment allowance",
+                        "example": "Missouri State Veterans Cemetery"
+                      },
+                      "placeOfBurial": {
+                        "type": "object",
+                        "properties": {
+                          "stateCemeteryOrTribalCemeteryName": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery name",
+                            "example": "Missouri State Veterans Cemetery"
+                          },
+                          "stateCemeteryOrTribalCemeteryLocation": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery location",
+                            "example": "Higginsville, MO"
+                          }
+                        }
+                      },
+                      "dateOfBurial": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                      },
+                      "recipientOrganization": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Missouri Veterans Commission"
+                          },
+                          "phoneNumber": {
+                            "type": "string",
+                            "example": "555-123-4567"
+                          },
+                          "address": {
+                            "type": "object",
+                            "properties": {
+                              "streetAndNumber": {
+                                "type": "string",
+                                "example": "2400 Veterans Memorial Drive"
+                              },
+                              "aptOrUnitNumber": {
+                                "type": "string",
+                                "maxLength": 5,
+                                "description": "Apartment or unit number (max 5 characters)",
+                                "example": "Suite"
+                              },
+                              "city": {
+                                "type": "string",
+                                "example": "Higginsville"
+                              },
+                              "state": {
+                                "type": "string",
+                                "example": "MO"
+                              },
+                              "country": {
+                                "type": "string",
+                                "maxLength": 2,
+                                "description": "Country code (max 2 characters)",
+                                "example": "US"
+                              },
+                              "postalCode": {
+                                "type": "string",
+                                "example": "64037"
+                              },
+                              "postalCodeExtension": {
+                                "type": "string",
+                                "pattern": "^\\d{4}$",
+                                "description": "4-digit postal code extension (ZIP+4)",
+                                "example": "1234"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "certification": {
+                    "type": "object",
+                    "properties": {
+                      "titleOfStateOrTribalOfficial": {
+                        "type": "string",
+                        "description": "Title of state or tribal official delegated responsibility to apply for federal funds",
+                        "example": "Director of Veterans Services"
+                      },
+                      "dateSigned": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                      }
+                    }
+                  },
+                  "remarks": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/v0/form21p530a/download_pdf": {
+      "post": {
+        "summary": "Download PDF for a submitted 21P-530a form",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "downloadForm21p530aPdf",
+        "description": "Download a PDF copy of a submitted Form 21P-530a. This endpoint accepts the same form data as the submission endpoint. Currently returns a stub message indicating the feature is not yet implemented.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "PDF download stub response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "PDF download stub - not yet implemented"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "PDF download stub - not yet implemented"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "json-schemer://openapi30/schema",
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth",
+                      "dateOfDeath"
+                    ],
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "pattern": "^\\d{9}$",
+                        "description": "Social Security Number (9 digits)",
+                        "example": "123456789"
+                      },
+                      "vaServiceNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "dateOfDeath": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "placeOfBirth": {
+                        "type": "object",
+                        "properties": {
+                          "city": {
+                            "type": "string",
+                            "example": "Kansas City"
+                          },
+                          "state": {
+                            "type": "string",
+                            "example": "MO"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "veteranServicePeriods": {
+                    "type": "object",
+                    "properties": {
+                      "periods": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "serviceBranch": {
+                              "type": "string",
+                              "example": "Army"
+                            },
+                            "dateEnteredService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1968-06-01"
+                            },
+                            "placeEnteredService": {
+                              "type": "string",
+                              "example": "Fort Benning, GA"
+                            },
+                            "rankAtSeparation": {
+                              "type": "string",
+                              "example": "Sergeant"
+                            },
+                            "dateLeftService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1972-05-31"
+                            },
+                            "placeLeftService": {
+                              "type": "string",
+                              "example": "Fort Hood, TX"
+                            }
+                          }
+                        }
+                      },
+                      "servedUnderDifferentName": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Name the veteran served under, if different from veteranInformation/fullName",
+                        "example": "John Smith"
+                      }
+                    }
+                  },
+                  "burialInformation": {
+                    "type": "object",
+                    "properties": {
+                      "nameOfStateCemeteryOrTribalOrganization": {
+                        "type": "string",
+                        "description": "Name of state cemetery or tribal organization claiming interment allowance",
+                        "example": "Missouri State Veterans Cemetery"
+                      },
+                      "placeOfBurial": {
+                        "type": "object",
+                        "properties": {
+                          "stateCemeteryOrTribalCemeteryName": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery name",
+                            "example": "Missouri State Veterans Cemetery"
+                          },
+                          "stateCemeteryOrTribalCemeteryLocation": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery location",
+                            "example": "Higginsville, MO"
+                          }
+                        }
+                      },
+                      "dateOfBurial": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                      },
+                      "recipientOrganization": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Missouri Veterans Commission"
+                          },
+                          "phoneNumber": {
+                            "type": "string",
+                            "example": "555-123-4567"
+                          },
+                          "address": {
+                            "type": "object",
+                            "properties": {
+                              "streetAndNumber": {
+                                "type": "string",
+                                "example": "2400 Veterans Memorial Drive"
+                              },
+                              "aptOrUnitNumber": {
+                                "type": "string",
+                                "maxLength": 5,
+                                "description": "Apartment or unit number (max 5 characters)",
+                                "example": "Suite"
+                              },
+                              "city": {
+                                "type": "string",
+                                "example": "Higginsville"
+                              },
+                              "state": {
+                                "type": "string",
+                                "example": "MO"
+                              },
+                              "country": {
+                                "type": "string",
+                                "maxLength": 2,
+                                "description": "Country code (max 2 characters)",
+                                "example": "US"
+                              },
+                              "postalCode": {
+                                "type": "string",
+                                "example": "64037"
+                              },
+                              "postalCodeExtension": {
+                                "type": "string",
+                                "pattern": "^\\d{4}$",
+                                "description": "4-digit postal code extension (ZIP+4)",
+                                "example": "1234"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "certification": {
+                    "type": "object",
+                    "properties": {
+                      "titleOfStateOrTribalOfficial": {
+                        "type": "string",
+                        "description": "Title of state or tribal official delegated responsibility to apply for federal funds",
+                        "example": "Director of Veterans Services"
+                      },
+                      "dateSigned": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                      }
+                    }
+                  },
+                  "remarks": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
     }
   },
   "servers": [],
