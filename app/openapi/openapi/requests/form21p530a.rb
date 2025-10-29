@@ -50,7 +50,6 @@ module Openapi
               },
               servedUnderDifferentName: {
                 type: :string,
-                nullable: true,
                 description: 'Name the veteran served under, if different from veteranInformation/fullName',
                 example: 'John Smith'
               }
@@ -153,10 +152,7 @@ module Openapi
               }
             }
           },
-          remarks: {
-            type: :string,
-            nullable: true
-          }
+          remarks: { type: :string }
         }
       }.freeze
     end

@@ -23,8 +23,7 @@
         "dateLeftService": "1972-05-31",
         "placeLeftService": "Fort Hood, TX"
       }
-    ],
-    "servedUnderDifferentName": null
+    ]
   },
   "burialInformation": {
     "nameOfStateCemeteryOrTribalOrganization": "Missouri State Veterans Cemetery",
@@ -50,7 +49,6 @@
   "certification": {
     "titleOfStateOrTribalOfficial": "Director of Veterans Services",
     "dateSigned": "2024-01-15"
-  },
-  "remarks": null
+  }
 }
 

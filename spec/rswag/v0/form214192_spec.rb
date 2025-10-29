@@ -66,7 +66,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               dateOfBirth: '1980-01-01',
               address: {
                 street: '123 Main St',
-                street2: 'Apt 4B',
+                street2: '4B',
                 city: 'Springfield',
                 state: 'IL',
                 postalCode: '62701',

@@ -243,8 +243,7 @@
                         "format": "date"
                       },
                       "remarks": {
-                        "type": "string",
-                        "nullable": true
+                        "type": "string"
                       }
                     }
                   }
@@ -452,7 +451,6 @@
                       },
                       "servedUnderDifferentName": {
                         "type": "string",
-                        "nullable": true,
                         "description": "Name the veteran served under, if different from veteranInformation/fullName",
                         "example": "John Smith"
                       }
@@ -556,10 +554,7 @@
                     }
                   },
                   "remarks": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": "string"
                   }
                 }
               }
@@ -695,7 +690,6 @@
                       },
                       "servedUnderDifferentName": {
                         "type": "string",
-                        "nullable": true,
                         "description": "Name the veteran served under, if different from veteranInformation/fullName",
                         "example": "John Smith"
                       }
@@ -799,10 +793,7 @@
                     }
                   },
                   "remarks": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": "string"
                   }
                 }
               }
@@ -913,9 +904,8 @@
           },
           "street2": {
             "type": "string",
-            "example": "Apt 4B",
-            "maxLength": 30,
-            "nullable": true
+            "example": "4B",
+            "maxLength": 5
           },
           "city": {
             "type": "string",
