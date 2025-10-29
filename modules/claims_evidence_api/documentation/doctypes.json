@@ -12163,21 +12163,6 @@
             }
         },
         {
-            "id" : 1177,
-            "createDateTime" : "2018-01-18",
-            "modifiedDateTime" : "2018-01-18T16:15:06",
-            "name" : "L1177",
-            "description" : "VA Form 22-1990e Application for Family Member to use Transferred Benefits",
-            "isUserUploadable" : true,
-            "is526" : false,
-            "documentCategory" : {
-                "id" : 215,
-                "createDateTime" : "2014-01-15",
-                "modifiedDateTime" : "2014-04-28T14:44:52",
-                "description" : "Vocational Rehabilitation and Employment Documents"
-            }
-        },
-        {
             "id" : 1179,
             "createDateTime" : "2018-01-18",
             "modifiedDateTime" : "2018-01-18T16:15:06",
@@ -15661,21 +15646,6 @@
             }
         },
         {
-            "id" : 1679,
-            "createDateTime" : "2022-06-14",
-            "modifiedDateTime" : "2022-06-14T16:46:22",
-            "name" : "L1679",
-            "description" : "VRRAP - ORIGINAL APPLICATION (V1990S)",
-            "isUserUploadable" : true,
-            "is526" : false,
-            "documentCategory" : {
-                "id" : 17,
-                "createDateTime" : "2012-01-25",
-                "modifiedDateTime" : "2014-04-28T14:44:52",
-                "description" : "Education"
-            }
-        },
-        {
             "id" : 1680,
             "createDateTime" : "2022-06-14",
             "modifiedDateTime" : "2022-06-14T16:46:22",
@@ -15691,26 +15661,6 @@
             }
         },
         {
-            "id" : 1681,
-            "createDateTime" : "2022-06-14",
-            "modifiedDateTime" : "2022-06-14T16:46:22",
-            "name" : "L1681",
-            "description" : "VA ON-LINE 1990N",
-            "isUserUploadable" : true,
-            "is526" : false,
-            "documentCategory" : {
-                "id" : 17,
-                "createDateTime" : "2012-01-25",
-                "modifiedDateTime" : "2014-04-28T14:44:52",
-                "description" : "Education"
-            }
-        },
-        {
-            "id" : 1682,
-            "createDateTime" : "2022-06-14",
-            "modifiedDateTime" : "2022-06-14T16:46:22",
-            "name" : "L1682",
-            "description" : "VA ON-LINE 1990E",
             "isUserUploadable" : true,
             "is526" : false,
             "documentCategory" : {

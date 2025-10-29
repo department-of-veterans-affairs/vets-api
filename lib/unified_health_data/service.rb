@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# FIXME: remove after re-factoring class
-
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
@@ -28,7 +26,7 @@ module UnifiedHealthData
     def get_labs(start_date:, end_date:)
       with_monitoring do
         response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         combined_records = fetch_combined_records(body)
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
@@ -47,7 +45,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         combined_records = fetch_combined_records(body)
         conditions_adapter.parse(combined_records)
@@ -60,7 +58,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         combined_records = fetch_combined_records(body)
         target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
@@ -81,7 +79,7 @@ module UnifiedHealthData
         start_date = default_start_date
         end_date = default_end_date
         response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
         prescriptions = adapter.parse(body, current_only:)
@@ -98,15 +96,16 @@ module UnifiedHealthData
     end
 
     def refill_prescription(orders)
+      normalized_orders = normalize_orders(orders)
       with_monitoring do
-        response = uhd_client.refill_prescription_orders(build_refill_request_body(orders))
+        response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
         parse_refill_response(response)
       end
     rescue Common::Exceptions::BackendServiceException => e
       raise e if e.original_status && e.original_status >= 500
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
-      build_error_response(orders)
+      build_error_response(normalized_orders)
     end
 
     def get_care_summaries_and_notes
@@ -116,7 +115,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
@@ -124,7 +123,7 @@ module UnifiedHealthData
 
         parsed_notes = parse_notes(filtered)
 
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes)
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
 
         parsed_notes
       end
@@ -137,7 +136,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
@@ -155,7 +154,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
@@ -171,7 +170,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
@@ -183,14 +182,65 @@ module UnifiedHealthData
       end
     end
 
+    # Retrieves the After Visit Summary for the given appointment ID from unified health data sources
+    #
+    # @param appt_id [String] The ID of the appointment to retrieve the summary for
+    # NOTE: This is not the ID used by the VAOS service, but from the appointment object's `identifier` field:
+    # `"identifier": [{"system": "urn:va.gov:masv2:cerner:appointment", "value": "Appointment/1234567"}]`
+    #
+    # @param include_binary [Boolean] Whether to include binary data in the response
+    #
+    # @return [Array<UnifiedHealthData::AfterVisitSummary>] Array of AVS objects
+    # Because an appointment can have multiple documents associated with it
+    # (e.g., AVS, discharge instructions, etc.), we return an array here
+    def get_appt_avs(appt_id:, include_binary: false)
+      with_monitoring do
+        response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
+        body = response.body
+        summaries = body['entry'].select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        parsed_avs_meta = summaries.map do |summary|
+          clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
+        end
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_avs_meta, 'AVS')
+        parsed_avs_meta.compact
+      end
+    end
+
+    def get_avs_binary_data(doc_id:, appt_id:)
+      with_monitoring do
+        response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
+        body = response.body
+        summary = body['entry'].find do |record|
+          record['resource']['resourceType'] == 'DocumentReference' && record['resource']['id'] == doc_id
+        end
+        clinical_notes_adapter.parse_avs_binary(summary)
+      end
+    end
+
+    # Retrieves CCD binary data for download
+    # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
+    # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
+    # @raise [ArgumentError] if the format is invalid or not available
+    def get_ccd_binary(format: 'xml')
+      with_monitoring do
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+
+        document_ref = body['entry']&.find do |entry|
+          entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
+        end
+        return nil unless document_ref
+
+        clinical_notes_adapter.parse_ccd_binary(document_ref, format)
+      end
+    end
+
     private
 
     # Shared
-    def parse_response_body(body)
-      # FIXME: workaround for testing
-      body.is_a?(String) ? JSON.parse(body) : body
-    end
-
     def fetch_combined_records(body)
       return [] if body.nil?
 
@@ -251,8 +301,8 @@ module UnifiedHealthData
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            orderId: order['id'].to_s,
-            stationNumber: order['stationNumber'].to_s
+            orderId: order[:id].to_s,
+            stationNumber: order[:stationNumber].to_s
           }
         end
       }
@@ -267,8 +317,18 @@ module UnifiedHealthData
       }
     end
 
+    def normalize_orders(orders)
+      return [] if orders.blank?
+
+      orders.map do |order|
+        next order unless order.respond_to?(:with_indifferent_access)
+
+        order.with_indifferent_access
+      end
+    end
+
     def parse_refill_response(response)
-      body = parse_response_body(response.body)
+      body = response.body
 
       # Ensure we have an array response format
       refill_items = body.is_a?(Array) ? body : []
@@ -313,7 +373,9 @@ module UnifiedHealthData
     def remap_vista_identifier(records)
       # TODO: Placeholder; will transition to a vista_uid
       records['vista']['entry']&.each do |allergy|
-        vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        vista_identifier = allergy['resource']['identifier']&.find do |id|
+          id['system'].starts_with?('https://va.gov/systems/')
+        end
         next unless vista_identifier && vista_identifier['value']
 
         allergy['resource']['id'] = vista_identifier['value']
@@ -323,7 +385,7 @@ module UnifiedHealthData
     # Care Summaries and Notes methods
     def remap_vista_uid(records)
       records['vista']['entry']&.each do |note|
-        vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
+        vista_uid_identifier = note['resource']['identifier']&.find { |id| id['system'] == 'vista-uid' }
         next unless vista_uid_identifier && vista_uid_identifier['value']
 
         new_id_array = vista_uid_identifier['value'].split(':')

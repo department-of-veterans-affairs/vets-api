@@ -24,7 +24,7 @@ RSpec.describe SchemaContract::DeleteValidationRecordsJob do
       job.perform
 
       expect { old_contract.reload }.to raise_error(ActiveRecord::RecordNotFound)
-      expect { new_contract.reload }.not_to raise_error(ActiveRecord::RecordNotFound)
+      expect { new_contract.reload }.not_to raise_error
     end
   end
 end

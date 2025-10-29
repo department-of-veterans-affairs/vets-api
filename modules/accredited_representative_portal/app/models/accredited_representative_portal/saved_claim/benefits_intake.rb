@@ -67,8 +67,7 @@ module AccreditedRepresentativePortal
              form_id: '21-526EZ_BENEFITS-INTAKE',
              proper_form_id: '21-526EZ',
              business_line: BusinessLines::COMPENSATION,
-             stamping_form_class: SimpleFormsApi::VBA21526EZ,
-             feature_flag: 'accredited_representative_portal_form_526ez'
+             stamping_form_class: SimpleFormsApi::VBA21526EZ
            )
         )
       ].freeze
