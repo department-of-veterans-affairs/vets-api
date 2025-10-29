@@ -17,7 +17,8 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       before do
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(true)
         allow(StatsD).to receive(:increment)
       end
 
@@ -146,7 +147,6 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
           SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}', delete_date: delete_date3)
         end
 
-
         it 'deletes both record types with past or current delete_times' do
           Timecop.freeze(delete_date2) do
             subject.new.perform
@@ -227,7 +227,8 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       before do
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(true)
         allow(StatsD).to receive(:increment)
 
         SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', delete_date: delete_date1)
@@ -256,7 +257,8 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       before do
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(false)
         allow(StatsD).to receive(:increment)
 
         SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', delete_date: delete_date1)

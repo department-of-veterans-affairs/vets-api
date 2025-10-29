@@ -22,7 +22,6 @@ module DecisionReviews
       Rails.logger.info('DecisionReviews::DeleteSavedClaimRecordsJob completed successfully',
                         saved_claims_deleted: deleted_saved_claims.size,
                         secondary_forms_deleted: deleted_secondary_forms.size,
-                        secondary_forms_deletion_enabled: secondary_forms_deletion_enabled?,
                         total_deleted: deleted_saved_claims.size + deleted_secondary_forms.size)
 
       nil
