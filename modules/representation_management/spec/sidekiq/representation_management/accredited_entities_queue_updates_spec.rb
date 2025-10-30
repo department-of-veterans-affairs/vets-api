@@ -64,13 +64,15 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
-      allow(entity_counts).to receive(:count_report).and_return('Count report generated successfully')
-      allow(entity_counts).to receive(:current_api_counts).and_return({
-                                                                         agents: 1,
-                                                                         attorneys: 1,
-                                                                         representatives: 0,
-                                                                         veteran_service_organizations: 0
-                                                                       })
+      allow(entity_counts).to receive_messages(
+        count_report: 'Count report generated successfully',
+        current_api_counts: {
+          agents: 1,
+          attorneys: 1,
+          representatives: 0,
+          veteran_service_organizations: 0
+        }
+      )
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
@@ -905,11 +907,11 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
       allow(entity_counts).to receive(:current_api_counts).and_return({
-                                                                         agents: 0,
-                                                                         attorneys: 0,
-                                                                         representatives: 1,
-                                                                         veteran_service_organizations: 1
-                                                                       })
+                                                                        agents: 0,
+                                                                        attorneys: 0,
+                                                                        representatives: 1,
+                                                                        veteran_service_organizations: 1
+                                                                      })
 
       # Mock VSO API responses
       allow(client).to receive(:get_accredited_entities)
@@ -2075,15 +2077,17 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
-      allow(entity_counts).to receive(:save_api_counts)
-      allow(entity_counts).to receive(:valid_count?).and_return(true)
-      allow(entity_counts).to receive(:count_report).and_return('Count report')
-      allow(entity_counts).to receive(:current_api_counts).and_return({
-                                                                        agents: 2,
-                                                                        attorneys: 0,
-                                                                        representatives: 0,
-                                                                        veteran_service_organizations: 0
-                                                                      })
+      allow(entity_counts).to receive_messages(
+        save_api_counts: nil,
+        valid_count?: true,
+        count_report: 'Count report',
+        current_api_counts: {
+          agents: 2,
+          attorneys: 0,
+          representatives: 0,
+          veteran_service_organizations: 0
+        }
+      )
 
       # Mock empty responses for other types
       allow(client).to receive(:get_accredited_entities)
@@ -2183,9 +2187,11 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
-      allow(entity_counts).to receive(:save_api_counts)
-      allow(entity_counts).to receive(:valid_count?).and_return(true)
-      allow(entity_counts).to receive(:count_report).and_return('Count report')
+      allow(entity_counts).to receive_messages(
+        save_api_counts: nil,
+        valid_count?: true,
+        count_report: 'Count report'
+      )
 
       # Mock empty responses for other types
       allow(client).to receive(:get_accredited_entities)
@@ -2314,9 +2320,11 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
-      allow(entity_counts).to receive(:save_api_counts)
-      allow(entity_counts).to receive(:valid_count?).and_return(true)
-      allow(entity_counts).to receive(:count_report).and_return('Count report')
+      allow(entity_counts).to receive_messages(
+        save_api_counts: nil,
+        valid_count?: true,
+        count_report: 'Count report'
+      )
 
       # Mock empty responses
       allow(client).to receive(:get_accredited_entities)
