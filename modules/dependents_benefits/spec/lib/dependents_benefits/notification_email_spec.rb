@@ -18,7 +18,9 @@ RSpec.describe DependentsBenefits::NotificationEmail do
       expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
       expect(vanotify).to receive(:send_email).with(
         {
-          email_address: saved_claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address'),
+          email_address: saved_claim
+            .parsed_form
+            .dig('dependents_application', 'veteran_contact_information', 'email_address'),
           template_id: Settings.vanotify.services['21_686c_674'].email.submitted.template_id,
           personalisation: anything
         }.compact
