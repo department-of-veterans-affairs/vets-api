@@ -44,7 +44,7 @@ module Pensions
           },
           'fullNameOverflow' => {
             question_num: 8,
-            question_label: "(1) Child's Name",
+            question_label: "Child's Name",
             question_text: '(1) CHILD\'S NAME'
           },
           'childDateOfBirth' => {
@@ -60,7 +60,7 @@ module Pensions
           },
           'childDateOfBirthOverflow' => {
             question_num: 8,
-            question_label: "(2) Child's Date Of Birth",
+            question_label: "Child's Date Of Birth",
             question_text: '(2) CHILD\'S DATE OF BIRTH'
           },
           'childSocialSecurityNumber' => {
@@ -76,13 +76,13 @@ module Pensions
           },
           'childSocialSecurityNumberOverflow' => {
             question_num: 8,
-            question_label: "(4) Child's Social Security Number",
+            question_label: "Child's Social Security Number",
             question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
             question_num: 8,
-            question_label: "(3) Child's Place Of Birth",
+            question_label: "Child's Place Of Birth",
             question_text: '(3) CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -111,7 +111,7 @@ module Pensions
           },
           'childStatusOverflow' => {
             question_num: 8,
-            question_label: "(5) Child's Status",
+            question_label: "Child's Status",
             question_text: '(5) CHILD\'S STATUS'
           },
           'monthlyPayment' => {
@@ -127,8 +127,8 @@ module Pensions
           },
           'monthlyPaymentOverflow' => {
             question_num: 8,
-            question_label: '(6) Amount Of Contribution For Child',
-            question_text: '(6) Amount of Contribution For Child'
+            question_label: 'Annual Contribution To Child',
+            question_text: '(6) Annual Contribution To Child'
           }
         },
         # 8q
