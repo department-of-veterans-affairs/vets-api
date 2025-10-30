@@ -55,8 +55,11 @@ module MedicalExpenseReports
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
+        config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
+        pdf_url = SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(claim.guid, config:)
+
         clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
+        render json: MedicalExpenseReports::SavedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
