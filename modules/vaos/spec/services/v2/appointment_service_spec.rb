@@ -2163,6 +2163,68 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#extract_binary_source' do
+    let(:avs_pdf) do
+      [
+        {
+          'appt_id' => '12345',
+          'id' => '15249638961',
+          'name' => 'Ambulatory Visit Summary',
+          'loinc_codes' => %w[4189669 96345-4],
+          'note_type' => 'ambulatory_patient_summary',
+          'content_type' => 'application/pdf',
+          'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+        }
+      ]
+    end
+
+    let(:avs_pdf_non_regexp_bin) do
+      [
+        {
+          'appt_id' => '12345',
+          'id' => '15249638961',
+          'name' => 'Ambulatory Visit Summary',
+          'loinc_codes' => %w[4189669 96345-4],
+          'note_type' => 'ambulatory_patient_summary',
+          'content_type' => 'application/pdf',
+          'binary' => 'something unexpected'
+        }
+      ]
+    end
+
+    let(:avs_pdf_no_bin) do
+      [
+        {
+          'appt_id' => '12345',
+          'id' => '15249638961',
+          'name' => 'Ambulatory Visit Summary',
+          'loinc_codes' => %w[4189669 96345-4],
+          'note_type' => 'ambulatory_patient_summary',
+          'content_type' => 'application/pdf'
+        }
+      ]
+    end
+
+    let(:avs_bin_src) { 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e' }
+    let(:non_regexp_bin) { 'something unexpected' }
+
+    context 'when extract_binary_source receives an avs response' do
+      it 'extracts the source' do
+        subject.send(:extract_binary_source, avs_pdf)
+        expect(avs_pdf[0]['binary']).to eq(avs_bin_src)
+      end
+      it 'does not modify a non-regexp binary field' do
+        subject.send(:extract_binary_source, avs_pdf_non_regexp_bin)
+        expect(avs_pdf_non_regexp_bin[0]['binary']).to eq(non_regexp_bin)
+      end
+      it 'makes no changes when it cannot find binary field' do
+        avs_pre_extraction = avs_pdf_no_bin
+        subject.send(:extract_binary_source, [])
+        expect(avs_pdf_no_bin).to eq(avs_pre_extraction)
+      end
+    end
+  end
+
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
