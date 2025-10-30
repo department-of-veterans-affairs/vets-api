@@ -33,6 +33,7 @@ module V0
           21P-0847
           21P-527EZ
           21P-530EZ
+          21P-0969
         ] + uploadable_forms
       end
 
