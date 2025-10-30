@@ -19,7 +19,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
 
     # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
     # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
-    allow(FastImage).to receive(:size).and_return(nil)
+    allow(FastImage).to receive(:size).with(a_string_ending_with('.pdf')).and_return(nil)
   end
 
   let(:claimant_representative) do

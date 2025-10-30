@@ -37,10 +37,10 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantSerializer, type: :serial
     )
   end
 
-  # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
-  # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
   before do
-    allow(FastImage).to receive(:size).and_return(nil)
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).with(a_string_ending_with('.pdf')).and_return(nil)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
   end
 

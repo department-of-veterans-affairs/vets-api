@@ -11,10 +11,10 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
   let(:form_id) { AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::FORM_ID }
   let(:service) { double }
 
-  # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
-  # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
   before do
-    allow(FastImage).to receive(:size).and_return(nil)
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).with(a_string_ending_with('.pdf')).and_return(nil)
   end
 
   context 'when record invalid' do

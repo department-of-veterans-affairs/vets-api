@@ -10,10 +10,10 @@ RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
   let(:claim) { create(:saved_claim_benefits_intake) }
   let(:instance) { handler.new(claim.id) }
 
-  # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
-  # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
   before do
-    allow(FastImage).to receive(:size).and_return(nil)
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).with(a_string_ending_with('.pdf')).and_return(nil)
   end
 
   describe '.pending_attempts' do
