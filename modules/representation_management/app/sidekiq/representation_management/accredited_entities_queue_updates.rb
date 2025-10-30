@@ -302,6 +302,7 @@ module RepresentationManagement
         page += 1
       end
     rescue => e
+      @processing_error_types << REPRESENTATIVES unless @processing_error_types.include?(REPRESENTATIVES)
       log_error("Error updating representatives: #{e.message}")
     end
 
