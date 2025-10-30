@@ -1,24 +1,28 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/notification_callback'
+require 'dependents_benefits/notification_email'
 
 RSpec.describe DependentsBenefits::NotificationEmail do
   let(:saved_claim) { create(:dependents_claim) }
+  let(:vanotify) { double(send_email: true) }
 
   describe '#deliver' do
     it 'successfully sends an email' do
+      api_key = Settings.vanotify.services.dependents_benefits.api_key
+      callback_options = { callback_klass: DependentsBenefits::NotificationCallback.to_s, callback_metadata: be_a(Hash) }
+
       expect(DependentsBenefits::SavedClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:dependents_benefits).and_call_original
-
-      args = [
-        saved_claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address'),
-        Settings.vanotify.services['21_686c_674'].email.submitted.template_id,
-        anything,
-        Settings.vanotify.services['21_686c_674'].api_key,
-        { callback_klass: DependentsBenefits::NotificationCallback.to_s,
-          callback_metadata: anything }
-      ]
-      expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
+      expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: saved_claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address'),
+          template_id: Settings.vanotify.services['21_686c_674'].email.submitted.template_id,
+          personalisation: anything
+        }.compact
+      )
 
       described_class.new(23).deliver(:submitted)
     end

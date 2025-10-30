@@ -28,6 +28,8 @@ module DependentsBenefits
 
       deliver(received_key)
     rescue => e
+      # we cannot overwrite the monitor used in the base class so create a new one here
+      monitor = DependentsBenefits::Monitor.new
       monitor.track_error_event('Error sending received notification email', 'notification_failure', error: e)
       raise e
     end
@@ -45,6 +47,8 @@ module DependentsBenefits
 
       deliver(error_key)
     rescue => e
+      # we cannot overwrite the monitor used in the base class so create a new one here
+      monitor = DependentsBenefits::Monitor.new
       monitor.track_error_event('Error sending error notification email', 'notification_failure', error: e)
       raise e
     end
@@ -86,10 +90,6 @@ module DependentsBenefits
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
     def callback_metadata
       super.merge(claim_id: claim.id)
-    end
-
-    def monitor
-      @monitor ||= DependentsBenefits::Monitor.new
     end
   end
 end
