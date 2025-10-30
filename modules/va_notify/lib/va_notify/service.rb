@@ -6,10 +6,12 @@ require 'common/client/concerns/monitoring'
 require_relative 'configuration'
 require_relative 'error'
 require_relative 'client'
+require 'vets/shared_logging'
 
 module VaNotify
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
+    include Vets::SharedLogging
 
     STATSD_KEY_PREFIX = 'api.vanotify'
     UUID_LENGTH = 36
@@ -102,7 +104,7 @@ module VaNotify
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
-        save_error_details(error)
+        log_error_details(error)
         if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
           context = {
             template_id: callback_options[:template_id] || callback_options['template_id'],
@@ -125,17 +127,8 @@ module VaNotify
       # Specific keys that are safe to include and do not contain PII
       metadata.slice(:notification_type, :form_number)
     end
-
-    def save_error_details(error)
-      Sentry.set_tags(
-        external_service: self.class.to_s.underscore
-      )
-
-      Sentry.set_extras(
-        url: config.base_path,
-        message: error.message,
-        body: error.body
-      )
+    def log_error_details(error)
+      log_message_to_rails(error.message, 'error', { url: config.base_path, body: error.try(:body) })
     end
 
     def append_callback_url(args)

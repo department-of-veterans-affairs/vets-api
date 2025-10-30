@@ -5,11 +5,13 @@ require 'common/client/concerns/monitoring'
 require 'jwt'
 require_relative 'configuration'
 require_relative 'error'
+require 'vets/shared_logging'
 
 module VaNotify
   # Client for VA Notify Push Notification API
   class Client < Common::Client::Base
     include Common::Client::Concerns::Monitoring
+    include Vets::SharedLogging
 
     configuration VaNotify::Configuration
 
@@ -79,7 +81,7 @@ module VaNotify
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
-        save_error_details(error)
+        log_error_details(error)
         if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
           context = {
             template_id:,
@@ -103,16 +105,8 @@ module VaNotify
       metadata.slice(:notification_type, :form_number, :mobile_app)
     end
 
-    def save_error_details(error)
-      Sentry.set_tags(
-        external_service: self.class.to_s.underscore
-      )
-
-      Sentry.set_extras(
-        url: config.base_path,
-        message: error.message,
-        body: error.body
-      )
+    def log_error_details(error)
+      log_message_to_rails(error.message, 'error', { url: config.base_path, body: error.try(:body) })
     end
   end
 end

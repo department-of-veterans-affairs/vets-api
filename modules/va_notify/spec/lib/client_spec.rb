@@ -189,7 +189,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
         allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('SMS sender ID error'))
       end
@@ -214,7 +214,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
         allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Authentication required'))
       end
@@ -242,7 +242,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
         allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Invalid service ID'))
       end
@@ -265,7 +265,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
         allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Server error'))
       end
@@ -288,7 +288,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
         allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Mobile app not initialized'))
       end
@@ -311,7 +311,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
         allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Downstream service error'))
       end
@@ -340,7 +340,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
         allow(VANotify::Error).to receive(:from_generic_error).and_return(VANotify::BadRequest.new(400, 'Custom error'))
       end
@@ -372,7 +372,7 @@ RSpec.describe VaNotify::Client do
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:save_error_details)
+        allow_any_instance_of(described_class).to receive(:log_error_details)
       end
 
       context 'when va_notify_custom_errors is enabled' do
