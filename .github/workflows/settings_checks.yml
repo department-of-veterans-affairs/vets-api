@@ -94,6 +94,12 @@ jobs:
             keys+=("$line")
           done
 
+
+          if [[ -z "$new_env_keys" ]]; then
+            echo "No ENV variables found in changes."
+            exit 0
+          fi
+
           echo "Found the following ENV keys:"
           for key in "${keys[@]}"; do
             echo "  - $key"
