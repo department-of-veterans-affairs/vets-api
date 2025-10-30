@@ -21,6 +21,8 @@ module Eps
 
     attribute :past, &:past
 
+    attribute :referralId, &:referral_id
+
     attribute :location do |object|
       location_data = object.location
       location_data.presence
