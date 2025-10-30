@@ -57,7 +57,7 @@ module BGS
       # Form email is required
       if @notification_email.nil?
         form = claim.parsed_form
-        @notification_email = form['dependents_application']['veteran_contact_information']['email_address']
+        @notification_email = form&.dig('dependents_application', 'veteran_contact_information', 'email_address')
       end
 
       @monitor = init_monitor(claim&.id)
