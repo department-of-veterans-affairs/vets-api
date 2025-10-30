@@ -23,12 +23,12 @@ module V0
       def restricted_list_of_forms
         forms = []
         # Always include benefits intake forms for backward compatibility
-        forms += benefits_intake_forms
+        forms += restricted_benefits_intake_forms
         forms += decision_reviews_forms_if_enabled
         forms
       end
 
-      def benefits_intake_forms
+      def restricted_benefits_intake_forms
         %w[
           20-10206
           20-10207
