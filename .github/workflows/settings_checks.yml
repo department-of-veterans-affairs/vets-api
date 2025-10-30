@@ -87,6 +87,7 @@ jobs:
           new_env_keys=$(git diff --unified=0 origin/master config/settings.yml | \
             grep '^+' | grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
+          echo "NEW KEYS"
           echo "$new_env_keys"
 
           if [[ -z "$new_env_keys" ]]; then
