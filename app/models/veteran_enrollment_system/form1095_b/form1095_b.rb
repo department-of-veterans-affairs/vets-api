@@ -33,21 +33,14 @@ module VeteranEnrollmentSystem
         end
 
         template_file = File.open(txt_template_path, 'r')
-
-        foo = attributes.merge(txt_form_data)
-
-        rv = template_file.read % foo.symbolize_keys
-
+        template_data = attributes.merge(txt_form_data)
+        rv = template_file.read % template_data.symbolize_keys
         template_file.close
 
         rv
       end
 
       def pdf_file
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
-
-        tmp_file = Tempfile.new("1095B-#{SecureRandom.hex}.pdf")
-
         unless File.exist?(pdf_template_path)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
@@ -55,14 +48,12 @@ module VeteranEnrollmentSystem
           )
         end
 
+        pdftk = PdfForms.new(Settings.binaries.pdftk)
+        tmp_file = Tempfile.new("1095B-#{SecureRandom.hex}.pdf")
         generate_pdf(pdftk, tmp_file)
       end
 
       def self.parse(form_data)
-        months = form_data['data']['coveredIndividual']['monthsCovered']
-        coverage_months = Date::MONTHNAMES.compact.map { |month| months&.include?(month.upcase) ? month.upcase : nil }
-        covered_all = form_data['data']['coveredIndividual']['coveredAll12Months']
-        coverage_map = [covered_all, *coverage_months]
         prepared_data = {
           first_name: form_data['data']['coveredIndividual']['name']['firstName'],
           middle_name: form_data['data']['coveredIndividual']['name']['middleName'],
@@ -78,15 +69,17 @@ module VeteranEnrollmentSystem
           foreign_zip: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
           is_beneficiary: form_data['data']['responsibleIndividual']['isBeneficiary'],
           is_corrected: form_data['data']['responsibleIndividual']['isCorrected'],
-          coverage_months: coverage_map,
+          coverage_months: coverage_months(form_data),
           tax_year: form_data['data']['taxYear']
         }
         new(prepared_data)
       end
 
-      # we are currently restricting access to only the most recent tax year
-      def self.current_tax_year
-        Date.current.year - 1
+      def self.coverage_months(form_data)
+        months = form_data['data']['coveredIndividual']['monthsCovered']
+        coverage_months = Date::MONTHNAMES.compact.map { |month| months&.include?(month.upcase) ? month.upcase : nil }
+        covered_all = form_data['data']['coveredIndividual']['coveredAll12Months']
+        [covered_all, *coverage_months]
       end
 
       private
@@ -180,17 +173,10 @@ module VeteranEnrollmentSystem
 
         ret_pdf
       rescue PdfForms::PdftkError => e
-        # in case theres other errors generating the PDF
         Rails.logger.error e.message
-        raise
+        raise e
       end
       # rubocop:enable Metrics/MethodLength
-
-      def proper_form_data_schema
-        JSON::Validator.validate!(form_data_schema, form_data)
-      rescue JSON::Schema::ValidationError => e
-        errors.add(:form_data, **e)
-      end
     end
   end
 end
