@@ -297,16 +297,4 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
               tags: EventBusGateway::Constants::DD_TAGS + ['function: EventBusGateway::VANotifyEmailStatusCallback::MPIError'])
     end
   end
-
-  describe 'Email retry flows with a new environment variable for retry count.' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
-    end
-
-    it 'Retry after failues then pass with a large enough retry count.' do
-    end
-
-    it 'Retry after failues then fail with a too small retry count.' do
-    end
-  end
 end
