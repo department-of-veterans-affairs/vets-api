@@ -296,4 +296,120 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
               tags: EventBusGateway::Constants::DD_TAGS + ['function: EventBusGateway::VANotifyEmailStatusCallback::MPIError'])
     end
   end
+
+  describe 'Business rule: email jobs do not run more than 5 times' do
+    # This test exists because the previous max attempts was 16, which caused
+    # production performance concerns due to database strain and job congestion
+    # on staging when failures occurred. Limiting to 5 attempts prevents excessive retries.
+    before do
+      allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
+    end
+
+    it 'does not queue more than 5 email jobs for a notification' do
+      initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
+      retry_responses = Array.new(4) do |i|
+        instance_double(Notifications::Client::ResponseNotification, id: "retry-#{i}-#{SecureRandom.uuid}")
+      end
+
+      expect(va_notify_service).to receive(:send_email).exactly(5).times
+                                                       .and_return(initial_response, *retry_responses)
+
+      # Step 1: Initial email job
+      EventBusGateway::LetterReadyEmailJob.perform_async(participant_id, template_id)
+      Sidekiq::Worker.drain_all
+
+      notification = EventBusGatewayNotification.last
+      expect(notification.attempts).to eq(1)
+
+      # Step 2: Simulate temporary failures up to 5 attempts
+      4.times do |attempt|
+        expect(EventBusGateway::LetterReadyRetryEmailJob.jobs.size).to eq(1)
+        temp_failure = create_notification_double(notification.va_notify_id, 'temporary-failure')
+        EventBusGateway::VANotifyEmailStatusCallback.call(temp_failure)
+        Sidekiq::Worker.drain_all
+        notification.reload
+        expect(notification.attempts).to eq(attempt + 2)
+      end
+
+      # Step 3: After 5 attempts, further temporary failures should not queue more jobs
+      expect(notification.attempts).to eq(5)
+      temp_failure = create_notification_double(notification.va_notify_id, 'temporary-failure')
+      EventBusGateway::VANotifyEmailStatusCallback.call(temp_failure)
+      expect(EventBusGateway::LetterReadyRetryEmailJob.jobs).to be_empty
+    end
+
+    it 'simulates 4 LetterReadyEmailJob attempts and 1 retry job for success' do
+      initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
+      retry_response = instance_double(Notifications::Client::ResponseNotification, id: retry_va_notify_id)
+
+      # 4 initial attempts
+      expect(va_notify_service).to receive(:send_email).exactly(5).times
+                                                       .and_return(initial_response, initial_response, initial_response, initial_response, retry_response)
+
+      # Step 1: Simulate 4 initial jobs
+      4.times do
+        EventBusGateway::LetterReadyEmailJob.perform_async(participant_id, template_id)
+      end
+      Sidekiq::Worker.drain_all
+
+      notification = EventBusGatewayNotification.last
+      expect(notification.attempts).to eq(4)
+
+      # Step 2: Temporary failure triggers retry
+      temp_failure = create_notification_double(notification.va_notify_id, 'temporary-failure')
+      EventBusGateway::VANotifyEmailStatusCallback.call(temp_failure)
+      expect(EventBusGateway::LetterReadyRetryEmailJob.jobs.size).to eq(1)
+
+      # Step 3: Process retry job
+      Sidekiq::Worker.drain_all
+      notification.reload
+      expect(notification.attempts).to eq(5)
+
+      # Step 4: Delivered after retry
+      delivered = create_notification_double(notification.va_notify_id, 'delivered', status_reason: 'delivered')
+      EventBusGateway::VANotifyEmailStatusCallback.call(delivered)
+      expect(EventBusGateway::LetterReadyRetryEmailJob.jobs).to be_empty
+    end
+
+    it 'simulates 4 LetterReadyEmailJob attempts and 2 retry jobs, expects failure after max retries' do
+      initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
+      retry_response_1 = instance_double(Notifications::Client::ResponseNotification, id: retry_va_notify_id)
+      retry_response_2 = instance_double(Notifications::Client::ResponseNotification, id: retry_va_notify_id_second)
+
+      # 4 initial attempts + 2 retries = 6, but only 5 allowed
+      expect(va_notify_service).to receive(:send_email).exactly(6).times
+                                                       .and_return(initial_response, initial_response, initial_response, initial_response, retry_response_1, retry_response_2)
+
+      # Step 1: Simulate 4 initial jobs
+      4.times do
+        EventBusGateway::LetterReadyEmailJob.perform_async(participant_id, template_id)
+      end
+      Sidekiq::Worker.drain_all
+
+      notification = EventBusGatewayNotification.last
+      expect(notification.attempts).to eq(4)
+
+      # Step 2: Temporary failure triggers first retry
+      temp_failure_1 = create_notification_double(notification.va_notify_id, 'temporary-failure')
+      EventBusGateway::VANotifyEmailStatusCallback.call(temp_failure_1)
+      expect(EventBusGateway::LetterReadyRetryEmailJob.jobs.size).to eq(1)
+      Sidekiq::Worker.drain_all
+      notification.reload
+      expect(notification.attempts).to eq(5)
+
+      # Step 3: Another temporary failure triggers second retry (should not queue)
+      temp_failure_2 = create_notification_double(notification.va_notify_id, 'temporary-failure')
+      EventBusGateway::VANotifyEmailStatusCallback.call(temp_failure_2)
+      expect(EventBusGateway::LetterReadyRetryEmailJob.jobs).to be_empty
+
+      # Step 4: Check that exhausted retry metric is logged
+      expect(StatsD).to have_received(:increment)
+        .with('event_bus_gateway.va_notify_email_status_callback.exhausted_retries',
+              tags: EventBusGateway::Constants::DD_TAGS)
+      expect(Rails.logger).to have_received(:error)
+        .with('EventBusGateway email retries exhausted',
+              { ebg_notification_id: notification.id,
+                max_attempts: EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS })
+    end
+  end
 end
