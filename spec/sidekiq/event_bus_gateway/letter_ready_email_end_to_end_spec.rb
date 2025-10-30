@@ -412,14 +412,14 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
                 max_attempts: EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS })
     end
 
-    it 'simulates 4 LetterReadyEmailJob attempts and 2 retry jobs, notification prevents further attempts even if Sidekiq could retry' do
+    it 'simulates 4 ready jobs and 2 retry jobs, notification prevents further attempts even if Sidekiq could retry' do
       initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
       retry_response_1 = instance_double(Notifications::Client::ResponseNotification, id: retry_va_notify_id)
       retry_response_2 = instance_double(Notifications::Client::ResponseNotification, id: retry_va_notify_id_second)
 
       # 4 initial jobs + 2 retries = 6, but notification max is 5
       expect(va_notify_service).to receive(:send_email).exactly(6).times
-        .and_return(initial_response, initial_response, initial_response, initial_response, retry_response_1, retry_response_2)
+                                                       .and_return(initial_response, initial_response, initial_response, initial_response, retry_response_1, retry_response_2)
 
       # Step 1: Simulate 4 initial jobs
       4.times do
