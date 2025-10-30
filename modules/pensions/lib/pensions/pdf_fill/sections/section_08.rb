@@ -12,41 +12,39 @@ module Pensions
       KEY = {
         # 8a
         'dependentChildrenInHousehold' => {
-          key: 'form1[0].#subform[50].Number_Of_Dependent_Children_Who_Live_With_You[0]',
           limit: 2,
-          question_num: 8,
-          question_suffix: 'A',
-          question_label: 'Number of Dependent Children Who Live With You',
-          question_text: 'Number of Dependent Children Who Live With You'
+          key: 'form1[0].#subform[50].Number_Of_Dependent_Children_Who_Live_With_You[0]'
         },
         # 8b-p Dependent Children
         'dependents' => {
           limit: 3,
           first_key: 'childPlaceOfBirth',
+          item_label: 'Child',
           'fullName' => {
             'first' => {
               limit: 12,
-              question_num: 8.1,
+              question_num: 8,
               question_label: "Child's First Name",
               question_text: 'CHILD\'S FIRST NAME',
               key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
             },
             'middle' => {
-              question_num: 8.1,
+              question_num: 8,
               question_label: "Child's Middle Name",
               question_text: 'CHILD\'S MIDDLE NAME',
               key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
-              question_num: 8.1,
+              question_num: 8,
               question_label: "Child's Last Name",
               question_text: 'CHILD\'S LAST NAME',
               key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
             }
           },
           'fullNameOverflow' => {
-            question_num: 8.1,
+            question_num: 8,
+            question_label: "(1) Child's Name",
             question_text: '(1) CHILD\'S NAME'
           },
           'childDateOfBirth' => {
@@ -61,7 +59,7 @@ module Pensions
             }
           },
           'childDateOfBirthOverflow' => {
-            question_num: 8.1,
+            question_num: 8,
             question_label: "(2) Child's Date Of Birth",
             question_text: '(2) CHILD\'S DATE OF BIRTH'
           },
@@ -77,13 +75,13 @@ module Pensions
             }
           },
           'childSocialSecurityNumberOverflow' => {
-            question_num: 8.1,
+            question_num: 8,
             question_label: "(4) Child's Social Security Number",
             question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
-            question_num: 8.1,
+            question_num: 8,
             question_label: "(3) Child's Place Of Birth",
             question_text: '(3) CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
@@ -112,7 +110,7 @@ module Pensions
             key: "Dependent_Children.Does_Not_Live_With_You_But_Contributes[#{ITERATOR}]"
           },
           'childStatusOverflow' => {
-            question_num: 8.1,
+            question_num: 8,
             question_label: "(5) Child's Status",
             question_text: '(5) CHILD\'S STATUS'
           },
@@ -128,7 +126,7 @@ module Pensions
             }
           },
           'monthlyPaymentOverflow' => {
-            question_num: 8.1,
+            question_num: 8,
             question_label: '(6) Amount Of Contribution For Child',
             question_text: '(6) Amount of Contribution For Child'
           }
@@ -143,10 +141,6 @@ module Pensions
           first_key: 'first',
           'first' => {
             limit: 12,
-            question_num: 8.2,
-            question_suffix: 'R',
-            question_label: "Custodian's First Name",
-            question_text: 'CUSTODIAN\'S FIRST NAME',
             key: 'form1[0].#subform[51].Custodians_FirstName[0]'
           },
           'middle' => {
@@ -154,50 +148,28 @@ module Pensions
           },
           'last' => {
             limit: 18,
-            question_num: 8.2,
-            question_suffix: 'R',
-            question_label: "Custodian's Last Name",
-            question_text: 'CUSTODIAN\'S LAST NAME',
             key: 'form1[0].#subform[51].Custodians_LastName[0]'
           },
           'custodianAddress' => {
             'street' => {
               limit: 30,
-              question_num: 8.2,
-              question_suffix: 'R',
-              question_label: "Custodian's Address Number and Street",
-              question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
               key: 'form1[0].#subform[51].NumberStreet[3]'
             },
             'street2' => {
               limit: 5,
-              question_num: 8.2,
-              question_suffix: 'R',
-              question_label: "Custodian's Address Apt/Unit",
-              question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
               key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
             },
             'city' => {
               limit: 18,
-              question_num: 8.2,
-              question_suffix: 'R',
-              question_label: "Custodian's Address City",
-              question_text: 'CUSTODIAN\'S ADDRESS CITY',
               key: 'form1[0].#subform[51].City[2]'
             },
             'state' => {
-              question_num: 8.2,
-              question_suffix: 'R',
               key: 'form1[0].#subform[51].State_Or_Province[1]'
             },
             'country' => {
-              question_num: 8.2,
-              question_suffix: 'R',
               key: 'form1[0].#subform[51].Country[2]'
             },
             'postalCode' => {
-              question_num: 8.2,
-              question_suffix: 'R',
               'firstFive' => {
                 key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
               },
