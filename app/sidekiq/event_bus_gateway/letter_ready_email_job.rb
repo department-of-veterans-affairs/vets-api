@@ -9,7 +9,7 @@ module EventBusGateway
 
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_email'
 
-    sidekiq_options Constants::SIDEKIQ_RETRY_OPTIONS
+    sidekiq_options retry: Constants::LETTER_READY_MAX_RETRY_COUNT
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
