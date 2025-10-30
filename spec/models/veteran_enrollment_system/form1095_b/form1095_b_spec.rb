@@ -23,6 +23,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
         'taxYear' => '2024' },
       'messages' => [] }
   end
+  let(:form1095b) { build(:enrollment_system_form1095_b) }
 
   describe '.parse' do
     it 'returns an instance of model with expected attributes' do
@@ -83,12 +84,12 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
   describe 'pdf_testing' do
     describe 'valid pdf generation' do
       it 'generates pdf string for valid 1095_b' do
-        expect(subject.pdf_file.class).to eq(String)
+        expect(form1095b.pdf_file.class).to eq(String)
       end
     end
 
     describe 'invalid PDF generation' do
-      let(:inv_year_form) { create(:form1095_b, veteran_icn: '654678976543678', tax_year: 2008) }
+      let(:inv_year_form) { build(:enrollment_system_form1095_b, tax_year: 2008) }
 
       it 'fails if no template PDF for the tax_year' do
         expect { inv_year_form.pdf_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
@@ -99,12 +100,12 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
   describe 'txt_testing' do
     describe 'valid text file generation' do
       it 'generates text string for valid 1095_b' do
-        expect(subject.txt_file.class).to eq(String)
+        expect(form1095b.txt_file.class).to eq(String)
       end
     end
 
     describe 'invalid txt generation' do
-      let(:inv_year_form) { create(:form1095_b, veteran_icn: '654678976543678', tax_year: 2008) }
+      let(:inv_year_form) { build(:enrollment_system_form1095_b, tax_year: 2008) }
 
       it 'fails if no template txt file for the tax_year' do
         expect { inv_year_form.txt_file }.to raise_error(Common::Exceptions::UnprocessableEntity)

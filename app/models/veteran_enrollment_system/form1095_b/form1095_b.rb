@@ -53,6 +53,8 @@ module VeteranEnrollmentSystem
         generate_pdf(pdftk, tmp_file)
       end
 
+      # there is some overlap in the data provided by coveredIndividual and responsibleIndividual.
+      # in the VA enrollment system, they are always the same.
       def self.parse(form_data)
         prepared_data = {
           first_name: form_data['data']['coveredIndividual']['name']['firstName'],
