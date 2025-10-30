@@ -6,8 +6,13 @@ module ClaimsEvidenceApi
   module Validation
     module SearchFilters
       class << self
+        def validate(filters)
+          JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::SEARCH_FILTERS, filters)
+          filters
+        end
+
         def transform(filters)
-          filters.each_with_object({}) { |(filter, value), formatted|
+          transformed = filters.each_with_object({}) { |(filter, value), formatted|
             next unless (formatter = FORMATTERS[filter.to_sym])
 
             formatted[formatter.search_field] = {
@@ -15,6 +20,7 @@ module ClaimsEvidenceApi
               value: value.is_a?(String) ? value : value.to_json
             }
           }
+          validate(transformed)
         end
 
         def formatters

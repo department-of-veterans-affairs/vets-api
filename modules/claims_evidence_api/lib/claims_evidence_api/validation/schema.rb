@@ -23,22 +23,6 @@ module ClaimsEvidenceApi
         value
       end
 
-      # validate a single filter against the schema
-      # @see ClaimsEvidenceApi::JsonSchema::FILTERS
-      #
-      # @param filter [String|Symbol] the filter to validate
-      # @param value [Mixed] the value to validate
-      #
-      # @return [Mixed] valid value
-      # @raise JSON::Schema::ValidationError
-      def validate_schema_filter(filter, value)
-        prop = filter.to_sym
-        raise ArgumentError unless ClaimsEvidenceApi::JsonSchema::FILTERS.key?(prop)
-
-        JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::FILTERS[prop], value)
-        value
-      end
-
       # assemble and validate the upload (POST) payload
       # @see modules/claims_evidence_api/lib/claims_evidence_api/schema/uploadPayload.json
       #
@@ -70,11 +54,16 @@ module ClaimsEvidenceApi
         provider_data
       end
 
-      # validate the provider data to be applied to content
+      # assemble and validate the file:search (POST) payload
+      # @see ClaimsEvidenceApi::Validation::SearchFilters
+      # @see modules/claims_evidence_api/lib/claims_evidence_api/schema/searchFileRequest.json
       #
-      # @param provider_data [Hash] metadata to be applied to the uploaded content
+      # @param page [Integer] page to begin returning results; default = 1
+      # @param results_per_page [Integer] number of results per page; default = 10
+      # @param filters [Hash] filters to be applied to the search
+      # @param sort [Hash] sort to apply to the results
       #
-      # @return [Hash] valid upload payload
+      # @return [Hash] valid file:search payload
       # @raise JSON::Schema::ValidationError
       def validate_search_file_request(page = 1, results_per_page = 10, filters = {}, sort = {})
         request = {
