@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters.json",
+  "description" : "Paging request from user.",
+  "properties" : {
+    "resultsPerPage" : {
+      "example" : 10,
+      "format" : "int32",
+      "type" : "integer",
+      "min": 1
+    },
+    "page" : {
+      "example" : 1,
+      "format" : "int32",
+      "type" : "integer",
+      "min": 1
+    }
+  },
+  "title" : "Paging Request",
+  "type" : "object"
+}
