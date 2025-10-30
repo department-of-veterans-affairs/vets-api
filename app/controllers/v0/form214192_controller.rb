@@ -6,6 +6,7 @@ module V0
 
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    skip_before_action :verify_authenticity_token, only: %i[create download_pdf]
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
@@ -41,6 +42,9 @@ module V0
       source_file_path = with_retries('Generate 21-4192 PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
       end
+
+      # Stamp signature (SignatureStamper returns original path if signature is blank)
+      source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
 
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
