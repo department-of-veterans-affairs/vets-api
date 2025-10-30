@@ -157,7 +157,6 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
     end
 
     it 'exhausts retries after reaching MAX_EMAIL_ATTEMPTS' do
-      # Mock all email sends (initial + 16 retries = 17 total)
       initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
       retry_responses = Array.new(EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS - 1) do |i|
         instance_double(Notifications::Client::ResponseNotification, id: "retry-#{i}-#{SecureRandom.uuid}")
