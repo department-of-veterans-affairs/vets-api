@@ -148,10 +148,81 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   def set_current_user(skip_terms_check)
     return unless @session_object
 
-    user = User.find(@session_object.uuid)
+    user = User.find(@session_object.uuid) || reload_user
     if (skip_terms_check || !user&.needs_accepted_terms_of_use) && !user&.credential_lock && user&.identity
       @current_user = user
     end
+  end
+
+  def reload_user
+    user_identity.uuid = @session_object.uuid
+    reloaded_user.uuid = @session_object.uuid
+    reloaded_user.last_signed_in = @session_object.created_at
+    reloaded_user.fingerprint = request.ip
+    reloaded_user.session_handle = @session_object.token
+    reloaded_user.user_verification_id = user_verification.id
+    reloaded_user.save && user_identity.save
+    reloaded_user.invalidate_mpi_cache
+    reloaded_user.validate_mpi_profile
+    reloaded_user.create_mhv_account_async
+    reloaded_user.provision_cerner_async(source: :ssoe)
+
+    context = {
+      user_uuid: reloaded_user.uuid,
+      credential_uuid: user_verification.credential_identifier,
+      icn: user_account.icn,
+      sign_in:
+    }
+    Rails.logger.info('SSO: ApplicationController#reload_user', context)
+
+    reloaded_user
+  end
+
+  def user_attributes
+    {
+      mhv_icn: user_account.icn,
+      idme_uuid: user_verification.idme_uuid || user_verification.backing_idme_uuid,
+      logingov_uuid: user_verification.logingov_uuid,
+      loa:,
+      email: user_verification.user_credential_email.credential_email,
+      authn_context:,
+      multifactor:,
+      sign_in:
+    }
+  end
+
+  def loa
+    current_loa = user_is_verified? ? LOA::THREE : LOA::ONE
+    { current: current_loa, highest: LOA::THREE }
+  end
+
+  def sign_in
+    { service_name: user_verification.credential_type,
+      client_id: IdentitySettings.sign_in.vaweb_client_id,
+      auth_broker: SAML::URLService::BROKER_CODE }
+  end
+
+  def authn_context
+    case user_verification.credential_type
+    when SAML::User::IDME_CSID
+      user_is_verified? ? LOA::IDME_LOA3 : LOA::IDME_LOA1_VETS
+    when SAML::User::DSLOGON_CSID
+      user_is_verified? ? LOA::IDME_DSLOGON_LOA3 : LOA::IDME_DSLOGON_LOA1
+    when SAML::User::LOGINGOV_CSID
+      user_is_verified? ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1
+    end
+  end
+
+  def multifactor
+    user_is_verified? && idme_or_logingov_service
+  end
+
+  def idme_or_logingov_service
+    [SAML::User::IDME_CSID, SAML::User::LOGINGOV_CSID].include?(sign_in[:service_name])
+  end
+
+  def user_is_verified?
+    user_account.verified?
   end
 
   def sso_cookie_content
@@ -178,6 +249,27 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
 
   def sign_in_service_exp_time
     sign_in_service_session.refresh_expiration.iso8601(0)
+  end
+
+  def user_account
+    @user_account ||= UserAccount.find(@session_object.uuid)
+  end
+
+  def user_verification
+    @user_verification ||= UserVerification.find_by_type(SAML::User::IDME_CSID, @session_object.credential_uuid) ||
+                           UserVerification.find_by_type(SAML::User::LOGINGOV_CSID, @session_object.credential_uuid)
+  end
+
+  def user_identity
+    @user_identity ||= UserIdentity.new(user_attributes)
+  end
+
+  def reloaded_user
+    return @reloaded_user if @reloaded_user
+
+    user = User.new
+    user.instance_variable_set(:@identity, user_identity)
+    @reloaded_user = user
   end
 
   def sign_in_service_session
