@@ -54,40 +54,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                },
                required: [:data]
 
-        let(:form_data) do
-          {
-            veteranInformation: {
-              fullName: {
-                first: 'John',
-                last: 'Doe',
-                middle: 'A'
-              },
-              ssn: '123456789',
-              dateOfBirth: '1980-01-01',
-              address: {
-                street: '123 Main St',
-                street2: 'Apt 4B',
-                city: 'Springfield',
-                state: 'IL',
-                postalCode: '62701',
-                country: 'US'
-              }
-            },
-            employmentInformation: {
-              employerName: 'Acme Corp',
-              employerAddress: {
-                street: '456 Business Blvd',
-                street2: nil,
-                city: 'Chicago',
-                state: 'IL',
-                postalCode: '60601',
-                country: 'US'
-              },
-              typeOfWorkPerformed: 'Software Development',
-              beginningDateOfEmployment: '2015-06-01'
-            }
-          }
-        end
+        let(:form_data) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
 
         it 'returns a successful response with form submission data' do |example|
           submit_request(example.metadata)
