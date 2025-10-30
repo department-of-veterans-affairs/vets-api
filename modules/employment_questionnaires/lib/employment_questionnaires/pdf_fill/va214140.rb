@@ -34,7 +34,9 @@ module EmploymentQuestionnaires
       SECTIONS = [].freeze
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [].freeze
+      SECTION_CLASSES = [
+        Section1, Section2
+      ].freeze
 
       key = {}
 
