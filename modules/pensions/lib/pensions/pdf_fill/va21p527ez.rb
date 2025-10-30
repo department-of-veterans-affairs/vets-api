@@ -8,6 +8,7 @@ require 'string_helpers'
 require_relative 'constants'
 
 # Sections
+require_relative 'sections/section_07'
 require_relative 'sections/section_08'
 require_relative 'sections/section_09'
 require_relative 'sections/section_10'
@@ -1017,8 +1018,9 @@ module Pensions
       }.freeze
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section8, Section9, Section10, Section11, Section12].freeze
+      SECTION_CLASSES = [Section7, Section8, Section9, Section10, Section11, Section12].freeze
 
+      # Sections 7 - 12
       SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
 
       # form configuration hash
@@ -1034,9 +1036,8 @@ module Pensions
         expand_pension_information
         expand_employment_history
         expand_marital_status
-        expand_prior_marital_history
 
-        # Section 12
+        # Sections 7 - 12
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         @form_data
@@ -1185,39 +1186,6 @@ module Pensions
         when 'LOCATION' then 2
         when 'OTHER' then 3
         else 'Off'
-        end
-      end
-
-      # SECTION VII: PRIOR MARITAL HISTORY
-      def expand_prior_marital_history
-        @form_data['marriages'] = build_marital_history(@form_data['marriages'], 'VETERAN')
-        @form_data['spouseMarriages'] = build_marital_history(@form_data['spouseMarriages'], 'SPOUSE')
-        if @form_data['marriages']&.any?
-          @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages'].length.to_i > 3)
-        end
-        if @form_data['spouseMarriages']&.any?
-          @form_data['additionalSpouseMarriages'] = to_radio_yes_no(@form_data['spouseMarriages'].length.to_i > 2)
-        end
-      end
-
-      # Build the marital history key data.
-      def build_marital_history(marriages, marriage_for = 'VETERAN')
-        return [] unless marriages.present? && %w[VETERAN SPOUSE].include?(marriage_for)
-
-        marriages.map do |marriage|
-          reason_for_separation = marriage['reasonForSeparation'].to_s
-          marriage_date_range = {
-            'from' => marriage['dateOfMarriage'],
-            'to' => marriage['dateOfSeparation']
-          }
-          marriage.merge!({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
-                            'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
-                            'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
-                            'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
-                            'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation],
-                            'reasonForSeparationOverflow' => reason_for_separation.humanize })
-          marriage['spouseFullName']['middle'] = marriage['spouseFullName']['middle']&.first
-          marriage
         end
       end
     end
