@@ -7,7 +7,7 @@ require 'persistent_attachments/sanitizer'
 module EmploymentQuestionairres
   module V0
     ###
-    # The Medical Expense Reports claim controller that handles form submissions
+    # The Empolyment questionairresss claim controller that handles form submissions
     #
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
@@ -23,7 +23,7 @@ module EmploymentQuestionairres
         EmploymentQuestionairres::SavedClaim
       end
 
-      # GET serialized medical expense reports form data
+      # GET serialized Empolyment questionairresss form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
         render json: SavedClaimSerializer.new(claim)
@@ -66,7 +66,7 @@ module EmploymentQuestionairres
 
       private
 
-      # Raises an exception if the medical expense reports flipper flag isn't enabled.
+      # Raises an exception if the Empolyment questionairresss flipper flag isn't enabled.
       def check_flipper_flag
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:employment_questionairres_form_enabled,
                                                                     current_user)

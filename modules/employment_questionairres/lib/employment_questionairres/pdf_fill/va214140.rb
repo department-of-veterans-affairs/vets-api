@@ -28,39 +28,10 @@ module EmploymentQuestionairres
       START_PAGE = 11
 
       # Map question numbers to descriptive titles for overflow attachments
-      QUESTION_KEY = [
-        { question_number: '1', question_text: "Veteran's Identification Information" },
-        { question_number: '2', question_text: "Claimant's Contact Information" },
-        { question_number: '3', question_text: 'Reporting Period' },
-        { question_number: '4', question_text: 'In-Home Care And Care Facility Expenses' },
-        { question_number: '5', question_text: 'Other Medical Expenses' },
-        { question_number: '6', question_text: 'Mileage' },
-        { question_number: '7', question_text: 'Certification And Signature' },
-        { question_number: '8', question_text: 'Witness To Signature' },
-        { question_number: '9', question_text: 'In-Home Care Or Care Facility Expenses' },
-        { question_number: '10', question_text: 'Other Medical Expenses' },
-        { question_number: '11', question_text: 'Mileage For Privately Owned Vehicle Travel For Medical Expenses' },
-        { question_number: '12', question_text: 'For A Residential Care, Adult Daycare, Or A Similar Facility' },
-        { question_number: '13', question_text: 'For In-Home Attendant Expenses' }
-      ].freeze
+      QUESTION_KEY = [].freeze
 
       # V2-style sections grouping question numbers for overflow pages
-      SECTIONS = [
-        { label: 'Section I: Veteran\'s Identification Information', question_nums: ['1'] },
-        { label: 'Section II: Claimant\'s Contact Information', question_nums: ['2'] },
-        { label: 'Section III: Reporting Period', question_nums: ['3'] },
-        { label: 'Section IV: In-Home Care And Care Facility Expenses', question_nums: ['4'] },
-        { label: 'Section V: Other Medical Expenses', question_nums: ['5'] },
-        { label: 'Section VI: Mileage', question_nums: ['6'] },
-        { label: 'Section VII: Certification And Signature', question_nums: ['7'] },
-        { label: 'Section VIII: Witness To Signature', question_nums: ['8'] },
-        { label: 'Addendum A: In-Home Care Or Care Facility Expenses', question_nums: ['9'] },
-        { label: 'Addendum B: Other Medical Expenses', question_nums: ['10'] },
-        { label: 'Addendum C: Mileage For Privately Owned Vehicle Travel For Medical Expenses', question_nums: ['11'] },
-        { label: 'Worksheet 1: Worksheet For A Residential Care, Adult Daycare, Or A Similar Facility',
-          question_nums: ['12'] },
-        { label: 'Worksheet 2: Worksheet For In-Home Attendant Expenses', question_nums: ['13'] }
-      ].freeze
+      SECTIONS = [].freeze
 
       # The list of section classes for form expansion and key building
       SECTION_CLASSES = [

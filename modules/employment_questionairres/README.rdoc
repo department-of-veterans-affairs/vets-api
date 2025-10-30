@@ -4,7 +4,7 @@ TODO: Short description and motivation.
 == Installation
 Ensure the following line is in the root project's Gemfile:
 
-  gem 'medical_expense_reports', path: 'modules/medical_expense_reports'
+  gem 'employment_questionairres', path: 'modules/employment_questionairres'
 
 == License
 This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

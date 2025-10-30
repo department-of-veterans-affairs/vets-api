@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'medical_expense_reports/notification_callback'
-require 'medical_expense_reports/monitor'
+require 'employment_questionairres/notification_callback'
+require 'employment_questionairres/monitor'
 
 # relative to `spec` folder
 require 'rails_helper'
