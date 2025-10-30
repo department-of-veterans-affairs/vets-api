@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'dependents_benefits/sidekiq/bgs_686c_job'
 require 'dependents_benefits/monitor'
 
@@ -46,8 +47,6 @@ module DependentsBenefits
       raise e
     end
 
-    private
-
     def collect_child_claims
       claim_ids = SavedClaimGroup.child_claims_for(parent_claim_id).pluck(:saved_claim_id)
       child_claims = ::SavedClaim.where(id: claim_ids)
@@ -58,6 +57,8 @@ module DependentsBenefits
 
       child_claims
     end
+
+    private
 
     def enqueue_686c_submission(claim)
       jobs_count = 0
@@ -78,9 +79,8 @@ module DependentsBenefits
       jobs_count = 0
 
       # Enqueue primary 674 submission job
-      # TODO: Add calls to submission jobs here as they are implemented
-      # Example: DependentsBenefits::SubmissionJob.perform_async(claim.id, proc_id)
-      # jobs_count += 1
+      Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
+      jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',
                                    parent_claim_id:, claim_id: claim.id)

@@ -56,43 +56,45 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
 
     context 'when Redis ICN lookup fails' do
-      it 'raises ArgumentError with clear error message' do
+      it 'catches Redis error and reports missing arguments with Redis context' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid)
                                             .and_raise(Redis::ConnectionError, 'Connection refused')
 
         expect do
           described_class.new(check_in_uuid:, appointment_date_time:)
-        end.to raise_error(ArgumentError,
-                           "Failed to load data from Redis for check-in UUID #{check_in_uuid}")
+        end.to raise_error(TravelClaim::Errors::InvalidArgument,
+                           'Missing required arguments: ICN, station number, ' \
+                           'data from Redis (check-in UUID provided but Redis unavailable)')
       end
     end
 
     context 'when Redis station number lookup fails' do
-      it 'raises ArgumentError with clear error message' do
+      it 'catches Redis error and reports missing arguments with Redis context' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
         allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_raise(Redis::TimeoutError,
                                                                                             'Operation timed out')
 
         expect do
           described_class.new(check_in_uuid:, appointment_date_time:)
-        end.to raise_error(ArgumentError,
-                           "Failed to load data from Redis for check-in UUID #{check_in_uuid}")
+        end.to raise_error(TravelClaim::Errors::InvalidArgument,
+                           'Missing required arguments: station number, ' \
+                           'data from Redis (check-in UUID provided but Redis unavailable)')
       end
     end
 
     context 'when Redis returns nil values' do
-      it 'raises ArgumentError with clear error message' do
+      it 'raises InvalidArgument with clear error message' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(nil)
         allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(nil)
 
         expect do
           described_class.new(check_in_uuid:, appointment_date_time:)
-        end.to raise_error(ArgumentError, 'Missing required arguments: ICN, station number')
+        end.to raise_error(TravelClaim::Errors::InvalidArgument, 'Missing required arguments: ICN, station number')
       end
     end
 
     context 'when Redis client is unavailable' do
-      it 'raises ArgumentError with clear error message' do
+      it 'raises StandardError when Redis client cannot be built' do
         allow(TravelClaim::RedisClient).to receive(:build).and_raise(StandardError, 'Redis server not available')
 
         expect do
@@ -406,186 +408,358 @@ RSpec.describe TravelClaim::TravelPayClient do
   end
 
   describe 'initialization' do
-    it 'raises error when UUID is blank' do
-      expect { described_class.new(check_in_uuid: '', appointment_date_time:) }
-        .to raise_error(ArgumentError, 'Check-in UUID cannot be blank')
+    context 'with check_in_uuid' do
+      it 'raises error when appointment_date_time is blank' do
+        expect { described_class.new(check_in_uuid:, appointment_date_time: '') }
+          .to raise_error(TravelClaim::Errors::InvalidArgument, /appointment date time/)
+      end
+
+      it 'accepts check_in_uuid and appointment_date_time parameters' do
+        expect { described_class.new(check_in_uuid:, appointment_date_time:) }
+          .not_to raise_error
+      end
+
+      it 'loads ICN and station_number from Redis when not provided' do
+        expect(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
+        expect(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(test_station_number)
+
+        client = described_class.new(check_in_uuid:, appointment_date_time:)
+
+        expect(client.instance_variable_get(:@icn)).to eq(test_icn)
+        expect(client.instance_variable_get(:@station_number)).to eq(test_station_number)
+      end
+
+      it 'raises error when check_in_uuid is blank and ICN/station_number not provided' do
+        expect { described_class.new(check_in_uuid: '', appointment_date_time:) }
+          .to raise_error(TravelClaim::Errors::InvalidArgument, /check-in UUID/)
+      end
     end
 
-    it 'raises error when appointment_date_time is blank' do
-      expect { described_class.new(check_in_uuid:, appointment_date_time: '') }
-        .to raise_error(ArgumentError, 'appointment date time cannot be blank')
+    context 'with direct ICN and station_number' do
+      it 'accepts icn, station_number, and appointment_date_time without check_in_uuid' do
+        expect(TravelClaim::RedisClient).not_to receive(:build)
+
+        client = described_class.new(
+          appointment_date_time:,
+          icn: test_icn,
+          station_number: test_station_number
+        )
+
+        expect(client.instance_variable_get(:@icn)).to eq(test_icn)
+        expect(client.instance_variable_get(:@station_number)).to eq(test_station_number)
+        expect(client.instance_variable_get(:@redis_client)).to be_nil
+      end
+
+      it 'raises error when only ICN is provided without station_number or check_in_uuid' do
+        expect do
+          described_class.new(
+            appointment_date_time:,
+            icn: test_icn
+          )
+        end.to raise_error(TravelClaim::Errors::InvalidArgument, /station number/)
+      end
+
+      it 'raises error when only station_number is provided without ICN or check_in_uuid' do
+        expect do
+          described_class.new(
+            appointment_date_time:,
+            station_number: test_station_number
+          )
+        end.to raise_error(TravelClaim::Errors::InvalidArgument, /ICN/)
+      end
+
+      it 'loads missing station_number from Redis when only ICN is provided with check_in_uuid' do
+        # When ICN is provided, only station_number should be loaded from Redis
+        expect(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(test_station_number)
+
+        client = described_class.new(
+          appointment_date_time:,
+          check_in_uuid:,
+          icn: test_icn
+        )
+
+        expect(client.instance_variable_get(:@icn)).to eq(test_icn)
+        expect(client.instance_variable_get(:@station_number)).to eq(test_station_number)
+      end
+
+      it 'loads missing ICN from Redis when only station_number is provided with check_in_uuid' do
+        # When station_number is provided, only ICN should be loaded from Redis
+        expect(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
+
+        client = described_class.new(
+          appointment_date_time:,
+          check_in_uuid:,
+          station_number: test_station_number
+        )
+
+        expect(client.instance_variable_get(:@icn)).to eq(test_icn)
+        expect(client.instance_variable_get(:@station_number)).to eq(test_station_number)
+      end
+
+      it 'does not override provided ICN and station_number with Redis values' do
+        provided_icn = 'provided_icn_123'
+        provided_station = 'provided_station_456'
+
+        expect(TravelClaim::RedisClient).not_to receive(:build)
+
+        client = described_class.new(
+          appointment_date_time:,
+          icn: provided_icn,
+          station_number: provided_station
+        )
+
+        expect(client.instance_variable_get(:@icn)).to eq(provided_icn)
+        expect(client.instance_variable_get(:@station_number)).to eq(provided_station)
+      end
     end
 
-    it 'accepts check_in_uuid and appointment_date_time parameters' do
-      expect { described_class.new(check_in_uuid:, appointment_date_time:) }
-        .not_to raise_error
+    context 'error reporting' do
+      it 'reports all missing arguments at once' do
+        error_raised = nil
+
+        begin
+          described_class.new(appointment_date_time: '')
+        rescue TravelClaim::Errors::InvalidArgument => e
+          error_raised = e
+        end
+
+        expect(error_raised).to be_present
+        expect(error_raised.message).to include('appointment date time')
+        expect(error_raised.message).to include('ICN')
+        expect(error_raised.message).to include('station number')
+        expect(error_raised.message).to include('check-in UUID')
+      end
     end
   end
 
   describe 'authentication' do
-    it 'handles 401 errors by refreshing tokens and retrying once' do
-      # Set up tokens
-      client.instance_variable_set(:@current_veis_token, test_veis_token)
-      client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+    context 'with Redis client' do
+      it 'handles 401 errors by refreshing tokens and retrying once' do
+        # Set up tokens
+        client.instance_variable_set(:@current_veis_token, test_veis_token)
+        client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
-      # First call raises 401, second call succeeds
-      call_count = 0
-      allow(client).to receive(:perform) do
-        call_count += 1
-        if call_count == 1
-          raise Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
-        else
-          double('Response', status: 200, success?: true)
+        # First call raises 401, second call succeeds
+        call_count = 0
+        allow(client).to receive(:perform) do
+          call_count += 1
+          if call_count == 1
+            raise Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+          else
+            double('Response', status: 200, success?: true)
+          end
         end
-      end
-      expect(client).to receive(:refresh_tokens!)
+        expect(client).to receive(:refresh_tokens!)
 
-      client.send(:with_auth) do
-        client.send(:perform, :get, '/test', {}, {})
-      end
-    end
-
-    it 'fails fast when token refresh fails after 401' do
-      # Set up tokens
-      client.instance_variable_set(:@current_veis_token, test_veis_token)
-      client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
-
-      # First call raises 401, token refresh fails
-      allow(client).to receive(:perform).and_raise(
-        Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
-      )
-      allow(client).to receive(:refresh_tokens!).and_raise(
-        Common::Exceptions::BackendServiceException.new('AUTH_FAILED', {}, 500, 'Internal Server Error')
-      )
-
-      expect do
         client.send(:with_auth) do
           client.send(:perform, :get, '/test', {}, {})
         end
-      end.to raise_error(Common::Exceptions::BackendServiceException)
-    end
-
-    it 'does not retry authentication more than once per request' do
-      # Set up tokens
-      client.instance_variable_set(:@current_veis_token, test_veis_token)
-      client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
-
-      # Multiple 401 responses should only trigger one retry
-      allow(client).to receive(:perform).and_raise(
-        Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
-      )
-      expect(client).to receive(:refresh_tokens!).once
-
-      expect do
-        client.send(:with_auth) do
-          client.send(:perform, :get, '/test', {}, {})
-        end
-      end.to raise_error(Common::Exceptions::BackendServiceException)
-    end
-
-    it 'logs auth retry when 401 error occurs' do
-      # Mock Rails.logger to capture log calls
-      allow(Rails.logger).to receive(:error)
-
-      # Set up tokens
-      client.instance_variable_set(:@current_veis_token, test_veis_token)
-      client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
-
-      # First call raises 401, second call succeeds
-      call_count = 0
-      allow(client).to receive(:perform) do
-        call_count += 1
-        if call_count == 1
-          raise Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
-        else
-          double('Response', status: 200, success?: true)
-        end
       end
 
-      # Mock the refresh_tokens! method to simulate successful token refresh
-      allow(client).to receive(:refresh_tokens!) do
-        client.instance_variable_set(:@current_veis_token, 'new-veis-token')
-        client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
-      end
+      it 'fails fast when token refresh fails after 401' do
+        # Set up tokens
+        client.instance_variable_set(:@current_veis_token, test_veis_token)
+        client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
-      client.send(:with_auth) do
-        client.send(:perform, :get, '/test', {}, {})
-      end
-
-      # Verify that the auth retry log was called
-      expect(Rails.logger).to have_received(:error).with(
-        'TravelPayClient 401 error - retrying authentication',
-        hash_including(
-          correlation_id: be_present,
-          check_in_uuid:,
-          veis_token_present: true,
-          btsss_token_present: true
+        # First call raises 401, token refresh fails
+        allow(client).to receive(:perform).and_raise(
+          Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
         )
-      )
-    end
+        allow(client).to receive(:refresh_tokens!).and_raise(
+          Common::Exceptions::BackendServiceException.new('AUTH_FAILED', {}, 500, 'Internal Server Error')
+        )
 
-    it 'uses cached VEIS token from Redis when available' do
-      cached_veis_token = 'cached-veis'
-      allow(client.redis_client).to receive(:token).and_return(cached_veis_token)
-      allow(client.redis_client).to receive(:save_token).with(token: cached_veis_token)
-      expect(client).to receive(:btsss_token!)
-
-      client.send(:ensure_tokens!)
-
-      expect(client.instance_variable_get(:@current_veis_token)).to eq(cached_veis_token)
-    end
-
-    it 'builds headers with current tokens' do
-      test_veis = 'test-veis'
-      test_btsss = 'test-btsss'
-      client.instance_variable_set(:@current_veis_token, test_veis)
-      client.instance_variable_set(:@current_btsss_token, test_btsss)
-
-      headers = client.send(:headers)
-
-      expect(headers['Authorization']).to eq("Bearer #{test_veis}")
-      expect(headers['BTSSS-Access-Token']).to eq(test_btsss)
-      expect(headers['X-Correlation-ID']).to eq(client.instance_variable_get(:@correlation_id))
-    end
-
-    it 'fetches fresh tokens when none are cached' do
-      allow(client.redis_client).to receive(:token).and_return(nil)
-      allow(client).to receive(:veis_token_request)
-        .and_return(double('Response', body: { 'access_token' => 'new-token' }))
-      allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
-      expect(client).to receive(:btsss_token!)
-
-      client.send(:ensure_tokens!)
-    end
-
-    it 'refreshes tokens and clears cache' do
-      old_veis_token = 'old-veis'
-      old_btsss_token = 'old-btsss'
-      client.instance_variable_set(:@current_veis_token, old_veis_token)
-      client.instance_variable_set(:@current_btsss_token, old_btsss_token)
-      allow(client.redis_client).to receive(:save_token).with(token: nil)
-      allow(client.redis_client).to receive(:token).and_return(nil)
-      allow(client).to receive(:veis_token_request)
-        .and_return(double('Response', body: { 'access_token' => 'new-token' }))
-      allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
-      allow(client).to receive(:system_access_token_request) do
-        client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
-        double('Response', body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
+        expect do
+          client.send(:with_auth) do
+            client.send(:perform, :get, '/test', {}, {})
+          end
+        end.to raise_error(Common::Exceptions::BackendServiceException)
       end
 
-      client.send(:refresh_tokens!)
+      it 'does not retry authentication more than once per request' do
+        # Set up tokens
+        client.instance_variable_set(:@current_veis_token, test_veis_token)
+        client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
-      # After refresh, tokens should be cleared initially, then new ones fetched
-      expect(client.instance_variable_get(:@current_veis_token)).to eq('new-token')
-      expect(client.instance_variable_get(:@current_btsss_token)).to eq('new-btsss-token')
+        # Multiple 401 responses should only trigger one retry
+        allow(client).to receive(:perform).and_raise(
+          Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+        )
+        expect(client).to receive(:refresh_tokens!).once
+
+        expect do
+          client.send(:with_auth) do
+            client.send(:perform, :get, '/test', {}, {})
+          end
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+
+      it 'logs auth retry when 401 error occurs' do
+        # Mock Rails.logger to capture log calls
+        allow(Rails.logger).to receive(:error)
+
+        # Set up tokens
+        client.instance_variable_set(:@current_veis_token, test_veis_token)
+        client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+
+        # First call raises 401, second call succeeds
+        call_count = 0
+        allow(client).to receive(:perform) do
+          call_count += 1
+          if call_count == 1
+            raise Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+          else
+            double('Response', status: 200, success?: true)
+          end
+        end
+
+        # Mock the refresh_tokens! method to simulate successful token refresh
+        allow(client).to receive(:refresh_tokens!) do
+          client.instance_variable_set(:@current_veis_token, 'new-veis-token')
+          client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+        end
+
+        client.send(:with_auth) do
+          client.send(:perform, :get, '/test', {}, {})
+        end
+
+        # Verify that the auth retry log was called
+        expect(Rails.logger).to have_received(:error).with(
+          'TravelPayClient 401 error - retrying authentication',
+          hash_including(
+            correlation_id: be_present,
+            check_in_uuid:,
+            veis_token_present: true,
+            btsss_token_present: true
+          )
+        )
+      end
+
+      it 'uses cached VEIS token from Redis when available' do
+        cached_veis_token = 'cached-veis'
+        allow(client.redis_client).to receive(:token).and_return(cached_veis_token)
+        allow(client.redis_client).to receive(:save_token).with(token: cached_veis_token)
+        expect(client).to receive(:btsss_token!)
+
+        client.send(:ensure_tokens!)
+
+        expect(client.instance_variable_get(:@current_veis_token)).to eq(cached_veis_token)
+      end
+
+      it 'builds headers with current tokens' do
+        test_veis = 'test-veis'
+        test_btsss = 'test-btsss'
+        client.instance_variable_set(:@current_veis_token, test_veis)
+        client.instance_variable_set(:@current_btsss_token, test_btsss)
+
+        headers = client.send(:headers)
+
+        expect(headers['Authorization']).to eq("Bearer #{test_veis}")
+        expect(headers['BTSSS-Access-Token']).to eq(test_btsss)
+        expect(headers['X-Correlation-ID']).to eq(client.instance_variable_get(:@correlation_id))
+      end
+
+      it 'fetches fresh tokens when none are cached' do
+        allow(client.redis_client).to receive(:token).and_return(nil)
+        allow(client).to receive(:veis_token_request)
+          .and_return(double('Response', body: { 'access_token' => 'new-token' }))
+        allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+        expect(client).to receive(:btsss_token!)
+
+        client.send(:ensure_tokens!)
+      end
+
+      it 'refreshes tokens and clears cache' do
+        old_veis_token = 'old-veis'
+        old_btsss_token = 'old-btsss'
+        client.instance_variable_set(:@current_veis_token, old_veis_token)
+        client.instance_variable_set(:@current_btsss_token, old_btsss_token)
+        allow(client.redis_client).to receive(:save_token).with(token: nil)
+        allow(client.redis_client).to receive(:token).and_return(nil)
+        allow(client).to receive(:veis_token_request)
+          .and_return(double('Response', body: { 'access_token' => 'new-token' }))
+        allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+        allow(client).to receive(:system_access_token_request) do
+          client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+          double('Response', body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
+        end
+
+        client.send(:refresh_tokens!)
+
+        # After refresh, tokens should be cleared initially, then new ones fetched
+        expect(client.instance_variable_get(:@current_veis_token)).to eq('new-token')
+        expect(client.instance_variable_get(:@current_btsss_token)).to eq('new-btsss-token')
+      end
+    end
+
+    context 'with direct ICN and station_number (lazy Redis initialization)' do
+      let(:direct_client) do
+        described_class.new(
+          appointment_date_time:,
+          icn: test_icn,
+          station_number: test_station_number
+        )
+      end
+
+      it 'does not initialize Redis client during validation when ICN and station_number provided' do
+        expect(direct_client.instance_variable_get(:@redis_client)).to be_nil
+      end
+
+      it 'lazily initializes Redis client when needed for token caching' do
+        # Mock the Redis client that will be lazily created
+        lazy_redis_client = instance_double(TravelClaim::RedisClient)
+        allow(TravelClaim::RedisClient).to receive(:build).and_return(lazy_redis_client)
+        allow(lazy_redis_client).to receive(:token).and_return(nil)
+        allow(lazy_redis_client).to receive(:save_token)
+
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      auth_url:,
+                      tenant_id:,
+                      travel_pay_client_id:,
+                      travel_pay_client_secret:,
+                      scope:,
+                      travel_pay_resource:) do
+          VCR.use_cassette('check_in/travel_claim/veis_token_200') do
+            # Redis client should be nil before token operations
+            expect(direct_client.instance_variable_get(:@redis_client)).to be_nil
+
+            direct_client.send(:veis_token!)
+
+            # Redis client should be initialized after token operations
+            expect(direct_client.instance_variable_get(:@redis_client)).to be_present
+            expect(direct_client.instance_variable_get(:@current_veis_token)).to be_present
+          end
+        end
+      end
+
+      it 'handles token refresh with lazy Redis initialization' do
+        veis_response = double('Response', body: { 'access_token' => 'new-token' })
+        btsss_response = double('Response', body: { 'data' => { 'accessToken' => 'new-btsss' } })
+
+        # Mock the Redis client that will be lazily created
+        lazy_redis_client = instance_double(TravelClaim::RedisClient)
+        allow(TravelClaim::RedisClient).to receive(:build).and_return(lazy_redis_client)
+        allow(lazy_redis_client).to receive(:token).and_return(nil)
+        allow(lazy_redis_client).to receive(:save_token)
+
+        allow(direct_client).to receive_messages(
+          veis_token_request: veis_response,
+          system_access_token_request: btsss_response
+        )
+
+        direct_client.send(:refresh_tokens!)
+
+        expect(direct_client.instance_variable_get(:@current_veis_token)).to eq('new-token')
+        expect(direct_client.instance_variable_get(:@current_btsss_token)).to eq('new-btsss')
+      end
     end
   end
 
