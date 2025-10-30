@@ -1412,6 +1412,7 @@ vanotify:
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
     accredited_representative_portal:
+      enabled: true
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
       email:
         confirmation:
