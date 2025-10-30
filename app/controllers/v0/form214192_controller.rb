@@ -66,8 +66,6 @@ module V0
       }, status: :internal_server_error
     end
 
-    private
-
     def stats_key
       'api.form214192'
     end

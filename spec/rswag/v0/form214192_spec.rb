@@ -19,49 +19,8 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
   end
 
   # Shared test data
-  let(:valid_form_data) do
-    {
-      veteranInformation: {
-        fullName: {
-          first: 'John',
-          last: 'Doe',
-          middle: 'A'
-        },
-        ssn: '123456789',
-        dateOfBirth: '1980-01-01',
-        address: {
-          street: '123 Main St',
-          street2: 'Apt 4B',
-          city: 'Springfield',
-          state: 'IL',
-          postalCode: '62701',
-          country: 'US'
-        }
-      },
-      employmentInformation: {
-        employerName: 'Acme Corp',
-        employerAddress: {
-          street: '456 Business Blvd',
-          street2: nil,
-          city: 'Chicago',
-          state: 'IL',
-          postalCode: '60601',
-          country: 'US'
-        },
-        typeOfWorkPerformed: 'Software Development',
-        beginningDateOfEmployment: '2015-06-01'
-      }
-    }
-  end
-
-  let(:invalid_form_data) do
-    {
-      veteranInformation: {
-        fullName: { first: 'OnlyFirst' }
-        # Missing required fields: last name, dateOfBirth
-      }
-    }
-  end
+  let(:valid_form_data) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
+  let(:invalid_form_data) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'invalid_form.json').read) }
 
   path '/v0/form214192' do
     post 'Submit a 21-4192 form' do

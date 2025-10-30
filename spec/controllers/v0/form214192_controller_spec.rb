@@ -23,7 +23,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       }
     }
   end
-  
+
   let(:form_data) do
     JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4192', 'simple.json').read)
   end
@@ -73,7 +73,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
   end
 
- describe 'POST #download_pdf' do
+  describe 'POST #download_pdf' do
     let(:pdf_content) { 'PDF_BINARY_CONTENT' }
     let(:temp_file_path) { '/tmp/test_pdf.pdf' }
 
