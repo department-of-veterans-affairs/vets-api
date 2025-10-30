@@ -2,7 +2,7 @@
 
 module Swagger
   module Requests
-    class EmploymentQuestionairressClaims
+    class EmploymentQuestionairresClaims
       include Swagger::Blocks
 
       swagger_path '/v0/form8416' do
@@ -11,7 +11,7 @@ module Swagger
           extend Swagger::Responses::SavedForm
 
           key :description, 'Submit a Empolyment questionairress'
-          key :operationId, 'addEmploymentQuestionairressClaim'
+          key :operationId, 'addEmploymentQuestionairresClaim'
           key :tags, %w[benefits_forms]
 
           parameter :optional_authorization
