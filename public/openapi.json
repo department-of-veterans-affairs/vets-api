@@ -29,10 +29,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "12345",
+                    "id": "283",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-01-15T10:30:00Z",
+                      "submitted_at": "2025-10-29T21:55:30.991Z",
                       "regional_office": [],
                       "confirmation_number": "12345678-1234-1234-1234-123456789abc",
                       "guid": "12345678-1234-1234-1234-123456789abc",
@@ -340,6 +340,23 @@
                   "required": [
                     "data"
                   ]
+    "/v0/form214192/download_pdf": {
+      "post": {
+        "summary": "Download PDF for Form 21-4192",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "downloadForm214192Pdf",
+        "description": "Generate and download a filled PDF for Form 21-4192 (Request for Employment Information)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "PDF generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
