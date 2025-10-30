@@ -184,7 +184,9 @@ module IncreaseCompensation
 
       def expand(form_data = {})
         form_data['veteranFullName'] = extract_middle_i(form_data, 'veteranFullName')
-        form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone'])
+        if form_data['veteranPhone'].length.positive?
+          form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone'])
+        end
         form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranSocialSecurityNumber1'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranSocialSecurityNumber2'] = form_data['veteranSocialSecurityNumber']
