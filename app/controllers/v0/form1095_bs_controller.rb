@@ -12,53 +12,53 @@ module V0
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
         periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
         # StatsD.increment('api.user_has_no_1095b') if forms.empty?
-        # periods = [{"startDate"=>"2024-03-05", "endDate"=>"2024-03-05"}]
-        years = periods.map { |period| [period['startDate'].split('-').first.to_i, period['endDate'].split('-').first.to_i] }.flatten.uniq
-        forms = years.map { |year| { year: year, last_updated: nil } }
-        render json: { available_forms: forms }
+        years = periods.map do |period|
+          [period['startDate'].split('-').first.to_i, period['endDate'].split('-').first.to_i]
+        end.flatten.uniq
+        forms = years.map { |year| { year:, last_updated: nil } }
       else
-        form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
-        forms = form.nil? ? [] : [{ year: form.tax_year, last_updated: form.updated_at }]
+        current_form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
+        forms = current_form.nil? ? [] : [{ year: current_form.tax_year, last_updated: current_form.updated_at }]
         StatsD.increment('api.user_has_no_1095b') if forms.empty?
-        render json: { available_forms: forms }
       end
+      render json: { available_forms: forms }
     end
 
     def download_pdf
-      file_name = "1095B_#{download_params[:tax_year]}.pdf"
+      file_name = "1095B_#{tax_year}.pdf"
       send_data form.pdf_file, filename: file_name, type: 'application/pdf', disposition: 'inline'
     end
 
     def download_txt
-      file_name = "1095B_#{download_params[:tax_year]}.txt"
+      file_name = "1095B_#{tax_year}.txt"
       send_data form.txt_file, filename: file_name, type: 'text/plain', disposition: 'inline'
     end
 
     private
 
     def form
-      if Flipper.enabled?(:fetch_1095b_from_enrollment_system, @current_user)
+      if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
         service = VeteranEnrollmentSystem::Form1095B::Service.new
-        form_data = service.get_form_by_icn(icn: @current_user[:icn], tax_year: download_params[:tax_year])
+        form_data = service.get_form_by_icn(icn: current_user[:icn], tax_year:)
         VeteranEnrollmentSystem::Form1095B::Form1095B.parse(form_data)
       else
-        find_form_record
+        return current_form_record if current_form_record.present?
+
+        Rails.logger.error("Form 1095-B for #{tax_year} not found", user_uuid: current_user&.uuid)
+        raise Common::Exceptions::RecordNotFound, tax_year
       end
     end
 
-    def find_form_record
-      form = Form1095B.find_by(veteran_icn: @current_user[:icn], tax_year: download_params[:tax_year])
-
-      if form.blank?
-        Rails.logger.error("Form 1095-B for #{download_params[:tax_year]} not found", user_uuid: @current_user&.uuid)
-        raise Common::Exceptions::RecordNotFound, download_params[:tax_year]
-      end
-
-      form
+    def current_form_record
+      @current_form_record ||= Form1095B.find_by(veteran_icn: current_user[:icn], tax_year:)
     end
 
     def download_params
       params.permit(:tax_year)
+    end
+
+    def tax_year
+      download_params[:tax_year]
     end
   end
 end
