@@ -1867,6 +1867,7 @@ vye:
     p: 1
     r: 8
     salt: <%= ENV['vye__scrypt__salt'] %>
+    enabled: true
 web_origin: <%= ENV['web_origin'] %>
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\.cms\\.va\\.gov\\z"
 webhooks:
