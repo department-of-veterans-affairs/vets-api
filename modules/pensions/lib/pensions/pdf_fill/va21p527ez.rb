@@ -8,6 +8,7 @@ require 'string_helpers'
 require_relative 'constants'
 
 # Sections
+require_relative 'sections/section_06'
 require_relative 'sections/section_07'
 require_relative 'sections/section_08'
 require_relative 'sections/section_09'
@@ -450,7 +451,7 @@ module Pensions
       }.freeze
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section7, Section8, Section9, Section10, Section11, Section12].freeze
+      SECTION_CLASSES = [Section6, Section7, Section8, Section9, Section10, Section11, Section12].freeze
 
       # Sections 7 - 12
       SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
