@@ -29,10 +29,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "12345",
+                    "id": "283",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-01-15T10:30:00Z",
+                      "submitted_at": "2025-10-29T21:55:30.991Z",
                       "regional_office": [],
                       "confirmation_number": "12345678-1234-1234-1234-123456789abc",
                       "guid": "12345678-1234-1234-1234-123456789abc",
@@ -579,8 +579,7 @@
           "middle": {
             "type": "string",
             "example": "A",
-            "maxLength": 1,
-            "nullable": true
+            "maxLength": 1
           },
           "last": {
             "type": "string",
@@ -607,8 +606,7 @@
           "street2": {
             "type": "string",
             "example": "Apt 4B",
-            "maxLength": 30,
-            "nullable": true
+            "maxLength": 5
           },
           "city": {
             "type": "string",

@@ -485,7 +485,15 @@ FactoryBot.define do
     form do
       {
         'view:selectable686_options' => {
-          'report674' => true
+          'add_spouse' => true,
+          'add_child' => true,
+          'report674' => true,
+          'add_disabled_child' => true,
+          'report_divorce' => true,
+          'report_death' => true,
+          'report_stepchild_not_in_household' => true,
+          'report_marriage_of_child_under18' => true,
+          'report_child18_or_older_is_not_attending_school' => true
         },
         'veteran_information' => {
           'birth_date' => '1980-01-01',
@@ -540,68 +548,70 @@ FactoryBot.define do
           }],
           'days_till_expires' => 365,
           'privacy_agreement_accepted' => true,
-          'student_information' => [{
-            'remarks' => 'test additional information',
-            'student_networth_information' => {
-              'savings' => '500',
-              'securities' => '400',
-              'real_estate' => '300',
-              'other_assets' => '200',
-              'total_value' => '1400'
-            },
-            'student_expected_earnings_next_year' => {
-              'earnings_from_all_employment' => '56000',
-              'annual_social_security_payments' => '0',
-              'other_annuities_income' => '145',
-              'all_other_income' => '50'
-            },
-            'student_earnings_from_school_year' => {
-              'earnings_from_all_employment' => '56000',
-              'annual_social_security_payments' => '0',
-              'other_annuities_income' => '123',
-              'all_other_income' => '20'
-            },
-            'claims_or_receives_pension' => true,
-            'school_information' => {
-              'last_term_school_information' => {
-                'term_begin' => '2024-01-01',
-                'date_term_ended' => '2024-03-05'
+          'student_information' => [
+            {
+              'remarks' => 'test additional information',
+              'student_networth_information' => {
+                'savings' => '500',
+                'securities' => '400',
+                'real_estate' => '300',
+                'other_assets' => '200',
+                'total_value' => '1400'
               },
-              'student_did_attend_school_last_term' => true,
-              'current_term_dates' => {
-                'official_school_start_date' => '2025-01-01',
-                'expected_student_start_date' => '2025-01-02',
-                'expected_graduation_date' => '2026-03-01'
+              'student_expected_earnings_next_year' => {
+                'earnings_from_all_employment' => '56000',
+                'annual_social_security_payments' => '0',
+                'other_annuities_income' => '145',
+                'all_other_income' => '50'
               },
-              'is_school_accredited' => true,
-              'student_is_enrolled_full_time' => true,
-              'name' => 'name of trade program'
-            },
-            'benefit_payment_date' => '2024-03-01',
-            'type_of_program_or_benefit' => { 'ch35' => true, 'fry' => true, 'feca' => true, 'other' => true },
-            'other_program_or_benefit' => 'all the programs!',
-            'tuition_is_paid_by_gov_agency' => true,
-            'marriage_date' => '2024-03-03',
-            'was_married' => true,
-            'address' => {
-              'country' => 'USA',
-              'street' => '123 fake street',
-              'street2' => 'line2',
-              'street3' => 'line3',
-              'city' => 'portland',
-              'state' => 'ME',
-              'postal_code' => '04102'
-            },
-            'student_income' => true,
-            'ssn' => '987654321',
-            'relationship_to_student' => 'biological',
-            'full_name' => {
-              'first' => 'test',
-              'middle' => 'middle',
-              'last' => 'student'
-            },
-            'birth_date' => '2005-01-01'
-          }]
+              'student_earnings_from_school_year' => {
+                'earnings_from_all_employment' => '56000',
+                'annual_social_security_payments' => '0',
+                'other_annuities_income' => '123',
+                'all_other_income' => '20'
+              },
+              'claims_or_receives_pension' => true,
+              'school_information' => {
+                'last_term_school_information' => {
+                  'term_begin' => '2024-01-01',
+                  'date_term_ended' => '2024-03-05'
+                },
+                'student_did_attend_school_last_term' => true,
+                'current_term_dates' => {
+                  'official_school_start_date' => '2025-01-01',
+                  'expected_student_start_date' => '2025-01-02',
+                  'expected_graduation_date' => '2026-03-01'
+                },
+                'is_school_accredited' => true,
+                'student_is_enrolled_full_time' => true,
+                'name' => 'name of trade program'
+              },
+              'benefit_payment_date' => '2024-03-01',
+              'type_of_program_or_benefit' => { 'ch35' => true, 'fry' => true, 'feca' => true, 'other' => true },
+              'other_program_or_benefit' => 'all the programs!',
+              'tuition_is_paid_by_gov_agency' => true,
+              'marriage_date' => '2024-03-03',
+              'was_married' => true,
+              'address' => {
+                'country' => 'USA',
+                'street' => '123 fake street',
+                'street2' => 'line2',
+                'street3' => 'line3',
+                'city' => 'portland',
+                'state' => 'ME',
+                'postal_code' => '04102'
+              },
+              'student_income' => true,
+              'ssn' => '987654321',
+              'relationship_to_student' => 'biological',
+              'full_name' => {
+                'first' => 'test',
+                'middle' => 'middle',
+                'last' => 'student'
+              },
+              'birth_date' => '2005-01-01'
+            }
+          ]
         }
       }.to_json
     end

@@ -3,18 +3,34 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
+  let(:valid_payload) do
+    {
+      veteranInformation: {
+        fullName: { first: 'John', last: 'Doe' },
+        dateOfBirth: '1980-01-01'
+      },
+      employmentInformation: {
+        employerName: 'Acme Corp',
+        employerAddress: {
+          street: '123 Main St',
+          city: 'Springfield',
+          state: 'IL',
+          postalCode: '62701',
+          country: 'US'
+        },
+        typeOfWorkPerformed: 'Machinist',
+        beginningDateOfEmployment: '2020-01-01'
+      }
+    }
+  end
+  
   let(:form_data) do
     JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4192', 'simple.json').read)
   end
 
   describe 'POST #create' do
     it 'returns expected response structure' do
-      form_data = {
-        veteranInformation: { fullName: { first: 'John', last: 'Doe' } },
-        employerInformation: { employerName: 'Acme Corp' }
-      }
-
-      post(:create, body: form_data.to_json, as: :json)
+      post(:create, body: valid_payload.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
 
@@ -28,62 +44,36 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
 
     it 'returns a unique confirmation number for each request' do
-      form_data = {
-        veteranInformation: { fullName: { first: 'John', last: 'Doe' } },
-        employerInformation: { employerName: 'Acme Corp' }
-      }
-
-      post(:create, body: form_data.to_json, as: :json)
+      post(:create, body: valid_payload.to_json, as: :json)
       first_confirmation = JSON.parse(response.body)['data']['attributes']['confirmation_number']
 
-      post(:create, body: form_data.to_json, as: :json)
+      post(:create, body: valid_payload.to_json, as: :json)
       second_confirmation = JSON.parse(response.body)['data']['attributes']['confirmation_number']
 
       expect(first_confirmation).not_to eq(second_confirmation)
     end
 
     it 'returns a valid UUID as confirmation number' do
-      form_data = {
-        veteranInformation: { fullName: { first: 'John', last: 'Doe' } },
-        employerInformation: { employerName: 'Acme Corp' }
-      }
+      post(:create, body: valid_payload.to_json, as: :json)
 
-      post(:create, body: form_data.to_json, as: :json)
-
-      json = JSON.parse(response.body)
-      confirmation = json['data']['attributes']['confirmation_number']
-
+      confirmation = JSON.parse(response.body).dig('data', 'attributes', 'confirmation_number')
       expect(confirmation).to be_a_uuid
     end
 
     it 'returns ISO 8601 formatted timestamp' do
-      form_data = {
-        veteranInformation: { fullName: { first: 'John', last: 'Doe' } },
-        employerInformation: { employerName: 'Acme Corp' }
-      }
+      post(:create, body: valid_payload.to_json, as: :json)
 
-      post(:create, body: form_data.to_json, as: :json)
-
-      json = JSON.parse(response.body)
-      submitted_at = json['data']['attributes']['submitted_at']
-
+      submitted_at = JSON.parse(response.body).dig('data', 'attributes', 'submitted_at')
       expect { DateTime.iso8601(submitted_at) }.not_to raise_error
     end
 
     it 'does not require authentication' do
-      form_data = {
-        veteranInformation: { fullName: { first: 'John', last: 'Doe' } },
-        employerInformation: { employerName: 'Acme Corp' }
-      }
-
-      # Post without signing in
-      post(:create, body: form_data.to_json, as: :json)
-
+      post(:create, body: valid_payload.to_json, as: :json)
       expect(response).to have_http_status(:ok)
     end
   end
 
-  describe 'POST #download_pdf' do
+ describe 'POST #download_pdf' do
     let(:pdf_content) { 'PDF_BINARY_CONTENT' }
     let(:temp_file_path) { '/tmp/test_pdf.pdf' }
 

@@ -107,7 +107,7 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                },
                required: [:data]
 
-        let(:form_data) { valid_form_data }
+        let(:form_data) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
 
         it 'returns a successful response with form submission data' do |example|
           submit_request(example.metadata)
