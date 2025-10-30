@@ -2210,17 +2210,17 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(acc_relation).to receive(:find_each)
     end
 
-    context 'when processed count is significantly less than expected (>1% difference)' do
+    context 'when processed count decreases by more than 20%' do
       before do
-        # API says there should be 3 attorneys
+        # API says there should be 10 attorneys
         allow(entity_counts).to receive(:current_api_counts).and_return({
                                                                           agents: 0,
-                                                                          attorneys: 3,
+                                                                          attorneys: 10,
                                                                           representatives: 0,
                                                                           veteran_service_organizations: 0
                                                                         })
 
-        # But we only process 1 (simulating API disconnection mid-processing)
+        # But we only process 1 (90% decrease - way beyond 20% threshold)
         allow(client).to receive(:get_accredited_entities)
           .with(type: RepresentationManagement::ATTORNEYS, page: 1)
           .and_return(instance_double(Faraday::Response, body: { 'items' => [attorney1_data] }))
@@ -2244,31 +2244,29 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       end
 
       it 'logs a count mismatch error' do
-        expect(Rails.logger).to receive(:error).with(/Count mismatch for attorneys: expected 3, processed 1/)
+        expect(Rails.logger).to receive(:error).with(/Count mismatch for attorneys: expected 10, processed 1/)
         job.perform
       end
     end
 
-    context 'when processed count is within 1% tolerance' do
-      let!(:attorneys) { create_list(:accredited_individual, 100, :attorney) }
-
+    context 'when processed count is within 20% tolerance' do
       before do
-        # API says there should be 100 attorneys
+        # API says there should be 10 attorneys
         allow(entity_counts).to receive(:current_api_counts).and_return({
                                                                           agents: 0,
-                                                                          attorneys: 100,
+                                                                          attorneys: 10,
                                                                           representatives: 0,
                                                                           veteran_service_organizations: 0
                                                                         })
 
-        # We process 99 (within 1% tolerance)
-        items = attorneys.take(99).map do |atty|
+        # We process 9 (10% decrease, within 20% tolerance)
+        items = (1..9).map do |i|
           {
-            'id' => "atty-#{atty.id}",
-            'number' => "A#{atty.id}",
+            'id' => "atty-new-#{i}",
+            'number' => "A#{i}",
             'poa' => 'ABC',
             'firstName' => 'Test',
-            'lastName' => 'Attorney',
+            'lastName' => "Attorney#{i}",
             'workAddress1' => '123 St',
             'workCity' => 'City',
             'workState' => 'CA',
@@ -2283,15 +2281,21 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
           .with(type: RepresentationManagement::ATTORNEYS, page: 2)
           .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
 
-        allow(AccreditedIndividual).to receive(:find_or_create_by).and_wrap_original do |method, args|
-          attorneys.find { |a| "atty-#{a.id}" == args[:ogc_id] } || method.call(args)
+        # Mock the new records
+        items.each_with_index do |item, idx|
+          record = instance_double(AccreditedIndividual, id: 5000 + idx, raw_address: nil)
+          allow(AccreditedIndividual).to receive(:find_or_create_by)
+            .with(hash_including(individual_type: 'attorney', ogc_id: item['id']))
+            .and_return(record)
+          allow(record).to receive(:update)
         end
-        attorneys.each { |a| allow(a).to receive(:update) }
       end
 
-      it 'proceeds with deletion' do
-        # The 100th attorney should be deleted
-        expect { job.perform }.to change(AccreditedIndividual.where(individual_type: 'attorney'), :count).by(-1)
+      it 'does not trigger count mismatch protection' do
+        # Since 9 out of 10 is a 10% decrease (within 20% tolerance),
+        # count mismatch protection should NOT be triggered
+        job.perform
+        expect(job.instance_variable_get(:@count_mismatch_types)).not_to include(:attorneys)
       end
 
       it 'does not log a count mismatch error' do

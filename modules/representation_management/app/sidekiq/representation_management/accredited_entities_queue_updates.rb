@@ -29,9 +29,6 @@ module RepresentationManagement
     # Maximum allowed decrease percentage for entity counts before updates are blocked
     DECREASE_THRESHOLD = RepresentationManagement::AccreditationApiEntityCount::DECREASE_THRESHOLD
 
-    # Maximum allowed percentage difference between expected and processed counts
-    COUNT_MISMATCH_THRESHOLD = 1.0
-
     # Number of records to process in each address validation batch
     SLICE_SIZE = 30
 
@@ -118,12 +115,13 @@ module RepresentationManagement
       end
 
       if @count_mismatch_types.any?
-        @report << "Due to count mismatches (>#{COUNT_MISMATCH_THRESHOLD}% difference):\n"
+        threshold_display = (DECREASE_THRESHOLD.abs * 100).round(0)
+        @report << "Due to count mismatches (>#{threshold_display}% decrease):\n"
         @count_mismatch_types.each do |type|
           expected = @expected_counts[type]
           actual = get_processed_count_for_type(type)
-          diff = ((expected - actual).abs.to_f / expected * 100).round(2)
-          @report << "  - #{type.to_s.humanize}: Expected #{expected}, Processed #{actual} (#{diff}% diff)\n"
+          change = ((actual - expected).to_f / expected * 100).round(2)
+          @report << "  - #{type.to_s.humanize}: Expected #{expected}, Processed #{actual} (#{change}% change)\n"
         end
       end
     end
@@ -433,6 +431,7 @@ module RepresentationManagement
     end
 
     # Validates that the processed count matches the expected count within tolerance
+    # Uses the same DECREASE_THRESHOLD as count validation to maintain consistency
     #
     # @param entity_type [String, Symbol] The type of entity to validate
     # @param processed_count [Integer] The number of records actually processed
@@ -444,18 +443,21 @@ module RepresentationManagement
       # If we don't have an expected count, we can't validate
       return true if expected_count.nil? || expected_count.zero?
 
-      # Calculate percentage difference
-      difference = (expected_count - processed_count).abs
-      percentage_difference = (difference.to_f / expected_count) * 100
+      # If processed count is greater or equal to expected, that's fine
+      return true if processed_count >= expected_count
 
-      # Check if within tolerance
-      within_tolerance = percentage_difference <= COUNT_MISMATCH_THRESHOLD
+      # Calculate percentage change (negative for decrease)
+      change_percentage = ((processed_count - expected_count).to_f / expected_count)
+
+      # Check if decrease is within acceptable threshold (DECREASE_THRESHOLD is negative, e.g., -0.20)
+      within_tolerance = change_percentage > DECREASE_THRESHOLD
 
       # Track mismatch if outside tolerance
       unless within_tolerance
         @count_mismatch_types << entity_type unless @count_mismatch_types.include?(entity_type)
+        percentage_display = (change_percentage * 100).round(2)
         log_error("Count mismatch for #{entity_type}: expected #{expected_count}, " \
-                  "processed #{processed_count} (#{percentage_difference.round(2)}% difference)")
+                  "processed #{processed_count} (#{percentage_display}% change)")
       end
 
       within_tolerance
