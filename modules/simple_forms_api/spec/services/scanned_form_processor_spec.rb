@@ -105,6 +105,133 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       end
     end
 
+    context 'with encrypted PDF and no password' do
+      let(:attachment) do
+        PersistentAttachments::VAForm.new.tap do |att|
+          att.form_id = '21-0779'
+          att.file_attacher.attach(File.open(encrypted_pdf_path, 'rb'), validate: false)
+        end
+      end
+      let(:processor) { described_class.new(attachment) } # No password
+
+      before do
+        allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+          double(validate: double(valid_pdf?: false, errors: ['PDF is encrypted']))
+        )
+      end
+
+      it 'raises ValidationError when PDF cannot be read' do
+        expect { processor.process! }
+          .to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError) do |error|
+            expect(error.message).to eq('PDF validation failed')
+            expect(error.errors.first[:detail]).to eq('Document is locked with a user password')  
+          end
+      end
+    end
+
+    context 'cleanup of decrypted files' do
+      let(:attachment) do
+        PersistentAttachments::VAForm.new.tap do |att|
+          att.form_id = '21-0779'
+          att.file_attacher.attach(File.open(encrypted_pdf_path, 'rb'), validate: false)
+        end
+      end
+      let(:processor) { described_class.new(attachment, password: correct_password) }
+
+      before do
+        allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+          double(validate: double(valid_pdf?: true, errors: []))
+        )
+      end
+
+      it 'cleans up decrypted temp file after successful processing' do
+        decrypted_path = nil
+        
+        allow(processor).to receive(:decrypt_pdf).and_wrap_original do |method, *args|
+          result = method.call(*args)
+          decrypted_path = result
+          result
+        end
+        
+        processor.process!
+        
+        expect(decrypted_path).not_to be_nil
+        expect(File.exist?(decrypted_path)).to be false
+      end
+
+      it 'cleans up decrypted temp file even when validation fails' do
+        decrypted_path = nil
+        
+        allow(processor).to receive(:decrypt_pdf).and_wrap_original do |method, *args|
+          result = method.call(*args)
+          decrypted_path = result
+          result
+        end
+        
+        # Make validation fail
+        allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+          double(validate: double(valid_pdf?: false, errors: ['Test error']))
+        )
+        
+        expect { processor.process! }.to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError)
+        
+        expect(decrypted_path).not_to be_nil
+        expect(File.exist?(decrypted_path)).to be false
+      end
+    end
+
+    context 'with unencrypted PDF and password parameter' do
+      let(:attachment) do
+        PersistentAttachments::VAForm.new.tap do |att|
+          att.form_id = '21-0779'
+          att.file = File.open(pdf_path, 'rb')
+        end
+      end
+      let(:processor) { described_class.new(attachment, password: 'unused_password') }
+
+      before do
+        allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+          double(validate: double(valid_pdf?: true, errors: []))
+        )
+      end
+
+      it 'processes successfully even with unnecessary password' do
+        expect { processor.process! }.not_to raise_error
+        expect(attachment.persisted?).to be true
+      end
+    end
+
+    context 'end-to-end encrypted PDF processing without mocks' do
+      let(:attachment) do
+        PersistentAttachments::VAForm.new.tap do |att|
+          att.form_id = '21-0779'
+          att.file_attacher.attach(File.open(encrypted_pdf_path, 'rb'), validate: false)
+        end
+      end
+      let(:processor) { described_class.new(attachment, password: correct_password) }
+
+      it 'successfully decrypts, validates, and saves the PDF' do
+        expect { processor.process! }.not_to raise_error
+        expect(attachment.persisted?).to be true
+        
+        attachment.reload
+        
+        pdf_content = attachment.file.read
+        expect(pdf_content).to start_with('%PDF-')
+        expect(attachment.file.content_type).to eq('application/pdf')
+        
+        temp_pdf = Tempfile.new(['decrypted_verify', '.pdf'])
+        temp_pdf.binmode
+        temp_pdf.write(pdf_content)
+        temp_pdf.close
+        
+        doc = HexaPDF::Document.open(temp_pdf.path)
+        expect(doc.encrypted?).to be false
+        
+        temp_pdf.unlink
+      end
+    end
+
     context 'testing conversion errors' do
       let(:attachment) do
         PersistentAttachments::VAForm.new.tap do |att|
@@ -188,6 +315,28 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       expect(validator.validate.valid_pdf?).to be true
 
       temp_pdf.unlink
+    end
+  end
+  context 'Shrine validations after decryption' do
+  let(:attachment) do
+    PersistentAttachments::VAForm.new.tap do |att|
+      att.form_id = '21-0779'
+      att.file_attacher.attach(File.open(encrypted_pdf_path, 'rb'), validate: false)
+    end
+  end
+  let(:processor) { described_class.new(attachment, password: correct_password) }
+
+  before do
+    allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+      double(validate: double(valid_pdf?: true, errors: []))
+    )
+  end
+
+    it 'triggers Shrine validations after decryption' do
+      expect(attachment).to receive(:file=).and_call_original
+      expect(attachment).to receive(:valid?).and_call_original
+      
+      processor.process!
     end
   end
 end

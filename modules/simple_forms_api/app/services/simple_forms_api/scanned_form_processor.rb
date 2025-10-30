@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'common/pdf_helpers'
 module SimpleFormsApi
   class ScannedFormProcessor
     PDF_VALIDATOR_OPTIONS = {
@@ -22,7 +23,7 @@ module SimpleFormsApi
     class ConversionError < ProcessingError; end
     class ValidationError < ProcessingError; end
 
-    def initialize(attachment,  password: nil)
+    def initialize(attachment, password: nil)
       @attachment = attachment
       @password = password
     end
@@ -52,8 +53,8 @@ module SimpleFormsApi
 
     def cleanup_decrypted_file
       return unless @decrypted_file_path
-      
-      File.delete(@decrypted_file_path) if File.exist?(@decrypted_file_path)
+
+      File.delete(@decrypted_file_path)
     rescue => e
       Rails.logger.warn("Failed to cleanup decrypted temp file: #{e.message}")
     end
