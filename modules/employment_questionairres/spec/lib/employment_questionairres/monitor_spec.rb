@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe EmploymentQuestionairress::Monitor, skip: 'TODO after schema built' do
+RSpec.describe EmploymentQuestionairres::Monitor, skip: 'TODO after schema built' do
   let(:monitor) { described_class.new }
   let(:claim) { create(:employment_questionairres_claim) }
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
-  let(:message_prefix) { "#{described_class} #{EmploymentQuestionairress::FORM_ID}" }
+  let(:message_prefix) { "#{described_class} #{EmploymentQuestionairres::FORM_ID}" }
 
   describe '#service_name' do
     it 'returns expected name' do
@@ -292,7 +292,7 @@ RSpec.describe EmploymentQuestionairress::Monitor, skip: 'TODO after schema buil
     describe '#track_submission_exhaustion' do
       context 'with a claim parameter' do
         it 'logs sidekiq job exhaustion' do
-          notification = double(EmploymentQuestionairress::NotificationEmail)
+          notification = double(EmploymentQuestionairres::NotificationEmail)
 
           msg = { 'args' => [claim.id, current_user.uuid] }
 
@@ -306,7 +306,7 @@ RSpec.describe EmploymentQuestionairress::Monitor, skip: 'TODO after schema buil
             tags: monitor.tags
           }
 
-          expect(EmploymentQuestionairress::NotificationEmail).to receive(:new).with(claim.id).and_return notification
+          expect(EmploymentQuestionairres::NotificationEmail).to receive(:new).with(claim.id).and_return notification
           expect(notification).to receive(:deliver).with(:error)
 
           expect(monitor).to receive(:track_request).with(
@@ -335,7 +335,7 @@ RSpec.describe EmploymentQuestionairress::Monitor, skip: 'TODO after schema buil
             tags: monitor.tags
           }
 
-          expect(EmploymentQuestionairress::NotificationEmail).not_to receive(:new)
+          expect(EmploymentQuestionairres::NotificationEmail).not_to receive(:new)
           expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
