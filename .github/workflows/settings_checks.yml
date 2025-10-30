@@ -93,6 +93,8 @@ jobs:
             exit 0
           fi
 
+
+
           keys=()
           for line in $new_env_keys; do
             # Remove any quotes that might be present
@@ -126,18 +128,27 @@ jobs:
             param_names+=("$sandbox_ssm_param")
             param_names+=("$prod_ssm_param")
 
-            # Use a more resilient approach for the AWS command
-            set +e  # Don't exit on error
             ssm_output=$(aws ssm get-parameters \
               --names "${param_names[@]}" \
               --query "InvalidParameters" \
-              --output json 2>&1)
+              --output json 2>&1 || echo "[]")
             aws_exit_code=$?
-            set -e  # Restore exit on error
+
 
             if [ $aws_exit_code -ne 0 ]; then
               echo "AWS SSM command failed with output: $ssm_output"
               continue  # Skip to next key
+            fi
+
+            if [[ -n "$ssm_output" && "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
+              # Check if it's valid JSON before piping to jq
+              if echo "$ssm_output" | jq empty 2>/dev/null; then
+                while read -r param; do
+                  if [[ -n "$param" ]]; then
+                    invalid_parameters+=("$param")
+                  fi
+                done < <(echo "$ssm_output" | jq -r '.[]')
+              fi
             fi
 
             # Process invalid parameters
