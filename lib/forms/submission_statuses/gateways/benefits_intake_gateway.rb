@@ -9,10 +9,43 @@ module Forms
   module SubmissionStatuses
     module Gateways
       class BenefitsIntakeGateway < BaseGateway
+        # Define a proper struct for Lighthouse::Submissions
+        SubmissionAdapter = Struct.new(:id, :form_id, :form_type, :created_at, :benefits_intake_uuid, :source)
+
         def submissions
+          combined_submissions
+        end
+
+        def form_submissions
           query = FormSubmission.with_latest_benefits_intake_uuid(user_account)
           query = query.with_form_types(allowed_forms) if allowed_forms.present?
           query.order(:created_at).to_a
+        end
+
+        def lighthouse_submissions
+          query = Lighthouse::Submission.with_intake_uuid_for_user(user_account)
+          query = query.where(form_id: allowed_forms) if allowed_forms.present?
+          query.order(:created_at).to_a
+        end
+
+        def combined_submissions
+          form_subs = form_submissions
+          lighthouse_subs = lighthouse_submissions
+
+          # Convert Lighthouse::Submissions to have benefits_intake_uuid for compatibility
+          normalized_lighthouse = lighthouse_subs.map do |submission|
+            SubmissionAdapter.new(
+              submission.id,
+              submission.form_id,
+              submission.form_id, # For BenefitsIntakeFormatter
+              submission.created_at,
+              submission.latest_benefits_intake_uuid,
+              'lighthouse_submission'
+            )
+          end
+
+          # Combine and sort by creation time
+          (form_subs + normalized_lighthouse).sort_by(&:created_at)
         end
 
         def api_statuses(submissions)
@@ -30,7 +63,7 @@ module Forms
         end
 
         def extract_uuids(submissions)
-          submissions.map(&:benefits_intake_uuid)
+          submissions.map(&:benefits_intake_uuid).compact
         end
 
         def fetch_bulk_status(uuids)
