@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'lighthouse_military_address_validator'
+require_relative '../lighthouse_military_address_validator'
 
 module ClaimsApi
   module V2
