@@ -182,7 +182,13 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         before do
           # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
           # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
-          allow(FastImage).to receive(:size).with(a_string_ending_with('.pdf')).and_return(nil)
+          allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+            if file.respond_to?(:path) && file.path.end_with?('.pdf')
+              nil
+            else
+              original.call(file)
+            end
+          end
           job.instance_variable_set(:@pending_attempts, [attempt])
           job.instance_variable_set(:@pah, { 'uuid-1' => attempt })
           stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'Form23-42Fake' => handler_class })
