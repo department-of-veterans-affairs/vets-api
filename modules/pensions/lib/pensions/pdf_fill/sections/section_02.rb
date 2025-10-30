@@ -4,13 +4,13 @@ require_relative '../section'
 
 module Pensions
   module PdfFill
-    # Section II: Vewteran's Contact Information
+    # Section II: Veteran's Contact Information
     class Section2 < Section
       # Section configuration hash
       KEY = {}.freeze
 
       ##
-      # Expand the form data for prior marital history.
+      # Expand the form data for Veteran contact information.
       #
       # @param form_data [Hash] The form data hash.
       #
