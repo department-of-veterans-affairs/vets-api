@@ -23,6 +23,7 @@ module RepresentationManagement
   #
   # @example Force update for multiple entity types
   #   RepresentationManagement::AccreditedEntitiesQueueUpdates.perform_async(['agents', 'attorneys'])
+  # rubocop:disable Metrics/ClassLength
   class AccreditedEntitiesQueueUpdates
     include Sidekiq::Job
 
@@ -812,4 +813,5 @@ module RepresentationManagement
       log_error("Error creating/updating accreditations: #{e.message}")
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
