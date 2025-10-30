@@ -4,7 +4,7 @@ module EmploymentQuestionairres
   ##
   # Form profile for VA Form 21P-8416 (Medical Expense Report)
   # extends app/models/form_profile.rb, which handles form prefill
-  class FormProfiles::VA21p8416 < FormProfile
+  class FormProfiles::VA214140 < FormProfile
     ##
     # Returns metadata related to the form profile
     #
