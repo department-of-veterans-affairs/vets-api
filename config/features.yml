@@ -1913,6 +1913,7 @@ features:
   meb_parent_guardian_step:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
+    enable_in_development: true
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user
     description: Hides benefit selection page on original claims application.
