@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: patch
+    uri: <TRAVEL_PAY_BASE_URL>/api/v1/expenses/other/123e4567-e89b-12d3-a456-426614174500
+    body:
+      encoding: UTF-8
+      string: '{
+        "dateIncurred": "2025-09-14T21:02:39.000Z",
+        "description": "Test expense description",
+        "amount": 25.5,
+        "expenseType": "other"
+      }'
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer veis_access_token_12345
+      BTSSS-Access-Token:
+      - btsss_access_token_67890
+      X-Correlation-ID:
+      - correlation-id-12345
+      Ocp-Apim-Subscription-Key:
+      - subscription-key-test
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: >-
+        {
+          "correlationId": "abc-123",
+          "timeStamp": "2025-09-14T21:02:39.000",
+          "statusCode": 200,
+          "message": "Expense updated successfully",
+          "success": true,
+          "data": {
+            "id": "123e4567-e89b-12d3-a456-426614174500",
+            "modifiedOn": "2025-09-14T21:02:39.000"
+          }
+        }
+  recorded_at: Wed, 15 Sep 2025 21:02:41 GMT

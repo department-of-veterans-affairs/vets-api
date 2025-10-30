@@ -29,7 +29,7 @@ RSpec.describe BGS::DependentV2Service do
 
   before do
     # TODO: add user_account_id back once the DB migration is done
-    allow(claim).to receive_messages(id: '1234', use_v2: true,
+    allow(claim).to receive_messages(id: '1234', use_v2: true, form_id: '686C-674-V2',
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], upload_pdf: true)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
@@ -202,6 +202,42 @@ RSpec.describe BGS::DependentV2Service do
         end
       end
 
+      context 'BGS throws an error - 502' do
+        let(:monitor) { instance_double(Dependents::Monitor) }
+
+        before do
+          allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+          allow(monitor).to receive(:track_event)
+        end
+
+        it 'still submits a PDF and enqueues the SubmitForm686cJob' do
+          expect_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_person_by_ptcpnt_id)
+            .and_raise(StandardError, 'HTTP error (502)')
+
+          expect(monitor).to receive(:track_event).with(
+            'warn',
+            'BGS::DependentV2Service#get_form_hash_686c failed',
+            'bgs.dependent_service.get_form_hash.failure',
+            { error: 'Could not retrieve file number from BGS' }
+          )
+
+          vet_info['veteran_information']['va_file_number'] = '796043735'
+          enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
+          service = BGS::DependentV2Service.new(user)
+
+          expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
+            user.uuid, claim.id,
+            enc_vet_info
+          )
+          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
+            claim.id, enc_vet_info,
+            true, true
+          )
+          service.submit_686c_form(claim)
+        end
+      end
+
       context 'when Flipper is enabled for extra error logging' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(true)
@@ -272,7 +308,7 @@ RSpec.describe BGS::DependentV2Service do
       VCR.use_cassette('bgs/dependent_service/get_dependents') do
         response = BGS::DependentV2Service.new(user).get_dependents
 
-        expect(response).to include(number_of_records: '6')
+        expect(response).to include(number_of_records: '6', persons: Array)
       end
     end
 
@@ -282,6 +318,17 @@ RSpec.describe BGS::DependentV2Service do
           .with(user.participant_id, user.ssn)
 
         BGS::DependentV2Service.new(user).get_dependents
+      end
+    end
+
+    it 'returns a valid response when empty array' do
+      VCR.use_cassette('bgs/dependent_service/get_dependents') do
+        allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+          .with(user.participant_id, user.ssn).and_return([])
+
+        response = BGS::DependentV2Service.new(user).get_dependents
+
+        expect(response).to have_key(:persons)
       end
     end
   end
@@ -491,8 +538,7 @@ RSpec.describe BGS::DependentV2Service do
       allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError)
       expect(Rails.logger).to receive(:warn)
       expect do
-        service.send(:submit_pdf_job, claim:,
-                                      encrypted_vet_info:)
+        service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
       end.to raise_error(BGS::DependentV2Service::PDFSubmissionError)
     end
   end

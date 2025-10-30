@@ -12,3 +12,8 @@ This module is open source under the terms of the [MIT License](https://opensour
 == Generate Swagger documentation
 After updating the +rswag+ specs run the following to update the swagger file served by our apidocs controller.
   RAILS_ENV=test bundle exec rake rswag:representation_management:build
+
+== Viewing Swagger documentation
+An easy way to view your swagger documentation served by the apidocs controller is to host the swagger UI with docker.  If vets-api is up and running on port 3000 run:
+  docker run -p 80:8080 -e URL=http://localhost:3000/representation_management/v0/apidocs swaggerapi/swagger-ui
+in a new terminal.  Then navigate to localhost in the browser.

@@ -82,6 +82,8 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   end
 
   describe '#enqueue_686c_submissions and #enqueue_674_submissions' do
+    let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
+
     it 'tracks enqueued submissions for both form types' do
       processor.send(:enqueue_686c_submission, form_686_claim)
       processor.send(:enqueue_674_submission, form_674_claim)

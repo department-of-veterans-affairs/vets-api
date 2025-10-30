@@ -58,9 +58,9 @@ module DecisionReviews
       when :form
         [DecisionReviews::FormNotificationCallback, 'form submission', DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type]]
       when :evidence
-        [DecisionReviews::EvidenceNotificationCallback, 'evidence submission to Lighthouse', DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type]]
+        [DecisionReviews::EvidenceNotificationCallback, 'evidence submission to lighthouse', DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type]]
       when :secondary_form
-        [DecisionReviews::EvidenceNotificationCallback, 'secondary form submission to Lighthouse', DecisionReviews::V1::SECONDARY_FORM_TEMPLATE_ID]
+        [DecisionReviews::EvidenceNotificationCallback, 'secondary form submission to lighthouse', DecisionReviews::V1::SECONDARY_FORM_TEMPLATE_ID]
       end
     end
 

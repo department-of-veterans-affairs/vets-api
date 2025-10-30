@@ -63,9 +63,11 @@ RSpec.describe 'MyHealth::V1::Messaging::Recipients', type: :request do
 
     it 'when resource is blank returns 404 RecordNotFound' do
       allow_any_instance_of(SM::Client).to receive(:get_triage_teams).and_return(nil)
+      allow(StatsD).to receive(:increment)
 
       get '/my_health/v1/messaging/recipients'
 
+      expect(StatsD).to have_received(:increment).with('api.my_health.triage_teams.fail')
       expect(response).to have_http_status(:not_found)
       expect(response.body).to include('Triage teams for user ID')
     end

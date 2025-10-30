@@ -32,15 +32,15 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
     context 'correct class is called for the notification' do
       before do
         allow(klass).to receive(:new).and_return callback
-        allow(Logging::Monitor).to receive(:new).with(klass.to_s).and_return monitor
+        allow(Logging::Monitor).to receive(:new).with(klass.to_s, allowlist: anything).and_return monitor
       end
 
       it 'tracks a `delivered` notification' do
         context = hash_including(status: 'delivered')
 
         expect(callback).to receive(:on_delivered)
-        expect(monitor).to receive(:track).with(:info, "#{callback.klass}: Delivered", "#{metric}.delivered",
-                                                context)
+        expect(monitor).to receive(:track_request).with(:info, "#{callback.klass}: Delivered", "#{metric}.delivered",
+                                                        context)
 
         klass.call(notification)
       end
@@ -50,8 +50,8 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
         context = hash_including(status: 'permanent-failure')
 
         expect(callback).to receive(:on_permanent_failure)
-        expect(monitor).to receive(:track).with(:error, "#{callback.klass}: Permanent Failure",
-                                                "#{metric}.permanent_failure", context)
+        expect(monitor).to receive(:track_request).with(:error, "#{callback.klass}: Permanent Failure",
+                                                        "#{metric}.permanent_failure", context)
 
         klass.call(notification)
       end
@@ -61,8 +61,8 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
         context = hash_including(status: 'temporary-failure')
 
         expect(callback).to receive(:on_temporary_failure)
-        expect(monitor).to receive(:track).with(:warn, "#{callback.klass}: Temporary Failure",
-                                                "#{metric}.temporary_failure", context)
+        expect(monitor).to receive(:track_request).with(:warn, "#{callback.klass}: Temporary Failure",
+                                                        "#{metric}.temporary_failure", context)
 
         klass.call(notification)
       end
@@ -72,7 +72,7 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
         context = hash_including(status: 'other')
 
         expect(callback).to receive(:on_other_status)
-        expect(monitor).to receive(:track).with(:warn, "#{callback.klass}: Other", "#{metric}.other", context)
+        expect(monitor).to receive(:track_request).with(:warn, "#{callback.klass}: Other", "#{metric}.other", context)
 
         klass.call(notification)
       end

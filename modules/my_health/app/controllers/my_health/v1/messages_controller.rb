@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module MyHealth
   module V1
     class MessagesController < SMController
@@ -23,6 +25,12 @@ module MyHealth
         message_params_h = prepare_message_params_h
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = create_client_response(message, message_params_h, create_message_params)
+
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
 
         options = build_response_options(client_response)
         render json: MessageSerializer.new(client_response, options)
@@ -56,6 +64,13 @@ module MyHealth
         message_params_h = prepare_message_params_h
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = reply_client_response(message, message_params_h, create_message_params)
+
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
+
         options = build_response_options(client_response)
         render json: MessageSerializer.new(client_response, options), status: :created
       end
