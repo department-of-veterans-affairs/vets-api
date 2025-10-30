@@ -112,10 +112,8 @@ jobs:
 
           for key in "${keys[@]}"; do
             param_names=()
-
             # replace double underscores with slashes
             formatted_key=$(echo "$key" | sed 's/__/\//g')
-
             echo "Processing key: $key (formatted as: $formatted_key)"
 
             dev_ssm_param="/dsva-vagov/vets-api/dev/env_vars/$formatted_key"
@@ -128,37 +126,22 @@ jobs:
             param_names+=("$sandbox_ssm_param")
             param_names+=("$prod_ssm_param")
 
+            # Use || true to prevent exit on error
             ssm_output=$(aws ssm get-parameters \
               --names "${param_names[@]}" \
               --query "InvalidParameters" \
-              --output json 2>&1 || echo "[]")
-            aws_exit_code=$?
+              --output json 2>&1 || true)
 
-
-            if [ $aws_exit_code -ne 0 ]; then
-              echo "AWS SSM command failed with output: $ssm_output"
-              continue  # Skip to next key
-            fi
-
-            if [[ -n "$ssm_output" && "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
-              # Check if it's valid JSON before piping to jq
-              if echo "$ssm_output" | jq empty 2>/dev/null; then
-                while read -r param; do
-                  if [[ -n "$param" ]]; then
-                    invalid_parameters+=("$param")
-                  fi
-                done < <(echo "$ssm_output" | jq -r '.[]')
-              fi
-            fi
-
-            # Process invalid parameters
-            if [[ -n "$ssm_output" && "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
-              # Parse the JSON output to extract invalid parameters
-              while read -r param; do
+            # Check if output is valid JSON and contains invalid parameters
+            if [[ -n "$ssm_output" ]] && echo "$ssm_output" | jq empty 2>/dev/null; then
+              # Process invalid parameters with error handling
+              while IFS= read -r param; do
                 if [[ -n "$param" ]]; then
                   invalid_parameters+=("$param")
                 fi
-              done < <(echo "$ssm_output" | jq -r '.[]' 2>/dev/null || echo "")
+              done < <(echo "$ssm_output" | jq -r '.[]' 2>/dev/null || true)
+            else
+              echo "Skipping invalid or empty AWS SSM output for key: $key"
             fi
           done
 
