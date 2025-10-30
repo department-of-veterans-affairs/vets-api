@@ -2,8 +2,8 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'medical_expense_reports/notification_email'
-require 'medical_expense_reports/monitor'
+require 'employment_questionairres/notification_email'
+require 'employment_questionairres/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
 module EmploymentQuestionairres
@@ -38,7 +38,7 @@ module EmploymentQuestionairres
       # @return [UUID] benefits intake upload uuid
       #
       def perform(saved_claim_id, user_account_uuid = nil)
-        return unless Flipper.enabled?(:medical_expense_reports_form_enabled)
+        return unless Flipper.enabled?(:employment_questionairres_form_enabled)
 
         init(saved_claim_id, user_account_uuid)
 

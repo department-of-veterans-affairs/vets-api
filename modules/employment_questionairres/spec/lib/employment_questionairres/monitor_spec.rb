@@ -2,18 +2,18 @@
 
 require 'rails_helper'
 
-RSpec.describe MedicalExpenseReports::Monitor, skip: 'TODO after schema built' do
+RSpec.describe EmploymentQuestionairress::Monitor, skip: 'TODO after schema built' do
   let(:monitor) { described_class.new }
-  let(:claim) { create(:medical_expense_reports_claim) }
+  let(:claim) { create(:employment_questionairres_claim) }
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
-  let(:message_prefix) { "#{described_class} #{MedicalExpenseReports::FORM_ID}" }
+  let(:message_prefix) { "#{described_class} #{EmploymentQuestionairress::FORM_ID}" }
 
   describe '#service_name' do
     it 'returns expected name' do
-      expect(monitor.send(:service_name)).to eq('medical-expense-reports')
+      expect(monitor.send(:service_name)).to eq('employment-questionairres')
     end
   end
 
@@ -292,7 +292,7 @@ RSpec.describe MedicalExpenseReports::Monitor, skip: 'TODO after schema built' d
     describe '#track_submission_exhaustion' do
       context 'with a claim parameter' do
         it 'logs sidekiq job exhaustion' do
-          notification = double(MedicalExpenseReports::NotificationEmail)
+          notification = double(EmploymentQuestionairress::NotificationEmail)
 
           msg = { 'args' => [claim.id, current_user.uuid] }
 
@@ -306,7 +306,7 @@ RSpec.describe MedicalExpenseReports::Monitor, skip: 'TODO after schema built' d
             tags: monitor.tags
           }
 
-          expect(MedicalExpenseReports::NotificationEmail).to receive(:new).with(claim.id).and_return notification
+          expect(EmploymentQuestionairress::NotificationEmail).to receive(:new).with(claim.id).and_return notification
           expect(notification).to receive(:deliver).with(:error)
 
           expect(monitor).to receive(:track_request).with(
@@ -335,7 +335,7 @@ RSpec.describe MedicalExpenseReports::Monitor, skip: 'TODO after schema built' d
             tags: monitor.tags
           }
 
-          expect(MedicalExpenseReports::NotificationEmail).not_to receive(:new)
+          expect(EmploymentQuestionairress::NotificationEmail).not_to receive(:new)
           expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(

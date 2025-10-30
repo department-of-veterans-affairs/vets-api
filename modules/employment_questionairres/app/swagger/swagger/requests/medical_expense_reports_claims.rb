@@ -2,7 +2,7 @@
 
 module Swagger
   module Requests
-    class MedicalExpenseReportsClaims
+    class EmploymentQuestionairressClaims
       include Swagger::Blocks
 
       swagger_path '/v0/form8416' do
@@ -10,8 +10,8 @@ module Swagger
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
 
-          key :description, 'Submit a medical expense report'
-          key :operationId, 'addMedicalExpenseReportsClaim'
+          key :description, 'Submit a Empolyment questionairress'
+          key :operationId, 'addEmploymentQuestionairressClaim'
           key :tags, %w[benefits_forms]
 
           parameter :optional_authorization
@@ -19,7 +19,7 @@ module Swagger
           parameter do
             key :name, :form
             key :in, :body
-            key :description, 'Medical expense report form data'
+            key :description, 'Empolyment questionairress form data'
             key :required, true
 
             schema do

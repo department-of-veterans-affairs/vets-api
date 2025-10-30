@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'medical_expense_reports/benefits_intake/submission_handler'
-require 'medical_expense_reports/monitor'
-require 'medical_expense_reports/notification_email'
+require 'employment_questionairres/benefits_intake/submission_handler'
+require 'employment_questionairres/monitor'
+require 'employment_questionairres/notification_email'
 
 RSpec.describe EmploymentQuestionairres::BenefitsIntake::SubmissionHandler do
   let(:handler) { EmploymentQuestionairres::BenefitsIntake::SubmissionHandler }

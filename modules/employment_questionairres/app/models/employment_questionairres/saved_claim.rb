@@ -9,7 +9,7 @@ module EmploymentQuestionairres
   # @see app/model/saved_claim
   #
   class SavedClaim < ::SavedClaim
-    # Medical Expense Reports Form ID
+    # Empolyment questionairresss Form ID
     FORM = EmploymentQuestionairres::FORM_ID
 
     # the predefined regional office address

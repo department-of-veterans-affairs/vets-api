@@ -33,7 +33,7 @@
 
 #       let(:params) do
 #         {
-#           medicalExpenseReportsClaim: {
+#           employmentQuestionairressClaim: {
 #             form: full_claim.merge('veteranSocialSecurityNumber' => 'just a string').to_json
 #           }
 #         }
@@ -55,7 +55,7 @@
 #     context 'with valid params' do
 #       let(:params) do
 #         {
-#           medicalExpenseReportsClaim: {
+#           employmentQuestionairressClaim: {
 #             form: full_claim.to_json
 #           }
 #         }
