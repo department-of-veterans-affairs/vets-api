@@ -22,6 +22,8 @@ module ClaimsEvidenceApi
     PROVIDER_DATA = "#{SCHEMA}/providerData.json"
     # #/components/schemas/searchFileRequest
     SEARCH_FILE_REQUEST = "#{SCHEMA}/searchFileRequest.json"
+    # #/components/schemas/Filters
+    SEARCH_FILTERS = "#{SCHEMA}/searchFilters.json"
 
     # hash { :property_name => json-schema }
     # :property_name == filename without extension

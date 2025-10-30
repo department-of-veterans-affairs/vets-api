@@ -48,7 +48,7 @@
       "$ref" : "filters/claimantMiddleInitialFilter.json"
     },
     "providerData.claimantSsn" : {
-      "$ref" : "filters/claimantSsnFilter"
+      "$ref" : "filters/claimantSsnFilter.json"
     },
     "providerData.claimantDateOfBirth" : {
       "$ref" : "filters/claimantDateOfBirthFilter.json"

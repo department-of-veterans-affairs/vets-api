@@ -3,7 +3,7 @@
   "$id": "https://claims_evidence_api.va.gov/schema/filters/contentSourceFilter.json",
   "description" : "Filters results based on ContentSource.",
   "properties" : {
-    "evluationType" : {
+    "evaluationType" : {
       "enum" : [ "EQUALS" ],
       "type" : "string"
     },

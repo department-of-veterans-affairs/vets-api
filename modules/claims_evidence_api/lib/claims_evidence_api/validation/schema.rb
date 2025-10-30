@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'claims_evidence_api/validation/filter_formatter'
+require 'claims_evidence_api/validation/search_filters'
 
 module ClaimsEvidenceApi
   module Validation
