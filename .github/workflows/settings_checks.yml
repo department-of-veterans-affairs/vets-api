@@ -93,15 +93,12 @@ jobs:
             exit 0
           fi
 
-
-
           keys=()
           for line in $new_env_keys; do
             # Remove any quotes that might be present
             line=$(echo "$line" | tr -d "'")
             keys+=("$line")
           done
-
 
           echo "Found the following ENV keys:"
           for key in "${keys[@]}"; do
@@ -132,8 +129,13 @@ jobs:
               --query "InvalidParameters" \
               --output json 2>&1 || true)
 
-            # Check if output is valid JSON and contains invalid parameters
-            if [[ -n "$ssm_output" ]] && echo "$ssm_output" | jq empty 2>/dev/null; then
+            # Check if output is valid JSON - use a variable to capture exit status
+            is_valid_json=false
+            if [[ -n "$ssm_output" ]]; then
+              echo "$ssm_output" | jq empty 2>/dev/null && is_valid_json=true || is_valid_json=false
+            fi
+
+            if [[ "$is_valid_json" == "true" ]]; then
               # Process invalid parameters with error handling
               while IFS= read -r param; do
                 if [[ -n "$param" ]]; then
