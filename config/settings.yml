@@ -1853,6 +1853,7 @@ vre_counseling:
   prefill: true
 vre_readiness:
   prefill: true
+  enabled: true
 vsp_environment: <%= ENV['vsp_environment'] %>
 vye:
   ivr_key: <%= ENV['vye__ivr_key'] %>
