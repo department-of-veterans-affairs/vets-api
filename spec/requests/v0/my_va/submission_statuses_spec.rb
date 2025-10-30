@@ -174,7 +174,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
     let!(:saved_claim) { create(:burials_saved_claim, :pending, user_account: user.user_account) }
 
     before do
-      allow_any_instance_of(benefits_intake_gateway).to receive(:submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:form_submissions).and_return([])
 
       # Mock the Benefits Intake API response to avoid 401 errors
       benefits_intake_uuid = saved_claim.lighthouse_submissions.first.submission_attempts.first.benefits_intake_uuid
@@ -208,9 +208,8 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
 
   context 'when user has no submissions' do
     before do
-      allow_any_instance_of(benefits_intake_gateway).to receive(:submissions).and_return([])
-      allow_any_instance_of(benefits_intake_gateway)
-        .to receive(:lighthouse_submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:form_submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:lighthouse_submissions).and_return([])
     end
 
     it 'returns an empty array' do
