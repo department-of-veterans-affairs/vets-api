@@ -107,6 +107,7 @@
           "content": {
             "application/json": {
               "schema": {
+                "$schema": "json-schemer://openapi30/schema",
                 "type": "object",
                 "properties": {
                   "veteranInformation": {

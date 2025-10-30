@@ -187,7 +187,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 1 * * *', 'TransactionalEmailAnalyticsJob')
 
   # Disable FeatureCleanerJob. https://github.com/department-of-veterans-affairs/va.gov-team/issues/53538
-  # mgr.register('0 0 * * *', 'FeatureCleanerJob')
+  # Enabling FeatureCleanerJob for logging
+  # Features will not be removed when the job is executed
+  mgr.register('0 0 * * *', 'FeatureCleanerJob')
 
   # Request updated statuses for benefits intake submissions
   mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
