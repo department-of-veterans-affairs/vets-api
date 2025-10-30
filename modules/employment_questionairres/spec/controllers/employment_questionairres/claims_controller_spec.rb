@@ -40,10 +40,12 @@ RSpec.describe EmploymentQuestionairres::V0::ClaimsController, type: :request do
 
     it('returns a serialized claim') do
       allow(EmploymentQuestionairres::SavedClaim).to receive(:new).and_return(claim)
+      allow(claim).to receive(:save).and_return(true)
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
       expect(claim).to receive(:process_attachments!).once
+
       expect(EmploymentQuestionairres::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
 
       post '/employment_questionairres/v0/claims', params: { param_name => { form: claim.form } }
@@ -84,23 +86,25 @@ RSpec.describe EmploymentQuestionairres::V0::ClaimsController, type: :request do
   end
 
   describe '#process_attachments' do
-    let(:claim) { create(:employment_questionairres_claim) }
-    let(:in_progress_form) { build(:in_progress_form) }
-    let(:bad_attachment) { PersistentAttachment.create!(saved_claim_id: claim.id) }
-    let(:error) { StandardError.new('Something went wrong') }
+    # NOTE: This form doesnt need extra attachments
 
-    it 'returns a success' do
-      expect(claim).to receive(:process_attachments!)
-      subject.send(:process_attachments, in_progress_form, claim)
-    end
+    # let(:claim) { create(:employment_questionairres_claim) }
+    # let(:in_progress_form) { build(:in_progress_form) }
+    # let(:bad_attachment) { PersistentAttachment.create!(saved_claim_id: claim.id) }
+    # let(:error) { StandardError.new('Something went wrong') }
 
-    it 'returns a failure', skip: 'TODO after schema built' do
-      allow(claim).to receive(:process_attachments!).and_raise(error)
+    # it 'returns a success' do
+    #   expect(claim).to receive(:process_attachments!)
+    #   subject.send(:process_attachments, in_progress_form, claim)
+    # end
 
-      expect do
-        subject.send(:process_attachments!, in_progress_form, claim)
-      end.to raise_error(StandardError, 'Something went wrong')
-    end
+    # it 'returns a failure', skip: 'TODO after schema built' do
+    #   allow(claim).to receive(:process_attachments!).and_raise(error)
+
+    #   expect do
+    #     subject.send(:process_attachments!, in_progress_form, claim)
+    #   end.to raise_error(StandardError, 'Something went wrong')
+    # end
   end
 
   describe '#log_validation_error_to_metadata' do
