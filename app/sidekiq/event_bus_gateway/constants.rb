@@ -5,6 +5,9 @@ module EventBusGateway
     # VA Notify service settings
     NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
 
+    # Sets the max retry count for each job, also the max retry count between both jobs.
+    MAX_RETRY_COUNT = NOTIFY_SETTINGS&.letter_ready_email_job_retry_count&.to_i || 16
+
     # Hostname mapping for different environments
     HOSTNAME_MAPPING = {
       'dev-api.va.gov' => 'dev.va.gov',
@@ -24,9 +27,9 @@ module EventBusGateway
     # Retry for 2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     SIDEKIQ_RETRY_OPTIONS = {
-      retry: NOTIFY_SETTINGS&.letter_ready_email_job_retry_count&.to_i || 16
+      retry: MAX_RETRY_COUNT
     }.freeze
 
-    MAX_EMAIL_ATTEMPTS = 16
+    MAX_EMAIL_ATTEMPTS = MAX_RETRY_COUNT
   end
 end
