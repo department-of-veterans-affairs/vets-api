@@ -49,8 +49,8 @@ module EVSS
         begin
           submission = Form526Submission.find msg['args'].first
           next_birls_jid = submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
-            silence_errors_and_log_to_sentry: true,
-            extra_content_for_sentry: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
+            silence_errors_and_log: true,
+            extra_content_for_logs: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
           )
         rescue => e
           log_exception_to_sentry(e)
@@ -235,8 +235,8 @@ module EVSS
                Flipper.enabled?(:disability_compensation_fail_submission,
                                 OpenStruct.new({ flipper_id: submission.user_uuid }))
           submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
-            silence_errors_and_log_to_sentry: true,
-            extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
+            silence_errors_and_log: true,
+            extra_content_for_logs: { job_class: self.class.to_s.demodulize, job_id: jid }
           )
         end
       end
