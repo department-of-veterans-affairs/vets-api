@@ -29,10 +29,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "283",
+                    "id": "288",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-10-29T21:55:30.991Z",
+                      "submitted_at": "2025-10-30T22:51:55.958Z",
                       "regional_office": [],
                       "confirmation_number": "12345678-1234-1234-1234-123456789abc",
                       "guid": "12345678-1234-1234-1234-123456789abc",
@@ -244,6 +244,19 @@
                       },
                       "remarks": {
                         "type": "string"
+                      }
+                    }
+                  },
+                  "employerCertification": {
+                    "type": "object",
+                    "required": [
+                      "signature"
+                    ],
+                    "properties": {
+                      "signature": {
+                        "type": "string",
+                        "description": "Signature of employer or supervisor",
+                        "example": "John Doe"
                       }
                     }
                   }
@@ -490,6 +503,19 @@
                       },
                       "remarks": {
                         "type": "string"
+                      }
+                    }
+                  },
+                  "employerCertification": {
+                    "type": "object",
+                    "required": [
+                      "signature"
+                    ],
+                    "properties": {
+                      "signature": {
+                        "type": "string",
+                        "description": "Signature of employer or supervisor",
+                        "example": "John Doe"
                       }
                     }
                   }
