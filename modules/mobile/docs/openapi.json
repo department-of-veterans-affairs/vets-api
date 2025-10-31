@@ -13006,16 +13006,16 @@
                     "type": "string",
                     "example": "020NEW"
                   },
+                  "claimTypeBase": {
+                    "type": "string",
+                    "description": "Base type of claim",
+                    "example": "compensation claim"
+                  },
                   "displayTitle": {
                     "type": "string",
                     "description": "Formatted title for display",
                     "example": "Claim for compensation",
                     "nullable": true
-                  },
-                  "claimTypeBase": {
-                    "type": "string",
-                    "description": "Base type of claim",
-                    "example": "compensation claim"
                   }
                 }
               }
@@ -14540,7 +14540,7 @@
                 "type": "string",
                 "description": "Formatted title for display in mobile overview list",
                 "example": "disability compensation appeal",
-                "nullable":  true
+                "nullable": true
               },
               "decisionLetterSent": {
                 "type": "boolean",
@@ -14733,7 +14733,7 @@
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
                       "example": "disability compensation appeal",
-                      "nullable":  true
+                      "nullable": true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14907,8 +14907,7 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal",
-                      "nullable": true
+                      "example": "disability compensation appeal"
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14942,7 +14941,7 @@
                     "claimTypeBase": {
                       "type": "string",
                       "description": "Base type of claim",
-                      "example": "compensation claim"
+                      "nullable": true
                     }
                   }
                 }
