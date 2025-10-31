@@ -30,6 +30,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
   end
   let(:auto_cest_pdf_generation_disabled) { false }
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
+  let(:middle_initial) { veteran.middle_name[0] }
 
   before do
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
@@ -77,7 +78,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         subject.send(:submit_form_526) # rubocop:disable Naming/VariableNumber
 
         expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async)
-          .with(claim.id, 'W') # 'W' here mimics the method call in the controller to pass just the middle initial
+          .with(claim.id, middle_initial)
       end
     end
   end
