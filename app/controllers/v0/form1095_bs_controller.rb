@@ -11,9 +11,8 @@ module V0
     def available_forms
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
         periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
-        years = periods.map do |period|
-          [period['startDate'].split('-').first.to_i, period['endDate'].split('-').first.to_i]
-        end.flatten.uniq
+        years = VeteranEnrollmentSystem::Form1095B::Form1095B.available_years(periods)
+        # last_updated is not used on front end.
         forms = years.map { |year| { year:, last_updated: nil } }
       else
         current_form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
@@ -22,6 +21,7 @@ module V0
       render json: { available_forms: forms }
     end
 
+    # these should probably have year limits on them with the new api to prevent people spamming in the inspector
     def download_pdf
       file_name = "1095B_#{tax_year}.pdf"
       send_data form.pdf_file, filename: file_name, type: 'application/pdf', disposition: 'inline'

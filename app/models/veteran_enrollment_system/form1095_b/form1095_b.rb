@@ -52,6 +52,23 @@ module VeteranEnrollmentSystem
         generate_pdf(pdftk, tmp_file)
       end
 
+      def self.available_years(periods)
+        years = periods.each_with_object([]) do |period, array|
+          start_date = period['startDate'].to_date.year
+          # if no end date, the user must still be enrolled
+          end_date = period['endDate']&.to_date&.year || Date.current.year
+          array << start_date
+          array << end_date
+          if (end_date - start_date) > 1
+            intermediate_years = (start_date..end_date).to_a - [start_date, end_date]
+            array.concat(intermediate_years)
+          end
+        end.uniq.sort
+        current_tax_year = Date.current.year - 1
+        three_years_prior = current_tax_year - 3
+        years.filter { |year| year >= three_years_prior && year <= current_tax_year }
+      end
+
       # there is some overlap in the data provided by coveredIndividual and responsibleIndividual.
       # in the VA enrollment system, they are always the same.
       def self.parse(form_data)
