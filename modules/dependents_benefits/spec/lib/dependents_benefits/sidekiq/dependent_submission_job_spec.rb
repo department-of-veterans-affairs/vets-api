@@ -20,6 +20,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
   before do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_submission_info)
     allow(job).to receive(:create_form_submission_attempt)
     allow(job).to receive(:find_or_create_form_submission)
   end
@@ -114,7 +115,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
   describe 'sidekiq_retries_exhausted callback' do
     it 'calls handle_permanent_failure' do
-      msg = { 'args' => [claim_id, proc_id] }
+      msg = { 'args' => [claim_id, proc_id], 'class' => job.class.name }
       exception = StandardError.new('Service failed')
 
       expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
