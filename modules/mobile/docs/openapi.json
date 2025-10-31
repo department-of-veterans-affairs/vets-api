@@ -13009,8 +13009,7 @@
                   "claimTypeBase": {
                     "type": "string",
                     "description": "Base type of claim",
-                    "example": "compensation claim",
-                    "nullable": true
+                    "example": "compensation claim"
                   },
                   "displayTitle": {
                     "type": "string",
@@ -14575,8 +14574,7 @@
               "claimTypeBase": {
                 "type": "string",
                 "description": "Base type of claim",
-                "example": "compensation claim",
-                "nullable": true
+                "example": "compensation claim"
               }
             }
           }
@@ -14770,8 +14768,7 @@
                     "claimTypeBase": {
                       "type": "string",
                       "description": "Base type of claim",
-                      "example": "compensation claim",
-                      "nullable": true
+                      "example": "compensation claim"
                     }
                   }
                 }
@@ -14944,7 +14941,6 @@
                     "claimTypeBase": {
                       "type": "string",
                       "description": "Base type of claim",
-                      "example": "compensation claim",
                       "nullable": true
                     }
                   }
