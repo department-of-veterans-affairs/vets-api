@@ -40,8 +40,9 @@ module SignIn
                        mhv_attributes(user_info)
                      end
 
-        digest = credential_attributes_digest(attributes)
-        attributes.merge(standard_attributes(user_info, credential_level)).merge(digest:)
+        attributes.merge(standard_attributes(user_info, credential_level)).tap do |attrs|
+          attrs[:digest] = credential_attributes_digest(attrs)
+        end
       end
 
       def token(code)

@@ -226,6 +226,8 @@ module Pensions
       #
       # @param form_data [Hash]
       #
+      # @return [void]
+      #
       # @note Modifies `form_data`
       #
       def expand(form_data)
