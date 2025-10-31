@@ -811,10 +811,6 @@ features:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
-  disability_526_toxic_exposure_opt_out_data_purge_by_user:
-    actor_type: user
-    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
-    enable_in_development: true
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
@@ -1909,6 +1905,10 @@ features:
   meb_auto_populate_relinquishment_date:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
+    enable_in_development: true
+  meb_parent_guardian_step:
+    actor_type: user
+    description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
     enable_in_development: true
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user
