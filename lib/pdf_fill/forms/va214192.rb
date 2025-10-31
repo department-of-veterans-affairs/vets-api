@@ -98,9 +98,9 @@ module PdfFill
       end
 
       def merge_amount_earned(emp_info)
-        return unless emp_info['amountEarnedLast12Months']
+        return unless emp_info['amountEarnedLast12MonthsOfEmployment']
 
-        amount = emp_info['amountEarnedLast12Months'].to_f
+        amount = emp_info['amountEarnedLast12MonthsOfEmployment'].to_f
         dollars = amount.floor
         cents = ((amount - dollars) * 100).round
 
@@ -112,7 +112,7 @@ module PdfFill
           'hundreds' => hundreds.to_s.rjust(3, '0'),
           'cents' => cents.to_s.rjust(2, '0')
         }
-        @form_data['employmentInformation']['amountEarnedLast12Months'] = amount_parts
+        @form_data['employmentInformation']['amountEarnedLast12MonthsOfEmployment'] = amount_parts
       end
 
       def merge_radio_buttons(emp_info)
