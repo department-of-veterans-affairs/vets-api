@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/routing_error'
-require 'sentry_logging'
 require_relative 'url_service'
 
 module SAML
@@ -12,8 +11,6 @@ module SAML
   # @see SAML::URLService
   #
   class PostURLService < URLService
-    include SentryLogging
-
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
