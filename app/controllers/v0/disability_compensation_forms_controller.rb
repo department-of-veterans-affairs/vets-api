@@ -77,7 +77,9 @@ module V0
       # if jid = 0 then the submission was prevented from going any further in the process
       submission = create_submission(saved_claim)
 
-      log_toxic_exposure_changes(saved_claim, submission) if should_log_toxic_exposure_changes?
+      if Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge, @current_user)
+        log_toxic_exposure_changes(saved_claim, submission)
+      end
 
       jid = 0
       # Feature flag to stop submission from being submitted to third-party service
@@ -272,11 +274,6 @@ module V0
 
     def toxic_exposure_dates_fix_enabled?
       Flipper.enabled?(:disability_compensation_temp_toxic_exposure_optional_dates_fix, @current_user)
-    end
-
-    def should_log_toxic_exposure_changes?
-      Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge, @current_user) ||
-        Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge_by_user, @current_user)
     end
 
     def monitor
