@@ -11,7 +11,7 @@ module IncreaseCompensation
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
       # Section configuration hash
       KEY = {}.freeze
-      def expand(form_data = {}) end;
+      def expand(form_data = {}) end
     end
   end
 end
