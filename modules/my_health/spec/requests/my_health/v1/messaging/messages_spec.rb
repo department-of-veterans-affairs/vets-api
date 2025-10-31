@@ -546,7 +546,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'filters aws url' do
-          span_double  = instance_double(Datadog::Tracing::Span)
+          span_double = instance_double(Datadog::Tracing::Span)
 
           allow(span_double).to receive(:set_tag)
           allow(span_double).to receive(:service=)
