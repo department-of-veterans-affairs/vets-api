@@ -659,6 +659,7 @@ module SM
       http.use_ssl = (uri.scheme == 'https')
       filtered_url = presigned_url.gsub(%r{(https://\S+)(/attachments/\d+/)\S+}, '\2[FILTERED]')
       Datadog::Tracing.active_span&.set_tag('http.url', filtered_url)
+      Datadog::Tracing.active_trace&.set_tag('http.url', filtered_url)
 
       request = Net::HTTP::Put.new(uri)
       request['Content-Type'] = file.content_type
