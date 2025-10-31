@@ -129,6 +129,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
       expect(result[0][:original_file_name]).to eq(supporting_doc_list[:data][:documents][0][:originalFileName])
       expect(result[0][:tracked_item_id]).to be_nil
       expect(result[0][:upload_date]).to eq('2024-07-16')
+      expect(result[0][:upload_date_time]).to eq('2024-07-16T18:59:08Z')
     end
   end
 
