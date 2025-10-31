@@ -186,10 +186,6 @@ module PdfFill
 
         # Fill the DATE_SIGNED field in the PDF
         @form_data['certification']['dateSigned'] = "#{date[:month]}/#{date[:day]}/#{date[:year]}"
-
-        # Signature text should already be set from form data
-        # It will be stamped onto the PDF via stamp_signature method
-        # Do not modify the signature field here - it's used for stamping, not PDF field filling
       end
 
       def merge_remarks
