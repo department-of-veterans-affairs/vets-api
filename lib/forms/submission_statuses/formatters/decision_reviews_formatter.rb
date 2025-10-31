@@ -82,9 +82,8 @@ module Forms
           return nil if date_string.nil?
 
           begin
-            # Decision Reviews API may return dates in different formats
             Time.zone.parse(date_string)
-          rescue
+          rescue ArgumentError
             nil
           end
         end

@@ -58,7 +58,7 @@ module Forms
           uuids = extract_uuids(submissions)
           response = fetch_bulk_status(uuids)
           process_response(response)
-        rescue => e
+        rescue => e # Catches BackendServiceException and Faraday errors
           handle_intake_error(e)
         end
 

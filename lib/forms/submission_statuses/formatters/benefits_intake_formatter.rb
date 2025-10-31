@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'forms/submission_statuses/pdf_urls'
-require_relative '../pdf_urls'
 require_relative 'base_formatter'
 
 module Forms

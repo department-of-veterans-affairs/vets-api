@@ -65,7 +65,7 @@ module Forms
           attributes = response.body.dig('data', 'attributes')
           status_record = build_secondary_status_record(secondary_form, attributes)
           secondary_statuses << status_record
-        rescue => e
+        rescue Common::Exceptions::BackendServiceException => e
           log_secondary_form_error(secondary_form, e)
         end
 
@@ -111,7 +111,7 @@ module Forms
           end
         rescue DecisionReviews::V1::ServiceException => e
           handle_decision_reviews_error(e, submission, statuses_data, errors)
-        rescue => e
+        rescue Common::Exceptions::BackendServiceException => e
           errors << error_handler.handle_error(status: 500, body: { error: e.message })
         end
 
