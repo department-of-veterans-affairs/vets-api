@@ -644,9 +644,7 @@ module VAOS
 
       def extract_binary_source(avs_resp)
         avs_resp.map do |avs|
-          if avs["binary"]&.is_a? Regexp
-            avs["binary"] = avs["binary"].source
-          end
+          avs['binary'] = avs['binary'].source if avs['binary'].is_a? Regexp
         end
       end
 

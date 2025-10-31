@@ -2213,10 +2213,12 @@ describe VAOS::V2::AppointmentsService do
         subject.send(:extract_binary_source, avs_pdf)
         expect(avs_pdf[0]['binary']).to eq(avs_bin_src)
       end
+
       it 'does not modify a non-regexp binary field' do
         subject.send(:extract_binary_source, avs_pdf_non_regexp_bin)
         expect(avs_pdf_non_regexp_bin[0]['binary']).to eq(non_regexp_bin)
       end
+
       it 'makes no changes when it cannot find binary field' do
         avs_pre_extraction = avs_pdf_no_bin
         subject.send(:extract_binary_source, [])
