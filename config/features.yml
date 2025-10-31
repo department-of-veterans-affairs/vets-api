@@ -36,11 +36,6 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
-  accredited_representative_portal_form_526ez:
-    actor_type: user
-    description: >
-      When enabled, shows form 526ez in the accredited representative portal.
-    enable_in_development: true
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
     description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
@@ -176,6 +171,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
+  event_bus_gateway_pension_email_template:
+    description: Toggle to enable pension email template in eventbus-gateway
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -321,6 +318,9 @@ features:
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
+  champva_send_ves_to_pega:
+    actor_type: user
+    description: Enables sending VES JSON to PEGA for form submissions
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
@@ -811,6 +811,10 @@ features:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge_by_user:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    enable_in_development: true
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
@@ -1153,10 +1157,6 @@ features:
   ha_cpap_supplies_cta:
     actor_type: user
     description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
-  in_progress_form_custom_expiration:
-    actor_type: user
-    description: Enable/disable custom expiration dates for forms
-    enable_in_development: true
   in_progress_form_reminder:
     actor_type: user
     description: Enable/disable in progress form reminders (sent via VaNotify)
@@ -2074,6 +2074,10 @@ features:
     actor_type: user
     description: Adds chiropractic to the list of services that can be direct scheduled.
     enable_in_development: true
+  va_online_scheduling_community_care_cancellations:
+    actor_type: user
+    description: Enables community care direct scheduled cancellations.
+    enable_in_development: true
   va_online_scheduling_use_vpg:
     actor_type: user
     enable_in_development: true
@@ -2090,6 +2094,12 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  va_online_scheduling_parallel_travel_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle to enable parallel fetching of appointments and travel claims in get_appointments.
+      When enabled, appointments and travel claims are fetched concurrently, reducing response time.
   va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
@@ -2282,7 +2292,6 @@ features:
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
-    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2608,6 +2617,10 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  tsa_safe_travel_letter:
+    actor_type: user
+    description: Enables displaying TSA Safe Travel Letter on Letters page
+    enable_in_development: true
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
@@ -2661,13 +2674,23 @@ features:
       Owned by Simple Forms API team.
   form_0779_enabled:
     actor_type: user
-    description: Enables form 21-0779 on vets-website 
+    enable_in_development: true
+    description: Enables form 21-0779 on vets-website
+  vre_eligibility_status_phase_2_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates for phase 2
   form_530a_enabled:
     actor_type: user
-    description: Enables form 21P-530a on vets-website 
+    enable_in_development: true
+    description: Enables form 21P-530a on vets-website
   form_4192_enabled:
     actor_type: user
-    description: Enables form 21-4192 on vets-website 
+    enable_in_development: true
+    description: Enables form 21-4192 on vets-website
   form_2680_enabled:
     actor_type: user
-    description: Enables form 21-2680 on vets-website 
+    enable_in_development: true
+    description: Enables form 21-2680 on vets-website
+  fetch_1095b_from_enrollment_system:
+    actor_type: user
+    description: Enables fetching of form 1095b from enrollment system instead of from local database

@@ -175,6 +175,8 @@ Rails.application.routes.draw do
 
     resources :efolder, only: %i[index show]
 
+    resources :tsa_letter, only: %i[index show]
+
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
@@ -200,6 +202,10 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
+    get 'openapi', to: 'open_api#index'
+
+    # Adds Swagger UI to /v0/swagger - serves Swagger 2.0 / OpenAPI 3.0 docs
+    mount Rswag::Ui::Engine => 'swagger'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
@@ -419,6 +425,7 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount SOB::Engine, at: '/sob'
   mount TravelPay::Engine, at: '/travel_pay'
   mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
