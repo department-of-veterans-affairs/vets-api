@@ -87,7 +87,7 @@ module IvcChampva
       signature = @data['statement_of_truth_signature']
 
       log_missing_stamp_data({
-                               'statement_of_truth_signature' => { value: signature }
+                               'statement_of_truth_signature' => { value: "blank: #{signature.is_blank?}" }
                              })
 
       [
