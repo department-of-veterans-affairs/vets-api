@@ -2744,6 +2744,48 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe '21-2680' do
+      let(:headers) do
+        {
+          '_headers' => {
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+          }
+        }
+      end
+
+      context 'submitting form212680 claim form' do
+        it 'successfully downloads form212680 pdf', skip: 'need apivore update to accept binary response' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form212680/download_pdf',
+            200,
+            headers.merge('_data' => {
+              'form' => VetsJsonSchema::EXAMPLES['21-2680']
+            }.to_json)
+          )
+        end
+
+        it 'handles 422' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form212680/download_pdf',
+            422,
+            headers.merge('_data' => { 'form' => { foo: :bar } }.to_json)
+          )
+        end
+
+        it 'handles 400' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form212680/download_pdf',
+            400,
+            headers.merge('_data' => {})
+          )
+        end
+      end
+    end
+
     describe 'form 21-0779 nursing home information' do
       let(:valid_form210779) do
         {
@@ -3273,6 +3315,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/form0969')
       subject.untested_mappings.delete('/v0/form210779/download_pdf')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
+      subject.untested_mappings.delete('/v0/form212680/download_pdf')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')

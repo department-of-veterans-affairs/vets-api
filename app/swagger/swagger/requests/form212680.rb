@@ -11,25 +11,31 @@ module Swagger
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::UnprocessableEntityError
           extend Swagger::Responses::InternalServerError
+          extend Swagger::Responses::BadRequestError
 
           key :description,
               'Generate and download a pre-filled 21-2680 PDF form ' \
               '(Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)'
           key :operationId, 'downloadForm212680Pdf'
           key :tags, %w[benefits_forms]
-          key :produces, ['application/pdf']
-
+          key :produces, ['application/pdf', 'application/json']
+          parameter :optional_authorization
           parameter do
             key :name, :form
             key :in, :body
             key :description, 'Form 21-2680 data for PDF generation'
             key :required, true
-            key :schema, VetsJsonSchema::SCHEMAS[FORM_ID]
+            schema do
+              VetsJsonSchema::SCHEMAS[FORM_ID]['properties']
+            end
           end
 
           response 200 do
             key :description, 'PDF file successfully generated and ready for download'
-            key :schema, type: :file
+
+            schema do
+              key :type, :file
+            end
           end
         end
       end
