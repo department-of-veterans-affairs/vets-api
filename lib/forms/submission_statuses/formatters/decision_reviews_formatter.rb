@@ -40,7 +40,7 @@ module Forms
               status: nil,
               created_at: submission.created_at,
               updated_at: nil,
-              pdf_support: false # DR and Benefits Intake API don't support pdf download urls yet
+              pdf_support: false # API doesn't support pdf download urls yet
             )
           end
         end
@@ -58,7 +58,7 @@ module Forms
             status: status['attributes']['status'],
             created_at: status['attributes']['created_at'],
             updated_at: status['attributes']['updated_at'],
-            pdf_support: false # DR and Benefits Intake API don't support pdf download urls yet
+            pdf_support: false # API doesn't support pdf download urls yet
           )
         end
 

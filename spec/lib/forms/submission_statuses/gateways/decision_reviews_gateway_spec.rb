@@ -172,8 +172,8 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
 
         status = statuses_data.first
         expect(status['attributes']['guid']).to eq(sc_claim.guid)
-        expect(status['attributes']['status']).to eq('received') # normalized from 'complete'
-        expect(status['attributes']['message']).to eq('received') # normalized message
+        expect(status['attributes']['status']).to eq('vbms') # normalized from 'complete'
+        expect(status['attributes']['message']).to eq('vbms') # normalized message
         expect(status['attributes']['detail']).to eq('Claim processed successfully')
       end
     end
@@ -197,7 +197,7 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
           .with(hlr_claim.guid).and_return(double(body: api_response))
       end
 
-      it 'calls get_higher_level_review and returns normalized status data' do
+      it 'calls get_higher_level_review and returns status data' do
         statuses_data, errors = subject.api_statuses(submissions)
 
         expect(decision_review_service).to have_received(:get_higher_level_review).with(hlr_claim.guid)
@@ -205,8 +205,8 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
         expect(statuses_data.size).to eq(1)
 
         status = statuses_data.first
-        expect(status['attributes']['status']).to eq('inProgress') # normalized from 'processing'
-        expect(status['attributes']['message']).to eq('inProgress') # normalized message
+        expect(status['attributes']['status']).to eq('processing') # passed through unchanged
+        expect(status['attributes']['message']).to eq('processing')
       end
     end
 
@@ -229,7 +229,7 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
           .with(nod_claim.guid).and_return(double(body: api_response))
       end
 
-      it 'calls get_notice_of_disagreement and returns normalized status data' do
+      it 'calls get_notice_of_disagreement and returns status data' do
         statuses_data, errors = subject.api_statuses(submissions)
 
         expect(decision_review_service).to have_received(:get_notice_of_disagreement).with(nod_claim.guid)
@@ -237,8 +237,8 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
         expect(statuses_data.size).to eq(1)
 
         status = statuses_data.first
-        expect(status['attributes']['status']).to eq('inProgress') # normalized from 'submitted'
-        expect(status['attributes']['message']).to eq('inProgress') # normalized message
+        expect(status['attributes']['status']).to eq('submitted') # passed through unchanged
+        expect(status['attributes']['message']).to eq('submitted')
       end
     end
 
@@ -325,8 +325,8 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
 
         # Check primary form status (normalized)
         primary_status = statuses_data.find { |s| s['attributes']['guid'] == sc_with_secondary.guid }
-        expect(primary_status['attributes']['status']).to eq('received') # normalized from 'complete'
-        expect(primary_status['attributes']['message']).to eq('received')
+        expect(primary_status['attributes']['status']).to eq('vbms') # normalized from 'complete'
+        expect(primary_status['attributes']['message']).to eq('vbms')
 
         # Check secondary form status (Benefits Intake - not normalized)
         secondary_status = statuses_data.find { |s| s['attributes']['guid'] == secondary_form.guid }
@@ -356,123 +356,38 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
     context 'status normalization behavior' do
       let(:submissions) { [sc_claim] }
 
-      it 'normalizes "pending" status to "inProgress"' do
-        api_response = build_api_response(status: 'pending')
-        allow(decision_review_service).to receive(:get_supplemental_claim)
-          .with(sc_claim.guid).and_return(double(body: api_response))
-
-        statuses_data, = subject.api_statuses(submissions)
-
-        expect(statuses_data.first['attributes']['status']).to eq('inProgress')
-        expect(statuses_data.first['attributes']['message']).to eq('inProgress')
-      end
-
-      it 'normalizes "submitting" status to "inProgress"' do
-        api_response = build_api_response(status: 'submitting')
-        allow(decision_review_service).to receive(:get_supplemental_claim)
-          .with(sc_claim.guid).and_return(double(body: api_response))
-
-        statuses_data, = subject.api_statuses(submissions)
-
-        expect(statuses_data.first['attributes']['status']).to eq('inProgress')
-      end
-
-      it 'normalizes "processing" status to "inProgress"' do
-        api_response = build_api_response(status: 'processing')
-        allow(decision_review_service).to receive(:get_supplemental_claim)
-          .with(sc_claim.guid).and_return(double(body: api_response))
-
-        statuses_data, = subject.api_statuses(submissions)
-
-        expect(statuses_data.first['attributes']['status']).to eq('inProgress')
-      end
-
-      it 'normalizes "submitted" status to "inProgress"' do
-        api_response = build_api_response(status: 'submitted')
-        allow(decision_review_service).to receive(:get_supplemental_claim)
-          .with(sc_claim.guid).and_return(double(body: api_response))
-
-        statuses_data, = subject.api_statuses(submissions)
-
-        expect(statuses_data.first['attributes']['status']).to eq('inProgress')
-      end
-
-      it 'normalizes "success" status to "inProgress"' do
-        api_response = build_api_response(status: 'success')
-        allow(decision_review_service).to receive(:get_supplemental_claim)
-          .with(sc_claim.guid).and_return(double(body: api_response))
-
-        statuses_data, = subject.api_statuses(submissions)
-
-        expect(statuses_data.first['attributes']['status']).to eq('inProgress')
-      end
-
-      it 'normalizes "complete" status to "received"' do
+      it 'normalizes "complete" status to "vbms"' do
         api_response = build_api_response(status: 'complete')
         allow(decision_review_service).to receive(:get_supplemental_claim)
           .with(sc_claim.guid).and_return(double(body: api_response))
 
         statuses_data, = subject.api_statuses(submissions)
 
-        expect(statuses_data.first['attributes']['status']).to eq('received')
+        expect(statuses_data.first['attributes']['status']).to eq('vbms')
       end
 
-      it 'normalizes "error" status to "expired"' do
-        api_response = build_api_response(status: 'error')
-        allow(decision_review_service).to receive(:get_supplemental_claim)
-          .with(sc_claim.guid).and_return(double(body: api_response))
+      it 'passes through other statuses unchanged' do
+        test_statuses = %w[pending submitting processing submitted success error expired]
 
-        statuses_data, = subject.api_statuses(submissions)
+        test_statuses.each do |status|
+          api_response = build_api_response(status:)
+          allow(decision_review_service).to receive(:get_supplemental_claim)
+            .with(sc_claim.guid).and_return(double(body: api_response))
 
-        expect(statuses_data.first['attributes']['status']).to eq('expired')
+          statuses_data, = subject.api_statuses(submissions)
+
+          expect(statuses_data.first['attributes']['status']).to eq(status)
+        end
       end
 
-      it 'normalizes unknown status to "expired"' do
-        api_response = build_api_response(status: 'unknown_status')
-        allow(decision_review_service).to receive(:get_supplemental_claim)
-          .with(sc_claim.guid).and_return(double(body: api_response))
-
-        statuses_data, = subject.api_statuses(submissions)
-
-        expect(statuses_data.first['attributes']['status']).to eq('expired')
-      end
-
-      it 'handles nil status by returning "expired"' do
+      it 'passes through nil status unchanged' do
         api_response = build_api_response(status: nil)
         allow(decision_review_service).to receive(:get_supplemental_claim)
           .with(sc_claim.guid).and_return(double(body: api_response))
 
         statuses_data, = subject.api_statuses(submissions)
 
-        expect(statuses_data.first['attributes']['status']).to eq('expired')
-      end
-
-      it 'maps all in-progress statuses correctly' do
-        in_progress_statuses = %w[pending submitting processing submitted success]
-
-        in_progress_statuses.each do |status|
-          api_response = build_api_response(status:)
-          allow(decision_review_service).to receive(:get_supplemental_claim)
-            .with(sc_claim.guid).and_return(double(body: api_response))
-
-          statuses_data, = subject.api_statuses(submissions)
-
-          expect(statuses_data.first['attributes']['status']).to eq('inProgress')
-        end
-      end
-
-      it 'maps error-like statuses to expired' do
-        error_statuses = %w[error failed rejected invalid]
-
-        error_statuses.each do |status|
-          api_response = build_api_response(status:)
-          allow(decision_review_service).to receive(:get_supplemental_claim)
-            .with(sc_claim.guid).and_return(double(body: api_response))
-
-          statuses_data, = subject.api_statuses(submissions)
-
-          expect(statuses_data.first['attributes']['status']).to eq('expired')
-        end
+        expect(statuses_data.first['attributes']['status']).to be_nil
       end
     end
   end

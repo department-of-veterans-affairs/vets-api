@@ -31,18 +31,11 @@ module Forms
         private
 
         # Normalize Decision Reviews API statuses to frontend-supported statuses
-        # Frontend supports: 'inProgress', 'received', 'expired'
+        # Frontend maps 'vbms' -> 'received', 'error' and 'expired' -> 'actionNeeded',
+        # and everything else to 'inProgress', so we only need to map 'complete'
+        # to 'vbms' to indicate form was successfully received
         def normalize_status(api_status)
-          case api_status&.downcase
-          when 'pending', 'submitting', 'processing', 'submitted', 'success'
-            'inProgress' # Submission in progress
-          when 'complete'
-            'received' # Successfully received and ready for processing
-          else
-            # Action needed - error occurred, or any nil or unknown statuses,
-            # default to expired to indicate action needed
-            'expired'
-          end
+          api_status&.downcase == 'complete' ? 'vbms' : api_status
         end
 
         def get_secondary_form_statuses(submission)

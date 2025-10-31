@@ -147,7 +147,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
   end
 
   context 'with my_va_display_all_lighthouse_benefits_intake_forms toggle enabled' do
-    # Making sure it passed the benefits_intake_gateway#subsmission_recent? check
+    # Making sure it passed the benefits_intake_gateway#submission_recent? check
     let(:two_days_ago) { 2.days.ago }
 
     before do
