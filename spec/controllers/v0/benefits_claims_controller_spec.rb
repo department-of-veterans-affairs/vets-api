@@ -196,6 +196,110 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(pension_claim['attributes']['claimTypeBase']).to eq('Veterans Pension claim')
       end
 
+      it 'handles claims with disability compensation codes correctly' do
+        # Create mock claims with disability compensation codes to verify the TitleGenerator mapping
+        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(
+          {
+            'data' => [
+              {
+                'id' => '123458',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => 'Compensation',
+                  'claimTypeCode' => '020NEW', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              },
+              {
+                'id' => '123459',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => nil,
+                  'claimTypeCode' => '110LCOMP7', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              },
+              {
+                'id' => '123460',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => 'Compensation',
+                  'claimTypeCode' => '010LCOMPBDD', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              }
+            ]
+          }
+        )
+
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+        claims = parsed_body['data']
+
+        # All three claims should get disability compensation title
+        claims.each do |claim|
+          expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
+          expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
+        end
+
+        # Verify we have all three claims
+        expect(claims.length).to eq(3)
+        expect(claims.map { |c| c['attributes']['claimTypeCode'] }).to contain_exactly('020NEW', '110LCOMP7', '010LCOMPBDD')
+      end
+
+      context 'disability compensation claim titles with flipper flag' do
+        let(:mock_disability_claim) do
+          {
+            'data' => [
+              {
+                'id' => '123461',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => 'Compensation',
+                  'claimTypeCode' => '020SUPP', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              }
+            ]
+          }
+        end
+
+        it 'sets correct disability compensation titles when flag is enabled' do
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(mock_disability_claim)
+
+          get(:index)
+          parsed_body = JSON.parse(response.body)
+          claim = parsed_body['data'].first
+
+          # With flag enabled, claimType should remain as-is
+          expect(claim['attributes']['claimType']).to eq('Compensation')
+          # But displayTitle and claimTypeBase should be set to disability compensation
+          expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
+          expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
+        end
+
+        it 'does not set displayTitle and claimTypeBase when flag is disabled' do
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(mock_disability_claim)
+
+          get(:index)
+          parsed_body = JSON.parse(response.body)
+          claim = parsed_body['data'].first
+
+          # When flag is disabled, the title generator is not invoked
+          # so displayTitle and claimTypeBase should not be present
+          expect(claim['attributes']['displayTitle']).to be_nil
+          expect(claim['attributes']['claimTypeBase']).to be_nil
+          # claimType should remain unchanged
+          expect(claim['attributes']['claimType']).to eq('Compensation')
+        end
+      end
+
       context 'when :cst_show_document_upload_status is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
