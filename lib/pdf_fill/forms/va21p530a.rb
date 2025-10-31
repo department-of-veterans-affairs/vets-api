@@ -23,11 +23,11 @@ module PdfFill
       SIGNATURE_PAGE = 1 # zero-indexed; 1 == page 2
       SIGNATURE_SIZE = 10
 
-      def merge_fields(_options = {})
+      def merge_fields(options = {})
         merge_veteran_info
         merge_service_periods
         merge_burial_info
-        merge_certification
+        merge_certification(options)
         merge_remarks
         @form_data
       end
@@ -174,8 +174,6 @@ module PdfFill
 
       def merge_certification(options = {})
         return unless @form_data['certification']
-
-        @form_data['certification']
 
         # Auto-generate DATE SIGNED (MM/DD/YYYY format)
         # The DATE_SIGNED field should be filled with the current date or creation date
