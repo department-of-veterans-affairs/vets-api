@@ -68,20 +68,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       end
     end
 
-    context 'with signature older than 60 days' do
-      let(:old_signature_form_data) do
-        valid_form_data['form']['veteranSignature']['date'] = 61.days.ago.to_date.to_s
-        valid_form_data
-      end
-
-      it 'returns 422 unprocessable entity', skip: 'upcoming feature' do
-        post(:download_pdf, params: old_signature_form_data, as: :json)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-    end
-
-    context 'when PDF generation fails', skip: 'upcoming feature' do
+    context 'when PDF generation fails' do
       before do
         allow_any_instance_of(SavedClaim::Form212680).to receive(:to_pdf)
           .and_raise(StandardError, 'PDF generation error')

@@ -15,15 +15,9 @@ module V0
       if claim.valid?
 
         claim.save!
+        pdf_path = claim.generate_prefilled_pdf
 
-        # stubbed - returns a static pdf for now
-        # pdf_path = claim.generate_prefilled_pdf
-        pdf_path = 'lib/pdf_fill/forms/pdfs/21-2680.pdf'
-        pdf_content = File.read(pdf_path)
-
-        # file_name_for_pdf(parsed_form, field, form_prefix)
-
-        send_data pdf_content,
+        send_data File.read(pdf_path),
                   filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
                   type: 'application/pdf',
                   disposition: 'attachment'
