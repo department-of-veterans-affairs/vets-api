@@ -631,7 +631,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           VCR.use_cassette('sm_client/messages/creates/status_sent') do
             VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
               post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
-                  params: params_with_attachments
+                   params: params_with_attachments
             end
           end
 
