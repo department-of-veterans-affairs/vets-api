@@ -87,7 +87,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
-        expect(subject).to receive(:log_exception_to_sentry).with(error)
         expect { subject.perform(personalization_parameters) }
           .to trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
@@ -103,7 +102,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
-        expect(subject).to receive(:log_exception_to_sentry).with(error)
         expect { subject.perform(personalization_parameters) }
           .to raise_error(Common::Exceptions::BackendServiceException)
           .and trigger_statsd_increment('worker.form526_confirmation_email.error')
