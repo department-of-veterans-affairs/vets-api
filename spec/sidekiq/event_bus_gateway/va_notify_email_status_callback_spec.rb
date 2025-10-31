@@ -257,15 +257,15 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
         end
       end
 
-      context 'business rule: max email attempts' do
+      context 'Business rule: Max email attempts set to 5.' do
         # This test exists because the previous max attempts was 16, which caused
         # production and staging performance issues due to database strain and job congestion.
         # Limiting to 5 attempts prevents excessive retries.
-        it 'enforces max email attempts of 5' do
+        it 'Enforces max email attempts of 5.' do
           expect(EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS).to eq(5)
         end
 
-        it 'logs exhausted retries on 5th attempt' do
+        it 'Logs exhausted retries on 5th attempt.' do
           allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
           allow(EventBusGateway::LetterReadyRetryEmailJob).to receive(:perform_in)
           allow(StatsD).to receive(:increment)
@@ -296,7 +296,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
           described_class.call(notification_record)
         end
 
-        it 'does not log exhausted retries at 4th attempt' do
+        it 'Does not log exhausted retries at 4th attempt' do
           allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
           allow(EventBusGateway::LetterReadyRetryEmailJob).to receive(:perform_in)
           allow(StatsD).to receive(:increment)
@@ -314,7 +314,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
 
           ebg_noti.update!(attempts: 4)
 
-          # Should NOT log exhausted retries at 5th attempt
+          # Should NOT log exhausted retries at 4th attempt
           expect(Rails.logger).not_to receive(:error).with(
             'EventBusGateway email retries exhausted',
             { ebg_notification_id: ebg_noti.id,
