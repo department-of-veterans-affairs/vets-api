@@ -32,6 +32,8 @@ module DependentsBenefits::Sidekiq
       claim_id, _proc_id = msg['args']
       # Use the actual job class from the message, not the class where callback is defined
       job_class = msg['class'].constantize
+      DependentsBenefits::Monitor.new.track_submission_info("Retries exhausted for #{job_class} claim_id #{claim_id}",
+                                                            'exhaustion')
       job_class.new.send(:handle_permanent_failure, claim_id, exception)
     end
 
@@ -46,6 +48,7 @@ module DependentsBenefits::Sidekiq
 
       find_or_create_form_submission
       create_form_submission_attempt
+
       @service_response = submit_to_service
 
       raise DependentSubmissionError, @service_response&.error unless @service_response&.success?
