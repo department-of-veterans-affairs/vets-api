@@ -247,7 +247,9 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         # Verify we have all three claims
         expect(claims.length).to eq(3)
-        expect(claims.map { |c| c['attributes']['claimTypeCode'] }).to contain_exactly('020NEW', '110LCOMP7', '010LCOMPBDD')
+        expect(claims.map do |c|
+          c['attributes']['claimTypeCode']
+        end).to contain_exactly('020NEW', '110LCOMP7', '010LCOMPBDD')
       end
 
       context 'disability compensation claim titles with flipper flag' do
