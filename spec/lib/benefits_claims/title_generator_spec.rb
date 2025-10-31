@@ -344,7 +344,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
       end
     end
 
-    describe 'CLAIM_FOR_DISABILITY_COMPENSATION_CODES' do
+    describe 'DISABILITY_COMPENSATION_CODES' do
       it 'contains the expected codes' do
         expected = %w[010INITMORE8 010LCOMP 010LCOMPBDD 020CLMINC 020NEW 020NI 020SUPP 110INITLESS8 110LCOMP7]
         expect(BenefitsClaims::TitleGenerator::DISABILITY_COMPENSATION_CODES).to eq(expected)
