@@ -36,7 +36,6 @@ FactoryBot.define do
     zip_code { '12345' }
     foreign_zip { '12345' }
     country { 'USA' }
-    is_beneficiary { false }
     is_corrected { false }
     coverage_months { Array.new(13, true) }
   end

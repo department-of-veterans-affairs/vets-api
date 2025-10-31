@@ -19,7 +19,6 @@ module VeteranEnrollmentSystem
       attribute :country, String
       attribute :zip_code, String
       attribute :foreign_zip, String
-      attribute :is_beneficiary, Bool, default: false
       attribute :is_corrected, Bool, default: false
       attribute :coverage_months, Array
       attribute :tax_year, String
@@ -34,10 +33,10 @@ module VeteranEnrollmentSystem
 
         template_file = File.open(txt_template_path, 'r')
         template_data = attributes.merge(txt_form_data)
-        rv = template_file.read % template_data.symbolize_keys
+        prepared_text = template_file.read % template_data.symbolize_keys
         template_file.close
 
-        rv
+        prepared_text
       end
 
       def pdf_file
@@ -69,8 +68,7 @@ module VeteranEnrollmentSystem
           country: form_data['data']['responsibleIndividual']['address']['country'],
           zip_code: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
           foreign_zip: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
-          is_beneficiary: form_data['data']['responsibleIndividual']['isBeneficiary'],
-          is_corrected: form_data['data']['responsibleIndividual']['isCorrected'],
+          is_corrected: false, # this will always be false at this time
           coverage_months: coverage_months(form_data),
           tax_year: form_data['data']['taxYear']
         }
@@ -115,8 +113,8 @@ module VeteranEnrollmentSystem
           corrected: is_corrected ? 'X' : '--'
         }
 
-        coverage_months.each_with_index do |val, ndx|
-          field_name = "coverage_month_#{ndx}"
+        coverage_months.each_with_index do |val, i|
+          field_name = "coverage_month_#{i}"
           text_data[field_name.to_sym] = val ? 'X' : '--'
         end
 

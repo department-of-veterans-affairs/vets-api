@@ -106,12 +106,12 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         expect(response.content_type).to eq('text/plain')
       end
 
-      xit 'throws 404 when form not found' do
+      it 'throws 404 when form not found' do
         get '/v0/form1095_bs/download_txt/2018'
         expect(response).to have_http_status(:not_found)
       end
 
-      xit 'throws 422 when no template exists for requested year' do
+      it 'throws 422 when no template exists for requested year' do
         create(:form1095_b, tax_year: 2018)
         get '/v0/form1095_bs/download_txt/2018'
         expect(response).to have_http_status(:unprocessable_entity)

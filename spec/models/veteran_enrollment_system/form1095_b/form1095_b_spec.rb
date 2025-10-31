@@ -42,7 +42,6 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
                                     'country' => 'USA',
                                     'zip_code' => '00676-0494',
                                     'foreign_zip' => '00676-0494',
-                                    'is_beneficiary' => false,
                                     'is_corrected' => false,
                                     'coverage_months' => [
                                       false,
@@ -67,47 +66,47 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
   describe '.coverage_months' do
     it 'sets coveredAll12Months correctly at start of return array' do
       data = { 'data' => { 'coveredIndividual' => { 'coveredAll12Months' => false, 'monthsCovered' => [] } } }
-      rv = described_class.coverage_months(data)
-      expect(rv[0]).to be(false)
+      result = described_class.coverage_months(data)
+      expect(result[0]).to be(false)
       data['data']['coveredIndividual']['coveredAll12Months'] = true
-      rv = described_class.coverage_months(data)
-      expect(rv[0]).to be(true)
+      result = described_class.coverage_months(data)
+      expect(result[0]).to be(true)
     end
 
     it 'sets covered months as expected' do
       data = { 'data' => { 'coveredIndividual' => { 'monthsCovered' => %w[MARCH SEPTEMBER] } } }
-      rv = described_class.coverage_months(data)
-      expect(rv[1..12]).to eq([nil, nil, 'MARCH', nil, nil, nil, nil, nil, 'SEPTEMBER', nil, nil, nil])
+      result = described_class.coverage_months(data)
+      expect(result[1..12]).to eq([nil, nil, 'MARCH', nil, nil, nil, nil, nil, 'SEPTEMBER', nil, nil, nil])
     end
   end
 
-  describe 'pdf_testing' do
-    describe 'valid pdf generation' do
+  describe '#pdf_file' do
+    context 'when template is present' do
       it 'generates pdf string for valid 1095_b' do
         expect(form1095b.pdf_file.class).to eq(String)
       end
     end
 
-    describe 'invalid PDF generation' do
+    context 'when template is not present' do
       let(:inv_year_form) { build(:enrollment_system_form1095_b, tax_year: 2008) }
 
-      it 'fails if no template PDF for the tax_year' do
+      it 'raises error' do
         expect { inv_year_form.pdf_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end
 
-  describe 'txt_testing' do
-    describe 'valid text file generation' do
+  describe '#txt_file' do
+    context 'when template is present' do
       it 'generates text string for valid 1095_b' do
         expect(form1095b.txt_file.class).to eq(String)
       end
     end
 
-    describe 'invalid txt generation' do
+    context 'when template is not present' do
       let(:inv_year_form) { build(:enrollment_system_form1095_b, tax_year: 2008) }
 
-      it 'fails if no template txt file for the tax_year' do
+      it 'raises error' do
         expect { inv_year_form.txt_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
