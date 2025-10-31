@@ -13009,12 +13009,13 @@
                   "displayTitle": {
                     "type": "string",
                     "description": "Formatted title for display",
-                    "example": "Claim for compensation"
+                    "example": "Claim for compensation",
+                    "nullable": true
                   },
                   "claimTypeBase": {
                     "type": "string",
                     "description": "Base type of claim",
-                    "nullable": true
+                    "example": "compensation claim"
                   }
                 }
               }
@@ -14538,7 +14539,8 @@
               "displayTitle": {
                 "type": "string",
                 "description": "Formatted title for display in mobile overview list",
-                "example": "disability compensation appeal"
+                "example": "disability compensation appeal",
+                "nullable":  true
               },
               "decisionLetterSent": {
                 "type": "boolean",
@@ -14572,7 +14574,7 @@
               "claimTypeBase": {
                 "type": "string",
                 "description": "Base type of claim",
-                "nullable": true
+                "example": "compensation claim"
               }
             }
           }
@@ -14730,7 +14732,8 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal"
+                      "example": "disability compensation appeal",
+                      "nullable":  true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14765,7 +14768,7 @@
                     "claimTypeBase": {
                       "type": "string",
                       "description": "Base type of claim",
-                      "nullable": true
+                      "example": "compensation claim"
                     }
                   }
                 }
@@ -14904,7 +14907,8 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal"
+                      "example": "disability compensation appeal",
+                      "nullable": true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14938,7 +14942,7 @@
                     "claimTypeBase": {
                       "type": "string",
                       "description": "Base type of claim",
-                      "nullable": true
+                      "example": "compensation claim"
                     }
                   }
                 }

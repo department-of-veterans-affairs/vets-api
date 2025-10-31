@@ -91,6 +91,7 @@
               }
             },
             "closeDate": { "type": ["string", "null"] },
+            "displayTitle": { "type": ["string", "null"] },
             "decisionLetterSent": { "type": "boolean" },
             "developmentLetterSent": { "type": "boolean" },
             "documentsNeeded": { "type": "boolean" },
