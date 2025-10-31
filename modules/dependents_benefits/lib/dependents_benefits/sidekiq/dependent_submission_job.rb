@@ -29,14 +29,20 @@ module DependentsBenefits::Sidekiq
 
     # Callback runs outside job context - must recreate instance state
     sidekiq_retries_exhausted do |msg, exception|
+      monitor = DependentsBenefits::Monitor.new
       claim_id, _proc_id = msg['args']
 
-      # Use the actual job class from the message, not the class where callback is defined
+      # Use the class of the inheriting job that exhausted, not the base class
       job_class_name = msg['class']
-      job_class = job_class_name.nil? ? self : job_class_name.constantize
+      monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion')
 
-      DependentsBenefits::Monitor.new.track_submission_info("Retries exhausted for #{job_class} claim_id #{claim_id}",
-                                                            'exhaustion')
+      # If we don't have a job class name, the error is irrecoverable
+      if job_class_name.blank?
+        monitor.log_silent_failure({ claim_id:, error: exception })
+        return
+      end
+
+      job_class = job_class_name.constantize
       job_class.new.send(:handle_permanent_failure, claim_id, exception)
     end
 
