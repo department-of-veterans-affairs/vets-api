@@ -11,7 +11,6 @@ module V0
     def available_forms
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
         periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
-        # StatsD.increment('api.user_has_no_1095b') if forms.empty?
         years = periods.map do |period|
           [period['startDate'].split('-').first.to_i, period['endDate'].split('-').first.to_i]
         end.flatten.uniq
@@ -19,7 +18,6 @@ module V0
       else
         current_form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
         forms = current_form.nil? ? [] : [{ year: current_form.tax_year, last_updated: current_form.updated_at }]
-        StatsD.increment('api.user_has_no_1095b') if forms.empty?
       end
       render json: { available_forms: forms }
     end
