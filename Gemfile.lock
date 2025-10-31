@@ -110,6 +110,7 @@ PATH
     facilities_api (0.1.0)
     income_and_assets (0.1.0)
     income_limits (0.1.0)
+    increase_compensation (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
     medical_expense_reports (0.1.0)
@@ -122,6 +123,7 @@ PATH
     pensions (0.1.0)
     representation_management (0.1.0)
     simple_forms_api (0.1.0)
+    sob (0.1.0)
     test_user_dashboard (0.1.0)
       rails
     travel_pay (0.1.0)
@@ -1318,6 +1320,7 @@ DEPENDENCIES
   ice_nine
   income_and_assets!
   income_limits!
+  increase_compensation!
   iso_country_codes
   ivc_champva!
   json
@@ -1417,6 +1420,7 @@ DEPENDENCIES
   simple_forms_api!
   simplecov
   slack-notify
+  sob!
   socksify
   staccato
   statsd-instrument

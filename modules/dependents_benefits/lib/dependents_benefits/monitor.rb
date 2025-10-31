@@ -19,6 +19,8 @@ module DependentsBenefits
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.dependents_benefits.submit_benefits_intake_claim'
 
+    BACKUP_JOB_STATS_KEY = 'app.dependents_benefits.submit_backup_job'
+
     PROCESSOR_STATS_KEY = 'api.dependents_benefits.claim_processor'
 
     PREFILL_STATS_KEY = 'api.dependents_benefits.prefill'
@@ -57,6 +59,21 @@ module DependentsBenefits
     def track_submission_error(message, action, **context)
       context = append_tags(context, action:)
       track_error_event(message, SUBMISSION_STATS_KEY, **context)
+    end
+
+    def track_backup_job_info(message, action, **context)
+      context = append_tags(context, action:)
+      track_info_event(message, BACKUP_JOB_STATS_KEY, **context)
+    end
+
+    def track_backup_job_warning(message, action, **context)
+      context = append_tags(context, action:)
+      track_warning_event(message, BACKUP_JOB_STATS_KEY, **context)
+    end
+
+    def track_backup_job_error(message, action, **context)
+      context = append_tags(context, action:)
+      track_error_event(message, BACKUP_JOB_STATS_KEY, **context)
     end
 
     def track_prefill_warning(message, action, **context)

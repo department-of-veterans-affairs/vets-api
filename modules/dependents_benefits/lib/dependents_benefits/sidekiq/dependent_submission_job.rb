@@ -196,6 +196,14 @@ module DependentsBenefits::Sidekiq
       parent_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     end
 
+    def mark_parent_group_processing
+      parent_group.update!(status: SavedClaimGroup::STATUSES[:PROCESSING])
+    end
+
+    def send_in_progress_notification
+      # TODO
+    end
+
     def send_success_notification
       # TODO
     end
@@ -205,7 +213,7 @@ module DependentsBenefits::Sidekiq
     end
 
     def send_backup_job
-      # TODO
+      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id, proc_id)
     end
 
     def current_group
