@@ -121,6 +121,14 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(disability_object[0]).not_to have_key(:diagnosticCode)
           expect(disability_object[0]).not_to have_key(:specialIssues)
         end
+
+        it "removes disabilities with disabilityActionType 'none'" do
+          form_data['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NONE'
+
+          disability_object = fes_data[:data][:form526][:disabilities]
+          # 2 disabilities sent
+          expect(disability_object.count).to eq(1)
+        end
       end
     end
   end
