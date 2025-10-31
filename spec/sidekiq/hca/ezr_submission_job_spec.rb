@@ -165,19 +165,6 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           expect(personal_information_log.data).to eq(form)
         end
 
-        it 'logs the error to Sentry' do
-          allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
-          expect(HCA::EzrSubmissionJob).not_to receive(:log_exception_to_rails)
-          expect(Form1010Ezr::Service).not_to receive(:log_submission_failure)
-          expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
-          expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
-            form,
-            '1010EZR failure',
-            'failure'
-          )
-          subject
-        end
-
         it 'logs the error to Rails' do
           allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
           expect(Form1010Ezr::Service).not_to receive(:log_submission_failure_to_sentry)
