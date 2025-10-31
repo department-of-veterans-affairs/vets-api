@@ -35,30 +35,6 @@ module Pensions
               key: 'form1[0].#subform[49].Spouses_Last_Name[0]'
             }
           },
-          # 6c
-          'spouseDateOfBirth' => {
-            'month' => {
-              key: 'form1[0].#subform[49].DOB_Month[0]'
-            },
-            'day' => {
-              key: 'form1[0].#subform[49].DOB_Day[0]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[49].DOB_Year[0]'
-            }
-          },
-          # 6d
-          'spouseSocialSecurityNumber' => {
-            'first' => {
-              key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_FirstThreeNumbers[0]'
-            },
-            'second' => {
-              key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_SecondTwoNumbers[0]'
-            },
-            'third' => {
-              key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_LastFourNumbers[0]'
-            }
-          },
           # 6e
           'dateOfMarriage' => {
             'month' => {
@@ -90,6 +66,30 @@ module Pensions
             question_label: 'Specify Type Of Marriage',
             question_text: 'SPECIFY TYPE OF MARRIAGE',
             key: 'form1[0].#subform[49].Other_Specify[0]'
+          }
+        },
+        # 6c
+        'spouseDateOfBirth' => {
+          'month' => {
+            key: 'form1[0].#subform[49].DOB_Month[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[49].DOB_Day[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[49].DOB_Year[0]'
+          }
+        },
+        # 6d
+        'spouseSocialSecurityNumber' => {
+          'first' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_FirstThreeNumbers[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_SecondTwoNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_LastFourNumbers[0]'
           }
         },
         # 6g
