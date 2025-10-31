@@ -50,17 +50,17 @@ class ClaimsEvidenceApi::SubmissionAttempt < SubmissionAttempt
   def fail!(error:)
     update(error_message: error&.message)
     failed!
-    monitor.track_request(:error, **tracking_attributes)
+    monitor.track_event(:fail, **tracking_attributes)
   end
 
   def pending!
     # update(status: :pending)
     pending!
-    monitor.track_request(:info, **tracking_attributes)
+    monitor.track_event(:pending, **tracking_attributes)
   end
 
   def success!
     accepted!
-    monitor.track_request(:info, **tracking_attributes)
+    monitor.track_event(:success, **tracking_attributes)
   end
 end

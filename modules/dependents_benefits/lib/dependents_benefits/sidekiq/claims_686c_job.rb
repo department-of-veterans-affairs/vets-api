@@ -16,16 +16,18 @@ module DependentsBenefits
 
         raise Invalid686cClaim unless saved_claim.valid?(:run_686_form_jobs)
 
+        ssn = user_data.dig('veteran_information', 'ssn')
+        participant_id = user_data.dig('veteran_information', 'participant_id')
+        icn = user_data.dig('veteran_information', 'icn')
+        ce_uploader = ClaimsEvidenceApi::Uploader.new(folder_identifier(ssn:, participant_id:, icn:))
         form_id = DependentsBenefits::ADD_REMOVE_DEPENDENT
         lighthouse_submission = DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(saved_claim, user_data)
         file_path = lighthouse_submission.process_pdf(
           saved_claim.to_pdf(form_id:),
           saved_claim.created_at, form_id
         )
-        @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{saved_claim.id}",
-                             "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])
 
-        claims_evidence_uploader.upload_evidence(
+        ce_uploader.upload_evidence(
           saved_claim.id,
           file_path:,
           form_id:,
@@ -84,8 +86,20 @@ module DependentsBenefits
         BGS::Job::FILTERED_ERRORS.any? { |filtered| error.message.include?(filtered) || error.cause&.message&.include?(filtered) }
       end
 
-      def claims_evidence_uploader
-        @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
+      # def claims_evidence_uploader
+      #   @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(saved_claim.folder_identifier)
+      # end
+
+      def folder_identifier(ssn:, participant_id:, icn:)
+        fid = 'VETERAN'
+        { ssn:, participant_id:, icn: }.each do |k, v|
+          if v.present?
+            fid += ":#{k.to_s.upcase}:#{v}"
+            break
+          end
+        end
+
+        fid
       end
     end
   end
