@@ -29,10 +29,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "310",
+                    "id": "312",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-10-31T15:57:17.891Z",
+                      "submitted_at": "2025-10-31T19:15:55.994Z",
                       "regional_office": [],
                       "confirmation_number": "12345678-1234-1234-1234-123456789abc",
                       "guid": "12345678-1234-1234-1234-123456789abc",
@@ -554,7 +554,7 @@
                       "regional_office": [],
                       "confirmation_number": "12345678-1234-1234-1234-123456789abc",
                       "guid": "12345678-1234-1234-1234-123456789abc",
-                      "form": "21-0779"
+                      "form": "21P-530a"
                     }
                   }
                 },
@@ -818,10 +818,10 @@
                         "description": "Title of state or tribal official delegated responsibility to apply for federal funds",
                         "example": "Director of Veterans Services"
                       },
-                      "dateSigned": {
+                      "signature": {
                         "type": "string",
-                        "format": "date",
-                        "example": "2024-01-15"
+                        "description": "Signature of state or tribal official",
+                        "example": "John Doe"
                       }
                     }
                   },
@@ -1057,10 +1057,10 @@
                         "description": "Title of state or tribal official delegated responsibility to apply for federal funds",
                         "example": "Director of Veterans Services"
                       },
-                      "dateSigned": {
+                      "signature": {
                         "type": "string",
-                        "format": "date",
-                        "example": "2024-01-15"
+                        "description": "Signature of state or tribal official",
+                        "example": "John Doe"
                       }
                     }
                   },

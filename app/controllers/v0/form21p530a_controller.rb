@@ -18,7 +18,7 @@ module V0
             regional_office: [],
             confirmation_number:,
             guid: confirmation_number,
-            form: '21-0779'
+            form: '21P-530a'
           }
         }
       }, status: :ok

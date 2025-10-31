@@ -145,10 +145,10 @@ module Openapi
                 description: 'Title of state or tribal official delegated responsibility to apply for federal funds',
                 example: 'Director of Veterans Services'
               },
-              dateSigned: {
+              signature: {
                 type: :string,
-                format: :date,
-                example: '2024-01-15'
+                description: 'Signature of state or tribal official',
+                example: 'John Doe'
               }
             }
           },
