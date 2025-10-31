@@ -265,7 +265,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
           expect(EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS).to eq(5)
         end
 
-        it 'allows up to 5 attempts and queues retry for each' do
+        it 'logs exhausted retries on 5th attempt' do
           allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
           allow(EventBusGateway::LetterReadyRetryEmailJob).to receive(:perform_in)
           allow(StatsD).to receive(:increment)
@@ -278,37 +278,10 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
 
           allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
 
-          notification_record = build(:notification, status: 'temporary-failure', notification_id: ebg_noti.va_notify_id)
+          notification_record = build(:notification, status: 'temporary-failure',
+                                                     notification_id: ebg_noti.va_notify_id)
 
-          5.times do |i|
-            ebg_noti.update!(attempts: i)
-            expect(EventBusGateway::LetterReadyRetryEmailJob).to receive(:perform_in).with(
-              1.hour,
-              mpi_profile.participant_id,
-              ebg_noti.template_id,
-              hash_including(:host, :first_name),
-              ebg_noti.id
-            )
-            described_class.call(notification_record)
-          end
-        end
-
-        it 'logs exhausted retries after 6th attempt' do
-          allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
-          allow(EventBusGateway::LetterReadyRetryEmailJob).to receive(:perform_in)
-          allow(StatsD).to receive(:increment)
-          allow(Rails.logger).to receive(:error)
-
-          mpi_profile = build(:mpi_profile)
-          mpi_profile_response = create(:find_profile_response, profile: mpi_profile)
-          user_account = create(:user_account, icn: mpi_profile_response.profile.icn)
-          ebg_noti = create(:event_bus_gateway_notification, user_account:, va_notify_id: SecureRandom.uuid)
-
-          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
-
-          notification_record = build(:notification, status: 'temporary-failure', notification_id: ebg_noti.va_notify_id)
-
-          ebg_noti.update!(attempts: 6)
+          ebg_noti.update!(attempts: 5)
 
           expect(EventBusGateway::LetterReadyRetryEmailJob).not_to receive(:perform_in)
           expect(Rails.logger).to receive(:error).with(
@@ -319,6 +292,34 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
           expect(StatsD).to receive(:increment)
             .with("#{described_class::STATSD_METRIC_PREFIX}.exhausted_retries",
                   tags: EventBusGateway::Constants::DD_TAGS)
+
+          described_class.call(notification_record)
+        end
+
+        it 'does not log exhausted retries at 4th attempt' do
+          allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
+          allow(EventBusGateway::LetterReadyRetryEmailJob).to receive(:perform_in)
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:error)
+
+          mpi_profile = build(:mpi_profile)
+          mpi_profile_response = create(:find_profile_response, profile: mpi_profile)
+          user_account = create(:user_account, icn: mpi_profile_response.profile.icn)
+          ebg_noti = create(:event_bus_gateway_notification, user_account:, va_notify_id: SecureRandom.uuid)
+
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
+
+          notification_record = build(:notification, status: 'temporary-failure',
+                                                     notification_id: ebg_noti.va_notify_id)
+
+          ebg_noti.update!(attempts: 4)
+
+          # Should NOT log exhausted retries at 5th attempt
+          expect(Rails.logger).not_to receive(:error).with(
+            'EventBusGateway email retries exhausted',
+            { ebg_notification_id: ebg_noti.id,
+              max_attempts: EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS }
+          )
 
           described_class.call(notification_record)
         end
