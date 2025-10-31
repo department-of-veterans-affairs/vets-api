@@ -13006,16 +13006,16 @@
                     "type": "string",
                     "example": "020NEW"
                   },
-                  "displayTitle": {
-                    "type": "string",
-                    "description": "Formatted title for display",
-                    "example": "Claim for compensation",
-                    "nullable": true
-                  },
                   "claimTypeBase": {
                     "type": "string",
                     "description": "Base type of claim",
                     "example": "compensation claim",
+                    "nullable": true,
+                  },
+                  "displayTitle": {
+                    "type": "string",
+                    "description": "Formatted title for display",
+                    "example": "Claim for compensation",
                     "nullable": true
                   }
                 }
@@ -14541,7 +14541,7 @@
                 "type": "string",
                 "description": "Formatted title for display in mobile overview list",
                 "example": "disability compensation appeal",
-                "nullable":  true
+                "nullable": true
               },
               "decisionLetterSent": {
                 "type": "boolean",
@@ -14735,7 +14735,7 @@
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
                       "example": "disability compensation appeal",
-                      "nullable":  true
+                      "nullable": true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14910,8 +14910,7 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal",
-                      "nullable": true
+                      "example": "disability compensation appeal"
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
