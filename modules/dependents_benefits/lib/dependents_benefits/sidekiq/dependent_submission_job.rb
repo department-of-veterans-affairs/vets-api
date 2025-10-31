@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq/job_retry'
+require 'dependents_benefits/monitor'
 
 module DependentsBenefits::Sidekiq
   ##
@@ -29,12 +30,16 @@ module DependentsBenefits::Sidekiq
     # Callback runs outside job context - must recreate instance state
     sidekiq_retries_exhausted do |msg, exception|
       claim_id, _proc_id = msg['args']
-      new.send(:handle_permanent_failure, claim_id, exception)
+      # Use the actual job class from the message, not the class where callback is defined
+      job_class = msg['class'].constantize
+      job_class.new.send(:handle_permanent_failure, claim_id, exception)
     end
 
     def perform(claim_id, proc_id = nil)
       @claim_id = claim_id
       @proc_id = proc_id
+
+      monitor.track_submission_info("Starting #{self.class} for claim_id #{claim_id}", 'start')
 
       # Early exit optimization - prevents unnecessary service calls
       return if parent_group_failed?
