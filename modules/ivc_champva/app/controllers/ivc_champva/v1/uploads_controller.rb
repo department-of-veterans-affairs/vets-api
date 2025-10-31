@@ -232,7 +232,7 @@ module IvcChampva
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-          log_message_to_sentry(sanitized_message, 'warn')
+          Rails.logger.warn(sanitized_message)
           has_pdf_err = true
         end
 
@@ -259,7 +259,7 @@ module IvcChampva
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-          log_message_to_sentry(sanitized_message, 'warn')
+          Rails.logger.warn(sanitized_message)
           has_pdf_err = true
         end
 
