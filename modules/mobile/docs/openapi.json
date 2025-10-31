@@ -13010,7 +13010,7 @@
                     "type": "string",
                     "description": "Base type of claim",
                     "example": "compensation claim",
-                    "nullable": true,
+                    "nullable": true
                   },
                   "displayTitle": {
                     "type": "string",
