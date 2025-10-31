@@ -298,6 +298,11 @@ dgi:
   jwt:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
+  sob:
+    jwt:
+      private_key_path: ~
+      public_ica11_rca2_key_path: ~
+      public_key_path: ~
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
