@@ -5,10 +5,10 @@ module BenefitsClaims
     # Title configuration for specific claim type codes
     Title = Struct.new(:display_title, :claim_type_base, keyword_init: true)
 
-    DISABILITY_COMPENSATION_TITLE = {
+    DISABILITY_COMPENSATION_TITLE = Title.new(
       display_title: 'Claim for disability compensation',
       claim_type_base: 'disability compensation claim'
-    }.freeze
+    ).freeze
 
     # Dependency claims (47 codes from addOrRemoveDependentClaimTypeCodes)
     DEPENDENCY_TITLE = Title.new(
@@ -88,10 +88,7 @@ module BenefitsClaims
 
       # Add Disability Compensation codes
       DISABILITY_COMPENSATION_CODES.each do |code|
-        mapping[code] = Title.new(
-          display_title: DISABILITY_COMPENSATION_TITLE[:display_title],
-          claim_type_base: DISABILITY_COMPENSATION_TITLE[:claim_type_base]
-        )
+        mapping[code] = DISABILITY_COMPENSATION_TITLE
       end
     end.freeze
 
@@ -121,7 +118,7 @@ module BenefitsClaims
         end
 
         # Priority 4: Return default for missing data (triggers frontend fallback)
-        DISABILITY_COMPENSATION_TITLE
+        DISABILITY_COMPENSATION_TITLE.to_h
       end
 
       def update_claim_title(claim)
