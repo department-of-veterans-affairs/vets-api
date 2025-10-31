@@ -47,8 +47,14 @@ module IvcChampva
       applicants = @data['applicants']
       return {} if applicants.blank?
 
+      applicant_key = if Flipper.enabled?(:champva_update_metadata_keys)
+                        'beneficiary'
+                      else
+                        'applicant'
+                      end
+
       applicants.each_with_index.with_object({}) do |(app, index), obj|
-        obj["applicant_#{index}"] = extract_applicant_properties(app).to_json
+        obj["#{applicant_key}_#{index}"] = extract_applicant_properties(app).to_json
       end
     end
 
@@ -136,7 +142,15 @@ module IvcChampva
     end
 
     def extract_applicant_properties(app)
-      app.symbolize_keys.slice(:applicant_ssn, :applicant_name, :applicant_dob)
+      applicant = app.symbolize_keys.slice(:applicant_ssn, :applicant_name, :applicant_dob)
+
+      if Flipper.enabled?(:champva_update_metadata_keys)
+        applicant[:beneficiary_ssn] = applicant.delete(:applicant_ssn)
+        applicant[:beneficiary_name] = applicant.delete(:applicant_name)
+        applicant[:beneficiary_dob] = applicant.delete(:applicant_dob)
+      end
+
+      applicant
     end
   end
 end
