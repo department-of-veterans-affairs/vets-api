@@ -189,17 +189,6 @@ module ClaimsApi
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
 
-          service =
-            if Flipper.enabled? :lighthouse_claims_api_v1_enable_FES
-              ClaimsApi::FesService::Base.new
-            elsif Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-              ClaimsApi::EVSSService::Base.new
-            elsif Flipper.enabled? :form526_legacy
-              EVSS::DisabilityCompensationForm::Service.new(auth_headers)
-            else
-              EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
-            end
-
           auto_claim = ClaimsApi::AutoEstablishedClaim.new(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
@@ -208,14 +197,7 @@ module ClaimsApi
             special_issues: special_issues_per_disability
           )
 
-          if Flipper.enabled? :lighthouse_claims_api_v1_enable_FES
-            claim_data = get_fes_data(auto_claim)
-            service.validate(auto_claim, claim_data)
-          elsif Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-            service.validate(auto_claim, auto_claim.to_internal)
-          else
-            service.validate_form526(auto_claim.to_internal)
-          end
+          validate_with_service(auto_claim)
 
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
 
@@ -322,6 +304,27 @@ module ClaimsApi
 
         def fes_service
           ClaimsApi::FesService::Base.new
+        end
+
+        def validate_with_service(auto_claim)
+          service = build_validation_service
+
+          if service.is_a?(ClaimsApi::FesService::Base)
+            service.validate(auto_claim,
+                             get_fes_data(auto_claim))
+          elsif service.is_a?(ClaimsApi::EVSSService::Base)
+            service.validate(auto_claim, auto_claim.to_internal)
+          else
+            service.validate_form526(auto_claim.to_internal)
+          end
+        end
+
+        def build_validation_service
+          return ClaimsApi::FesService::Base.new if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          return ClaimsApi::EVSSService::Base.new if Flipper.enabled?(:claims_status_v1_lh_auto_establish_claim_enabled)
+          return EVSS::DisabilityCompensationForm::Service.new(auth_headers) if Flipper.enabled?(:form526_legacy)
+
+          EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
         end
 
         def track_526_validation_errors(errors)

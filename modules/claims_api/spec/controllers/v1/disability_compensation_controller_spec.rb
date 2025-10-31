@@ -84,11 +84,11 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
   describe '#validate_form_526' do
     context 'using the FES validation' do
-      let(:fes_service) { instance_double(ClaimsApi::FesService::Base) }
+      let(:fes_service) { ClaimsApi::FesService::Base.new }
 
       before do
         allow(ClaimsApi::FesService::Base).to receive(:new).and_return(fes_service)
-        allow(fes_service).to receive(:validate).and_return(nil)
+        allow(fes_service).to receive(:validate).and_return(true)
         allow_any_instance_of(
           described_class
         ).to receive_messages(add_deprecation_headers_to_response: nil, validate_initial_claim: nil,
