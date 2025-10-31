@@ -553,8 +553,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           allow(span_double).to receive(:service=)
           allow(trace_double).to receive(:set_tag)
 
-          allow(Datadog::Tracing).to receive(:active_span).and_return(span_double)
-          allow(Datadog::Tracing).to receive(:active_trace).and_return(trace_double)
+          allow(Datadog::Tracing).to receive_messages(active_span: span_double, active_trace: trace_double)
 
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
