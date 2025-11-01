@@ -2,6 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 require 'unified_health_data/service'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   include JsonSchemaMatchers
@@ -64,6 +65,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
       context 'when UHD service returns prescriptions successfully' do
         it 'returns prescriptions with mobile-specific metadata' do
+          allow(UniqueUserEvents).to receive(:log_event)
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
 
@@ -74,13 +76,19 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(response.parsed_body['meta']).to have_key('prescriptionStatusCount')
             expect(response.parsed_body['meta']).to have_key('hasNonVaMeds')
 
-            # Verify that prescription data includes trackingInformation field as empty hash
+            # Verify that prescription data includes tracking field as empty array
             expect(response.parsed_body['data']).to be_an(Array)
             if response.parsed_body['data'].any?
               first_prescription = response.parsed_body['data'].first
-              expect(first_prescription['attributes']).to have_key('trackingInformation')
-              expect(first_prescription['attributes']['trackingInformation']).to eq({})
+              expect(first_prescription['attributes']).to have_key('tracking')
+              expect(first_prescription['attributes']['tracking']).to eq([])
             end
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+            )
           end
         end
 
@@ -101,10 +109,10 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
           let(:rx_va) do
             OpenStruct.new(
               id: 'rx-va-1',
-              refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 1,
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 5,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 30, expiration_date: nil,
               prescription_number: '123', prescription_name: 'VA MED', dispensed_date: nil, station_number: '500',
-              is_refillable: true, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              is_refillable: true, is_trackable: false, tracking: [], prescription_source: 'RX',
               instructions: 'Take daily', facility_phone_number: '555-555-5555'
             )
           end
@@ -114,7 +122,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 1,
               facility_name: 'NON VA', ordered_date: nil, quantity: 10, expiration_date: nil,
               prescription_number: 'NV1', prescription_name: 'NON VA MED', dispensed_date: nil, station_number: '600',
-              is_refillable: false, is_trackable: false, tracking_information: {}, prescription_source: 'NV',
+              is_refillable: false, is_trackable: false, tracking: [], prescription_source: 'NV',
               instructions: 'As needed', facility_phone_number: '555-000-0000'
             )
           end
@@ -147,7 +155,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               refill_remaining: 2,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 60, expiration_date: nil,
               prescription_number: '456', prescription_name: 'VA MED A', dispensed_date: nil, station_number: '500',
-              is_refillable: true, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              is_refillable: true, is_trackable: false, tracking: [], prescription_source: 'RX',
               instructions: 'Daily', facility_phone_number: '555-555-5555'
             )
           end
@@ -158,7 +166,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               refill_remaining: 0,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 15, expiration_date: nil,
               prescription_number: '789', prescription_name: 'VA MED B', dispensed_date: nil, station_number: '500',
-              is_refillable: false, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              is_refillable: false, is_trackable: false, tracking: [], prescription_source: 'RX',
               instructions: 'Bid', facility_phone_number: '555-555-5555'
             )
           end
@@ -244,6 +252,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
       context 'when refill is successful' do
         it 'returns success response for batch refill' do
+          allow(UniqueUserEvents).to receive(:log_event)
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             VCR.use_cassette('unified_health_data/refill_prescription_success') do
               put '/mobile/v1/health/rx/prescriptions/refill',
@@ -263,6 +272,12 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               expect(data['attributes']).to have_key('failedPrescriptionIds')
               expect(data['attributes']).to have_key('errors')
               expect(data['attributes']).to have_key('infoMessages')
+
+              # Verify event logging was called
+              expect(UniqueUserEvents).to have_received(:log_event).with(
+                user: anything,
+                event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+              )
             end
           end
         end

@@ -5,6 +5,7 @@ require 'lighthouse/veterans_health/models/immunization'
 require 'lighthouse/veterans_health/serializers/immunization_serializer'
 require 'common/client/errors'
 require 'common/exceptions'
+require 'unique_user_events'
 
 module MyHealth
   module V2
@@ -24,6 +25,15 @@ module MyHealth
 
           # Track the number of immunizations returned to the client
           StatsD.gauge("#{STATSD_KEY_PREFIX}.count", immunizations.length)
+
+          # Log unique user events for immunizations/vaccines accessed
+          UniqueUserEvents.log_events(
+            user: current_user,
+            event_names: [
+              UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+              UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
+            ]
+          )
 
           render json: { data: immunizations }
         rescue Common::Client::Errors::ClientError,

@@ -39,6 +39,19 @@ RSpec.describe 'V0::Appeals', type: :request do
           expect(response).to match_response_schema('appeals')
         end
       end
+
+      it 'allows null issue descriptions' do
+        VCR.use_cassette('caseflow/appeals') do
+          get appeals_endpoint
+          expect(response).to have_http_status(:ok)
+
+          response_data = JSON.parse(response.body)
+          # Add a null description to the first issue of the first appeal
+          response_data['data'].first['attributes']['issues'].first['description'] = nil
+          # Validate that the modified response still matches the schema
+          expect(response_data).to match_schema('appeals')
+        end
+      end
     end
 
     context 'with a not authorized response' do

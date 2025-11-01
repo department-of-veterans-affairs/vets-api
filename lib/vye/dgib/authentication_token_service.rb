@@ -4,6 +4,9 @@ module Vye
   module DGIB
     class AuthenticationTokenService
       ALGORITHM_TYPE = 'RS256'
+      # E & USE were provided by security team but may not be needed for JWT generation
+      # They're typically used for JWK (JSON Web Key) format, not JWT headers
+      # TODO: Check with security team if these can be removed
       E = 'AQAB'
       TYP = 'JWT'
       KID = 'vye'

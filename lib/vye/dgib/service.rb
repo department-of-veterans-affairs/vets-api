@@ -46,7 +46,7 @@ module Vye
           headers = request_headers
           options = { timeout: 60 }
           raw_response = perform(:get, claimant_status_end_point(claimant_id), {}, headers, options)
-          ClaimantStatusRecordResponse.new(raw_response.status, raw_response)
+          ClaimantStatusResponse.new(raw_response.status, raw_response)
         end
       end
 

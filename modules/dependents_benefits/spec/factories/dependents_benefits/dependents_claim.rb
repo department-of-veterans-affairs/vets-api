@@ -231,6 +231,8 @@ FactoryBot.define do
               is_biological_child_of_spouse: true,
               relationship_to_child: { stepchild: true },
               is_biological_child: false,
+              biological_parent_name: { first: 'bio', middle: 'log', last: 'cal' },
+              biological_parent_ssn: '000000000',
               does_child_have_permanent_disability: true,
               birth_location: {
                 location: {
@@ -292,6 +294,8 @@ FactoryBot.define do
               relationship_to_child: { adopted: true },
               is_biological_child: false,
               birth_location: { location: { state: 'NH', city: 'durham', postal_code: '03301' } },
+              biological_parent_name: { first: 'bio', middle: 'log', last: 'cal' },
+              biological_parent_ssn: '000000000',
               ssn: '987654321',
               full_name: { first: 'test', middle: 'middle', last: 'childfive' },
               birth_date: '2019-10-08',
@@ -363,7 +367,7 @@ FactoryBot.define do
             },
             student_income: true,
             ssn: '987654321',
-            is_parent: true,
+            relationship_to_student: 'biological',
             full_name: {
               first: 'test',
               middle: 'middle',
@@ -480,6 +484,17 @@ FactoryBot.define do
 
     form do
       {
+        'view:selectable686_options' => {
+          'add_spouse' => true,
+          'add_child' => true,
+          'report674' => true,
+          'add_disabled_child' => true,
+          'report_divorce' => true,
+          'report_death' => true,
+          'report_stepchild_not_in_household' => true,
+          'report_marriage_of_child_under18' => true,
+          'report_child18_or_older_is_not_attending_school' => true
+        },
         'veteran_information' => {
           'birth_date' => '1980-01-01',
           'full_name' => { 'first' => 'Mark', 'last' => 'Webb' },
@@ -533,68 +548,70 @@ FactoryBot.define do
           }],
           'days_till_expires' => 365,
           'privacy_agreement_accepted' => true,
-          'student_information' => {
-            'remarks' => 'test additional information',
-            'student_networth_information' => {
-              'savings' => '500',
-              'securities' => '400',
-              'real_estate' => '300',
-              'other_assets' => '200',
-              'total_value' => '1400'
-            },
-            'student_expected_earnings_next_year' => {
-              'earnings_from_all_employment' => '56000',
-              'annual_social_security_payments' => '0',
-              'other_annuities_income' => '145',
-              'all_other_income' => '50'
-            },
-            'student_earnings_from_school_year' => {
-              'earnings_from_all_employment' => '56000',
-              'annual_social_security_payments' => '0',
-              'other_annuities_income' => '123',
-              'all_other_income' => '20'
-            },
-            'claims_or_receives_pension' => true,
-            'school_information' => {
-              'last_term_school_information' => {
-                'term_begin' => '2024-01-01',
-                'date_term_ended' => '2024-03-05'
+          'student_information' => [
+            {
+              'remarks' => 'test additional information',
+              'student_networth_information' => {
+                'savings' => '500',
+                'securities' => '400',
+                'real_estate' => '300',
+                'other_assets' => '200',
+                'total_value' => '1400'
               },
-              'student_did_attend_school_last_term' => true,
-              'current_term_dates' => {
-                'official_school_start_date' => '2025-01-01',
-                'expected_student_start_date' => '2025-01-02',
-                'expected_graduation_date' => '2026-03-01'
+              'student_expected_earnings_next_year' => {
+                'earnings_from_all_employment' => '56000',
+                'annual_social_security_payments' => '0',
+                'other_annuities_income' => '145',
+                'all_other_income' => '50'
               },
-              'is_school_accredited' => true,
-              'student_is_enrolled_full_time' => true,
-              'name' => 'name of trade program'
-            },
-            'benefit_payment_date' => '2024-03-01',
-            'type_of_program_or_benefit' => { 'ch35' => true, 'fry' => true, 'feca' => true, 'other' => true },
-            'other_program_or_benefit' => 'all the programs!',
-            'tuition_is_paid_by_gov_agency' => true,
-            'marriage_date' => '2024-03-03',
-            'was_married' => true,
-            'address' => {
-              'country' => 'USA',
-              'street' => '123 fake street',
-              'street2' => 'line2',
-              'street3' => 'line3',
-              'city' => 'portland',
-              'state' => 'ME',
-              'postal_code' => '04102'
-            },
-            'student_income' => true,
-            'ssn' => '987654321',
-            'is_parent' => true,
-            'full_name' => {
-              'first' => 'test',
-              'middle' => 'middle',
-              'last' => 'student'
-            },
-            'birth_date' => '2005-01-01'
-          }
+              'student_earnings_from_school_year' => {
+                'earnings_from_all_employment' => '56000',
+                'annual_social_security_payments' => '0',
+                'other_annuities_income' => '123',
+                'all_other_income' => '20'
+              },
+              'claims_or_receives_pension' => true,
+              'school_information' => {
+                'last_term_school_information' => {
+                  'term_begin' => '2024-01-01',
+                  'date_term_ended' => '2024-03-05'
+                },
+                'student_did_attend_school_last_term' => true,
+                'current_term_dates' => {
+                  'official_school_start_date' => '2025-01-01',
+                  'expected_student_start_date' => '2025-01-02',
+                  'expected_graduation_date' => '2026-03-01'
+                },
+                'is_school_accredited' => true,
+                'student_is_enrolled_full_time' => true,
+                'name' => 'name of trade program'
+              },
+              'benefit_payment_date' => '2024-03-01',
+              'type_of_program_or_benefit' => { 'ch35' => true, 'fry' => true, 'feca' => true, 'other' => true },
+              'other_program_or_benefit' => 'all the programs!',
+              'tuition_is_paid_by_gov_agency' => true,
+              'marriage_date' => '2024-03-03',
+              'was_married' => true,
+              'address' => {
+                'country' => 'USA',
+                'street' => '123 fake street',
+                'street2' => 'line2',
+                'street3' => 'line3',
+                'city' => 'portland',
+                'state' => 'ME',
+                'postal_code' => '04102'
+              },
+              'student_income' => true,
+              'ssn' => '987654321',
+              'relationship_to_student' => 'biological',
+              'full_name' => {
+                'first' => 'test',
+                'middle' => 'middle',
+                'last' => 'student'
+              },
+              'birth_date' => '2005-01-01'
+            }
+          ]
         }
       }.to_json
     end
@@ -776,6 +793,8 @@ FactoryBot.define do
               'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childtwo' },
               'birth_date' => '2009-04-05',
               'date_entered_household' => '2024-05-04',
+              'biological_parent_name' => { 'first' => 'bio', 'middle' => 'log', 'last' => 'cal' },
+              'biological_parent_ssn' => '000000000',
               'school_age_in_school' => false
             },
             {
@@ -818,7 +837,9 @@ FactoryBot.define do
               'ssn' => '987654321',
               'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childfive' },
               'birth_date' => '2019-10-08',
-              'school_age_in_school' => false
+              'school_age_in_school' => false,
+              'biological_parent_name' => { 'first' => 'bio', 'middle' => 'log', 'last' => 'cal' },
+              'biological_parent_ssn' => '000000000'
             },
             {
               'income_in_last_year' => false,
@@ -913,6 +934,17 @@ FactoryBot.define do
             'ssn' => '987654321',
             'birth_date' => '2005-05-01'
           }]
+        },
+        'view:selectable686_options' => {
+          'add_spouse' => true,
+          'add_child' => true,
+          'report674' => true,
+          'add_disabled_child' => true,
+          'report_divorce' => true,
+          'report_death' => true,
+          'report_stepchild_not_in_household' => true,
+          'report_marriage_of_child_under18' => true,
+          'report_child18_or_older_is_not_attending_school' => true
         }
       }.to_json
     end

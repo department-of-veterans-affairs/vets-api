@@ -25,7 +25,6 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
     bb_internal_client = BBInternal::Client.new(
       session: {
         user_id:,
-        icn: '1012740022V620959',
         patient_id: '11382904',
         expires_at: 1.hour.from_now,
         token: '<SESSION_TOKEN>'

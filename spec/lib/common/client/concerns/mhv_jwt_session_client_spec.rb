@@ -9,13 +9,13 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
     Class.new do
       include Common::Client::Concerns::MHVJwtSessionClient
 
-      # This will override the initialize method in the mixin
-      def initialize(session: nil)
-        @session = session
-      end
+      attr_reader :session
+      attr_reader :icn
 
-      def session
-        @session || OpenStruct.new(user_uuid: '12345', icn: 'ABC')
+      # This will override the initialize method in the mixin
+      def initialize(session:, icn: nil)
+        @session = session
+        @icn = icn
       end
 
       def config
@@ -24,45 +24,26 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
     end
   end
 
-  let(:dummy_instance) { dummy_class.new(session: session_data) }
+  let(:session_data) { OpenStruct.new(user_uuid: '12345') }
+  let(:icn_value) { 'ABC' }
+  let(:dummy_instance) { dummy_class.new(session: session_data, icn: icn_value) }
 
   describe '#user_key' do
-    let(:session_data) { OpenStruct.new(user_uuid: '12345', icn: 'ABC') }
-
-    context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_uuid_for_jwt_session_locking).and_return(true)
-      end
-
-      it 'returns the user UUID' do
-        user_key = dummy_instance.send(:user_key)
-        expect(user_key).to eq('12345')
-      end
-    end
-
-    context 'when feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_uuid_for_jwt_session_locking).and_return(false)
-      end
-
-      it 'returns the user ICN' do
-        user_key = dummy_instance.send(:user_key)
-        expect(user_key).to eq('ABC')
-      end
+    it 'returns the user UUID' do
+      user_key = dummy_instance.send(:user_key)
+      expect(user_key).to eq('12345')
     end
   end
 
   describe '#validate_session_params' do
     context 'when icn and app_token are present' do
-      let(:session_data) { OpenStruct.new(icn: 'ABC') }
-
       it 'does not raise any exception' do
         expect { dummy_instance.send(:validate_session_params) }.not_to raise_error
       end
     end
 
     context 'when icn is missing' do
-      let(:session_data) { OpenStruct.new(icn: nil) }
+      let(:icn_value) { nil }
 
       it 'raises a ParameterMissing exception for user_id' do
         expect { dummy_instance.send(:validate_session_params) }
@@ -71,8 +52,6 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
     end
 
     context 'when app_token is missing' do
-      let(:session_data) { OpenStruct.new(icn: 'ABC') }
-
       before do
         mocked_config = OpenStruct.new(app_token: nil)
         allow(dummy_instance).to receive(:config).and_return(mocked_config)
@@ -86,8 +65,6 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
   end
 
   describe '#get_jwt_from_headers' do
-    let(:session_data) { OpenStruct.new(icn: 'ABC') }
-
     context 'when authorization header is properly formatted' do
       it 'returns the JWT token' do
         headers = { 'x-amzn-remapped-authorization' => 'Bearer sample.jwt.token' }
@@ -114,7 +91,6 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
   end
 
   describe '#decode_jwt_token' do
-    let(:session_data) { OpenStruct.new(icn: 'ABC') }
     let(:valid_jwt_token) { 'valid.jwt.token' }
     let(:invalid_jwt_token) { 'invalidToken' }
 

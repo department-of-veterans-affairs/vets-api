@@ -2,17 +2,15 @@
 
 module Logging
   module ThirdPartyTransaction
+    # include to wrap methods in logging functions
     module MethodWrapper
-      # @method_names
-      #   - Array (of /or single) method name(s). e.g. ['method_1', :method_2]
-      # @additional_class_logs
-      #   - Will add to and / or overwrite the default data with usecase specific
-      #     log data
+      # @param method_names [Array<String|Symbol>] method names; e.g. ['method_1', :method_2]
+      # @param additional_class_logs [Hash]
+      #   - Will add to and / or overwrite the default data with usecase specific log data
       #   - scoped to the class, will be available at instantiation
       #   - [ KEY ]: log identifier, [ VALUE ]: log value
-      # @additional_instance_logs
-      #   - Will add to and / or overwrite the default data with usecase specific
-      #     log data
+      # @param additional_instance_logs [Hash]
+      #   - Will add to and / or overwrite the default data with usecase specific log data
       #   - scoped to the class, will be available at instantiation
       #   - [ KEY ]: log identifier, [ VALUE ]: method chain to access desired instance value
       #     - passed as an array, e.g. [:foo, :bar] will be called as <instance>.foo.bar
@@ -44,6 +42,7 @@ module Logging
     # these will be included after instance instantiation, making them available
     # to the instance and retaining their scope.
     module ScopedInstanceMethods
+      # log begin
       def log_3pi_begin(method_name, additional_class_logs, additional_instance_logs)
         @start_time = Time.current
 
@@ -61,6 +60,7 @@ module Logging
         Rails.logger.error(e)
       end
 
+      # log complete
       def log_3pi_complete(method_name, additional_class_logs, additional_instance_logs)
         now = Time.current
 
@@ -79,14 +79,15 @@ module Logging
         Rails.logger.error(e)
       end
 
+      # default logs to include
       def default_logs
         {
           process_id: Process.pid
         }
       end
 
+      # call method chains on instance and return a hash of values
       def parse_instance_logs(additional_instance_logs)
-        # call method chains on instance and return a hash of values, e.g.
         # HAPPY PATH (where my_instance.user_account.id == s0meUs3r-Id-V@Lu3')
         # { user_uuid: [:user_account, :id] }
         # will be translated to

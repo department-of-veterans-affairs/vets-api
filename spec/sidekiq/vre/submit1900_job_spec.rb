@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vre/notification_email'
+require 'vre/notification_callback'
+require 'vre/vre_monitor'
 
 describe VRE::Submit1900Job do
   let(:user_struct) do
@@ -26,89 +29,76 @@ describe VRE::Submit1900Job do
     { 'args' => [], 'class' => 'VRE::Submit1900Job', 'error_message' => 'An error occurred',
       'queue' => 'default' }
   end
+  let(:claim) { create(:veteran_readiness_employment_claim) }
 
-  %w[v1 v2].each do |form_type|
-    context "with #{form_type}" do
-      describe '#perform' do
-        subject { described_class.new.perform(claim.id, encrypted_user) }
+  describe '#perform' do
+    subject { described_class.new.perform(claim.id, encrypted_user) }
 
-        let(:claim) { create_claim(form_type) }
+    before do
+      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+    end
 
-        before do
-          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-        end
+    after do
+      subject
+    end
 
-        after do
-          subject
-        end
+    it 'calls claim.add_claimant_info' do
+      allow(claim).to receive(:send_to_lighthouse!)
+      allow(claim).to receive(:send_to_res)
 
-        it 'calls claim.add_claimant_info' do
-          allow(claim).to receive(:send_to_lighthouse!)
-          allow(claim).to receive(:send_to_res)
+      expect(claim).to receive(:add_claimant_info).with(user)
+    end
 
-          expect(claim).to receive(:add_claimant_info).with(user)
-        end
-
-        it 'calls claim.send_to_vre' do
-          expect(claim).to receive(:send_to_vre).with(user)
-        end
-      end
-
-      describe 'raises an exception with email flipper on' do
-        let(:claim) { create_claim(form_type) }
-
-        before do
-          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-          allow(VRE::Monitor).to receive(:new).and_return(monitor)
-          allow(monitor).to receive :track_submission_exhaustion
-          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
-        end
-
-        it 'when queue is exhausted' do
-          VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-            exhaustion_msg['args'] = [claim.id, encrypted_user]
-            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
-            expect(VANotify::EmailJob).to receive(:perform_async).with(
-              form_type == 'v1' ? 'test@gmail.xom' : 'email@test.com',
-              'form1900_action_needed_email_template_id',
-              {
-                'first_name' => form_type == 'v1' ? 'Homer' : 'First',
-                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-                'confirmation_number' => claim.confirmation_number
-              }
-            )
-          end
-        end
-      end
-
-      describe 'raises an exception with no email' do
-        let(:claim) { create_claim(form_type) }
-
-        before do
-          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-          allow(VRE::Monitor).to receive(:new).and_return(monitor)
-          allow(monitor).to receive :track_submission_exhaustion
-          user_struct.va_profile_email = nil
-          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
-        end
-
-        it 'when queue is exhausted with no email' do
-          VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-            expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-            exhaustion_msg['args'] = [claim.id, encrypted_user]
-            allow(claim).to receive(:email).and_return(nil)
-            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
-          end
-        end
-      end
+    it 'calls claim.send_to_vre' do
+      expect(claim).to receive(:send_to_vre).with(user)
     end
   end
 
-  def create_claim(form_type)
-    if form_type == 'v1'
-      create(:veteran_readiness_employment_claim)
-    else
-      create(:new_veteran_readiness_employment_claim)
+  describe 'queue exhaustion' do
+    before do
+      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+    end
+
+    describe 'with feature toggle vre_use_new_vfs_notification_library enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:vre_use_new_vfs_notification_library).and_return(true)
+      end
+
+      it 'sends a failure email when retries are exhausted' do
+        notification_email = double('notification_email')
+        expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+        expect(notification_email).to receive(:deliver).with(SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE)
+
+        VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+          exhaustion_msg['args'] = [claim.id, encrypted_user]
+        end
+      end
+    end
+
+    describe 'with feature toggle disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:vre_use_new_vfs_notification_library).and_return(false)
+        allow(VRE::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive :track_submission_exhaustion
+      end
+
+      it 'sends a failure email' do
+        VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+          exhaustion_msg['args'] = [claim.id, encrypted_user]
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.email)
+          expect(VANotify::EmailJob).to receive(:perform_async).with(
+            'email@test.com',
+            'form1900_action_needed_email_template_id',
+            {
+              'first_name' => 'First',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => claim.confirmation_number
+            }
+          )
+        end
+      end
     end
   end
 end
