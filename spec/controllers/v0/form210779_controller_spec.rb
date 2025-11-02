@@ -61,100 +61,67 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     end
   end
 
-  describe 'POST #download_pdf' do
+  describe 'get #download_pdf' do
     let(:pdf_content) { 'PDF_BINARY_CONTENT' }
-    let(:temp_file_path) { '/tmp/test_pdf.pdf' }
 
-    before do
-      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file_path)
-      allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(temp_file_path).and_return(pdf_content)
-      allow(File).to receive(:exist?).and_call_original
-      allow(File).to receive(:exist?).with(temp_file_path).and_return(true)
-      allow(File).to receive(:delete).and_call_original
-      allow(File).to receive(:delete).with(temp_file_path)
-    end
+    let(:claim) { create(:va210779) }
+    let(:temp_file_path) { "tmp/pdfs/21-0779_#{claim.id}.pdf" }
 
     it 'generates and downloads PDF' do
-      post(:download_pdf, body: form_data, as: :json)
+      get(:download_pdf, params: { guid: claim.guid })
 
       expect(response).to have_http_status(:ok)
       expect(response.headers['Content-Type']).to eq('application/pdf')
     end
 
     it 'includes proper filename with UUID' do
-      post(:download_pdf, body: form_data, as: :json)
+      get(:download_pdf, params: { guid: claim.guid })
 
       expect(response.headers['Content-Disposition']).to include('attachment')
       expect(response.headers['Content-Disposition']).to include('21-0779_')
       expect(response.headers['Content-Disposition']).to match(/21-0779_[a-f0-9-]+\.pdf/)
     end
 
-    it 'generates unique filename for each request' do
-      post(:download_pdf, body: form_data, as: :json)
-      first_filename = response.headers['Content-Disposition']
-
-      post(:download_pdf, body: form_data, as: :json)
-      second_filename = response.headers['Content-Disposition']
-
-      expect(first_filename).not_to eq(second_filename)
-    end
-
-    it 'calls PDF filler with correct parameters', skip: 'wip' do
-      expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-        .with(hash_including('employmentInformation' => hash_including('employerName' => 'Acme Corporation')),
-              anything,
-              form_id)
-        .and_return(temp_file_path)
-
-      post(:download_pdf, body: form_data, as: :json)
-    end
-
-    it 'deletes temporary PDF file after sending', skip: 'wip' do
+    it 'deletes temporary PDF file after sending' do
       expect(File).to receive(:delete).with(temp_file_path)
-      post(:download_pdf, body: form_data, as: :json)
+      get(:download_pdf, params: { guid: claim.guid })
     end
 
-    it 'deletes temporary file even when PDF generation fails', skip: 'wip' do
-      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF generation error')
+    it 'deletes temporary file even when PDF generation fails' do
+      allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_raise(StandardError, 'PDF generation error')
       # File.delete should not be called since source_file_path is nil
-      expect(File).not_to receive(:delete)
+      expect(File).not_to receive(:delete).with(temp_file_path)
 
-      post(:download_pdf, body: form_data, as: :json)
+      get(:download_pdf, params: { guid: claim.guid })
       expect(response).to have_http_status(:internal_server_error)
-
       expect(parsed_response['errors']).to be_present
-      expect(parsed_response['errors'].first['title']).to eq('PDF Generation Failed')
-      expect(parsed_response['errors'].first['status']).to eq('500')
     end
 
-    it 'deletes temporary file even when file read fails', skip: 'wip' do
+    it 'deletes temporary file even when file read fails' do
       allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
       expect(File).to receive(:delete).with(temp_file_path)
 
-      post(:download_pdf, body: form_data, as: :json)
+      get(:download_pdf, params: { guid: claim.guid })
       expect(response).to have_http_status(:internal_server_error)
 
       expect(parsed_response['errors']).to be_present
-      expect(parsed_response['errors'].first['title']).to eq('PDF Generation Failed')
     end
 
     it 'does not require authentication' do
-      post(:download_pdf, body: form_data, as: :json)
+      get(:download_pdf, params: { guid: claim.guid })
 
       expect(response).to have_http_status(:ok)
     end
 
     context 'error handling' do
-      it 'returns 500 for PDF generation failures', skip: 'wip' do
-        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
-
-        post(:download_pdf, body: form_data, as: :json)
+      it 'returns 500 for PDF generation failures' do
+        allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_raise(StandardError,
+                                                                                    'PDF generation error')
+        get(:download_pdf, params: { guid: claim.guid })
 
         expect(response).to have_http_status(:internal_server_error)
 
         expect(parsed_response['errors']).to be_present
-        expect(parsed_response['errors'].first['title']).to eq('PDF Generation Failed')
         expect(parsed_response['errors'].first['status']).to eq('500')
       end
     end

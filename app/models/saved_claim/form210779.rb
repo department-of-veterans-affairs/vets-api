@@ -5,7 +5,17 @@ class SavedClaim::Form210779 < SavedClaim
 
   def process_attachments!
     # Form 21-0779 does not support attachments in MVP
-    # Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
+    Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
+  end
+
+  # Required for Lighthouse Benefits Intake API submission
+  # CMP = Compensation (for disability claims)
+  def business_line
+    'CMP'
+  end
+
+  def document_type
+    119 # VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance
   end
 
   def send_confirmation_email
@@ -16,5 +26,11 @@ class SavedClaim::Form210779 < SavedClaim
     #   Settings.vanotify.services.va_gov.template_id.form210779_confirmation,
     #   {}
     # )
+  end
+
+  def veteran_name
+    first = parsed_form.dig('veteranInformation', 'fullName', 'first')
+    last = parsed_form.dig('veteranInformation', 'fullName', 'last')
+    "#{first} #{last}".strip.presence || 'Veteran'
   end
 end

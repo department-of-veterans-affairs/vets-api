@@ -14,7 +14,7 @@ module V0
       claim = SavedClaim::Form210779.new(form: params[:form].to_json)
 
       if claim.save
-        # claim.process_attachments!
+        claim.process_attachments!
 
         Rails.logger.info(
           "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
@@ -36,17 +36,15 @@ module V0
     end
 
     def download_pdf
-      # stubbed - returns a static pdf for now
-      # pdf_path = claim.generate_prefilled_pdf
-      pdf_path = 'lib/pdf_fill/forms/pdfs/21-0779.pdf'
-      pdf_content = File.read(pdf_path)
+      claim = SavedClaim::Form210779.find_by(guid: params[:guid])
+      source_file_path = claim.to_pdf
 
-      # file_name_for_pdf(parsed_form, field, form_prefix)
-
-      send_data pdf_content,
+      send_data File.read(source_file_path),
                 filename: "21-0779_#{SecureRandom.uuid}.pdf",
                 type: 'application/pdf',
                 disposition: 'attachment'
+    ensure
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
     private
