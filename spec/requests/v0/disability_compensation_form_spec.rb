@@ -400,7 +400,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
               in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
               in_progress_form_data = JSON.parse(in_progress_form.form_data)
               in_progress_form_data.delete('toxic_exposure')
-              in_progress_form_data.delete('toxicExposure')  # Delete both just in case
+              in_progress_form_data.delete('toxicExposure') # Delete both just in case
               in_progress_form.update!(form_data: in_progress_form_data.to_json)
 
               allow(monitor).to receive(:track_toxic_exposure_changes)
