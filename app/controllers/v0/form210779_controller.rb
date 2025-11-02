@@ -12,7 +12,6 @@ module V0
       params.require(:form)
 
       claim = SavedClaim::Form210779.new(form: params[:form].to_json)
-
       if claim.save
         claim.process_attachments!
 
