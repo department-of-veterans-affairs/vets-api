@@ -6,6 +6,7 @@ require 'pdf_fill/pdf_post_processor'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va2141422024'
 require 'pdf_fill/forms/va214192'
+require 'pdf_fill/forms/va210779'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va210781v2'
@@ -70,6 +71,7 @@ module PdfFill
       '21-4142' => PdfFill::Forms::Va214142,
       '21-4142-2024' => PdfFill::Forms::Va2141422024,
       '21-4192' => PdfFill::Forms::Va214192,
+      '21-0779' => PdfFill::Forms::Va210779,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-0781V2' => PdfFill::Forms::Va210781v2,
