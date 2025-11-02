@@ -81,8 +81,8 @@ module DisabilityCompensation
         # NOTE: Both InProgressForm.form_data and SavedClaim.form store only the inner
         # content of the form526 submission (without the 'form526' wrapper).
         # The wrapper only exists in the original HTTP request body.
-        # Keys use camelCase format (toxicExposure, gulfWar1990, etc.)
-        in_progress_toxic_exposure = in_progress_form_data['toxicExposure']
+        # InProgressForm uses snake_case, SavedClaim uses camelCase (transformation happens during submission)
+        in_progress_toxic_exposure = in_progress_form_data['toxic_exposure']
         submitted_toxic_exposure = submitted_data['toxicExposure']
 
         # Only log if toxic exposure existed in save-in-progress but changed or was removed
@@ -177,7 +177,7 @@ module DisabilityCompensation
           :info,
           'Form526Submission toxic exposure orphaned dates purged',
           "#{self.class::CLAIM_STATS_KEY}.toxic_exposure_changes",
-          log_data
+          **log_data
         )
       end
 
@@ -185,17 +185,24 @@ module DisabilityCompensation
       #
       # Analyzes differences between save-in-progress and submitted toxic exposure data
       # to identify which keys were removed. Filters out empty hash values to reduce noise.
+      # Transforms snake_case keys from InProgressForm to camelCase for consistent logging.
       #
-      # @param in_progress_toxic_exposure [Hash] Toxic exposure data from InProgressForm
-      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from SavedClaim
-      # @return [Hash] Metadata with completely_removed and removed_keys
+      # @param in_progress_toxic_exposure [Hash] Toxic exposure data from InProgressForm (snake_case keys)
+      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from SavedClaim (camelCase keys)
+      # @return [Hash] Metadata with completely_removed and removed_keys (in camelCase)
       def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
-        all_removed_keys = in_progress_toxic_exposure.keys - (submitted_toxic_exposure&.keys || [])
+        # InProgressForm uses snake_case, SavedClaim uses camelCase
+        # We need to normalize to compare them properly
+        in_progress_camel_keys = in_progress_toxic_exposure.keys.map { |k| snake_to_camel(k) }
+        submitted_camel_keys = submitted_toxic_exposure&.keys || []
+
+        all_removed_keys = in_progress_camel_keys - submitted_camel_keys
 
         # Filter out expected removals to reduce noise:
-        # - Empty hashes contain no meaningful data
-        removed_keys = all_removed_keys.reject do |key|
-          in_progress_toxic_exposure[key].is_a?(Hash) && in_progress_toxic_exposure[key].empty?
+        # - Empty hashes contain no meaningful data (check original snake_case key)
+        removed_keys = all_removed_keys.reject do |camel_key|
+          snake_key = camel_to_snake(camel_key)
+          in_progress_toxic_exposure[snake_key].is_a?(Hash) && in_progress_toxic_exposure[snake_key].empty?
         end
 
         completely_removed = submitted_toxic_exposure.nil?
@@ -204,6 +211,23 @@ module DisabilityCompensation
           completely_removed:,
           removed_keys: removed_keys.sort
         }
+      end
+
+      # Convert snake_case to camelCase
+      #
+      # @param snake_str [String] String in snake_case format
+      # @return [String] String in camelCase format
+      def snake_to_camel(snake_str)
+        parts = snake_str.to_s.split('_')
+        parts.first + parts[1..].map(&:capitalize).join
+      end
+
+      # Convert camelCase to snake_case
+      #
+      # @param camel_str [String] String in camelCase format
+      # @return [String] String in snake_case format
+      def camel_to_snake(camel_str)
+        camel_str.to_s.gsub(/([A-Z])/, '_\1').downcase.sub(/^_/, '')
       end
 
       ##
