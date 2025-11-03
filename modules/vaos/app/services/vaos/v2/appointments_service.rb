@@ -758,15 +758,7 @@ module VAOS
 
         return nil if avs_resp.empty? || avs_resp.nil?
 
-        extract_binary_source(avs_resp)
-
         avs_resp
-      end
-
-      def extract_binary_source(avs_resp)
-        avs_resp.map do |avs|
-          avs['binary'] = avs['binary'].source if avs['binary'].is_a? Regexp
-        end
       end
 
       # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..

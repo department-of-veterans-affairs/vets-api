@@ -368,20 +368,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'loincCodes' => %w[4189669 96345-4],
               'noteType' => 'ambulatory_patient_summary',
               'contentType' => 'application/pdf',
-              'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
-            }
-          ]
-        end
-
-        let(:source_bin_avs_pdf) do
-          [
-            {
-              'apptId' => '12345',
-              'id' => '15249638961',
-              'name' => 'Ambulatory Visit Summary',
-              'loincCodes' => %w[4189669 96345-4],
-              'noteType' => 'ambulatory_patient_summary',
-              'contentType' => 'application/pdf',
               'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
             }
           ]
@@ -430,7 +416,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
-              expect(data[0]['attributes']['avsPdf']).to eq(source_bin_avs_pdf)
+              expect(data[0]['attributes']['avsPdf']).to eq(avs_pdf)
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -817,20 +803,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'loincCodes' => %w[4189669 96345-4],
               'noteType' => 'ambulatory_patient_summary',
               'contentType' => 'application/pdf',
-              'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
-            }
-          ]
-        end
-
-        let(:source_bin_avs_pdf) do
-          [
-            {
-              'apptId' => '12345',
-              'id' => '15249638961',
-              'name' => 'Ambulatory Visit Summary',
-              'loincCodes' => %w[4189669 96345-4],
-              'noteType' => 'ambulatory_patient_summary',
-              'contentType' => 'application/pdf',
               'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
             }
           ]
@@ -896,7 +868,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('booked')
-            expect(data['attributes']['avsPdf']).to eq(source_bin_avs_pdf)
+            expect(data['attributes']['avsPdf']).to eq(avs_pdf)
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
               { created: '2021-12-13T14:03:02Z' }.to_json
