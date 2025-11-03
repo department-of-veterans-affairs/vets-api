@@ -6,6 +6,8 @@ require 'unique_user_events'
 module Mobile
   module V0
     class AllergyIntolerancesController < ApplicationController
+      service_tag 'mhv-medical-records'
+
       def index
         response = client.list_allergy_intolerances
         allergy_intolerances = if Flipper.enabled?(:mobile_allergy_intolerance_model, @current_user)
