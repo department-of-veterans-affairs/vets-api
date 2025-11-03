@@ -11,13 +11,46 @@ module PdfFill
 
       KEY = FieldMappings::Va214192::KEY
 
-      def merge_fields(_options = {})
+      # Coordinates for the 21-4192 employer signature field
+      SIGNATURE_X = 60
+      SIGNATURE_Y = 230
+      SIGNATURE_PAGE = 1 # zero-indexed; 1 == page 2
+      SIGNATURE_SIZE = 10
+
+      def merge_fields(options = {})
         merge_veteran_info
         merge_employment_info
         merge_military_duty
         merge_benefits
-        merge_certification
+        merge_certification(options)
         @form_data
+      end
+
+      # Stamp a typed signature string onto the PDF using DatestampPdf
+      #
+      # @param pdf_path [String] Path to the PDF to stamp
+      # @param form_data [Hash] The form data containing the signature
+      # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
+      def self.stamp_signature(pdf_path, form_data)
+        signature_text = form_data.dig('employerCertification', 'signature')
+
+        # Return original path if signature is blank
+        return pdf_path if signature_text.nil? || signature_text.to_s.strip.empty?
+
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: signature_text,
+          x: SIGNATURE_X,
+          y: SIGNATURE_Y,
+          page_number: SIGNATURE_PAGE,
+          size: SIGNATURE_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        )
+      rescue => e
+        Rails.logger.error('Form214192: Error stamping signature', error: e.message, backtrace: e.backtrace)
+        pdf_path # Return original PDF if stamping fails
       end
 
       private
@@ -98,9 +131,9 @@ module PdfFill
       end
 
       def merge_amount_earned(emp_info)
-        return unless emp_info['amountEarnedLast12Months']
+        return unless emp_info['amountEarnedLast12MonthsOfEmployment']
 
-        amount = emp_info['amountEarnedLast12Months'].to_f
+        amount = emp_info['amountEarnedLast12MonthsOfEmployment'].to_f
         dollars = amount.floor
         cents = ((amount - dollars) * 100).round
 
@@ -112,7 +145,7 @@ module PdfFill
           'hundreds' => hundreds.to_s.rjust(3, '0'),
           'cents' => cents.to_s.rjust(2, '0')
         }
-        @form_data['employmentInformation']['amountEarnedLast12Months'] = amount_parts
+        @form_data['employmentInformation']['amountEarnedLast12MonthsOfEmployment'] = amount_parts
       end
 
       def merge_radio_buttons(emp_info)
@@ -179,18 +212,21 @@ module PdfFill
         end
       end
 
-      def merge_certification
+      def merge_certification(options = {})
         return unless @form_data['employerCertification']
 
-        cert = @form_data['employerCertification']
+        # Auto-generate certification date (MM/DD/YYYY format)
+        certification_date = options[:created_at]&.to_date || Time.zone.today
+        date = {
+          month: certification_date.month.to_s.rjust(2, '0'),
+          day: certification_date.day.to_s.rjust(2, '0'),
+          year: certification_date.year.to_s
+        }
 
-        # Format certification date (expecting MM/DD/YYYY format)
-        if cert['certificationDate']
-          date = parse_date(cert['certificationDate'])
-          if date
-            @form_data['employerCertification']['certificationDate'] = "#{date[:month]}/#{date[:day]}/#{date[:year]}"
-          end
-        end
+        @form_data['employerCertification']['certificationDate'] = "#{date[:month]}/#{date[:day]}/#{date[:year]}"
+
+        # Signature should already be set from form data, just ensure it's present
+        # The signature field will be passed through as-is to the PDF
       end
 
       def parse_date(date_string)
