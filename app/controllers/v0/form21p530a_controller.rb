@@ -6,6 +6,7 @@ module V0
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    skip_before_action :verify_authenticity_token, only: %i[create download_pdf]
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
@@ -38,7 +39,7 @@ module V0
     def download_pdf
       parsed_form = request.request_parameters
 
-      source_file_path = with_retries('Generate 21P-530a PDF') do
+      source_file_path = with_retries('Generate 21P-530A PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530a')
       end
 
