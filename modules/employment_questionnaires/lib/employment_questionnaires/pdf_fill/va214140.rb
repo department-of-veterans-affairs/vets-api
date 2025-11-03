@@ -31,7 +31,7 @@ module EmploymentQuestionnaires
       QUESTION_KEY = [].freeze
 
       # V2-style sections grouping question numbers for overflow pages
-      SECTIONS = [Section1,Section2].freeze
+      SECTIONS = [Section1, Section2].freeze
 
       # The list of section classes for form expansion and key building
       SECTION_CLASSES = [
