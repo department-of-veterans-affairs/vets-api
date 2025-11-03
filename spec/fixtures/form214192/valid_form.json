@@ -6,7 +6,7 @@
     "dateOfBirth": "1980-01-01",
     "address": {
       "street": "123 Main St",
-      "street2": "Apt 4B",
+      "street2": "4B",
       "city": "Springfield",
       "state": "IL",
       "country": "US",
@@ -17,7 +17,7 @@
     "employerName": "Acme Corporation",
     "employerAddress": {
       "street": "456 Business Ave",
-      "street2": "Suite 200",
+      "street2": "200",
       "city": "Commerce City",
       "state": "CA",
       "country": "US",
