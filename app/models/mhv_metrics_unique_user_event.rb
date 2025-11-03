@@ -70,7 +70,11 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
     # This avoids raising exceptions and database error logs for duplicate records
     # rubocop:disable Rails/SkipsModelValidations
     # Validations are already enforced by validate_inputs above and database constraint
-    result = insert({ user_id:, event_name: }, unique_by: %i[user_id event_name])
+    result = insert(
+      { user_id:, event_name: },
+      unique_by: %i[user_id event_name],
+      returning: %i[user_id event_name]
+    )
     # rubocop:enable Rails/SkipsModelValidations
 
     # Cache that this event now exists (whether new or duplicate)
