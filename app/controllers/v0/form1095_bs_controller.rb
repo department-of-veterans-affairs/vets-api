@@ -7,11 +7,14 @@ module V0
   class Form1095BsController < ApplicationController
     service_tag 'form-1095b'
     before_action { authorize :form1095, :access? }
+    before_action :validate_year, only: %i[download_pdf download_txt]
+    before_action :validate_pdf_template, only: %i[download_pdf]
+    before_action :validate_txt_template, only: %i[download_txt]
 
     def available_forms
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
         periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
-        years = VeteranEnrollmentSystem::Form1095B::Form1095B.available_years(periods)
+        years = model_class.available_years(periods)
         forms = years.map { |year| { year:, last_updated: nil } } # last_updated is not used on front end.
       else
         current_form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
@@ -37,7 +40,7 @@ module V0
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
         service = VeteranEnrollmentSystem::Form1095B::Service.new
         form_data = service.get_form_by_icn(icn: current_user[:icn], tax_year:)
-        VeteranEnrollmentSystem::Form1095B::Form1095B.parse(form_data)
+        model_class.parse(form_data)
       else
         return current_form_record if current_form_record.present?
 
@@ -56,6 +59,37 @@ module V0
 
     def tax_year
       download_params[:tax_year]
+    end
+
+    def validate_year
+      return unless Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
+
+      unless Integer(tax_year).between?(*model_class.available_years_range)
+        raise Common::Exceptions::UnprocessableEntity, detail: "1095-B for tax year #{tax_year} not supported",
+                                                       source: self.class.name
+      end
+    end
+
+    def validate_txt_template
+      return unless Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
+
+      unless File.exist?(model_class.txt_template_path(tax_year))
+        raise Common::Exceptions::UnprocessableEntity, detail: "1095-B for tax year #{tax_year} not supported",
+                                                       source: self.class.name
+      end
+    end
+
+    def validate_pdf_template
+      return unless Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
+
+      unless File.exist?(model_class.pdf_template_path(tax_year))
+        raise Common::Exceptions::UnprocessableEntity, detail: "1095-B for tax year #{tax_year} not supported",
+                                                       source: self.class.name
+      end
+    end
+
+    def model_class
+      VeteranEnrollmentSystem::Form1095B::Form1095B
     end
   end
 end

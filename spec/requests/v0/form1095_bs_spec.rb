@@ -9,6 +9,9 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   let(:user) { build(:user, :loa3, icn: '1012667145V762142') }
   let(:invalid_user) { build(:user, :loa1, icn: subject.veteran_icn) }
 
+  before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
+  after { Timecop.return }
+
   describe 'GET /download_pdf for valid user' do
     context 'when Flipper feature is disabled' do
       before do
@@ -69,8 +72,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      # disabled pending work on https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      xit 'throws 422 when no template exists for requested year' do
+      it 'throws 422 when no template exists for requested year' do
         create(:form1095_b, tax_year: 2018)
         get '/v0/form1095_bs/download_pdf/2018'
         expect(response).to have_http_status(:unprocessable_entity)
@@ -146,10 +148,16 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         expect(response).to have_http_status(:not_found)
       end
 
-      # disabled pending work on https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      xit 'throws 422 when no template exists for requested year' do
+      it 'throws 422 when requested year is outside of available years range' do
         create(:form1095_b, tax_year: 2018)
         get '/v0/form1095_bs/download_txt/2018'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      # this will be irrelevant after we add the template
+      it 'throws 422 when no template exists for requested year' do
+        create(:form1095_b, tax_year: 2023)
+        get '/v0/form1095_bs/download_txt/2023'
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end

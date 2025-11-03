@@ -24,14 +24,15 @@ module VeteranEnrollmentSystem
       attribute :tax_year, String
 
       def txt_file
-        unless File.exist?(txt_template_path)
+        template_path = self.class.txt_template_path(tax_year)
+        unless File.exist?(template_path)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
           )
         end
 
-        template_file = File.open(txt_template_path, 'r')
+        template_file = File.open(template_path, 'r')
         template_data = attributes.merge(txt_form_data)
         prepared_text = template_file.read % template_data.symbolize_keys
         template_file.close
@@ -40,7 +41,8 @@ module VeteranEnrollmentSystem
       end
 
       def pdf_file
-        unless File.exist?(pdf_template_path)
+        template_path = self.class.pdf_template_path(tax_year)
+        unless File.exist?(template_path)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
@@ -49,65 +51,72 @@ module VeteranEnrollmentSystem
 
         pdftk = PdfForms.new(Settings.binaries.pdftk)
         tmp_file = Tempfile.new("1095B-#{SecureRandom.hex}.pdf")
-        generate_pdf(pdftk, tmp_file)
+        generate_pdf(pdftk, tmp_file, template_path)
       end
 
-      def self.available_years(periods)
-        years = periods.each_with_object([]) do |period, array|
-          start_date = period['startDate'].to_date.year
-          # if no end date, the user is still be enrolled
-          end_date = period['endDate']&.to_date&.year || Date.current.year
-          array << start_date
-          array << end_date
-          if (end_date - start_date) > 1
-            intervening_years = (start_date..end_date).to_a - [start_date, end_date]
-            array.concat(intervening_years)
-          end
-        end.uniq.sort
-        current_tax_year = Date.current.year - 1
-        three_years_prior = current_tax_year - 3
-        years.filter { |year| year >= three_years_prior && year <= current_tax_year }
-      end
+      class << self
+        def available_years(periods)
+          years = periods.each_with_object([]) do |period, array|
+            start_date = period['startDate'].to_date.year
+            # if no end date, the user is still be enrolled
+            end_date = period['endDate']&.to_date&.year || Date.current.year
+            array << start_date
+            array << end_date
+            if (end_date - start_date) > 1
+              intervening_years = (start_date..end_date).to_a - [start_date, end_date]
+              array.concat(intervening_years)
+            end
+          end.uniq.sort
+          years.filter { |year| year.between?(*available_years_range) }
+        end
 
-      # there is some overlap in the data provided by coveredIndividual and responsibleIndividual.
-      # in the VA enrollment system, they are always the same.
-      def self.parse(form_data)
-        prepared_data = {
-          first_name: form_data['data']['coveredIndividual']['name']['firstName'],
-          middle_name: form_data['data']['coveredIndividual']['name']['middleName'],
-          last_name: form_data['data']['coveredIndividual']['name']['lastName'],
-          last_4_ssn: form_data['data']['coveredIndividual']['ssn'],
-          birth_date: form_data['data']['coveredIndividual']['dateOfBirth'],
-          address: form_data['data']['responsibleIndividual']['address']['street1'],
-          city: form_data['data']['responsibleIndividual']['address']['city'],
-          state: form_data['data']['responsibleIndividual']['address']['stateOrProvince'],
-          province: form_data['data']['responsibleIndividual']['address']['stateOrProvince'],
-          country: form_data['data']['responsibleIndividual']['address']['country'],
-          zip_code: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
-          foreign_zip: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
-          is_corrected: false, # this will always be false at this time
-          coverage_months: coverage_months(form_data),
-          tax_year: form_data['data']['taxYear']
-        }
-        new(prepared_data)
-      end
+        # there is some overlap in the data provided by coveredIndividual and responsibleIndividual.
+        # in the VA enrollment system, they are always the same.
+        def parse(form_data)
+          prepared_data = {
+            first_name: form_data['data']['coveredIndividual']['name']['firstName'],
+            middle_name: form_data['data']['coveredIndividual']['name']['middleName'],
+            last_name: form_data['data']['coveredIndividual']['name']['lastName'],
+            last_4_ssn: form_data['data']['coveredIndividual']['ssn'],
+            birth_date: form_data['data']['coveredIndividual']['dateOfBirth'],
+            address: form_data['data']['responsibleIndividual']['address']['street1'],
+            city: form_data['data']['responsibleIndividual']['address']['city'],
+            state: form_data['data']['responsibleIndividual']['address']['stateOrProvince'],
+            province: form_data['data']['responsibleIndividual']['address']['stateOrProvince'],
+            country: form_data['data']['responsibleIndividual']['address']['country'],
+            zip_code: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
+            foreign_zip: form_data['data']['responsibleIndividual']['address']['zipOrPostalCode'],
+            is_corrected: false, # this will always be false at this time
+            coverage_months: coverage_months(form_data),
+            tax_year: form_data['data']['taxYear']
+          }
+          new(prepared_data)
+        end
 
-      def self.coverage_months(form_data)
-        months = form_data['data']['coveredIndividual']['monthsCovered']
-        coverage_months = Date::MONTHNAMES.compact.map { |month| months&.include?(month.upcase) ? month.upcase : nil }
-        covered_all = form_data['data']['coveredIndividual']['coveredAll12Months']
-        [covered_all, *coverage_months]
+        def available_years_range
+          current_year = Date.current.year
+          [current_year - 4, current_year - 1]
+        end
+
+        def pdf_template_path(year)
+          "lib/veteran_enrollment_system/form1095_b/templates/pdfs/1095b-#{year}.pdf"
+        end
+
+        def txt_template_path(year)
+          "lib/veteran_enrollment_system/form1095_b/templates/txts/1095b-#{year}.txt"
+        end
+
+        private
+
+        def coverage_months(form_data)
+          months = form_data['data']['coveredIndividual']['monthsCovered']
+          coverage_months = Date::MONTHNAMES.compact.map { |month| months&.include?(month.upcase) ? month.upcase : nil }
+          covered_all = form_data['data']['coveredIndividual']['coveredAll12Months']
+          [covered_all, *coverage_months]
+        end
       end
 
       private
-
-      def pdf_template_path
-        "lib/veteran_enrollment_system/form1095_b/templates/pdfs/1095b-#{tax_year}.pdf"
-      end
-
-      def txt_template_path
-        "lib/veteran_enrollment_system/form1095_b/templates/txts/1095b-#{tax_year}.txt"
-      end
 
       def country_and_zip
         "#{country} #{zip_code || foreign_zip}"
@@ -139,9 +148,9 @@ module VeteranEnrollmentSystem
       end
 
       # rubocop:disable Metrics/MethodLength
-      def generate_pdf(pdftk, tmp_file)
+      def generate_pdf(pdftk, tmp_file, template_path)
         pdftk.fill_form(
-          pdf_template_path,
+          template_path,
           tmp_file,
           {
             'topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]': is_corrected && 2,

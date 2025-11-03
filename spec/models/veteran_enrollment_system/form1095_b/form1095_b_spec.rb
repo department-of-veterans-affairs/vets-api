@@ -61,22 +61,20 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
                                     'tax_year' => '2024'
                                   })
     end
-  end
 
-  describe '.coverage_months' do
-    it 'sets coveredAll12Months correctly at start of return array' do
-      data = { 'data' => { 'coveredIndividual' => { 'coveredAll12Months' => false, 'monthsCovered' => [] } } }
-      result = described_class.coverage_months(data)
-      expect(result[0]).to be(false)
-      data['data']['coveredIndividual']['coveredAll12Months'] = true
-      result = described_class.coverage_months(data)
-      expect(result[0]).to be(true)
+    it 'sets coveredAll12Months correctly' do
+      form_data['data']['coveredIndividual']['coveredAll12Months'] = false
+      klass = described_class.parse(form_data)
+      expect(klass.coverage_months[0]).to be(false)
+      form_data['data']['coveredIndividual']['coveredAll12Months'] = true
+      klass = described_class.parse(form_data)
+      expect(klass.coverage_months[0]).to be(true)
     end
 
     it 'sets covered months as expected' do
-      data = { 'data' => { 'coveredIndividual' => { 'monthsCovered' => %w[MARCH SEPTEMBER] } } }
-      result = described_class.coverage_months(data)
-      expect(result[1..12]).to eq([nil, nil, 'MARCH', nil, nil, nil, nil, nil, 'SEPTEMBER', nil, nil, nil])
+      form_data['data']['coveredIndividual']['monthsCovered'] = %w[MARCH SEPTEMBER]
+      klass = described_class.parse(form_data)
+      expect(klass.coverage_months[1..12]).to eq([nil, nil, 'MARCH', nil, nil, nil, nil, nil, 'SEPTEMBER', nil, nil, nil])
     end
   end
 
@@ -109,6 +107,16 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
         result = described_class.available_years(periods)
         expect(result).to eq([2021, 2022, 2024])
       end
+    end
+  end
+
+  describe '.available_years_range' do
+    before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
+    after { Timecop.return }
+
+    it 'returns an array containing last year and five years ago' do
+      result = described_class.available_years_range
+      expect(result).to eq([2021, 2024])
     end
   end
 
