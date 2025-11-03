@@ -5,7 +5,9 @@ require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
 RSpec.describe PdfFill::Forms::Va21p530a do
-  let(:form_data) { JSON.parse(File.read('spec/fixtures/pdf_fill/21P-530a/simple.json')) }
+  let(:form_data) do
+    JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21P-530a', 'simple.json').read)
+  end
 
   it_behaves_like 'a form filler', {
     form_id: '21P-530a',
