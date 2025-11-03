@@ -3,6 +3,7 @@
 ## Repository Context
 `vets-api` is a Ruby on Rails API serving veterans via VA.gov. Large codebase (400K+ lines) with modules for appeals, claims, healthcare, and benefits processing.
 
+**Default Branch:** `master` - All code reviews and comparisons should be against the `master` branch
 **Key External Services:** BGS, MVI, Lighthouse APIs
 **Architecture:** Rails engines in `modules/`, background jobs via Sidekiq Enterprise
 
@@ -61,6 +62,8 @@
 - **Lighthouse**: Modern REST APIs for claims, health records, veteran verification
 
 ## For PR Reviews - Human Judgment Issues
+
+**Note:** This repository uses `master` as the default branch. All PR reviews should compare changes against the `master` branch.
 
 ### ⚠️ NO DUPLICATE COMMENTS - Consolidate Similar Issues
 

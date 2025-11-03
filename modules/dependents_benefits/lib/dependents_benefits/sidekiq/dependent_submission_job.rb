@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/job_retry'
+
 module DependentsBenefits::Sidekiq
   ##
   # Abstract base class for coordinated submission of related 686c and 674 claims
@@ -14,7 +16,9 @@ module DependentsBenefits::Sidekiq
   # - MUST implement submit_to_service for BGS/Lighthouse/Fax submission
   # - MAY override find_or_create_form_submission for service-specific FormSubmission types
   # - MAY override permanent_failure? for service-specific error classification
-  #
+
+  class DependentSubmissionError < StandardError; end
+
   class DependentSubmissionJob
     include ::Sidekiq::Job
 
@@ -39,11 +43,9 @@ module DependentsBenefits::Sidekiq
       create_form_submission_attempt
       @service_response = submit_to_service
 
-      if @service_response&.success?
-        handle_job_success
-      else
-        handle_job_failure(@service_response&.error)
-      end
+      raise DependentSubmissionError, @service_response&.error unless @service_response&.success?
+
+      handle_job_success
     rescue => e
       handle_job_failure(e)
     end
@@ -120,29 +122,19 @@ module DependentsBenefits::Sidekiq
     def handle_job_failure(error)
       monitor.track_submission_error("Error submitting #{self.class}", 'error', error:)
       mark_submission_attempt_failed(error)
-
       if permanent_failure?(error)
         # Skip Sidekiq retries for permanent failures
         handle_permanent_failure(claim_id, error)
         raise ::Sidekiq::JobRetry::Skip
       end
-
-      case error
-      when Exception
-        # Re-raise actual exceptions for Sidekiq retry mechanism
-        raise error
-      when nil
-        # Handle nil case
-        raise StandardError, 'Unknown error occurred during job execution'
-      else
-        # Handle non-exception errors
-        raise StandardError, error
-      end
+      # raise other errors to trigger Sidekiq retry mechanism
+      raise DependentSubmissionError, error
     end
 
     # Called from retries_exhausted callback OR permanent failure detection
     # CRITICAL: Recreates instance state since callback runs outside job context
     def handle_permanent_failure(claim_id, exception)
+      monitor.track_submission_error("Error submitting #{self.class}", 'error.permanent', error: exception)
       # Reset claim_id class variable for if this was called from sidekiq_retries_exhausted
       @claim_id = claim_id
       ActiveRecord::Base.transaction do
@@ -204,6 +196,14 @@ module DependentsBenefits::Sidekiq
       parent_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     end
 
+    def mark_parent_group_processing
+      parent_group.update!(status: SavedClaimGroup::STATUSES[:PROCESSING])
+    end
+
+    def send_in_progress_notification
+      # TODO
+    end
+
     def send_success_notification
       # TODO
     end
@@ -213,7 +213,7 @@ module DependentsBenefits::Sidekiq
     end
 
     def send_backup_job
-      # TODO
+      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id, proc_id)
     end
 
     def current_group
@@ -238,6 +238,14 @@ module DependentsBenefits::Sidekiq
 
     def user_data
       @user_data ||= JSON.parse(parent_group.user_data)
+    end
+
+    def submission
+      @submission ||= find_or_create_form_submission
+    end
+
+    def submission_attempt
+      @submission_attempt ||= create_form_submission_attempt
     end
 
     def generate_user_struct

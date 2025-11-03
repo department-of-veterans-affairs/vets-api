@@ -12,12 +12,12 @@ module Efolder
     def initialize(user)
       @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
-      @bgs_doc_uuids = bgs_doc_uuids
     end
 
     def list_documents
+      bgs_ids = bgs_doc_uuids
       vbms_docs.map do |document|
-        if @bgs_doc_uuids.include?(document[:document_id].delete('{}'))
+        if bgs_ids.include?(document[:document_id].delete('{}'))
           document.marshal_dump.slice(
             :document_id, :doc_type, :type_description, :received_at
           )
@@ -27,6 +27,20 @@ module Efolder
 
     def get_document(document_id)
       verify_document_in_folder(document_id)
+
+      @client.send_request(
+        VBMS::Requests::GetDocumentContent.new(document_id)
+      ).content
+    end
+
+    def list_tsa_letters
+      vbms_docs.select { |document| document[:subject] == 'VETS Safe Travel Outreach Letter' }
+    end
+
+    def get_tsa_letter(document_id)
+      unless list_tsa_letters.any? { |doc| doc[:document_id] == document_id }
+        raise Common::Exceptions::RecordNotFound, document_id
+      end
 
       @client.send_request(
         VBMS::Requests::GetDocumentContent.new(document_id)

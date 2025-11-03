@@ -4,15 +4,19 @@ require 'rails_helper'
 require 'dependents_benefits/pdf_fill/filler'
 require_relative 'fill_form_examples'
 
-describe PdfFill::Filler, type: :model do
+describe DependentsBenefits::PdfFill::Filler, type: :model do
   include SchemaMatchers
 
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
     [
       {
-        form_id: '686C-674-V2',
-        factory: :dependency_claim_v2
+        form_id: '21-686C',
+        factory: :add_remove_dependents_claim
+      },
+      {
+        form_id: '21-674',
+        factory: :student_claim
       }
     ].each do |options|
       it_behaves_like 'a form filler', options
@@ -26,7 +30,7 @@ describe PdfFill::Filler, type: :model do
       show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
     end
 
-    %w[21-674-V2].each do |form_id|
+    %w[21-674].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
         form_types.each do |type, extras_redesign, show_jumplinks|
@@ -44,11 +48,8 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
-              student = form_id == '21-674-V2' ? form_data['dependents_application']['student_information'][0] : nil
-
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
-                                                              { extras_redesign:, student:, show_jumplinks: })
+                                                              { extras_redesign:, show_jumplinks: })
 
               fixture_pdf_base = "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}/#{type}"
 

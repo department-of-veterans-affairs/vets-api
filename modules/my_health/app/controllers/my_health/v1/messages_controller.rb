@@ -7,6 +7,8 @@ module MyHealth
     class MessagesController < SMController
       MAX_STANDARD_FILES = 4
 
+      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
+
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)
@@ -112,26 +114,31 @@ module MyHealth
       end
 
       def create_client_response(message, message_params_h, create_message_params)
-        return client.post_create_message(message_params_h) if message.uploads.blank?
+        return client.post_create_message(message_params_h, poll_for_status: oh_triage_group?) if message.uploads.blank?
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint')
-          client.post_create_message_with_lg_attachments(create_message_params)
+          client.post_create_message_with_lg_attachments(create_message_params, poll_for_status: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint')
-          client.post_create_message_with_attachment(create_message_params)
+          client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
         end
       end
 
       def reply_client_response(message, message_params_h, create_message_params)
-        return client.post_create_message_reply(params[:id], message_params_h) if message.uploads.blank?
+        if message.uploads.blank?
+          return client.post_create_message_reply(params[:id], message_params_h,
+                                                  poll_for_status: oh_triage_group?)
+        end
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
-          client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params)
+          client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params,
+                                                              poll_for_status: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
-          client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+          client.post_create_message_reply_with_attachment(params[:id], create_message_params,
+                                                           poll_for_status: oh_triage_group?)
         end
       end
 
@@ -167,6 +174,10 @@ module MyHealth
 
         Flipper.enabled?(:mhv_secure_messaging_large_attachments) ||
           (Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @current_user) && oh_triage_group?)
+      end
+
+      def extend_timeout
+        request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
       end
     end
   end

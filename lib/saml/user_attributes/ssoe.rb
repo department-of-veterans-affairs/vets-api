@@ -7,7 +7,6 @@ require 'identity/parsers/gc_ids'
 module SAML
   module UserAttributes
     class SSOe
-      include SentryLogging
       include Identity::Parsers::GCIds
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name gender ssn birth_date
                                    idme_uuid logingov_uuid verified_at sec_id mhv_icn

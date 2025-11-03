@@ -3,6 +3,7 @@
 require 'sign_in/public_jwks'
 require 'sign_in/idme/configuration'
 require 'sign_in/idme/errors'
+require 'sign_in/credential_attributes_digester'
 require 'mockdata/writer'
 
 module SignIn
@@ -38,7 +39,10 @@ module SignIn
                      when Constants::Auth::MHV
                        mhv_attributes(user_info)
                      end
-        attributes.merge(standard_attributes(user_info, credential_level))
+
+        attributes.merge(standard_attributes(user_info, credential_level)).tap do |attrs|
+          attrs[:digest] = credential_attributes_digest(attrs)
+        end
       end
 
       def token(code)
@@ -216,6 +220,16 @@ module SignIn
 
       def valid_optional_scopes(optional_scopes)
         optional_scopes.to_a & OPTIONAL_SCOPES
+      end
+
+      def credential_attributes_digest(attributes)
+        SignIn::CredentialAttributesDigester.new(credential_uuid: attributes[:idme_uuid],
+                                                 first_name: attributes[:first_name],
+                                                 last_name: attributes[:last_name],
+                                                 ssn: attributes[:ssn],
+                                                 birth_date: attributes[:birth_date],
+                                                 email: attributes[:csp_email],
+                                                 address: attributes[:address]).perform
       end
     end
   end

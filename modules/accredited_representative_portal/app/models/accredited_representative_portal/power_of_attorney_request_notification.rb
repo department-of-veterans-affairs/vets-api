@@ -14,9 +14,9 @@ module AccreditedRepresentativePortal
                primary_key: 'notification_id',
                optional: true
 
-    enum type: PERMITTED_TYPES.index_with { |v| v }
+    enum(:type, PERMITTED_TYPES.index_with { |v| v })
 
-    enum recipient_type: PERMITTED_RECIPIENTS.index_with { |v| v }
+    enum(:recipient_type, PERMITTED_RECIPIENTS.index_with { |v| v })
 
     delegate :accredited_individual, :accredited_organization, to: :power_of_attorney_request
 

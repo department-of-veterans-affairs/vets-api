@@ -307,13 +307,13 @@ jobs:
           number: ${{ env.pr_number }}
           labels: exempt-be-review
 
+      - name: Exit for non backend approvals
+        if: steps.verify_approval.outputs.backend_approval_required == 'false' || steps.verify_approval.outputs.exempt_be_review == 'true'
+        run: exit 0
+
       - name: Fail if draft or failures
         if: steps.verify_approval.outputs.approval_status == 'required'
         run: exit 1
-
-      - name: Exit for non backend approvals
-        if: steps.verify_approval.outputs.backend_approval_required == 'false'
-        run: exit 0
 
       - name: Add ready-for-backend-review label
         if: |

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/toe/claimants/sponsors
+    uri: <DGI_VETS_URL>claimType/toe/claimants/sponsors
     body:
       encoding: UTF-8
       string: '{"ssn":"796121200"}'

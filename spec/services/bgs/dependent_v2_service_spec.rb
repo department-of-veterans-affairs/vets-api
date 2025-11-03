@@ -22,9 +22,13 @@ RSpec.describe BGS::DependentV2Service do
         'ssn' => '796043735',
         'va_file_number' => '796043735',
         'birth_date' => birth_date
+      },
+      'veteran_contact_information' => {
+        'email_address' => 'test@test.com'
       }
     }
   end
+  let(:parsed_form) { { 'dependents_application' => vet_info } }
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
@@ -166,6 +170,44 @@ RSpec.describe BGS::DependentV2Service do
       end
     end
 
+    context 'va_profile_email returns error' do
+      let(:monitor) { instance_double(Dependents::Monitor) }
+
+      before do
+        allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive(:track_event)
+        allow(claim).to receive_messages(parsed_form:)
+      end
+
+      it 'still submits a PDF, enqueues the SubmitForm686cJob with the form email, and tracks the error' do
+        allow_any_instance_of(User)
+          .to receive(:va_profile_email)
+          .and_raise(StandardError.new('404 person not found'))
+
+        expect(monitor).to receive(:track_event).with(
+          'warn', 'BGS::DependentV2Service#get_user_email failed to get va_profile_email',
+          'bgs.dependent_service.get_va_profile_email.failure', { error: '404 person not found' }
+        )
+
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
+          vet_info['veteran_information']['va_profile_email'] = 'test@test.com'
+          vet_info['veteran_information']['va_file_number'] = '12345678'
+          service = BGS::DependentV2Service.new(user)
+
+          expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
+            user.uuid, claim.id,
+            encrypted_vet_info
+          )
+          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
+            claim.id, encrypted_vet_info, true,
+            true
+          )
+          service.submit_686c_form(claim)
+        end
+      end
+    end
+
     context 'on error' do
       let(:monitor) { instance_double(Dependents::Monitor) }
 
@@ -199,6 +241,42 @@ RSpec.describe BGS::DependentV2Service do
           expect do
             service.submit_686c_form(claim)
           end.to raise_error(StandardError, 'Test error')
+        end
+      end
+
+      context 'BGS throws an error - 502' do
+        let(:monitor) { instance_double(Dependents::Monitor) }
+
+        before do
+          allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+          allow(monitor).to receive(:track_event)
+        end
+
+        it 'still submits a PDF and enqueues the SubmitForm686cJob' do
+          expect_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_person_by_ptcpnt_id)
+            .and_raise(StandardError, 'HTTP error (502)')
+
+          expect(monitor).to receive(:track_event).with(
+            'warn',
+            'BGS::DependentV2Service#get_form_hash_686c failed',
+            'bgs.dependent_service.get_form_hash.failure',
+            { error: 'Could not retrieve file number from BGS' }
+          )
+
+          vet_info['veteran_information']['va_file_number'] = '796043735'
+          enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
+          service = BGS::DependentV2Service.new(user)
+
+          expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
+            user.uuid, claim.id,
+            enc_vet_info
+          )
+          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
+            claim.id, enc_vet_info,
+            true, true
+          )
+          service.submit_686c_form(claim)
         end
       end
 

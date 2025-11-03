@@ -68,6 +68,7 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand care expenses
       def expand(form_data = {})
         form_data['careExpenses'] ||= []
         form_data['primaryCareExpenses'] =
@@ -75,6 +76,7 @@ module MedicalExpenseReports
         form_data
       end
 
+      # expand recipient care
       def expand_recipient(recipient)
         recipient['recipient'] = Constants::RECIPIENTS[recipient['recipient']] || 'Off'
         recipient['careDate'] ||= {}

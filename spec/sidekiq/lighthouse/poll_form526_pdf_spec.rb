@@ -14,8 +14,8 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
   describe '.perform_async' do
     let(:form526_submission) { create(:form526_submission, submitted_claim_id: 1) }
 
-    it 'transitions to pdf_not_found status if submission is older than 2 days' do
-      form526_submission.update(created_at: 3.days.ago)
+    it 'transitions to pdf_not_found status if submission is older than 4 days' do
+      form526_submission.update(created_at: 5.days.ago)
       subject.perform_sync(form526_submission.id)
       form526_submission.reload
       job_status = form526_submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')

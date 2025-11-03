@@ -57,6 +57,7 @@ module AccreditedRepresentativePortal
           current_user.power_of_attorney_holder_memberships
         ).call
 
+        track_decision_durations('accepted')
         render json: {}, status: :ok
       end
 
@@ -75,14 +76,25 @@ module AccreditedRepresentativePortal
         )
 
         send_declination_email(@poa_request)
-        track_declination_metrics
+        track_decision_durations('declined')
 
         render json: {}, status: :ok
       end
 
-      def track_declination_metrics
-        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
-        Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
+      def track_decision_durations(decision)
+        tags = ["decision:#{decision}", "poa_code:#{poa_code}"]
+
+        ar_monitoring.track_duration(
+          'ar.poa.request.duration',
+          from: @poa_request.created_at,
+          tags:
+        )
+
+        ar_monitoring.track_duration(
+          "ar.poa.request.#{decision}.duration",
+          from: @poa_request.created_at,
+          tags:
+        )
       end
 
       def render_invalid_type_error

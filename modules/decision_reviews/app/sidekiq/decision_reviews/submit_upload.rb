@@ -116,7 +116,6 @@ module DecisionReviews
     # @param sanitized_file [CarrierWave::SanitizedFile] The sanitized file from S3
     # @return [Faraday::Env] The response from Lighthouse
     def handle_notice_of_disagreement(appeal_submission_upload, file_number_or_ssn, sanitized_file)
-      Sentry.set_tags(source: '10182-board-appeal')
       appeal_submission = appeal_submission_upload.appeal_submission
       upload_url_response = get_dr_svc.get_notice_of_disagreement_upload_url(
         nod_uuid: appeal_submission.submitted_appeal_uuid,
@@ -141,7 +140,6 @@ module DecisionReviews
     # @param sanitized_file [CarrierWave::SanitizedFile] The sanitized file from S3
     # @return [Faraday::Env] The response from Lighthouse
     def handle_supplemental_claim(appeal_submission_upload, file_number_or_ssn, sanitized_file)
-      Sentry.set_tags(source: '20-0995-supplemental-claim')
       appeal_submission = appeal_submission_upload.appeal_submission
       user_uuid = appeal_submission.user_uuid
       appeal_submission_upload_id = appeal_submission_upload.id

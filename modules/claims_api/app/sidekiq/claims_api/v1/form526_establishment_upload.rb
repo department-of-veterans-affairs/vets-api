@@ -73,11 +73,11 @@ module ClaimsApi
       end
 
       def start_bd_uploader_job(auto_claim)
-        bd_service.perform_async(auto_claim.id)
+        bd_service.perform_async(auto_claim.id, :v1)
       end
 
       def bd_service
-        ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
+        ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader
       end
     end
   end

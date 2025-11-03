@@ -176,7 +176,7 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: ASCII-8BIT
-      string: '{"id":5994107,"category":"OTHER","subject":"TESTING 9/19 larage attachment","body":"Continuous
+      string: '{"id":674838,"category":"OTHER","subject":"TESTING 9/19 larage attachment","body":"Continuous
         Integration","attachment":true,"attachments":{"attachment":[{"id":5994106,"name":"sm_file1.jpg","attachmentSize":7340032}]},"sentDate":"Fri,
         19 Sep 2025 15:46:12 GMT","senderId":3992130,"senderName":"GUSTAV, HOOPER
         J","recipientId":5795677,"recipientName":"Oracle Health Direct Message","readReceipt":null,"triageGroupName":null,"proxySenderName":null,"proxySenderType":null,"suggestedNameDisplay":null}'

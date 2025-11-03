@@ -84,7 +84,7 @@ module Lighthouse
     # :nocov:
 
     # Checks claims status for supporting documents for a submission and exits out when found.
-    # If the timeout period is exceeded (48 hours), then the 'pdf_not_found' status is written to Form526JobStatus
+    # If the timeout period is exceeded (96 hours), then the 'pdf_not_found' status is written to Form526JobStatus
     #
     # @param submission_id [Integer] The {Form526Submission} id
     #
@@ -102,11 +102,11 @@ module Lighthouse
           end
           return
         else
-          # Check the submission.created_at date, if it's more than 2 days old
+          # Check the submission.created_at date, if it's more than 4 days old
           # update the job status to pdf_not_found immediately and exit the job
-          unless submission.created_at.between?(DateTime.now - 2.days, DateTime.now)
+          unless submission.created_at.between?(DateTime.now - 4.days, DateTime.now)
             form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
-            message = 'Poll for form 526 PDF: Submission creation date is over 2 days old. Exiting...'
+            message = 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...'
             PollForm526PdfStatus.update_job_status(
               form_job_status:,
               message:,

@@ -150,7 +150,6 @@ module V0
       Swagger::Requests::Form1010Ezrs,
       Swagger::Requests::Form1095Bs,
       Swagger::Requests::Form210779,
-      Swagger::Requests::Form214192,
       Swagger::Requests::Forms,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,

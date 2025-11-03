@@ -61,6 +61,7 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand mileage expenses
       def expand(form_data = {})
         form_data['mileageExpenses'] ||= []
         form_data['primaryMileage'] =
@@ -68,6 +69,7 @@ module MedicalExpenseReports
         form_data
       end
 
+      # expand traveler information
       def expand_traveler(traveler)
         traveler['travelLocation'] =
           case traveler['travelLocation']

@@ -83,7 +83,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
       it 'handles failed submissions' do
         allow(job).to receive(:submit_to_service).and_return(failed_response)
-        expect(job).to receive(:handle_job_failure).with(failed_response.error)
+        expect(job).to receive(:handle_job_failure).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError))
         job.perform(child_claim.id)
       end
 

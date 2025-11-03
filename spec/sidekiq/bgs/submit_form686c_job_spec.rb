@@ -44,6 +44,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       common_name: nested_info['common_name']
     )
   end
+  let(:vanotify) { double(send_email: true) }
 
   before do
     allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
@@ -66,19 +67,28 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
 
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'fake_received686',
-        { 'confirmation_number' => dependency_claim.confirmation_number,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY' },
-        'fake_secret',
-        { callback_klass: 'Dependents::NotificationCallback',
-          callback_metadata: { email_template_id: 'fake_received686',
-                               email_type: :received686,
-                               form_id: '686C-674',
-                               saved_claim_id: dependency_claim.id,
-                               service_name: 'dependents' } }
+      api_key = 'fake_secret'
+      callback_options = {
+        callback_klass: 'Dependents::NotificationCallback',
+        callback_metadata: { email_template_id: 'fake_received686',
+                             email_type: :received686,
+                             form_id: '686C-674',
+                             claim_id: dependency_claim.id,
+                             saved_claim_id: dependency_claim.id,
+                             service_name: 'dependents' }
+      }
+
+      personalization = { 'confirmation_number' => dependency_claim.confirmation_number,
+                          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                          'first_name' => 'WESLEY' }
+
+      expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: user.va_profile_email,
+          template_id: 'fake_received686',
+          personalisation: personalization
+        }.compact
       )
 
       expect { job }.not_to raise_error

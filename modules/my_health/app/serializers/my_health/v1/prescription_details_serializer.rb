@@ -20,6 +20,7 @@ module MyHealth
       attribute :modified_date
       attribute :institution_id
       attribute :dial_cmop_division_phone
+      attribute :pharmacy_phone_number
       attribute :disp_status
       attribute :ndc
       attribute :reason

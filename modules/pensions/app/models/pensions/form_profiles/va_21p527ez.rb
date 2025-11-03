@@ -56,9 +56,23 @@ module Pensions
 
       military_information_data
     rescue => e
-      log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
+      monitor.track_request(
+        :error,
+        'VA Profile military information prefill failed',
+        'api.pensions.form_profile.military_prefill_error',
+        call_location: caller_locations.first,
+        exception: { message: e.message, backtrace: e.backtrace }
+      )
 
       {}
+    end
+
+    # Returns a memoized instance of Logging::Monitor for tracking pensions form profile events.
+    # The monitor is initialized with the identifier 'pensions-form-profile'.
+    #
+    # @return [Logging::Monitor] the monitor instance for pensions form profile logging
+    def monitor
+      @monitor ||= Logging::Monitor.new('pensions-form-profile')
     end
   end
 end

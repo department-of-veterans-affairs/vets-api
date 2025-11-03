@@ -117,39 +117,68 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
       summary: /v1/medical_records/ccd/generate
-  /v1/medical_records/ccd/download:
+  /v1/medical_records/ccd/download.{format}:
     get:
-      description: Download the Continuity of Care Document specified by the date parameter.
+      summary: Download Continuity of Care Document (CCD)
+      description: |
+        Download the Continuity of Care Document (CCD) specified by the `date` parameter.
+
+        The response format is indicated by the path extension — for example:
+        - `/v1/medical_records/ccd/download.xml`
+        - `/v1/medical_records/ccd/download.html`
+        - `/v1/medical_records/ccd/download.pdf`
+
+        If the format extension is not included, the default is XML.
       operationId: download_ccd
       parameters:
         - name: date
           in: query
           required: true
-          description: Date of the desired study, as pulled verbatim from the generate endpoint response
+          description: >
+            Date of the desired CCD, as pulled verbatim from the `generate` endpoint response.
           schema:
             type: string
+            format: date
+        - name: format
+          in: path
+          description: >
+            The format of the returned CCD document. Can be `xml`, `html`, or `pdf`.
+          schema:
+            type: string
+            enum: [xml, html, pdf]
+            default: xml
       responses:
         "200":
+          description: Successful download
           content:
             application/xml:
               schema:
-                type: object
+                type: string
                 description: >
-                  The returned document is an XML file representing the patient's Continuity of Care Document.
-          description: OK
+                  XML-formatted Continuity of Care Document (CCD).
+            text/html:
+              schema:
+                type: string
+                description: >
+                  HTML-formatted Continuity of Care Document (CCD).
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                description: >
+                  PDF-formatted Continuity of Care Document (CCD).
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
           description: Unauthorized
-        "403":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
+        "403":
           description: Forbidden
-      summary: /v1/medical_records/ccd/download
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
   /v1/medical_records/clinical_notes:
     get:
       description: List patient clinical notes
@@ -1967,7 +1996,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas/TooltipParams.yml'
+              $ref: "./schemas/TooltipParams.yml"
       responses:
         "201":
           description: Created
@@ -2004,7 +2033,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas/TooltipParams.yml'
+              $ref: "./schemas/TooltipParams.yml"
       responses:
         "200":
           description: OK
@@ -2180,19 +2209,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: './schemas/Errors.yml'
+            $ref: "./schemas/Errors.yml"
     Forbidden:
       description: Forbidden
       content:
         application/json:
           schema:
-            $ref: './schemas/Errors.yml'
+            $ref: "./schemas/Errors.yml"
     UnprocessableEntity:
       description: Unprocessable Entity
       content:
         application/json:
           schema:
-            $ref: './schemas/Errors.yml'
+            $ref: "./schemas/Errors.yml"
 
 security:
   - CookieAuth: []

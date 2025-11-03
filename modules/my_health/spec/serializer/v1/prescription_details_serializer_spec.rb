@@ -139,6 +139,10 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
     expect(attributes['dial_cmop_division_phone']).to eq(prescription.dial_cmop_division_phone)
   end
 
+  it 'includes the pharmacy_phone_number' do
+    expect(attributes['pharmacy_phone_number']).to eq(prescription.pharmacy_phone_number)
+  end
+
   it 'includes the disp_status' do
     expect(attributes['disp_status']).to eq(prescription.disp_status)
   end

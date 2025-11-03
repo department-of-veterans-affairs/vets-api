@@ -94,7 +94,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             controller = IvcChampva::V1::UploadsController.new
             allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
                                                   call_upload_form: [[200], nil],
-                                                  get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                  get_file_paths_and_metadata: [['path'], {}],
                                                   params: ActionController::Parameters.new(data))
             allow(controller).to receive(:render)
 
@@ -152,7 +152,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             if data['form_number'] == '10-10D'
               controller = IvcChampva::V1::UploadsController.new
               allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
-                                                    get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                    get_file_paths_and_metadata: [['path'], {}],
                                                     params: ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
@@ -964,6 +964,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#get_file_paths_and_metadata' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_send_ves_to_pega, anything).and_return(false)
+    end
+
     form_numbers_and_classes.each do |form_number, form_class|
       context "when form_number is #{form_number}" do
         let(:parsed_form_data) do
@@ -1523,6 +1527,122 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         end.not_to raise_error
 
         expect(Rails.logger).to have_received(:error).with('Error validating MPI profiles: MPI service error')
+      end
+    end
+  end
+
+  describe '#generate_ves_json_file' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:mock_form) { double('Form', form_id: 'vha_10_10d', uuid: 'test-uuid-123') }
+    let(:mock_ves_request) { double('VesRequest') }
+
+    before do
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+      allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(mock_ves_request)
+      allow(mock_ves_request).to receive(:to_json).and_return('{"test": "data"}')
+      allow(File).to receive(:write)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
+    end
+
+    it 'generates VES JSON file and returns file path' do
+      expected_path = Rails.root.join("tmp/#{mock_form.uuid}_#{mock_form.form_id}_ves.json").to_s
+      result = controller.send(:generate_ves_json_file, mock_form, parsed_form_data)
+
+      expect(result).to eq(expected_path)
+      expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).with(parsed_form_data)
+      expect(File).to have_received(:write).with(
+        expected_path,
+        '{"test": "data"}'
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        "VES JSON file generated for form #{mock_form.form_id}: #{expected_path}"
+      )
+    end
+
+    context 'when VES data generation fails' do
+      before do
+        allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+          .and_raise(StandardError.new('VES formatting error'))
+      end
+
+      it 'logs the error and returns nil' do
+        result = controller.send(:generate_ves_json_file, mock_form, parsed_form_data)
+
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:error)
+          .with('Error generating VES JSON file for form vha_10_10d: VES formatting error')
+        expect(File).not_to have_received(:write)
+      end
+    end
+  end
+
+  describe '#get_file_paths_and_metadata VES JSON integration' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:mock_form) { double('Form', form_id: 'vha_10_10d', uuid: 'test-uuid-123', data: {}, metadata: {}) }
+
+    before do
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+      allow(controller).to receive_messages(get_attachment_ids_and_form: [['doc1'], mock_form],
+                                            should_generate_ves_json?: false)
+      allow(controller).to receive(:generate_ves_json_file)
+      allow(IvcChampva::FormVersionManager).to receive(:get_legacy_form_id).and_return('vha_10_10d')
+      allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('test_path.pdf')
+      allow(IvcChampva::MetadataValidator).to receive(:validate).and_return({})
+      allow(mock_form).to receive(:handle_attachments).and_return(['test_path.pdf'])
+    end
+
+    context 'when VES JSON generation conditions are met' do
+      let(:expected_ves_path) { Rails.root.join('tmp', 'test-uuid-123_vha_10_10d_ves.json').to_s }
+
+      before do
+        allow(controller).to receive(:should_generate_ves_json?).with('vha_10_10d').and_return(true)
+        allow(controller).to receive(:generate_ves_json_file).and_return(expected_ves_path)
+      end
+
+      it 'generates VES JSON file and adds it to file_paths and attachment_ids' do
+        file_paths, metadata = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+        expect(controller).to have_received(:should_generate_ves_json?).with('vha_10_10d')
+        expect(controller).to have_received(:generate_ves_json_file).with(mock_form, parsed_form_data)
+        expect(file_paths).to include(expected_ves_path)
+        expect(metadata['attachment_ids']).to include('VES JSON')
+      end
+    end
+
+    context 'when VES JSON generation conditions are not met' do
+      before do
+        allow(controller).to receive(:should_generate_ves_json?).with('vha_10_10d').and_return(false)
+      end
+
+      it 'does not generate VES JSON file' do
+        file_paths, metadata = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+        expect(controller).to have_received(:should_generate_ves_json?).with('vha_10_10d')
+        expect(controller).not_to have_received(:generate_ves_json_file)
+        expect(file_paths).not_to include('VES JSON')
+        expect(metadata['attachment_ids']).not_to include('VES JSON')
+      end
+    end
+
+    context 'when VES JSON generation fails' do
+      before do
+        allow(controller).to receive(:should_generate_ves_json?).with('vha_10_10d').and_return(true)
+        allow(controller).to receive(:generate_ves_json_file).and_return(nil)
+      end
+
+      it 'does not add VES JSON to file_paths or attachment_ids' do
+        file_paths, metadata = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+        expect(controller).to have_received(:generate_ves_json_file).with(mock_form, parsed_form_data)
+        expect(file_paths).not_to include(nil)
+        expect(metadata['attachment_ids']).not_to include('VES JSON')
       end
     end
   end

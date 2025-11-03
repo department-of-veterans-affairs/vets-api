@@ -196,13 +196,6 @@ module BGS
       # the dashes and proceed with form submission.
       @file_number = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
 
-      # The `validate_*!` calls below will raise errors if we have an invalid
-      # file number, or if the file number and SSN don't match. Even if this is
-      # the case, we still want to submit a PDF to the veteran's VBMS eFolder.
-      # This is because we are currently relying on the presence of a PDF and
-      # absence of a BGS-established claim to identify cases where Form 686c-674
-      # submission failed.
-
       generate_hash_from_details
     end
 

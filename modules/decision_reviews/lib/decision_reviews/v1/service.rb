@@ -17,7 +17,6 @@ module DecisionReviews
     # Proxy Service for the Lighthouse Decision Reviews API.
     #
     class Service < Common::Client::Base
-      include SentryLogging
       include Common::Client::Concerns::Monitoring
       include ::DecisionReviewV1
       include DecisionReviews::V1::SupplementalClaimServices
@@ -423,8 +422,6 @@ module DecisionReviews
           error_class: "#{self.class.name}#save_error_details exception #{error.class} (DECISION_REVIEW_V1)",
           data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
         )
-        Sentry.set_tags(external_service: self.class.to_s.underscore)
-        Sentry.set_extras(url: config.base_path, message: error.message)
       end
 
       def log_error_details(error:, message: nil)
@@ -449,7 +446,6 @@ module DecisionReviews
               when Faraday::ParsingError
                 DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
-                Sentry.set_extras(body: error.body, status: error.status)
                 if common_exceptions_flag_enabled? && ERROR_MAP.key?(error.status)
                   ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
                 elsif error.status == 403

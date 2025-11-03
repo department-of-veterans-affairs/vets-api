@@ -131,6 +131,13 @@ describe MockedAuthentication::Credential::Service do
     let(:auto_uplevel) { false }
     let(:country) { 'USA' }
     let(:phone) { 'some-phone' }
+    let(:digest) { 'some-digest' }
+    let(:digester) { instance_double(SignIn::CredentialAttributesDigester) }
+
+    before do
+      allow(SignIn::CredentialAttributesDigester).to receive(:new).and_return(digester)
+      allow(digester).to receive(:perform).and_return(digest)
+    end
 
     context 'when type is equal to logingov' do
       let(:type) { SignIn::Constants::Auth::LOGINGOV }
@@ -170,7 +177,8 @@ describe MockedAuthentication::Credential::Service do
           all_csp_emails: all_emails,
           multifactor:,
           authn_context:,
-          auto_uplevel:
+          auto_uplevel:,
+          digest:
         }
       end
       let(:authn_context) { IAL::LOGIN_GOV_IAL2 }
@@ -255,7 +263,8 @@ describe MockedAuthentication::Credential::Service do
           birth_date:,
           first_name:,
           last_name:,
-          address: expected_address
+          address: expected_address,
+          digest:
         }
       end
 
@@ -312,7 +321,8 @@ describe MockedAuthentication::Credential::Service do
           first_name:,
           middle_name:,
           last_name:,
-          edipi:
+          edipi:,
+          digest:
         }
       end
 
@@ -365,7 +375,8 @@ describe MockedAuthentication::Credential::Service do
           auto_uplevel:,
           mhv_icn:,
           mhv_credential_uuid:,
-          mhv_assurance:
+          mhv_assurance:,
+          digest:
         }
       end
 

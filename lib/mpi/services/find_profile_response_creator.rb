@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 require 'mpi/responses/profile_parser'
-require 'sentry_logging'
 require 'mpi/errors/errors'
 
 module MPI
   module Services
     class FindProfileResponseCreator
-      include SentryLogging
-
       attr_reader :type, :response, :error
 
       def initialize(type:, response: nil, error: nil)

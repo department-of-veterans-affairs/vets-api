@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/models/redis_store'
-require 'sentry_logging'
 
 class Session < Common::RedisStore
-  include SentryLogging
-
   redis_store REDIS_CONFIG[:session_store][:namespace]
   redis_ttl REDIS_CONFIG[:session_store][:each_ttl]
   redis_key :token

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/pdf_fill/filler'
 
 # Shared example for testing form fillers.
 # This shared example assumes that the form filler class
@@ -30,7 +31,7 @@ RSpec.shared_examples 'a form filler' do |options|
   form_id, factory, test_data_types, run_at = options.values_at(:form_id, :factory, :test_data_types, :run_at)
   test_data_types ||= %w[simple kitchen_sink overflow]
 
-  describe PdfFill::Filler, type: :model do
+  describe DependentsBenefits::PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: run_at || '2017-07-25 00:00:00 -0400' do
       let(:input_data_fixture_dir) do
         options[:input_data_fixture_dir] || "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}"

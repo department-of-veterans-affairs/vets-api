@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require 'mpi/responses/add_parser'
-require 'sentry_logging'
 
 module MPI
   module Services
     class AddPersonResponseCreator
-      include SentryLogging
-
       attr_reader :type, :response, :error
 
       def initialize(type:, response: nil, error: nil)

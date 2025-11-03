@@ -8,7 +8,6 @@ module SignIn
     include ExceptionHandling
     include Headers
     include ControllerLoggingContext
-    include SentryLogging
     include SentryControllerLogging
     include Traceable
 

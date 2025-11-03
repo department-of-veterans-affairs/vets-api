@@ -1,62 +1,75 @@
 # frozen_string_literal: true
 
+require 'logging/monitor'
+
 # Library for Veteran Facing Services
 module VeteranFacingServices
   # module functions for sending a VaNotify notification email
   module NotificationEmail
-    # statsd metric prefix
-    STATSD = 'api.veteran_facing_services.notification_email'
-
     # error indicating failure to send email
     class FailureToSend < StandardError; end
 
-    module_function
+    # default monitor class for notification email
+    class Monitor < ::Logging::Monitor
+      # statsd metric prefix
+      STATSD = 'api.veteran_facing_services.notification_email'
 
-    # monitor send failure
-    #
-    # @param error_message [String] the error message to be logged
-    # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
-    # @param context [Hash] additional information to send with the log
-    def monitor_send_failure(error_message, tags:, context: nil)
-      metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
-      payload = {
-        statsd: metric,
-        error_message:,
-        context:
-      }
+      # allowed parameters
+      ALLOWLIST = %w[
+        claim_id
+        email_type
+        email_template_id
+        error
+        form_id
+        saved_claim_id
+        service_name
+        tags
+      ].freeze
 
-      StatsD.increment(metric, tags:)
-      Rails.logger.error('VeteranFacingServices::NotificationEmail send failure!', **payload)
-    end
+      def initialize
+        super('vfs-notification-email', allowlist: ALLOWLIST)
+      end
 
-    # monitor attempting a duplicate notification for the same item
-    #
-    # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
-    # @param context [Hash] additional information to send with the log
-    def monitor_duplicate_attempt(tags:, context: nil)
-      metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.duplicate_attempt"
-      payload = {
-        statsd: metric,
-        context:
-      }
+      # monitor send successful
+      #
+      # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
+      # @param context [Hash] additional information to send with the log
+      def send_success(tags:, context: nil)
+        message = 'VeteranFacingServices::NotificationEmail send success!'
+        metric = "#{STATSD}.send_success"
 
-      StatsD.increment(metric, tags:)
-      Rails.logger.warn('VeteranFacingServices::NotificationEmail duplicate attempt', **payload)
-    end
+        track_request(:info, message, metric, call_location:, tags:, **context)
+      end
 
-    # monitor delivery successful
-    #
-    # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
-    # @param context [Hash] additional information to send with the log
-    def monitor_deliver_success(tags:, context: nil)
-      metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.deliver_success"
-      payload = {
-        statsd: metric,
-        context:
-      }
+      # monitor send failure
+      #
+      # @param error [String] the error message to be logged
+      # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
+      # @param context [Hash] additional information to send with the log
+      def send_failure(error, tags:, context: nil)
+        message = 'VeteranFacingServices::NotificationEmail send failure!'
+        metric = "#{STATSD}.send_failure"
 
-      StatsD.increment(metric, tags:)
-      Rails.logger.info('VeteranFacingServices::NotificationEmail deliver success!', **payload)
+        track_request(:error, message, metric, call_location:, tags:, error:, **context)
+      end
+
+      # monitor attempting a duplicate notification for the same item
+      #
+      # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
+      # @param context [Hash] additional information to send with the log
+      def duplicate_attempt(tags:, context: nil)
+        message = 'VeteranFacingServices::NotificationEmail duplicate attempt'
+        metric = "#{STATSD}.duplicate_attempt"
+
+        track_request(:warn, message, metric, call_location:, tags:, **context)
+      end
+
+      private
+
+      # get the location a monitor function was called
+      def call_location
+        caller_locations.second
+      end
     end
   end
 end

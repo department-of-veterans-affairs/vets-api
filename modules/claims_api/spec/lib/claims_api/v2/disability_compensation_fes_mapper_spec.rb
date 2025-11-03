@@ -238,6 +238,14 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
           expect(date[:day]).to eq(15)
         end
 
+        it "removes disabilities with a disabilityActionType of none'" do
+          form_data['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NONE'
+
+          fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+          # 4 get sent in
+          expect(fes_data[:data][:form526][:disabilities].count).to eq(3)
+        end
+
         context 'when secondary disabilities are present' do
           it 'extracts and flattens secondary disabilities' do
             # Add secondary disabilities to the test data

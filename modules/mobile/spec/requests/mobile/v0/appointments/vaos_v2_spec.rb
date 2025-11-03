@@ -2,6 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
   include JsonSchemaMatchers
@@ -50,6 +51,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
         context 'when user has access' do
           it 'returns ok' do
+            allow(UniqueUserEvents).to receive(:log_event)
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
@@ -60,6 +62,12 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
             expect(response).to have_http_status(:ok)
             assert_schema_conform(200)
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+            )
           end
         end
       end

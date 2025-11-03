@@ -1,0 +1,13 @@
+{
+  "veteranInformation": {
+    "fullName": { 
+      "first": "John",
+      "middle": "WayTooLongMiddleName",
+      "last": "Doe" 
+    },
+    "dateOfBirth": "1980-01-01"
+  },
+  "employmentInformation": {
+    "employerName": "Acme Corp"
+  }
+}

@@ -13,12 +13,15 @@ RSpec.describe 'Pensions End to End', type: :request do
   let(:pdf_path) { 'random/path/to/pdf' }
   let(:monitor) { Pensions::Monitor.new }
   let(:service) { BenefitsIntake::Service.new }
+  let(:vanotify) { double(send_email: true) }
 
   let(:stats_key) { BenefitsIntake::SubmissionStatusJob::STATS_KEY }
 
   before do
     allow(Pensions::Monitor).to receive(:new).and_return(monitor)
     allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+
+    allow(VaNotify::Service).to receive(:new).and_return(vanotify)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
     allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return true
@@ -67,8 +70,7 @@ RSpec.describe 'Pensions End to End', type: :request do
 
     # 'success' email notification
     expect(email).to receive(:deliver).with(:submitted).and_call_original
-    expect(VANotify::EmailJob).to receive(:perform_async)
-    expect(VeteranFacingServices::NotificationEmail).to receive(:monitor_deliver_success).and_call_original
+    expect(vanotify).to receive(:send_email)
 
     expect(monitor).to receive(:track_submission_success).and_call_original
     expect(Common::FileHelpers).to receive(:delete_file_if_exists).at_least(1).and_call_original
@@ -96,8 +98,7 @@ RSpec.describe 'Pensions End to End', type: :request do
     expect(service).to receive(:bulk_status).and_return(bulk_status)
 
     expect(email).to receive(:deliver).with(:received).and_call_original
-    expect(VANotify::EmailJob).to receive(:perform_async)
-    expect(VeteranFacingServices::NotificationEmail).to receive(:monitor_deliver_success).and_call_original
+    expect(vanotify).to receive(:send_email)
 
     BenefitsIntake::SubmissionStatusJob.new.perform(Pensions::FORM_ID)
 

@@ -73,6 +73,42 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
   end
 
+  describe '#send_email' do
+    let(:notification_email) { double('notification_email') }
+
+    before do
+      allow(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+    end
+
+    context 'when email_type is a confirmation type' do
+      it 'sends VBMS confirmation email' do
+        expect(notification_email).to receive(:deliver).with(
+          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_vbms]
+        )
+
+        claim.send_email(:confirmation_vbms)
+      end
+
+      it 'sends Lighthouse confirmation email' do
+        expect(notification_email).to receive(:deliver).with(
+          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_lighthouse]
+        )
+
+        claim.send_email(:confirmation_lighthouse)
+      end
+    end
+
+    context 'when email_type is not a confirmation type' do
+      it 'sends error email' do
+        expect(notification_email).to receive(:deliver).with(
+          SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE
+        )
+
+        claim.send_email(:error)
+      end
+    end
+  end
+
   describe '#send_to_vre' do
     it 'propagates errors from send_to_lighthouse!' do
       allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')
@@ -115,8 +151,11 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         end
 
         it 'sends confirmation email' do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vre_use_new_vfs_notification_library)
+            .and_return(false)
           expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
-            .with('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+            .with('VBMS', 'confirmation_vbms_email_template_id')
 
           claim.send_to_vre(user_object)
         end
@@ -139,6 +178,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
+        Flipper.disable(:vre_use_new_vfs_notification_library)
         expect(claim).to receive(:process_attachments!)
         expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
         expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
@@ -185,7 +225,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           }
         )
 
-        claim.send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+        claim.send_vbms_lighthouse_confirmation_email('VBMS', 'ch31_vbms_fake_template_id')
       end
     end
   end

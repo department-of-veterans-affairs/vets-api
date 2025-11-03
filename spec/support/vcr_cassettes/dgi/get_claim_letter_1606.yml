@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter1606/claimants/claimantId
+    uri: <DGI_VETS_URL>claimType/Chapter1606/claimants/claimantId
     body:
       encoding: UTF-8
       string: '{"ssn":"796121200"}'
@@ -34,7 +34,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2022 18:42:44 GMT
 - request:
     method: get
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimant/600000001/claimType/Chapter1606/claimstatus?latest=false
+    uri: <DGI_VETS_URL>claimant/600000001/claimType/Chapter1606/claimstatus?latest=false
     body:
       encoding: US-ASCII
       string: ''
@@ -66,7 +66,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2022 18:42:44 GMT
 - request:
     method: get
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimant/600000001/claimType/Chapter1606/letter
+    uri: <DGI_VETS_URL>claimant/600000001/claimType/Chapter1606/letter
     body:
       encoding: US-ASCII
       string: ''

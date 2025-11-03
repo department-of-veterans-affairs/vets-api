@@ -38,7 +38,8 @@
         "dispensed_date": { "type": ["string", "null"], "format": "date" },
         "station_number": { "type": "string" },
         "is_refillable": { "type": "boolean" },
-        "is_trackable": { "type": "boolean" }
+        "is_trackable": { "type": "boolean" },
+        "pharmacy_phone_number": { "type": ["string", "null"] }
       }
     },
     "links": {

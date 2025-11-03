@@ -24,6 +24,7 @@ module Mobile
 
       attribute :instructions, &:sig
       attribute :facility_phone_number, &:cmop_division_phone
+      attribute :pharmacy_phone_number
     end
   end
 end
