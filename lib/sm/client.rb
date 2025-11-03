@@ -711,7 +711,7 @@ module SM
       path = uri.path
       if path =~ %r{/(attachments|attachment)/(\d+)/}
         segments = path.split('/')
-        idx = segments.index { |s| s == 'attachments' || s == 'attachment' }
+        idx = segments.index { |s| %w[attachments attachment].include?(s) }
         id_segment = segments[idx + 1]
         filtered_path = "/#{segments[idx]}/#{id_segment}/[FILTERED]"
         return "#{uri.scheme}://#{uri.host}#{filtered_path}"
