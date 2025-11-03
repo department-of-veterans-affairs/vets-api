@@ -9,12 +9,196 @@ module Pensions
     # Section VIII: Dependent Children
     class Section8 < Section
       # Section configuration hash
-      KEY = {}.freeze
+      KEY = {
+        # 8a
+        'dependentChildrenInHousehold' => {
+          limit: 2,
+          key: 'form1[0].#subform[50].Number_Of_Dependent_Children_Who_Live_With_You[0]'
+        },
+        # 8b-p Dependent Children
+        'dependents' => {
+          limit: 3,
+          first_key: 'childPlaceOfBirth',
+          item_label: 'Child',
+          'fullName' => {
+            'first' => {
+              limit: 12,
+              question_num: 8,
+              question_label: "Child's First Name",
+              question_text: 'CHILD\'S FIRST NAME',
+              key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
+            },
+            'middle' => {
+              question_num: 8,
+              question_label: "Child's Middle Name",
+              question_text: 'CHILD\'S MIDDLE NAME',
+              key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
+            },
+            'last' => {
+              limit: 18,
+              question_num: 8,
+              question_label: "Child's Last Name",
+              question_text: 'CHILD\'S LAST NAME',
+              key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
+            }
+          },
+          'fullNameOverflow' => {
+            question_num: 8,
+            question_label: "Child's Name",
+            question_text: '(1) CHILD\'S NAME'
+          },
+          'childDateOfBirth' => {
+            'month' => {
+              key: "Dependent_Children.Childs_DOB_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Dependent_Children.Childs_DOB_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Dependent_Children.Childs_DOB_Year[#{ITERATOR}]"
+            }
+          },
+          'childDateOfBirthOverflow' => {
+            question_num: 8,
+            question_label: "Child's Date Of Birth",
+            question_text: '(2) CHILD\'S DATE OF BIRTH'
+          },
+          'childSocialSecurityNumber' => {
+            'first' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_FirstThreeNumbers[#{ITERATOR}]"
+            },
+            'second' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_SecondTwoNumbers[#{ITERATOR}]"
+            },
+            'third' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_LastFourNumbers[#{ITERATOR}]"
+            }
+          },
+          'childSocialSecurityNumberOverflow' => {
+            question_num: 8,
+            question_label: "Child's Social Security Number",
+            question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
+          },
+          'childPlaceOfBirth' => {
+            limit: 60,
+            question_num: 8,
+            question_label: "Child's Place Of Birth",
+            question_text: '(3) CHILD\'S PLACE OF BIRTH',
+            key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
+          },
+          'childRelationship' => {
+            'biological' => {
+              key: "Dependent_Children.Biological[#{ITERATOR}]"
+            },
+            'adopted' => {
+              key: "Dependent_Children.Adopted[#{ITERATOR}]"
+            },
+            'stepchild' => {
+              key: "Dependent_Children.Stepchild[#{ITERATOR}]"
+            }
+          },
+          'disabled' => {
+            key: "Dependent_Children.Seriously_Disabled[#{ITERATOR}]"
+          },
+          'attendingCollege' => {
+            key: "Dependent_Children.Eighteen_To_Twenty_Three_Years_Old_In_School[#{ITERATOR}]"
+          },
+          'previouslyMarried' => {
+            key: "Dependent_Children.Previously_Married[#{ITERATOR}]"
+          },
+          'childNotInHousehold' => {
+            key: "Dependent_Children.Does_Not_Live_With_You_But_Contributes[#{ITERATOR}]"
+          },
+          'childStatusOverflow' => {
+            question_num: 8,
+            question_label: "Child's Status",
+            question_text: '(5) CHILD\'S STATUS'
+          },
+          'monthlyPayment' => {
+            'part_two' => {
+              key: "Dependent_Children.Amount_Of_Contribution_First_Two[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Dependent_Children.Amount_Of_Contribution_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Dependent_Children.Amount_Of_Contribution_Cents[#{ITERATOR}]"
+            }
+          },
+          'monthlyPaymentOverflow' => {
+            question_num: 8,
+            question_label: 'Annual Contribution To Child',
+            question_text: '(6) Annual Contribution To Child'
+          }
+        },
+        # 8q
+        'dependentsNotWithYouAtSameAddress' => {
+          key: 'form1[0].#subform[51].RadioButtonList[20]'
+        },
+        # 8r
+        'custodians' => {
+          limit: 1,
+          first_key: 'first',
+          'first' => {
+            limit: 12,
+            key: 'form1[0].#subform[51].Custodians_FirstName[0]'
+          },
+          'middle' => {
+            key: 'form1[0].#subform[51].Custodians_MiddleInitial1[0]'
+          },
+          'last' => {
+            limit: 18,
+            key: 'form1[0].#subform[51].Custodians_LastName[0]'
+          },
+          'custodianAddress' => {
+            'street' => {
+              limit: 30,
+              key: 'form1[0].#subform[51].NumberStreet[3]'
+            },
+            'street2' => {
+              limit: 5,
+              key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
+            },
+            'city' => {
+              limit: 18,
+              key: 'form1[0].#subform[51].City[2]'
+            },
+            'state' => {
+              key: 'form1[0].#subform[51].State_Or_Province[1]'
+            },
+            'country' => {
+              key: 'form1[0].#subform[51].Country[2]'
+            },
+            'postalCode' => {
+              'firstFive' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
+              },
+              'lastFour' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
+              }
+            }
+          },
+          'custodianAddressOverflow' => {
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_label: "Custodian's Address",
+            question_text: 'CUSTODIAN\'S ADDRESS'
+          },
+          'dependentsWithCustodianOverflow' => {
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_label: 'Dependents Living With This Custodian',
+            question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'
+          }
+        }
+      }.freeze
 
       ##
       # Expands dependent children section
       #
       # @param form_data [Hash]
+      #
+      # @return [void]
       #
       # @note Modifies `form_data`
       #

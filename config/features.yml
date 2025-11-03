@@ -807,11 +807,11 @@ features:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
-  disability_526_toxic_exposure_opt_out_data_purge:
+  disability_526_browser_monitoring_enabled:
     actor_type: user
-    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    description: enables Datadog RUM for the disability 526 submission frontend workflow
     enable_in_development: true
-  disability_526_toxic_exposure_opt_out_data_purge_by_user:
+  disability_526_toxic_exposure_opt_out_data_purge:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
@@ -1157,10 +1157,6 @@ features:
   ha_cpap_supplies_cta:
     actor_type: user
     description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
-  in_progress_form_custom_expiration:
-    actor_type: user
-    description: Enable/disable custom expiration dates for forms
-    enable_in_development: true
   in_progress_form_reminder:
     actor_type: user
     description: Enable/disable in progress form reminders (sent via VaNotify)
@@ -1297,21 +1293,6 @@ features:
   mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for VistA patients
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_sp_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_mb_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Microbiology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_ch_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
-  mhv_accelerated_delivery_uhd_filtering_enabled:
-    actor_type: user
-    description: Control whether vets-api applies filtering logic to UHD lab records
     enable_in_development: false
   mhv_accelerated_delivery_uhd_loinc_logging_enabled:
     actor_type: user
@@ -1914,6 +1895,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_parent_guardian_step:
+    actor_type: user
+    description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
+    enable_in_development: true
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user
     description: Hides benefit selection page on original claims application.
@@ -2098,6 +2083,12 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  va_online_scheduling_parallel_travel_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle to enable parallel fetching of appointments and travel claims in get_appointments.
+      When enabled, appointments and travel claims are fetched concurrently, reducing response time.
   va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
