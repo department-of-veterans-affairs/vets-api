@@ -4,6 +4,7 @@ require 'claims_evidence_api/validation/search_filters'
 
 module ClaimsEvidenceApi
   module Validation
+    # containing module for schema validation functions
     module Schema
       module_function
 
