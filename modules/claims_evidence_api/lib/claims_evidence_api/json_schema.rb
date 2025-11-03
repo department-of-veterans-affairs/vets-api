@@ -17,13 +17,13 @@ module ClaimsEvidenceApi
     end
 
     # #/components/schemas/payload
-    UPLOAD_PAYLOAD = "#{SCHEMA}/uploadPayload.json"
+    UPLOAD_PAYLOAD = "#{SCHEMA}/uploadPayload.json".freeze
     # #/components/schemas/updateDataProviderData
-    PROVIDER_DATA = "#{SCHEMA}/providerData.json"
+    PROVIDER_DATA = "#{SCHEMA}/providerData.json".freeze
     # #/components/schemas/searchFileRequest
-    SEARCH_FILE_REQUEST = "#{SCHEMA}/searchFileRequest.json"
+    SEARCH_FILE_REQUEST = "#{SCHEMA}/searchFileRequest.json".freeze
     # #/components/schemas/Filters
-    SEARCH_FILTERS = "#{SCHEMA}/searchFilters.json"
+    SEARCH_FILTERS = "#{SCHEMA}/searchFilters.json".freeze
 
     # hash { :property_name => json-schema }
     # :property_name == filename without extension

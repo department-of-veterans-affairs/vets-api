@@ -58,24 +58,21 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::Validation::SearchFilters
       # @see modules/claims_evidence_api/lib/claims_evidence_api/schema/searchFileRequest.json
       #
-      # @param page [Integer] page to begin returning results; default = 1
       # @param results_per_page [Integer] number of results per page; default = 10
+      # @param page [Integer] page to begin returning results; default = 1
       # @param filters [Hash] filters to be applied to the search
       # @param sort [Hash] sort to apply to the results
       #
       # @return [Hash] valid file:search payload
       # @raise JSON::Schema::ValidationError
-      def validate_search_file_request(results_per_page = 10, page = 1, filters = {}, sort = {})
-        filters ||= {}
-        sort ||= {}
-
+      def validate_search_file_request(results_per_page: 10, page: 1, filters: {}, sort: {})
         request = {
           pageRequest: {
             resultsPerPage: results_per_page.to_i,
             page: page.to_i
           },
-          filters: filters.compact,
-          sort: {} # no schema for what should be in 'sort'
+          filters: (filters || {}).compact,
+          sort: (sort || {}).compact # no schema for what should be in 'sort'
         }
 
         JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::SEARCH_FILE_REQUEST, request)

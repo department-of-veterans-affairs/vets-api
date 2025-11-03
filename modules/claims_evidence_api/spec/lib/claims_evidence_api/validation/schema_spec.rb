@@ -69,7 +69,7 @@ RSpec.describe ClaimsEvidenceApi::Validation::Schema do
 
   describe '#validate_search_file_request' do
     it 'returns a valid file search request hash' do
-      valid = { results_per_page: 100, page: 23, filters: nil, sort: nil}
+      valid = { results_per_page: 100, page: 23, filters: nil, sort: nil }
       expected = {
         pageRequest: {
           resultsPerPage: 100,
@@ -78,12 +78,12 @@ RSpec.describe ClaimsEvidenceApi::Validation::Schema do
         filters: {},
         sort: {}
       }
-      expect(expected).to eq subject.validate_search_file_request(*valid.values)
+      expect(expected).to eq subject.validate_search_file_request(**valid)
     end
 
     it 'raises a JSON::Schema::ValidationError' do
-      invalid = { page: -1 }
-      expect { subject.validate_search_file_request(*invalid.values) }.to raise_error JSON::Schema::ValidationError
+      invalid = { results_per_page: 10, page: -1, filters: nil, sort: nil }
+      expect { subject.validate_search_file_request(**invalid) }.to raise_error JSON::Schema::ValidationError
     end
   end
 end
