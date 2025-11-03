@@ -386,13 +386,11 @@ module V0
       else
         # Log non-200 responses
         handle_error(claim_id, poll_response, request_ids, 'polling')
-        nil
       end
     rescue => e
       # Catch unexpected exceptions from polling service (network errors, timeouts, etc.)
       error_response = OpenStruct.new(status: nil, body: e.message)
       handle_error(claim_id, error_response, request_ids, 'polling')
-      nil
     end
 
     def process_status_update(claim_id, pending_submissions, poll_response, request_ids)
