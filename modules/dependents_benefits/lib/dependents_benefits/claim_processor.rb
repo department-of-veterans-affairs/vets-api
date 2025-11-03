@@ -21,6 +21,7 @@ module DependentsBenefits
     def self.enqueue_submissions(parent_claim_id, proc_id)
       processor = new(parent_claim_id, proc_id)
       processor.enqueue_submissions
+      # TODO: Set claim group gets set as accepted
     end
 
     def enqueue_submissions
