@@ -584,7 +584,8 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        fetch_avs_and_update_appt_body(appointment, include[:binary]) if avs_applicable?(appointment, include[:avs])
+        fetch_avs_and_update_appt_body(appt: appointment, binary: include[:binary]) if avs_applicable?(appointment,
+                                                                                                       include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
@@ -770,8 +771,7 @@ module VAOS
       # @param [boolean] binary Indicates if Oracle Health AVS binary data should be returned for cerner appts
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
-      # rubocop:disable Style/OptionalBooleanParameter
-      def fetch_avs_and_update_appt_body(appt, binary = false)
+      def fetch_avs_and_update_appt_body(appt:, binary: false)
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
@@ -786,7 +786,6 @@ module VAOS
         Rails.logger.error("VAOS: Error retrieving AVS info: #{e.class}, #{e.message} \n   #{err_stack}")
         appt[:avs_error] = AVS_ERROR_MESSAGE
       end
-      # rubocop:enable Style/OptionalBooleanParameter
 
       # Determines if the appointment cannot be cancelled.
       #
