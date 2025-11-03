@@ -1364,6 +1364,30 @@ vanotify:
         submitted:
           flipper_id: dv_email_notification
           template_id: <%= ENV['vanotify__services__21_0538__email__submitted__template_id'] %>
+    21_686c_674: &vanotify_services_dependents_benefits
+      api_key: <%= ENV['vanotify__services__21_686c_674__api_key'] %>
+      email:
+        error_674_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__error_674_only__template_id'] %>
+        error_686c_674:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__error_686c_674__template_id'] %>
+        error_686c_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__error_686c_only__template_id'] %>
+        received_674_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__received_674_only__template_id'] %>
+        received_686c_674:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__received_686c_674__template_id'] %>
+        received_686c_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__received_686c_only__template_id'] %>
+        submitted:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted__template_id'] %>
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:
@@ -1472,6 +1496,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__dependents__email__submitted686__template_id'] %>
         submitted686c674:
           template_id: <%= ENV['vanotify__services__dependents__email__submitted686c674__template_id'] %>
+    dependents_benefits: *vanotify_services_dependents_benefits
     dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
