@@ -709,16 +709,11 @@ module SM
     def sanitize_presigned_url_for_tracing(url)
       uri = URI.parse(url)
       path = uri.path
-      if path =~ %r{/(attachments|attachment)/(\d+)/}
-        segments = path.split('/')
-        idx = segments.index { |s| %w[attachments attachment].include?(s) }
-        if idx && (idx + 1) < segments.length
-          id_segment = segments[idx + 1]
-          filtered_path = "/#{segments[idx]}/#{id_segment}/[FILTERED]"
-          return "#{uri.scheme}://#{uri.host}#{filtered_path}"
-        else
-          return '[FILTERED]'
-        end
+      if (match = path.match(%r{/(attachments|attachment)/(\d+)/}))
+        attachment_type = match[1]
+        attachment_id = match[2]
+        filtered_path = "/#{attachment_type}/#{attachment_id}/[FILTERED]"
+        return "#{uri.scheme}://#{uri.host}#{filtered_path}"
       end
       # If it doesn't match the expected pattern, return host + path without query.
       "#{uri.scheme}://#{uri.host}#{path}"
