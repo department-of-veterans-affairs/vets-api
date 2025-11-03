@@ -185,24 +185,24 @@ module DisabilityCompensation
       #
       # Analyzes differences between save-in-progress and submitted toxic exposure data
       # to identify which keys were removed. Filters out empty hash values to reduce noise.
-      # Transforms snake_case keys from InProgressForm to camelCase for consistent logging.
       #
-      # @param in_progress_toxic_exposure [Hash] Toxic exposure data from InProgressForm (snake_case keys)
-      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from SavedClaim (camelCase keys)
-      # @return [Hash] Metadata with completely_removed and removed_keys (in camelCase)
+      # @param in_progress_toxic_exposure [Hash] InProgressForm data (snake_case)
+      # @param submitted_toxic_exposure [Hash, nil] SavedClaim data (camelCase)
+      # @return [Hash] Metadata with completely_removed and removed_keys
       def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
-        # InProgressForm uses snake_case, SavedClaim uses camelCase
-        # We need to normalize to compare them properly
-        in_progress_camel_keys = in_progress_toxic_exposure.keys.map { |k| k.to_s.camelize(:lower) }
+        in_progress_camelized = OliveBranch::Transformations.transform(
+          in_progress_toxic_exposure,
+          OliveBranch::Transformations.method(:camelize)
+        )
+
+        in_progress_camel_keys = in_progress_camelized.keys
         submitted_camel_keys = submitted_toxic_exposure&.keys || []
 
         all_removed_keys = in_progress_camel_keys - submitted_camel_keys
 
-        # Filter out expected removals to reduce noise:
-        # - Empty hashes contain no meaningful data (check original snake_case key)
+        # Filter out empty hashes to reduce noise
         removed_keys = all_removed_keys.reject do |camel_key|
-          snake_key = camel_key.to_s.underscore
-          in_progress_toxic_exposure[snake_key].is_a?(Hash) && in_progress_toxic_exposure[snake_key].empty?
+          in_progress_camelized[camel_key].is_a?(Hash) && in_progress_camelized[camel_key].empty?
         end
 
         completely_removed = submitted_toxic_exposure.nil?
