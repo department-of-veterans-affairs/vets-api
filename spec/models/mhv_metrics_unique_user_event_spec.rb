@@ -212,7 +212,7 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
     context 'integration test with real database' do
       let(:test_user_id) { SecureRandom.uuid }
-      let(:test_event_name) { "integration_test_#{SecureRandom.hex(4)}" }
+      let(:test_event_name) { 'integration_test_event' }
 
       before do
         # Ensure cache is clear for this specific key
