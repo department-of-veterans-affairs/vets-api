@@ -229,18 +229,18 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
         # First insert with cache clear - should return true (new event)
         Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
         result1 = described_class.record_event(user_id: test_user_id, event_name: test_event_name)
-        expect(result1).to eq(true), 'First insert should return true for new event'
+        expect(result1).to be(true), 'First insert should return true for new event'
 
         # Second insert with cache clear - should return false (duplicate)
         Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
         result2 = described_class.record_event(user_id: test_user_id, event_name: test_event_name)
-        expect(result2).to eq(false), 'Duplicate insert should return false'
+        expect(result2).to be(false), 'Duplicate insert should return false'
 
         # Subsequent inserts should also return false
         3.times do
           Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
           result = described_class.record_event(user_id: test_user_id, event_name: test_event_name)
-          expect(result).to eq(false), 'Multiple duplicate inserts should all return false'
+          expect(result).to be(false), 'Multiple duplicate inserts should all return false'
         end
 
         # Verify only one record exists (INSERT ON CONFLICT prevented duplicates)
@@ -251,12 +251,12 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
       it 'does not raise exceptions on duplicate inserts' do
         # Verify no ActiveRecord::RecordNotUnique exceptions are raised
-        expect {
+        expect do
           5.times do
             Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
             described_class.record_event(user_id: test_user_id, event_name: test_event_name)
           end
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
   end
