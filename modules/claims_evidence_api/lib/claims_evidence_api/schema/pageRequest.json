@@ -7,15 +7,16 @@
       "example" : 10,
       "format" : "int32",
       "type" : "integer",
-      "min": 1
+      "minimum": 1
     },
     "page" : {
       "example" : 1,
       "format" : "int32",
       "type" : "integer",
-      "min": 1
+      "minimum": 1
     }
   },
+  "required" : [ "resultsPerPage", "page" ],
   "title" : "Paging Request",
   "type" : "object"
 }

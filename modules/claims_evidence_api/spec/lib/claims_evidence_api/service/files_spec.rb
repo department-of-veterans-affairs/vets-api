@@ -6,7 +6,7 @@ require 'claims_evidence_api/service/files'
 require 'common/file_helpers'
 require 'common/virus_scan'
 
-require_relative '../../../support/claims_evidence_api/shared_examples/service'
+require_relative 'shared/service'
 
 RSpec.describe ClaimsEvidenceApi::Service::Files do
   let(:service) { described_class.new }

@@ -65,7 +65,10 @@ module ClaimsEvidenceApi
       #
       # @return [Hash] valid file:search payload
       # @raise JSON::Schema::ValidationError
-      def validate_search_file_request(page = 1, results_per_page = 10, filters = {}, sort = {})
+      def validate_search_file_request(results_per_page = 10, page = 1, filters = {}, sort = {})
+        filters ||= {}
+        sort ||= {}
+
         request = {
           pageRequest: {
             resultsPerPage: results_per_page.to_i,

@@ -12,12 +12,14 @@ module ClaimsEvidenceApi
         end
 
         def transform(filters)
-          transformed = filters.each_with_object({}) { |(filter, value), formatted|
+          transformed = filters.each_with_object({}) { |(filter, value), xformed|
             next unless (formatter = FORMATTERS[filter.to_sym])
 
-            formatted[formatter.search_field] = {
+            xfrmd_value = value.to_json if formatter.value_type == 'string' && !value.is_a?(String)
+
+            xformed[formatter.search_field] = {
               evaluationType: formatter.evaluation,
-              value: value.is_a?(String) ? value : value.to_json
+              value: xfrmd_value || value
             }
           }
           validate(transformed)
