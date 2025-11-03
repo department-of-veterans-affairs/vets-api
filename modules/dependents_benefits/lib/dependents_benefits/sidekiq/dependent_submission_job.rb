@@ -105,8 +105,8 @@ module DependentsBenefits::Sidekiq
           if all_child_groups_succeeded? && !parent_group_completed?
             # update parent claim group status
             mark_parent_group_succeeded
-            # notify user of overall success
-            send_success_notification
+            # notify user of overall success/service received submission
+            notification_email.send_received_notification
           end
         end
       end
@@ -150,7 +150,7 @@ module DependentsBenefits::Sidekiq
       end
     rescue => e
       begin
-        send_failure_notification
+        notification_email.send_error_notification
         monitor.log_silent_failure_avoided({ claim_id:, error: e })
       rescue => e
         # Last resort notification fails
@@ -238,6 +238,10 @@ module DependentsBenefits::Sidekiq
 
     def user_data
       @user_data ||= JSON.parse(parent_group.user_data)
+    end
+
+    def notification_email
+      @notification_email ||= DependentsBenefits::NotificationEmail.new(claim_id)
     end
 
     def submission
