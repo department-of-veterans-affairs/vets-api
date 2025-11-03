@@ -712,9 +712,13 @@ module SM
       if path =~ %r{/(attachments|attachment)/(\d+)/}
         segments = path.split('/')
         idx = segments.index { |s| %w[attachments attachment].include?(s) }
-        id_segment = segments[idx + 1]
-        filtered_path = "/#{segments[idx]}/#{id_segment}/[FILTERED]"
-        return "#{uri.scheme}://#{uri.host}#{filtered_path}"
+        if idx && (idx + 1) < segments.length
+          id_segment = segments[idx + 1]
+          filtered_path = "/#{segments[idx]}/#{id_segment}/[FILTERED]"
+          return "#{uri.scheme}://#{uri.host}#{filtered_path}"
+        else
+          return '[FILTERED]'
+        end
       end
       # If it doesn't match the expected pattern, return host + path without query.
       "#{uri.scheme}://#{uri.host}#{path}"
