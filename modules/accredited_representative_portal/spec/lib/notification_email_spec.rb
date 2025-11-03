@@ -7,6 +7,18 @@ RSpec.describe AccreditedRepresentativePortal::NotificationEmail do
   let(:saved_claim) { create(:saved_claim_benefits_intake) }
   let(:vanotify) { double(send_email: true) }
 
+  before do
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+      if file.respond_to?(:path) && file.path.end_with?('.pdf')
+        nil
+      else
+        original.call(file)
+      end
+    end
+  end
+
   describe '#deliver' do
     it 'successfully sends an error email' do
       saved_claim_claimant_representative = create(:saved_claim_claimant_representative,
