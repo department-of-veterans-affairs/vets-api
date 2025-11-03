@@ -120,7 +120,6 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       allow(Rails.logger).to receive(:debug)
       allow(described_class).to receive(:key_cached?)
       allow(described_class).to receive(:mark_key_cached)
-      allow(described_class).to receive(:create!)
     end
 
     context 'with invalid parameters' do
@@ -147,7 +146,6 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
         result = described_class.record_event(user_id:, event_name:)
 
         expect(result).to be(false)
-        expect(described_class).not_to have_received(:create!)
         expect(Rails.logger).to have_received(:debug)
           .with('UUM: Event found in cache', { user_id:, event_name: })
       end
@@ -159,15 +157,20 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       end
 
       context 'and record is successfully created' do
+        let(:insert_result) { double('InsertResult', rows: [[user_id, event_name]]) }
+
         before do
-          allow(described_class).to receive(:create!).with(user_id:, event_name:).and_return(true)
+          allow(described_class).to receive(:insert)
+            .with({ user_id:, event_name: }, unique_by: %i[user_id event_name])
+            .and_return(insert_result)
         end
 
         it 'returns true and logs success' do
           result = described_class.record_event(user_id:, event_name:)
 
           expect(result).to be(true)
-          expect(described_class).to have_received(:create!).with(user_id:, event_name:)
+          expect(described_class).to have_received(:insert)
+            .with({ user_id:, event_name: }, unique_by: %i[user_id event_name])
           expect(described_class).to have_received(:mark_key_cached).with(cache_key)
           expect(Rails.logger).to have_received(:debug)
             .with('UUM: New unique event recorded', { user_id:, event_name: })
@@ -175,8 +178,12 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       end
 
       context 'and record already exists in database' do
+        let(:insert_result) { double('InsertResult', rows: []) }
+
         before do
-          allow(described_class).to receive(:create!).and_raise(ActiveRecord::RecordNotUnique)
+          allow(described_class).to receive(:insert)
+            .with({ user_id:, event_name: }, unique_by: %i[user_id event_name])
+            .and_return(insert_result)
           allow(Rails.logger).to receive(:debug)
         end
 
