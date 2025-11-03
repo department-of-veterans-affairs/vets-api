@@ -24,10 +24,12 @@ class UserSessionForm
     user_verification = create_user_verification(saml_attributes)
     uuid = user_verification.user_account.id
     existing_user = User.find(uuid)
-    @session = Session.new(uuid:, credential_uuid: user_verification.credential_identifier,
-                           ssoe_transactionid: saml_user.user_attributes.try(:transactionid))
+    @session = Session.new(uuid:, ssoe_transactionid: saml_user.user_attributes.try(:transactionid))
     @user_identity = UserIdentity.new(saml_attributes.merge(uuid:))
-    create_new_user(uuid)
+    @user = User.new(uuid:)
+    @user.session_handle = @session.token
+    @user.instance_variable_set(:@identity, @user_identity)
+    @user.invalidate_mpi_cache
 
     if saml_user.changing_multifactor?
       last_signed_in = existing_user&.last_signed_in || Time.current.utc
@@ -161,13 +163,6 @@ class UserSessionForm
   end
 
   private
-
-  def create_new_user(uuid)
-    @user = User.new(uuid:)
-    @user.session_handle = @session.token
-    @user.instance_variable_set(:@identity, @user_identity)
-    @user.invalidate_mpi_cache
-  end
 
   def log_existing_user_warning(saml_uuid, saml_icn)
     message = "Couldn't locate existing user after MFA establishment"
