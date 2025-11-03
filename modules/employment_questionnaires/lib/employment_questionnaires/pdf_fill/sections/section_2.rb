@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'employment_questionairres/pdf_fill/section'
+require 'employment_questionnaires/pdf_fill/section'
 
-module EmploymentQuestionairres
+module EmploymentQuestionnaires
   module PdfFill
     # Section I: Veteran's Identification Information
     class Section2 < Section
