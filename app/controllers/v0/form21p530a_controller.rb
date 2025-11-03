@@ -6,7 +6,6 @@ module V0
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
-    skip_before_action :verify_authenticity_token, only: %i[create download_pdf]
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
