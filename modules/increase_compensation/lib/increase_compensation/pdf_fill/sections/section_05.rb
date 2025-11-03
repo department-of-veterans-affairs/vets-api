@@ -9,6 +9,10 @@ module IncreaseCompensation
       # Section configuration hash
       KEY = {
         'remarks' => {
+          limit: 600,
+          question_num: 26,
+          question_label: 'Remarks',
+          question_text: 'Remarks',
           key: 'form1[0].#subform[4].Remarks_Ifany[0]'
         }
       }.freeze

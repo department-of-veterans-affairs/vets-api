@@ -25,6 +25,10 @@ module IncreaseCompensation
         'witnessSignature1' => {
           'signature' => {
             limit: 38,
+            question_number: 29,
+            question_suffix: 'A',
+            question_label: 'Signature of Witness 1',
+            question_text: 'Signature of Witness 1',
             key: 'form1[0].#subform[4].Signature[0]'
           },
           'address1' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[0]' },
@@ -33,6 +37,10 @@ module IncreaseCompensation
         'witnessSignature2' => {
           'signature' => {
             limit: 38,
+            question_number: 30,
+            question_suffix: 'A',
+            question_label: 'Signature of Witness 2',
+            question_text: 'Signature of Witness 2',
             key: 'form1[0].#subform[4].Signature[1]'
           },
           'address1' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[2]' },

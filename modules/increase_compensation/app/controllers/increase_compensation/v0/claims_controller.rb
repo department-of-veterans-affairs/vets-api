@@ -12,6 +12,7 @@ module IncreaseCompensation
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
+      skip_before_action :verify_authenticity_token
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
