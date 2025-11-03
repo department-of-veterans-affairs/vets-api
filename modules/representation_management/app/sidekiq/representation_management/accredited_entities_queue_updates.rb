@@ -426,8 +426,7 @@ module RepresentationManagement
       entity_mappings.each do |type_key, ids|
         next unless @expected_counts[type_key]
 
-        type_string = type_key == :veteran_service_organizations ? VSOS : type_key.to_s
-        counts_match_expected?(type_string, ids.uniq.compact.size)
+        counts_match_expected?(type_key.to_s, ids.uniq.compact.size)
       end
     end
 
