@@ -42,6 +42,9 @@ module V0
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
       end
 
+      # Stamp signature (SignatureStamper returns original path if signature is blank)
+      source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
+
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
       file_contents = File.read(source_file_path)

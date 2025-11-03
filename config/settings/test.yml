@@ -905,7 +905,6 @@ mcp:
     url: https://fwdproxy-staging.vfs.va.gov:4491
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
-  breakers: false
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
@@ -956,6 +955,7 @@ mhv:
     app_token: fake-app-token
     gw_base_path: v1/sm/patient/
     mock: true
+    timeout: <%= ENV['mhv__sm__timeout'] || 60 %>
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
@@ -1381,6 +1381,30 @@ vanotify:
         submitted:
           flipper_id: dv_email_notification
           template_id: fake_dv_submitted
+    21_686c_674: &vanotify_services_dependents_benefits
+      api_key: fake_secret
+      email:
+        error_674_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form674_only_error_email_template_id
+        error_686c_674:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form686c_674_error_email_template_id
+        error_686c_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form686c_only_error_email_template_id
+        received_674_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form674_only_received_email_template_id
+        received_686c_674:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form686c_674_received_email_template_id
+        received_686c_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form686c_only_received_email_template_id
+        submitted:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c_674_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
@@ -1489,6 +1513,7 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
+    dependents_benefits: *vanotify_services_dependents_benefits
     dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret

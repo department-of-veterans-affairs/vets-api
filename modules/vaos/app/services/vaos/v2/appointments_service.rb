@@ -160,11 +160,38 @@ module VAOS
           return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
         end
 
-        eps_appointments = eps_appointments_service.get_appointments
+        eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
 
         # Filter out draft EPS appointments when checking referral usage
         non_draft_eps_appointments = eps_appointments&.reject { |appt| appt[:state] == 'draft' } || []
-        { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
+        { exists: non_draft_eps_appointments.any? }
+      end
+
+      ##
+      # Get appointments for a referral from both EPS and VAOS
+      #
+      # Returns appointments from both sources with normalized status (active/cancelled)
+      # Deduplicates appointments within each source by start time + providerServiceId (EPS) or start time (VAOS)
+      # Logs discrepancies when same start time has different status across sources
+      #
+      # @param referral_number [String] The referral number to search for
+      # @return [Hash] Contains EPS and VAOS data: { EPS: { data: [...] }, VAOS: { data: [...] } }
+      # @raise [BackendServiceException] If either EPS or VAOS fails
+      #
+      def get_active_appointments_for_referral(referral_number)
+        start_time = Time.current
+        eps_appointments = fetch_and_normalize_eps_appointments(referral_number)
+        vaos_appointments = fetch_and_normalize_vaos_appointments(referral_number)
+
+        StatsD.histogram('vaos.get_active_appointments_for_referral.duration',
+                         (Time.current - start_time) * 1000)
+
+        log_status_discrepancies(eps_appointments, vaos_appointments, referral_number)
+
+        {
+          EPS: { data: eps_appointments },
+          VAOS: { data: vaos_appointments }
+        }
       end
 
       # rubocop:enable Metrics/MethodLength
@@ -370,6 +397,122 @@ module VAOS
       end
 
       private
+
+      def fetch_and_normalize_eps_appointments(referral_number)
+        raw_appointments = eps_appointments_service.get_appointments(referral_number:)
+        filtered = raw_appointments.reject { |appt| appt[:state] == 'draft' }
+        normalized = filtered.map do |appt|
+          {
+            id: appt[:id],
+            status: normalize_eps_status(appt),
+            start: appt.dig(:appointment_details, :start),
+            provider_service_id: appt[:provider_service_id],
+            last_retrieved: appt.dig(:appointment_details, :last_retrieved)
+          }
+        end
+
+        deduplicated = deduplicate_eps_appointments(normalized)
+        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
+      rescue Common::Exceptions::BackendServiceException => e
+        log_fetch_error('EPS', referral_number, e.class.name.to_s)
+        raise
+      end
+
+      def fetch_and_normalize_vaos_appointments(referral_number)
+        vaos_response = get_all_appointments({})
+        check_vaos_response_for_failures(vaos_response, referral_number)
+        process_vaos_appointments(vaos_response[:data], referral_number)
+      rescue Common::Exceptions::BackendServiceException => e
+        log_fetch_error('VAOS', referral_number, e.class.name.to_s)
+        raise
+      end
+
+      def check_vaos_response_for_failures(vaos_response, referral_number)
+        return if vaos_response[:meta][:failures].blank?
+
+        log_fetch_error('VAOS', referral_number, vaos_response[:meta][:failures])
+        raise Common::Exceptions::BackendServiceException.new('VAOS_502',
+                                                              { detail: vaos_response[:meta][:failures].to_s })
+      end
+
+      def process_vaos_appointments(appointments_data, referral_number)
+        filtered = appointments_data.select { |appt| appt[:referral_id] == referral_number }
+        normalized = filtered.map do |appt|
+          {
+            id: appt[:id],
+            status: normalize_vaos_status(appt),
+            start: appt[:start],
+            created: appt[:created]
+          }
+        end
+
+        deduplicated = deduplicate_vaos_appointments(normalized)
+        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
+      end
+
+      def log_fetch_error(source, referral_number, error_details)
+        masked_referral = "***#{referral_number.to_s.last(4)}"
+        Rails.logger.error("Failed to fetch #{source} appointments for referral #{masked_referral}: #{error_details}")
+      end
+
+      def normalize_eps_status(appointment)
+        if appointment.dig(:appointment_details, :status) == 'cancelled'
+          'cancelled'
+        else
+          'active'
+        end
+      end
+
+      def normalize_vaos_status(appointment)
+        appointment[:status] == 'cancelled' ? 'cancelled' : 'active'
+      end
+
+      def deduplicate_eps_appointments(appointments)
+        grouped = appointments.group_by { |appt| [appt[:start], appt[:provider_service_id]] }
+
+        grouped.map do |_key, duplicates|
+          next duplicates.first if duplicates.size == 1
+
+          active = duplicates.select { |appt| appt[:status] == 'active' }
+          candidates = active.any? ? active : duplicates
+
+          # Choose most recent lastRetrieved
+          candidates.max_by { |appt| appt[:last_retrieved] || '' }
+        end
+      end
+
+      def deduplicate_vaos_appointments(appointments)
+        grouped = appointments.group_by { |appt| appt[:start] }
+
+        grouped.map do |_key, duplicates|
+          next duplicates.first if duplicates.size == 1
+
+          active = duplicates.select { |appt| appt[:status] == 'active' }
+          candidates = active.any? ? active : duplicates
+          candidates.max_by { |appt| appt[:created] || '' }
+        end
+      end
+
+      def log_status_discrepancies(eps_appointments, vaos_appointments, referral_number)
+        eps_by_start = eps_appointments.group_by { |appt| appt[:start] }
+        vaos_by_start = vaos_appointments.group_by { |appt| appt[:start] }
+
+        common_start_times = eps_by_start.keys & vaos_by_start.keys
+
+        common_start_times.each do |start_time|
+          eps_statuses = eps_by_start[start_time].map { |appt| appt[:status] }.uniq
+          vaos_statuses = vaos_by_start[start_time].map { |appt| appt[:status] }.uniq
+
+          next if eps_statuses == vaos_statuses
+
+          masked_referral = referral_number&.last(4) || 'unknown'
+          Rails.logger.warn('Appointment status discrepancy between EPS and VAOS',
+                            { referral_ending_in: masked_referral,
+                              start_time:,
+                              eps_statuses:,
+                              vaos_statuses: })
+        end
+      end
 
       # Fetches appointments and travel claims in parallel using Concurrent::Promises
       # @return [Array] Array containing [response, travel_claims_result]
@@ -1508,18 +1651,6 @@ module VAOS
                                                                                                     caller_name)
                                                     })
         }
-      end
-
-      ##
-      # Checks if any appointment in the given list has a referral that matches the referral_id
-      #
-      # @param appointments [Array<Hash>] List of appointments to check
-      # @param referral_id [String] The referral ID to search for
-      # @return [Boolean] true if an appointment with matching referral exists, false otherwise
-      def appointment_with_referral_exists?(appointments, referral_id)
-        appointments.any? do |appt|
-          appt[:referral] && appt[:referral][:referral_number] == referral_id
-        end
       end
     end
   end
