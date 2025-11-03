@@ -12,14 +12,8 @@ module SSOe
     configuration SSOe::Configuration
 
     STATSD_KEY_PREFIX = 'api.ssoe'
-    CONNECTION_ERRORS = [
-      Faraday::ConnectionFailed,
-      Faraday::TimeoutError,
-      Common::Client::Errors::ClientError,
-      Common::Exceptions::GatewayTimeout,
-      Breakers::OutageException
-    ].freeze
 
+    # rubocop:disable Metrics/MethodLength
     def get_traits(credential_method:, credential_id:, user:, address:)
       with_monitoring do
         raw_response = perform(
@@ -28,30 +22,35 @@ module SSOe
           build_message(credential_method, credential_id, user, address),
           soapaction: nil
         )
-        parse_response(raw_response.body)
+        parse_response(raw_response.body, raw_response&.status)
       end
     rescue Common::Client::Errors::ClientError => e
-      error_response(e, :client, e.status)
-    rescue *CONNECTION_ERRORS => e
-      return parse_response(e.response.body) if e.respond_to?(:response) && e.response&.body
-
-      error_response(e, :connection, 502)
+      error_response(e, SSOe::Errors::RequestError, :client, e.status, e.body)
+    rescue Faraday::ConnectionFailed => e
+      error_response(e, SSOe::Errors::ConnectionError, :connection, 502)
+    rescue Faraday::TimeoutError => e
+      error_response(e, SSOe::Errors::TimeoutError, :timeout, 504)
+    rescue Common::Exceptions::GatewayTimeout => e
+      error_response(e, SSOe::Errors::TimeoutError, :gateway_timeout, 504)
+    rescue Breakers::OutageException => e
+      error_response(e, SSOe::Errors::ConnectionError, :outage, 503)
     rescue => e
-      error_response(e, :unknown, 500)
+      error_response(e, SSOe::Errors::UnknownError, :unknown, 500)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
-    def error_response(e, type, code)
-      Rails.logger.error("[SSOe::Service::get_traits] #{type} error: #{e.class} - #{e.message}")
+    def error_response(original_error, error_class, type, status, body = nil)
+      Rails.logger.error(
+        "[SSOe::Service::get_traits] #{type} error: #{original_error.class} - #{original_error.message}"
+      )
 
-      {
-        success: false,
-        error: {
-          code:,
-          message: e.message
-        }
-      }
+      raise error_class.new(
+        original_error.message,
+        status:,
+        body:
+      )
     end
 
     def build_message(credential_method, credential_id, user, address)
@@ -71,25 +70,29 @@ module SSOe
       ).perform
     end
 
-    def parse_response(response_body)
+    def parse_response(response_body, status = nil)
       parsed = Hash.from_xml(Ox.dump(response_body))
       icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
+
       return { success: true, icn: } if icn.present?
 
       if parsed.dig('Envelope', 'Body', 'Fault')
         fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
         fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
 
-        return {
-          success: false,
-          error: {
-            code: fault_code,
-            message: fault_string
-          }
-        }
+        raise SSOe::Errors::SOAPFaultError.new(
+          fault_string,
+          fault_code:,
+          body: response_body,
+          status: status || 400
+        )
       end
 
-      raise SSOe::Errors::SOAPParseError, 'Unable to parse SOAP response'
+      raise SSOe::Errors::SOAPParseError.new(
+        'Unable to parse SOAP response',
+        body: response_body,
+        status: status || 500
+      )
     end
   end
 end
