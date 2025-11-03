@@ -26,7 +26,12 @@ module UnifiedHealthData
         return nil unless code && (encoded_data || observations)
 
         log_warnings(record, encoded_data, observations)
+        build_lab_or_test(record, code, encoded_data, observations, contained)
+      end
 
+      private
+
+      def build_lab_or_test(record, code, encoded_data, observations, contained)
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
@@ -42,8 +47,6 @@ module UnifiedHealthData
           status: record['resource']['status']
         )
       end
-
-      private
 
       def log_warnings(record, encoded_data, observations)
         log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
