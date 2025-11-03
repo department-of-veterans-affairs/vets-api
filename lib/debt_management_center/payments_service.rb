@@ -2,7 +2,7 @@
 
 module DebtManagementCenter
   class PaymentsService
-    include SentryLogging
+    include Vets::SharedLogging
 
     ##
     # Retrieves the person and payments data, from BGS, that relates to the provided user.
@@ -77,11 +77,7 @@ module DebtManagementCenter
     end
 
     def report_error(error)
-      log_exception_to_sentry(
-        error,
-        {},
-        { team: 'vfs-debt' }
-      )
+      log_exception_to_rails(error)
     end
   end
 end

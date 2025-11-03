@@ -236,33 +236,71 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
         end
 
         context 'with an app version that supports COE letters' do
-          it 'includes the COE letter if available' do
-            VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
-                VCR.use_cassette('mobile/lgy/application_200_status_submitted', match_requests_on: %i[method uri]) do
-                  get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
-                  expect(response).to have_http_status(:ok)
-                  expect(JSON.parse(response.body)['data']['attributes']['letters']).to include(
-                    { 'name' => 'Certificate of Eligibility for Home Loan Letter',
-                      'letterType' => 'certificate_of_eligibility_home_loan' }
-                  )
-                  expect(response.body).to match_json_schema('letters')
+          context 'with a user that has an available COE letter' do
+            it 'includes the COE letter if available' do
+              VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/lgy/application_200_status_submitted', match_requests_on: %i[method uri]) do
+                    get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                    expect(response).to have_http_status(:ok)
+                    expect(JSON.parse(response.body)['data']['attributes']['letters']).to include(
+                      { 'name' => 'Certificate of Eligibility for Home Loan Letter',
+                        'letterType' => 'certificate_of_eligibility_home_loan',
+                        'referenceNumber' => '16934344',
+                        'coeStatus' => 'AVAILABLE' }
+                    )
+                    expect(response.body).to match_json_schema('letters')
+                  end
+                end
+              end
+            end
+
+            it 'increments the COE status counters' do
+              allow(StatsD).to receive(:increment)
+
+              VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/lgy/application_200_status_submitted', match_requests_on: %i[method uri]) do
+                    get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                    expect(response).to have_http_status(:ok)
+                    expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.total')
+                    expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.available')
+                  end
                 end
               end
             end
           end
 
-          it 'includes the COE letter if eligible' do
-            VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
-                VCR.use_cassette('mobile/lgy/application_not_found', match_requests_on: %i[method uri]) do
-                  get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
-                  expect(response).to have_http_status(:ok)
-                  expect(JSON.parse(response.body)['data']['attributes']['letters']).to include(
-                    { 'name' => 'Certificate of Eligibility for Home Loan Letter',
-                      'letterType' => 'certificate_of_eligibility_home_loan' }
-                  )
-                  expect(response.body).to match_json_schema('letters')
+          context 'with a user that has an eligible COE letter' do
+            it 'includes the COE letter if eligible' do
+              VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/lgy/application_not_found', match_requests_on: %i[method uri]) do
+                    get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                    expect(response).to have_http_status(:ok)
+                    expect(JSON.parse(response.body)['data']['attributes']['letters']).to include(
+                      { 'name' => 'Certificate of Eligibility for Home Loan Letter',
+                        'letterType' => 'certificate_of_eligibility_home_loan',
+                        'referenceNumber' => '16934344',
+                        'coeStatus' => 'ELIGIBLE' }
+                    )
+                    expect(response.body).to match_json_schema('letters')
+                  end
+                end
+              end
+            end
+
+            it 'increments the COE status counters' do
+              allow(StatsD).to receive(:increment)
+
+              VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/lgy/application_not_found', match_requests_on: %i[method uri]) do
+                    get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                    expect(response).to have_http_status(:ok)
+                    expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.total')
+                    expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.eligible')
+                  end
                 end
               end
             end
@@ -309,6 +347,23 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
                   expect(JSON.parse(response.body)).to eq(no_service_verification_body)
                   expect(response.body).to match_json_schema('letters')
                 end
+              end
+            end
+          end
+        end
+
+        context 'with an unexpected error from LGY' do
+          it 'returns the letters without an error and increments the COE status counter' do
+            allow(StatsD).to receive(:increment)
+
+            VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/lgy/determination_not_found', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                expect(response).to have_http_status(:ok)
+                expect(JSON.parse(response.body)).to eq(no_service_verification_body)
+                expect(response.body).to match_json_schema('letters')
+                expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.total')
+                expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.failure')
               end
             end
           end

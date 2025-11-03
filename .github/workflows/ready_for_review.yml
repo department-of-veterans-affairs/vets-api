@@ -5,6 +5,9 @@ on:
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Service Tags", "CodeQL"]
     types: [completed]
+    branches-ignore:
+      - master
+      - production-bypass
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -120,7 +123,9 @@ jobs:
 
       - name: Fail if draft
         if: steps.get_pr_data.outputs.pr_draft == 'true'
-        run: exit 1
+        run: |
+          echo "::error::This check is failing because the PR is still in DRAFT status. Please mark the PR as ready for review to proceed."
+          exit 1
 
   check-workflow-status:
     name: Check Workflow Statuses

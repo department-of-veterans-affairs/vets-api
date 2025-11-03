@@ -42,9 +42,21 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               'start' => '2024-11-21T18:00:00Z',
               'isLatest' => true,
               'lastRetrieved' => '2025-02-10T14:35:44Z',
-              'modality' => 'OV',
+              'modality' => 'communityCareEps',
+              'location' => {
+                'id' => 'Aq7wgAux',
+                'type' => 'appointments',
+                'attributes' => {
+                  'name' => 'Test Medical Complex',
+                  'timezone' => {
+                    'timeZoneId' => 'America/New_York'
+                  }
+                }
+              },
               'provider' => {
                 'id' => 'test-provider-id',
+                'name' => 'Timothy Bob',
+                'practice' => 'test-provider-org-name',
                 'location' => {
                   'name' => 'Test Medical Complex',
                   'address' => '207 Davishill Ln',
@@ -52,7 +64,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   'longitude' => -80.032819,
                   'timezone' => 'America/New_York'
                 }
-              }
+              },
+              'past' => true
             }
           }
         }
@@ -179,6 +192,45 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
               expect(response).to have_http_status(:success)
               expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('proposed')
+            end
+          end
+        end
+      end
+
+      context 'location data' do
+        it 'includes location key in response when provider data is available' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
+                get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+                expect(response).to have_http_status(:success)
+                response_data = JSON.parse(response.body)
+
+                expect(response_data['data']['attributes']).to have_key('location')
+
+                location = response_data['data']['attributes']['location']
+                expect(location).to be_present
+                expect(location['id']).to be_present
+                expect(location['type']).to eq('appointments')
+                expect(location['attributes']).to be_present
+                expect(location['attributes']['name']).to eq('Test Medical Complex')
+                expect(location['attributes']['timezone']).to be_present
+                expect(location['attributes']['timezone']['timeZoneId']).to eq('America/New_York')
+              end
+            end
+          end
+        end
+
+        it 'handles missing provider data gracefully' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/draft_200', match_requests_on: %i[method path]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+              expect(response).to have_http_status(:success)
+              response_data = JSON.parse(response.body)
+
+              expect(response_data['data']['attributes']['location']).to be_nil
             end
           end
         end

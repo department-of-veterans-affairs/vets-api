@@ -153,6 +153,76 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result).to eq('')
       end
     end
+
+    context 'when specimen reference is not found in contained array' do
+      it 'returns an empty string' do
+        record = { 'specimen' => { 'reference' => 'Specimen/456' } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when specimen object exists but type is missing' do
+      it 'returns an empty string' do
+        record = { 'specimen' => { 'reference' => 'Specimen/123' } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123' }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when specimen reference is found with valid type' do
+      it 'returns the specimen type text' do
+        record = { 'specimen' => { 'reference' => 'Specimen/123' } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when multiple specimen references are provided' do
+      it 'returns all specimen types joined by comma' do
+        record = {
+          'specimen' => [
+            { 'reference' => 'Specimen/123' },
+            { 'reference' => 'Specimen/456' }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } },
+          { 'resourceType' => 'Specimen', 'id' => '456', 'type' => { 'text' => 'Urine' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood, Urine')
+      end
+    end
+
+    context 'when some specimen references are not found in contained array' do
+      it 'returns only the found specimens' do
+        record = {
+          'specimen' => [
+            { 'reference' => 'Specimen/123' },
+            { 'reference' => 'Specimen/999' }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood')
+      end
+    end
   end
 
   describe '#get_observations' do
@@ -483,6 +553,181 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:parse_single_record, record)
 
         expect(result).to be_nil
+      end
+    end
+
+    context 'when status is final and missing data' do
+      let(:base_record) do
+        {
+          'resource' => {
+            'id' => 'test-123',
+            'resourceType' => 'DiagnosticReport',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Test' },
+            'contained' => []
+          }
+        }
+      end
+
+      it 'does not log when status is final and has encoded data but no observations' do
+        record = base_record.deep_dup
+        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is final and has observations but no encoded data' do
+        record = base_record.deep_dup
+        record['resource']['contained'] = [
+          {
+            'resourceType' => 'Observation',
+            'code' => { 'text' => 'Test Observation' },
+            'status' => 'final'
+          }
+        ]
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'logs warning when status is final and has neither encoded data nor observations' do
+        record = base_record.deep_dup
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+        record['resource']['subject'] = { 'reference' => 'Patient/123456789' }
+
+        expect(Rails.logger).to receive(:warn).with(
+          "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations " \
+          '(Patient: 6789)',
+          { service: 'unified_health_data' }
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is final but has both encoded data and observations' do
+        record = base_record.deep_dup
+        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
+        record['resource']['contained'] = [
+          {
+            'resourceType' => 'Observation',
+            'code' => { 'text' => 'Test Observation' },
+            'status' => 'final'
+          }
+        ]
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is not final even if missing data' do
+        record = base_record.deep_dup
+        record['resource']['status'] = 'preliminary'
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+
+        expect(Rails.logger).not_to receive(:warn).with(
+          /has status 'final' but is missing/
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is nil even if missing data' do
+        record = base_record.deep_dup
+        record['resource']['status'] = nil
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+
+        expect(Rails.logger).not_to receive(:warn).with(
+          /has status 'final' but is missing/
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+    end
+
+    context 'when missing effective date information' do
+      let(:base_record) do
+        {
+          'resource' => {
+            'id' => 'test-456',
+            'resourceType' => 'DiagnosticReport',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Test' },
+            'presentedForm' => [{ 'data' => 'encoded-data' }],
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Test Observation' },
+                'status' => 'final'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'logs warning when no effectiveDateTime and no effectivePeriod' do
+        record = base_record.deep_dup
+
+        expect(Rails.logger).to receive(:warn).with(
+          'DiagnosticReport test-456 is missing effectiveDateTime and effectivePeriod',
+          { service: 'unified_health_data' }
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'logs warning when effectivePeriod exists but has no start date' do
+        record = base_record.deep_dup
+        record['resource']['effectivePeriod'] = { 'end' => '2024-06-01T00:00:00Z' }
+
+        expect(Rails.logger).to receive(:warn).with(
+          'DiagnosticReport test-456 is missing effectivePeriod.start',
+          { service: 'unified_health_data' }
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when effectiveDateTime is present' do
+        record = base_record.deep_dup
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+
+        expect(Rails.logger).not_to receive(:warn).with(
+          /missing effectiveDateTime/
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when effectivePeriod has a start date' do
+        record = base_record.deep_dup
+        record['resource']['effectivePeriod'] = {
+          'start' => '2024-06-01T00:00:00Z'
+        }
+
+        expect(Rails.logger).not_to receive(:warn).with(
+          /missing effectiveDateTime/
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
       end
     end
   end

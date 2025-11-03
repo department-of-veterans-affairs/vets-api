@@ -47,7 +47,7 @@
                     "properties": {
                       "code": { "type": ["string", "null"] },
                       "name": { "type": ["string", "null"] },
-                      "percentage": { "type": ["integer", "null"] }
+                      "percentage": { "type": ["string", "null"] }
                     }
                   }
                 }
@@ -82,7 +82,12 @@
               }
             },
             "res_case_id": { "type": ["integer", "null"] },
-            "res_eligibility_recommendation": { "type": ["string", "null"] }
+            "res_eligibility_recommendation": { "type": ["string", "null"] },
+            "qualifying_military_service_status": { "type": ["string", "null"] },
+            "character_of_discharge_status": { "type": ["string", "null"] },
+            "disability_rating_status": { "type": ["string", "null"] },
+            "irnd_status": { "type": ["string", "null"] },
+            "eligibility_termination_date_status": { "type": ["string", "null"] }
           }
         }
       }

@@ -4,6 +4,9 @@ RSpec.shared_examples 'callback_error_response' do
   let(:expected_error_json) { { 'errors' => expected_error } }
   let(:expected_error_status) { :bad_request }
   let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
+  let(:expected_statsd_tags) do
+    ["type:#{type || ''}", "client_id:#{client_id || ''}", "acr:#{acr || ''}"]
+  end
 
   context 'and client_id maps to a web based configuration' do
     let(:authentication) { SignIn::Constants::Auth::COOKIE }
@@ -48,7 +51,7 @@ RSpec.shared_examples 'callback_error_response' do
     end
 
     it 'updates StatsD with a callback request failure' do
-      expect { subject }.to trigger_statsd_increment(statsd_callback_failure)
+      expect { subject }.to trigger_statsd_increment(statsd_callback_failure, tags: expected_statsd_tags)
     end
   end
 
