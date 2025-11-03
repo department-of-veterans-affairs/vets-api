@@ -36,14 +36,38 @@ module V0
     end
 
     def download_pdf
-      # TODO: Implement PDF generation when PdfFill::Forms::Va21p530a is available
-      # This will be implemented in a separate PR after PDF generation is merged
-      render json: {
-        message: 'PDF download not yet implemented'
-      }, status: :ok
+      parsed_form = request.request_parameters
+
+      source_file_path = with_retries('Generate 21P-530a PDF') do
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530a')
+      end
+
+      # Stamp signature (SignatureStamper returns original path if signature is blank)
+      source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, parsed_form)
+
+      client_file_name = "21P-530a_#{SecureRandom.uuid}.pdf"
+
+      file_contents = File.read(source_file_path)
+
+      send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+    rescue => e
+      handle_pdf_generation_error(e)
+    ensure
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
     private
+
+    def handle_pdf_generation_error(error)
+      Rails.logger.error('Form21p530a: Error generating PDF', error: error.message, backtrace: error.backtrace)
+      render json: {
+        errors: [{
+          title: 'PDF Generation Failed',
+          detail: 'An error occurred while generating the PDF',
+          status: '500'
+        }]
+      }, status: :internal_server_error
+    end
 
     def stats_key
       'api.form21p530a'
