@@ -3,6 +3,7 @@
 # Job that reqs statsu updates for NODs that hit a processing error within EMMS API.
 # These errors sometimes recover within EMMS, so continue to poll EMMS for status changes
 require 'sidekiq'
+require 'appeals_api/central_mail_updater'
 
 module AppealsApi
   class SupplementalClaimUploadErrorStatusBatch
@@ -14,13 +15,12 @@ module AppealsApi
     # Age in days to continue to update the status of NODs with an upstream DOC202 procesing error
     DOC202_ERROR_STATUS_UPDATE_LOOKBACK = 14.days
 
-    BATCH_SIZE = 100
 
     def perform
       return unless enabled? && notice_of_disagreement_ids.present?
 
       Sidekiq::Batch.new.jobs do
-        notice_of_disagreement_ids.each_slice(BATCH_SIZE).with_index do |ids, i|
+        notice_of_disagreement_ids.each_slice(CentralMailUpdater::MAX_UUIDS_PER_REQUEST).with_index do |ids, i|
           NoticeOfDisagreementUploadStatusUpdater.perform_in((i * 5).seconds, ids)
         end
       end
