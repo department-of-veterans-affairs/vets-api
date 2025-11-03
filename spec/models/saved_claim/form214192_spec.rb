@@ -161,6 +161,31 @@ RSpec.describe SavedClaim::Form214192, type: :model do
     end
   end
 
+  describe '#to_pdf' do
+    let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_pdf_path) { '/tmp/test_form_stamped.pdf' }
+
+    before do
+      allow(PdfFill::Filler).to receive(:fill_form).and_return(pdf_path)
+      allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(stamped_pdf_path)
+    end
+
+    it 'generates PDF and stamps the signature' do
+      result = claim.to_pdf
+
+      expect(PdfFill::Filler).to have_received(:fill_form).with(claim, nil, {})
+      expect(PdfFill::Forms::Va214192).to have_received(:stamp_signature).with(pdf_path, claim.parsed_form)
+      expect(result).to eq(stamped_pdf_path)
+    end
+
+    it 'passes fill_options to the filler' do
+      fill_options = { extras_redesign: true }
+      claim.to_pdf('test-id', fill_options)
+
+      expect(PdfFill::Filler).to have_received(:fill_form).with(claim, 'test-id', fill_options)
+    end
+  end
+
   describe 'FORM constant' do
     it 'is set to 21-4192' do
       expect(described_class::FORM).to eq('21-4192')
