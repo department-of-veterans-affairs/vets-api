@@ -732,6 +732,248 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
   end
 
+  describe '#get_encoded_data' do
+    context 'when presentedForm has data field with text/plain contentType' do
+      it 'returns the data' do
+        resource = { 'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'encoded_content' }] }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('encoded_content')
+      end
+    end
+
+    context 'when presentedForm has multiple items' do
+      it 'returns data from text/plain item' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'data' => 'pdf_content' },
+            { 'contentType' => 'text/plain', 'data' => 'plain_text_content' },
+            { 'contentType' => 'text/html', 'data' => 'html_content' }
+          ]
+        }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('plain_text_content')
+      end
+    end
+
+    context 'when presentedForm has no text/plain item' do
+      it 'returns empty string' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'data' => 'pdf_content' }
+          ]
+        }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when presentedForm has data-absent-reason extension' do
+      it 'returns empty string' do
+        resource = {
+          'presentedForm' => [{
+            'extension' => [{
+              'valueCode' => 'unsupported',
+              'url' => 'http://hl7.org/fhir/StructureDefinition/data-absent-reason'
+            }]
+          }]
+        }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when presentedForm is nil' do
+      it 'returns empty string' do
+        resource = { 'presentedForm' => nil }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when presentedForm is empty array' do
+      it 'returns empty string' do
+        resource = { 'presentedForm' => [] }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('')
+      end
+    end
+  end
+
+  describe '#get_date_completed' do
+    context 'when resource has effectiveDateTime' do
+      it 'returns effectiveDateTime' do
+        resource = { 'effectiveDateTime' => '2025-06-24T15:21:00.000Z' }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2025-06-24T15:21:00.000Z')
+      end
+    end
+
+    context 'when resource has effectivePeriod with start' do
+      it 'returns effectivePeriod start date' do
+        resource = {
+          'effectivePeriod' => {
+            'start' => '2025-06-24T15:21:00.000Z',
+            'end' => '2025-06-24T15:21:00.000Z'
+          }
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2025-06-24T15:21:00.000Z')
+      end
+    end
+
+    context 'when resource has neither effectiveDateTime nor effectivePeriod' do
+      it 'returns nil' do
+        resource = {}
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when effectivePeriod exists but has no start' do
+      it 'returns nil' do
+        resource = { 'effectivePeriod' => { 'end' => '2025-06-24T15:21:00.000Z' } }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#parse_single_record with Oracle Health FHIR format' do
+    context 'with ECG diagnostic report (no contained resources, effectivePeriod, presentedForm extension)' do
+      it 'processes the record successfully' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '15249582244',
+            'status' => 'partial',
+            'category' => [{
+              'coding' => [{
+                'system' => 'http://loinc.org',
+                'code' => 'LP29708-2',
+                'userSelected' => false
+              }],
+              'text' => 'Cardiology'
+            }],
+            'code' => {
+              'coding' => [{
+                'system' => 'https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72',
+                'code' => '344361949',
+                'display' => '12 Lead ECG/EKG',
+                'userSelected' => true
+              }],
+              'text' => '12 Lead ECG/EKG'
+            },
+            'effectivePeriod' => {
+              'start' => '2025-06-24T15:21:00.000Z',
+              'end' => '2025-06-24T15:21:00.000Z'
+            },
+            'presentedForm' => [{
+              'extension' => [{
+                'valueCode' => 'unsupported',
+                'url' => 'http://hl7.org/fhir/StructureDefinition/data-absent-reason'
+              }]
+            }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result).not_to be_nil
+        expect(result.id).to eq('15249582244')
+        expect(result.type).to eq('DiagnosticReport')
+        expect(result.display).to eq('12 Lead ECG/EKG')
+        expect(result.test_code).to eq('LP29708-2')
+        expect(result.date_completed).to eq('2025-06-24T15:21:00.000Z')
+        expect(result.encoded_data).to eq('')
+        expect(result.observations).to eq([])
+        expect(result.sample_tested).to eq('')
+        expect(result.body_site).to eq('')
+        expect(result.status).to eq('partial')
+        expect(result.location).to be_nil
+        expect(result.ordered_by).to be_nil
+      end
+    end
+  end
+
+  describe 'status field extraction' do
+    context 'with different status values' do
+      it 'extracts final status correctly' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '123',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Test Report' },
+            'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+            'presentedForm' => [{ 'data' => 'test_data' }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.status).to eq('final')
+      end
+
+      it 'extracts preliminary status correctly' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '456',
+            'status' => 'preliminary',
+            'category' => [{ 'coding' => [{ 'code' => 'SP' }] }],
+            'code' => { 'text' => 'Lab Report' },
+            'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+            'presentedForm' => [{ 'data' => 'test_data' }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.status).to eq('preliminary')
+      end
+    end
+
+    context 'when status is missing' do
+      it 'returns nil for status' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '789',
+            'category' => [{ 'coding' => [{ 'code' => 'MB' }] }],
+            'code' => { 'text' => 'Missing Status Report' },
+            'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+            'presentedForm' => [{ 'data' => 'test_data' }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.status).to be_nil
+      end
+    end
+  end
+
   describe '#parse_labs' do
     context 'when records is nil' do
       it 'returns an empty array' do
