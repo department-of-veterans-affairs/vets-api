@@ -55,13 +55,13 @@ module VeteranEnrollmentSystem
       def self.available_years(periods)
         years = periods.each_with_object([]) do |period, array|
           start_date = period['startDate'].to_date.year
-          # if no end date, the user must still be enrolled
+          # if no end date, the user is still be enrolled
           end_date = period['endDate']&.to_date&.year || Date.current.year
           array << start_date
           array << end_date
           if (end_date - start_date) > 1
-            intermediate_years = (start_date..end_date).to_a - [start_date, end_date]
-            array.concat(intermediate_years)
+            intervening_years = (start_date..end_date).to_a - [start_date, end_date]
+            array.concat(intervening_years)
           end
         end.uniq.sort
         current_tax_year = Date.current.year - 1
@@ -189,9 +189,6 @@ module VeteranEnrollmentSystem
         tmp_file.unlink
 
         ret_pdf
-      rescue PdfForms::PdftkError => e
-        Rails.logger.error e.message
-        raise e
       end
       # rubocop:enable Metrics/MethodLength
     end

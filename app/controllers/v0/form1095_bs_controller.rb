@@ -12,8 +12,7 @@ module V0
       if Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
         periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
         years = VeteranEnrollmentSystem::Form1095B::Form1095B.available_years(periods)
-        # last_updated is not used on front end.
-        forms = years.map { |year| { year:, last_updated: nil } }
+        forms = years.map { |year| { year:, last_updated: nil } } # last_updated is not used on front end.
       else
         current_form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
         forms = current_form.nil? ? [] : [{ year: current_form.tax_year, last_updated: current_form.updated_at }]

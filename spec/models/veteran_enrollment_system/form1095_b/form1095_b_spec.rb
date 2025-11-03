@@ -85,7 +85,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     after { Timecop.return }
 
     context 'with start and end dates' do
-      it 'returns available years' do
+      it 'returns previous four tax years for which the user had any coverage' do
         periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2025-03-05' }]
         result = described_class.available_years(periods)
         expect(result).to eq([2021, 2022, 2023, 2024])
@@ -93,7 +93,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     end
 
     context 'when end date is nil' do
-      it 'returns available years' do
+      it 'returns previous four tax years for which the user had any coverage' do
         periods = [{ 'startDate' => '2015-03-05', 'endDate' => nil }]
         result = described_class.available_years(periods)
         expect(result).to eq([2021, 2022, 2023, 2024])
@@ -101,8 +101,10 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     end
 
     context 'with multiple periods' do
-      it 'returns available years' do
-        periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2022-03-05' },
+      it 'includes previous four tax years for which user had any coverage' do
+        periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2017-03-05' },
+                   { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
+                   { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
                    { 'startDate' => '2024-03-05', 'endDate' => nil }]
         result = described_class.available_years(periods)
         expect(result).to eq([2021, 2022, 2024])
@@ -122,13 +124,6 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
 
       it 'raises error' do
         expect { inv_year_form.pdf_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
-      end
-    end
-
-    context 'when error occurs creating pdf file' do
-      it 'raises error' do
-        allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form).and_raise(PdfForms::PdftkError)
-        expect { form1095b.pdf_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end
