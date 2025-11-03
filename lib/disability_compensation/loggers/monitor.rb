@@ -193,7 +193,7 @@ module DisabilityCompensation
       def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
         # InProgressForm uses snake_case, SavedClaim uses camelCase
         # We need to normalize to compare them properly
-        in_progress_camel_keys = in_progress_toxic_exposure.keys.map { |k| snake_to_camel(k) }
+        in_progress_camel_keys = in_progress_toxic_exposure.keys.map { |k| k.to_s.camelize(:lower) }
         submitted_camel_keys = submitted_toxic_exposure&.keys || []
 
         all_removed_keys = in_progress_camel_keys - submitted_camel_keys
@@ -201,7 +201,7 @@ module DisabilityCompensation
         # Filter out expected removals to reduce noise:
         # - Empty hashes contain no meaningful data (check original snake_case key)
         removed_keys = all_removed_keys.reject do |camel_key|
-          snake_key = camel_to_snake(camel_key)
+          snake_key = camel_key.to_s.underscore
           in_progress_toxic_exposure[snake_key].is_a?(Hash) && in_progress_toxic_exposure[snake_key].empty?
         end
 
@@ -211,23 +211,6 @@ module DisabilityCompensation
           completely_removed:,
           removed_keys: removed_keys.sort
         }
-      end
-
-      # Convert snake_case to camelCase
-      #
-      # @param snake_str [String] String in snake_case format
-      # @return [String] String in camelCase format
-      def snake_to_camel(snake_str)
-        parts = snake_str.to_s.split('_')
-        parts.first + parts[1..].map(&:capitalize).join
-      end
-
-      # Convert camelCase to snake_case
-      #
-      # @param camel_str [String] String in camelCase format
-      # @return [String] String in snake_case format
-      def camel_to_snake(camel_str)
-        camel_str.to_s.gsub(/([A-Z])/, '_\1').downcase.sub(/^_/, '')
       end
 
       ##
