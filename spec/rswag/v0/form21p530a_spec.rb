@@ -10,6 +10,14 @@ RSpec.describe 'Form 21P-530a API', openapi_spec: 'public/openapi.json', type: :
     allow(Time).to receive(:current).and_return(Time.zone.parse('2025-01-15 10:30:00 UTC'))
   end
 
+  # Shared example for validation failure
+  shared_examples 'validates schema and returns 422' do
+    it 'returns a 422 when request fails schema validation' do |example|
+      submit_request(example.metadata)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
   shared_examples 'matches rswag example with status' do |status|
     it "matches rswag example and returns #{status}" do |example|
       submit_request(example.metadata)
@@ -58,10 +66,7 @@ RSpec.describe 'Form 21P-530a API', openapi_spec: 'public/openapi.json', type: :
           }
         end
 
-        it 'returns a 422 when request body fails schema validation' do |example|
-          submit_request(example.metadata)
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
+        include_examples 'validates schema and returns 422'
       end
     end
   end
@@ -108,10 +113,7 @@ RSpec.describe 'Form 21P-530a API', openapi_spec: 'public/openapi.json', type: :
           }
         end
 
-        it 'returns a 422 when request body fails schema validation' do |example|
-          submit_request(example.metadata)
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
+        include_examples 'validates schema and returns 422'
       end
 
       response '500', 'Internal Server Error - PDF generation failed' do
