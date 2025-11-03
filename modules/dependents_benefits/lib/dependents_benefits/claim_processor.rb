@@ -71,6 +71,7 @@ module DependentsBenefits
 
       Sidekiq::Claims686cJob.perform_async(claim.id, proc_id)
       jobs_count += 1
+
       # TODO: Add calls to submission jobs here as they are implemented
 
       monitor.track_processor_info('Enqueued 686c submission jobs', 'enqueue_686c',

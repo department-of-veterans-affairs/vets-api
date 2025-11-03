@@ -54,8 +54,7 @@ class ClaimsEvidenceApi::SubmissionAttempt < SubmissionAttempt
   end
 
   def pending!
-    # update(status: :pending)
-    pending!
+    update(status: :pending)
     monitor.track_event(:pending, **tracking_attributes)
   end
 

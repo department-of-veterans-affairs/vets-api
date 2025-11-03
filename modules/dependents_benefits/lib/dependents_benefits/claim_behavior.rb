@@ -119,15 +119,15 @@ module DependentsBenefits
     end
 
     def ssn
-      parsed_form.dig('veteran_information', 'ssn')
+      parsed_form&.dig('veteran_information', 'ssn')
     end
 
     def participant_id
-      parsed_form.dig('veteran_information', 'participant_id')
+      parsed_form&.dig('veteran_information', 'participant_id')
     end
 
     def icn
-      parsed_form.dig('veteran_information', 'icn')
+      parsed_form&.dig('veteran_information', 'icn')
     end
   end
 end

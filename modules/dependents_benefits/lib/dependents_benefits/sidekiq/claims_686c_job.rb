@@ -79,7 +79,26 @@ module DependentsBenefits
       def permanent_failure?(error)
         return false if error.nil?
 
-        BGS::Job::FILTERED_ERRORS.any? { |filtered| error.message.include?(filtered) || error.cause&.message&.include?(filtered) }
+        # Check for Claims Evidence API permanent failures
+        if error.is_a?(ClaimsEvidenceApi::Exceptions::VefsError) || error.cause.is_a?(ClaimsEvidenceApi::Exceptions::VefsError)
+          vefs_error = error.is_a?(ClaimsEvidenceApi::Exceptions::VefsError) ? error : error.cause
+
+          # These are considered permanent failures that should not be retried
+          permanent_error_codes = [
+            ClaimsEvidenceApi::Exceptions::VefsError::DISABLED_IDENTIFIER,
+            ClaimsEvidenceApi::Exceptions::VefsError::INVALID_JWT,
+            ClaimsEvidenceApi::Exceptions::VefsError::INVALID_X_EFOLDER_URI,
+            ClaimsEvidenceApi::Exceptions::VefsError::UNAUTHORIZED,
+            ClaimsEvidenceApi::Exceptions::VefsError::UNABLE_TO_RETRIEVE_VETERAN,
+            ClaimsEvidenceApi::Exceptions::VefsError::UNABLE_TO_RETRIEVE_PERSON,
+            ClaimsEvidenceApi::Exceptions::VefsError::DOES_NOT_CONFORM_TO_SCHEMA,
+            ClaimsEvidenceApi::Exceptions::VefsError::INVALID_REQUEST
+          ]
+
+          return permanent_error_codes.any? { |code| vefs_error.message.include?(code) }
+        end
+
+        false
       end
 
       def claims_evidence_uploader
