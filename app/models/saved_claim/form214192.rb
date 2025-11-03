@@ -4,12 +4,11 @@ class SavedClaim::Form214192 < SavedClaim
   FORM = '21-4192'
 
   validates :form, presence: true
-  validates_with Form214192Validator
 
-  # Skip JSON schema validation since we're using custom validator and moving away from vets-json-schema
-  def form_matches_schema
-    # Custom validation handled by Form214192Validator
-    true
+  def form_schema
+    schema = JSON.parse(Openapi::Requests::Form214192::FORM_SCHEMA.to_json)
+    schema['components'] = JSON.parse(Openapi::Components::ALL.to_json)
+    schema
   end
 
   def process_attachments!
@@ -55,6 +54,14 @@ class SavedClaim::Form214192 < SavedClaim
   def attachment_keys
     # Form 21-4192 does not support attachments in MVP
     [].freeze
+  end
+
+  # Override to_pdf to add employer signature stamp
+  # This ensures the signature is included in both the download_pdf endpoint
+  # and the Lighthouse Benefits Intake submission
+  def to_pdf(file_name = nil, fill_options = {})
+    pdf_path = PdfFill::Filler.fill_form(self, file_name, fill_options)
+    PdfFill::Forms::Va214192.stamp_signature(pdf_path, parsed_form)
   end
 
   private
