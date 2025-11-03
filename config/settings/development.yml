@@ -299,6 +299,11 @@ dgi:
   jwt:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
+  sob:
+    jwt:
+      private_key_path: ~
+      public_ica11_rca2_key_path: ~
+      public_key_path: ~
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -952,6 +957,7 @@ mhv:
     app_token: fake-app-token
     gw_base_path: v1/sm/patient/
     mock: true
+    timeout: <%= ENV['mhv__sm__timeout'] || 60 %>
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
