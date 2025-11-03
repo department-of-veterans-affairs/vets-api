@@ -100,23 +100,8 @@ class SavedClaim < ApplicationRecord
     return unless form_is_string
 
     schema = form_schema || VetsJsonSchema::SCHEMAS[self.class::FORM]
-
     schema_errors = validate_schema(schema)
-    unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation.',
-                         { form_id:, errors: schema_errors })
-    end
-
     validation_errors = validate_form(schema)
-    validation_errors.each do |e|
-      errors.add(e[:fragment], e[:message])
-      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
-    end
-
-    unless validation_errors.empty?
-      Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
-    end
-
     schema_errors.empty? && validation_errors.empty?
   end
 
@@ -182,14 +167,30 @@ class SavedClaim < ApplicationRecord
     errors = JSONSchemer.validate_schema(schema).to_a
     return [] if errors.empty?
 
-    reformatted_schemer_errors(errors)
+    schema_errors = reformatted_schemer_errors(errors)
+
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation.',
+                         { form_id:, errors: schema_errors })
+    end
+    schema_errors
   end
 
   def validate_form(schema)
     errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
     return [] if errors.empty?
 
-    reformatted_schemer_errors(errors)
+    validation_errors = reformatted_schemer_errors(errors)
+
+    validation_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+
+    unless validation_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
+    end
+    validation_errors
   end
 
   # This method exists to change the json_schemer errors
