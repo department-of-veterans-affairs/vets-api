@@ -90,7 +90,12 @@ module ClaimsApi
         if person[:phone]
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
-              res = create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+              res = create_vnp_phone(
+                person[:phone][:countryCode],
+                person[:phone][:areaCode],
+                person[:phone][:phoneNumber],
+                vnp_ptcpnt_id
+              )
               @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id] if res
             end
           end
@@ -247,18 +252,41 @@ module ClaimsApi
       end
       # rubocop: enable Metrics/MethodLength
 
-      def create_vnp_phone(area_code, phone_number, vnp_ptcpnt_id)
+      def create_vnp_phone(country_code, area_code, phone_number, vnp_ptcpnt_id)
+        phone_opts = build_phone_options(country_code, area_code, phone_number)
+
         ClaimsApi::VnpPtcpntPhoneService
           .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
           .vnp_ptcpnt_phone_create(
-            {
+            phone_opts.merge(
               vnp_proc_id: @vnp_proc_id,
               vnp_ptcpnt_id:,
               phone_type_nm: PHONE_TYPE,
-              phone_nbr: "#{area_code}#{phone_number}",
               efctv_dt: Time.current.iso8601
-            }
+            )
           )
+      end
+
+      def build_phone_options(country_code, area_code, phone_number)
+        # If country code != 1, treat as international
+        # and store in frgnPhoneRfrncTxt instead of phone_nbr (which has 11-char limit)
+        is_international = country_code.present? && country_code != '1'
+
+        if is_international
+          # International number: store full concatenated value in frgnPhoneRfrncTxt (max 30 chars)
+          # Use placeholder in phone_nbr since BGS requires it (NOT NULL constraint)
+          {
+            phone_nbr: '0000000000', # 10-digit placeholder required by BGS
+            cntry_nbr: country_code,
+            frgn_phone_rfrnc_txt: "#{country_code}#{area_code}#{phone_number}"
+          }
+        else
+          # Domestic US number: use existing phone_nbr field
+          {
+            phone_nbr: "#{area_code}#{phone_number}",
+            cntry_nbr: '1'
+          }
+        end
       end
 
       # rubocop: disable Metrics/MethodLength
@@ -328,7 +356,14 @@ module ClaimsApi
       end
 
       def format_phone(phone)
-        "#{phone[:areaCode]}#{phone[:phoneNumber]}"
+        # For international numbers (countryCode != 1), include country code in formatted result
+        if phone[:countryCode].present? && phone[:countryCode] != '1'
+          # International: return full number with country code (areaCode may be nil)
+          "#{phone[:countryCode]}#{phone[:areaCode]}#{phone[:phoneNumber]}"
+        else
+          # Domestic US: area code + phone number only
+          "#{phone[:areaCode]}#{phone[:phoneNumber]}"
+        end
       end
 
       def add_meta_ids(vet_obj)

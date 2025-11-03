@@ -70,6 +70,7 @@ module ClaimsApi
                   zip_code_suffix: request.dig('veteran', 'address', 'zipCodeSuffix')
                 },
                 phone: {
+                  country_code: request.dig('veteran', 'phone', 'countryCode'),
                   area_code: request.dig('veteran', 'phone', 'areaCode'),
                   phone_number: request.dig('veteran', 'phone', 'phoneNumber')
                 },
@@ -88,6 +89,7 @@ module ClaimsApi
                   zip_code_suffix: request.dig('claimant', 'address', 'zipCodeSuffix')
                 },
                 phone: {
+                  country_code: request.dig('claimant', 'phone', 'countryCode'),
                   area_code: request.dig('claimant', 'phone', 'areaCode'),
                   phone_number: request.dig('claimant', 'phone', 'phoneNumber')
                 },

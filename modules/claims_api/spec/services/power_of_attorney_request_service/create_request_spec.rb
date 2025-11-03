@@ -14,7 +14,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
       temp = temp.deep_symbolize_keys
       temp[:data][:attributes]
     end
-    # these get merged in in the request_controller to the form data
     let(:additional_vet_details) do
       {
         firstName: 'Bob',
@@ -23,7 +22,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
         birthdate: '1965-07-15T08:00:00Z'
       }
     end
-    # these get merged in in the request_controller to the form data
     let(:additional_claimant_details) do
       {
         firstName: 'Mary',
@@ -247,6 +245,88 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
           subject.call
 
           expect(receive_count).to eq(0)
+        end
+      end
+    end
+
+    context 'phone number handling for international support' do
+      let(:claimant_participant_id) { nil }
+
+      context 'when phone number is domestic (US)' do
+        it 'stores phone in phone_nbr field with countryCode 1' do
+          temp = form_data
+          temp[:claimant] = nil
+          temp[:veteran].merge!(additional_vet_details)
+          temp[:veteran][:phone] = {
+            countryCode: '1',
+            areaCode: '555',
+            phoneNumber: '5551234'
+          }
+
+          file_name = 'claims_api/power_of_attorney_request_service/create_request/domestic_phone'
+          VCR.use_cassette(file_name) do
+            response = subject.call
+
+            expect(response['phoneNumber']).to eq('5555551234')
+            expect(response['meta']['veteran']['vnp_phone_id']).to be_present
+          end
+        end
+
+        it 'stores phone in phone_nbr field without countryCode (legacy format)' do
+          temp = form_data
+          temp[:claimant] = nil
+          temp[:veteran].merge!(additional_vet_details)
+          temp[:veteran][:phone] = {
+            areaCode: '555',
+            phoneNumber: '5551234'
+          }
+
+          file_name = 'claims_api/power_of_attorney_request_service/create_request/domestic_phone_legacy'
+          VCR.use_cassette(file_name) do
+            response = subject.call
+
+            expect(response['phoneNumber']).to eq('5555551234')
+            expect(response['meta']['veteran']['vnp_phone_id']).to be_present
+          end
+        end
+      end
+
+      context 'when phone number is international (non-US)' do
+        it 'stores phone in frgn_phone_rfrnc_txt field for international number' do
+          temp = form_data
+          temp[:claimant] = nil
+          temp[:veteran].merge!(additional_vet_details)
+          temp[:veteran][:phone] = {
+            countryCode: '44',
+            areaCode: '20',
+            phoneNumber: '12345678'
+          }
+
+          file_name = 'claims_api/power_of_attorney_request_service/create_request/international_phone'
+          VCR.use_cassette(file_name) do
+            response = subject.call
+
+            expect(response['phoneNumber']).to eq('442012345678')
+            expect(response['meta']['veteran']['vnp_phone_id']).to be_present
+          end
+        end
+
+        it 'stores phone in frgn_phone_rfrnc_txt field without areaCode' do
+          temp = form_data
+          temp[:claimant] = nil
+          temp[:veteran].merge!(additional_vet_details)
+          temp[:veteran][:phone] = {
+            countryCode: '44',
+            phoneNumber: '2012345678'
+          }
+
+          file_name = 'claims_api/power_of_attorney_request_service/create_request/international_phone_no_area'
+          VCR.use_cassette(file_name) do
+            response = subject.call
+
+            expect(response['phoneNumber']).to eq('442012345678')
+            expect(response['meta']['veteran']['vnp_phone_id']).to be_present
+          end
         end
       end
     end
