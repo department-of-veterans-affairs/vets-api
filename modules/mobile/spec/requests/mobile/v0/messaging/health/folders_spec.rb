@@ -2,6 +2,7 @@
 
 require_relative '../../../../../support/helpers/rails_helper'
 require 'vets/collection'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validation, type: :request do
   include SchemaMatchers
@@ -148,6 +149,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
 
     describe 'nested resources' do
       it 'gets messages#index' do
+        allow(UniqueUserEvents).to receive(:log_event)
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
           get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
         end
@@ -156,6 +158,12 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
         expect(response).to match_camelized_response_schema('messages')
         expect(response.parsed_body['data'].size).to eq(10)
         expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(100)
+
+        # Verify event logging was called
+        expect(UniqueUserEvents).to have_received(:log_event).with(
+          user: anything,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+        )
       end
 
       context 'when there are pagination parameters' do

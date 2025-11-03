@@ -69,7 +69,7 @@ RSpec.describe Lighthouse526DocumentUpload do
         context 'when transitioning to a completed state' do
           it 'transitions if lighthouse_processing_ended_at is saved' do
             upload = create(:lighthouse526_document_upload, lighthouse_processing_ended_at: DateTime.now)
-            expect { upload.complete! }.not_to raise_error(AASM::InvalidTransition)
+            expect { upload.complete! }.not_to raise_error
           end
 
           it 'does not transition if no lighthouse_processing_ended_at is saved' do
@@ -81,7 +81,7 @@ RSpec.describe Lighthouse526DocumentUpload do
         context 'when transitioning to a failed state' do
           it 'transitions if lighthouse_processing_ended_at is saved' do
             upload = create(:lighthouse526_document_upload, lighthouse_processing_ended_at: DateTime.now)
-            expect { upload.fail! }.not_to raise_error(AASM::InvalidTransition)
+            expect { upload.fail! }.not_to raise_error
           end
 
           it 'does not transition if no lighthouse_processing_ended_at is saved' do
@@ -96,7 +96,7 @@ RSpec.describe Lighthouse526DocumentUpload do
               error_message: { status: 'Something broke' }.to_json
             )
 
-            expect { upload.fail! }.not_to raise_error(AASM::InvalidTransition)
+            expect { upload.fail! }.not_to raise_error
           end
 
           it 'does not transition if no error_message is saved' do
