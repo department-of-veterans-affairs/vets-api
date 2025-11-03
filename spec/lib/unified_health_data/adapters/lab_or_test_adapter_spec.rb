@@ -572,7 +572,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
       it 'does not log when status is final and has encoded data but no observations' do
         record = base_record.deep_dup
-        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
+        record['resource']['presentedForm'] = [{ 'contentType' => 'text/plain', 'data' => 'encoded-data-here' }]
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
 
         expect(Rails.logger).not_to receive(:warn)

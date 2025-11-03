@@ -10,6 +10,14 @@ RSpec.describe 'Form 21P-530a API', openapi_spec: 'public/openapi.json', type: :
     allow(Time).to receive(:current).and_return(Time.zone.parse('2025-01-15 10:30:00 UTC'))
   end
 
+  # Shared example for validation failure
+  shared_examples 'validates schema and returns 422' do
+    it 'returns a 422 when request fails schema validation' do |example|
+      submit_request(example.metadata)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
   shared_examples 'matches rswag example with status' do |status|
     it "matches rswag example and returns #{status}" do |example|
       submit_request(example.metadata)
@@ -58,32 +66,70 @@ RSpec.describe 'Form 21P-530a API', openapi_spec: 'public/openapi.json', type: :
           }
         end
 
-        it 'returns a 422 when request body fails schema validation' do |example|
-          submit_request(example.metadata)
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
+        include_examples 'validates schema and returns 422'
       end
     end
   end
 
   path '/v0/form21p530a/download_pdf' do
-    post 'Download PDF for a submitted 21P-530a form' do
+    post 'Download PDF for Form 21P-530a' do
       tags 'benefits_forms'
       operationId 'downloadForm21p530aPdf'
       consumes 'application/json'
-      produces 'application/json'
-      description 'Download a PDF copy of a submitted Form 21P-530a. This endpoint accepts the same form data ' \
-                  'as the submission endpoint. Currently returns a stub message indicating the feature is not ' \
-                  'yet implemented.'
+      produces 'application/pdf'
+      description 'Generate and download a filled PDF for Form 21P-530a (Application for Burial Allowance)'
 
       parameter name: :form_data, in: :body, required: true, schema: Openapi::Requests::Form21p530a::FORM_SCHEMA
 
-      response '200', 'PDF download stub response' do
+      # Success response - PDF file
+      response '200', 'PDF generated successfully' do
+        produces 'application/pdf'
+        schema type: :string, format: :binary
+
+        let(:form_data) do
+          JSON.parse(
+            Rails.root.join('spec', 'fixtures', 'form21p530a', 'valid_form.json').read
+          ).with_indifferent_access
+        end
+
+        it 'returns a PDF file' do |example|
+          submit_request(example.metadata)
+          expect(response).to have_http_status(:ok)
+          expect(response.content_type).to eq('application/pdf')
+          expect(response.headers['Content-Disposition']).to include('attachment')
+          expect(response.headers['Content-Disposition']).to include('.pdf')
+        end
+      end
+
+      response '422', 'Unprocessable Entity - schema validation failed' do
+        produces 'application/json'
+        schema '$ref' => '#/components/schemas/Errors'
+
+        let(:form_data) do
+          {
+            veteranInformation: {
+              fullName: { first: 'OnlyFirst' }
+            }
+          }
+        end
+
+        include_examples 'validates schema and returns 422'
+      end
+
+      response '500', 'Internal Server Error - PDF generation failed' do
+        produces 'application/json'
         schema type: :object,
                properties: {
-                 message: {
-                   type: :string,
-                   example: 'PDF download stub - not yet implemented'
+                 errors: {
+                   type: :array,
+                   items: {
+                     type: :object,
+                     properties: {
+                       title: { type: :string },
+                       detail: { type: :string },
+                       status: { type: :string }
+                     }
+                   }
                  }
                }
 
@@ -93,7 +139,12 @@ RSpec.describe 'Form 21P-530a API', openapi_spec: 'public/openapi.json', type: :
           ).with_indifferent_access
         end
 
-        include_examples 'matches rswag example with status', :ok
+        it 'returns a 500 when PDF generation fails' do |example|
+          # Mock a PDF generation failure
+          allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError.new('PDF generation error'))
+          submit_request(example.metadata)
+          expect(response).to have_http_status(:internal_server_error)
+        end
       end
     end
   end
