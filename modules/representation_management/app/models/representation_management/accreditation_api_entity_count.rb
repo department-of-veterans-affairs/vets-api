@@ -96,16 +96,16 @@ module RepresentationManagement
       log_error("Error generating count report: #{e.message}")
     end
 
+    # @return [Hash] The current counts from the API for all entity types
+    def current_api_counts
+      @current_api_counts ||= get_counts_from_api
+    end
+
     private
 
     # @return [RepresentationManagement::GCLAWS::Client] The client for GCLAWS API calls
     def client
       RepresentationManagement::GCLAWS::Client
-    end
-
-    # @return [Hash] The current counts from the API for all entity types
-    def current_api_counts
-      @current_api_counts ||= get_counts_from_api
     end
 
     # Fetches entity counts from the GCLAWS API
