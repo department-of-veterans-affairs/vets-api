@@ -13,7 +13,7 @@ RSpec.describe 'MyHealth::V2::AllergiesController', :skip_json_api_validation, t
   let(:path) { '/my_health/v2/medical_records/vitals' }
 
   let(:uhd_flipper) { :mhv_accelerated_delivery_uhd_enabled }
-  let(:vitals_flipper) { :mhv_accelerated_delivery_vitals_enabled }
+  let(:vitals_flipper) { :mhv_accelerated_delivery_vital_signs_enabled }
 
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv) }
