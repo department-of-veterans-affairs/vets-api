@@ -22,6 +22,8 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
     end
 
     context 'when creating a 686c claim' do
+      let(:dependents_claim_data) { create(:add_remove_dependents_claim).parsed_form }
+
       it 'extracts only dependent-related data' do
         generator = DependentsBenefits::Generators::Claim686cGenerator.new(form_data, parent_claim_id)
         claim_686c = generator.generate
@@ -43,12 +45,16 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         expect(parsed_form['dependents_application']).not_to have_key('school_information')
         expect(parsed_form['dependents_application']).not_to have_key('program_information')
 
+        expect(parsed_form).to eql(dependents_claim_data)
+
         # Should have correct form_id
         expect(claim_686c.form_id).to eq('21-686C')
       end
     end
 
     context 'when creating a 674 claim' do
+      let(:student_claim_data) { create(:student_claim).parsed_form }
+
       it 'extracts only student-related data' do
         student_data = form_data.dig('dependents_application', 'student_information', 0)
 
@@ -76,6 +82,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
 
         # Should NOT include dependent-specific data
         expect(parsed_form['dependents_application']).not_to have_key('children_to_add')
+        expect(parsed_form).to eql(student_claim_data)
 
         # Should have correct form_id
         expect(claim674.form_id).to eq('21-674')
