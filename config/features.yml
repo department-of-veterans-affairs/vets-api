@@ -697,6 +697,21 @@ features:
     actor_type: user
     description: Enables new Dependents module
     enable_in_development: false
+  dependents_benefits_confirmation_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Confirmation email notification
+  dependents_benefits_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Error email notification
+  dependents_benefits_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  dependents_benefits_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  dependents_benefits_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -1293,21 +1308,6 @@ features:
   mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for VistA patients
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_sp_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_mb_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Microbiology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_ch_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
-  mhv_accelerated_delivery_uhd_filtering_enabled:
-    actor_type: user
-    description: Control whether vets-api applies filtering logic to UHD lab records
     enable_in_development: false
   mhv_accelerated_delivery_uhd_loinc_logging_enabled:
     actor_type: user
