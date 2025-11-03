@@ -7,8 +7,6 @@ module DecisionReviews
     # Custom exception that maps Decision Review errors to error details defined in config/locales/exceptions.en.yml
     #
     class ServiceException < Common::Exceptions::BackendServiceException
-      include SentryLogging
-
       UNMAPPED_KEY = 'unmapped_service_exception'
 
       def initialize(key: UNMAPPED_KEY, response_values: {}, original_status: nil, original_body: nil)

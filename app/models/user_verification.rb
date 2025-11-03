@@ -30,6 +30,12 @@ class UserVerification < ApplicationRecord
     user_verification
   end
 
+  def self.find_by_type(type, identifier)
+    find_by_type!(type, identifier)
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
   def lock!
     update!(locked: true)
   end

@@ -6,6 +6,8 @@ require 'unified_health_data/serializers/allergy_serializer'
 module Mobile
   module V1
     class AllergyIntolerancesController < ApplicationController
+      service_tag 'mhv-medical-records'
+
       before_action :controller_enabled?
       before_action :validate_feature_flag
 

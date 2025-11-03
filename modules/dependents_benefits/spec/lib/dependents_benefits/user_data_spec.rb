@@ -66,7 +66,7 @@ RSpec.describe DependentsBenefits::UserData do
         expect(user_data.email).to eq('john.doe@example.com')
         expect(user_data.icn).to eq('icn-123')
         expect(user_data.participant_id).to eq('participant-123')
-        expect(user_data.va_profile_email).to eq('john.doe@va.gov')
+        expect(user_data.notification_email).to eq('john.doe@va.gov')
       end
     end
 
@@ -366,6 +366,110 @@ RSpec.describe DependentsBenefits::UserData do
       it 'truncates to max length' do
         user_data = described_class.new(long_name_user, claim_data)
         expect(user_data.send(:external_key)).to eq('A' * 10)
+      end
+    end
+  end
+
+  describe '#get_user_email' do
+    let(:user_data) { described_class.new(user, claim_data) }
+
+    context 'when user.va_profile_email succeeds' do
+      it 'returns va_profile_email with presence check' do
+        expect(user_data.send(:get_user_email, user)).to eq('john.doe@va.gov')
+      end
+
+      context 'when va_profile_email is blank' do
+        let(:user_with_blank_email) do
+          double(
+            'User',
+            first_name: 'John',
+            middle_name: 'Michael',
+            last_name: 'Doe',
+            ssn: '123456789',
+            uuid: 'user-uuid-123',
+            birth_date: '1980-01-01',
+            common_name: 'John Doe',
+            email: 'john.doe@example.com',
+            icn: 'icn-123',
+            participant_id: 'participant-123',
+            va_profile_email: ''
+          )
+        end
+
+        it 'returns nil for blank email' do
+          expect(user_data.send(:get_user_email, user_with_blank_email)).to be_nil
+        end
+      end
+    end
+
+    context 'when user.va_profile_email raises an exception' do
+      let(:error_user) do
+        double(
+          'User',
+          first_name: 'John',
+          middle_name: 'Michael',
+          last_name: 'Doe',
+          ssn: '123456789',
+          uuid: 'user-uuid-123',
+          birth_date: '1980-01-01',
+          common_name: 'John Doe',
+          email: 'john.doe@example.com',
+          icn: 'icn-123',
+          participant_id: 'participant-123'
+        )
+      end
+
+      before do
+        allow(error_user).to receive(:va_profile_email).and_raise(StandardError, 'VAProfile service error')
+      end
+
+      it 'tracks warning and returns nil' do
+        expect(monitor).to receive(:track_user_data_warning).with(
+          'DependentsBenefits::UserData#get_user_email failed to get va_profile_email',
+          'get_va_profile_email.failure',
+          { error: 'VAProfile service error' }
+        )
+
+        result = user_data.send(:get_user_email, error_user)
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe 'notification_email behavior' do
+    context 'when va_profile_email is available' do
+      it 'sets notification_email to va_profile_email' do
+        user_data = described_class.new(user, claim_data)
+        expect(user_data.notification_email).to eq('john.doe@va.gov')
+      end
+    end
+
+    context 'when va_profile_email fails and form email is available' do
+      let(:error_user) do
+        double(
+          'User',
+          first_name: 'John',
+          middle_name: 'Michael',
+          last_name: 'Doe',
+          ssn: '123456789',
+          uuid: 'user-uuid-123',
+          birth_date: '1980-01-01',
+          common_name: 'John Doe',
+          email: 'john.doe@example.com',
+          icn: 'icn-123',
+          participant_id: 'participant-123'
+        )
+      end
+
+      before do
+        allow(error_user).to receive(:va_profile_email).and_raise(StandardError, 'VAProfile service error')
+      end
+
+      it 'falls back to form email for notification_email' do
+        expect(monitor).to receive(:track_user_data_warning)
+
+        user_data = described_class.new(error_user, claim_data)
+        expect(user_data.notification_email).to eq('john.doe@example.com')
       end
     end
   end
