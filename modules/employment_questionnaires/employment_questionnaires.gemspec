@@ -8,7 +8,7 @@ require 'employment_questionnaires/version'
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |spec|
   spec.name        = 'employment_questionnaires'
-  spec.version     = 1
+  spec.version     = EmploymentQuestionnaires::VERSION
   spec.authors     = ['VA Benefits Lifestage']
   spec.email       = []
   spec.homepage    = 'https://api.va.gov'
