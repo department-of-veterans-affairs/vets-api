@@ -16,6 +16,7 @@ module UnifiedHealthData
         parsed.compact
       end
 
+      # rubocop:disable Metrics/MethodLength
       def parse_single_record(record)
         return nil if record.nil? || record['resource'].nil?
 
@@ -42,6 +43,7 @@ module UnifiedHealthData
           status: record['resource']['status']
         )
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
