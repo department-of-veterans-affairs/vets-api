@@ -15,11 +15,8 @@ module ClaimsEvidenceApi
           filters = JSON.parse(File.read(ClaimsEvidenceApi::JsonSchema::SEARCH_FILE_FILTERS))['properties']
           filters = filters.each_with_object([]) do |(search_field, props), formats|
             file = "#{ClaimsEvidenceApi::JsonSchema::SCHEMA}/#{props['$ref']}"
-            begin
-              next unless (filter = JSON.parse(File.read(file)))
-            rescue
-              next
-            end
+            filter = JSON.parse(File.read(file)) rescue nil # rubocop:disable Style/RescueModifier
+            next unless filter
 
             formats << OpenStruct.new(
               filter: File.basename(file, 'Filter.json').to_sym,
@@ -100,9 +97,9 @@ module ClaimsEvidenceApi
           sorts
         end
 
-        # given a map of filter ids to values, transform them into the expected json schema structure.
+        # given a map of sort/filter ids to direction, transform them into the expected json schema structure.
         # this is a utility to ease the caller burden, ie. no prior knowledge of the schema structure.
-        # the filter id will be equivalent to the filter filename with 'Filter.json' removed
+        # the sort/filter id will be equivalent to the filter filename with 'Filter.json' removed
         #
         # @see ClaimsEvidenceApi::Service::Search#find
         # @see #validate

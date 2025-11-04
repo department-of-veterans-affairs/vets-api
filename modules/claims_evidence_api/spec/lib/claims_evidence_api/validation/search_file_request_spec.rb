@@ -5,6 +5,7 @@ require 'claims_evidence_api/validation/search_file_request'
 
 RSpec.describe ClaimsEvidenceApi::Validation::SearchFileRequest do
   let(:search_filters) { ClaimsEvidenceApi::Validation::SearchFileRequest::Filters }
+  let(:search_sort) { ClaimsEvidenceApi::Validation::SearchFileRequest::Sort }
 
   it 'has expected constants' do
     expect(ClaimsEvidenceApi::Validation::SearchFileRequest::FORMATTERS).to be_present
@@ -78,5 +79,37 @@ RSpec.describe ClaimsEvidenceApi::Validation::SearchFileRequest do
   end
 
   context 'Sort' do
+    it 'returns a valid sort list' do
+      empty = []
+      expect(search_sort.validate(empty)).to eq([])
+
+      valid = [{ 'property' => 'providerData.contentSource', 'direction' => 'ASCENDING' }]
+      expect(search_sort.validate(valid)).to eq valid
+    end
+
+    it 'raises an exception on an invalid sort list - no required' do
+      invalid = { 'missingRequired' => 'TEST' }
+      expect { search_sort.validate(invalid) }.to raise_error JSON::Schema::ValidationError
+    end
+
+    it 'raises an exception on an invalid sort list - bad direction' do
+      invalid = { 'property' => 'providerData.contentSource', 'direction' => 'TEST' }
+      expect { search_sort.validate(invalid) }.to raise_error JSON::Schema::ValidationError
+    end
+
+    it 'transforms a key-value hash to expected schema format' do
+      sort = {
+        documentTypeId: 'ASCENDING',
+        contentSource: 'DESCENDING',
+        notValidField: 'will be removed'
+      }
+
+      expected = [
+        { property: 'providerData.documentTypeId', direction: 'ASCENDING' },
+        { property: 'providerData.contentSource', direction: 'DESCENDING' }
+      ]
+
+      expect(search_sort.transform(sort)).to eq expected
+    end
   end
 end
