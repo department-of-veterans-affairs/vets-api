@@ -52,6 +52,7 @@ module UnifiedHealthData
           record['resource'] && record['resource']['resourceType'] == 'Observation'
         end
         parsed = filtered.map { |record| parse_single_vital(record) }
+        log_locations_found
         parsed.compact
       end
 
@@ -73,6 +74,22 @@ module UnifiedHealthData
       end
 
       private
+
+      def location_tracking_array
+        @location_tracking_array ||= []
+      end
+
+      def log_locations_found
+        unless location_tracking_array.empty?
+          # Log how many vital records had multiple locations
+          # Log only the unique location sets found (and the count) to reduce log noise
+          Rails.logger.info(
+            message: "Multiple locations found for #{location_tracking_array.size} Vital records:",
+            locations: location_tracking_array.uniq,
+            service: 'unified_health_data'
+          )
+        end
+      end
 
       def get_name(resource)
         resource.dig('code', 'text').humanize || resource.dig('code', 'coding', 0, 'display').humanize || ''
@@ -126,26 +143,19 @@ module UnifiedHealthData
       # TODO: how to handle if multiple locations?
       def extract_location(record)
         # VistA - location is in the performer.extension array
-        # But OH also has a performer.extension array
-        # # For OH the "performer" is the practitioner
-        #
-        # if array_and_has_items(record['performer'])
-        #   reference = record['performer'].map do |p|
-        #     p['extension'].find { |e| e['valueReference']['reference'].include?('location') }
-        #   end.compact.first&.dig('valueReference', 'reference')
-        #   if reference
-        #     resource = find_contained(record, reference, FHIR_RESOURCE_TYPES[:LOCATION])
-        #     resource['name'] || record['performer']['extension']['display'] || nil
-        # end
-
-        # For OH the "performer" is the practitioner
-        # OH + VistA - location is in the contained array, might be multiple listed,
-        # OH has no definitive reference
+        # OH also has a performer.extension array but the "performer" is the practitioner
+        # Both OH + VistA - location is in the contained array, might be multiple listed,
+        # OH has no definitive reference, unlike VistA
         if array_and_has_items(record['contained'])
           # For now just get the first one
-          record['contained'].map do |res|
+          location_array = record['contained'].map do |res|
             res['resourceType'] == FHIR_RESOURCE_TYPES[:LOCATION] ? res['name'] : nil
-          end.compact.first
+          end.compact
+          if location_array.size > 1
+            locations = { 'locations found' => location_array.size, 'names' => location_array.join('; ') }
+            location_tracking_array.push(locations)
+          end
+          location_array.first unless location_array.empty?
         end
       rescue
         nil

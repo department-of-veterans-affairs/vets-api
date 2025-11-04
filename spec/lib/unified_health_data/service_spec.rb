@@ -538,12 +538,24 @@ describe UnifiedHealthData::Service, type: :service do
       )
     end
 
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
     context 'happy path' do
       context 'when data exists for both VistA + OH' do
         it 'returns all vitals' do
           allow_any_instance_of(UnifiedHealthData::Client)
             .to receive(:get_vitals_by_date)
             .and_return(sample_client_response)
+
+          expect(Rails.logger).to receive(:info)
+            .with(
+              message: 'Multiple locations found for 8 Vital records:',
+              locations: [{ 'locations found' => 2,
+                            'names' => '668 Green Primary Care; WAMC Bariatric Surgery' }],
+              service: 'unified_health_data'
+            )
 
           vitals = service.get_vitals
           expect(vitals.size).to eq(18)
