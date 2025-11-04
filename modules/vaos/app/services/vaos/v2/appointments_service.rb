@@ -409,9 +409,7 @@ module VAOS
           {
             id: appt[:id],
             status: normalize_eps_status(appt),
-            start: appt.dig(:appointment_details, :start),
-            provider_service_id: appt[:provider_service_id],
-            last_retrieved: appt.dig(:appointment_details, :last_retrieved)
+            start: appt.dig(:appointment_details, :start)
           }
         end
 
@@ -445,8 +443,7 @@ module VAOS
           {
             id: appt[:id],
             status: normalize_vaos_status(appt),
-            start: appt[:start],
-            created: appt[:created]
+            start: appt[:start]
           }
         end
 
