@@ -48,11 +48,44 @@ describe VaNotify::Service do
                       }
                     },
                     client_url: test_service_base_url) do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
         allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
         allow(VaNotify::Client).to receive(:new).with(test_service_api_key, {}).and_return(va_notify_client)
         VaNotify::Service.new(test_service_api_key)
         expect(Notifications::Client).to have_received(:new).with(*parameters)
         expect(VaNotify::Client).to have_received(:new).with(test_service_api_key, {})
+      end
+    end
+
+    context 'when va_notify_push_notifications feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
+      end
+
+      it 'initializes push client' do
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).with(test_api_key, {}).and_return(va_notify_client)
+
+        service = VaNotify::Service.new(test_api_key)
+
+        expect(VaNotify::Client).to have_received(:new).with(test_api_key, {})
+        expect(service.push_client).to eq(va_notify_client)
+      end
+    end
+
+    context 'when va_notify_push_notifications feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(false)
+      end
+
+      it 'does not initialize push client' do
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
+
+        service = VaNotify::Service.new(test_api_key)
+
+        expect(VaNotify::Client).not_to have_received(:new)
+        expect(service.push_client).to be_nil
       end
     end
 
@@ -70,6 +103,7 @@ describe VaNotify::Service do
                       }
                     },
                     client_url: test_base_url) do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
         allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
         allow(VaNotify::Client).to receive(:new).with(test_service1_api_key, {}).and_return(va_notify_client)
         VaNotify::Service.new(test_service1_api_key)
@@ -86,6 +120,7 @@ describe VaNotify::Service do
       }
       with_settings(Settings.vanotify,
                     client_url: test_base_url) do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
         allow(Notifications::Client).to receive(:new).with(test_api_key,
                                                            test_base_url).and_return(notification_client)
         service_object = VaNotify::Service.new(test_api_key, callback_options)
@@ -413,8 +448,6 @@ describe VaNotify::Service do
   end
 
   describe '#send_push' do
-    subject { VaNotify::Service.new(test_api_key) }
-
     let(:push_client) { instance_double(VaNotify::Client) }
     let(:send_push_parameters) do
       {
@@ -435,44 +468,94 @@ describe VaNotify::Service do
       }
     end
 
-    before do
-      allow(VaNotify::Client).to receive(:new).and_return(push_client)
-      allow(push_client).to receive(:send_push).and_return(mock_push_response)
-    end
-
-    it 'initializes push client with correct parameters' do
-      expect(VaNotify::Client).to receive(:new).with(test_api_key, {})
-      subject.send_push(send_push_parameters)
-    end
-
-    it 'calls push client with correct parameters' do
-      expect(push_client).to receive(:send_push).with(send_push_parameters)
-      subject.send_push(send_push_parameters)
-    end
-
-    it 'returns the push client response' do
-      response = subject.send_push(send_push_parameters)
-      expect(response).to eq(mock_push_response)
-    end
-
-    it 'sets the template_id instance variable' do
-      subject.send_push(send_push_parameters)
-      expect(subject.template_id).to eq('fake-template-id-1234-5678-9012-34567890abcd')
-    end
-
-    it 'does not create a notification record' do
-      expect { subject.send_push(send_push_parameters) }.not_to change(VANotify::Notification, :count)
-    end
-
-    context 'when push client raises an error' do
-      let(:push_error) { StandardError.new('Push failed') }
+    context 'when va_notify_push_notifications feature flag is enabled' do
+      subject { VaNotify::Service.new(test_api_key) }
 
       before do
-        allow(push_client).to receive(:send_push).and_raise(push_error)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
+        allow(VaNotify::Client).to receive(:new).and_return(push_client)
+        allow(push_client).to receive(:send_push).and_return(mock_push_response)
       end
 
-      it 'handles the error and re-raises it' do
-        expect { subject.send_push(send_push_parameters) }.to raise_error(StandardError, 'Push failed')
+      it 'initializes push client with correct parameters' do
+        expect(VaNotify::Client).to receive(:new).with(test_api_key, {})
+        subject.send_push(send_push_parameters)
+      end
+
+      it 'calls push client with correct parameters' do
+        expect(push_client).to receive(:send_push).with(send_push_parameters)
+        subject.send_push(send_push_parameters)
+      end
+
+      it 'returns the push client response' do
+        response = subject.send_push(send_push_parameters)
+        expect(response).to eq(mock_push_response)
+      end
+
+      it 'sets the template_id instance variable' do
+        subject.send_push(send_push_parameters)
+        expect(subject.template_id).to eq('fake-template-id-1234-5678-9012-34567890abcd')
+      end
+
+      it 'does not create a notification record' do
+        expect { subject.send_push(send_push_parameters) }.not_to change(VANotify::Notification, :count)
+      end
+
+      context 'when push client raises an error' do
+        let(:push_error) { StandardError.new('Push failed') }
+
+        before do
+          allow(push_client).to receive(:send_push).and_raise(push_error)
+        end
+
+        it 'handles the error and re-raises it' do
+          expect { subject.send_push(send_push_parameters) }.to raise_error(StandardError, 'Push failed')
+        end
+      end
+    end
+
+    context 'when va_notify_push_notifications feature flag is disabled' do
+      subject { VaNotify::Service.new(test_api_key) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(false)
+        allow(VaNotify::Client).to receive(:new).and_return(push_client)
+        allow(push_client).to receive(:send_push).and_return(mock_push_response)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'logs a warning message' do
+        subject.send_push(send_push_parameters)
+        expect(Rails.logger).to have_received(:warn)
+          .with('Push notifications are disabled via feature flag va_notify_push_notifications')
+      end
+
+      it 'returns nil without calling push client' do
+        response = subject.send_push(send_push_parameters)
+        expect(response).to be_nil
+        expect(push_client).not_to have_received(:send_push)
+      end
+
+      it 'sets the template_id instance variable' do
+        subject.send_push(send_push_parameters)
+        expect(subject.template_id).to eq('fake-template-id-1234-5678-9012-34567890abcd')
+      end
+
+      it 'does not create a notification record' do
+        expect { subject.send_push(send_push_parameters) }.not_to change(VANotify::Notification, :count)
+      end
+    end
+
+    context 'when feature flag is enabled but push client is nil' do
+      subject { VaNotify::Service.new(test_api_key) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
+        allow(VaNotify::Client).to receive(:new).and_return(nil)
+      end
+
+      it 'raises an error when push client is not initialized' do
+        expect { subject.send_push(send_push_parameters) }.to raise_error(StandardError, 'Push client not initialized')
       end
     end
   end

@@ -23,7 +23,9 @@ module VaNotify
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
-      @push_client ||= VaNotify::Client.new(api_key, callback_options)
+      if Flipper.enabled?(:va_notify_push_notifications)
+        @push_client ||= VaNotify::Client.new(api_key, callback_options)
+      end
       @callback_options = callback_options || {}
     rescue => e
       handle_error(e)
@@ -74,6 +76,13 @@ module VaNotify
     def send_push(args)
       @template_id = args[:template_id]
       # Push notifications currently do not support notification creation or callbacks
+      unless Flipper.enabled?(:va_notify_push_notifications)
+        Rails.logger.warn('Push notifications are disabled via feature flag va_notify_push_notifications')
+        return nil
+      end
+
+      raise StandardError, 'Push client not initialized' if push_client.nil?
+
       push_client.send_push(args)
     rescue => e
       handle_error(e)
