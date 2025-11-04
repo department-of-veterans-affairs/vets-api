@@ -20,7 +20,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_validate_schema).and_return(false)
 
     # Stub out pdf methods as they are not needed for these tests and are cpu expensive
-    FileUtils.cp(fixture_pdf, test_pdf) unless File.exist?(test_pdf)
+    FileUtils.cp(fixture_pdf, test_pdf)
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:fill_form_template)
       .and_return(test_pdf.to_s)
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:add_signature_stamp)
