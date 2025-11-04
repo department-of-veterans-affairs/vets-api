@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :employment_questionnaires_claim, class: 'EmploymentQuestionnaires::SavedClaim' do
-    form_id { 'VBA-21-4140-ARE' }
+    form_id { '21-4140' }
     form do
       {
         veteranFullName: {

@@ -4,7 +4,7 @@ require 'employment_questionnaires/engine'
 
 module EmploymentQuestionnaires
   # Income and Assets Form ID
-  FORM_ID = 'VBA-21-4140-ARE'
+  FORM_ID = '21-4140'
 
   # The module path
   MODULE_PATH = 'modules/employment_questionnaires'

@@ -20,14 +20,14 @@ RSpec.describe EmploymentQuestionnaires::BenefitsIntake::SubmissionHandler do
 
   describe '.pending_attempts' do
     let(:submission_attempt) { double('Lighthouse::SubmissionAttempt') }
-    let(:submission) { double('Lighthouse::Submission', form_id: 'VBA-21-4140-ARE') }
+    let(:submission) { double('Lighthouse::Submission', form_id: '21-4140') }
 
     before do
       allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
                                                              .and_return(Lighthouse::SubmissionAttempt)
       allow(Lighthouse::SubmissionAttempt).to receive(:where).with(
         status: 'pending',
-        'lighthouse_submissions.form_id' => 'VBA-21-4140-ARE'
+        'lighthouse_submissions.form_id' => '21-4140'
       )
                                                              .and_return([submission_attempt])
     end
@@ -42,7 +42,7 @@ RSpec.describe EmploymentQuestionnaires::BenefitsIntake::SubmissionHandler do
       expect(Lighthouse::SubmissionAttempt).to receive(:where)
         .with(
           status: 'pending',
-          'lighthouse_submissions.form_id' => 'VBA-21-4140-ARE'
+          'lighthouse_submissions.form_id' => '21-4140'
         )
       handler.pending_attempts
     end

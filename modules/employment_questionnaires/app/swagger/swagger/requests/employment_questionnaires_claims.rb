@@ -5,7 +5,7 @@ module Swagger
     class EmploymentQuestionnairesClaims
       include Swagger::Blocks
 
-      swagger_path '/v0/form8416' do
+      swagger_path '/v0/form4140' do
         operation :post do
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
