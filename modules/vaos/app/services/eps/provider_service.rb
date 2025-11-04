@@ -127,7 +127,7 @@ module Eps
 
       response = fetch_provider_services(npi)
       if response.body[:provider_services].blank?
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI", { npi: })
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI")
         return nil
       end
 
