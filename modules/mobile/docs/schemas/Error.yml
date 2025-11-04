@@ -16,9 +16,8 @@ properties:
     type: string
   source:
     type:
-      anyOf:
-        - string
-        - object
+      - string
+      - object
   meta:
     type: object
     additionalProperties: false
