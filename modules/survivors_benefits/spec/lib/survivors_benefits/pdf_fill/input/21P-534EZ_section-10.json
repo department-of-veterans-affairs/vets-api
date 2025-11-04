@@ -1,0 +1,106 @@
+{
+  "veteranSocialSecurityNumber": "123456789",
+  "careExpenses": [
+    {
+      "recipient": "SURVIVING_SPOUSE",
+      "recipientName": "10B(1) Recipient",
+      "provider": "10B(2) Provider",
+      "careType": "CARE_FACILITY",
+      "ratePerHour": 130,
+      "hoursPerWeek": 30,
+      "careDateRange": {
+        "from": "2024-01-01",
+        "to": "2024-12-31"
+      },
+      "noCareEndDate": true,
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 4200.50
+    },
+    {
+      "recipient": "SURVIVING_SPOUSE",
+      "recipientName": "10C(1) Recipient",
+      "provider": "10C(2) Provider",
+      "careType": "CARE_FACILITY",
+      "ratePerHour": 28,
+      "hoursPerWeek": 18,
+      "careDateRange": {
+        "from": "2024-03-15",
+        "to": "2024-08-15"
+      },
+      "noCareEndDate": true,
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 14500.00
+    },
+    {
+      "recipient": "SURVIVING_SPOUSE",
+      "recipientName": "10D(1) Recipient",
+      "provider": "10D(2) Provider",
+      "careType": "CARE_FACILITY",
+      "ratePerHour": 45,
+      "hoursPerWeek": 12,
+      "careDateRange": {
+        "from": "2024-05-01",
+        "to": "2024-05-01"
+      },
+      "noCareEndDate": true,
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 2200.25
+    }
+  ],
+  "medicalExpenses": [
+    {
+      "recipients": "SURVIVING_SPOUSE",
+      "childName": "10E(1) Recipient",
+      "provider": "10E(2) Provider",
+      "purpose": "10E(2) Purpose",
+      "paymentDate": "2024-02-14",
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 185.72
+    },
+    {
+      "recipients": "SURVIVING_SPOUSE",
+      "childName": "10F(1) Recipient",
+      "provider": "10F(2) Provider",
+      "purpose": "10F(2) Purpose",
+      "paymentDate": "2024-01-20",
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 8650.00
+    },
+    {
+      "recipients": "SURVIVING_SPOUSE",
+      "childName": "10G(1) Recipient",
+      "provider": "10G(2) Provider",
+      "purpose": "10G(2) Purpose",
+      "paymentDate": "2024-04-05",
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 2400.00
+    },
+    {
+      "recipients": "SURVIVING_SPOUSE",
+      "childName": "10H(1) Recipient",
+      "provider": "10H(2) Provider",
+      "purpose": "10H(2) Purpose",
+      "paymentDate": "2024-03-22",
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 1299.99
+    },
+    {
+      "recipients": "SURVIVING_SPOUSE",
+      "childName": "10I(1) Recipient",
+      "provider": "10I(2) Provider",
+      "purpose": "10I(2) Purpose",
+      "paymentDate": "2024-06-18",
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 325.40
+    },
+    {
+      "recipients": "SURVIVING_SPOUSE",
+      "childName": "10J(1) Recipient",
+      "provider": "10J(2) Provider",
+      "purpose": "10J(2) Purpose",
+      "paymentDate": "2024-08-01",
+      "paymentFrequency": "MONTHLY",
+      "paymentAmount": 5100.00
+    }
+  ]
+}
