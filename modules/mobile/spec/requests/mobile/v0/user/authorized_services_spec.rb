@@ -12,6 +12,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
   before do
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                              instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user/authorized-services' do
@@ -21,7 +23,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
       assert_schema_conform(200)
 
       expect(attributes['authorizedServices']).to eq(
-        { 'appeals' => true,
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
           'appointments' => true,
           'claims' => true,
           'decisionLetters' => true,

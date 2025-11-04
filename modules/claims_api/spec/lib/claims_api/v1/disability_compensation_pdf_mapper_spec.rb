@@ -98,6 +98,17 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(address_base[:zip]).to eq('12345-6789')
     end
 
+    it 'maps international mailing address' do
+      form_attributes['veteran']['currentMailingAddress']['internationalPostalCode'] = '98761'
+      form_attributes['veteran']['currentMailingAddress']['country'] = 'Australia'
+      mapper.map_claim
+
+      address_base = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress]
+
+      expect(address_base[:country]).to eq('Australia')
+      expect(address_base[:zip]).to eq('98761')
+    end
+
     it 'maps the veteran personal information' do
       mapper.map_claim
 
@@ -112,58 +123,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(va_file_number).to eq(birls_file_number)
       expect(veteran_name).to eq({ lastName: 'lincoln', middleInitial: 'L', firstName: 'abraham' })
       expect(birth_date).to eq({ month: '02', day: '12', year: '1809' })
-    end
-  end
-
-  describe '#set_pdf_data_for_section_one' do
-    context 'when identificationInformation key does not exist' do
-      it 'sets the identificationInformation key to an empty hash' do
-        res = mapper.send(:set_pdf_data_for_section_one)
-
-        expect(res).to eq({})
-      end
-    end
-
-    context 'when identificationInformation key already exists' do
-      before do
-        @pdf_data = pdf_data
-        @pdf_data[:data][:attributes][:identificationInformation] = {}
-      end
-
-      it 'returns early without modifying the existing data' do
-        res = mapper.send(:set_pdf_data_for_section_one)
-
-        expect(res).to be_nil
-      end
-    end
-  end
-
-  describe '#set_pdf_data_for_mailing_address' do
-    context 'when mailingAddress key does not exist' do
-      before do
-        @pdf_data = pdf_data
-        @pdf_data[:data][:attributes][:identificationInformation] = {}
-      end
-
-      it 'sets the mailingAddress key to an empty hash' do
-        res = mapper.send(:set_pdf_data_for_mailing_address)
-
-        expect(res).to eq({})
-      end
-    end
-
-    context 'when mailingAddress key already exists' do
-      before do
-        @pdf_data = pdf_data
-        @pdf_data[:data][:attributes][:identificationInformation] = {}
-        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress] = {}
-      end
-
-      it 'returns early without modifying the existing data' do
-        res = mapper.send(:set_pdf_data_for_mailing_address)
-
-        expect(res).to be_nil
-      end
     end
   end
 
@@ -208,6 +167,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
     it 'maps an international postal code' do
       int_zip = '96753'
+      form_attributes['veteran']['changeOfAddress']['country'] = 'Australia'
       form_attributes['veteran']['changeOfAddress']['zipFirstFive'] = nil
       form_attributes['veteran']['changeOfAddress']['zipLastFour'] = nil
       form_attributes['veteran']['changeOfAddress']['internationalPostalCode'] = int_zip
@@ -226,33 +186,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
   end
 
   describe 'section 3, homeless information' do
-    describe '#set_pdf_data_for_homeless_information' do
-      context 'when homelessInformation key does not exist' do
-        before do
-          @pdf_data = pdf_data
-        end
-
-        it 'sets the homelessInformation key to an empty hash' do
-          res = mapper.send(:set_pdf_data_for_homeless_information)
-
-          expect(res).to eq({})
-        end
-      end
-
-      context 'when homelessInformation key already exists' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:homelessInformation] = {}
-        end
-
-        it 'returns early without modifying the existing data' do
-          res = mapper.send(:set_pdf_data_for_homeless_information)
-
-          expect(res).to be_nil
-        end
-      end
-    end
-
     context 'when homeless information is included in the submission' do
       context 'pointOfContact attributes' do
         it 'maps the attributes if included' do
@@ -276,35 +209,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
 
       context 'currentlyHomeless attributes' do
-        describe '#set_pdf_data_for_currently_homeless_information' do
-          context 'when currentlyHomeless key does not exist' do
-            before do
-              @pdf_data = pdf_data
-              @pdf_data[:data][:attributes][:homelessInformation] = {}
-            end
-
-            it 'sets the currentlyHomeless key to an empty hash' do
-              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
-
-              expect(res).to eq({})
-            end
-          end
-
-          context 'when currentlyHomeless key already exists' do
-            before do
-              @pdf_data = pdf_data
-              @pdf_data[:data][:attributes][:homelessInformation] = {}
-              @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless] = {}
-            end
-
-            it 'returns early without modifying the existing data' do
-              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
-
-              expect(res).to be_nil
-            end
-          end
-        end
-
         it 'maps the attributes if included' do
           mapper.map_claim
 
@@ -381,35 +285,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
 
       context 'riskOfBecomingHomeless attributes' do
-        describe '#set_pdf_data_for_homelessness_risk_information' do
-          context 'when riskOfBecomingHomeless key does not exist' do
-            before do
-              @pdf_data = pdf_data
-              @pdf_data[:data][:attributes][:homelessInformation] = {}
-            end
-
-            it 'sets the riskOfBecomingHomeless key to an empty hash' do
-              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
-
-              expect(res).to eq({})
-            end
-          end
-
-          context 'when riskOfBecomingHomeless key already exists' do
-            before do
-              @pdf_data = pdf_data
-              @pdf_data[:data][:attributes][:homelessInformation] = {}
-              @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
-            end
-
-            it 'returns early without modifying the existing data' do
-              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
-
-              expect(res).to be_nil
-            end
-          end
-        end
-
         it 'maps the attributes if included' do
           form_attributes['veteran']['homelessness']['homelessnessRisk'] = {}
           form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] = 'other'
@@ -505,62 +380,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       ]
     end
 
-    describe '#set_pdf_data_for_claim_information' do
-      context 'when the claimInformation key does not exist' do
-        before do
-          @pdf_data = pdf_data
-        end
-
-        it 'sets the claimInformation key to an empty hash' do
-          res = mapper.send(:set_pdf_data_for_claim_information)
-
-          expect(res).to eq({})
-        end
-      end
-
-      context 'when the claimInformation key already exists' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:claimInformation] = {}
-        end
-
-        it 'returns early without modifying the existing data' do
-          res = mapper.send(:set_pdf_data_for_claim_information)
-
-          expect(res).to be_nil
-        end
-      end
-    end
-
-    describe '#set_pdf_data_for_disabilities' do
-      context 'when the disabilities key does not exist' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:claimInformation] = {}
-        end
-
-        it 'sets the disabilities key to an empty hash' do
-          res = mapper.send(:set_pdf_data_for_disabilities)
-
-          expect(res).to eq({})
-        end
-      end
-
-      context 'when the disabilities key already exists' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:claimInformation] = {}
-          @pdf_data[:data][:attributes][:claimInformation][:disabilities] = {}
-        end
-
-        it 'returns early without modifying the existing data' do
-          res = mapper.send(:set_pdf_data_for_disabilities)
-
-          expect(res).to be_nil
-        end
-      end
-    end
-
     it 'maps the attributes' do
       form_attributes['disabilities'] = disabilities_object
       mapper.map_claim
@@ -613,33 +432,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           }
         }
       ]
-    end
-
-    describe '#set_pdf_data_for_claim_information' do
-      context 'when the claimInformation key does not exist' do
-        before do
-          @pdf_data = pdf_data
-        end
-
-        it 'sets the claimInformation key to an empty hash' do
-          res = mapper.send(:set_pdf_data_for_claim_information)
-
-          expect(res).to eq({})
-        end
-      end
-
-      context 'when the claimInformation key already exists' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:claimInformation] = {}
-        end
-
-        it 'returns early without modifying the existing data' do
-          res = mapper.send(:set_pdf_data_for_claim_information)
-
-          expect(res).to be_nil
-        end
-      end
     end
 
     context 'when treatments information is not provided' do
@@ -700,63 +492,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       ]
     end
 
-    describe '#set_pdf_data_for_service_information' do
-      context 'when the serviceInformation key does not exist' do
-        before do
-          @pdf_data = pdf_data
-        end
-
-        it 'sets the serviceInformation key to an empty hash' do
-          res = mapper.send(:set_pdf_data_for_service_information)
-
-          expect(res).to eq({})
-        end
-      end
-
-      context 'when the serviceInformation key already exists' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:serviceInformation] = {}
-        end
-
-        it 'returns early without modifying the existing data' do
-          res = mapper.send(:set_pdf_data_for_service_information)
-
-          expect(res).to be_nil
-        end
-      end
-    end
-
     context 'service periods' do
-      describe '#set_pdf_data_for_most_recent_service_period' do
-        context 'when the mostRecentActiveService key does not exist' do
-          before do
-            @pdf_data = pdf_data
-            @pdf_data[:data][:attributes][:serviceInformation] = {}
-          end
-
-          it 'sets the mostRecentActiveService key to an empty hash' do
-            res = mapper.send(:set_pdf_data_for_most_recent_service_period)
-
-            expect(res).to eq({})
-          end
-        end
-
-        context 'when the mostRecentActiveService key already exists' do
-          before do
-            @pdf_data = pdf_data
-            @pdf_data[:data][:attributes][:serviceInformation] = {}
-            @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService] = {}
-          end
-
-          it 'returns early without modifying the existing data' do
-            res = mapper.send(:set_pdf_data_for_most_recent_service_period)
-
-            expect(res).to be_nil
-          end
-        end
-      end
-
       it 'maps the most recent service period attributes' do
         form_attributes['serviceInformation']['servicePeriods'] = service_periods_object
         mapper.map_claim
@@ -803,35 +539,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         ]
       end
 
-      describe '#set_pdf_data_for_pow_confinement' do
-        context 'when the prisonerOfWarConfinement key does not exist' do
-          before do
-            @pdf_data = pdf_data
-            @pdf_data[:data][:attributes][:serviceInformation] = {}
-          end
-
-          it 'sets the prisonerOfWarConfinement key to an empty hash' do
-            res = mapper.send(:set_pdf_data_for_pow_confinement)
-
-            expect(res).to eq({})
-          end
-        end
-
-        context 'when the prisonerOfWarConfinement key already exists' do
-          before do
-            @pdf_data = pdf_data
-            @pdf_data[:data][:attributes][:serviceInformation] = {}
-            @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = {}
-          end
-
-          it 'returns early without modifying the existing data' do
-            res = mapper.send(:set_pdf_data_for_pow_confinement)
-
-            expect(res).to be_nil
-          end
-        end
-      end
-
       it 'maps the confinement periods' do
         form_attributes['serviceInformation']['confinements'] = confinement_periods
         mapper.map_claim
@@ -862,35 +569,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           },
           'receivingInactiveDutyTrainingPay' => false
         }
-      end
-
-      describe '#set_pdf_data_for_serves_national_guard_service' do
-        context 'when the mostRecentActiveService key does not exist' do
-          before do
-            @pdf_data = pdf_data
-            @pdf_data[:data][:attributes][:serviceInformation] = {}
-          end
-
-          it 'sets the mostRecentActiveService key to an empty hash' do
-            res = mapper.send(:set_pdf_data_for_serves_national_guard_service)
-
-            expect(res).to eq({})
-          end
-        end
-
-        context 'when the mostRecentActiveService key already exists' do
-          before do
-            @pdf_data = pdf_data
-            @pdf_data[:data][:attributes][:serviceInformation] = {}
-            @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = {}
-          end
-
-          it 'returns early without modifying the existing data' do
-            res = mapper.send(:set_pdf_data_for_serves_national_guard_service)
-
-            expect(res).to be_nil
-          end
-        end
       end
 
       it 'maps the required attributes when reserves is present' do

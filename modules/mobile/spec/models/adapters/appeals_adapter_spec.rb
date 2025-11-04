@@ -122,4 +122,44 @@ describe Mobile::V0::Adapters::Appeal, :aggregate_failures do
       expect(appeal.alerts).to eq([])
     end
   end
+
+  context 'when issue descriptions are blank or nil' do
+    context "when appeal type is 'appeal' or 'legacyAppeal'" do
+      it 'replaces blank or nil with an appeal type message' do
+        appeal = appeal_by_id('3294289', overrides: {
+                                issues: [
+                                  { 'active' => true, 'date' => '2016-05-03',
+                                    'description' => nil,
+                                    'diagnosticCode' => '8100', 'lastAction' => 'remand' },
+                                  { 'active' => true, 'date' => '2016-05-03',
+                                    'description' => '',
+                                    'diagnosticCode' => '5260', 'lastAction' => 'remand' }
+                                ]
+                              })
+
+        expect(appeal.issues[0].description).to eq("We're unable to show this issue on appeal")
+        expect(appeal.issues[1].description).to eq("We're unable to show this issue on appeal")
+      end
+    end
+
+    context "when appeal type is 'higherLevelReview' or 'supplementalClaim'" do
+      it 'replaces blank or nil with an appeal type message' do
+        # Create a higherLevelReview appeal by modifying the top-level type
+        appeal_data = appeals.find { |a| a['id'] == '3294289' }.dup
+        appeal_data['type'] = 'higherLevelReview'
+        appeal_data['attributes']['issues'] = [
+          { 'active' => true, 'date' => '2016-05-03',
+            'description' => nil,
+            'diagnosticCode' => '8100', 'lastAction' => 'remand' }
+        ]
+
+        serializable_resource = OpenStruct.new(appeal_data['attributes'])
+        serializable_resource[:id] = appeal_data['id']
+        serializable_resource[:type] = appeal_data['type']
+        appeal = subject.parse(serializable_resource)
+
+        expect(appeal.issues[0].description).to eq("We're unable to show this issue on your Higher-Level Review")
+      end
+    end
+  end
 end

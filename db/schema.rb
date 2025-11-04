@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_06_192747) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -30,39 +30,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_06_192747) do
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
-
-  create_table "account_login_stats", force: :cascade do |t|
-    t.bigint "account_id", null: false
-    t.datetime "idme_at"
-    t.datetime "myhealthevet_at"
-    t.datetime "dslogon_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "current_verification"
-    t.datetime "logingov_at"
-    t.index ["account_id"], name: "index_account_login_stats_on_account_id", unique: true
-    t.index ["current_verification"], name: "index_account_login_stats_on_current_verification"
-    t.index ["dslogon_at"], name: "index_account_login_stats_on_dslogon_at"
-    t.index ["idme_at"], name: "index_account_login_stats_on_idme_at"
-    t.index ["logingov_at"], name: "index_account_login_stats_on_logingov_at"
-    t.index ["myhealthevet_at"], name: "index_account_login_stats_on_myhealthevet_at"
-  end
-
-  create_table "accounts", id: :serial, force: :cascade do |t|
-    t.uuid "uuid", null: false
-    t.string "idme_uuid"
-    t.string "icn"
-    t.string "edipi"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "sec_id"
-    t.string "logingov_uuid"
-    t.index ["icn"], name: "index_accounts_on_icn"
-    t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
-    t.index ["logingov_uuid"], name: "index_accounts_on_logingov_uuid", unique: true
-    t.index ["sec_id"], name: "index_accounts_on_sec_id"
-    t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
-  end
 
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
@@ -1980,7 +1947,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_06_192747) do
     t.index "lower((email)::text)", name: "index_veteran_representatives_on_lower_email"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
-    t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
+    t.index ["representative_id"], name: "index_veteran_representatives_on_representative_id", unique: true
     t.check_constraint "representative_id IS NOT NULL", name: "veteran_representatives_representative_id_null"
   end
 
@@ -2181,7 +2148,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_06_192747) do
     t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhooks_subscription", unique: true
   end
 
-  add_foreign_key "account_login_stats", "accounts"
   add_foreign_key "accreditations", "accredited_individuals"
   add_foreign_key "accreditations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
