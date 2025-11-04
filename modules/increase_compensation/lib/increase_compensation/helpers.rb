@@ -79,13 +79,13 @@ module IncreaseCompensation
     # @param limit [Integer]
     # return [Hash]
     #
-    def two_line_overflow(string, key_name, limit)
+    def two_line_overflow(string, key_name, split_limit)
       return {} if string.blank?
 
-      if string.length > limit
+      if string.length > split_limit
         {
-          "#{key_name}1" => string[..(limit - 1)],
-          "#{key_name}2" => string[limit..]
+          "#{key_name}1" => string[..(split_limit - 1)],
+          "#{key_name}2" => string[split_limit..]
         }
       else
         {
