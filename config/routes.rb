@@ -67,6 +67,12 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :form21p530a, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
@@ -425,6 +431,7 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount SOB::Engine, at: '/sob'
   mount TravelPay::Engine, at: '/travel_pay'
   mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
@@ -432,6 +439,7 @@ Rails.application.routes.draw do
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   mount DecisionReviews::Engine, at: '/decision_reviews'
+  mount SurvivorsBenefits::Engine, at: '/survivors_benefits'
   # End Modules
 
   require 'sidekiq/web'

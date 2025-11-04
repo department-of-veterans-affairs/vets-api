@@ -131,7 +131,7 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
@@ -173,6 +173,7 @@ class FormProfile
     '5655' => ::FormProfiles::VA5655,
     '686C-674-V2' => ::FormProfiles::VA686c674v2,
     '686C-674' => ::FormProfiles::VA686c674,
+    '21-2680' => ::FormProfiles::VA212680,
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,

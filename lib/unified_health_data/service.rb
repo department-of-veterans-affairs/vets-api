@@ -30,12 +30,11 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
-        filtered_records = filter_records(parsed_records)
 
-        # Log test code distribution after filtering is applied
+        # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        filtered_records
+        parsed_records
       end
     end
 
@@ -217,6 +216,27 @@ module UnifiedHealthData
       end
     end
 
+    # Retrieves CCD binary data for download
+    # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
+    # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
+    # @raise [ArgumentError] if the format is invalid or not available
+    def get_ccd_binary(format: 'xml')
+      with_monitoring do
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+
+        document_ref = body['entry']&.find do |entry|
+          entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
+        end
+        return nil unless document_ref
+
+        clinical_notes_adapter.parse_ccd_binary(document_ref, format)
+      end
+    end
+
     private
 
     # Shared
@@ -226,52 +246,6 @@ module UnifiedHealthData
       vista_records = body.dig('vista', 'entry') || []
       oracle_health_records = body.dig('oracle-health', 'entry') || []
       vista_records + oracle_health_records
-    end
-
-    # Labs and Tests methods
-    def filter_records(records)
-      return all_records_response(records) unless filtering_enabled?
-
-      apply_test_code_filtering(records)
-    end
-
-    def filtering_enabled?
-      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
-    end
-
-    def all_records_response(records)
-      Rails.logger.info(
-        message: 'UHD filtering disabled - returning all records',
-        total_records: records.size,
-        service: 'unified_health_data'
-      )
-      records
-    end
-
-    def apply_test_code_filtering(records)
-      filtered = records.select { |record| test_code_enabled?(record.test_code) }
-
-      Rails.logger.info(
-        message: 'UHD filtering enabled - applied test code filtering',
-        total_records: records.size,
-        filtered_records: filtered.size,
-        service: 'unified_health_data'
-      )
-
-      filtered
-    end
-
-    def test_code_enabled?(test_code)
-      case test_code
-      when 'CH'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-      when 'SP'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-      when 'MB'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-      else
-        false # Reject any other test codes for now, but we'll log them for analysis
-      end
     end
 
     # Prescription refill helper methods

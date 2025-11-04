@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq/job_retry'
+require 'dependents_benefits/monitor'
 
 module DependentsBenefits::Sidekiq
   ##
@@ -28,19 +29,35 @@ module DependentsBenefits::Sidekiq
 
     # Callback runs outside job context - must recreate instance state
     sidekiq_retries_exhausted do |msg, exception|
+      monitor = DependentsBenefits::Monitor.new
       claim_id, _proc_id = msg['args']
-      new.send(:handle_permanent_failure, claim_id, exception)
+
+      # Use the class of the inheriting job that exhausted, not the base class
+      job_class_name = msg['class']
+      monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion')
+
+      # If we don't have a job class name, the error is irrecoverable
+      if job_class_name.blank?
+        monitor.log_silent_failure({ claim_id:, error: exception })
+        return
+      end
+
+      job_class = job_class_name.constantize
+      job_class.new.send(:handle_permanent_failure, claim_id, exception)
     end
 
     def perform(claim_id, proc_id = nil)
       @claim_id = claim_id
       @proc_id = proc_id
 
+      monitor.track_submission_info("Starting #{self.class} for claim_id #{claim_id}", 'start')
+
       # Early exit optimization - prevents unnecessary service calls
       return if parent_group_failed?
 
       find_or_create_form_submission
       create_form_submission_attempt
+
       @service_response = submit_to_service
 
       raise DependentSubmissionError, @service_response&.error unless @service_response&.success?
@@ -105,8 +122,8 @@ module DependentsBenefits::Sidekiq
           if all_child_groups_succeeded? && !parent_group_completed?
             # update parent claim group status
             mark_parent_group_succeeded
-            # notify user of overall success
-            send_success_notification
+            # notify user of overall success/service received submission
+            notification_email.send_received_notification
           end
         end
       end
@@ -150,7 +167,7 @@ module DependentsBenefits::Sidekiq
       end
     rescue => e
       begin
-        send_failure_notification
+        notification_email.send_error_notification
         monitor.log_silent_failure_avoided({ claim_id:, error: e })
       rescue => e
         # Last resort notification fails
@@ -196,6 +213,14 @@ module DependentsBenefits::Sidekiq
       parent_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     end
 
+    def mark_parent_group_processing
+      parent_group.update!(status: SavedClaimGroup::STATUSES[:PROCESSING])
+    end
+
+    def send_in_progress_notification
+      # TODO
+    end
+
     def send_success_notification
       # TODO
     end
@@ -205,7 +230,7 @@ module DependentsBenefits::Sidekiq
     end
 
     def send_backup_job
-      # TODO
+      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id, proc_id)
     end
 
     def current_group
@@ -230,6 +255,10 @@ module DependentsBenefits::Sidekiq
 
     def user_data
       @user_data ||= JSON.parse(parent_group.user_data)
+    end
+
+    def notification_email
+      @notification_email ||= DependentsBenefits::NotificationEmail.new(claim_id)
     end
 
     def submission
