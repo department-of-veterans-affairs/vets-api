@@ -3,7 +3,7 @@
 # require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 
-RSpec.describe Webhooks::CallbackUrlJob, type: :job, skip: 'specs to be removed in future PR' do
+RSpec.describe Webhooks::CallbackUrlJob, skip: 'specs to be removed in future PR', type: :job do
   let(:faraday_response) { instance_double(Faraday::Response) }
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
   let(:consumer_name) { 'tester' }

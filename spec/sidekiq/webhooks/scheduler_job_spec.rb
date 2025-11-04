@@ -3,7 +3,7 @@
 # require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 
-RSpec.describe Webhooks::SchedulerJob, type: :job, skip: 'specs to be removed in future PR' do
+RSpec.describe Webhooks::SchedulerJob, skip: 'specs to be removed in future PR', type: :job do
   before do
     Thread.current['job_ids'] = []
   end
