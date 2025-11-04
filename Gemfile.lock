@@ -291,7 +291,7 @@ GEM
     blueprinter (1.2.1)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
-    brakeman (7.1.0)
+    brakeman (7.1.1)
       racc
     breakers (1.0)
       base64 (~> 0.2)
