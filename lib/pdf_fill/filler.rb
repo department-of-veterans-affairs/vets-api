@@ -75,7 +75,7 @@ module PdfFill
       '21-0781' => PdfFill::Forms::Va210781,
       '21-0781V2' => PdfFill::Forms::Va210781v2,
       '21-8940' => PdfFill::Forms::Va218940,
-      '21P-530A' => PdfFill::Forms::Va21p530a,
+      '21P-530a' => PdfFill::Forms::Va21p530a,
       '10-10CG' => PdfFill::Forms::Va1010cg,
       '10-10EZ' => PdfFill::Forms::Va1010ez,
       '10-10EZR' => PdfFill::Forms::Va1010ezr,
