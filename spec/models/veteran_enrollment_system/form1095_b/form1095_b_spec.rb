@@ -64,17 +64,19 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
 
     it 'sets coveredAll12Months correctly' do
       form_data['data']['coveredIndividual']['coveredAll12Months'] = false
-      klass = described_class.parse(form_data)
-      expect(klass.coverage_months[0]).to be(false)
+      instance = described_class.parse(form_data)
+      expect(instance.coverage_months[0]).to be(false)
       form_data['data']['coveredIndividual']['coveredAll12Months'] = true
-      klass = described_class.parse(form_data)
-      expect(klass.coverage_months[0]).to be(true)
+      instance = described_class.parse(form_data)
+      expect(instance.coverage_months[0]).to be(true)
     end
 
     it 'sets covered months as expected' do
       form_data['data']['coveredIndividual']['monthsCovered'] = %w[MARCH SEPTEMBER]
-      klass = described_class.parse(form_data)
-      expect(klass.coverage_months[1..12]).to eq([nil, nil, 'MARCH', nil, nil, nil, nil, nil, 'SEPTEMBER', nil, nil, nil])
+      instance = described_class.parse(form_data)
+      expect(instance.coverage_months[1..12]).to eq(
+        [nil, nil, 'MARCH', nil, nil, nil, nil, nil, 'SEPTEMBER', nil, nil, nil]
+      )
     end
   end
 
@@ -122,13 +124,17 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
 
   describe '.pdf_template_path' do
     it 'returns the path to the pdf template' do
-      expect(described_class.pdf_template_path(2023)).to eq('lib/veteran_enrollment_system/form1095_b/templates/pdfs/1095b-2023.pdf')
+      expect(described_class.pdf_template_path(2023)).to eq(
+        'lib/veteran_enrollment_system/form1095_b/templates/pdfs/1095b-2023.pdf'
+      )
     end
   end
 
   describe '.txt_template_path' do
     it 'returns the path to the txt template' do
-      expect(described_class.txt_template_path(2023)).to eq('lib/veteran_enrollment_system/form1095_b/templates/txts/1095b-2023.txt')
+      expect(described_class.txt_template_path(2023)).to eq(
+        'lib/veteran_enrollment_system/form1095_b/templates/txts/1095b-2023.txt'
+      )
     end
   end
 

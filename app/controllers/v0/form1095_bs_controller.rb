@@ -23,7 +23,6 @@ module V0
       render json: { available_forms: forms }
     end
 
-    # these should probably have year limits on them with the new api to prevent people spamming in the inspector
     def download_pdf
       file_name = "1095B_#{tax_year}.pdf"
       send_data form.pdf_file, filename: file_name, type: 'application/pdf', disposition: 'inline'

@@ -55,21 +55,6 @@ module VeteranEnrollmentSystem
       end
 
       class << self
-        def available_years(periods)
-          years = periods.each_with_object([]) do |period, array|
-            start_date = period['startDate'].to_date.year
-            # if no end date, the user is still be enrolled
-            end_date = period['endDate']&.to_date&.year || Date.current.year
-            array << start_date
-            array << end_date
-            if (end_date - start_date) > 1
-              intervening_years = (start_date..end_date).to_a - [start_date, end_date]
-              array.concat(intervening_years)
-            end
-          end.uniq.sort
-          years.filter { |year| year.between?(*available_years_range) }
-        end
-
         # there is some overlap in the data provided by coveredIndividual and responsibleIndividual.
         # in the VA enrollment system, they are always the same.
         def parse(form_data)
@@ -91,6 +76,21 @@ module VeteranEnrollmentSystem
             tax_year: form_data['data']['taxYear']
           }
           new(prepared_data)
+        end
+
+        def available_years(periods)
+          years = periods.each_with_object([]) do |period, array|
+            start_date = period['startDate'].to_date.year
+            # if no end date, the user is still enrolled
+            end_date = period['endDate']&.to_date&.year || Date.current.year
+            array << start_date
+            array << end_date
+            if (end_date - start_date) > 1
+              intervening_years = (start_date..end_date).to_a - [start_date, end_date]
+              array.concat(intervening_years)
+            end
+          end.uniq.sort
+          years.filter { |year| year.between?(*available_years_range) }
         end
 
         def available_years_range

@@ -64,7 +64,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       # disabled pending work on https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      xit 'throws 404 when form not found' do
+      it 'throws 404 when form not found', pending: 'upcoming changes' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
@@ -143,7 +143,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       # disabled pending work on https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      xit 'throws 404 when form not found' do
+      it 'throws 404 when form not found', pending: 'upcoming changes' do
         get '/v0/form1095_bs/download_txt/2018'
         expect(response).to have_http_status(:not_found)
       end
