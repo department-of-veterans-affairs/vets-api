@@ -5,4 +5,3 @@ FactoryBot.define do
     form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '0976', 'minimal.json').read }
   end
 end
-
