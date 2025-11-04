@@ -122,24 +122,18 @@ module IncreaseCompensation
           form_data['educationTrainingPostUnemployability']['datesOfTraining'] =
             map_date_range(form_data['educationTrainingPostUnemployability']['datesOfTraining'])
         end
+        form_data['trainingPostUnemployment'] = format_custom_boolean(
+          form_data['trainingPostUnemployment'],
+          'YES (If "Yes," complete Items 25B and 25C)'
+        )
       end
 
       # option are off by 1 as grade '9' is not in the pdf data, so grade 12 appears as 'Off'
+      # the fix is to map to index of the option
       def education_highschool_bug_fix(grade)
         return {} if grade.nil?
 
-        case grade
-        when 9
-          10
-        when 10
-          11
-        when 11
-          12
-        when 12
-          'Off'
-        else
-          ''
-        end
+        [9, 10, 11, 12].find_index(grade) || 'Off'
       end
     end
   end

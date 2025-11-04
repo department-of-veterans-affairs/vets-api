@@ -146,7 +146,7 @@ module IncreaseCompensation
           key: 'form1[0].#subform[0].CheckBox1[0]'
           #  value: 1 or 0
         },
-        'emailAddresses' => {
+        'emailAddress' => {
           question_num: 6,
           question_label: "Veteran's E-Mail Address",
           question_text: 'VETERAN\'S E-MAIL ADDRESS',
@@ -195,7 +195,7 @@ module IncreaseCompensation
           form_data['veteranAddress']['postalCode'] = split_postal_code(form_data['veteranAddress'])
         end
         form_data['electronicCorrespondance'] = form_data['electronicCorrespondance'] ? 1 : 0
-        form_data['emailAddresses'] = two_line_overflow(form_data['email'], 'email', 17)
+        form_data['emailAddress'] = two_line_overflow(form_data['email'], 'email', 17)
       end
     end
   end
