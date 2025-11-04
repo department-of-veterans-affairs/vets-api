@@ -1,0 +1,13 @@
+{
+  "validMarriage": false,
+  "marriedToVeteranAtTimeOfDeath": false,
+  "howMarriageEnded": "divorce",
+  "marriageType": "ceremonial",
+  "childWithVeteran": false,
+  "pregnantWithVeteran": false,
+  "livedContinuouslyWithVeteran": false,
+  "separationDueToAssignedReasons": false,
+  "remarriedAfterVeteralDeath": false,
+  "remarriageEndCause": "death",
+  "claimantHasAdditionalMarriages": false
+}

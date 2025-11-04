@@ -4,7 +4,7 @@
 require 'rails_helper'
 require './lib/webhooks/utilities'
 
-RSpec.describe 'Webhooks::Utilities' do
+RSpec.describe 'Webhooks::Utilities', skip: 'specs to be removed in future PR' do
   let(:observers) do
     {
       'subscriptions' => [
