@@ -33,6 +33,16 @@ RSpec.describe AccreditedRepresentativePortal::NotificationCallback do
         allow(callback).to receive(:claim).and_return(saved_claim)
         callback
       end
+
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+      if file.respond_to?(:path) && file.path.end_with?('.pdf')
+        nil
+      else
+        original.call(file)
+      end
+    end
   end
 
   it_behaves_like 'a SavedClaim Notification Callback',
