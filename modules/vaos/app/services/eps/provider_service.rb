@@ -126,7 +126,10 @@ module Eps
       validate_search_params(npi, specialty, address)
 
       response = fetch_provider_services(npi)
-      return nil if response.body[:provider_services].blank?
+      if response.body[:provider_services].blank?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI", { npi: })
+        return nil
+      end
 
       specialty_matches = filter_by_specialty(response.body[:provider_services], specialty)
       return nil if specialty_matches.empty?
