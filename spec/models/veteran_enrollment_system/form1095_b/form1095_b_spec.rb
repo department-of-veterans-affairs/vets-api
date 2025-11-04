@@ -120,6 +120,18 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     end
   end
 
+  describe '.pdf_template_path' do
+    it 'returns the path to the pdf template' do
+      expect(described_class.pdf_template_path(2023)).to eq('lib/veteran_enrollment_system/form1095_b/templates/pdfs/1095b-2023.pdf')
+    end
+  end
+
+  describe '.txt_template_path' do
+    it 'returns the path to the txt template' do
+      expect(described_class.txt_template_path(2023)).to eq('lib/veteran_enrollment_system/form1095_b/templates/txts/1095b-2023.txt')
+    end
+  end
+
   describe '#pdf_file' do
     context 'when template is present' do
       it 'generates pdf string for valid 1095_b' do
