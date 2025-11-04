@@ -37,6 +37,16 @@ vamobile_mock.update!(authentication: SignIn::Constants::Auth::API,
                       access_token_audience: 'vamobile',
                       refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
 
+# Create Config for localhost mocked vets-api with "Production" Mobile Dev Tools
+vamobile_local_auth = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vamobile_local_auth')
+vamobile_local_auth.update!(authentication: SignIn::Constants::Auth::API,
+                            anti_csrf: false,
+                            redirect_uri: 'https://va-mobile-dev-tools-0cb741eb06ae.herokuapp.com/auth/login-success',
+                            pkce: true,
+                            access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_LONG_MINUTES,
+                            access_token_audience: 'vamobile',
+                            refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
+
 # Create Config for VA Identity Dashboard using cookie auth
 vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard_rails')
 vaid_dash.update!(authentication: SignIn::Constants::Auth::API,
@@ -88,6 +98,17 @@ vamock.update!(authentication: SignIn::Constants::Auth::MOCK,
                logout_redirect_uri: 'http://localhost:3001',
                shared_sessions: true,
                refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
+
+# Create Config for mobile mocked authentication client
+vamock_mobile = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vamock-mobile')
+vamock_mobile.update!(authentication: SignIn::Constants::Auth::MOCK,
+                      anti_csrf: false,
+                      pkce: true,
+                      redirect_uri: 'vamobile://login-success',
+                      access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+                      access_token_audience: 'vamobile',
+                      shared_sessions: true,
+                      refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for example external client using cookie auth
 sample_client_web = SignIn::ClientConfig.find_or_initialize_by(client_id: 'sample_client_web')

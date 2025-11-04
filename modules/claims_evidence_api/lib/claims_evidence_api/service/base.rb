@@ -31,10 +31,11 @@ module ClaimsEvidenceApi
 
         response = super(method, path, params, headers, options) # returns Faraday::Env
 
-        monitor.track_api_request(method, path, response.status, response.reason_phrase, call_location:)
+        requested_api = endpoint || path.split('/').first
+        monitor.track_api_request(method, requested_api, response.status, response.reason_phrase, call_location:)
         response
       rescue => e
-        code = e.respond_to?(:status) ? e.status : 500
+        code = e.try(:status) || 500
         monitor.track_api_request(method, path, code, e.message, call_location:)
         raise e
       end
@@ -68,6 +69,11 @@ module ClaimsEvidenceApi
       # @return [String] the encoded jwt
       def encode_jwt
         ClaimsEvidenceApi::JwtGenerator.encode_jwt
+      end
+
+      # the name for _this_ endpoint
+      def endpoint
+        nil
       end
     end
 

@@ -125,7 +125,7 @@ module AccreditedRepresentativePortal
           power_of_attorney_request: poa_request,
           status: :enqueue_failed,
           status_updated_at: DateTime.current,
-          service_response: response_body,
+          service_response: response_body.is_a?(String) ? response_body : response_body.to_json,
           error_message: message
         )
 

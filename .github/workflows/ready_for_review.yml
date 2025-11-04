@@ -5,6 +5,9 @@ on:
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Service Tags", "CodeQL"]
     types: [completed]
+    branches-ignore:
+      - master
+      - production-bypass
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -120,7 +123,9 @@ jobs:
 
       - name: Fail if draft
         if: steps.get_pr_data.outputs.pr_draft == 'true'
-        run: exit 1
+        run: |
+          echo "::error::This check is failing because the PR is still in DRAFT status. Please mark the PR as ready for review to proceed."
+          exit 1
 
   check-workflow-status:
     name: Check Workflow Statuses
@@ -149,7 +154,7 @@ jobs:
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
 
-            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event,headSha -q \
+            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --limit 100 --json headBranch,event,headSha -q \
               ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | .headSha" | head -n 1 || true)
 
             if [ -n "$IN_PROGRESS" ]; then
@@ -157,7 +162,7 @@ jobs:
               failures=true
             else
               # Check if the latest completed run was successful
-              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
+              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --limit 100 --json headBranch,event,conclusion,headSha -q \
                 ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1 || true)
 
               if [ -z "$SUCCESSFUL" ]; then

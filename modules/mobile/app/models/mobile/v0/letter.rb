@@ -33,6 +33,8 @@ module Mobile
 
       attribute :name, Types::String
       attribute :letter_type, LETTER_TYPE
+      attribute :reference_number, Types::String.optional.default(nil) # only for COE home loan letters
+      attribute :coe_status, Types::String.optional.default(nil) # only for COE home loan letters
 
       def initialize(attributes)
         if attributes[:letter_type] == 'benefit_summary'

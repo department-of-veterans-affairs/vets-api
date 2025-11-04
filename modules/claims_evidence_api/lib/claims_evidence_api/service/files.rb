@@ -66,6 +66,11 @@ module ClaimsEvidenceApi
 
       private
 
+      # @see ClaimsEvidenceApi::Service::Base#endpoint
+      def endpoint
+        'files'
+      end
+
       # construct the body for POST requests
       #
       # @param file_path [String] the path to the file to upload
