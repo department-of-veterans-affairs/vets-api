@@ -131,7 +131,7 @@ module IncreaseCompensation
       # option are off by 1 as grade '9' is not in the pdf data, so grade 12 appears as 'Off'
       # the fix is to map to index of the option
       def education_highschool_bug_fix(grade)
-        {} if grade.nil?
+        return {} if grade.nil?
 
         [9, 10, 11, 12].find_index(grade) || 'Off'
       end
