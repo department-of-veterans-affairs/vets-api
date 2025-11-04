@@ -5,6 +5,8 @@ require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_claims/utilities/helpers'
+require 'lighthouse/benefits_documents/documents_status_polling_service'
+require 'lighthouse/benefits_documents/update_documents_status_service'
 
 module V0
   class BenefitsClaimsController < ApplicationController
@@ -67,7 +69,11 @@ module V0
 
       # Add Evidence Submissions section for document uploads that were added
       if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-        claim['data']['attributes']['evidenceSubmissions'] = add_evidence_submissions(claim['data'])
+        # Fetch all evidence submissions for this claim once, polling for updates if enabled
+        evidence_submissions = update_evidence_submissions_for_claim(claim['data']['id'])
+
+        claim['data']['attributes']['evidenceSubmissions'] =
+          add_evidence_submissions(claim['data'], evidence_submissions)
       end
 
       # We want to log some details about claim type patterns to track in DataDog
@@ -172,8 +178,7 @@ module V0
       failed_evidence_submissions.count.positive?
     end
 
-    def add_evidence_submissions(claim)
-      evidence_submissions = EvidenceSubmission.where(claim_id: claim['id'])
+    def add_evidence_submissions(claim, evidence_submissions)
       tracked_items = claim['attributes']['trackedItems']
 
       filter_evidence_submissions(evidence_submissions, tracked_items, claim)
@@ -331,6 +336,99 @@ module V0
     rescue => e
       ::Rails.logger.error(
         "BenefitsClaimsController##{endpoint} Error reporting evidence submission upload status metrics: #{e.message}"
+      )
+    end
+
+    def update_evidence_submissions_for_claim(claim_id)
+      # Fetch all evidence submissions for this claim
+      evidence_submissions = EvidenceSubmission.where(claim_id:)
+
+      # Poll for updated statuses on pending evidence submissions if feature flag is enabled
+      if Flipper.enabled?(:cst_update_evidence_submission_on_show, @current_user)
+        # Get pending evidence submissions as an ActiveRecord relation
+        # PENDING = successfully sent to Lighthouse with request_id, awaiting final status
+        # Note: We chain scopes on the provided relation because UpdateDocumentsStatusService
+        # requires an ActiveRecord::Relation with find_by! method (not an Array)
+        pending_submissions = evidence_submissions.where(
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+        ).where.not(request_id: nil)
+
+        unless pending_submissions.empty?
+          request_ids = pending_submissions.pluck(:request_id)
+          process_evidence_submissions(claim_id, pending_submissions, request_ids)
+        end
+      end
+
+      evidence_submissions
+    end
+
+    def process_evidence_submissions(claim_id, pending_submissions, request_ids)
+      poll_response = poll_lighthouse_for_status(claim_id, request_ids)
+      return unless poll_response
+
+      process_status_update(claim_id, pending_submissions, poll_response, request_ids)
+    end
+
+    def poll_lighthouse_for_status(claim_id, request_ids)
+      # Call the same polling service used by the hourly job
+      poll_response = BenefitsDocuments::DocumentsStatusPollingService.call(request_ids)
+
+      # Validate successful response with expected data structure
+      if poll_response.status == 200
+        if poll_response.body&.dig('data', 'statuses').blank?
+          # Handle case where Lighthouse response doesn't have statuses
+          error_response = OpenStruct.new(status: 200, body: poll_response.body)
+          handle_error(claim_id, error_response, request_ids, 'polling')
+          return nil
+        end
+
+        poll_response
+      else
+        # Log non-200 responses
+        handle_error(claim_id, poll_response, request_ids, 'polling')
+      end
+    rescue => e
+      # Catch unexpected exceptions from polling service (network errors, timeouts, etc.)
+      error_response = OpenStruct.new(status: nil, body: e.message)
+      handle_error(claim_id, error_response, request_ids, 'polling')
+    end
+
+    def process_status_update(claim_id, pending_submissions, poll_response, request_ids)
+      update_result = BenefitsDocuments::UpdateDocumentsStatusService.call(
+        pending_submissions,
+        poll_response.body
+      )
+
+      # Handle case where update service found unknown request IDs
+      if update_result && !update_result[:success]
+        response_struct = OpenStruct.new(update_result[:response])
+        handle_error(claim_id, response_struct, response_struct.unknown_ids.map(&:to_s), 'update')
+      else
+        # Log success metric when polling and update complete successfully
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.show.upload_status_success", tags: STATSD_TAGS)
+      end
+    rescue => e
+      # Catch unexpected exceptions from update operations
+      # Log error but don't fail the request - graceful degradation
+      error_response = OpenStruct.new(status: 200, body: e.message)
+      handle_error(claim_id, error_response, request_ids, 'update')
+    end
+
+    def handle_error(claim_id, response, lighthouse_document_request_ids, error_source)
+      ::Rails.logger.error(
+        'BenefitsClaimsController#show Error polling evidence submissions',
+        {
+          claim_id:,
+          error_source:,
+          response_status: response.status,
+          response_body: response.body,
+          lighthouse_document_request_ids:,
+          timestamp: Time.now.utc
+        }
+      )
+      StatsD.increment(
+        "#{STATSD_METRIC_PREFIX}.show.upload_status_error",
+        tags: STATSD_TAGS + ["error_source:#{error_source}"]
       )
     end
   end
