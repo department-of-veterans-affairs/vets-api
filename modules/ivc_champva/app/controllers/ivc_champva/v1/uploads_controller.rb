@@ -527,6 +527,7 @@ module IvcChampva
           updated_applicant['applicant_primary_expiration_date'] = policies[0]['expiration_date']
           updated_applicant['applicant_primary_through_employer'] = policies[0]['through_employer']
           updated_applicant['applicant_primary_insurance_type'] = policies[0]['insurance_type']
+          updated_applicant['applicant_primary_eob'] = policies[0]['eob']
           updated_applicant['primary_medigap_plan'] = policies[0]['medigap_plan']
           updated_applicant['primary_additional_comments'] = policies[0]['additional_comments']
         end
@@ -538,6 +539,7 @@ module IvcChampva
           updated_applicant['applicant_secondary_expiration_date'] = policies[1]['expiration_date']
           updated_applicant['applicant_secondary_through_employer'] = policies[1]['through_employer']
           updated_applicant['applicant_secondary_insurance_type'] = policies[1]['insurance_type']
+          updated_applicant['applicant_secondary_eob'] = policies[1]['eob']
           updated_applicant['secondary_medigap_plan'] = policies[1]['medigap_plan']
           updated_applicant['secondary_additional_comments'] = policies[1]['additional_comments']
         end
