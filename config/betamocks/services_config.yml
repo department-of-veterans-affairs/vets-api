@@ -914,7 +914,7 @@
         :uid_locator: patient
 
 # Lighthouse Healthcare Cost and Coverage API
-- :name: "Lighthouse Healthcare Cost and Coverage"
+- :name: "Lighthouse Healthcare Costs and Coverage API"
   :base_uri: <%= "#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).host}:#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).port}" %>
   :endpoints:
     - :method: :get
