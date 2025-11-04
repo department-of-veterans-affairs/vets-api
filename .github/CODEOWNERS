@@ -323,7 +323,6 @@ app/models/webhooks @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/notification_attempt_assoc.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/notification_attempt.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/notification.rb @department-of-veterans-affairs/backend-review-group
-app/models/webhooks/subscription.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/utilities.rb @department-of-veterans-affairs/backend-review-group
 app/openapi/openapi/components.rb @department-of-veterans-affairs/backend-review-group
 app/openapi/openapi/components/address.rb @department-of-veterans-affairs/backend-review-group 
