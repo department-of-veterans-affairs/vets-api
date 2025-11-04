@@ -108,6 +108,8 @@ Metrics/MethodLength:
 
 Metrics/ClassLength:
   Max: 400
+  Exclude:
+    - 'lib/sm/client.rb'
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
