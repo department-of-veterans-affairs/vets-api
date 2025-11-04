@@ -715,5 +715,20 @@ RSpec.describe SavedClaim::DependencyClaim do
         subject.send_received_email(nil)
       end
     end
+
+    context 'when veteran_information is missing' do
+      let(:no_veteran_claim) { create(:dependency_claim_no_vet_information) }
+
+      before do
+        allow(PdfFill::Filler).to receive(:fill_form).and_call_original
+
+        subject_v2.parsed_form.delete('veteran_information')
+        subject_v2.parsed_form['dependents_application'].delete('veteran_information')
+      end
+
+      it 'raises an error in the PDF filler' do
+        expect { no_veteran_claim.to_pdf(form_id: '686C-674-V2') }.to raise_error('Veteran information is missing')
+      end
+    end
   end
 end
