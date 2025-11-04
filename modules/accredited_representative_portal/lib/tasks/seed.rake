@@ -50,8 +50,7 @@ module AccreditedRepresentativePortal
             Records::ORGANIZATIONS,
             factory: [
               :organization
-            ],
-            unique_by: :index_veteran_organizations_on_poa
+            ]
           )
 
           accreditations = []
@@ -112,9 +111,6 @@ module AccreditedRepresentativePortal
           RESOLUTION_HISTORY_CYCLE.next.each do |resolution_trait|
             accreditation = accreditation_cycle.next
             created_at = RESOLVED_TIME_TRAVELER.next
-            accredited_organization = Veteran::Service::Organization.find_by(
-              poa: accreditation[:accredited_organization_id]
-            )
 
             poa_forms.push(claimant_poa_forms[claimant_id].dup)
             resolutions.push(created_at: created_at + 1.day)
@@ -130,7 +126,6 @@ module AccreditedRepresentativePortal
               poa_code: accreditation[:accredited_organization_id],
               accredited_individual_registration_number: accreditation[:accredited_individual_id],
               accredited_individual: accredited_representative,
-              accredited_organization:,
               created_at:
             )
           end
@@ -141,9 +136,6 @@ module AccreditedRepresentativePortal
           .each_with_index do |accreditation, i|
             claimant_id = Records::CLAIMANTS[i][:id]
             created_at = UNRESOLVED_TIME_TRAVELER.next
-            accredited_organization = Veteran::Service::Organization.find_by!(
-              poa: accreditation[:accredited_organization_id]
-            )
 
             poa_forms.push(claimant_poa_forms[claimant_id].dup)
             # NOTE: need to include an `accredited_individual` so poa code won't be overwritten
@@ -153,9 +145,7 @@ module AccreditedRepresentativePortal
               claimant_id:,
               power_of_attorney_holder_type: 'veteran_service_organization',
               power_of_attorney_holder_poa_code: accreditation[:accredited_organization_id],
-              poa_code: accreditation[:accredited_organization_id],
               accredited_individual_registration_number: accreditation[:accredited_individual_id],
-              accredited_organization:,
               created_at:
             )
           end
