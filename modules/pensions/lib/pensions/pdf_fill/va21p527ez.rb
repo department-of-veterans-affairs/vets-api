@@ -8,6 +8,7 @@ require 'string_helpers'
 require_relative 'constants'
 
 # Sections
+require_relative 'sections/section_05'
 require_relative 'sections/section_06'
 require_relative 'sections/section_07'
 require_relative 'sections/section_08'
@@ -16,7 +17,6 @@ require_relative 'sections/section_10'
 require_relative 'sections/section_11'
 require_relative 'sections/section_12'
 
-# rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/MethodLength
 module Pensions
   module PdfFill
@@ -372,87 +372,11 @@ module Pensions
             question_text: 'Specify Federal Facility',
             key: 'form1[0].#subform[49].Facility[1]'
           }
-        },
-        # 5a
-        'currentEmployment' => {
-          key: 'form1[0].#subform[49].RadioButtonList[9]'
-        },
-        'currentEmployers' => {
-          item_label: 'Current job',
-          limit: 1,
-          first_key: 'jobType',
-          # 5b
-          'jobType' => {
-            limit: 35,
-            question_num: 5,
-            question_suffix: 'B',
-            question_label: 'What Kind Of Work Are You Currently Doing',
-            question_text: 'WHAT KIND OF WORK ARE YOU CURRENTLY DOING',
-            key: 'form1[0].#subform[49].What_Kind_Of_Work_Are_You_Currently_Doing[0]'
-          },
-          # 5c
-          'jobHoursWeek' => {
-            limit: 3,
-            question_num: 5,
-            question_suffix: 'B',
-            question_label: 'How Many Hours Per Week Do You Average',
-            question_text: 'HOW MANY HOURS PER WEEK DO YOU AVERAGE',
-            key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]'
-          }
-        },
-        'previousEmployers' => {
-          limit: 1,
-          first_key: 'jobTitle',
-          # 5d
-          'jobDate' => {
-            'month' => {
-              key: 'form1[0].#subform[49].Date_You_Last_Worked_Month[0]'
-            },
-            'day' => {
-              key: 'form1[0].#subform[49].Date_You_Last_Worked_Day[0]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[49].Date_You_Last_Worked_Year[0]'
-            }
-          },
-          'jobDateOverflow' => {
-            question_num: 5,
-            question_suffix: 'D',
-            question_label: 'When Did You Last Work',
-            question_text: 'WHEN DID YOU LAST WORK'
-          },
-          # 5e
-          'jobHoursWeek' => {
-            limit: 3,
-            question_num: 5,
-            question_suffix: 'E',
-            question_label: 'How Many Hours Per Week Did You Average',
-            question_text: 'HOW MANY HOURS PER WEEK DID YOU AVERAGE',
-            key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Did_You_Average[0]'
-          },
-          # 5f
-          'jobTitle' => {
-            limit: 30,
-            question_num: 5,
-            question_suffix: 'F',
-            question_label: 'What Was Your Job Title',
-            question_text: 'WHAT WAS YOUR JOB TITLE',
-            key: 'form1[0].#subform[49].What_Was_Your_Job_Title[0]'
-          },
-          # 5g
-          'jobType' => {
-            limit: 27,
-            question_num: 5,
-            question_suffix: 'G',
-            question_label: 'What Kind Of Work Did You Do',
-            question_text: 'WHAT KIND OF WORK DID YOU DO',
-            key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
-          }
         }
       }.freeze
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section6, Section7, Section8, Section9, Section10, Section11, Section12].freeze
+      SECTION_CLASSES = [Section5, Section6, Section7, Section8, Section9, Section10, Section11, Section12].freeze
 
       # Sections 7 - 12
       SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
@@ -469,7 +393,6 @@ module Pensions
         expand_veteran_service_information
         expand_pension_information
         expand_employment_history
-        expand_marital_status
 
         # Sections 7 - 12
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
@@ -562,68 +485,7 @@ module Pensions
 
         @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
       end
-
-      # SECTION VI: MARITAL STATUS
-      def expand_marital_status
-        @form_data['maritalStatus'] = marital_status_to_radio(@form_data['maritalStatus'])
-        @form_data['currentMarriage'] = get_current_marriage(@form_data['marriages'])
-        @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
-        @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
-        if @form_data['maritalStatus'] != 2
-          @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
-        end
-        @form_data['spouseAddress'] ||= {}
-        @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
-        @form_data['spouseAddress']['country'] = @form_data.dig('spouseAddress', 'country')&.slice(0, 2)
-        @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
-        @form_data['reasonForCurrentSeparation'] =
-          reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
-      end
-
-      # Take a marital status and convert it to a radio selection.
-      def marital_status_to_radio(marital_status)
-        case marital_status
-        when 'MARRIED' then 0
-        when 'SEPARATED' then 1
-        else 2
-        end
-      end
-
-      # Get the current marriage
-      def get_current_marriage(marriages)
-        current_marriage_index = marriages&.index { |marriage| !marriage.key?('dateOfSeparation') }
-
-        if current_marriage_index
-          current_marriage = marriages[current_marriage_index].clone
-          marriages.delete_at(current_marriage_index)
-        else
-          current_marriage = {}
-        end
-
-        return current_marriage if current_marriage.empty?
-
-        middle_initial = current_marriage.dig('spouseFullName', 'middle')&.first
-        current_marriage['spouseFullName']['middle'] = middle_initial
-        marriage_type = current_marriage['marriageType']
-        current_marriage['marriageType'] =
-          marriage_type == 'CEREMONY' ? 0 : 1
-        current_marriage['dateOfMarriage'] =
-          split_date(current_marriage['dateOfMarriage'])
-        current_marriage
-      end
-
-      # Get the current reason of separation to a radio box.
-      def reason_for_current_separation_to_radio(reason_for_separation)
-        case reason_for_separation
-        when 'MEDICAL_CARE' then 0
-        when 'RELATIONSHIP' then 1
-        when 'LOCATION' then 2
-        when 'OTHER' then 3
-        else 'Off'
-        end
-      end
     end
   end
 end
 # rubocop:enable Metrics/MethodLength
-# rubocop:enable Metrics/ClassLength
