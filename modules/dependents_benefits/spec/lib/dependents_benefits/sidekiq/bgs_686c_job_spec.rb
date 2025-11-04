@@ -62,10 +62,23 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
         # Mock permanent_failure? to return true for the original error
         allow(job).to receive(:permanent_failure?).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError)).and_return(true)
 
-        expect(job).to receive(:send_backup_job)
+        expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim.id,
+                                                                                                proc_id)
 
         expect { job.perform(saved_claim.id, proc_id) }.to raise_error(Sidekiq::JobRetry::Skip)
       end
+    end
+  end
+
+  describe 'sidekiq_retries_exhausted callback' do
+    it 'calls handle_permanent_failure' do
+      msg = { 'args' => [parent_claim.id, 'proc_id'], 'class' => job.class.name }
+      exception = StandardError.new('Service failed')
+
+      expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
+        .with(parent_claim.id, exception)
+
+      described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end
   end
 end

@@ -64,12 +64,14 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand medical expenses
       def expand(form_data = {})
         form_data['medicalExpenses'] ||= []
         form_data['additionalMedicalExpenses'] = form_data['medicalExpenses'].drop(7).map { |r| expand_expense(r) }
         form_data
       end
 
+      # expand expense
       def expand_expense(expense)
         expense['recipient'] = Constants::RECIPIENTS[expense['recipient']] || 'Off'
         expense['paymentDate'] = split_date(expense['paymentDate'])
