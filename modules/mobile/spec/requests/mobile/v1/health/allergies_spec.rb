@@ -53,7 +53,8 @@ RSpec.describe 'Mobile::V1::AllergyIntolerances', :skip_json_api_validation, typ
 
       it 'returns a successful response with when given pagination params' do
         VCR.use_cassette('unified_health_data/get_allergies_200', match_requests_on: %i[method path]) do
-          get '/mobile/v1/health/allergy-intolerances?page[number]=1&page[size]=100', headers: sis_headers
+          get '/mobile/v1/health/allergy-intolerances?page[number]=1&page[size]=100',
+              headers: sis_headers({ 'App-Version' => '2.59.0' })
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
@@ -89,7 +90,7 @@ RSpec.describe 'Mobile::V1::AllergyIntolerances', :skip_json_api_validation, typ
         # This cassette doesn't matter since we're stubbing the service call to raise an error
         VCR.use_cassette('unified_health_data/get_allergies_200') do
           get '/mobile/v1/health/allergy-intolerances',
-              headers: sis_headers
+              headers: sis_headers({ 'App-Version' => '2.59.0' })
         end
         expect(response).to have_http_status(:internal_server_error)
       end

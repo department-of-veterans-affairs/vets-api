@@ -10,8 +10,13 @@ module Mobile
 
       private
 
+      def app_version
+        request.headers['App-Version'] || nil
+      end
+
       def user_accessible_services
-        @user_accessible_services ||= Mobile::V0::UserAccessibleServices.new(current_user)
+        @user_accessible_services ||= Mobile::V0::UserAccessibleServices.new(current_user,
+                                                                             app_version)
       end
     end
   end

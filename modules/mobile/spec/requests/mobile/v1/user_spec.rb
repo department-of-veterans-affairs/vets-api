@@ -36,7 +36,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v1/user', headers: sis_headers
+              get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.59.0' })
             end
           end
         end
@@ -203,6 +203,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
             directDepositBenefitsUpdate
             disabilityRating
             genderIdentity
+            labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
             militaryServiceHistory
@@ -266,11 +267,13 @@ RSpec.describe 'Mobile::V1::User', type: :request do
                                                     instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                                     instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                    instance_of(User)).and_return(true)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v1/user', headers: sis_headers
+                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.59.0' })
               end
             end
           end
@@ -288,6 +291,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
               directDepositBenefitsUpdate
               disabilityRating
               genderIdentity
+              labsAndTestsEnabled
               lettersAndDocuments
               medicationsOracleHealthEnabled
               militaryServiceHistory

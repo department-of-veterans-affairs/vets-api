@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require_relative '../../../../config/initializers/app_version_requirements'
+
 module Mobile
   module V0
     class UserAccessibleServices
-      def initialize(user)
+      def initialize(user, app_version = nil)
         @user = user
+        @app_version = app_version
       end
 
       def authorized
@@ -19,7 +22,8 @@ module Mobile
 
       def service_auth_map # rubocop:disable Metrics/MethodLength
         @service_auth_map ||= {
-          allergiesOracleHealthEnabled: Flipper.enabled?(:mhv_accelerated_delivery_allergies_enabled, @user),
+          allergiesOracleHealthEnabled: versioned_flagged_access?(:mhv_accelerated_delivery_allergies_enabled,
+                                                                  :allergiesOracleHealth),
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
           claims: access?(lighthouse: :access?),
@@ -28,9 +32,13 @@ module Mobile
           directDepositBenefitsUpdate: access?(lighthouse: :mobile_access?),
           disabilityRating: access?(lighthouse: :access?),
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
+          labsAndTestsEnabled: versioned_flagged_access?(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                         :labsOracleHealth),
+          letters: access?(lighthouse: :access?),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
-          medicationsOracleHealthEnabled: Flipper.enabled?(:mhv_medications_cerner_pilot, @user),
+          medicationsOracleHealthEnabled: versioned_flagged_access?(:mhv_medications_cerner_pilot,
+                                                                    :medicationsOracleHealth),
           paymentHistory: access?(bgs: :access?),
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
@@ -42,6 +50,26 @@ module Mobile
       end # rubocop:enable Metrics/MethodLength
 
       private
+
+      # Returns true if the provided app version meets or exceeds the minimum required version for the feature
+      def min_version?(feature)
+        # Treat missing version as an old version
+        return false if @app_version.nil?
+
+        # Treat malformed version as an old version
+        begin
+          version = Gem::Version.new(@app_version)
+        rescue ArgumentError
+          return false
+        end
+
+        version >= Gem::Version.new(Mobile::APP_VERSION_REQUIREMENTS[feature])
+      end
+
+      # Returns true if the feature flag is enabled for the user and the app version meets the minimum requirement
+      def versioned_flagged_access?(flag_name, feature)
+        Flipper.enabled?(flag_name, @user) && min_version?(feature)
+      end
 
       def flagged_access?(flag_name, flag_on_policy, flag_off_policy)
         if Flipper.enabled?(flag_name, @user)

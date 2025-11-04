@@ -15,6 +15,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                               instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                              instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user' do
@@ -207,6 +209,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             directDepositBenefitsUpdate
             disabilityRating
             genderIdentity
+            labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
             militaryServiceHistory
@@ -297,6 +300,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             directDepositBenefitsUpdate
             disabilityRating
             genderIdentity
+            labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
             militaryServiceHistory
