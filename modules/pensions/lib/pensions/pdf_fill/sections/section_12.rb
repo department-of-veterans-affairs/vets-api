@@ -33,7 +33,7 @@ module Pensions
       }.freeze
 
       ##
-      # Expands the veteran's information by extracting and capitalizing the first letter of the middle name.
+      # Processes the noRapidProcessing checkbox and splits the signature date into its components.
       #
       # @param form_data [Hash]
       #

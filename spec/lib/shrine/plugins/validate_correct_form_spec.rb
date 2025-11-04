@@ -61,7 +61,7 @@ describe Shrine::Plugins::ValidateCorrectForm do
     end
   end
 
-  describe '#validate_correct_form integration test', :integration do
+  describe '#validate_correct_form integration test' do
     let(:test_pdf) { Rails.root.join('spec', 'fixtures', 'files', 'VBA-21-686c-ARE.pdf') }
     let(:attachment) do
       instance_double(Shrine::UploadedFile, download: File.open(test_pdf), mime_type: 'application/pdf')

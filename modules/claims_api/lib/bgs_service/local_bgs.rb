@@ -173,12 +173,14 @@ module ClaimsApi
       end
 
       if response.status != 200
-        ClaimsApi::RecordMetadata.create(
-          request_url: url,
-          request_headers: headers&.to_s,
-          request: safe_xml(body),
-          response: safe_xml(response.body)
-        )
+        if Flipper.enabled?(:lighthouse_claims_api_save_failed_soap_requests)
+          ClaimsApi::RecordMetadata.create(
+            request_url: url,
+            request_headers: headers&.to_s,
+            request: safe_xml(body),
+            response: safe_xml(response.body)
+          )
+        end
         errors = soap_error_handler.handle_errors(response)
         return errors
       end

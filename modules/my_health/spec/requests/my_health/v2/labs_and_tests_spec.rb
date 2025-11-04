@@ -5,35 +5,16 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
+require 'unique_user_events'
+require 'support/shared_examples_for_labs_and_tests'
 
 RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation, type: :request do
   let(:user_id) { '11898795' }
-  let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31' } }
+  let(:default_params) { { start_date: '2025-01-01', end_date: '2025-09-30' } }
   let(:path) { '/my_health/v2/medical_records/labs_and_tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
   let(:uhd_flipper) { :mhv_accelerated_delivery_uhd_enabled }
-  let(:filtering_flipper) { :mhv_accelerated_delivery_uhd_filtering_enabled }
-  let(:ch_flipper) { :mhv_accelerated_delivery_uhd_ch_enabled }
-  let(:ch_response) do
-    JSON.parse(Rails.root.join(
-      'modules', 'mobile', 'spec', 'support', 'fixtures', 'labs_and_tests_ch_response.json'
-    ).read)
-  end
-  let(:sp_flipper) { :mhv_accelerated_delivery_uhd_sp_enabled }
-  let(:sp_response) do
-    JSON.parse(Rails.root.join(
-      'modules', 'mobile', 'spec', 'support', 'fixtures', 'labs_and_tests_sp_response.json'
-    ).read)
-  end
-  let(:mb_flipper) { :mhv_accelerated_delivery_uhd_mb_enabled }
-  let(:mb_response) do
-    JSON.parse(Rails.root.join(
-      'modules', 'mobile', 'spec', 'support', 'fixtures', 'labs_and_tests_mb_response.json'
-    ).read)
-  rescue Errno::ENOENT
-    {} # Return empty hash if the fixture doesn't exist yet
-  end
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv) }
 
@@ -45,10 +26,7 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
     context 'happy path' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette(labs_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
@@ -58,104 +36,51 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
         expect(response).to be_successful
       end
 
-      it 'returns the correct lab records' do
+      it 'logs unique user events for labs accessed' do
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_LABS_ACCESSED
+          ]
+        )
+      end
+
+      it 'returns all lab records with encodedData and/or observations' do
         json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(9)
-        # Check that our test records are included in the response
-        # rather than expecting specific indices
-        expect(json_response).to include(ch_response)
-        expect(json_response).to include(sp_response)
-        expect(json_response).to include(mb_response)
+        expect(json_response).to be_an(Array)
+        expect(json_response.length).to be_positive
+
+        json_response.each do |lab_record|
+          attributes = lab_record['attributes']
+          has_encoded_data = attributes['encodedData'].present?
+          has_observations = attributes['observations'].present? && attributes['observations'].any?
+          expect(has_encoded_data || has_observations).to be_truthy
+        end
+      end
+
+      it 'returns the correct count of lab records from cassette' do
+        json_response = JSON.parse(response.body)
+        # The cassette has 29 DiagnosticReports with presentedForm or result
+        expect(json_response.length).to eq(29)
       end
     end
 
-    context 'SP and MB only' do
+    context 'response structure validation' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
         VCR.use_cassette(labs_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
       end
 
-      it 'returns a successful response' do
-        expect(response).to be_successful
-      end
-
-      it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
-        # Check that our SP and MB records are included in the response
-        # and CH record is not included
-        expect(json_response).to include(sp_response)
-        expect(json_response).to include(mb_response)
-        expect(json_response).not_to include(ch_response)
-      end
-    end
-
-    context 'CH and MB only' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
-        VCR.use_cassette(labs_cassette) do
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
-        end
-      end
-
-      it 'returns a successful response' do
-        expect(response).to be_successful
-      end
-
-      it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
-        # Check that our CH and MB records are included in the response
-        # and SP record is not included
-        expect(json_response).to include(ch_response)
-        expect(json_response).to include(mb_response)
-        expect(json_response).not_to include(sp_response)
-      end
-    end
-
-    context 'when filtering is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(false)
-        # These shouldn't matter when filtering is disabled, but set them anyway
-        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(false)
-        VCR.use_cassette(labs_cassette) do
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
-        end
-      end
-
-      it 'returns a successful response' do
-        expect(response).to be_successful
-      end
-
-      it 'returns all lab records regardless of filtering flags' do
-        json_response = JSON.parse(response.body)
-        # Should return all 9 records since filtering is disabled
-        expect(json_response.count).to eq(9)
-        # All test records should be included regardless of individual toggles
-        expect(json_response).to include(ch_response)
-        expect(json_response).to include(sp_response)
-        expect(json_response).to include(mb_response)
-      end
+      include_examples 'labs and tests response structure validation', nil
+      include_examples 'labs and tests specific data validation'
     end
 
     context 'errors' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
         allow(Rails.logger).to receive(:error)
         VCR.use_cassette(labs_attachment_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params

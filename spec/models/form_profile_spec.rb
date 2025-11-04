@@ -2057,7 +2057,6 @@ RSpec.describe FormProfile, type: :model do
         %w[
           21P-527EZ
           22-1990
-          22-1990E
           22-1995
           22-5490
           22-5495
@@ -2261,6 +2260,19 @@ RSpec.describe FormProfile, type: :model do
         instance1.prefill
         instance2.prefill
       end
+    end
+  end
+
+  describe 'loading 10-7959C form mappings' do
+    it "doesn't raise an IOError" do
+      expect { FormProfile.load_form_mapping('10-7959C') }.not_to raise_error(IOError)
+    end
+
+    it 'loads the correct data' do
+      mapping_file = Rails.root.join('config', 'form_profile_mappings', '10-7959C.yml')
+      mappings = YAML.load_file(mapping_file)
+
+      expect(FormProfile.load_form_mapping('10-7959C')).to match(mappings)
     end
   end
 end
