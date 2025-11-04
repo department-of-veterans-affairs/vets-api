@@ -837,7 +837,7 @@ module VAOS
       def extract_cerner_identifier(appointment)
         return nil if appointment[:identifier].nil?
 
-        identifier = appointment[:identifier].find { |id| id[:system].include?('/cerner') 
+        identifier = appointment[:identifier].find { |id| id[:system].include? 'cerner' }
 
         return if identifier.nil?
 
