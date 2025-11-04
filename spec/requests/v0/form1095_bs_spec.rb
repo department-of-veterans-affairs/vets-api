@@ -21,7 +21,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns http success' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                          { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response).to have_http_status(:success)
         end
@@ -29,7 +29,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns a PDF form' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                          { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response.content_type).to eq('application/pdf')
         end
@@ -38,7 +38,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       # disabled pending work on https://github.com/department-of-veterans-affairs/va-iir/issues/2133
       it 'throws 404 when form not found', pending: 'upcoming changes' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
-                          { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response).to have_http_status(:not_found)
         end
@@ -62,7 +62,6 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         expect(response).to have_http_status(:forbidden)
       end
     end
-
 
     context 'when user is not logged in' do
       it 'returns http 401' do
