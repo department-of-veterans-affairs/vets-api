@@ -5,8 +5,11 @@ module EventBusGateway
     # VA Notify service settings
     NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
 
+    # Controls the sidekiq (infrastructure level) retry when the letter ready email job fails.
     SIDEKIQ_RETRY_COUNT_FIRST_EMAIL = 5
+    # Controls the sidekiq (infrastructure level) retry when the letter ready email retry job fails.
     SIDEKIQ_RETRY_COUNT_RETRY_EMAIL = 3
+    # Controls the maximum number of email attempts to VA notify (application level).
     MAX_EMAIL_ATTEMPTS = 5
 
     # Hostname mapping for different environments
