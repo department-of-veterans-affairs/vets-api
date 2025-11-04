@@ -23,7 +23,9 @@ module ClaimsEvidenceApi
     # #/components/schemas/searchFileRequest
     SEARCH_FILE_REQUEST = "#{SCHEMA}/searchFileRequest.json".freeze
     # #/components/schemas/Filters
-    SEARCH_FILTERS = "#{SCHEMA}/searchFilters.json".freeze
+    SEARCH_FILE_FILTERS = "#{SCHEMA}/searchFileFilters.json".freeze
+    # #/components/schemas/Sort
+    SEARCH_FILE_SORT = "#{SCHEMA}/searchFileSort.json".freeze
 
     # hash { :property_name => json-schema }
     # :property_name == filename without extension

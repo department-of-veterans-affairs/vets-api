@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema",
-  "$id": "https://claims_evidence_api.va.gov/schema/searchFilters.json",
+  "$id": "https://claims_evidence_api.va.gov/schema/searchFileFilters.json",
   "properties" : {
     "providerData.documentTypeId" : {
       "$ref" : "filters/documentTypeIdFilter.json"

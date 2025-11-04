@@ -76,7 +76,7 @@ RSpec.describe ClaimsEvidenceApi::Validation::Schema do
           page: 23
         },
         filters: {},
-        sort: {}
+        sort: []
       }
       expect(expected).to eq subject.validate_search_file_request(**valid)
     end

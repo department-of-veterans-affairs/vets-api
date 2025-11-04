@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'claims_evidence_api/validation/search_filters'
-
 module ClaimsEvidenceApi
   module Validation
     # containing module for schema validation functions
@@ -66,14 +64,14 @@ module ClaimsEvidenceApi
       #
       # @return [Hash] valid file:search payload
       # @raise JSON::Schema::ValidationError
-      def validate_search_file_request(results_per_page: 10, page: 1, filters: {}, sort: {})
+      def validate_search_file_request(results_per_page: 10, page: 1, filters: {}, sort: [])
         request = {
           pageRequest: {
             resultsPerPage: results_per_page.to_i,
             page: page.to_i
           },
           filters: (filters || {}).compact,
-          sort: (sort || {}).compact # no schema for what should be in 'sort'
+          sort: (sort || []).compact
         }
 
         JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::SEARCH_FILE_REQUEST, request)

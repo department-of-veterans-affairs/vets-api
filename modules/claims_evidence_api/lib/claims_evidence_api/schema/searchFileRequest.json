@@ -7,7 +7,10 @@
       "$ref" : "pageRequest.json"
     },
     "filters" : {
-      "$ref" : "searchFilters.json"
+      "$ref" : "searchFileFilters.json"
+    },
+    "sort": {
+      "$ref" : "searchFileSort.json"
     }
   },
   "required" : [ "filters", "pageRequest" ],

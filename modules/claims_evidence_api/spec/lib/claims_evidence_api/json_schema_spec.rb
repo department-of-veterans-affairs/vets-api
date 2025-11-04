@@ -9,7 +9,8 @@ RSpec.describe ClaimsEvidenceApi::JsonSchema do
     expect(ClaimsEvidenceApi::JsonSchema::UPLOAD_PAYLOAD).to be_present
     expect(ClaimsEvidenceApi::JsonSchema::PROVIDER_DATA).to be_present
     expect(ClaimsEvidenceApi::JsonSchema::SEARCH_FILE_REQUEST).to be_present
-    expect(ClaimsEvidenceApi::JsonSchema::SEARCH_FILTERS).to be_present
+    expect(ClaimsEvidenceApi::JsonSchema::SEARCH_FILE_FILTERS).to be_present
+    expect(ClaimsEvidenceApi::JsonSchema::SEARCH_FILE_SORT).to be_present
 
     expect(ClaimsEvidenceApi::JsonSchema::PROPERTIES).to be_present
   end
