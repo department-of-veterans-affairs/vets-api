@@ -34,13 +34,12 @@ module ClaimsApi
 
       def service_information
         info = @data[:serviceInformation]
-        return if info.blank?
 
         map_service_periods(info)
         map_federal_activation_to_reserves(info) if info&.dig(:federalActivation).present?
         map_reserves_title_ten(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
         map_confinements(info) if info&.dig(:confinements).present?
-        map_separation_location(info) if info&.dig(:separationLocationCode).present?
+        map_separation_location if separation_location_code_present?
       end
 
       def map_service_periods(info)
@@ -117,12 +116,8 @@ module ClaimsApi
         end
       end
 
-      def map_separation_location(info)
-        separation_code = info[:separationLocationCode]
-        return if separation_code.blank?
-
-        @fes_claim[:serviceInformation] ||= {}
-        @fes_claim[:serviceInformation][:separationLocationCode] = separation_code
+      def map_separation_location
+        @fes_claim[:serviceInformation][:separationLocationCode] = return_separation_location_code
       end
 
       def current_mailing_address
@@ -393,6 +388,20 @@ module ClaimsApi
         else
           # Otherwise, claimant is the veteran
           extract_veteran_participant_id
+        end
+      end
+
+      def return_separation_location_code
+        return_most_recent_service_period&.dig(:separationLocationCode)
+      end
+
+      def separation_location_code_present?
+        return_most_recent_service_period&.dig(:separationLocationCode).present?
+      end
+
+      def return_most_recent_service_period
+        @data[:serviceInformation][:servicePeriods]&.max_by do |period|
+          Date.parse(period[:activeDutyBeginDate])
         end
       end
 
