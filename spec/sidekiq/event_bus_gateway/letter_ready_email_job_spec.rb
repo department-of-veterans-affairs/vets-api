@@ -182,7 +182,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
     end
   end
 
-  describe 'Business rule: Retry count limit.' do
+  describe 'Retry count limit.' do
     # We test that the retry count is set to 5 because previously it was 16,
     # which caused performance impacts on staging and production environments.
     it 'Sets Sidekiq retry count to 5.' do

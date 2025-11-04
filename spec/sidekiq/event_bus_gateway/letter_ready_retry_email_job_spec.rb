@@ -164,7 +164,7 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
     end
   end
 
-  describe 'Business rule: Retry count limit.' do
+  describe 'Retry count limit.' do
     # The retry count is set to 3 (changed from 16) because this job runs less frequently than the letter ready email
     # job — it is only triggered if VA Notify responds with a temporary failure.
     # Previously, a high retry count caused letter ready email jobs to clog up staging environments and raised

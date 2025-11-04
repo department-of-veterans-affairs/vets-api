@@ -257,7 +257,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
         end
       end
 
-      context 'Business rule: Max email attempts set to 5.' do
+      context 'Max email attempts set to 5.' do
         # This test exists because the previous max attempts was 16, which caused
         # production and staging performance issues due to database strain and job congestion.
         # Limiting to 5 attempts prevents excessive retries.
