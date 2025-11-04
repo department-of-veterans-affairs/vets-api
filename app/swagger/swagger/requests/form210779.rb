@@ -10,7 +10,7 @@ module Swagger
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
           extend Swagger::Responses::UnprocessableEntityError
-          extend Swagger::Responses::BadRequestError
+          extend Swagger::Responses::ForbiddenError
 
           key :description,
               'Submit a 21-0779 form (Request for Nursing Home Information in Connection with Claim for ' \
@@ -42,10 +42,11 @@ module Swagger
           parameter :optional_authorization
 
           parameter do
-            key :name, :guid
-            key :in, :body
+            key :name, 'guid'
+            key :in, :query
             key :description, 'the guid from the form submission response'
             key :required, true
+            key :type, :string
           end
 
           response 200 do

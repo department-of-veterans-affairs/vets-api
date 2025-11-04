@@ -9,9 +9,9 @@ module V0
     skip_before_action :authenticate
 
     def create
-      params.require(:form)
+      # using request.raw_post to avoid the middleware that transforms the JSON keys to snake case
+      claim = SavedClaim::Form210779.new(form: request.raw_post)
 
-      claim = SavedClaim::Form210779.new(form: params[:form].to_json)
       if claim.save
         claim.process_attachments!
 

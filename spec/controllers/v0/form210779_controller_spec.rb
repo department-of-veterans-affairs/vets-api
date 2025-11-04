@@ -4,11 +4,9 @@ require 'rails_helper'
 
 RSpec.describe V0::Form210779Controller, type: :controller do
   let(:form_id) { '21-0779' }
-  let(:form_data) { VetsJsonSchema::EXAMPLES[form_id] }
+  let(:form_data) { VetsJsonSchema::EXAMPLES[form_id].to_json }
 
   let(:last_name) { form_data.dig('veteranInformation', 'fullName', 'last') }
-
-  let(:valid_payload) { { form: form_data }.to_json }
 
   def parsed_response
     JSON.parse(response.body)
@@ -20,7 +18,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
   describe 'POST #create' do
     it 'returns expected response structure' do
-      post(:create, body: valid_payload, as: :json)
+      post(:create, body: form_data, as: :json)
 
       expect(response).to have_http_status(:ok)
 
@@ -33,30 +31,30 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     end
 
     it 'returns a unique confirmation number for each request' do
-      post(:create, body: valid_payload, as: :json)
+      post(:create, body: form_data, as: :json)
       first_confirmation = confirmation_number
 
-      post(:create, body: valid_payload, as: :json)
+      post(:create, body: form_data, as: :json)
       second_confirmation = confirmation_number
 
       expect(first_confirmation).not_to eq(second_confirmation)
     end
 
     it 'returns a valid UUID as confirmation number' do
-      post(:create, body: valid_payload, as: :json)
+      post(:create, body: form_data, as: :json)
 
       expect(confirmation_number).to be_a_uuid
     end
 
     it 'returns ISO 8601 formatted timestamp' do
-      post(:create, body: valid_payload, as: :json)
+      post(:create, body: form_data, as: :json)
 
       submitted_at = parsed_response.dig('data', 'attributes', 'submitted_at')
       expect { DateTime.iso8601(submitted_at) }.not_to raise_error
     end
 
     it 'does not require authentication' do
-      post(:create, body: valid_payload, as: :json)
+      post(:create, body: form_data, as: :json)
       expect(response).to have_http_status(:ok)
     end
   end
