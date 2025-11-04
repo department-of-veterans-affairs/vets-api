@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require './lib/webhooks/utilities'
-
 module Webhooks
   class SchedulerJob
     include Sidekiq::Job
