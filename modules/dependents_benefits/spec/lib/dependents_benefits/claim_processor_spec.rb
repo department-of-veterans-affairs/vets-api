@@ -46,7 +46,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       expect(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
       expect(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
       expect(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
-  
+
       result = processor.enqueue_submissions
 
       expect(result).to eq({ data: { jobs_enqueued: 4 }, error: nil })
