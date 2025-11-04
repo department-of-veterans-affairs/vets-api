@@ -297,7 +297,7 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
     end
   end
 
-  describe 'Business rule: Max number of email job runs is 5.' do
+  describe 'Max number of email job runs is 5.' do
     # This test exists because the previous max attempts was 16, which caused
     # production performance concerns due to database strain and job congestion
     # on staging when failures occurred. Limiting to 5 attempts prevents excessive retries.
@@ -305,7 +305,7 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
       allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
     end
 
-    it 'Business rule: Do not allow more than 5 attempts.' do
+    it 'Do not allow more than 5 attempts.' do
       initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
       retry_responses = Array.new(5 - 1) do |i|
         instance_double(Notifications::Client::ResponseNotification, id: "retry-#{i}-#{SecureRandom.uuid}")
