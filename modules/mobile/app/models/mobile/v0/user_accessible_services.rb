@@ -3,8 +3,9 @@
 module Mobile
   module V0
     class UserAccessibleServices
-      def initialize(user)
+      def initialize(user, request = nil)
         @user = user
+        @request = request
       end
 
       def authorized
@@ -30,7 +31,7 @@ module Mobile
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
-          medicationsOracleHealthEnabled: Flipper.enabled?(:mhv_medications_cerner_pilot, @user),
+          medicationsOracleHealthEnabled: medications_oracle_health_enabled?,
           paymentHistory: access?(bgs: :access?),
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
@@ -42,6 +43,26 @@ module Mobile
       end # rubocop:enable Metrics/MethodLength
 
       private
+
+      def medications_oracle_health_enabled?
+        return false unless Flipper.enabled?(:mhv_medications_cerner_pilot, @user)
+        return true if @request.nil? # Allow tests without request context
+        return false if app_version_header.nil? # Default to disabled if no version header
+
+        # Check if version meets minimum requirement
+        begin
+          version = Gem::Version.new(app_version_header)
+          min_version = Gem::Version.new(Settings.va_mobile.medications_oracle_health_min_version)
+          version >= min_version
+        rescue ArgumentError
+          # Treat malformed version as not meeting requirement
+          false
+        end
+      end
+
+      def app_version_header
+        @request&.headers&.[]('App-Version')
+      end
 
       def flagged_access?(flag_name, flag_on_policy, flag_off_policy)
         if Flipper.enabled?(flag_name, @user)

@@ -1293,6 +1293,7 @@ va_forms:
 va_mobile:
   claims_path: /services/claims/v2/veterans
   key_path: <%= ENV['va_mobile__key_path'] %>
+  medications_oracle_health_min_version: '1.0.0'
   mock: <%= ENV['va_mobile__mock'] %>
   patients_path: /vaos/v1/patients
   ppms_base_url: <%= ENV['va_mobile__ppms_base_url'] %>
