@@ -463,6 +463,10 @@ features:
     actor_type: user
     description: When enabled, claims status tool will display the upload status that comes from the evidence_submissions table.
     enable_in_development: true
+  cst_update_evidence_submission_on_show:
+    actor_type: user
+    description: When enabled, polls Lighthouse for updated evidence submission statuses when viewing individual claims.
+    enable_in_development: true
   cst_claim_phases:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
@@ -2611,6 +2615,9 @@ features:
   my_va_display_all_lighthouse_benefits_intake_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
+  my_va_display_decision_reviews_forms:
+    actor_type: user
+    description: When enabled, a user will see all submitted Lighthouse Decision Reviews forms in My VA for form status.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true
@@ -2698,3 +2705,22 @@ features:
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  survivors_benefits_form_enabled:
+    actor_type: user
+    description: Enables the Medical Expense Reports form (Form 21P-534EZ)
+    enable_in_development: true
+  survivors_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Medical Expense Reports Datadog RUM monitoring
+  survivors_benefits_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  survivors_benefits_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  survivors_benefits_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  survivors_benefits_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
