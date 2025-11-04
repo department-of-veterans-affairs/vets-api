@@ -5,6 +5,7 @@ require 'dependents_benefits/claim_processor'
 require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'dependents_benefits/sidekiq/bgs_686c_job'
 require 'dependents_benefits/sidekiq/claims_686c_job'
+require 'dependents_benefits/sidekiq/claims_674_job'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   let(:parent_claim) { create(:dependents_claim) }
@@ -36,18 +37,24 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       allow(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).and_return(true)
       allow(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).and_return(true)
       allow(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).and_return(true)
       allow(processor).to receive(:collect_child_claims).and_return([form_686_claim, form_674_claim])
     end
 
     it 'processes claims' do
+      expect(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
+  
       result = processor.enqueue_submissions
 
-      expect(result).to eq({ data: { jobs_enqueued: 3 }, error: nil })
+      expect(result).to eq({ data: { jobs_enqueued: 4 }, error: nil })
     end
 
     it 'monitors submissions' do
       expect(processor).to receive(:enqueue_686c_submission).with(form_686_claim).and_return(2)
-      expect(processor).to receive(:enqueue_674_submission).with(form_674_claim).and_return(1)
+      expect(processor).to receive(:enqueue_674_submission).with(form_674_claim).and_return(2)
 
       processor.enqueue_submissions
 
@@ -55,7 +62,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
         'Starting claim submission processing', 'start', { parent_claim_id: }
       )
       expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Successfully enqueued all submission jobs', 'enqueue_success', { parent_claim_id:, jobs_count: 3 }
+        'Successfully enqueued all submission jobs', 'enqueue_success', { parent_claim_id:, jobs_count: 4 }
       )
     end
 
