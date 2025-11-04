@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Webhooks::Notification, type: :model, skip: 'specs to be removed in future PR' do
+describe Webhooks::Notification, skip: 'specs to be removed in future PR', type: :model do
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
   let(:consumer_name) { 'tester' }
   let(:api_id) { SecureRandom.uuid }

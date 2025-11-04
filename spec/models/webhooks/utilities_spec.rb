@@ -2,7 +2,13 @@
 
 require 'rails_helper'
 
-describe Webhooks::Utilities, type: :model, skip: 'specs to be removed in future PR' do
+# use these loads when running in a rails console
+# load './app/models/webhooks/notification.rb'
+# load './app/models/webhooks/subscription.rb'
+# load './lib/webhooks/utilities.rb'
+# load './app/models/webhooks/utilities.rb'
+
+describe Webhooks::Utilities, skip: 'specs to be removed in future PR', type: :model do
   API_NAME = 'testing'
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
   let(:consumer_name) { 'tester' }
