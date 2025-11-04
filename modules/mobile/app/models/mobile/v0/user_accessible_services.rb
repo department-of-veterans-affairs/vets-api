@@ -3,6 +3,8 @@
 module Mobile
   module V0
     class UserAccessibleServices
+      MEDICATIONS_ORACLE_HEALTH_MIN_VERSION = '1.0.0'
+
       def initialize(user, request = nil)
         @user = user
         @request = request
@@ -52,8 +54,7 @@ module Mobile
         # Check if version meets minimum requirement
         begin
           version = Gem::Version.new(app_version_header)
-          min_version = Gem::Version.new(Settings.va_mobile.medications_oracle_health_min_version)
-          version >= min_version
+          version >= Gem::Version.new(MEDICATIONS_ORACLE_HEALTH_MIN_VERSION)
         rescue ArgumentError
           # Treat malformed version as not meeting requirement
           false
