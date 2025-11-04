@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq/job_retry'
+require 'dependents_benefits/monitor'
 
 module DependentsBenefits::Sidekiq
   ##
@@ -28,19 +29,35 @@ module DependentsBenefits::Sidekiq
 
     # Callback runs outside job context - must recreate instance state
     sidekiq_retries_exhausted do |msg, exception|
+      monitor = DependentsBenefits::Monitor.new
       claim_id, _proc_id = msg['args']
-      new.send(:handle_permanent_failure, claim_id, exception)
+
+      # Use the class of the inheriting job that exhausted, not the base class
+      job_class_name = msg['class']
+      monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion')
+
+      # If we don't have a job class name, the error is irrecoverable
+      if job_class_name.blank?
+        monitor.log_silent_failure({ claim_id:, error: exception })
+        return
+      end
+
+      job_class = job_class_name.constantize
+      job_class.new.send(:handle_permanent_failure, claim_id, exception)
     end
 
     def perform(claim_id, proc_id = nil)
       @claim_id = claim_id
       @proc_id = proc_id
 
+      monitor.track_submission_info("Starting #{self.class} for claim_id #{claim_id}", 'start')
+
       # Early exit optimization - prevents unnecessary service calls
       return if parent_group_failed?
 
       find_or_create_form_submission
       create_form_submission_attempt
+
       @service_response = submit_to_service
 
       raise DependentSubmissionError, @service_response&.error unless @service_response&.success?

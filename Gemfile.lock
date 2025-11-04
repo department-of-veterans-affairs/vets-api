@@ -124,6 +124,7 @@ PATH
     representation_management (0.1.0)
     simple_forms_api (0.1.0)
     sob (0.1.0)
+    survivors_benefits (0.1.0)
     test_user_dashboard (0.1.0)
       rails
     travel_pay (0.1.0)
@@ -290,7 +291,7 @@ GEM
     blueprinter (1.2.1)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
-    brakeman (7.1.0)
+    brakeman (7.1.1)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -1426,6 +1427,7 @@ DEPENDENCIES
   statsd-instrument
   strong_migrations
   super_diff
+  survivors_benefits!
   swagger-blocks
   test_user_dashboard!
   timecop
