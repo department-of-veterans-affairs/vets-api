@@ -107,11 +107,12 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
   end
 
   describe('#track_toxic_exposure_changes') do
+    # InProgressForm uses snake_case (Rails auto-transforms save-in-progress forms)
     let(:in_progress_form_data) do
       {
-        'toxicExposure' => {
+        'toxic_exposure' => {
           'conditions' => { 'asthma' => true },
-          'gulfWar1990' => { 'iraq' => true }
+          'gulf_war_1990' => { 'iraq' => true }
         }
       }
     end
@@ -137,6 +138,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
     context 'when key removed' do
       before do
+        # SavedClaim uses camelCase
         form_data = {
           'toxicExposure' => {
             'conditions' => { 'asthma' => true }
@@ -150,6 +152,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
     context 'when conditions key removed' do
       before do
+        # SavedClaim uses camelCase
         form_data = {
           'toxicExposure' => {
             'gulfWar1990' => { 'iraq' => true }
@@ -163,6 +166,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
     context 'when all keys removed but toxicExposure object exists (empty hash)' do
       before do
+        # SavedClaim uses camelCase
         form_data = {
           'toxicExposure' => {}
         }
@@ -188,17 +192,17 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
     context 'when multiple keys removed (2 keys)' do
       before do
-        # Setup InProgressForm with 3 keys
+        # InProgressForm uses snake_case
         in_progress_data = {
-          'toxicExposure' => {
+          'toxic_exposure' => {
             'conditions' => { 'asthma' => true },
-            'gulfWar1990' => { 'iraq' => true },
-            'gulfWar2001' => { 'afghanistan' => true }
+            'gulf_war_1990' => { 'iraq' => true },
+            'gulf_war_2001' => { 'afghanistan' => true }
           }
         }
         allow(in_progress_form).to receive(:form_data).and_return(in_progress_data.to_json)
 
-        # Submitted only has conditions (2 keys removed)
+        # SavedClaim uses camelCase (2 keys removed)
         form_data = {
           'toxicExposure' => {
             'conditions' => { 'asthma' => true }
@@ -217,9 +221,18 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
     end
 
     context 'when unchanged' do
-      before { allow(submitted_claim).to receive(:form).and_return(in_progress_form_data.to_json) }
+      before do
+        # SavedClaim uses camelCase - same data as InProgressForm but in camelCase
+        saved_claim_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true },
+            'gulfWar1990' => { 'iraq' => true }
+          }
+        }
+        allow(submitted_claim).to receive(:form).and_return(saved_claim_data.to_json)
+      end
 
-      it 'does not log' do
+      it 'does not log when data matches (despite format difference)' do
         expect(monitor).not_to receive(:submit_event)
         monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
       end
