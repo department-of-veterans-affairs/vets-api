@@ -132,7 +132,10 @@ module Eps
       end
 
       specialty_matches = filter_by_specialty(response.body[:provider_services], specialty)
-      return nil if specialty_matches.empty?
+      if specialty_matches.empty?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.")
+        return nil
+      end
 
       return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
 
