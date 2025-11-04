@@ -349,7 +349,7 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
                 max_attempts: 5 })
     end
 
-    it 'Business rule: Allow up to 5 attempts.' do
+    it 'Allow up to 5 attempts.' do
       initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
       retry_responses = Array.new(4 - 1) do |i|
         instance_double(Notifications::Client::ResponseNotification, id: "retry-#{i}-#{SecureRandom.uuid}")
@@ -369,7 +369,7 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
 
       EventBusGateway::VANotifyEmailStatusCallback.call(temp_failure)
 
-      # Step 2: Simulate the remaining temporary failures up to MAX_EMAIL_ATTEMPTS
+      # Step 2: Simulate the remaining temporary failures up to one below MAX_EMAIL_ATTEMPTS.
       (4 - 1).times do |attempt|
         expect(EventBusGateway::LetterReadyRetryEmailJob.jobs.size).to eq(1)
         Sidekiq::Worker.drain_all
