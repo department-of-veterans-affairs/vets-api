@@ -1,0 +1,80 @@
+{
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranChildrenCount": 5,
+  "veteransChildren": [
+    {
+      "childFullName": {
+        "first": "6B First",
+        "middle": "B",
+        "last": "6B Last"
+      },
+      "childSocialSecurityNumber": "987654321",
+      "childDateOfBirth": "1989-02-01",
+      "childPlaceOfBirth": "6E. Place of Birth",
+      "childStatus": [
+        "BIOLOGICAL",
+        "ADOPTED",
+        "STEPCHILD",
+        "18-23_YEARS_OLD",
+        "SERIOUSLY_DISABLED",
+        "CHILD_PREVIOUSLY_MARRIED",
+        "DOES_NOT_LIVE_WITH_SPOUSE"
+      ],
+      "childSupport": 123456
+    },
+    {
+      "childFullName": {
+        "first": "6G First",
+        "middle": "G",
+        "last": "6G Last"
+      },
+      "childSocialSecurityNumber": "123456789",
+      "childDateOfBirth": "1989-02-01",
+      "childPlaceOfBirth": "6J. Place of Birth",
+      "childStatus": [
+        "BIOLOGICAL",
+        "ADOPTED",
+        "STEPCHILD",
+        "18-23_YEARS_OLD",
+        "SERIOUSLY_DISABLED",
+        "CHILD_PREVIOUSLY_MARRIED",
+        "DOES_NOT_LIVE_WITH_SPOUSE"
+      ],
+      "childSupport": 987654
+    },
+    {
+      "childFullName": {
+        "first": "6L First",
+        "middle": "L",
+        "last": "6L Last"
+      },
+      "childSocialSecurityNumber": "098765432",
+      "childDateOfBirth": "1989-02-01",
+      "childPlaceOfBirth": "6O. Place of Birth",
+      "childStatus": [
+        "BIOLOGICAL",
+        "ADOPTED",
+        "STEPCHILD",
+        "18-23_YEARS_OLD",
+        "SERIOUSLY_DISABLED",
+        "CHILD_PREVIOUSLY_MARRIED",
+        "DOES_NOT_LIVE_WITH_SPOUSE"
+      ],
+      "childSupport": 234567
+    }
+  ],
+  "childrenLiveTogetherButNotWithSpouse": true,
+  "custodianFullName": {
+    "first": "6R First",
+    "middle": "R",
+    "last": "6R Last"
+  },
+  "custodianAddress": {
+    "country": "USA",
+    "street": "6R Address",
+    "street2": "6R",
+    "city": "6R City",
+    "state": "6R",
+    "postalCode": "6R0001234"
+  }
+}

@@ -45,6 +45,12 @@ module UnifiedHealthData
       perform(:get, path, nil, request_headers)
     end
 
+    def get_ccd(patient_id:, start_date:, end_date:)
+      path = "#{config.base_path}ccd"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date }
+      perform(:get, path, params, request_headers)
+    end
+
     private
 
     def fetch_access_token
