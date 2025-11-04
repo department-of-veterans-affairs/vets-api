@@ -307,20 +307,17 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             allow(Flipper).to receive(:enabled?)
               .with(:disability_526_toxic_exposure_opt_out_data_purge, anything)
               .and_return(true)
-            allow(Flipper).to receive(:enabled?)
-              .with(:disability_526_toxic_exposure_opt_out_data_purge_by_user, anything)
-              .and_return(false)
           end
 
           context 'when toxic exposure keys are removed' do
             it 'logs the removal' do
-              # Update InProgressForm to have gulfWar1990 and gulfWar2001
+              # Update InProgressForm with snake_case (Rails transforms save-in-progress to snake_case)
               in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
               in_progress_form_data = JSON.parse(in_progress_form.form_data)
-              in_progress_form_data['toxicExposure'] = {
+              in_progress_form_data['toxic_exposure'] = {
                 'conditions' => { 'arthritis' => true },
-                'gulfWar1990' => { 'iraq' => true },
-                'gulfWar2001' => { 'djibouti' => true }
+                'gulf_war_1990' => { 'iraq' => true },
+                'gulf_war_2001' => { 'djibouti' => true }
               }
               in_progress_form.update!(form_data: in_progress_form_data.to_json)
 
@@ -347,12 +344,12 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
           context 'when toxic exposure is completely removed' do
             it 'logs the complete removal' do
-              # Update InProgressForm to have toxic exposure
+              # Update InProgressForm with snake_case (Rails transforms save-in-progress to snake_case)
               in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
               in_progress_form_data = JSON.parse(in_progress_form.form_data)
-              in_progress_form_data['toxicExposure'] = {
+              in_progress_form_data['toxic_exposure'] = {
                 'conditions' => { 'arthritis' => true },
-                'gulfWar1990' => { 'iraq' => true }
+                'gulf_war_1990' => { 'iraq' => true }
               }
               in_progress_form.update!(form_data: in_progress_form_data.to_json)
 
@@ -370,12 +367,12 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
           context 'when toxic exposure is unchanged' do
             it 'does not log' do
-              # Update InProgressForm to match submitted data
+              # Update InProgressForm with snake_case (Rails transforms save-in-progress to snake_case)
               in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
               in_progress_form_data = JSON.parse(in_progress_form.form_data)
-              in_progress_form_data['toxicExposure'] = {
+              in_progress_form_data['toxic_exposure'] = {
                 'conditions' => { 'arthritis' => true },
-                'gulfWar1990' => { 'iraq' => true }
+                'gulf_war_1990' => { 'iraq' => true }
               }
               in_progress_form.update!(form_data: in_progress_form_data.to_json)
 
@@ -399,10 +396,11 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
           context 'when no toxic exposure in InProgressForm' do
             it 'does not log' do
-              # Update InProgressForm to have no toxic exposure
+              # Update InProgressForm to have no toxic exposure (delete snake_case key)
               in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, user)
               in_progress_form_data = JSON.parse(in_progress_form.form_data)
-              in_progress_form_data.delete('toxicExposure')
+              in_progress_form_data.delete('toxic_exposure')
+              in_progress_form_data.delete('toxicExposure') # Delete both just in case
               in_progress_form.update!(form_data: in_progress_form_data.to_json)
 
               allow(monitor).to receive(:track_toxic_exposure_changes)
@@ -417,12 +415,9 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
           context 'when flipper flag is disabled' do
             it 'does not call track_toxic_exposure_changes' do
-              # Disable both toxic exposure purge flags to prevent logging
+              # Disable toxic exposure purge flag to prevent logging
               allow(Flipper).to receive(:enabled?)
                 .with(:disability_526_toxic_exposure_opt_out_data_purge, anything)
-                .and_return(false)
-              allow(Flipper).to receive(:enabled?)
-                .with(:disability_526_toxic_exposure_opt_out_data_purge_by_user, anything)
                 .and_return(false)
 
               expect(monitor).not_to receive(:track_toxic_exposure_changes)

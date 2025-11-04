@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require 'saml/user_attributes/ssoe'
-require 'sentry_logging'
 require 'base64'
 
 module SAML
   class User
-    include SentryLogging
-
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
     MHV_ORIGINAL_CSID = 'mhv'
     MHV_MAPPED_CSID = 'myhealthevet'

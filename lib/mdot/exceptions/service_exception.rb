@@ -5,7 +5,7 @@ require 'common/exceptions/backend_service_exception'
 module MDOT
   module Exceptions
     class ServiceException < Common::Exceptions::BackendServiceException
-      include SentryLogging
+      include Vets::SharedLogging
 
       def initialize(exception, response_values = {}, original_status = nil, original_body = nil)
         @exception = exception
