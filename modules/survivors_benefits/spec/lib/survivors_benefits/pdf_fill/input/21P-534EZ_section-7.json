@@ -1,0 +1,27 @@
+{
+  "veteranSocialSecurityNumber": "123456789",
+  "benefit": "pactActDIC",
+  "treatments": [
+    {
+      "facility": "7B First Example",
+      "treatmentDates": {
+        "start": "2000-01-01",
+        "end": "2025-12-31"
+      }
+    },
+    {
+      "facility": "7B Second Example",
+      "treatmentDates": {
+        "start": "2001-02-02",
+        "end": "2024-11-30"
+      }
+    },
+    {
+      "facility": "7B Third Example",
+      "treatmentDates": {
+        "start": "2002-03-03",
+        "end": "2023-10-29"
+      }
+    }
+  ]
+}

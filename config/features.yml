@@ -171,6 +171,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
+  event_bus_gateway_pension_email_template:
+    description: Toggle to enable pension email template in eventbus-gateway
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -461,6 +463,10 @@ features:
     actor_type: user
     description: When enabled, claims status tool will display the upload status that comes from the evidence_submissions table.
     enable_in_development: true
+  cst_update_evidence_submission_on_show:
+    actor_type: user
+    description: When enabled, polls Lighthouse for updated evidence submission statuses when viewing individual claims.
+    enable_in_development: true
   cst_claim_phases:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
@@ -695,6 +701,21 @@ features:
     actor_type: user
     description: Enables new Dependents module
     enable_in_development: false
+  dependents_benefits_confirmation_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Confirmation email notification
+  dependents_benefits_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Error email notification
+  dependents_benefits_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  dependents_benefits_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  dependents_benefits_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -805,11 +826,11 @@ features:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
-  disability_526_toxic_exposure_opt_out_data_purge:
+  disability_526_browser_monitoring_enabled:
     actor_type: user
-    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    description: enables Datadog RUM for the disability 526 submission frontend workflow
     enable_in_development: true
-  disability_526_toxic_exposure_opt_out_data_purge_by_user:
+  disability_526_toxic_exposure_opt_out_data_purge:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
@@ -1155,10 +1176,6 @@ features:
   ha_cpap_supplies_cta:
     actor_type: user
     description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
-  in_progress_form_custom_expiration:
-    actor_type: user
-    description: Enable/disable custom expiration dates for forms
-    enable_in_development: true
   in_progress_form_reminder:
     actor_type: user
     description: Enable/disable in progress form reminders (sent via VaNotify)
@@ -1295,21 +1312,6 @@ features:
   mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for VistA patients
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_sp_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_mb_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Microbiology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_ch_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
-  mhv_accelerated_delivery_uhd_filtering_enabled:
-    actor_type: user
-    description: Control whether vets-api applies filtering logic to UHD lab records
     enable_in_development: false
   mhv_accelerated_delivery_uhd_loinc_logging_enabled:
     actor_type: user
@@ -1912,6 +1914,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_parent_guardian_step:
+    actor_type: user
+    description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
+    enable_in_development: true
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user
     description: Hides benefit selection page on original claims application.
@@ -2096,6 +2102,12 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  va_online_scheduling_parallel_travel_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle to enable parallel fetching of appointments and travel claims in get_appointments.
+      When enabled, appointments and travel claims are fetched concurrently, reducing response time.
   va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
@@ -2288,7 +2300,6 @@ features:
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
-    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2604,6 +2615,9 @@ features:
   my_va_display_all_lighthouse_benefits_intake_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
+  my_va_display_decision_reviews_forms:
+    actor_type: user
+    description: When enabled, a user will see all submitted Lighthouse Decision Reviews forms in My VA for form status.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true
@@ -2679,11 +2693,11 @@ features:
   form_530a_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21P-530a on vets-website 
+    description: Enables form 21P-530a on vets-website
   form_4192_enabled:
     actor_type: user
     enable_in_development: true
-    description: Enables form 21-4192 on vets-website 
+    description: Enables form 21-4192 on vets-website
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
@@ -2691,3 +2705,22 @@ features:
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  survivors_benefits_form_enabled:
+    actor_type: user
+    description: Enables the Medical Expense Reports form (Form 21P-534EZ)
+    enable_in_development: true
+  survivors_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Medical Expense Reports Datadog RUM monitoring
+  survivors_benefits_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  survivors_benefits_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  survivors_benefits_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  survivors_benefits_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification

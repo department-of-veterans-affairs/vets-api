@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require_relative 'parser_base'
 require 'identity/parsers/gc_ids'
 
@@ -8,7 +7,6 @@ module MPI
   module Responses
     # Parses an MVI response and returns an MviProfile
     class AddParser < ParserBase
-      include SentryLogging
       include Identity::Parsers::GCIds
 
       ACKNOWLEDGEMENT_DETAIL_CODE_XPATH = 'acknowledgement/acknowledgementDetail/code'
