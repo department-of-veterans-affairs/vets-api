@@ -106,6 +106,7 @@ properties:
             type: string
             description: Base type of claim
             example: 'compensation claim'
+            nullable: true
           displayTitle:
             type: string
             description: Formatted title for display

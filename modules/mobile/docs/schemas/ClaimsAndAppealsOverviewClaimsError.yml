@@ -82,6 +82,7 @@ properties:
               type: string
               description: Base type of claim
               example: compensation claim
+              nullable: true
 
   meta:
     type: object
