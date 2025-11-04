@@ -15,7 +15,6 @@ module AppealsApi
     # Age in days to continue to update the status of NODs with an upstream DOC202 procesing error
     DOC202_ERROR_STATUS_UPDATE_LOOKBACK = 14.days
 
-
     def perform
       return unless enabled? && notice_of_disagreement_ids.present?
 
