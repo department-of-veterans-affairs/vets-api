@@ -86,7 +86,7 @@ module VeteranEnrollmentSystem
             array << start_date
             array << end_date
             if (end_date - start_date) > 1
-              intervening_years = (start_date..end_date).to_a - [start_date, end_date]
+              intervening_years = (start_date..end_date).to_a
               array.concat(intervening_years)
             end
           end.uniq.sort
