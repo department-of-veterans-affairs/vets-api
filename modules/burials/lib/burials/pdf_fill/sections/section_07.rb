@@ -75,6 +75,7 @@ module Burials
       def expand(form_data)
         signature = combine_hash(form_data['claimantFullName'], %w[first last])
         form_data['signature'] = signature
+        form_data['signatureDate'] = Time.zone.today.to_s if signature.present?
         expand_checkbox_in_place(form_data, 'processOption')
       end
     end
