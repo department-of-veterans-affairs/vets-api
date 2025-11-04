@@ -10,7 +10,7 @@ module Pensions
       KEY = {}.freeze
 
       ##
-      # Expand the form data for prior marital history.
+      # Expand the form data for employment history.
       #
       # @param form_data [Hash] The form data hash.
       #
