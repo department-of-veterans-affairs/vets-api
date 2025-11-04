@@ -106,34 +106,42 @@ module IncreaseCompensation
           question_num: 5,
           'street' => {
             limit: 30,
+            question_num: 5,
             question_label: 'Mailing Address Number And Street',
             question_text: 'MAILING ADDRESS NUMBER AND STREET',
             key: 'form1[0].#subform[0].CurrentMailingAddress_NumberAndStreet[0]'
           },
           'street2' => {
+            question_num: 5,
             question_label: 'Mailing Address Apt/Unit',
             question_text: 'MAILING ADDRESS APT/UNIT',
             key: 'form1[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
           },
           'city' => {
             limit: 18,
+            question_num: 5,
             question_label: 'Mailing Address City',
             question_text: 'MAILING ADDRESS CITY',
             key: 'form1[0].#subform[0].CurrentMailingAddress_City[0]'
           },
           'state' => {
+            question_num: 5,
             limit: 2,
             key: 'form1[0].#subform[0].CurrentMailingAddress_StateOrProvince[0]'
           },
           'country' => {
+            question_num: 5,
             key: 'form1[0].#subform[0].CurrentMailingAddress_Country[0]'
           },
           'postalCode' => {
+            question_num: 5,
             'firstFive' => {
+              question_num: 5,
               limit: 5,
               key: 'form1[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
             },
             'lastFour' => {
+              question_num: 5,
               limit: 4,
               question_label: 'Postal Code - Last Four',
               question_text: 'POSTAL CODE - LAST FOUR',
@@ -150,13 +158,16 @@ module IncreaseCompensation
           question_num: 6,
           question_label: "Veteran's E-Mail Address",
           question_text: 'VETERAN\'S E-MAIL ADDRESS',
-          limit: 34,
           'email1' => {
             question_num: 6,
+            question_label: "Veteran's E-Mail Address",
+            question_text: 'VETERAN\'S E-MAIL ADDRESS',
+            limit: 17,
             key: 'form1[0].#subform[0].E_Mail_Address_If_Applicable[0]'
           },
           'email2' => {
             question_num: 6,
+            limit: 17,
             key: 'form1[0].#subform[0].E_Mail_Address_If_Applicable[1]'
           }
         },
@@ -177,6 +188,7 @@ module IncreaseCompensation
         },
         'internationalPhone' => {
           question_num: 7,
+          limit: 19,
           question_label: 'International Phone Number',
           question_text: 'International Phone Number',
           key: 'form1[0].#subform[0].International_Telephone_Number_If_Applicable[0]'
@@ -195,7 +207,12 @@ module IncreaseCompensation
           form_data['veteranAddress']['postalCode'] = split_postal_code(form_data['veteranAddress'])
         end
         form_data['electronicCorrespondance'] = form_data['electronicCorrespondance'] ? 1 : 0
-        form_data['emailAddress'] = two_line_overflow(form_data['email'], 'email', 17)
+        # overflow text to next line if under total limit, otherwise save to one line for overflow page
+        form_data['emailAddress'] = if form_data['email'].length > 34
+                                      { 'email1' => form_data['email'] }
+                                    else
+                                      two_line_overflow(form_data['email'], 'email', 17)
+                                    end
       end
     end
   end
