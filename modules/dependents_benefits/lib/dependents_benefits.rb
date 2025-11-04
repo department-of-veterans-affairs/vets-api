@@ -17,7 +17,9 @@ module DependentsBenefits
   MODULE_PATH = 'modules/dependents_benefits'
 
   # Path to the PDF
-  PDF_PATH = "#{MODULE_PATH}/lib/dependents_benefits/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
+  PDF_PATH_BASE = "#{MODULE_PATH}/lib/dependents_benefits/pdf_fill/pdfs".freeze
+  PDF_PATH_21_686C = "#{PDF_PATH_BASE}/#{ADD_REMOVE_DEPENDENT}.pdf".freeze
+  PDF_PATH_21_674 = "#{PDF_PATH_BASE}/#{SCHOOL_ATTENDANCE_APPROVAL}.pdf".freeze
 
   # API Version 0
   module V0

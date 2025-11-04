@@ -29,13 +29,13 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "123456",
-                    "type": "form_submissions",
+                    "id": "312",
+                    "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2024-06-01T12:34:56Z",
+                      "submitted_at": "2025-10-31T19:15:55.994Z",
                       "regional_office": [],
-                      "confirmation_number": "ABCDEF123456",
-                      "guid": "550e8400-e29b-41d4-a716-446655440000",
+                      "confirmation_number": "12345678-1234-1234-1234-123456789abc",
+                      "guid": "12345678-1234-1234-1234-123456789abc",
                       "form": "21-4192"
                     }
                   }
@@ -91,12 +91,23 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
           }
         },
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
+                "$schema": "json-schemer://openapi30/schema",
                 "type": "object",
                 "properties": {
                   "veteranInformation": {
@@ -107,25 +118,7 @@
                     ],
                     "properties": {
                       "fullName": {
-                        "type": "object",
-                        "properties": {
-                          "first": {
-                            "type": "string",
-                            "example": "John"
-                          },
-                          "last": {
-                            "type": "string",
-                            "example": "Doe"
-                          },
-                          "middle": {
-                            "type": "string",
-                            "example": "Michael"
-                          }
-                        },
-                        "required": [
-                          "first",
-                          "last"
-                        ]
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
                       },
                       "ssn": {
                         "type": "string",
@@ -143,40 +136,7 @@
                         "example": "1980-01-01"
                       },
                       "address": {
-                        "type": "object",
-                        "properties": {
-                          "street": {
-                            "type": "string",
-                            "example": "123 Main St"
-                          },
-                          "street2": {
-                            "type": "string",
-                            "example": "Apt 4B"
-                          },
-                          "city": {
-                            "type": "string",
-                            "example": "Anytown"
-                          },
-                          "state": {
-                            "type": "string",
-                            "example": "CA"
-                          },
-                          "postalCode": {
-                            "type": "string",
-                            "example": "12345"
-                          },
-                          "country": {
-                            "type": "string",
-                            "example": "USA"
-                          }
-                        },
-                        "required": [
-                          "street",
-                          "city",
-                          "state",
-                          "postalCode",
-                          "country"
-                        ]
+                        "$ref": "#/components/schemas/SimpleAddress"
                       }
                     }
                   },
@@ -193,40 +153,7 @@
                         "type": "string"
                       },
                       "employerAddress": {
-                        "type": "object",
-                        "properties": {
-                          "street": {
-                            "type": "string",
-                            "example": "456 Business Blvd"
-                          },
-                          "street2": {
-                            "type": "string",
-                            "example": "Suite 200"
-                          },
-                          "city": {
-                            "type": "string",
-                            "example": "Chicago"
-                          },
-                          "state": {
-                            "type": "string",
-                            "example": "IL"
-                          },
-                          "postalCode": {
-                            "type": "string",
-                            "example": "60601"
-                          },
-                          "country": {
-                            "type": "string",
-                            "example": "USA"
-                          }
-                        },
-                        "required": [
-                          "street",
-                          "city",
-                          "state",
-                          "postalCode",
-                          "country"
-                        ]
+                        "$ref": "#/components/schemas/SimpleAddress"
                       },
                       "typeOfWorkPerformed": {
                         "type": "string"
@@ -319,14 +246,996 @@
                         "type": "string"
                       }
                     }
+                  },
+                  "employerCertification": {
+                    "type": "object",
+                    "required": [
+                      "signature"
+                    ],
+                    "properties": {
+                      "signature": {
+                        "type": "string",
+                        "description": "Signature of employer or supervisor",
+                        "example": "John Doe"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "veteranInformation",
+                  "employmentInformation"
+                ]
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/v0/form214192/download_pdf": {
+      "post": {
+        "summary": "Download PDF for Form 21-4192",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "downloadForm214192Pdf",
+        "description": "Generate and download a filled PDF for Form 21-4192 (Request for Employment Information)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "PDF generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - invalid JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - PDF generation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "json-schemer://openapi30/schema",
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth"
+                    ],
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "pattern": "^\\d{9}$",
+                        "description": "Social Security Number (9 digits)",
+                        "example": "123456789"
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "address": {
+                        "$ref": "#/components/schemas/SimpleAddress"
+                      }
+                    }
+                  },
+                  "employmentInformation": {
+                    "type": "object",
+                    "required": [
+                      "employerName",
+                      "employerAddress",
+                      "typeOfWorkPerformed",
+                      "beginningDateOfEmployment"
+                    ],
+                    "properties": {
+                      "employerName": {
+                        "type": "string"
+                      },
+                      "employerAddress": {
+                        "$ref": "#/components/schemas/SimpleAddress"
+                      },
+                      "typeOfWorkPerformed": {
+                        "type": "string"
+                      },
+                      "beginningDateOfEmployment": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "endingDateOfEmployment": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "amountEarnedLast12MonthsOfEmployment": {
+                        "type": "number"
+                      },
+                      "timeLostLast12MonthsOfEmployment": {
+                        "type": "string"
+                      },
+                      "hoursWorkedDaily": {
+                        "type": "number"
+                      },
+                      "hoursWorkedWeekly": {
+                        "type": "number"
+                      },
+                      "concessions": {
+                        "type": "string"
+                      },
+                      "terminationReason": {
+                        "type": "string"
+                      },
+                      "dateLastWorked": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "lastPaymentDate": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "lastPaymentGrossAmount": {
+                        "type": "number"
+                      },
+                      "lumpSumPaymentMade": {
+                        "type": "boolean"
+                      },
+                      "grossAmountPaid": {
+                        "type": "number"
+                      },
+                      "datePaid": {
+                        "type": "string",
+                        "format": "date"
+                      }
+                    }
+                  },
+                  "militaryDutyStatus": {
+                    "type": "object",
+                    "properties": {
+                      "currentDutyStatus": {
+                        "type": "string"
+                      },
+                      "veteranDisabilitiesPreventMilitaryDuties": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "benefitEntitlementPayments": {
+                    "type": "object",
+                    "properties": {
+                      "sickRetirementOtherBenefits": {
+                        "type": "boolean"
+                      },
+                      "typeOfBenefit": {
+                        "type": "string"
+                      },
+                      "grossMonthlyAmountOfBenefit": {
+                        "type": "number"
+                      },
+                      "dateBenefitBegan": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "dateFirstPaymentIssued": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "dateBenefitWillStop": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "remarks": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "employerCertification": {
+                    "type": "object",
+                    "required": [
+                      "signature"
+                    ],
+                    "properties": {
+                      "signature": {
+                        "type": "string",
+                        "description": "Signature of employer or supervisor",
+                        "example": "John Doe"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "veteranInformation",
+                  "employmentInformation"
+                ]
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/v0/form21p530a": {
+      "post": {
+        "summary": "Submit a 21P-530a form",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "submitForm21p530a",
+        "description": "Submit a Form 21P-530a (Application for Burial Allowance - State/Tribal Organizations). This endpoint is unauthenticated and may be used by cemetery officials.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Form successfully submitted",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "375",
+                    "type": "saved_claims",
+                    "attributes": {
+                      "submitted_at": "2025-11-03T16:52:41.568Z",
+                      "regional_office": [
+                        "Department of Veterans Affairs",
+                        "Pension Management Center",
+                        "P.O. Box 5365",
+                        "Janesville, WI 53547-5365"
+                      ],
+                      "confirmation_number": "12345678-1234-1234-1234-123456789abc",
+                      "guid": "12345678-1234-1234-1234-123456789abc",
+                      "form": "21P-530A"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "saved_claims"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "submitted_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp of when the form was submitted"
+                            },
+                            "regional_office": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "Array of strings representing the regional office address",
+                              "example": [
+                                "Department of Veterans Affairs",
+                                "Pension Management Center",
+                                "P.O. Box 5365",
+                                "Janesville, WI 53547-5365"
+                              ]
+                            },
+                            "confirmation_number": {
+                              "type": "string",
+                              "description": "Confirmation number (GUID) for tracking the submission"
+                            },
+                            "guid": {
+                              "type": "string",
+                              "description": "Unique identifier (same as confirmation_number)"
+                            },
+                            "form": {
+                              "type": "string",
+                              "description": "Form identifier (e.g., \"21P-530a\", \"21-4192\")"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "json-schemer://openapi30/schema",
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth",
+                      "dateOfDeath"
+                    ],
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "pattern": "^\\d{9}$",
+                        "description": "Social Security Number (9 digits)",
+                        "example": "123456789"
+                      },
+                      "vaServiceNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "dateOfDeath": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "placeOfBirth": {
+                        "type": "object",
+                        "properties": {
+                          "city": {
+                            "type": "string",
+                            "example": "Kansas City"
+                          },
+                          "state": {
+                            "type": "string",
+                            "example": "MO"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "veteranServicePeriods": {
+                    "type": "object",
+                    "properties": {
+                      "periods": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "serviceBranch": {
+                              "type": "string",
+                              "example": "Army"
+                            },
+                            "dateEnteredService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1968-06-01"
+                            },
+                            "placeEnteredService": {
+                              "type": "string",
+                              "example": "Fort Benning, GA"
+                            },
+                            "rankAtSeparation": {
+                              "type": "string",
+                              "example": "Sergeant"
+                            },
+                            "dateLeftService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1972-05-31"
+                            },
+                            "placeLeftService": {
+                              "type": "string",
+                              "example": "Fort Hood, TX"
+                            }
+                          }
+                        }
+                      },
+                      "servedUnderDifferentName": {
+                        "type": "string",
+                        "description": "Name the veteran served under, if different from veteranInformation/fullName",
+                        "example": "John Smith"
+                      }
+                    }
+                  },
+                  "burialInformation": {
+                    "type": "object",
+                    "properties": {
+                      "nameOfStateCemeteryOrTribalOrganization": {
+                        "type": "string",
+                        "description": "Name of state cemetery or tribal organization claiming interment allowance",
+                        "example": "Missouri State Veterans Cemetery"
+                      },
+                      "placeOfBurial": {
+                        "type": "object",
+                        "properties": {
+                          "stateCemeteryOrTribalCemeteryName": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery name",
+                            "example": "Missouri State Veterans Cemetery"
+                          },
+                          "stateCemeteryOrTribalCemeteryLocation": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery location",
+                            "example": "Higginsville, MO"
+                          }
+                        }
+                      },
+                      "dateOfBurial": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                      },
+                      "recipientOrganization": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Missouri Veterans Commission"
+                          },
+                          "phoneNumber": {
+                            "type": "string",
+                            "example": "555-123-4567"
+                          },
+                          "address": {
+                            "type": "object",
+                            "properties": {
+                              "streetAndNumber": {
+                                "type": "string",
+                                "example": "2400 Veterans Memorial Drive"
+                              },
+                              "aptOrUnitNumber": {
+                                "type": "string",
+                                "maxLength": 5,
+                                "description": "Apartment or unit number (max 5 characters)",
+                                "example": "Suite"
+                              },
+                              "city": {
+                                "type": "string",
+                                "example": "Higginsville"
+                              },
+                              "state": {
+                                "type": "string",
+                                "example": "MO"
+                              },
+                              "country": {
+                                "type": "string",
+                                "maxLength": 2,
+                                "description": "Country code (max 2 characters)",
+                                "example": "US"
+                              },
+                              "postalCode": {
+                                "type": "string",
+                                "example": "64037"
+                              },
+                              "postalCodeExtension": {
+                                "type": "string",
+                                "pattern": "^\\d{4}$",
+                                "description": "4-digit postal code extension (ZIP+4)",
+                                "example": "1234"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "certification": {
+                    "type": "object",
+                    "properties": {
+                      "titleOfStateOrTribalOfficial": {
+                        "type": "string",
+                        "description": "Title of state or tribal official delegated responsibility to apply for federal funds",
+                        "example": "Director of Veterans Services"
+                      },
+                      "signature": {
+                        "type": "string",
+                        "description": "Signature of state or tribal official",
+                        "example": "John Doe"
+                      }
+                    }
+                  },
+                  "remarks": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/v0/form21p530a/download_pdf": {
+      "post": {
+        "summary": "Download PDF for Form 21P-530a",
+        "tags": [
+          "benefits_forms"
+        ],
+        "operationId": "downloadForm21p530aPdf",
+        "description": "Generate and download a filled PDF for Form 21P-530a (Application for Burial Allowance)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "PDF generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - PDF generation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "json-schemer://openapi30/schema",
+                "type": "object",
+                "properties": {
+                  "veteranInformation": {
+                    "type": "object",
+                    "required": [
+                      "fullName",
+                      "dateOfBirth",
+                      "dateOfDeath"
+                    ],
+                    "properties": {
+                      "fullName": {
+                        "$ref": "#/components/schemas/FirstMiddleLastName"
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "pattern": "^\\d{9}$",
+                        "description": "Social Security Number (9 digits)",
+                        "example": "123456789"
+                      },
+                      "vaServiceNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "vaFileNumber": {
+                        "type": "string",
+                        "example": "987654321"
+                      },
+                      "dateOfBirth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "dateOfDeath": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-01-01"
+                      },
+                      "placeOfBirth": {
+                        "type": "object",
+                        "properties": {
+                          "city": {
+                            "type": "string",
+                            "example": "Kansas City"
+                          },
+                          "state": {
+                            "type": "string",
+                            "example": "MO"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "veteranServicePeriods": {
+                    "type": "object",
+                    "properties": {
+                      "periods": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "serviceBranch": {
+                              "type": "string",
+                              "example": "Army"
+                            },
+                            "dateEnteredService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1968-06-01"
+                            },
+                            "placeEnteredService": {
+                              "type": "string",
+                              "example": "Fort Benning, GA"
+                            },
+                            "rankAtSeparation": {
+                              "type": "string",
+                              "example": "Sergeant"
+                            },
+                            "dateLeftService": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "1972-05-31"
+                            },
+                            "placeLeftService": {
+                              "type": "string",
+                              "example": "Fort Hood, TX"
+                            }
+                          }
+                        }
+                      },
+                      "servedUnderDifferentName": {
+                        "type": "string",
+                        "description": "Name the veteran served under, if different from veteranInformation/fullName",
+                        "example": "John Smith"
+                      }
+                    }
+                  },
+                  "burialInformation": {
+                    "type": "object",
+                    "properties": {
+                      "nameOfStateCemeteryOrTribalOrganization": {
+                        "type": "string",
+                        "description": "Name of state cemetery or tribal organization claiming interment allowance",
+                        "example": "Missouri State Veterans Cemetery"
+                      },
+                      "placeOfBurial": {
+                        "type": "object",
+                        "properties": {
+                          "stateCemeteryOrTribalCemeteryName": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery name",
+                            "example": "Missouri State Veterans Cemetery"
+                          },
+                          "stateCemeteryOrTribalCemeteryLocation": {
+                            "type": "string",
+                            "description": "State cemetery or tribal cemetery location",
+                            "example": "Higginsville, MO"
+                          }
+                        }
+                      },
+                      "dateOfBurial": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                      },
+                      "recipientOrganization": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Missouri Veterans Commission"
+                          },
+                          "phoneNumber": {
+                            "type": "string",
+                            "example": "555-123-4567"
+                          },
+                          "address": {
+                            "type": "object",
+                            "properties": {
+                              "streetAndNumber": {
+                                "type": "string",
+                                "example": "2400 Veterans Memorial Drive"
+                              },
+                              "aptOrUnitNumber": {
+                                "type": "string",
+                                "maxLength": 5,
+                                "description": "Apartment or unit number (max 5 characters)",
+                                "example": "Suite"
+                              },
+                              "city": {
+                                "type": "string",
+                                "example": "Higginsville"
+                              },
+                              "state": {
+                                "type": "string",
+                                "example": "MO"
+                              },
+                              "country": {
+                                "type": "string",
+                                "maxLength": 2,
+                                "description": "Country code (max 2 characters)",
+                                "example": "US"
+                              },
+                              "postalCode": {
+                                "type": "string",
+                                "example": "64037"
+                              },
+                              "postalCodeExtension": {
+                                "type": "string",
+                                "pattern": "^\\d{4}$",
+                                "description": "4-digit postal code extension (ZIP+4)",
+                                "example": "1234"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "certification": {
+                    "type": "object",
+                    "properties": {
+                      "titleOfStateOrTribalOfficial": {
+                        "type": "string",
+                        "description": "Title of state or tribal official delegated responsibility to apply for federal funds",
+                        "example": "Director of Veterans Services"
+                      },
+                      "signature": {
+                        "type": "string",
+                        "description": "Signature of state or tribal official",
+                        "example": "John Doe"
+                      }
+                    }
+                  },
+                  "remarks": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       }
     }
   },
-  "servers": []
+  "servers": [],
+  "components": {
+    "schemas": {
+      "Errors": {
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error": {
+        "required": [
+          "title",
+          "detail",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "error class name"
+          },
+          "detail": {
+            "type": "string",
+            "example": "Received a bad request response from the upstream server",
+            "description": "possibly some additional info, or just the class name again"
+          },
+          "code": {
+            "type": "string",
+            "example": "EVSS400",
+            "description": "Sometimes just the http code again, sometimes something like \"EVSS400\", where the code can be found in config/locales/exceptions.en.yml"
+          },
+          "source": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "example": "EVSS::DisabilityCompensationForm::Service",
+            "description": "error source class"
+          },
+          "status": {
+            "type": "string",
+            "example": "400",
+            "description": "http status code"
+          },
+          "meta": {
+            "type": "object",
+            "description": "additional info, like a backtrace"
+          }
+        }
+      },
+      "FirstMiddleLastName": {
+        "type": "object",
+        "required": [
+          "first",
+          "last"
+        ],
+        "properties": {
+          "first": {
+            "type": "string",
+            "example": "John",
+            "maxLength": 12
+          },
+          "middle": {
+            "type": "string",
+            "example": "A",
+            "maxLength": 1
+          },
+          "last": {
+            "type": "string",
+            "example": "Doe",
+            "maxLength": 18
+          }
+        }
+      },
+      "SimpleAddress": {
+        "type": "object",
+        "required": [
+          "street",
+          "city",
+          "state",
+          "postalCode",
+          "country"
+        ],
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "123 Main St",
+            "maxLength": 30
+          },
+          "street2": {
+            "type": "string",
+            "example": "4B",
+            "maxLength": 5
+          },
+          "city": {
+            "type": "string",
+            "example": "Springfield",
+            "maxLength": 18
+          },
+          "state": {
+            "type": "string",
+            "example": "IL",
+            "maxLength": 2
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "62701",
+            "maxLength": 9
+          },
+          "country": {
+            "type": "string",
+            "example": "US",
+            "maxLength": 2
+          }
+        }
+      }
+    }
+  }
 }
