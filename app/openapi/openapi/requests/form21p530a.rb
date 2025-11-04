@@ -139,6 +139,7 @@ module Openapi
           },
           certification: {
             type: :object,
+            required: %i[titleOfStateOrTribalOfficial signature certified],
             properties: {
               titleOfStateOrTribalOfficial: {
                 type: :string,
@@ -149,6 +150,12 @@ module Openapi
                 type: :string,
                 description: 'Signature of state or tribal official',
                 example: 'John Doe'
+              },
+              certified: {
+                type: :boolean,
+                enum: [true],
+                description: 'Certified by the state or tribal official (must be true)',
+                example: true
               }
             }
           },
