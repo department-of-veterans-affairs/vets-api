@@ -7,7 +7,7 @@ require 'ssoe/models/user'
 require 'ssoe/models/address'
 require 'ssoe/errors'
 
-# rubocop:disable RSpec/SpecFilePathFormat
+# rubocop:disable RSpec/SpecFilePathFormat, Style/MultilineBlockChain
 RSpec.describe SSOe::Service, type: :service do
   subject(:service) { described_class.new }
 
@@ -35,27 +35,6 @@ RSpec.describe SSOe::Service, type: :service do
     let(:credential_method) { 'idme' }
     let(:credential_id) { '12345' }
 
-    shared_examples 'responds with 502' do
-      it 'logs the error and returns the error response' do
-        expect(Rails.logger).to receive(:error).with(
-          a_string_starting_with(
-            '[SSOe::Service::get_traits] connection error:'
-          )
-        )
-
-        response = service.get_traits(
-          credential_method:,
-          credential_id:,
-          user:,
-          address:
-        )
-
-        expect(response[:success]).to be false
-        expect(response[:error][:code]).to eq(502)
-        expect(response[:error][:message]).to be_a(String)
-      end
-    end
-
     context 'when the response is successful' do
       it 'returns the parsed ICN response' do
         VCR.use_cassette('mpi/get_traits/success') do
@@ -77,31 +56,54 @@ RSpec.describe SSOe::Service, type: :service do
     end
 
     context 'when the response has a SOAP fault (client error)' do
-      it 'returns the error response and logs the error' do
+      it 'raises SOAPFaultError and logs the error' do
         VCR.use_cassette('mpi/get_traits/error') do
-          expected_response = {
-            success: false,
-            error: {
-              code: 400,
-              message: 'SOAP HTTP call failed'
-            }
-          }
-
-          response = service.get_traits(
-            credential_method:,
-            credential_id:,
-            user:,
-            address:
+          expect(Rails.logger).to receive(:error).with(
+            a_string_starting_with('[SSOe::Service::get_traits] client error:')
           )
 
-          expect(response).to eq(expected_response)
+          expect do
+            service.get_traits(
+              credential_method:,
+              credential_id:,
+              user:,
+              address:
+            )
+          end.to raise_error(SSOe::Errors::RequestError) do |error|
+            expect(error.status).to eq(400)
+            expect(error.message).to eq('SOAP HTTP call failed')
+          end
+        end
+      end
+    end
+
+    context 'when parse_response receives a SOAP fault' do
+      it 'raises SOAPFaultError with fault_code' do
+        fault_xml = Ox.parse(<<~XML)
+          <Envelope>
+            <Body>
+              <Fault>
+                <faultcode>env:Server</faultcode>
+                <faultstring>Internal Server Error</faultstring>
+              </Fault>
+            </Body>
+          </Envelope>
+        XML
+
+        expect do
+          service.send(:parse_response, fault_xml, 400)
+        end.to raise_error(SSOe::Errors::SOAPFaultError) do |error|
+          expect(error.message).to eq('Internal Server Error')
+          expect(error.status).to eq(400)
+          expect(error.fault_code).to eq('env:Server')
         end
       end
     end
 
     context 'when the response is unexpected' do
-      it 'raises an error' do
+      it 'raises SOAPParseError' do
         body = '<unexpected>response</unexpected>'
+
         expect do
           service.send(:parse_response, body)
         end.to raise_error(SSOe::Errors::SOAPParseError, 'Unable to parse SOAP response')
@@ -110,50 +112,78 @@ RSpec.describe SSOe::Service, type: :service do
 
     context 'when there is a connection error' do
       before do
-        allow_any_instance_of(SSOe::Service).to receive(:perform).and_raise(Faraday::ConnectionFailed.new(
-                                                                              'Connection error'
-                                                                            ))
+        allow_any_instance_of(SSOe::Service).to receive(:perform)
+          .and_raise(Faraday::ConnectionFailed.new('Connection error'))
       end
 
-      it_behaves_like 'responds with 502'
+      it 'logs the error and raises ConnectionError' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_starting_with('[SSOe::Service::get_traits] connection error:')
+        )
+
+        expect do
+          service.get_traits(
+            credential_method:,
+            credential_id:,
+            user:,
+            address:
+          )
+        end.to raise_error(SSOe::Errors::ConnectionError) do |error|
+          expect(error.status).to eq(502)
+          expect(error.message).to eq('Connection error')
+        end
+      end
     end
 
     context 'when there is a timeout error' do
       before do
-        allow_any_instance_of(SSOe::Service).to receive(:perform).and_raise(Faraday::TimeoutError.new(
-                                                                              'Timeout error'
-                                                                            ))
+        allow_any_instance_of(SSOe::Service).to receive(:perform)
+          .and_raise(Faraday::TimeoutError.new('Timeout error'))
       end
 
-      it_behaves_like 'responds with 502'
+      it 'logs the error and raises TimeoutError' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_starting_with('[SSOe::Service::get_traits] timeout error:')
+        )
+
+        expect do
+          service.get_traits(
+            credential_method:,
+            credential_id:,
+            user:,
+            address:
+          )
+        end.to raise_error(SSOe::Errors::TimeoutError) do |error|
+          expect(error.status).to eq(504)
+          expect(error.message).to eq('Timeout error')
+        end
+      end
     end
 
     context 'when an unexpected error occurs', vcr: false do
       before do
-        allow_any_instance_of(Common::Client::Base).to receive(:perform).and_raise(StandardError, 'Unexpected error')
+        allow_any_instance_of(Common::Client::Base).to receive(:perform)
+          .and_raise(StandardError, 'Unexpected error')
       end
 
-      it 'logs the error and returns an unknown error response' do
+      it 'logs the error and raises UnknownError' do
         expect(Rails.logger).to receive(:error).with(
           '[SSOe::Service::get_traits] unknown error: StandardError - Unexpected error'
         )
 
-        response = service.get_traits(
-          credential_method:,
-          credential_id:,
-          user:,
-          address:
-        )
-
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 500,
-                                   message: 'Unexpected error'
-                                 }
-                               })
+        expect do
+          service.get_traits(
+            credential_method:,
+            credential_id:,
+            user:,
+            address:
+          )
+        end.to raise_error(SSOe::Errors::UnknownError) do |error|
+          expect(error.status).to eq(500)
+          expect(error.message).to eq('Unexpected error')
+        end
       end
     end
   end
 end
-# rubocop:enable RSpec/SpecFilePathFormat
+# rubocop:enable RSpec/SpecFilePathFormat, Style/MultilineBlockChain
