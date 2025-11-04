@@ -263,7 +263,8 @@
                 },
                 "required": [
                   "veteranInformation",
-                  "employmentInformation"
+                  "employmentInformation",
+                  "employerCertification"
                 ]
               }
             }
@@ -522,7 +523,8 @@
                 },
                 "required": [
                   "veteranInformation",
-                  "employmentInformation"
+                  "employmentInformation",
+                  "employerCertification"
                 ]
               }
             }
@@ -833,7 +835,12 @@
                   "remarks": {
                     "type": "string"
                   }
-                }
+                },
+                "required": [
+                  "veteranInformation",
+                  "burialInformation",
+                  "certification"
+                ]
               }
             }
           },
@@ -1103,7 +1110,12 @@
                   "remarks": {
                     "type": "string"
                   }
-                }
+                },
+                "required": [
+                  "veteranInformation",
+                  "burialInformation",
+                  "certification"
+                ]
               }
             }
           },

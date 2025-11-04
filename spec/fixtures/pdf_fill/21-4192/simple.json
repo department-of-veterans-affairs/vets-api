@@ -43,5 +43,8 @@
     "dateFirstPaymentIssued": "2021-01-15",
     "dateBenefitWillStop": "2021-06-30",
     "remarks": "Benefits paid through employer-provided insurance plan"
+  },
+  "employerCertification": {
+    "signature": "John Doe"
   }
 }

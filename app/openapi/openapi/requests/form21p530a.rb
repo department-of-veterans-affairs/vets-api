@@ -153,7 +153,8 @@ module Openapi
             }
           },
           remarks: { type: :string }
-        }
+        },
+        required: %i[veteranInformation burialInformation certification]
       }.freeze
     end
   end

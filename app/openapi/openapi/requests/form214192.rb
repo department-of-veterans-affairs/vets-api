@@ -78,7 +78,7 @@ module Openapi
             }
           }
         },
-        required: %i[veteranInformation employmentInformation]
+        required: %i[veteranInformation employmentInformation employerCertification]
       }.freeze
     end
   end
