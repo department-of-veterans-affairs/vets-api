@@ -7,6 +7,8 @@ module Mobile
     class MessagesController < MessagingController
       include Filterable
 
+      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
+
       def index
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
@@ -51,7 +53,7 @@ module Mobile
         create_message_params = { message: message_params.to_h }.merge(upload_params)
         Rails.logger.info('Mobile SM Category Tracking', category: create_message_params.dig(:message, :category))
 
-        client_response = send_message_to_client(message, create_message_params)
+        client_response = build_create_client_response(message, create_message_params)
 
         # Log unique user event for message sent
         UniqueUserEvents.log_event(
@@ -86,11 +88,7 @@ module Mobile
         message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
         create_message_params = { message: message_params.to_h }.merge(upload_params)
 
-        client_response = if message.uploads.present?
-                            client.post_create_message_reply_with_attachment(params[:id], create_message_params)
-                          else
-                            client.post_create_message_reply(params[:id], message_params.to_h)
-                          end
+        client_response = build_reply_client_response(message, create_message_params)
 
         # Log unique user event for message sent
         UniqueUserEvents.log_event(
@@ -123,26 +121,6 @@ module Mobile
 
       private
 
-      # Sends a message to the client API with or without attachments
-      #
-      # @param message [Message] the message object to send
-      # @param create_message_params [Hash] the parameters for creating the message
-      # @return [Object] the client response
-      def send_message_to_client(message, create_message_params)
-        if message.uploads.present?
-          begin
-            client.post_create_message_with_attachment(create_message_params)
-          rescue Common::Client::Errors::Serialization => e
-            Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
-                                                                        error_body: e&.body,
-                                                                        message: e&.message)
-            raise e
-          end
-        else
-          client.post_create_message(message_params.to_h)
-        end
-      end
-
       # When we get message parameters as part of a multipart payload (i.e. with attachments),
       # ActionController::Parameters leaves the message part as a string so we have to turn it into
       # an object
@@ -157,6 +135,34 @@ module Mobile
         @upload_params ||= { uploads: params[:uploads] }
       end
 
+      def oh_triage_group?
+        ActiveModel::Type::Boolean.new.cast(params[:is_oh_triage_group])
+      end
+
+      def build_create_client_response(message, create_message_params)
+        if message.uploads.blank?
+          return client.post_create_message(message_params.to_h,
+                                            poll_for_status: oh_triage_group?)
+        end
+
+        client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
+      rescue Common::Client::Errors::Serialization => e
+        Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
+                                                                    error_body: e&.body,
+                                                                    message: e&.message)
+        raise e
+      end
+
+      def build_reply_client_response(message, create_message_params)
+        if message.uploads.blank?
+          return client.post_create_message_reply(params[:id], message_params.to_h,
+                                                  poll_for_status: oh_triage_group?)
+        end
+
+        client.post_create_message_reply_with_attachment(params[:id], create_message_params,
+                                                         poll_for_status: oh_triage_group?)
+      end
+
       def message_counts(resource)
         {
           message_counts: resource.data.each_with_object(Hash.new(0)) do |obj, hash|
@@ -167,6 +173,10 @@ module Mobile
             end
           end
         }
+      end
+
+      def extend_timeout
+        request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
       end
     end
   end
