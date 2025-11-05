@@ -3,15 +3,22 @@
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'persistent_attachments/sanitizer'
+# require 'simple_forms_api'
 
 module IncreaseCompensation
   module V0
     ###
     # The Increase Compensation claim controller that handles form submissions
     #
+    # include Simple
+    # include SimpleFormsApi::FormRemediation::S3Client
+    # include SimpleFormsApi::FormRemediation::Configuration
+
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
+      # Development
+      # skip_before_action :verify_authenticity_token
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
@@ -41,6 +48,7 @@ module IncreaseCompensation
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
+        # TODO: check if we have a sumbitted flag, form is resumable on front end after submission
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
@@ -54,9 +62,12 @@ module IncreaseCompensation
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
+        # TODO: pdf url needed in response
+        # config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
+        # pdf_url = SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(claim.guid, config:)
 
         clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
+        render json: IncreaseCompensation::SavedClaimSerializer.new(claim) # , params: { pdf_url: }))
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
