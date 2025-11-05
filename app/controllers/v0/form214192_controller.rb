@@ -9,9 +9,9 @@ module V0
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
-      payload = request.request_parameters
+      payload = request.raw_post
 
-      claim = SavedClaim::Form214192.new(form: payload.to_json)
+      claim = SavedClaim::Form214192.new(form: payload)
 
       if claim.save
         claim.process_attachments!
@@ -36,11 +36,15 @@ module V0
     end
 
     def download_pdf
-      parsed_form = request.request_parameters
+      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
+      parsed_form = JSON.parse(request.raw_post)
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
       end
+
+      # Stamp signature (SignatureStamper returns original path if signature is blank)
+      source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
 
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
