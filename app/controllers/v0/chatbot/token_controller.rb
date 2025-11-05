@@ -20,11 +20,13 @@ module V0
           render json: { token: directline_response[:token],
                          conversationId: directline_response[:conversationId],
                          apiSession: ERB::Util.url_encode(cookies[:api_session]),
-                         code: }
+                         code:,
+                         expires_in: 3600 }
         else
           render json: { token: directline_response[:token],
                          conversationId: directline_response[:conversationId],
-                         apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+                         apiSession: ERB::Util.url_encode(cookies[:api_session]),
+                         expires_in: 3600 }
         end
       end
 
