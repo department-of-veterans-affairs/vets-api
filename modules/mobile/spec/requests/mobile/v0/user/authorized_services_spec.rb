@@ -108,9 +108,38 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'militaryServiceHistory' => true,
           'paymentHistory' => true,
           'preferredName' => true,
-          'prescriptions' => true,
+          'prescriptions' => false,
           'scheduleAppointments' => true,
-          'secureMessaging' => true,
+          'secureMessaging' => false,
+          'userProfileUpdate' => true,
+          'secureMessagingOracleHealthEnabled' => true,
+          'medicationsOracleHealthEnabled' => false }
+      )
+    end
+
+    it 'includes a hash with all OH services disabled if app version not in headers' do
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']).to eq(
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
+          'appointments' => true,
+          'claims' => true,
+          'decisionLetters' => true,
+          'directDepositBenefits' => true,
+          'directDepositBenefitsUpdate' => true,
+          'disabilityRating' => true,
+          'genderIdentity' => true,
+          'labsAndTestsEnabled' => false,
+          'lettersAndDocuments' => true,
+          'militaryServiceHistory' => true,
+          'paymentHistory' => true,
+          'preferredName' => true,
+          'prescriptions' => false,
+          'scheduleAppointments' => true,
+          'secureMessaging' => false,
           'userProfileUpdate' => true,
           'secureMessagingOracleHealthEnabled' => true,
           'medicationsOracleHealthEnabled' => false }
