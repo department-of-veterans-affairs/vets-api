@@ -79,6 +79,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     before do
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file_path)
+      allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(temp_file_path)
       allow(File).to receive(:read).and_call_original
       allow(File).to receive(:read).with(temp_file_path).and_return(pdf_content)
       allow(File).to receive(:exist?).and_call_original
@@ -118,6 +119,14 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         .with(hash_including('employmentInformation' => hash_including('employerName' => 'Acme Corporation')),
               anything,
               '21-4192')
+        .and_return(temp_file_path)
+
+      post(:download_pdf, body: form_data.to_json, as: :json)
+    end
+
+    it 'calls stamp_signature with the PDF path and form data' do
+      expect(PdfFill::Forms::Va214192).to receive(:stamp_signature)
+        .with(temp_file_path, hash_including('employmentInformation' => anything))
         .and_return(temp_file_path)
 
       post(:download_pdf, body: form_data.to_json, as: :json)

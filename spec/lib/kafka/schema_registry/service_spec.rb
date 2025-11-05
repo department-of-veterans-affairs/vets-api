@@ -5,17 +5,17 @@ require 'kafka/schema_registry/service'
 
 describe Kafka::SchemaRegistry::Service do
   let(:service) { described_class.new }
-  let(:topic_name) { 'submission_trace_form_status_change_test' }
+  let(:topic_name) { 'submission_trace_form_status_change' }
   let(:version) { '1' }
   let(:topic_1_response) do
     {
-      'subject' => 'submission_trace_form_status_change_test-value',
+      'subject' => 'submission_trace_form_status_change-value',
       'version' => 1,
-      'id' => 5,
+      'id' => 7,
       'schema' => "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\
 \"namespace\":\"gov.va.submissiontrace.form.data\",\"fields\":\
 [{\"name\":\"priorId\",\"type\":[\"null\",\"string\"],\"doc\":\
-\"ID that represents a unique identifier from a upstream system\"}\
+\"ID that represents a unique identifier from an upstream system\"}\
 ,{\"name\":\"currentId\",\"type\":\"string\",\"doc\":\
 \"ID that represents a unique identifier in the current system\"},\
 {\"name\":\"nextId\",\"type\":[\"null\",\"string\"],\
@@ -28,15 +28,27 @@ describe Kafka::SchemaRegistry::Service do
 \"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}],\"doc\":\
 \"System submitting status update, e.g. va.gov\"},{\"name\":\"submissionName\",\
 \"type\":[{\"type\":\"enum\",\"name\":\"SubmissionName\",\"symbols\":\
-[\"F1010EZ\",\"F527EZ\"]}],\"doc\":\"Form or name of the submission; \
-should be the same across systems, e.g. 526ez, 4142, \
-Notice Of Disagreement, etc.\"},{\"name\":\"state\",\"type\":\"string\",\
-\"doc\":\"What triggered the event, limited to this set (but not enforced):\
- received, sent, error, completed\"},{\"name\":\"timestamp\",\"type\":\
+[\"F1010EZ\",\"F527EZ\"]}],\"doc\":\"Name of form that is submitted; \
+this should be the same across systems\"},{\"name\":\"state\",\"type\":\"string\",\
+\"doc\":\"What triggered the event, mostly limited to 'received', 'sent', \
+'error', or 'completed' but can take other values\"},{\"name\":\"timestamp\",\"type\":\
 \"string\",\"doc\":\"Current datetime in JS standard format ISO 8601\"},\
 {\"name\":\"additionalIds\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\
 \"string\"}],\"doc\":\"(Optional) for cases when more than one current \
-ID is appropriate\"}]}"
+ID is appropriate\"},{\"name\":\"context\",\"type\":[\"null\",{\"type\":\"record\",\
+\"name\":\"Context\",\"fields\":[{\"name\":\"note\",\"type\":[\"null\",\"string\"],\
+\"doc\":\"(Optional) Explanatory note about the event\"},{\"name\":\
+\"qualifiedIdentifiers\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\
+{\"type\":\"record\",\"name\":\"QualifiedIdentifier\",\"fields\":[{\"name\":\
+\"system\",\"type\":\"string\",\"doc\":\"System that is connected to the given ID\"}\
+,{\"name\":\"subSystem\",\"type\":[\"null\",\"string\"],\"doc\":\"(Optional) \
+Subsystem that is connected to the given ID\"},{\"name\":\"id\",\"type\":\"string\",\
+\"doc\":\"ID value. This should correspond to either the priorId, currentId, nextId, \
+or one of the additionalIds\"},{\"name\":\"type\",\"type\":[\"null\",\"string\"],\
+\"doc\":\"(Optional) Identifier type\"}]}}],\"doc\":\"List of \
+identifier records that indicate the system, subsystem, and type of the various IDs \
+used in the event.\",\"default\":null}]}],\"doc\":\"(Optional) Additional context \
+record that contains more information about the event.\",\"default\":null}]}"
     }
   end
 
