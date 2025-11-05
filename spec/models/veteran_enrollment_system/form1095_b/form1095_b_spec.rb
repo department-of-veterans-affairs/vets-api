@@ -33,7 +33,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
                                     'first_name' => 'HECTOR',
                                     'middle_name' => nil,
                                     'last_name' => 'ALLEN',
-                                    'last_4_ssn' => '796126859',
+                                    'last_4_ssn' => '6859',
                                     'birth_date' => '1932-02-05'.to_date,
                                     'address' => 'PO BOX 494',
                                     'city' => 'MOCA',
@@ -45,18 +45,18 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
                                     'is_corrected' => false,
                                     'coverage_months' => [
                                       false,
-                                      nil,
-                                      nil,
+                                      false,
+                                      false,
                                       'MARCH',
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil
+                                      false,
+                                      false,
+                                      false,
+                                      false,
+                                      false,
+                                      false,
+                                      false,
+                                      false,
+                                      false
                                     ],
                                     'tax_year' => '2024'
                                   })
@@ -75,8 +75,20 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
       form_data['data']['coveredIndividual']['monthsCovered'] = %w[MARCH SEPTEMBER]
       instance = described_class.parse(form_data)
       expect(instance.coverage_months[1..12]).to eq(
-        [nil, nil, 'MARCH', nil, nil, nil, nil, nil, 'SEPTEMBER', nil, nil, nil]
+        [false, false, 'MARCH', false, false, false, false, false, 'SEPTEMBER', false, false, false]
       )
+    end
+
+    it 'handles empty ssn' do
+      form_data['data']['coveredIndividual']['ssn'] = ''
+      instance = described_class.parse(form_data)
+      expect(instance.last_4_ssn).to be_nil
+    end
+
+    it 'handles nil ssn' do
+      form_data['data']['coveredIndividual']['ssn'] = nil
+      instance = described_class.parse(form_data)
+      expect(instance.last_4_ssn).to be_nil
     end
   end
 

@@ -32,12 +32,10 @@ module VeteranEnrollmentSystem
           )
         end
 
-        template_file = File.open(template_path, 'r')
         template_data = attributes.merge(txt_form_data)
-        prepared_text = template_file.read % template_data.symbolize_keys
-        template_file.close
-
-        prepared_text
+        File.open(template_path, 'r') do |template_file|
+          template_file.read % template_data.symbolize_keys
+        end
       end
 
       def pdf_file
@@ -62,7 +60,7 @@ module VeteranEnrollmentSystem
             first_name: form_data['data']['coveredIndividual']['name']['firstName'],
             middle_name: form_data['data']['coveredIndividual']['name']['middleName'],
             last_name: form_data['data']['coveredIndividual']['name']['lastName'],
-            last_4_ssn: form_data['data']['coveredIndividual']['ssn'],
+            last_4_ssn: form_data['data']['coveredIndividual']['ssn']&.last(4).presence,
             birth_date: form_data['data']['coveredIndividual']['dateOfBirth'],
             address: form_data['data']['responsibleIndividual']['address']['street1'],
             city: form_data['data']['responsibleIndividual']['address']['city'],
@@ -110,7 +108,7 @@ module VeteranEnrollmentSystem
 
         def coverage_months(form_data)
           months = form_data['data']['coveredIndividual']['monthsCovered']
-          coverage_months = Date::MONTHNAMES.compact.map { |month| months&.include?(month.upcase) ? month.upcase : nil }
+          coverage_months = Date::MONTHNAMES.compact.map { |month| months&.include?(month.upcase) ? month.upcase : false }
           covered_all = form_data['data']['coveredIndividual']['coveredAll12Months']
           [covered_all, *coverage_months]
         end
