@@ -1,0 +1,25 @@
+name: Notify Mobile team of PR needing review
+on:
+  pull_request:
+    paths:
+      - 'modules/mobile/**'
+    types: [opened, reopened]
+
+jobs:
+  notify_mobile_team:
+    runs-on: ubuntu-latest
+    env:
+      SLACK_API_TOKEN: ${{ secrets.SLACK_MOBILE_BOT_TOKEN }}
+      SLACK_CHANNEL_ID: ${{ secrets.SLACK_MOBILE_ALERTS_CHANNEL_ID }}
+    if: github.event.pull_request.base.ref == 'master'
+    steps:
+      - name: Send Slack Notification
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          method: chat.postMessage
+          token: ${{ env.SLACK_API_TOKEN }}
+          payload: |
+            {
+              "channel": ${{ env.SLACK_CHANNEL_ID }},
+              "text": ":party-github: A new PR (<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>) has been opened that requires your review.\n*Title:* ${{ github.event.pull_request.title }}\n*Author:* <${{ github.event.pull_request.user.html_url }}|${{ github.event.pull_request.user.login }}>\n*Description:* ${{ github.event.pull_request.body }}"
+            }
