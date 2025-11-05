@@ -5,9 +5,9 @@ require_relative '../../../../config/initializers/app_version_requirements'
 module Mobile
   module V0
     class UserAccessibleServices
-      def initialize(user, app_version = nil)
+      def initialize(user, request = nil)
         @user = user
-        @app_version = app_version
+        @request = request
       end
 
       def authorized
@@ -52,12 +52,14 @@ module Mobile
 
       # Returns true if the provided app version meets or exceeds the minimum required version for the feature
       def min_version?(feature)
+        app_version = @request&.headers&.[]('App-Version')
+        
         # Treat missing version as an old version
-        return false if @app_version.nil?
+        return false if app_version.nil?
 
         # Treat malformed version as an old version
         begin
-          version = Gem::Version.new(@app_version)
+          version = Gem::Version.new(app_version)
         rescue ArgumentError
           return false
         end
