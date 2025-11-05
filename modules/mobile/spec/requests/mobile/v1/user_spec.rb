@@ -11,6 +11,8 @@ RSpec.describe 'Mobile::V1::User', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                               instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                              instance_of(User)).and_return(false)
   end
 
   let(:contact_information_service) do
@@ -269,17 +271,17 @@ RSpec.describe 'Mobile::V1::User', type: :request do
                                                     instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
                                                     instance_of(User)).and_return(true)
+        end
 
+        it 'includes the OH services when flags are enabled and app version is high enough' do
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.63.0' })
               end
             end
           end
-        end
 
-        it 'includes the OH services when flags are enabled' do
           expect(attributes['authorizedServices']).to eq(
             %w[
               allergiesOracleHealthEnabled
@@ -294,6 +296,67 @@ RSpec.describe 'Mobile::V1::User', type: :request do
               labsAndTestsEnabled
               lettersAndDocuments
               medicationsOracleHealthEnabled
+              militaryServiceHistory
+              paymentHistory
+              preferredName
+              scheduleAppointments
+              secureMessagingOracleHealthEnabled
+              userProfileUpdate
+            ]
+          )
+        end
+
+        it 'includes the OH services when flags are enabled and app version matches' do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.59.0' })
+              end
+            end
+          end
+
+          expect(attributes['authorizedServices']).to eq(
+            %w[
+              appeals
+              appointments
+              claims
+              decisionLetters
+              directDepositBenefits
+              directDepositBenefitsUpdate
+              disabilityRating
+              genderIdentity
+              labsAndTestsEnabled
+              lettersAndDocuments
+              militaryServiceHistory
+              paymentHistory
+              preferredName
+              scheduleAppointments
+              secureMessagingOracleHealthEnabled
+              userProfileUpdate
+            ]
+          )
+        end
+
+        it 'does not include the OH services when flags are enabled and app version is too low' do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '1.0.0' })
+              end
+            end
+          end
+
+          expect(attributes['authorizedServices']).to eq(
+            %w[
+              appeals
+              appointments
+              claims
+              decisionLetters
+              directDepositBenefits
+              directDepositBenefitsUpdate
+              disabilityRating
+              genderIdentity
+              lettersAndDocuments
               militaryServiceHistory
               paymentHistory
               preferredName

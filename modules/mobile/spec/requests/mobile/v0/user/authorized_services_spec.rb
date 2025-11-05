@@ -49,7 +49,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
     end
   end
 
-  describe 'when flippers are enabled' do
+  describe 'when OH flippers are enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(true)
@@ -75,7 +75,6 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'disabilityRating' => true,
           'genderIdentity' => true,
           'labsAndTestsEnabled' => true,
-          'letters' => true,
           'lettersAndDocuments' => true,
           'militaryServiceHistory' => true,
           'paymentHistory' => true,
