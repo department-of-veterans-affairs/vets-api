@@ -17,6 +17,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
                                                 instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
                                                 instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(false)
     end
 
     it 'includes a hash with all available services and a boolean value of if the user has access' do
@@ -57,6 +59,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
                                                 instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
                                                 instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(true)
     end
 
     it 'includes a hash with all OH services enabled if app version is high enough' do
@@ -85,6 +89,37 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'userProfileUpdate' => true,
           'secureMessagingOracleHealthEnabled' => true,
           'medicationsOracleHealthEnabled' => true }
+      )
+    end
+
+    it 'includes a hash with all OH services disabled if Big Red Button is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(false)
+      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '2.63.0' }),
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']).to eq(
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
+          'appointments' => true,
+          'claims' => true,
+          'decisionLetters' => true,
+          'directDepositBenefits' => true,
+          'directDepositBenefitsUpdate' => true,
+          'disabilityRating' => true,
+          'genderIdentity' => true,
+          'labsAndTestsEnabled' => false,
+          'lettersAndDocuments' => true,
+          'militaryServiceHistory' => true,
+          'paymentHistory' => true,
+          'preferredName' => true,
+          'prescriptions' => false,
+          'scheduleAppointments' => true,
+          'secureMessaging' => false,
+          'userProfileUpdate' => true,
+          'secureMessagingOracleHealthEnabled' => true,
+          'medicationsOracleHealthEnabled' => false }
       )
     end
 

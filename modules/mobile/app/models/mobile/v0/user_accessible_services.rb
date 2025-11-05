@@ -22,7 +22,8 @@ module Mobile
 
       def service_auth_map # rubocop:disable Metrics/MethodLength
         @service_auth_map ||= {
-          allergiesOracleHealthEnabled: versioned_flagged_access?(:mhv_accelerated_delivery_allergies_enabled,
+          allergiesOracleHealthEnabled: versioned_flagged_access?(%i[mhv_accelerated_delivery_allergies_enabled
+                                                                     mhv_accelerated_delivery_uhd_enabled],
                                                                   :allergiesOracleHealth),
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
@@ -32,11 +33,13 @@ module Mobile
           directDepositBenefitsUpdate: access?(lighthouse: :mobile_access?),
           disabilityRating: access?(lighthouse: :access?),
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
-          labsAndTestsEnabled: versioned_flagged_access?(:mhv_accelerated_delivery_labs_and_tests_enabled,
+          labsAndTestsEnabled: versioned_flagged_access?(%i[mhv_accelerated_delivery_labs_and_tests_enabled
+                                                            mhv_accelerated_delivery_uhd_enabled],
                                                          :labsOracleHealth),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
-          medicationsOracleHealthEnabled: versioned_flagged_access?(:mhv_medications_cerner_pilot,
+          medicationsOracleHealthEnabled: versioned_flagged_access?(%i[mhv_medications_cerner_pilot
+                                                                       mhv_accelerated_delivery_uhd_enabled],
                                                                     :medicationsOracleHealth),
           paymentHistory: access?(bgs: :access?),
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
@@ -67,8 +70,8 @@ module Mobile
       end
 
       # Returns true if the feature flag is enabled for the user and the app version meets the minimum requirement
-      def versioned_flagged_access?(flag_name, feature)
-        Flipper.enabled?(flag_name, @user) && min_version?(feature)
+      def versioned_flagged_access?(flag_names, feature)
+        flag_names.all? { |flag_name| Flipper.enabled?(flag_name, @user) } && min_version?(feature)
       end
 
       def flagged_access?(flag_name, flag_on_policy, flag_off_policy)
