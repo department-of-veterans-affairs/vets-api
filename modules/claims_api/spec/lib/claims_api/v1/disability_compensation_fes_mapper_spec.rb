@@ -290,7 +290,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         end
 
         it 'maps the attributes' do
-          form_data['data']['attributes']['serviceInformation']['servicePeriods'][0]['separationLocationCode'] = '98282'
+          form_data['data']['attributes']['serviceInformation']['servicePeriods'][1]['separationLocationCode'] = '98282'
 
           service_info_object = fes_data[:data][:form526][:serviceInformation]
           first_service_period_info = service_info_object[:servicePeriods][0]
@@ -298,17 +298,27 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(first_service_period_info[:serviceBranch]).to eq('Air Force')
           expect(first_service_period_info[:activeDutyBeginDate]).to eq('1980-02-05')
           expect(first_service_period_info[:activeDutyEndDate]).to eq('1990-01-02')
-          expect(first_service_period_info[:separationLocationCode]).to eq('98282')
+          expect(service_info_object[:separationLocationCode]).to eq('98282')
           expect(service_info_object).not_to have_key(:confinements)
         end
 
         it 'removes nil values from the servicePeriods' do
           form_service_info_data = form_data['data']['attributes']['serviceInformation']
-          form_service_info_data['servicePeriods'][0]['separationLocationCode'] = nil
+          form_service_info_data['servicePeriods'][0]['activeDutyEndDate'] = nil
 
           service_info_object = fes_data[:data][:form526][:serviceInformation]
 
-          expect(service_info_object[:servicePeriods][0]).not_to have_key(:separationLocationCode)
+          expect(service_info_object[:servicePeriods][0]).not_to have_key(:activeDutyEndDate)
+        end
+
+        context 'separation location code' do
+          it 'does not include separation code if most recent period does not include it' do
+            form_data['data']['attributes']['serviceInformation']['servicePeriods'][0]['separationLocationCode'] =
+              '98282'
+            service_info_object = fes_data[:data][:form526][:serviceInformation]
+
+            expect(service_info_object).not_to have_key(:separationLocationCode)
+          end
         end
 
         it 'maps the confinements attribute correctly' do

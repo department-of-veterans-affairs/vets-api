@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require_relative '../fes_mapper_base'
 require_relative '../lighthouse_military_address_validator'
 require 'claims_api/partial_date_parser'
 
 module ClaimsApi
   module V1
     class DisabilityCompensationFesMapper
+      include FesMapperBase
       include LighthouseMilitaryAddressValidator
 
       IGNORED_DISABILITY_FIELDS = %i[serviceRelevance secondaryDisabilities].freeze
@@ -193,6 +195,7 @@ module ClaimsApi
         info = @data[:serviceInformation]
 
         map_service_periods(info)
+        map_separation_location_code if separation_location_code_present?
         map_confinements(info) if info&.dig(:confinements).present?
         map_reserves(info) if info&.dig(:reservesNationalGuardService).present?
         map_title_10_activation(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
@@ -201,7 +204,7 @@ module ClaimsApi
       # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
       def map_service_periods(info)
         @fes_claim[:serviceInformation] = {
-          servicePeriods: info[:servicePeriods].map(&:compact)
+          servicePeriods: info[:servicePeriods].map { |period| period.except(:separationLocationCode).compact }
         }
       end
 
