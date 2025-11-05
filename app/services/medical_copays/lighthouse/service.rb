@@ -12,19 +12,15 @@ module MedicalCopays
       end
 
       def list
-        invoice = invoice_service.list
-
-        # invoices = invoice['entry'].map do |entry|
-        #   ::Lighthouse::HCC::Invoice.new(entry)
-        # end
-
-        charge_item = charge_item_service.list
-
-        charge_items = charge_item['entry'].map do |item|
-          ::Lighthouse::HCC::ChargeItem.new(item)
+        # Datadog stuff
+        invoice_list = invoice_service.list
+        invoice_list['entry'].map do |entry|
+          ::Lighthouse::HCC::Invoice.new(entry)
         end
-
-
+      rescue StandardError => e
+        # Datadog stuff here?
+        Rails.logger.error("MedicalCopays::Lighthouse::Service#list error: #{e.message}")
+        raise e
       end
 
       def count

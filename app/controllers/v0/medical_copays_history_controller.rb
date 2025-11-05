@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 module V0
-  class MedicalCopaysController < ApplicationController
+  class MedicalCopaysHistoryController < ApplicationController
     service_tag 'debt-resolution'
 
     def index
-
+      copays = medical_copay_service.list
+      render json: Lighthouse::HealthcareCostAndCoverage.new(copays)
     end
 
     def count

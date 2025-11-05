@@ -2,14 +2,13 @@ module Lighthouse
   module HCC
     class Invoice
       include Vets::Model
+      attribute :external_id, String
       attribute :facility, String
-      attribute :current_balance, String
       attribute :billing_ref, Array
-      attribute :amount, String
+      attribute :current_balance, Float
       attribute :previous_balance, String
       attribute :previous_unpaid_balance, String
       attribute :url, String
-      attribute :external_id, String
 
       def initialize(params)
         @params = params
@@ -18,11 +17,10 @@ module Lighthouse
 
       def assign_attributes
         @facility = @params["resource"]["issuer"]["display"]
-        @current_balance = @params["resource"]["totalPriceComponent"].map { |tpc| tpc["amount"]["value"] }.sum
         # Seems like we need to maybe make a collection for latest charges where this attribute is mentioned in the mapping doc we made
         # We are just ripping this code for now
         @billing_ref = @params["resource"]["lineItem"].map { |li| li["chargeItemReference"]["reference"].split("/").last }
-        @amount = @params["resource"]["totalPriceComponent"].map do |tpc|
+        @current_balance = @params["resource"]["totalPriceComponent"].map do |tpc|
           next if tpc["type"] == "informational"
           tpc["amount"]["value"]
         end.compact.sum

@@ -83,6 +83,8 @@ Rails.application.routes.draw do
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
     post 'medical_copays/send_statement_notifications', to: 'medical_copays#send_statement_notifications'
 
+    resources :medical_copays_history, only: %i[index]
+
     resources :apps, only: %i[index show]
     scope_default = { category: 'unknown_category' }
     get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
