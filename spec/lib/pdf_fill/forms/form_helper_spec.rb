@@ -35,8 +35,8 @@ describe PdfFill::Forms::FormHelper do
     end
 
     it 'returns thousand' do
-      expect(including_class.new.split_currency_string('123456.78')).to eq({ thousands: '  3', ones: '456',
-                                                                             cents: '78' })
+      expect(including_class.new.split_currency_string('3456.78')).to eq({ thousands: '  3', ones: '456',
+                                                                           cents: '78' })
     end
   end
 

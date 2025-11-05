@@ -10,7 +10,6 @@ module Swagger
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
           extend Swagger::Responses::UnprocessableEntityError
-          extend Swagger::Responses::ForbiddenError
 
           key :description,
               'Submit a 21-0779 form (Request for Nursing Home Information in Connection with Claim for ' \
