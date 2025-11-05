@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dependents/error_classes'
+
 # rubocop:disable Metrics/ClassLength
 
 module PdfFill
@@ -1541,7 +1543,7 @@ module PdfFill
         end
 
         # We add the user data to the form data in some jobs. It should always be present here.
-        raise 'Veteran information is missing' unless @form_data['veteran_information']
+        raise Dependents::ErrorClasses::MissingVeteranInfoError unless @form_data['veteran_information']
 
         veteran_information = @form_data['veteran_information']
 

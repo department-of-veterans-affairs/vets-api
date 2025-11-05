@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents/error_classes'
 
 RSpec.describe SavedClaim::DependencyClaim do
   subject { create(:dependency_claim) }
@@ -727,7 +728,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
 
       it 'raises an error in the PDF filler' do
-        expect { no_veteran_claim.to_pdf(form_id: '686C-674-V2') }.to raise_error('Veteran information is missing')
+        expect { no_veteran_claim.to_pdf(form_id: '686C-674-V2') }.to raise_error(Dependents::ErrorClasses::MissingVeteranInfoError)
       end
     end
   end
