@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'lighthouse_military_address_validator'
+require_relative '../lighthouse_military_address_validator'
 
 module ClaimsApi
   module V2
@@ -235,28 +235,35 @@ module ClaimsApi
       end
 
       def disabilities
-        return if @data[:disabilities].blank?
+        @fes_claim[:disabilities] = flatten_and_transform_disabilities(@data[:disabilities])
+      end
 
-        @fes_claim[:disabilities] = @data[:disabilities].map do |disability|
-          transform_disability_values!(disability.deep_dup)
+      def flatten_and_transform_disabilities(disabilities_array)
+        disabilities_array.flat_map do |disability|
+          primary = disability.deep_dup
+          secondaries = primary.delete(:secondaryDisabilities) || []
+
+          list = []
+          list << transform_disability_values!(primary) unless primary[:disabilityActionType] == 'NONE'
+          transformed_secondaries = secondaries.map do |secondary|
+            transform_disability_values!(secondary.deep_dup).merge!(disabilityActionType: 'NEW')
+          end
+          list.concat(transformed_secondaries)
+
+          list
         end
       end
 
       def transform_disability_values!(disability)
-        # Remove nil fields similar to EVSS mapper
         disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
         disability.delete(:classificationCode) if disability&.dig(:classificationCode).nil?
 
-        # Transform approximate date to FES format
         if disability[:approximateDate].present?
-          date_info = disability[:approximateDate]
-          disability[:approximateBeginDate] = format_approximate_date(date_info)
+          disability[:approximateBeginDate] = format_approximate_date(disability[:approximateDate])
         end
 
-        # Handle PACT special issue
         check_for_pact_special_issue(disability) if disability[:disabilityActionType] != 'INCREASE'
 
-        # Remove fields not needed for FES
         disability.except(:approximateDate, :isRelatedToToxicExposure, :serviceRelevance,
                           :exposureOrEventOrInjury, :secondaryDisabilities)
       end

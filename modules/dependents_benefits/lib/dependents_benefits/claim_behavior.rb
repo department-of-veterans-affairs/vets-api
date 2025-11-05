@@ -24,7 +24,10 @@ module DependentsBenefits
     # @return [Boolean] true if all submission attempts succeeded, false otherwise
     def submissions_succeeded?
       # TODO: Add checks for each submission type for claim
-      false
+      bgs_submissions = BGS::Submission.where(saved_claim_id: id)
+      return false if bgs_submissions.empty?
+
+      bgs_submissions.all? { |submission| submission.latest_attempt&.status == 'submitted' }
     end
 
     ##
@@ -56,12 +59,20 @@ module DependentsBenefits
       schema_errors.empty? && validation_errors.empty?
     end
 
+    def to_pdf(file_name = nil)
+      DependentsBenefits::PdfFill::Filler.fill_form(self, file_name)
+    end
+
     def submittable_686?
       DEPENDENT_CLAIM_FLOWS.any? { |flow| parsed_form['view:selectable686_options'].include?(flow) }
     end
 
     def submittable_674?
       parsed_form.dig('view:selectable686_options', 'report674')
+    end
+
+    def add_veteran_info(user_data)
+      parsed_form.merge!(user_data)
     end
 
     private

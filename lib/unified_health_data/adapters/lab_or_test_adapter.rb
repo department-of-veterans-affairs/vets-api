@@ -21,26 +21,71 @@ module UnifiedHealthData
 
         contained = record['resource']['contained']
         code = get_code(record)
-        encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
+        encoded_data = get_encoded_data(record['resource'])
         observations = get_observations(record)
         return nil unless code && (encoded_data || observations)
 
+        log_warnings(record, encoded_data, observations)
+        build_lab_or_test(record, code, encoded_data, observations, contained)
+      end
+
+      private
+
+      def build_lab_or_test(record, code, encoded_data, observations, contained)
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
-          date_completed: record['resource']['effectiveDateTime'],
+          date_completed: get_date_completed(record['resource']),
           sample_tested: get_sample_tested(record['resource'], contained),
           encoded_data:,
           location: get_location(record),
           ordered_by: get_ordered_by(record),
           observations:,
-          body_site: get_body_site(record['resource'], contained)
+          body_site: get_body_site(record['resource'], contained),
+          status: record['resource']['status']
         )
       end
 
-      private
+      def log_warnings(record, encoded_data, observations)
+        log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
+        log_missing_date_warning(record)
+      end
+
+      def log_final_status_warning(record, status, encoded_data, observations)
+        return unless status == 'final' && encoded_data.blank? && observations.blank?
+
+        patient_reference = record['resource']&.dig('subject', 'reference')
+        # Last four of FHIR Patient.id
+        patient_last_four = patient_reference&.split('/')&.last&.last(4) || 'unknown'
+
+        Rails.logger.warn(
+          "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing " \
+          "both encoded data and observations (Patient: #{patient_last_four})",
+          { service: 'unified_health_data' }
+        )
+      end
+
+      def log_missing_date_warning(record)
+        resource = record['resource']
+        effective_date_time = resource['effectiveDateTime']
+        effective_period = resource['effectivePeriod']
+
+        # effectiveDateTime and effectivePeriod are mutually exclusive per FHIR R4
+        # Log when both are missing OR when effectivePeriod exists but has no start
+        if effective_date_time.blank? && effective_period.blank?
+          Rails.logger.warn(
+            "DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod",
+            { service: 'unified_health_data' }
+          )
+        elsif effective_period.present? && effective_period['start'].blank?
+          Rails.logger.warn(
+            "DiagnosticReport #{resource['id']} is missing effectivePeriod.start",
+            { service: 'unified_health_data' }
+          )
+        end
+      end
 
       def get_location(record)
         if record['resource']['contained'].nil?
@@ -186,6 +231,27 @@ module UnifiedHealthData
           service_request['code']['text']
         else
           record['resource']['code'] ? record['resource']['code']['text'] : ''
+        end
+      end
+
+      def get_encoded_data(resource)
+        return '' unless resource['presentedForm']&.any?
+
+        # Find the presentedForm item with contentType 'text/plain'
+        presented_form = resource['presentedForm'].find { |form| form['contentType'] == 'text/plain' }
+        return '' unless presented_form
+
+        # Handle standard data field or extensions indicating data-absent-reason
+        # Return empty string when data is absent (either with data-absent-reason extension or missing)
+        presented_form['data'] || ''
+      end
+
+      def get_date_completed(resource)
+        # Handle both effectiveDateTime and effectivePeriod formats
+        if resource['effectiveDateTime']
+          resource['effectiveDateTime']
+        elsif resource['effectivePeriod']&.dig('start')
+          resource['effectivePeriod']['start']
         end
       end
     end
