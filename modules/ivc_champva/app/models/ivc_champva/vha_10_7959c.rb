@@ -20,9 +20,9 @@ module IvcChampva
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('applicant_name', 'first'),
-        'veteranMiddleName' => @data.dig('applicant_name', 'middle'),
-        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        "#{name_key_prefix}FirstName" => @data.dig('applicant_name', 'first'),
+        "#{name_key_prefix}MiddleName" => @data.dig('applicant_name', 'middle'),
+        "#{name_key_prefix}LastName" => @data.dig('applicant_name', 'last'),
         'fileNumber' => @data['applicant_ssn'],
         'zipCode' => @data.dig('applicant_address', 'postal_code') || '00000',
         'country' => @data.dig('applicant_address', 'country') || 'USA',
@@ -33,7 +33,7 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s,
-        'applicantEmail' => @data['applicant_email'] || ''
+        "#{applicant_key_prefix}Email" => @data['applicant_email'] || ''
       }
     end
 
@@ -64,6 +64,20 @@ module IvcChampva
 
     def respond_to_missing?(_method_name, _include_private = false)
       true
+    end
+
+    private
+
+    def name_key_prefix
+      return 'sponsor' if Flipper.enabled?(:champva_update_metadata_keys)
+
+      'veteran'
+    end
+
+    def applicant_key_prefix
+      return 'beneficiary' if Flipper.enabled?(:champva_update_metadata_keys)
+
+      'applicant'
     end
   end
 end

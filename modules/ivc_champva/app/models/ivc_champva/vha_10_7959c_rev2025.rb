@@ -34,9 +34,9 @@ module IvcChampva
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('applicant_name', 'first'),
-        'veteranMiddleName' => @data.dig('applicant_name', 'middle'),
-        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        "#{name_key_prefix}FirstName" => @data.dig('applicant_name', 'first'),
+        "#{name_key_prefix}MiddleName" => @data.dig('applicant_name', 'middle'),
+        "#{name_key_prefix}LastName" => @data.dig('applicant_name', 'last'),
         'fileNumber' => @data['applicant_ssn'],
         'zipCode' => @data.dig('applicant_address', 'postal_code') || '00000',
         'country' => @data.dig('applicant_address', 'country') || 'USA',
@@ -86,6 +86,12 @@ module IvcChampva
       [
         { coords: [170, 65], text: @data['statement_of_truth_signature'], page: 0 }
       ]
+    end
+
+    def name_key_prefix
+      return 'sponsor' if Flipper.enabled?(:champva_update_metadata_keys)
+
+      'veteran'
     end
   end
 end

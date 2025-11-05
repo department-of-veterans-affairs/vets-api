@@ -39,30 +39,62 @@ RSpec.describe IvcChampva::VHA107959c do
   end
 
   describe '#metadata' do
-    it 'returns metadata for the form' do
-      metadata = vha107959c.metadata
+    context 'when champva_update_metadata_keys flipper is enabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(true)
+        metadata = vha107959c.metadata
 
-      expect(metadata).to include(
-        'veteranFirstName' => 'John',
-        'veteranMiddleName' => 'P',
-        'veteranLastName' => 'Doe',
-        'fileNumber' => '123456789',
-        'zipCode' => '12345',
-        'ssn_or_tin' => '123456789',
-        'country' => 'USA',
-        'source' => 'VA Platform Digital Forms',
-        'docType' => '10-7959C',
-        'businessLine' => 'CMP',
-        'primaryContactInfo' => {
-          'name' => {
-            'first' => 'Veteran',
-            'last' => 'Surname'
+        expect(metadata).to include(
+          'sponsorFirstName' => 'John',
+          'sponsorMiddleName' => 'P',
+          'sponsorLastName' => 'Doe',
+          'fileNumber' => '123456789',
+          'zipCode' => '12345',
+          'ssn_or_tin' => '123456789',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959C',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => false
           },
-          'email' => false
-        },
-        'primaryContactEmail' => 'false',
-        'applicantEmail' => 'applicant@email.gov'
-      )
+          'primaryContactEmail' => 'false',
+          'beneficiaryEmail' => 'applicant@email.gov'
+        )
+      end
+    end
+
+    context 'when champva_update_metadata_keys flipper is disabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+        metadata = vha107959c.metadata
+
+        expect(metadata).to include(
+          'veteranFirstName' => 'John',
+          'veteranMiddleName' => 'P',
+          'veteranLastName' => 'Doe',
+          'fileNumber' => '123456789',
+          'zipCode' => '12345',
+          'ssn_or_tin' => '123456789',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959C',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => false
+          },
+          'primaryContactEmail' => 'false',
+          'applicantEmail' => 'applicant@email.gov'
+        )
+      end
     end
   end
 

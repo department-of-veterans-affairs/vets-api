@@ -12,17 +12,17 @@ module IvcChampva
     end
 
     def self.validate_first_name(metadata)
-      validate_presence_and_stringiness(metadata['veteranFirstName'], 'veteran first name')
-      metadata['veteranFirstName'] =
-        I18n.transliterate(metadata['veteranFirstName']).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
+      validate_presence_and_stringiness(metadata["#{name_prefix}FirstName"], "#{name_prefix} first name")
+      metadata["#{name_prefix}FirstName"] =
+        I18n.transliterate(metadata["#{name_prefix}FirstName"]).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
 
       metadata
     end
 
     def self.validate_last_name(metadata)
-      validate_presence_and_stringiness(metadata['veteranLastName'], 'veteran last name')
-      metadata['veteranLastName'] =
-        I18n.transliterate(metadata['veteranLastName']).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
+      validate_presence_and_stringiness(metadata["#{name_prefix}LastName"], "#{name_prefix} last name")
+      metadata["#{name_prefix}LastName"] =
+        I18n.transliterate(metadata["#{name_prefix}LastName"]).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
 
       metadata
     end
@@ -69,6 +69,12 @@ module IvcChampva
     def self.validate_presence_and_stringiness(value, error_label)
       raise ArgumentError, "#{error_label} is missing" unless value
       raise ArgumentError, "#{error_label} is not a string" if value.class != String
+    end
+
+    def self.name_prefix
+      return 'sponsor' if Flipper.enabled?(:champva_update_metadata_keys)
+
+      'veteran'
     end
   end
 end
