@@ -276,6 +276,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
                                                   instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
                                                   instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                  instance_of(User)).and_return(true)
       end
 
       it 'includes the OH services when flags are enabled and app version is high enough' do
