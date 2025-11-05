@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
+require 'unique_user_events'
 
 module VAOS
   module V2
@@ -38,6 +39,12 @@ module VAOS
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
+
+        # Log unique user event for appointments accessed
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+        )
 
         if appointments[:meta][:failures] && appointments[:meta][:failures].empty?
           render json: { data: serialized, meta: appointments[:meta] }, status: :ok
@@ -352,6 +359,7 @@ module VAOS
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
           facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
           avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          binary: ActiveModel::Type::Boolean.new.deserialize(included&.include?('binary')),
           travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims')),
           eps: ActiveModel::Type::Boolean.new.deserialize(included&.include?('eps'))
         }
@@ -361,6 +369,7 @@ module VAOS
         included = appointment_show_params[:_include]&.split(',')
         {
           avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          binary: ActiveModel::Type::Boolean.new.deserialize(included&.include?('binary')),
           travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end

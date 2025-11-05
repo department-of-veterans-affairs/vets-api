@@ -2,6 +2,7 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/allergy_serializer'
+require 'unique_user_events'
 
 module MyHealth
   module V2
@@ -11,6 +12,16 @@ module MyHealth
       def index
         allergies = service.get_allergies
         serialized_allergies = UnifiedHealthData::AllergySerializer.new(allergies)
+
+        # Log unique user events for allergies accessed
+        UniqueUserEvents.log_events(
+          user: @current_user,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ALLERGIES_ACCESSED
+          ]
+        )
+
         render json: serialized_allergies,
                status: :ok
       rescue Common::Client::Errors::ClientError,

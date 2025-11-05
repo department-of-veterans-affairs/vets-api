@@ -5,8 +5,11 @@ require 'logging/monitor'
 module ClaimsEvidenceApi
   # @see Logging::Monitor
   class Monitor < ::Logging::Monitor
-    def initialize
-      super('claims-evidence-api')
+    # create a claims evidence monitor
+    #
+    # @param allowlist [Array<String>] list of allowed params
+    def initialize(allowlist = [])
+      super('claims-evidence-api', allowlist:)
     end
 
     # utility function, @see Rails.logger
@@ -31,11 +34,24 @@ module ClaimsEvidenceApi
     class Record < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.record'
+      # allowed logging params
+      ALLOWLIST = %w[
+        action
+        class
+        doctype
+        file_uuid
+        form_id
+        id
+        persistent_attachment_id
+        saved_claim_id
+        status
+        submission_id
+      ].freeze
 
       attr_reader :record
 
       def initialize(record)
-        super()
+        super(ALLOWLIST)
         @record = record
       end
 
@@ -61,6 +77,17 @@ module ClaimsEvidenceApi
     class Service < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.service.request'
+      # allowed logging params
+      ALLOWLIST = %w[
+        code
+        endpoint
+        method
+        reason
+      ].freeze
+
+      def initialize
+        super(ALLOWLIST)
+      end
 
       # track the api request performed and the response/error
       # @see Common::Client::Base#perform
@@ -87,6 +114,20 @@ module ClaimsEvidenceApi
     class Uploader < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.uploader'
+      # allowed logging params
+      ALLOWLIST = %w[
+        action
+        doctype
+        error
+        form_id
+        persistent_attachment_id
+        saved_claim_id
+        stamp_set
+      ].freeze
+
+      def initialize
+        super(ALLOWLIST)
+      end
 
       # track evidence upload started
       #
@@ -127,7 +168,8 @@ module ClaimsEvidenceApi
         msg = "upload #{stage}"
         msg += " - #{error}" if error
 
-        tags = { action: stage.to_s, form_id: context[:form_id], doctype: context[:doctype] }
+        context[:action] = stage.to_s
+        tags = context.slice(:action, :form_id, :doctype)
 
         call_location = caller_locations.second
         level = stage == :failure ? :error : :info
