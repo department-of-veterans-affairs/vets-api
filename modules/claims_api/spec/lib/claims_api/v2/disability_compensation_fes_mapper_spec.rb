@@ -136,6 +136,8 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
               expect(address[:internationalPostalCode]).to eq('SW1A 1AA')
               expect(address[:addressType]).to eq('INTERNATIONAL')
               expect(address[:country]).to eq('GBR')
+              expect(address[:city]).to eq('London')
+
             end
           end
         end
@@ -166,6 +168,34 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
             expect(change[:endingDate]).to eq('2023-12-04')
             expect(change[:addressType]).to eq('DOMESTIC')
             expect(change[:city]).to eq('Schenectady')
+          end
+        end
+
+        context 'change of address for international address' do
+          it 'maps change of address when address is international' do
+            form_data['data']['attributes']['changeOfAddress'] = {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'numberAndStreet' => '10 Peach St',
+              'city' => 'London',
+              'country' => 'GBR',
+              'internationalPostalCode' => 'SW1A 1AA',
+              'beginningDate' => '2023-06-04',
+              'endingDate' => '2023-12-04'
+            }
+
+            auto_claim = create(:auto_established_claim,
+                                form_data: form_data['data']['attributes'],
+                                auth_headers: { 'va_eauth_pid' => '600061742' })
+            fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+            change = fes_data[:data][:form526][:veteran][:changeOfAddress]
+
+              expect(change[:addressLine1]).to eq('10 Peach St')
+              expect(change[:internationalPostalCode]).to eq('SW1A 1AA')
+              expect(change[:beginningDate]).to eq('2023-06-04')
+              expect(change[:endingDate]).to eq('2023-12-04')
+              expect(change[:addressType]).to eq('INTERNATIONAL')
+              expect(change[:country]).to eq('GBR')
+              expect(change[:city]).to eq('London')
           end
         end
       end
