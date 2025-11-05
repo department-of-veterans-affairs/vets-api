@@ -85,6 +85,7 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
+        expand_checkbox_in_place(form_data, 'burialExpenseResponsibility')
         expand_burial_allowance(form_data)
         expand_confirmation_question(form_data)
         expand_location_of_death(form_data)
@@ -92,6 +93,8 @@ module Burials
 
       ##
       # Expands the burial allowance request by ensuring values are formatted as 'On' or nil
+      #
+      # @param form_data [Hash]
       #
       # @return [void]
       def expand_burial_allowance(form_data)
@@ -111,6 +114,8 @@ module Burials
       ##
       # Expands the 'confirmation' field in the form data
       #
+      # @param form_data [Hash]
+      #
       # @return [void]
       def expand_confirmation_question(form_data)
         if form_data['confirmation'].present?
@@ -122,7 +127,9 @@ module Burials
       ##
       # Converts the location of death by formatting facility details and adjusting specific location values
       #
-      # @return [Hash]
+      # @param form_data [Hash]
+      #
+      # @return [void]
       #
       def expand_location_of_death(form_data)
         location_of_death = form_data['locationOfDeath']

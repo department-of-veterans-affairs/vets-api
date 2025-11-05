@@ -142,6 +142,10 @@ module Burials
       #
       def expand(form_data)
         form_data['vaFileNumber'] = extract_va_file_number(form_data['vaFileNumber'])
+        %w[veteranDateOfBirth deathDate burialDate].each do |attr|
+          form_data[attr] = split_date(form_data[attr])
+        end
+        extract_middle_i(form_data, 'veteranFullName')
       end
 
       ##
