@@ -38,7 +38,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.59.0' })
+              get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '3.0.0' })
             end
           end
         end
@@ -277,7 +277,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.63.0' })
+                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '3.0.0' })
               end
             end
           end
@@ -310,7 +310,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                get '/mobile/v1/user', headers: sis_headers({ 'App-Version' => '3.0.0' })
               end
             end
           end

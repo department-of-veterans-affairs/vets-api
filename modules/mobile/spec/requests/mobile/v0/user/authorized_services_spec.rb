@@ -64,7 +64,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
     end
 
     it 'includes a hash with all OH services enabled if app version is high enough' do
-      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '2.63.0' }),
+      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '3.0.0' }),
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
 
@@ -95,7 +95,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
     it 'includes a hash with all OH services disabled if Big Red Button is disabled' do
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
                                                 instance_of(User)).and_return(false)
-      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '2.63.0' }),
+      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '3.0.0' }),
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
 

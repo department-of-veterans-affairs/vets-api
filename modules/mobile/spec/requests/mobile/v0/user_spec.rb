@@ -276,18 +276,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
                                                   instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
                                                   instance_of(User)).and_return(true)
-
-        # VCR.use_cassette('mobile/payment_information/payment_information') do
-        #   VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-        #     VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
-        #       VCR.use_cassette(
-        #         'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
-        #       ) do
-        #         get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '2.63.0' })
-        #       end
-        #     end
-        #   end
-        # end
       end
 
       it 'includes the OH services when flags are enabled and app version is high enough' do
@@ -297,7 +285,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
               VCR.use_cassette(
                 'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
               ) do
-                get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '2.63.0' })
+                get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '3.0.0' })
               end
             end
           end
@@ -317,41 +305,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
-            militaryServiceHistory
-            paymentHistory
-            preferredName
-            scheduleAppointments
-            secureMessagingOracleHealthEnabled
-            userProfileUpdate
-          ]
-        )
-      end
-
-      it 'includes some OH services when flags are enabled and app version is high enough' do
-        VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-            VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
-              VCR.use_cassette(
-                'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
-              ) do
-                get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '2.59.0' })
-              end
-            end
-          end
-        end
-
-        expect(attributes['authorizedServices']).to eq(
-          %w[
-            appeals
-            appointments
-            claims
-            decisionLetters
-            directDepositBenefits
-            directDepositBenefitsUpdate
-            disabilityRating
-            genderIdentity
-            labsAndTestsEnabled
-            lettersAndDocuments
             militaryServiceHistory
             paymentHistory
             preferredName
