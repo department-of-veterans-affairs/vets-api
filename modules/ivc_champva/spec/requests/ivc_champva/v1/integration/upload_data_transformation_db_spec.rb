@@ -462,8 +462,10 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
 
         # Verify ALL metadata fields remain consistent through each step
         validated_metadata.each_key do |field|
-          expect(merged_metadata[field]).to eq(validated_metadata[field]),
-                                            "Field '#{field}' was not preserved correctly between validation and merging"
+          expect(merged_metadata[field]).to(
+            eq(validated_metadata[field]),
+            "Field '#{field}' was not preserved correctly between validation and merging"
+          )
         end
 
         # Verify specifically tracked fields in the database record

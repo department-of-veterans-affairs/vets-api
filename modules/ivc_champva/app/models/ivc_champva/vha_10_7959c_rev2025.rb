@@ -48,7 +48,7 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s,
-        'applicantEmail' => @data['applicant_email'] || ''
+        "#{applicant_key_prefix}Email" => @data['applicant_email'] || ''
       }
     end
 
@@ -101,6 +101,12 @@ module IvcChampva
       return 'sponsor' if Flipper.enabled?(:champva_update_metadata_keys)
 
       'veteran'
+    end
+
+    def applicant_key_prefix
+      return 'beneficiary' if Flipper.enabled?(:champva_update_metadata_keys)
+
+      'applicant'
     end
   end
 end

@@ -85,6 +85,7 @@ describe IvcChampva::MetadataValidator do
         it 'returns metadata with first 50 characters of the first name' do
           set_flipper(champva_update_metadata_keys_enabled)
 
+          # rubocop:disable Layout/LineLength
           metadata = {
             first_name => 'Wolfeschlegelsteinhausenbergerdorffwelchevoralternwarengewissenhaftschaferswessenschafe
               warenwohlgepflegeundsorgfaltigkeitbeschutzenvonangreifendurchihrraubgierigfeindewelchevoralternzwolftausend
@@ -100,6 +101,7 @@ describe IvcChampva::MetadataValidator do
             'docType' => '21-0845',
             'businessLine' => 'CMP'
           }
+          # rubocop:enable Layout/LineLength
           expected_metadata = {
             first_name => 'Wolfeschlegelsteinhausenbergerdorffwelchevoraltern',
             last_name => 'Doe',
@@ -154,6 +156,7 @@ describe IvcChampva::MetadataValidator do
         it 'returns metadata with first 50 characters of last name' do
           set_flipper(champva_update_metadata_keys_enabled)
 
+          # rubocop:disable Layout/LineLength
           metadata = {
             first_name => 'John',
             last_name => 'Wolfeschlegelsteinhausenbergerdorffwelchevoralternwarengewissenhaftschaferswessenschafe
@@ -169,6 +172,7 @@ describe IvcChampva::MetadataValidator do
             'docType' => '21-0845',
             'businessLine' => 'CMP'
           }
+          # rubocop:enable Layout/LineLength
           expected_metadata = {
             first_name => 'John',
             last_name => 'Wolfeschlegelsteinhausenbergerdorffwelchevoraltern',
