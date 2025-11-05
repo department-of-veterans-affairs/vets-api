@@ -34,7 +34,6 @@ module Mobile
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           labsAndTestsEnabled: versioned_flagged_access?(:mhv_accelerated_delivery_labs_and_tests_enabled,
                                                          :labsOracleHealth),
-          letters: access?(lighthouse: :access?),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
           medicationsOracleHealthEnabled: versioned_flagged_access?(:mhv_medications_cerner_pilot,
