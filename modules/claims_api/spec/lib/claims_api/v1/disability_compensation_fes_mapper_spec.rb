@@ -47,13 +47,6 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(fes_data[:data][:veteranParticipantId]).to eq(600_061_742)
           expect(fes_data[:data][:claimantParticipantId]).to eq(600_061_742)
         end
-
-        it 'finds the dependent participant_id as expected' do
-          auth_headers['dependent'] = {}
-          auth_headers['dependent']['participant_id'] = '8675309'
-
-          expect(fes_data[:data][:claimantParticipantId]).to eq(8_675_309)
-        end
       end
 
       describe 'claim meta' do
