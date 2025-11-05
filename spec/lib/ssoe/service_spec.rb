@@ -56,7 +56,7 @@ RSpec.describe SSOe::Service, type: :service do
     end
 
     context 'when the response has a SOAP fault (client error)' do
-      it 'raises SOAPFaultError and logs the error' do
+      it 'raises RequestError and logs the error' do
         VCR.use_cassette('mpi/get_traits/error') do
           expect(Rails.logger).to receive(:error).with(
             a_string_starting_with('[SSOe::Service::get_traits] client error:')
@@ -70,15 +70,14 @@ RSpec.describe SSOe::Service, type: :service do
               address:
             )
           end.to raise_error(SSOe::Errors::RequestError) do |error|
-            expect(error.status).to eq(400)
-            expect(error.message).to eq('SOAP HTTP call failed')
+            expect(error.message).to include('[SSOe][Service] Client error')
           end
         end
       end
     end
 
     context 'when parse_response receives a SOAP fault' do
-      it 'raises SOAPFaultError with fault_code' do
+      it 'raises SOAPFaultError with fault information' do
         fault_xml = Ox.parse(<<~XML)
           <Envelope>
             <Body>
@@ -91,11 +90,10 @@ RSpec.describe SSOe::Service, type: :service do
         XML
 
         expect do
-          service.send(:parse_response, fault_xml, 400)
+          service.send(:parse_response, fault_xml)
         end.to raise_error(SSOe::Errors::SOAPFaultError) do |error|
-          expect(error.message).to eq('Internal Server Error')
-          expect(error.status).to eq(400)
-          expect(error.fault_code).to eq('env:Server')
+          expect(error.message).to include('Internal Server Error')
+          expect(error.message).to include('env:Server')
         end
       end
     end
@@ -106,7 +104,7 @@ RSpec.describe SSOe::Service, type: :service do
 
         expect do
           service.send(:parse_response, body)
-        end.to raise_error(SSOe::Errors::SOAPParseError, 'Unable to parse SOAP response')
+        end.to raise_error(SSOe::Errors::SOAPParseError, '[SSOe][Service] Unable to parse SOAP response')
       end
     end
 
@@ -129,8 +127,7 @@ RSpec.describe SSOe::Service, type: :service do
             address:
           )
         end.to raise_error(SSOe::Errors::ConnectionError) do |error|
-          expect(error.status).to eq(502)
-          expect(error.message).to eq('Connection error')
+          expect(error.message).to include('[SSOe][Service] Connection error')
         end
       end
     end
@@ -154,8 +151,7 @@ RSpec.describe SSOe::Service, type: :service do
             address:
           )
         end.to raise_error(SSOe::Errors::TimeoutError) do |error|
-          expect(error.status).to eq(504)
-          expect(error.message).to eq('Timeout error')
+          expect(error.message).to include('[SSOe][Service] Timeout error')
         end
       end
     end
@@ -179,8 +175,7 @@ RSpec.describe SSOe::Service, type: :service do
             address:
           )
         end.to raise_error(SSOe::Errors::UnknownError) do |error|
-          expect(error.status).to eq(500)
-          expect(error.message).to eq('Unexpected error')
+          expect(error.message).to include('[SSOe][Service] Unknown error')
         end
       end
     end
