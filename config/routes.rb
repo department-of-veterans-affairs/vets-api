@@ -66,7 +66,7 @@ Rails.application.routes.draw do
         post :download_pdf
       end
     end
-   resources :form21p530a, only: [:create] do
+    resources :form21p530a, only: [:create] do
       collection do
         post :download_pdf
       end
@@ -75,14 +75,6 @@ Rails.application.routes.draw do
     resources :form212680, only: [] do
       collection do
         post :download_pdf
-        post :submit
-      end
-    end
-<<<<<<< HEAD
- 
-=======
-    
->>>>>>> c71fd32095 ( 21-2680 documened, controller stubbed)
       end
     end
 
