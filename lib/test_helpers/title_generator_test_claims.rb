@@ -146,6 +146,17 @@ module TitleGeneratorTestClaims
         })
       },
 
+      # Priority 1: Disability Compensation code (PR #24916 representative test)
+      {
+        'id' => 'test-disability-comp-020NEW',
+        'type' => 'claim',
+        'attributes' => default_claim_attributes.merge({
+          'claimType' => 'Compensation',
+          'claimTypeCode' => '020NEW',
+          'endProductCode' => '020'
+        })
+      },
+
       # Priority 1: Null claimType special cases
       {
         'id' => 'test-debt-validation-290DV',
@@ -304,6 +315,10 @@ module TitleGeneratorTestClaims
       'test-generic-pension-150ELECPMC' => {
         display_title: 'Claim for pension',
         claim_type_base: 'pension claim'
+      },
+      'test-disability-comp-020NEW' => {
+        display_title: 'Claim for disability compensation',
+        claim_type_base: 'disability compensation claim'
       },
       'test-debt-validation-290DV' => {
         display_title: 'Claim for disability compensation',
