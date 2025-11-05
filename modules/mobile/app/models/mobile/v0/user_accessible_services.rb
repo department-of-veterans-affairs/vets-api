@@ -53,18 +53,17 @@ module Mobile
       # Returns true if the provided app version meets or exceeds the minimum required version for the feature
       def min_version?(feature)
         app_version = @request&.headers&.[]('App-Version')
-        
+
         # Treat missing version as an old version
         return false if app_version.nil?
 
         # Treat malformed version as an old version
         begin
           version = Gem::Version.new(app_version)
+          version >= Gem::Version.new(Mobile::APP_VERSION_REQUIREMENTS[feature])
         rescue ArgumentError
-          return false
+          false
         end
-
-        version >= Gem::Version.new(Mobile::APP_VERSION_REQUIREMENTS[feature])
       end
 
       # Returns true if the feature flag is enabled for the user and the app version meets the minimum requirement
