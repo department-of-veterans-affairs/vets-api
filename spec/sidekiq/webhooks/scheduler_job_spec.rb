@@ -57,8 +57,13 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
   end
 
   it 'logs if sidekiq can not schedule the notification job' do
+    Webhooks::Utilities
+      .register_events('gov.va.developer.SchedulerJobTEST5',
+                       api_name: 'SchedulerJobTEST5', max_retries: 1) do
+      10.minutes.from_now
+    end
     allow(Webhooks::NotificationsJob).to receive(:perform_in).and_raise('busted')
     results = Webhooks::SchedulerJob.new.perform
-    expect(results.flatten.include?(nil)).to be true
+    expect(results).to include(nil)
   end
 end
