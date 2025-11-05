@@ -116,8 +116,6 @@ module BenefitsClaims
     end
 
     # For type "survivor", the request must include claimantSsn and be made by a valid Veteran Representative.
-    # If the Representative is not a Veteran or a VA employee, this method is currently not available to them,
-    # and they should use the Benefits Intake API as an alternative.
     def create_intent_to_file(type, claimant_ssn, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
                               options = {})
       if claimant_ssn.blank? && type == 'survivor'
