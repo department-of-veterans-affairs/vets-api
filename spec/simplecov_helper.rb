@@ -121,6 +121,7 @@ class SimpleCovHelper
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
     add_group 'Sob', 'modules/sob/'
+    add_group 'SurvivorsBenefits', 'modules/survivors_benefits/'
     add_group 'Swagger', 'app/swagger'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
     add_group 'TravelPay', 'modules/travel_pay/'
