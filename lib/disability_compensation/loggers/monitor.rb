@@ -81,8 +81,8 @@ module DisabilityCompensation
         # NOTE: Both InProgressForm.form_data and SavedClaim.form store only the inner
         # content of the form526 submission (without the 'form526' wrapper).
         # The wrapper only exists in the original HTTP request body.
-        # Keys use camelCase format (toxicExposure, gulfWar1990, etc.)
-        in_progress_toxic_exposure = in_progress_form_data['toxicExposure']
+        # InProgressForm uses snake_case, SavedClaim uses camelCase (transformation happens during submission)
+        in_progress_toxic_exposure = in_progress_form_data['toxic_exposure']
         submitted_toxic_exposure = submitted_data['toxicExposure']
 
         # Only log if toxic exposure existed in save-in-progress but changed or was removed
@@ -177,7 +177,7 @@ module DisabilityCompensation
           :info,
           'Form526Submission toxic exposure orphaned dates purged',
           "#{self.class::CLAIM_STATS_KEY}.toxic_exposure_changes",
-          log_data
+          **log_data
         )
       end
 
@@ -186,16 +186,23 @@ module DisabilityCompensation
       # Analyzes differences between save-in-progress and submitted toxic exposure data
       # to identify which keys were removed. Filters out empty hash values to reduce noise.
       #
-      # @param in_progress_toxic_exposure [Hash] Toxic exposure data from InProgressForm
-      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from SavedClaim
+      # @param in_progress_toxic_exposure [Hash] InProgressForm data (snake_case)
+      # @param submitted_toxic_exposure [Hash, nil] SavedClaim data (camelCase)
       # @return [Hash] Metadata with completely_removed and removed_keys
       def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
-        all_removed_keys = in_progress_toxic_exposure.keys - (submitted_toxic_exposure&.keys || [])
+        in_progress_camelized = OliveBranch::Transformations.transform(
+          in_progress_toxic_exposure,
+          OliveBranch::Transformations.method(:camelize)
+        )
 
-        # Filter out expected removals to reduce noise:
-        # - Empty hashes contain no meaningful data
-        removed_keys = all_removed_keys.reject do |key|
-          in_progress_toxic_exposure[key].is_a?(Hash) && in_progress_toxic_exposure[key].empty?
+        in_progress_camel_keys = in_progress_camelized.keys
+        submitted_camel_keys = submitted_toxic_exposure&.keys || []
+
+        all_removed_keys = in_progress_camel_keys - submitted_camel_keys
+
+        # Filter out empty hashes to reduce noise
+        removed_keys = all_removed_keys.reject do |camel_key|
+          in_progress_camelized[camel_key].is_a?(Hash) && in_progress_camelized[camel_key].empty?
         end
 
         completely_removed = submitted_toxic_exposure.nil?
