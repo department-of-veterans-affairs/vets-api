@@ -7,4 +7,9 @@ FactoryBot.define do
       VetsJsonSchema::EXAMPLES['21-2680'].to_s
     }
   end
+
+  factory :form212680Simple, class: 'SavedClaim::Form212680' do
+    form { VetsJsonSchema::EXAMPLES.fetch('21-2680-SIMPLE').to_s }
+    form_id { SavedClaim::Form212680::FORM }
+  end
 end
