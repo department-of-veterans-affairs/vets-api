@@ -6,7 +6,7 @@ module MebApi
   module V0
     class Submit1990emebFormConfirmation
       include Sidekiq::Worker
-      include SentryLogging
+      include Vets::SharedLogging
       sidekiq_options retry: 14
 
       def perform(claim_status, email, first_name)
