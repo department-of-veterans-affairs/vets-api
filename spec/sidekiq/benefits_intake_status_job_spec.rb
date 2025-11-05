@@ -5,19 +5,7 @@ require 'rails_helper'
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
   describe '#perform' do
     describe 'job lifecycle metrics' do
-      it 'increments job.started when job begins' do
-        allow_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
-          .and_return(double(body: { 'data' => [] }, success?: true))
-
-        expect(StatsD).to receive(:increment)
-          .with("#{described_class::STATS_KEY}.job.started")
-        expect(StatsD).to receive(:increment)
-          .with("#{described_class::STATS_KEY}.job.completed")
-
-        BenefitsIntakeStatusJob.new.perform
-      end
-
-      it 'increments job.completed when job succeeds' do
+      it 'increments job.started and job.completed when job begins and finishes' do
         allow_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .and_return(double(body: { 'data' => [] }, success?: true))
 

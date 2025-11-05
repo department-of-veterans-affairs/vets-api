@@ -33,13 +33,13 @@ class BenefitsIntakeStatusJob
     pending_form_submission_attempts.reject! { |pfsa| form_ids.include?(pfsa.form_submission.form_type) }
 
     total_handled, result = batch_process(pending_form_submission_attempts)
-    
+
     if result
       StatsD.increment("#{STATS_KEY}.job.completed")
     else
       StatsD.increment("#{STATS_KEY}.job.failed")
     end
-    
+
     Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
   end
 
