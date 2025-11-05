@@ -1937,8 +1937,6 @@ vye:
     salt: development-vye-scrypt-salt
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://host.docker.internal,null
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\z"
-webhooks:
-  require_https: true
 websockets:
   require_https: ~
   websocket_settings: false
