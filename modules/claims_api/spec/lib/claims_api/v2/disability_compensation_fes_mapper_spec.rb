@@ -446,12 +446,11 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
           auto_claim = create(:auto_established_claim,
                               form_data: form_data['data']['attributes'],
                               auth_headers: {
-                                'va_eauth_pid' => '600061742',
-                                'dependent' => { 'participant_id' => '600061743' }
+                                'va_eauth_pid' => '600061742'
                               })
 
           fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
-          expect(fes_data[:data][:claimantParticipantId]).to eq('600061743')
+          expect(fes_data[:data][:claimantParticipantId]).to eq('600061742')
           expect(fes_data[:data][:veteranParticipantId]).to eq('600061742')
         end
       end
