@@ -165,6 +165,7 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
             expect(change[:beginningDate]).to eq('2023-06-04')
             expect(change[:endingDate]).to eq('2023-12-04')
             expect(change[:addressType]).to eq('DOMESTIC')
+            expect(change[:city]).to eq('Schenectady')
           end
         end
       end
