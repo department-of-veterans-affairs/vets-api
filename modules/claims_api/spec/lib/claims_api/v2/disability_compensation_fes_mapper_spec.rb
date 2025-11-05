@@ -137,7 +137,6 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
               expect(address[:addressType]).to eq('INTERNATIONAL')
               expect(address[:country]).to eq('GBR')
               expect(address[:city]).to eq('London')
-
             end
           end
         end
@@ -189,13 +188,13 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
             fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
             change = fes_data[:data][:form526][:veteran][:changeOfAddress]
 
-              expect(change[:addressLine1]).to eq('10 Peach St')
-              expect(change[:internationalPostalCode]).to eq('SW1A 1AA')
-              expect(change[:beginningDate]).to eq('2023-06-04')
-              expect(change[:endingDate]).to eq('2023-12-04')
-              expect(change[:addressType]).to eq('INTERNATIONAL')
-              expect(change[:country]).to eq('GBR')
-              expect(change[:city]).to eq('London')
+            expect(change[:addressLine1]).to eq('10 Peach St')
+            expect(change[:internationalPostalCode]).to eq('SW1A 1AA')
+            expect(change[:beginningDate]).to eq('2023-06-04')
+            expect(change[:endingDate]).to eq('2023-12-04')
+            expect(change[:addressType]).to eq('INTERNATIONAL')
+            expect(change[:country]).to eq('GBR')
+            expect(change[:city]).to eq('London')
           end
         end
       end
