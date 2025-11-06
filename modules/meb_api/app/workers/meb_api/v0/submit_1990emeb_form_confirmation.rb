@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'vets/shared_logging'
 
 module MebApi
   module V0
@@ -20,6 +21,8 @@ module MebApi
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
           }
         )
+      rescue => e
+        log_exception_to_rails(e)
       end
 
       private
