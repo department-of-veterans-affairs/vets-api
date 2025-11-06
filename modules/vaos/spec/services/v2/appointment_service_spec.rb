@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unified_health_data/service'
 
 describe VAOS::V2::AppointmentsService do
   include ActiveSupport::Testing::TimeHelpers
@@ -2128,6 +2129,27 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#extract_cerner_identifier' do
+    it 'returns nil if the appointment does not have any identifiers' do
+      appointment = {}
+
+      expect(subject.send(:extract_cerner_identifier, appointment)).to be_nil
+    end
+
+    it 'returns nil if the identifier with the cerner system is not found' do
+      appointment = { identifier: [{ system: 'some_other_system', value: 'some_value' }] }
+
+      expect(subject.send(:extract_cerner_identifier, appointment)).to be_nil
+    end
+
+    it 'returns the cerner appt id number if the identifier with the cerner system is found' do
+      appointment = { identifier: [{ system: 'urn:va.gov:masv2:cerner:appointment', value: 'Appointment/1234567' }] }
+      expected_result = '1234567'
+
+      expect(subject.send(:extract_cerner_identifier, appointment)).to eq(expected_result)
+    end
+  end
+
   describe '#avs_applicable?' do
     before { travel_to(DateTime.parse('2023-09-26T10:00:00-07:00')) }
     after { travel_back }
@@ -2264,37 +2286,89 @@ describe VAOS::V2::AppointmentsService do
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
-    let(:appt) do
+    let(:avs_pdf) do
+      [
+        {
+          'appt_id' => '12345',
+          'id' => '15249638961',
+          'name' => 'Ambulatory Visit Summary',
+          'loinc_codes' => %w[4189669 96345-4],
+          'note_type' => 'ambulatory_patient_summary',
+          'content_type' => 'application/pdf',
+          'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+        }
+      ]
+    end
+    let(:appt_cerner) do
+      { id: '12345', identifier: [{ system: 'urn:va.gov:masv2:cerner:appointment', value: 'Appointment/1234567' }],
+        ien: '12345678', station: '983' }
+    end
+    let(:appt_vista) do
       { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }],
         ien: '12345678', station: '983' }
     end
-    let(:avs_error_message) { 'Error retrieving AVS link' }
+    let(:avs_error_message) { 'Error retrieving AVS info' }
 
-    context 'when AVS successfully retrieved the AVS link' do
-      it 'fetches the avs link and updates the appt hash' do
-        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
-        subject.send(:fetch_avs_and_update_appt_body, appt)
-        expect(appt[:avs_path]).to eq(avs_link)
+    context 'OH AVS PDF' do
+      context 'when UHD Service successfully retrieved the AVS PDF' do
+        it 'fetches the AVS PDF and updates the appt hash' do
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
+          subject.send(:fetch_avs_and_update_appt_body, appt: appt_cerner, binary: 'true')
+          expect(appt_cerner[:avs_pdf]).to eq(avs_pdf)
+        end
+      end
+
+      context 'when an error occurs while retrieving AVS PDF' do
+        it 'logs the error and sets the avs_error field to an error message' do
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs)
+            .and_raise(Common::Exceptions::BackendServiceException)
+          expect(Rails.logger).to receive(:error)
+          subject.send(:fetch_avs_and_update_appt_body, appt: appt_cerner, binary: 'true')
+          expect(appt_cerner[:avs_error]).to eq(avs_error_message)
+          expect(appt_cerner[:avs_pdf]).to be_nil
+          expect(appt_cerner[:avs_path]).to be_nil
+        end
+      end
+
+      context 'when there is no available after visit summary pdf for the appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'returns an avs error message field in the appointment response' do
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return([])
+          subject.send(:fetch_avs_and_update_appt_body, appt: appt_cerner, binary: 'true')
+          expect(appt_cerner[:avs_pdf]).to be_nil
+        end
       end
     end
 
-    context 'when an error occurs while retrieving AVS link' do
-      it 'logs the error and sets the avs_path to an error message' do
-        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
-          .and_raise(Common::Exceptions::BackendServiceException)
-        expect(Rails.logger).to receive(:error)
-        subject.send(:fetch_avs_and_update_appt_body, appt)
-        expect(appt[:avs_path]).to eq(avs_error_message)
+    context 'AVS Link' do
+      context 'when AVS successfully retrieved the AVS link' do
+        it 'fetches the avs link and updates the appt hash' do
+          allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
+          subject.send(:fetch_avs_and_update_appt_body, appt: appt_vista)
+          expect(appt_vista[:avs_path]).to eq(avs_link)
+        end
       end
-    end
 
-    context 'when there is no available after visit summary for the appointment' do
-      let(:user) { build(:user, :vaos) }
-      let(:appt_no_avs) { { id: '192308' } }
+      context 'when an error occurs while retrieving AVS link' do
+        it 'logs the error and sets the avs_path to an error message' do
+          allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
+            .and_raise(Common::Exceptions::BackendServiceException)
+          expect(Rails.logger).to receive(:error)
+          subject.send(:fetch_avs_and_update_appt_body, appt: appt_vista)
+          expect(appt_vista[:avs_error]).to eq(avs_error_message)
+          expect(appt_vista[:avs_path]).to be_nil
+        end
+      end
 
-      it 'returns an error message in the avs field of the appointment response' do
-        subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
-        expect(appt_no_avs[:avs_path]).to be_nil
+      context 'when there is no available after visit summary for the appointment' do
+        let(:user) { build(:user, :vaos) }
+        let(:appt_no_avs) { { id: '192308' } }
+
+        it 'returns an avs error message field in the appointment response' do
+          subject.send(:fetch_avs_and_update_appt_body, appt: appt_no_avs)
+          expect(appt_no_avs[:avs_path]).to be_nil
+        end
       end
     end
   end
