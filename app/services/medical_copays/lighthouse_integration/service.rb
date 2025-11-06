@@ -5,7 +5,7 @@ require 'lighthouse/healthcare_cost_and_coverage/invoice/service'
 require 'lighthouse/healthcare_cost_and_coverage/charge_item/service'
 
 module MedicalCopays
-  module Lighthouse
+  module LighthouseIntegration
     class Service
       def initialize(icn)
         @icn = icn

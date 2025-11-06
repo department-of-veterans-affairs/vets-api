@@ -16,7 +16,7 @@ module V0
     private
 
     def medical_copay_service
-      MedicalCopays::Lighthouse::Service.new(current_user.icn)
+      MedicalCopays::LighthouseIntegration::Service.new(current_user.icn)
     end
   end
 end
