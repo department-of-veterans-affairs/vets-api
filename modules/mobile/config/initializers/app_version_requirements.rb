@@ -4,6 +4,6 @@
 # Used to determine if a user has access to certain services based on their app version
 Mobile::APP_VERSION_REQUIREMENTS = {
   allergiesOracleHealth: '3.0.0',
-  medicationsOracleHealth: '3.0.0',
+  medicationsOracleHealth: '2.99.99',
   labsOracleHealth: '3.0.0'
 }.freeze
