@@ -14,39 +14,39 @@ This wizard automates the complex process of:
 
 ### Interactive Mode
 ```bash
-./script/upstream-connect.sh
+./script/upstream-connect/upstream-connect.sh
 ```
 Shows a menu of available services to connect to.
 
 ### Direct Service Connection
 ```bash
-./script/upstream-connect.sh appeals
-./script/upstream-connect.sh letters
+./script/upstream-connect/upstream-connect.sh appeals
+./script/upstream-connect/upstream-connect.sh letters
 ```
 
 ### List Available Services
 ```bash
-./script/upstream-connect.sh --list
+./script/upstream-connect/upstream-connect.sh --list
 ```
 
 ### Dry Run (See what would be done)
 ```bash
-./script/upstream-connect.sh appeals --dry-run
+./script/upstream-connect/upstream-connect.sh appeals --dry-run
 ```
 
 ### Force Mode (Skip confirmations)
 ```bash
-./script/upstream-connect.sh letters --force
+./script/upstream-connect/upstream-connect.sh letters --force
 ```
 
 ### Check Connection Status
 ```bash
-./script/upstream-connect.sh --status
+./script/upstream-connect/upstream-connect.sh --status
 ```
 
 ### Cleanup Port Forwarding Sessions
 ```bash
-./script/upstream-connect.sh --cleanup
+./script/upstream-connect/upstream-connect.sh --cleanup
 ```
 
 ## Available Services

@@ -7,7 +7,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_SCRIPT="$SCRIPT_DIR/upstream_service_config.rb"
-DEVOPS_PATH="$(cd "$SCRIPT_DIR/../../devops" 2>/dev/null && pwd)" || true
+DEVOPS_PATH="$(cd "$SCRIPT_DIR/../../../devops" 2>/dev/null && pwd)" || true
 
 # Colors for output
 RED='\033[0;31m'
