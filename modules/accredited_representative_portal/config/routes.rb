@@ -38,6 +38,10 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     post '/representative_form_upload', to: 'representative_form_upload#upload_scanned_form'
     post '/upload_supporting_documents', to: 'representative_form_upload#upload_supporting_documents'
 
+    resource :disability_compensation_form, only: [] do
+      post 'submit_all_claim'
+    end
+
     resources :claim_submissions, only: :index
 
     resources :power_of_attorney_requests, only: %i[index show] do
