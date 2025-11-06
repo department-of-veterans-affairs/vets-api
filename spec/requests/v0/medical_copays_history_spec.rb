@@ -16,7 +16,7 @@ RSpec.describe 'V0::MedicalCopaysHistory', type: :request do
         get '/v0/medical_copays_history'
 
         response_body = JSON.parse(response.body)
-binding.pry
+
         data_element = response_body['data'].first
         expect(data_element['attributes'].keys).to match_array(
           %w[
