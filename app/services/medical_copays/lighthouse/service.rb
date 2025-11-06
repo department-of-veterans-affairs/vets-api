@@ -17,7 +17,7 @@ module MedicalCopays
         invoice_list['entry'].map do |entry|
           ::Lighthouse::HCC::Invoice.new(entry)
         end
-      rescue StandardError => e
+      rescue => e
         # Datadog stuff here?
         Rails.logger.error("MedicalCopays::Lighthouse::Service#list error: #{e.message}")
         raise e
@@ -27,8 +27,8 @@ module MedicalCopays
         # Datadog stuff here?
         invoices = invoice_service.list
         invoice_count = invoices['total']
-        invoice_count.blank? ? 0 : invoice_count # is this a legit scenario?
-      rescue StandardError => e
+        invoice_count.presence || 0 # is this a legit scenario?
+      rescue => e
         # Datadog stuff here?
         Rails.logger("MedicalCopays::Lighthouse::Service#count error: #{e.message}")
         raise e
@@ -42,7 +42,8 @@ module MedicalCopays
         ::Lighthouse::HealthcareCostAndCoverage::Invoice::Service.new(@icn)
       end
 
-      def account_service # may not need
+      # may not need
+      def account_service
         ::Lighthouse::HealthcareCostAndCoverage::Account::Service.new(@icn)
       end
     end

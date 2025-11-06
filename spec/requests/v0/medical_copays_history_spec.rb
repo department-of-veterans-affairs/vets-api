@@ -41,7 +41,7 @@ RSpec.describe 'V0::MedicalCopaysHistory', type: :request do
         response_body = JSON.parse(response.body)
         errors = response_body['errors']
 
-        expect(errors.first.keys).to eq(["error", "error_description", "status", "code", "title", "detail"])
+        expect(errors.first.keys).to eq(%w[error error_description status code title detail])
       end
     end
 

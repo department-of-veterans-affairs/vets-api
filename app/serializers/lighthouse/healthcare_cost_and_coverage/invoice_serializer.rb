@@ -14,4 +14,3 @@ class Lighthouse::HealthcareCostAndCoverage::InvoiceSerializer
   attribute :previous_balance
   attribute :previous_unpaid_balance
 end
-
