@@ -20,15 +20,15 @@ module SimpleFormsApi
       def upload_scanned_form
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
-                
+
         attachment.file_attacher.attach(params['file'], validate: false)
 
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
-        processed_attachment = processor.process!
+        processor.process!
 
         render json: PersistentAttachmentVAFormSerializer.new(attachment)
-        rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
-          SimpleFormsApi::ScannedFormProcessor::ValidationError => e
+      rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
+             SimpleFormsApi::ScannedFormProcessor::ValidationError => e
         render json: { errors: e.errors }, status: :unprocessable_entity
       end
 
@@ -40,7 +40,7 @@ module SimpleFormsApi
 
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
-        
+
         attachment.file_attacher.attach(params['file'], validate: false)
 
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
