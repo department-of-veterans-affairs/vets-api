@@ -3,8 +3,6 @@
 class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10275')
 
-  POE_EMAIL = 'tbd@example.com'
-
   def after_submit(_user)
     return unless Flipper.enabled?(:form22_10275_submission_email)
 
