@@ -68,6 +68,6 @@ class SavedClaim::Form212680 < SavedClaim
     current_metadata['submission_method'] = 'print_and_upload'
 
     self.metadata = current_metadata.to_json
-    save(validate: false)
+    save!(validate: false)
   end
 end

@@ -2,6 +2,7 @@
 
 module V0
   class Form212680Controller < ApplicationController
+    include RetriableConcern
     service_tag 'form-21-2680'
     skip_before_action :authenticate, only: %i[download_pdf]
 
@@ -16,14 +17,20 @@ module V0
       claim = SavedClaim::Form212680.new(form: form_body)
       if claim.save
         pdf_path = claim.generate_prefilled_pdf
+        file_data = with_retries('Generate 21-2680 PDF') do
+          File.read(pdf_path)
+        end
 
-        send_data File.read(pdf_path),
+        send_data file_data,
                   filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
                   type: 'application/pdf',
                   disposition: 'attachment'
       else
         raise(Common::Exceptions::ValidationErrors, claim)
       end
+    ensure
+      # Delete the temporary PDF file
+      File.delete(pdf_path) if pdf_path.present?
     end
   end
 end

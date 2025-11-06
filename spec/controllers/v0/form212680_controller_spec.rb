@@ -17,7 +17,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       end
 
       it 'sets the correct filename' do
-        post(:download_pdf, params:  valid_form_data, as: :json)
+        post(:download_pdf, params: valid_form_data, as: :json)
 
         expect(response.headers['Content-Disposition']).to include('VA_Form_21-2680')
         expect(response.headers['Content-Disposition']).to include('.pdf')
