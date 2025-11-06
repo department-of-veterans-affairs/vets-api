@@ -8,6 +8,10 @@ RSpec.describe V0::Form212680Controller, type: :controller do
   end
 
   describe 'POST #download_pdf' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(true)
+    end
+
     context 'with valid form data' do
       it 'returns a PDF file' do
         post(:download_pdf, params: valid_form_data, as: :json)
@@ -52,6 +56,17 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         post(:download_pdf, params: incomplete_form_data, as: :json)
 
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:create, body: valid_form_data, as: :json)
+        expect(response).to have_http_status(:not_found)
       end
     end
 

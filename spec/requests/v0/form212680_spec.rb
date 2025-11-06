@@ -10,7 +10,6 @@ RSpec.describe 'V0::Form212680', type: :request do
     ["#controller:v0/form212680,action:download_pdf,source_app:21-2680-house-bound-status,status:#{status}"]
   end
 
-  # controller:v0/form212680,action:download_pdf,source_app:21-2680-house-bound-status,status:500
   context 'while inflection header provided' do
     let(:status) { '200' }
 
@@ -26,9 +25,11 @@ RSpec.describe 'V0::Form212680', type: :request do
           }
         )
       end
-      expect(metrics.collect(&:source)).to include('saved_claim.create:1|c|#form_id:21-2680,doctype:540',
-                 'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,' \
-                 'source_app:21-2680-house-bound-status,status:200')
+      expect(metrics.collect(&:source)).to include(
+        'saved_claim.create:1|c|#form_id:21-2680,doctype:540',
+        'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,' \
+        'source_app:21-2680-house-bound-status,status:200'
+      )
 
       expect(response).to have_http_status(:ok)
     end
@@ -52,9 +53,11 @@ RSpec.describe 'V0::Form212680', type: :request do
         )
       end
 
-      expect(metrics.collect(&:source)).to include('saved_claim.create:1|c|#form_id:21-2680,doctype:540',
-                 'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,' \
-                 'source_app:21-2680-house-bound-status,status:500')
+      expect(metrics.collect(&:source)).to include(
+        'saved_claim.create:1|c|#form_id:21-2680,doctype:540',
+        'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,' \
+        'source_app:21-2680-house-bound-status,status:500'
+      )
       expect(response).to have_http_status(:internal_server_error)
     end
   end

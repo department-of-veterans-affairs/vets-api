@@ -5,6 +5,7 @@ module V0
     include RetriableConcern
     service_tag 'form-21-2680'
     skip_before_action :authenticate, only: %i[download_pdf]
+    before_action :check_feature_enabled
 
     # POST /v0/form212680/download_pdf
     # Generate and download a pre-filled PDF with veteran sections (I-V) completed
@@ -31,6 +32,12 @@ module V0
     ensure
       # Delete the temporary PDF file
       File.delete(pdf_path) if pdf_path.present?
+    end
+
+    private
+
+    def check_feature_enabled
+      routing_error unless Flipper.enabled?(:form_2680_enabled)
     end
   end
 end

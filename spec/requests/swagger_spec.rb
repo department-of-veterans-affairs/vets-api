@@ -2783,6 +2783,21 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             headers.merge('_data' => {})
           )
         end
+
+        context 'when feature toggle is disabled' do
+          before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false) }
+
+          it 'handles 404' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form212680/download_pdf',
+              200,
+              headers.merge('_data' => {
+                'form' => VetsJsonSchema::EXAMPLES['21-2680']
+              }.to_json)
+            )
+          end
+        end
       end
     end
 
