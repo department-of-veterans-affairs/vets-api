@@ -1196,8 +1196,6 @@ res:
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
-  ch_31_eligibility:
-    mock: ~
 review_instance_slug: ~
 rrd:
   alerts:
