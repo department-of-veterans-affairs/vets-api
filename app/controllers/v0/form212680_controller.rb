@@ -10,11 +10,11 @@ module V0
     # Physician sections (VI-VIII) are left blank for manual completion
     def download_pdf
       params.require('form')
+      # using request.raw_post to avoid the middleware that transforms the JSON keys to snake case
+      form_body = JSON.parse(request.raw_post)['form'].to_json
 
-      claim = SavedClaim::Form212680.new(form: params[:form].to_json)
-      if claim.valid?
-
-        claim.save!
+      claim = SavedClaim::Form212680.new(form: form_body)
+      if claim.save
         pdf_path = claim.generate_prefilled_pdf
 
         send_data File.read(pdf_path),
