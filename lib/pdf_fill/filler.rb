@@ -30,10 +30,12 @@ require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
 require 'pdf_fill/forms/va228794'
+require 'pdf_fill/forms/va220976'
 require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'pdf_fill/processors/va228794_processor'
 require 'pdf_fill/processors/va220839_processor'
+require 'pdf_fill/processors/va220976_processor'
 require 'utilities/date_parser'
 require 'forwardable'
 
@@ -89,6 +91,7 @@ module PdfFill
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
       '22-0839' => PdfFill::Forms::Va220839,
+      '22-0976' => PdfFill::Forms::Va220976,
       '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
@@ -232,6 +235,8 @@ module PdfFill
         end
       when '22-0839'
         return PdfFill::Processors::VA220839Processor.new(form_data, self).process
+      when '22-0976'
+        return PdfFill::Processors::VA220976Processor.new(form_data, self).process
       when '22-8794'
         return PdfFill::Processors::VA228794Processor.new(form_data, self).process
       end
