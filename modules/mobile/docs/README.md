@@ -34,6 +34,11 @@ cd modules/mobile/docs
 ./generate_static_docs.sh
 ```
 
+Note: You may need to install `redocly` in order to use the `./generate_static_docs.sh` script 
+
+```npm install -g @redocly/cli```
+
+
 ## Validating Route Coverage
 
 To check if all routes are documented:
@@ -62,4 +67,6 @@ When you add a new route to `config/routes.rb`:
 
 ## Viewing Documentation
 
-The generated `index.html` can be opened in any browser to view the interactive API documentation.
+The generated `index.html` located in `modules/mobile/docs/index.html` can be used to view the documentation.
+
+Your can either right-click and open the html file in the browser if there is an option to, or copy the absolute path of the file and paste it into the browser to view the interactive API documentation.
