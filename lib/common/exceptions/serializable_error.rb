@@ -15,7 +15,7 @@ module Common
       attribute :id, Integer
       attribute :href, String
       attribute :code, String
-      attribute :source, String
+      attribute :source, Object
       attribute :links, Array[String]
       attribute :status, String
       attribute :meta, String

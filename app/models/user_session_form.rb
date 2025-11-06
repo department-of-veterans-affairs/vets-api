@@ -2,7 +2,6 @@
 
 class UserSessionForm
   include ActiveModel::Validations
-  include SentryLogging
 
   VALIDATIONS_FAILED_ERROR_CODE = '004'
   SAML_REPLAY_VALID_SESSION_ERROR_CODE = '002'

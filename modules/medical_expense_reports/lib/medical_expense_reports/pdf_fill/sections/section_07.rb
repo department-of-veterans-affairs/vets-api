@@ -21,6 +21,7 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand date signed
       def expand(form_data = {})
         form_data['dateSigned'] = split_date(
           form_data['dateSigned'] || Time.zone.today.strftime('%Y-%m-%d')

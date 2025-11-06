@@ -5,15 +5,13 @@ module Swagger
     class Form210779
       include Swagger::Blocks
 
-      swagger_path '/v0/form21_0779' do
+      swagger_path '/v0/form210779' do
         operation :post do
-          extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
-          extend Swagger::Responses::ForbiddenError
 
           key :description,
               'Submit a 21-0779 form (Request for Nursing Home Information in Connection with Claim for ' \
-              'Aid and Attendance)'
+              'Aid and Attendance) - STUB IMPLEMENTATION for frontend development'
           key :operationId, 'submitForm210779'
           key :tags, %w[benefits_forms]
 
@@ -101,29 +99,22 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'Form successfully submitted'
+            key :description, 'Form successfully submitted (stub response)'
             schema do
               key :$ref, :SavedForm
             end
           end
-
-          response 403 do
-            key :description, 'Feature flag disabled - user does not have access to digital form'
-          end
-
-          response 422 do
-            key :description, 'Validation error - missing or invalid required fields'
-          end
         end
       end
 
-      swagger_path '/v0/form21_0779/download_pdf' do
+      swagger_path '/v0/form210779/download_pdf' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Download a pre-filled 21-0779 PDF form'
           key :operationId, 'downloadForm210779Pdf'
           key :tags, %w[benefits_forms]
+          key :produces, ['application/pdf']
 
           parameter :optional_authorization
 
@@ -141,7 +132,6 @@ module Swagger
 
           response 200 do
             key :description, 'PDF file download'
-            key :produces, ['application/pdf']
           end
 
           response 403 do

@@ -11,11 +11,31 @@ module Logging
     include Logging::Include::BenefitsIntake
     include Logging::Include::ZeroSilentFailures
 
+    # allowed logging params
+    # compiled from _this_ and the included modules
+    # used to filter the context passed to logging
+    ALLOWLIST = %w[
+      benefits_intake_uuid
+      claim_id
+      confirmation_number
+      error
+      errors
+      form_id
+      in_progress_form_id
+      user_account_uuid
+    ].freeze
+
     attr_reader :tags
 
-    def initialize(service)
-      super(service)
+    # create a monitor and assign `tags` instance variable
+    #
+    # @param service [String] the service name for this monitor; will be included with each log message
+    # @param allowlist [Array<String>] the list of allowed parameters
+    def initialize(service, allowlist: [])
       @tags = ["form_id:#{form_id}"]
+      @allowlist = ALLOWLIST + allowlist
+
+      super(service, allowlist: @allowlist)
     end
 
     private
