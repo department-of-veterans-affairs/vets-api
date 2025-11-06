@@ -13,7 +13,7 @@ module V1
     service_tag 'identity'
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv mhv_verified dslogon dslogon_verified idme idme_verified idme_signup
+    REDIRECT_URLS = %w[signup mhv mhv_verified idme idme_verified idme_signup
                        idme_signup_verified logingov logingov_verified logingov_signup
                        logingov_signup_verified custom mfa verify slo].freeze
     STATSD_SSO_NEW_KEY = 'api.auth.new'
@@ -225,8 +225,6 @@ module V1
         url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
         url_service.login_url('mhv_verified', 'myhealthevet', AuthnContext::MHV)
-      when 'dslogon', 'dslogon_verified'
-        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
