@@ -189,4 +189,23 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       expect(described_class.sidekiq_options['retry']).to eq(5)
     end
   end
+
+  describe 'Sidekiq retry interval configuration and jitter' do
+    # Ensure the retry interval is always greater than one hour between retries.
+    # This helps avoid excessive retry frequency and gives external services time to recover.
+    it 'ensures each retry interval is greater than one hour' do
+      retry_in_proc = EventBusGateway::LetterReadyEmailJob.sidekiq_retry_in_block
+      (1..5).each do |count|
+        interval = retry_in_proc.call(count, StandardError.new)
+        expect(interval).to be > 1.hour.to_i
+      end
+    end
+
+    # Ensure jitter is present in the retry intervals.
+    it 'adds jitter to the retry interval' do
+      retry_in_proc = EventBusGateway::LetterReadyEmailJob.sidekiq_retry_in_block
+      intervals = Array.new(10) { retry_in_proc.call(2, StandardError.new) }
+      expect(intervals.uniq.size).to be > 1
+    end
+  end
 end
