@@ -98,12 +98,32 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   describe '.submit_to_vha' do
     let(:form5655_submission) { create(:debts_api_form5655_submission) }
 
-    it 'enqueues both VHA submission jobs' do
-      expect do
-        form5655_submission.submit_to_vha
+    context 'when financial_management_vbs_only is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(false)
       end
-        .to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size).by(1)
-        .and change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size).by(1)
+
+      it 'enqueues both VHA submission jobs' do
+        expect do
+          form5655_submission.submit_to_vha
+        end
+          .to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size)
+          .by(1)
+          .and change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size).by(1)
+      end
+    end
+
+    context 'when financial_management_vbs_only is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(true)
+      end
+
+      it 'only enqueues the VBS submission job' do
+        expect do
+          form5655_submission.submit_to_vha
+        end.to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size).by(1)
+           .and not_change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size)
+      end
     end
   end
 

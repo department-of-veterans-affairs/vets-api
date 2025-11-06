@@ -88,9 +88,9 @@ RSpec.describe BGSDependents::ChildStudent do
 
     describe '#params_for_686c' do
       it 'formats child student params for submission' do
-        formatted_info = child_student_info_v2.params_for_686c_v2
+        formatted_info = child_student_info.params_for_686c
 
-        expect(formatted_info).to eq(formatted_params_result_v2)
+        expect(formatted_info).to eq(formatted_params_result)
       end
     end
   end

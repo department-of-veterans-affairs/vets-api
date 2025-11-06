@@ -14,7 +14,7 @@ module VAProfile
 
       attribute :code, String
       attribute :key, String
-      attribute :retryable, Boolean
+      attribute :retryable, Bool
       attribute :severity, String
       attribute :text, String
 

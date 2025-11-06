@@ -754,7 +754,7 @@
                 "enum": ["Active", "Reserves", "National Guard"]
               },
               "activeDutyBeginDate": {
-                "description": "Date started active duty.",
+                "description": "Date started active duty. This date must be in the past.",
                 "type": "string",
                 "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                 "example": "2018-06-06"

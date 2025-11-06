@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/AllergyIntolerance/30242"
+      uri: "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance/30242"
       body:
         encoding: US-ASCII
         string: ""

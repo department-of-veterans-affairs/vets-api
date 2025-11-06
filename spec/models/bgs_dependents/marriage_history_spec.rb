@@ -64,7 +64,7 @@ RSpec.describe BGSDependents::MarriageHistory do
 
     describe '#format_info' do
       it 'formats marriage history params for submission' do
-        formatted_info = described_class.new(marriage_history_info_v2).format_info
+        formatted_info = described_class.new(marriage_history_info).format_info
 
         expect(formatted_info).to eq(formatted_params_result)
       end

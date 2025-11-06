@@ -1,2 +1,8 @@
 idme:
   client_secret: ae657fd2b253d17be7b48ecdb39d7b34
+sign_in:
+  credential_attributes_digester:
+    pepper: 5740e000be940493231f85324c413bd2
+  vamobile_client_id: 
+    - vamobile
+    - vamobile_local_auth

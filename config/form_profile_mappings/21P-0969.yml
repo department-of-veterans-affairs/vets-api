@@ -1,3 +1,5 @@
+email: [contact_information, email]
+phone: [contact_information, us_phone]
 nonPrefill:
   veteranSocialSecurityNumber: [identity_information, ssn]
   veteranVaFileNumber: [va_file_number]

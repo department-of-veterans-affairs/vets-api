@@ -52,6 +52,10 @@ class Rack::Attack
     req.remote_ip if req.path.starts_with?('/v0/medical_copays') && req.get?
   end
 
+  throttle('education_benefits_claims/v0/ip', limit: 15, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/education_benefits_claims') && req.post?
+  end
+
   # Always allow requests from below IP addresses for load testing
   # `100.103.248.0 - 100.103.248.255`
   # `100.103.251.128 - 100.103.251.255`

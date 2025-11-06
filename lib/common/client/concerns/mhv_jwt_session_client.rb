@@ -17,10 +17,19 @@ module Common
         extend ActiveSupport::Concern
         include MhvLockedSessionClient
 
+        included do
+          attr_reader :icn
+        end
+
+        def initialize(session:, icn: nil, **)
+          super(session:)
+          @icn = icn
+        end
+
         protected
 
         def user_key
-          session.icn
+          session.user_uuid
         end
 
         def session_config_key
@@ -40,7 +49,6 @@ module Common
           decoded_token = decode_jwt_token(jwt)
           session.expires_at = extract_token_expiration(decoded_token)
           @session.class.new(user_id: session.user_id.to_s,
-                             icn: session.icn,
                              expires_at: session.expires_at,
                              token: jwt)
         end
@@ -49,11 +57,7 @@ module Common
 
         def get_jwt_from_headers(res_headers)
           # Get the JWT token from the headers
-          auth_header = if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-                          res_headers['x-amzn-remapped-authorization']
-                        else
-                          res_headers['authorization']
-                        end
+          auth_header = res_headers['x-amzn-remapped-authorization']
           if auth_header.nil? || !auth_header.start_with?('Bearer ')
             raise Common::Exceptions::Unauthorized, detail: 'Invalid or missing authorization header'
           end
@@ -76,19 +80,12 @@ module Common
         end
 
         def validate_session_params
-          raise Common::Exceptions::ParameterMissing, 'ICN' if session.icn.blank?
+          raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
           raise Common::Exceptions::ParameterMissing, 'MHV MR App Token' if config.app_token.blank?
         end
 
         def get_session_tagged
-          Sentry.set_tags(error: 'mhv_session')
-          env = if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-                  perform(:post, '/v1/security/login', auth_body, auth_headers)
-                else
-                  perform(:post, '/mhvapi/security/v1/login', auth_body, auth_headers)
-                end
-          Sentry.get_current_scope.tags.delete(:error)
-          env
+          perform(:post, '/v1/security/login', auth_body, auth_headers)
         end
 
         def jwt_bearer_token
@@ -101,16 +98,14 @@ module Common
 
         def auth_headers
           config.base_request_headers.merge('Content-Type' => 'application/json')
-          if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-            config.base_request_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
-          end
+          config.base_request_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
         end
 
         def auth_body
           {
             'appId' => '103',
             'appToken' => config.app_token,
-            'subject' => session.icn,
+            'subject' => icn,
             'userType' => 'PATIENT',
             'authParams' => {
               'PATIENT_SUBJECT_ID_TYPE' => 'ICN'

@@ -5,10 +5,12 @@ require_relative 'notification_monitor'
 
 module DecisionReviews
   class EvidenceNotificationCallback < ::VeteranFacingServices::NotificationCallback::Default
+    attr_reader :reference
+
     def update_database
       DecisionReviewNotificationAuditLog.create!(
         notification_id: notification.notification_id,
-        reference: notification.reference,
+        reference:,
         status: notification.status,
         payload: notification.to_json
       )
@@ -18,9 +20,7 @@ module DecisionReviews
     def on_delivered
       update_database
 
-      if email? && email_type.to_s == 'error'
-        monitor.log_silent_failure_avoided(context, email_confirmed: true, call_location:)
-      end
+      monitor.log_silent_failure_avoided(context, call_location:) if email? && email_type.to_s == 'error'
     end
 
     # notification has permanently failed

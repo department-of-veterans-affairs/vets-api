@@ -148,7 +148,7 @@ class BenefitsIntakeStatusJob
     call_location = caller_locations.first
 
     # Dependents
-    if %w[686C-674].include?(form_id)
+    if %w[686C-674 686C-674-V2 21-674 21-674-V2].include?(form_id)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       email = if claim.present?
                 claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address')

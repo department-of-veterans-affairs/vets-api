@@ -46,7 +46,7 @@ def valid_service
         'type' => 'escalation_policy_reference',
         'summary' => 'Kraken Critical',
         'self' => 'https://api.pagerduty.com/escalation_policies/P6CEGGU',
-        'html_url' => 'https://dsva.pagerduty.com/escalation_policies/P6CEGGU'
+        'html_url' => 'https://ecc.pagerduty.com/escalation_policies/P6CEGGU'
       },
       'addons' => [],
       'alert_creation' => 'create_alerts_and_incidents',
@@ -58,14 +58,14 @@ def valid_service
           'type' => 'generic_events_api_inbound_integration_reference',
           'summary' => 'Prometheus: Appeals',
           'self' => 'https://api.pagerduty.com/services/P9S4RFU/integrations/P3SDLYP',
-          'html_url' => 'https://dsva.pagerduty.com/services/P9S4RFU/integrations/P3SDLYP'
+          'html_url' => 'https://ecc.pagerduty.com/services/P9S4RFU/integrations/P3SDLYP'
         }
       ],
       'response_play' => nil,
       'type' => 'service',
       'summary' => 'External: Appeals',
       'self' => 'https://api.pagerduty.com/services/P9S4RFU',
-      'html_url' => 'https://dsva.pagerduty.com/services/P9S4RFU'
+      'html_url' => 'https://ecc.pagerduty.com/services/P9S4RFU'
     }
   ]
 end
@@ -115,7 +115,7 @@ def valid_staging_service
         'type' => 'escalation_policy_reference',
         'summary' => 'Kraken Critical',
         'self' => 'https://api.pagerduty.com/escalation_policies/P6CEGGU',
-        'html_url' => 'https://dsva.pagerduty.com/escalation_policies/P6CEGGU'
+        'html_url' => 'https://ecc.pagerduty.com/escalation_policies/P6CEGGU'
       },
       'addons' => [],
       'alert_creation' => 'create_alerts_and_incidents',
@@ -127,14 +127,14 @@ def valid_staging_service
           'type' => 'generic_events_api_inbound_integration_reference',
           'summary' => 'Prometheus: Appeals',
           'self' => 'https://api.pagerduty.com/services/P9S4RFU/integrations/P3SDLYP',
-          'html_url' => 'https://dsva.pagerduty.com/services/P9S4RFU/integrations/P3SDLYP'
+          'html_url' => 'https://ecc.pagerduty.com/services/P9S4RFU/integrations/P3SDLYP'
         }
       ],
       'response_play' => nil,
       'type' => 'service',
       'summary' => 'External: Appeals',
       'self' => 'https://api.pagerduty.com/services/P9S4RFU',
-      'html_url' => 'https://dsva.pagerduty.com/services/P9S4RFU'
+      'html_url' => 'https://ecc.pagerduty.com/services/P9S4RFU'
     }
   ]
 end

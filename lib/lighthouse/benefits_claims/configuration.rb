@@ -96,8 +96,8 @@ module BenefitsClaims
         faraday.request :multipart
         faraday.request :json
 
-        faraday.response :betamocks if use_mocks?
         faraday.response :json, content_type: /\bjson/
+        faraday.response :betamocks if use_mocks?
         faraday.adapter Faraday.default_adapter
       end
     end

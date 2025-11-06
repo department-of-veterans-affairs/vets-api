@@ -15,7 +15,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_allergy).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
@@ -68,9 +67,12 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       VCR.use_cassette('mr_client/get_a_list_of_allergies') do
         get '/my_health/v1/medical_records/allergies'
       end
-
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+
+      body = JSON.parse(response.body)
+      expect(body['entry']).to be_a(Array)
+      expect(body['entry'][0]['resource']['resourceType']).to eq('AllergyIntolerance')
+      expect(body['entry'][0]['resource']['category'][0]).to eq('medication')
     end
 
     it 'responds to GET #show' do
@@ -79,7 +81,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       end
 
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      body = JSON.parse(response.body)
+      expect(body['resourceType']).to eq('AllergyIntolerance')
+      expect(body['code']['coding'][0]['display']).to eq('Ibuprofen')
     end
 
     context 'when the patient is not found' do

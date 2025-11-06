@@ -1,22 +1,27 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module FacilitiesApi
   module V2
     module MobileCovid
-      class Response < Common::Base
+      class Response
+        include Vets::Model
+
         attribute :body, String
-        attribute :core_settings, Array
+        attribute :core_settings, Hash, array: true
         attribute :id, String
         attribute :parsed_body, Hash
         attribute :status, Integer
 
         def initialize(body, status)
           super()
-          self.body = body
-          self.status = status
-          self.parsed_body = JSON.parse(body)
-          self.id = parsed_body['id']
-          self.core_settings = parsed_body['coreSettings']
+
+          @body = body
+          @status = status
+          @parsed_body = JSON.parse(body)
+          @id = parsed_body['id']
+          @core_settings = parsed_body['coreSettings']
         end
 
         def covid_online_scheduling_available?

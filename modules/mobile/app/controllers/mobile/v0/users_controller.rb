@@ -3,7 +3,6 @@
 module Mobile
   module V0
     class UsersController < ApplicationController
-      after_action :pre_cache_resources, only: %i[show logged_in]
       after_action :handle_vet360_id, only: %i[show logged_in]
 
       def show
@@ -31,10 +30,6 @@ module Mobile
             available_services: user_accessible_services.available
           }
         }
-      end
-
-      def pre_cache_resources
-        Mobile::V0::PreCacheClaimsAndAppealsJob.perform_async(@current_user.uuid)
       end
 
       # solution so old app versions will still treat LOGINGOV accounts as multifactor

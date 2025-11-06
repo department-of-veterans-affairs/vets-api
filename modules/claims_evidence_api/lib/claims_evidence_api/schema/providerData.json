@@ -7,13 +7,7 @@
   "additionalProperties" : false,
   "properties" : {
     "contentSource" : {
-      "description" : "String field designating the originating source of the content being uploaded.",
-      "example" : "VBMS",
-      "maximum" : 500,
-      "minimum" : 1,
-      "pattern" : "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\\/@\\(\\)]*$",
-      "title" : "Document content source",
-      "type" : "string"
+      "$ref": "properties/contentSource.json"
     },
     "claimantFirstName" : {
       "description" : "String field designating the Claimant's first name.",

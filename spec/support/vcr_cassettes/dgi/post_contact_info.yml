@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/utility/checkDuplicateContacts
+    uri: <DGI_VETS_URL>utility/checkDuplicateContacts
     body:
       encoding: UTF-8
       string: '{"emails":["test@test.com"],"phones":["8013090123"]}'

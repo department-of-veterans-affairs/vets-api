@@ -33,6 +33,7 @@ module IncomeAndAssets
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship3[#{ITERATOR}]",
+            limit: 22,
             question_num: 3,
             question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
@@ -41,6 +42,7 @@ module IncomeAndAssets
           # Q2
           'recipientName' => {
             key: "F[0].NameofIncomeRecipient3[#{ITERATOR}]",
+            limit: 37,
             question_num: 3,
             question_suffix: '(2)',
             question_text:
@@ -62,6 +64,7 @@ module IncomeAndAssets
           },
           'otherIncomeType' => {
             key: "F[0].OtherIncomeType3[#{ITERATOR}]",
+            limit: 29,
             question_num: 3,
             question_suffix: '(3)(OTHER)',
             question_text: 'SPECIFY THE TYPE OF INCOME',
@@ -80,6 +83,7 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            limit: 10,
             dollar: true,
             question_num: 3,
             question_suffix: '(4)',
@@ -89,6 +93,7 @@ module IncomeAndAssets
           # Q5
           'payer' => {
             key: "F[0].IncomePayer3[#{ITERATOR}]",
+            limit: 87,
             question_num: 3,
             question_suffix: '(5)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)',
@@ -132,7 +137,7 @@ module IncomeAndAssets
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => item['otherIncomeType'],
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => gross_monthly_income,
+          'grossMonthlyIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(gross_monthly_income),
           'payer' => item['payer']
         }
       end

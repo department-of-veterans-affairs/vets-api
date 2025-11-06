@@ -13,7 +13,7 @@ module MyHealth
         end
 
         def request_download
-          render_resource(bb_client.request_study(@study_id))
+          render_resource(bb_client.request_study(current_user.icn, @study_id))
         end
 
         def request_status

@@ -7,12 +7,14 @@ module ClaimsApi
       david.mazik@va.gov
       drew.fisher@adhocteam.us
       janet.coutinho@va.gov
-      jayson.perkins@adhocteam.us
       jgreene@technatomy.com
       kayla.watanabe@adhocteam.us
       mchristianson@technatomy.com
+      michael.clement@adhocteam.us
       michael.harlow@va.gov
+      mzanaty@technatomy.com
       robert.perea-martinez@adhocteam.us
+      rrice@technatomy.com
       stone_christopher@bah.com
       zachary.goldfine@va.gov
     ].freeze

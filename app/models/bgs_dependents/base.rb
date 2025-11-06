@@ -203,7 +203,7 @@ module BGSDependents
     private
 
     def v2?
-      Flipper.enabled?(:va_dependents_v2)
+      false
     end
   end
 end

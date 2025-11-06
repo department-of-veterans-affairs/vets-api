@@ -116,57 +116,23 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
       end
 
-      context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
-        end
+      it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
+         'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
+        VCR.use_cassette(
+          'hca/submit_with_attachment_formatted_correctly',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          described_class.new.submit(
+            create(:hca_app_with_attachment).parsed_form,
+            '10-10EZ'
+          )
 
-        it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
-          VCR.use_cassette(
-            'hca/submit_with_attachment_formatted_correctly',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            described_class.new.submit(
-              create(:hca_app_with_attachment).parsed_form,
-              '10-10EZ'
-            )
-
-            expect(Rails.logger).to have_received(:info).with(
-              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
-            )
-            expect(Rails.logger).to have_received(:info).with(
-              'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
-            )
-          end
-        end
-      end
-
-      context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
-        end
-
-        it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
-          VCR.use_cassette(
-            'hca/submit_with_attachment',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            described_class.new.submit(
-              create(:hca_app_with_attachment).parsed_form,
-              '10-10EZ'
-            )
-
-            expect(Rails.logger).to have_received(:info).with(
-              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
-            )
-            expect(Rails.logger).to have_received(:info).with(
-              'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
-            )
-          end
+          expect(Rails.logger).to have_received(:info).with(
+            'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+          )
+          expect(Rails.logger).to have_received(:info).with(
+            'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+          )
         end
       end
     end
@@ -221,6 +187,32 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
           )
 
         expect(pretty_printed[1..]).to eq(xml)
+      end
+    end
+  end
+
+  describe '#self.soap' do
+    subject { described_class.soap }
+
+    it 'returns soap client' do
+      expect(subject).to be_a(Savon::Client)
+    end
+
+    context 'configuration values' do
+      subject { super().globals }
+
+      let(:wsdl_path) { 'my/path/from/wsdl' }
+
+      before do
+        stub_const('HCA::Configuration::WSDL', :wsdl_path)
+      end
+
+      it 'has correct config' do
+        expect(subject[:wsdl]).to eq :wsdl_path
+        expect(subject[:env_namespace]).to eq :soap
+        expect(subject[:element_form_default]).to eq :qualified
+        expect(subject[:namespaces]).to eq({ 'xmlns:tns': 'http://va.gov/service/esr/voa/v1' })
+        expect(subject[:namespace]).to eq 'http://va.gov/schema/esr/voa/v1'
       end
     end
   end

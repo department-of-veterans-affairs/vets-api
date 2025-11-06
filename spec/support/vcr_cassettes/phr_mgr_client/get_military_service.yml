@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_MR_HOST>/mhvapi/v2/phrmgr/dod/vaprofile/1234567890"
+    uri: "<MHV_MR_HOST>/v2/phrmgr/dod/vaprofile/1234567890"
     body:
       encoding: US-ASCII
       string: ''
