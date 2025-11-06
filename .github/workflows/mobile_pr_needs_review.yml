@@ -23,7 +23,7 @@ jobs:
           if gh api \
             --method GET \
             "orgs/department-of-veterans-affairs/teams/mobile-api-team/memberships/$PR_AUTHOR" > /dev/null 2>&1; then
-            echo "Reviewer $PR_AUTHOR is a member of the mobile team."
+            echo "Author $PR_AUTHOR is a member of the mobile team."
             IS_TEAM_MEMBER=true
           fi
 
