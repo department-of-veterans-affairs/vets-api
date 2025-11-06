@@ -47,6 +47,12 @@ module RepresentationManagement
     def perform(force_update_types = [])
       @force_update_types = force_update_types
       initialize_instance_variables
+
+      # Start ingestion log
+      @ingestion_log = RepresentationManagement::AccreditationDataIngestionLog.start_ingestion!(
+        dataset: :accreditation_api
+      )
+
       @entity_counts = RepresentationManagement::AccreditationApiEntityCount.new
       setup_daily_report
 
@@ -59,8 +65,12 @@ module RepresentationManagement
       delete_removed_accredited_individuals
       delete_removed_accredited_organizations
       delete_removed_accreditations
+
+      # Complete ingestion successfully
+      complete_ingestion_log
     rescue => e
       log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
+      fail_ingestion_log("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
     ensure
       finalize_and_send_report
     end
@@ -149,6 +159,8 @@ module RepresentationManagement
       # Don't process if we are forcing updates for other types
       return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
 
+      @ingestion_log&.mark_entity_running!(entity_type)
+
       if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
         # Capture expected count before processing
         @expected_counts[entity_type.to_sym] = @entity_counts.current_api_counts[entity_type.to_sym]
@@ -157,15 +169,25 @@ module RepresentationManagement
           update_agents
           @report << "Agents processed: #{@agent_ids.uniq.compact.size}\n"
           validate_agent_addresses
+          @ingestion_log&.mark_entity_success!(entity_type, count: @agent_ids.uniq.compact.size)
         else # attorneys
           update_attorneys
           @report << "Attorneys processed: #{@attorney_ids.uniq.compact.size}\n"
           validate_attorney_addresses
+          @ingestion_log&.mark_entity_success!(entity_type, count: @attorney_ids.uniq.compact.size)
         end
       else
         entity_display = entity_type.capitalize
         log_error("#{entity_display} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+        @ingestion_log&.mark_entity_failed!(
+          entity_type,
+          error: 'Count validation failed',
+          threshold: DECREASE_THRESHOLD
+        )
       end
+    rescue => e
+      @ingestion_log&.mark_entity_failed!(entity_type, error: e.message)
+      raise
     end
 
     def process_orgs_and_reps
@@ -173,6 +195,9 @@ module RepresentationManagement
       # that none of them are representatives or veteran_service_organizations
       return if @force_update_types.any? &&
                 !@force_update_types.intersect?(orgs_and_reps)
+
+      @ingestion_log&.mark_entity_running!(REPRESENTATIVES)
+      @ingestion_log&.mark_entity_running!(VSOS)
 
       orgs_and_reps.each do |type|
         unless @entity_counts.valid_count?(type) || @force_update_types.include?(type)
@@ -182,6 +207,14 @@ module RepresentationManagement
 
       unless orgs_and_reps_both_valid? || @force_update_types.intersect?(orgs_and_reps)
         log_error('Both Orgs and Reps must have valid counts to process together - skipping update for both')
+        @ingestion_log&.mark_entity_failed!(
+          REPRESENTATIVES,
+          error: 'Both Orgs and Reps must have valid counts'
+        )
+        @ingestion_log&.mark_entity_failed!(
+          VSOS,
+          error: 'Both Orgs and Reps must have valid counts'
+        )
         return
       end
 
@@ -193,14 +226,20 @@ module RepresentationManagement
       # Process VSOs first (must exist before representatives can reference them)
       update_vsos
       @report << "VSOs processed: #{@vso_ids.uniq.compact.size}\n"
+      @ingestion_log&.mark_entity_success!(VSOS, count: @vso_ids.uniq.compact.size)
 
       # Process representatives
       update_reps
       @report << "Representatives processed: #{@representative_ids.uniq.compact.size} (deduplicated)\n"
       validate_rep_addresses
+      @ingestion_log&.mark_entity_success!(REPRESENTATIVES, count: @representative_ids.uniq.compact.size)
 
       # Create or update join records
       create_or_update_accreditations
+    rescue => e
+      @ingestion_log&.mark_entity_failed!(REPRESENTATIVES, error: e.message)
+      @ingestion_log&.mark_entity_failed!(VSOS, error: e.message)
+      raise
     end
 
     # Fetches agent data from the GCLAWS API and updates database records
@@ -810,6 +849,28 @@ module RepresentationManagement
       end
     rescue => e
       log_error("Error creating/updating accreditations: #{e.message}")
+    end
+
+    # Completes the ingestion log with overall metrics
+    def complete_ingestion_log
+      return unless @ingestion_log
+
+      @ingestion_log.complete_ingestion!(
+        agents: @agent_ids.uniq.compact.size,
+        attorneys: @attorney_ids.uniq.compact.size,
+        representatives: @representative_ids.uniq.compact.size,
+        veteran_service_organizations: @vso_ids.uniq.compact.size,
+        accreditations: @accreditation_ids.uniq.compact.size
+      )
+    end
+
+    # Marks the ingestion log as failed
+    #
+    # @param error_message [String] The error message to log
+    def fail_ingestion_log(error_message)
+      return unless @ingestion_log
+
+      @ingestion_log.fail_ingestion!(error: error_message)
     end
   end
   # rubocop:enable Metrics/ClassLength
