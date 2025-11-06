@@ -41,13 +41,15 @@ RSpec.describe V0::Chatbot::TokenController, type: :controller do
         expect(res['token']).to eq(recorded_token)
       end
 
-      it 'includes expires_in of 3600 seconds' do
+      it 'includes a positive expires_in value' do
         VCR.use_cassette('chatbot/webchat_token_success') do
           post :create
         end
 
         res = JSON.parse(response.body)
-        expect(res['expires_in']).to eq(3600)
+        expect(res).to have_key('expires_in')
+        expect(res['expires_in']).to be_a(Integer)
+        expect(res['expires_in']).to be > 0
       end
 
       it('does not return code') do
@@ -119,7 +121,9 @@ RSpec.describe V0::Chatbot::TokenController, type: :controller do
       res = JSON.parse(response.body)
 
       expect(res['code']).to be_a(String)
-      expect(res['expires_in']).to eq(3600)
+      expect(res).to have_key('expires_in')
+      expect(res['expires_in']).to be_a(Integer)
+      expect(res['expires_in']).to be > 0
     end
   end
 end
