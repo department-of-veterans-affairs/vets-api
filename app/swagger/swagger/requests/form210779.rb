@@ -33,6 +33,8 @@ module Swagger
 
       swagger_path '/v0/form210779/download_pdf/{guid}' do
         operation :get do
+          extend Swagger::Responses::RecordNotFoundError
+
           key :description, 'Download a the submitted 21-0779 PDF form'
           key :operationId, 'downloadForm210779Pdf'
           key :tags, %w[benefits_forms]

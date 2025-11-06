@@ -17,6 +17,10 @@ RSpec.describe V0::Form210779Controller, type: :controller do
   end
 
   describe 'POST #create' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_07790_enabled).and_return(true)
+    end
+
     it 'returns expected response structure' do
       post(:create, body: form_data, as: :json)
 
@@ -56,6 +60,17 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     it 'does not require authentication' do
       post(:create, body: form_data, as: :json)
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:create, body: form_data, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 
@@ -109,6 +124,17 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       get(:download_pdf, params: { guid: claim.guid })
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        get(:download_pdf, params: { guid: claim.guid })
+        expect(response).to have_http_status(:not_found)
+      end
     end
 
     context 'error handling' do

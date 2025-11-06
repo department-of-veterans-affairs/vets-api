@@ -2781,6 +2781,19 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           'guid' => saved_claim.guid
         )
       end
+
+      context 'when feature toggle is disabled' do
+        before { allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false) }
+
+        it 'handles 404' do
+          expect(subject).to validate(
+            :get,
+            '/v0/form210779/download_pdf/{guid}',
+            404,
+            'guid' => saved_claim.guid
+          )
+        end
+      end
     end
 
     describe 'va file number' do
