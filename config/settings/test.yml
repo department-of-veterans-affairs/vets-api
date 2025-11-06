@@ -734,7 +734,7 @@ lighthouse:
       - system/Medication.read
       - launch
     timeout: 30
-    use_mocks: true
+    use_mocks: false
   letters_generator:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token

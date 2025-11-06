@@ -6,7 +6,7 @@ module V0
 
     def index
       copays = medical_copay_service.list
-      render json: Lighthouse::HealthcareCostAndCoverage.new(copays)
+      render json: Lighthouse::HealthcareCostAndCoverage::InvoiceSerializer.new(copays)
     end
 
     def count

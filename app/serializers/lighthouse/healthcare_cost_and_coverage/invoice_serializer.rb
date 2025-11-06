@@ -5,6 +5,7 @@ class Lighthouse::HealthcareCostAndCoverage::InvoiceSerializer
 
   set_key_transform :camel_lower
 
+  attribute :id
   attribute :url
   attribute :facility
   attribute :external_id

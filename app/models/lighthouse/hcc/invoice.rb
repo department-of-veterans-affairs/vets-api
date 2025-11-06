@@ -2,6 +2,7 @@ module Lighthouse
   module HCC
     class Invoice
       include Vets::Model
+      attribute :id, String
       attribute :external_id, String
       attribute :facility, String
       attribute :billing_ref, Array
@@ -16,6 +17,7 @@ module Lighthouse
       end
 
       def assign_attributes
+        @id = @params["resource"]["id"]
         @facility = @params["resource"]["issuer"]["display"]
         # Seems like we need to maybe make a collection for latest charges where this attribute is mentioned in the mapping doc we made
         # We are just ripping this code for now
