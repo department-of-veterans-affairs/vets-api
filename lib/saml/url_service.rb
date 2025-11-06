@@ -120,8 +120,6 @@ module SAML
           build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'myhealthevet', 'myhealthevet_multifactor'
           build_authn_context('myhealthevet_loa3', AuthnContext::MHV)
-        when 'dslogon', 'dslogon_multifactor'
-          build_authn_context('dslogon_loa3', AuthnContext::DSLOGON)
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
           "#{@user.identity.sign_in[:service_name]}_loa3"
         end
@@ -136,8 +134,6 @@ module SAML
           build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'mhv', 'mhv_verified'
           build_authn_context('myhealthevet_loa3', AuthnContext::MHV)
-        when 'dslogon'
-          build_authn_context('dslogon_loa3', AuthnContext::DSLOGON)
         end
 
       build_sso_url(link_authn_context)
@@ -151,8 +147,6 @@ module SAML
           build_authn_context('multifactor', AuthnContext::ID_ME)
         when 'myhealthevet', 'myhealthevet_loa3'
           build_authn_context('myhealthevet_multifactor', AuthnContext::MHV)
-        when 'dslogon', 'dslogon_loa3'
-          build_authn_context('dslogon_multifactor', AuthnContext::DSLOGON)
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
           "#{@user.identity.sign_in[:service_name]}_multifactor"
         end
