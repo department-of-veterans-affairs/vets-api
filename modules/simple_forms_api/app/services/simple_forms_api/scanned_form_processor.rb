@@ -86,7 +86,7 @@ module SimpleFormsApi
         'PDF decryption failed',
         [{
           title: 'Invalid password',
-          detail: e.errors.first&.detail
+          detail: 'The password you entered is incorrect. Please try again.'
         }]
       )
     end

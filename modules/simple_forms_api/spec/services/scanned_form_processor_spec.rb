@@ -98,7 +98,7 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
             expect(error.errors).to include(
               hash_including(
                 title: 'Invalid password',
-                detail: 'We couldn’t unlock your PDF. Save the PDF without a password and try again.'
+                detail: 'The password you entered is incorrect. Please try again.'
               )
             )
           end

@@ -271,12 +271,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         expect(resp['data']).to be_present
         expect(resp['data']['attributes']).to have_key('confirmation_code')
 
-        # Verify the saved attachment is a valid PDF
         attachment = PersistentAttachment.last
         expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
         expect(attachment.file.content_type).to eq('application/pdf')
 
-        # Verify it's decrypted (can be read without password)
         pdf_content = attachment.file.read
         expect(pdf_content).to start_with('%PDF-')
       end
