@@ -12,8 +12,11 @@ RSpec.describe 'V0::MedicalCopaysHistory', type: :request do
   describe 'index' do
     it 'returns a formatted hash response' do
       VCR.use_cassette('lighthouse/hccc/invoice_list_success') do
+        allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
         get '/v0/medical_copays_history'
+
         response_body = JSON.parse(response.body)
+binding.pry
         data_element = response_body['data'].first
         expect(data_element['attributes'].keys).to match_array(
           %w[
