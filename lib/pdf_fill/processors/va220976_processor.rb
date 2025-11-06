@@ -7,16 +7,13 @@ module PdfFill
     class VA220976Processor
       extend Forwardable
 
-      def_delegators :@main_form_filler, :combine_extras
-
       PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
       DEFAULT_TEMPLATE_PATH = 'lib/pdf_fill/forms/pdfs/22-0976.pdf'
       TMP_DIR = 'tmp/pdfs'
       FORM_CLASS = PdfFill::Forms::Va220976
 
-      def initialize(form_data, main_form_filler)
+      def initialize(form_data, _main_form_filler)
         @form_data = form_data
-        @main_form_filler = main_form_filler
       end
 
       def process
