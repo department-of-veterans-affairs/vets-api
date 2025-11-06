@@ -112,11 +112,11 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
           att.file_attacher.attach(File.open(encrypted_pdf_path, 'rb'), validate: false)
         end
       end
-      let(:processor) { described_class.new(attachment) } # No password
+      let(:processor) { described_class.new(attachment) }
 
       before do
         allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
-          double(validate: double(valid_pdf?: false, errors: ['PDF is encrypted']))
+          double(validate: double(valid_pdf?: false, errors: ['Document is locked with a user password']))
         )
       end
 

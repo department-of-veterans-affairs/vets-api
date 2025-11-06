@@ -20,11 +20,16 @@ module SimpleFormsApi
       def upload_scanned_form
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
-        attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+                
+        attachment.file_attacher.attach(params['file'], validate: false)
 
-        attachment.save
+        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
+        processed_attachment = processor.process!
+
         render json: PersistentAttachmentVAFormSerializer.new(attachment)
+        rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
+          SimpleFormsApi::ScannedFormProcessor::ValidationError => e
+        render json: { errors: e.errors }, status: :unprocessable_entity
       end
 
       def upload_supporting_documents
@@ -36,7 +41,6 @@ module SimpleFormsApi
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
         
-        # Always skip Shrine validations - processor will handle them after decryption
         attachment.file_attacher.attach(params['file'], validate: false)
 
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
