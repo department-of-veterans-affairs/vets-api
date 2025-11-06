@@ -8,6 +8,10 @@ module AccreditedRepresentativePortal
       @record.present?
     end
 
+    def submit_all_claim?
+      submit?
+    end
+
     def upload_scanned_form?
       @user.representative?
     end
