@@ -21,7 +21,7 @@ RSpec.describe EmploymentQuestionnaires::V0::ClaimsController, type: :request do
   describe '#create' do
     let(:claim) { build(:employment_questionnaires_claim) }
     let(:param_name) { :employment_questionnaires_claim }
-    let(:form_id) { 'VBA-21-4140-ARE' }
+    let(:form_id) { '21-4140' }
 
     it 'logs validation errors' do
       allow(EmploymentQuestionnaires::SavedClaim).to receive(:new).and_return(claim)

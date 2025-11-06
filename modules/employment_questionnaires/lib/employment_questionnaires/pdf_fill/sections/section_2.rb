@@ -118,7 +118,7 @@ module EmploymentQuestionnaires
           },
           'grossEarningsPerMonth' => {
             limit: 10,
-            key: 'F[0].#subform[1].Gross_Earnings_Per_Month[1]'
+            key: 'F[0].#subform[1].Gross_Earnings_Per_Month[0]' # <- weird pdf mapping
           }
         },
         'employmentFour' => {
@@ -148,7 +148,7 @@ module EmploymentQuestionnaires
           },
           'grossEarningsPerMonth' => {
             limit: 10,
-            key: 'F[0].#subform[1].Gross_Earnings_Per_Month[0]'
+            key: 'F[0].#subform[1].Gross_Earnings_Per_Month[1]' # <- weird pdf mapping
           }
         },
         'signatureSection1' => {

@@ -226,7 +226,7 @@ module EmploymentQuestionnaires
         form_data['dateOfBirth'] = split_date(form_data['dateOfBirth'])
         form_data['veteranAddress']['postalCode'] = split_postal_code(form_data['veteranAddress'])
         form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
-
+        
         form_data
       end
     end
