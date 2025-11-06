@@ -13,8 +13,9 @@ module Mobile
         resource = resource.sort(params[:sort])
 
         links = pagination_links(resource)
-        resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
+        # Add total_entries to metadata for pagination backwards compatibility
+        resource.metadata.merge!(total_entries(resource.size))
 
         options = { meta: resource.metadata, links: }
         render json: Mobile::V0::MessagesSerializer.new(resource.data, options)
@@ -137,6 +138,14 @@ module Mobile
               hash[:unread] += 1
             end
           end
+        }
+      end
+
+      def total_entries(count)
+        {
+          pagination: {
+            total_entries: count
+          }
         }
       end
     end
