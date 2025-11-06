@@ -34,6 +34,25 @@
         "state": "CA",
         "postalCode": "12345"
       }
+    },
+    {
+      "institutionName": "Branch 1",
+      "vaFacilityCode": "12345679",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
     }
   ],
   "website": "https://example.com",
