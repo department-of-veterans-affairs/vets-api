@@ -1,4 +1,6 @@
 class DropWebhooks < ActiveRecord::Migration[7.2]
+  disable_ddl_transaction!
+
   def up
     drop_table :webhooks_subscriptions, if_exists: true
     drop_table :webhooks_notifications, if_exists: true
