@@ -49,7 +49,7 @@ def pdf_to_images(pdf_path, options = {})
   pdf.pages.each_with_index do |page, index|
     next if index + 1 < start_page || index + 1 > end_page
 
-    image_path = File.join(output_dir, "#{test_type}.page_#{index + 1}.png")
+    image_path = File.join(output_dir, "#{options[:form_id]}.#{test_type}.page_#{index + 1}.png")
     MiniMagick.convert do |convert|
       convert.density 150
       convert.background 'white'
@@ -163,6 +163,7 @@ RSpec.shared_examples 'a form filler' do |options|
 
               ocr_options = {
                 test_type: type,
+                form_id:,
                 start_page: options[:ocr_start_page] || 1,
                 end_page: options[:ocr_end_page] || nil
               }
