@@ -182,7 +182,7 @@ module EmploymentQuestionnaires
       def expand(form_data = {})
         employment_history = form_data['employmentHistory']
 
-        if employment_history.any?
+        if employment_history&.any?
           form_data['employmentOne'] = employment_history[0]
 
           employment_history[1..].each_with_index do |item, index|
@@ -197,7 +197,7 @@ module EmploymentQuestionnaires
 
       def split_data(form_data)
         form_data['signatureSection1']['ssn'] = split_ssn(form_data['signatureSection1']['veteranSocialSecurityNumber'])
-        form_data['employmentStatus']['radio'] = form_data['employmentStatus']['radio'] ? '1' : '0'
+        form_data['employmentStatus']['radio'] = form_data['employmentStatus']['radio'] ? 'YES' : 'NO'
       end
     end
   end
