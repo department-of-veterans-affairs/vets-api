@@ -9,7 +9,8 @@ module DependentsBenefits
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id, user = nil)
-      @va_profile_email = user&.va_profile_email
+      # account for missing va profile email here
+      @va_profile_email = get_user_email(user)
       @user_first_name = user&.first_name
       # Not sure if this service can be this
       super(saved_claim_id, service_name: 'dependents_benefits')
@@ -90,6 +91,21 @@ module DependentsBenefits
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
     def callback_metadata
       super.merge(claim_id: claim.id)
+    end
+
+    def get_user_email(user)
+      # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
+      # Failure is expected occasionally due to 404 errors from the redis cache
+      # New users, users that have not logged on in over a month, users who created an account on web,
+      # and users who have not visited their profile page will need to obtain/refresh VAProfile_ID
+      # Originates here: lib/va_profile/contact_information/v2/service.rb
+      user.va_profile_email
+    rescue => e
+      # we cannot overwrite the monitor used in the base class so create a new one here
+      monitor = DependentsBenefits::Monitor.new
+      monitor.track_event('warn', 'BGS::DependentV2Service#get_user_email failed to get va_profile_email',
+                          "#{STATS_KEY}.get_va_profile_email.failure", { error: e.message })
+      nil
     end
   end
 end
