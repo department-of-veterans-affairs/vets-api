@@ -1,6 +1,6 @@
-# MHV Platform `usermgmt` API Audit
+# MHV Medications | `usermgmt` API Audit
 
-This document identifies which MyHealth API endpoints trigger requests to MHV Platform API paths containing `usermgmt`, including both direct and indirect calls.
+This document identifies which MyHealth API endpoints called by the `mhv-medications` vets-website client trigger requests to MHV Platform API paths containing `usermgmt`, including both direct and indirect calls.
 
 **Audit Date:** November 7, 2025
 
@@ -32,6 +32,86 @@ This document identifies which MyHealth API endpoints trigger requests to MHV Pl
   - `usermgmt/activity` (direct - primary purpose)
 - **Purpose:** Creates account activity log entries in MHV
 - **Call Chain:** Controller → `AAL::Client#create_aal` → `POST usermgmt/activity`
+
+#### `POST /usermgmt/activity` Request Specification
+
+| Aspect | Details |
+|--------|---------|
+| HTTP Method | POST |
+| Path | `/usermgmt/activity` |
+| Query Params | None |
+| Request Body Format | JSON object (constructed from `AAL::CreateAALForm#params`) |
+| Auth Mechanism | Upstream MHV session (established via prior `GET usermgmt/auth/session`) |
+| Idempotency / De-dup | Optional per-session suppression when `once_per_session` true (Redis fingerprint) |
+
+##### Headers Sent
+Custom headers merged in `token_headers` (inherits session token + adds API key):
+
+```
+appToken: <application token>
+mhvCorrelationId: <session.user_id>
+x-api-key: <environment-specific key>
+Authorization / Token: <Bearer or Token from upstream MHV session>
+Content-Type: application/json (Faraday default for hash bodies)
+Accept: application/json
+```
+
+##### JSON Body Fields
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| user_profile_id | String | Yes | Injected from `session.user_id.to_s` (overrides caller input) |
+| activity_type | String | Yes | Caller supplied |
+| action | String | Yes | Caller supplied |
+| completion_time | String (HTTP-date) | Auto-default | If omitted, set to current UTC and formatted with `httpdate` |
+| performer_type | String | Yes | Typically `"Self"` |
+| detail_value | String / null | No | Optional contextual value |
+| status | Integer | Yes | Must be 0 (failure) or 1 (success) |
+
+Validation enforced by `AAL::CreateAALForm`:
+* Presence: `user_profile_id`, `activity_type`, `action`, `performer_type`, `status`
+* Inclusion: `status ∈ [0, 1]`
+* `completion_time` must parse as a valid date (auto-filled if absent)
+
+If validation fails, a `Common::Exceptions::ValidationErrors` is raised locally and the POST is not attempted.
+
+##### Per-Session De-duplication Logic
+When the caller requests `once_per_session: true`:
+1. Build a Redis fingerprint key from (user, session_id, all attributes except `completion_time`).
+2. If key exists → Skip POST entirely (no network call).
+3. Else → Set key with TTL `REDIS_CONFIG[:mhv_aal_log_store][:each_ttl]` and proceed.
+
+##### Example Successful Request Body
+```json
+{
+  "user_profile_id": "12345678",
+  "activity_type": "login",
+  "action": "enter",
+  "completion_time": "Fri, 07 Nov 2025 18:12:43 GMT",
+  "performer_type": "Self",
+  "detail_value": "homepage",
+  "status": 1
+}
+```
+
+##### Example Failure Request Body (No detail value)
+```json
+{
+  "user_profile_id": "12345678",
+  "activity_type": "secure_messaging",
+  "action": "open_thread",
+  "completion_time": "Fri, 07 Nov 2025 18:13:10 GMT",
+  "performer_type": "Self",
+  "detail_value": null,
+  "status": 0
+}
+```
+
+##### Response Handling
+* Primary useful data is the HTTP status (assumed 200/201 or similar); no specialized parsing shown in the client.
+* No explicit response model—errors would propagate via `perform` exception handling.
+
+##### Summary
+The `POST /usermgmt/activity` call is a straightforward authenticated JSON POST with strict validation and optional per-session de-duplication, minimizing redundant upstream logging while ensuring accurate user activity capture.
 
 ---
 
@@ -343,4 +423,3 @@ The Redis-based session caching provides a buffer against `usermgmt` API issues:
 The following will continue to function:
 - Tooltips (database-only)
 - Medical Records allergies (uses FHIR API with different auth)
-
