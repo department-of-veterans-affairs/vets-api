@@ -129,7 +129,9 @@ module IvcChampva
       # @param [String] form_id The ID of the current form
       # @return [Boolean] true if VES JSON should be generated
       def should_generate_ves_json?(form_id)
-        Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && form_id == 'vha_10_10d'
+        # Get the legacy form ID to handle versioned forms (e.g., vha_10_10d_2027 -> vha_10_10d)
+        legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(form_id)
+        Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && legacy_form_id == 'vha_10_10d'
       end
 
       ##
