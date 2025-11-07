@@ -310,7 +310,9 @@ module VAOS
         error_data = {
           error_class: e.class.name,
           error_message: e.message,
-          user_uuid: @current_user&.uuid
+          user_uuid: @current_user&.uuid,
+          controller: RequestStore.store['controller_name'],
+          station_number: @current_user&.va_treatment_facility_ids&.first
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
         nil
