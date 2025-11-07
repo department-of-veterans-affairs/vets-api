@@ -1654,7 +1654,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             namespace: 'eps-access-token',
             expires_in: redis_token_expiry
           )
-          RequestStore.clear!
         end
 
         it 'returns correct error status for provider not found' do
