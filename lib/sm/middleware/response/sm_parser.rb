@@ -34,7 +34,8 @@ module SM
                   parsed_folders  ||
                   normalize_message(parsed_messages) ||
                   parsed_categories ||
-                  parsed_signature
+                  parsed_signature ||
+                  parsed_status
           @parsed_json = {
             data:,
             errors: @errors,
@@ -102,6 +103,10 @@ module SM
 
         def parsed_signature
           @parsed_json.key?(:signature_name) ? @parsed_json : @parsed_json[:signature_name]
+        end
+
+        def parsed_status
+          @parsed_json.key?(:status) ? @parsed_json : nil
         end
 
         def split_errors!

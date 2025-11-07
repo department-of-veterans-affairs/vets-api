@@ -59,6 +59,10 @@ module DependentsBenefits
       schema_errors.empty? && validation_errors.empty?
     end
 
+    def to_pdf(file_name = nil)
+      DependentsBenefits::PdfFill::Filler.fill_form(self, file_name)
+    end
+
     def submittable_686?
       DEPENDENT_CLAIM_FLOWS.any? { |flow| parsed_form['view:selectable686_options'].include?(flow) }
     end
@@ -69,6 +73,18 @@ module DependentsBenefits
 
     def add_veteran_info(user_data)
       parsed_form.merge!(user_data)
+    end
+
+    def folder_identifier
+      fid = 'VETERAN'
+      { ssn:, participant_id:, icn: }.each do |k, v|
+        if v.present?
+          fid += ":#{k.to_s.upcase}:#{v}"
+          break
+        end
+      end
+
+      fid
     end
 
     private
@@ -100,6 +116,18 @@ module DependentsBenefits
 
     def stats_key
       'api.dependents_claim'
+    end
+
+    def ssn
+      parsed_form&.dig('veteran_information', 'ssn')
+    end
+
+    def participant_id
+      parsed_form&.dig('veteran_information', 'participant_id')
+    end
+
+    def icn
+      parsed_form&.dig('veteran_information', 'icn')
     end
   end
 end

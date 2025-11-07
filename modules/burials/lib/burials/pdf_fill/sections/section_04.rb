@@ -94,7 +94,73 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        # Add expansion logic here
+        set_state_to_no_if_national(form_data)
+        expand_cemetery_location(form_data)
+        expand_location_question(form_data)
+        expand_tribal_land_location(form_data)
+        format_currency_spacing(form_data)
+      end
+
+      ##
+      # Expands cemetery location details by extracting relevant information
+      #
+      # @param form_data [Hash]
+      #
+      # @return [void]
+      def expand_cemetery_location(form_data)
+        cemetery_location = form_data['cemeteryLocation']
+        cemetery_location_question = form_data['cemetaryLocationQuestion']
+        return unless cemetery_location.present? && cemetery_location_question == 'cemetery'
+
+        form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
+        form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
+      end
+
+      ##
+      # Expands the 'cemetaryLocationQuestion' to other form_data fields
+      #
+      # @param form_data [Hash]
+      #
+      # @return [void]
+      def expand_location_question(form_data)
+        cemetery_location = form_data['cemetaryLocationQuestion']
+        form_data['cemetaryLocationQuestionCemetery'] = select_checkbox(cemetery_location == 'cemetery')
+        form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribalLand')
+        form_data['cemetaryLocationQuestionNone'] = select_checkbox(cemetery_location == 'none')
+      end
+
+      ##
+      # Expands tribal land location details by extracting relevant information
+      #
+      # @param form_data [Hash]
+      #
+      # @return [void]
+      def expand_tribal_land_location(form_data)
+        cemetery_location = form_data['tribalLandLocation']
+        cemetery_location_question = form_data['cemetaryLocationQuestion']
+        return unless cemetery_location.present? && cemetery_location_question == 'tribalLand'
+
+        form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
+        form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
+      end
+
+      ##
+      # Adjusts the spacing of the 'amountGovtContribution' value by right-justifying it
+      #
+      # @return [void, nil]
+      def format_currency_spacing(form_data)
+        return if form_data['amountGovtContribution'].blank?
+
+        form_data['amountGovtContribution'] = form_data['amountGovtContribution'].rjust(5)
+      end
+
+      ##
+      # Sets the 'cemeteryLocationQuestion' field to 'none' if the 'nationalOrFederal' field is present and truthy.
+      #
+      # @return [void, nil]
+      def set_state_to_no_if_national(form_data)
+        national = form_data['nationalOrFederal']
+        form_data['cemetaryLocationQuestion'] = 'none' if national
       end
     end
   end
