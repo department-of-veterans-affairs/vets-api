@@ -7,7 +7,10 @@ require 'evss/error_middleware'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
+require 'fes_service/base'
 require 'claims_api/v1/disability_compensation_pdf_generator'
+require 'claims_api/v1/disability_compensation_fes_mapper'
+require 'claims_api/v2/error/lighthouse_error_handler' # this will need to move into a version space
 
 module ClaimsApi
   module V1
@@ -186,15 +189,6 @@ module ClaimsApi
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
 
-          service =
-            if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-              ClaimsApi::EVSSService::Base.new
-            elsif Flipper.enabled? :form526_legacy
-              EVSS::DisabilityCompensationForm::Service.new(auth_headers)
-            else
-              EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
-            end
-
           auto_claim = ClaimsApi::AutoEstablishedClaim.new(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
@@ -203,11 +197,7 @@ module ClaimsApi
             special_issues: special_issues_per_disability
           )
 
-          if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-            service.validate(auto_claim, auto_claim.to_internal)
-          else
-            service.validate_form526(auto_claim.to_internal)
-          end
+          validate_with_service(auto_claim)
 
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
 
@@ -227,6 +217,8 @@ module ClaimsApi
                             message: "rescuing in validate_form_526, claim_id: #{auto_claim&.id}" \
                                      "#{e.class.name}, error: #{e.try(:as_json) || e}")
           raise e
+        rescue ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException => e
+          render json: { errors: e.errors }, status: e.status_code, source: e.errors[0][:key]
         end
         # rubocop:enable Metrics/MethodLength
 
@@ -300,6 +292,39 @@ module ClaimsApi
             details = e[:text].presence || e[:detail]
             { status: 422, detail: "#{e[:key]}, #{details}", source: e[:key] }
           end
+        end
+
+        def get_fes_data(auto_claim)
+          v1_fes_mapper_service(auto_claim).map_claim
+        end
+
+        def v1_fes_mapper_service(auto_claim)
+          ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim)
+        end
+
+        def fes_service
+          ClaimsApi::FesService::Base.new
+        end
+
+        def validate_with_service(auto_claim)
+          service = build_validation_service
+
+          if service.is_a?(ClaimsApi::FesService::Base)
+            service.validate(auto_claim,
+                             get_fes_data(auto_claim))
+          elsif service.is_a?(ClaimsApi::EVSSService::Base)
+            service.validate(auto_claim, auto_claim.to_internal)
+          else
+            service.validate_form526(auto_claim.to_internal)
+          end
+        end
+
+        def build_validation_service
+          return ClaimsApi::FesService::Base.new if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          return ClaimsApi::EVSSService::Base.new if Flipper.enabled?(:claims_status_v1_lh_auto_establish_claim_enabled)
+          return EVSS::DisabilityCompensationForm::Service.new(auth_headers) if Flipper.enabled?(:form526_legacy)
+
+          EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
         end
 
         def track_526_validation_errors(errors)
