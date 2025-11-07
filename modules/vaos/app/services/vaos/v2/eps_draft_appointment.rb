@@ -536,7 +536,7 @@ module VAOS
       # @param status [Symbol] HTTP status symbol (e.g., :bad_request, :not_found)
       # @return [nil] Always returns nil to support early return pattern
       def set_error(message, status)
-        @error = { message:, status:, controller: RequestStore.store['controller_name'] }
+        @error = { message:, status: }
         nil
       end
 
