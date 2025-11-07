@@ -1,0 +1,119 @@
+name: Sync Confluence Documentation to Copilot Instructions
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC (adjust as needed)
+    - cron: '0 2 * * *'
+
+  workflow_dispatch:  # Allow manual trigger
+    inputs:
+      space_key:
+        description: 'Confluence space key to export'
+        required: false
+        default: 'pilot'
+
+jobs:
+  sync-confluence-docs:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write  # Needed to commit changes
+      pull-requests: write  # Needed to create PR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better git operations
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install atlassian-python-api requests markdownify
+
+      - name: Run Confluence sync
+        env:
+          CONFLUENCE_URL: ${{ secrets.CONFLUENCE_URL }}
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          CONFLUENCE_SPACE_KEY: ${{ inputs.space_key || 'pilot' }}
+        run: |
+          python scripts/sync_confluence_to_copilot_instructions.py
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet .github/copilot-instructions.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in copilot-instructions.md"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in copilot-instructions.md"
+          fi
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            Update Copilot instructions from Confluence
+
+            Automated sync of Backend Developer Documentation from Confluence.
+
+            🤖 Generated with GitHub Actions
+          branch: confluence-sync-${{ github.run_number }}
+          delete-branch: true
+          title: '[Automated] Update Copilot Instructions from Confluence'
+          body: |
+            ## Confluence Documentation Sync
+
+            This PR automatically updates `.github/copilot-instructions.md` with the latest Backend Developer Documentation from Confluence.
+
+            ### What Changed
+
+            The Copilot custom instructions have been synced from Confluence space: **${{ inputs.space_key || 'pilot' }}**
+
+            ### Review Checklist
+
+            - [ ] Review the diff in `.github/copilot-instructions.md`
+            - [ ] Verify no sensitive information was included
+            - [ ] Check that formatting is correct
+            - [ ] Confirm content is appropriate for Copilot Code Review
+
+            ### Details
+
+            - **Confluence URL**: ${{ secrets.CONFLUENCE_URL }}
+            - **Sync Date**: ${{ github.event.repository.updated_at }}
+            - **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            ---
+
+            🤖 This PR was created automatically by the [Confluence sync workflow](${{ github.server_url }}/${{ github.repository }}/blob/master/.github/workflows/sync-confluence-docs.yml).
+
+            To modify this automation, edit `.github/workflows/sync-confluence-docs.yml` or `scripts/sync_confluence_to_copilot_instructions.py`.
+          labels: |
+            documentation
+            automation
+            copilot
+          assignees: ${{ github.actor }}
+
+      - name: Summary
+        run: |
+          echo "## Confluence Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_changes.outputs.changed }}" == "true" ]; then
+            echo "✅ Changes detected and PR created" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "A pull request has been created with the updated Copilot instructions." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The Confluence documentation is already up-to-date." >> $GITHUB_STEP_SUMMARY
+          fi
