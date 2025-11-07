@@ -5,7 +5,6 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     get 'authorize_as_representative', to: 'representative_users#authorize_as_representative'
     get 'user', to: 'representative_users#show'
 
-    # Form 21a routes
     post 'form21a', to: 'form21a#submit'
 
     scope 'form21a' do
