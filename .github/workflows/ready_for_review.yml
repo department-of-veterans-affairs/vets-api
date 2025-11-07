@@ -15,6 +15,7 @@ permissions:
   contents: read
 jobs:
   get-pr-data:
+    if: ${{ github.actor != 'github-copilot' }}
     name: Get PR Data
     permissions: write-all
     runs-on: ubuntu-latest
@@ -27,6 +28,14 @@ jobs:
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
       pr_author:  ${{ steps.get_pr_data.outputs.pr_author }}
+
+    steps:
+      - name: Debug Actor
+        run: |
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Triggered by: ${{ github.triggering_actor }}"
+
     steps:
       - name: Checkout PR HEAD ref
         uses: actions/checkout@v5

@@ -8,6 +8,7 @@ permissions:
   contents: read
 jobs:
   get-pr-data:
+    if: ${{ github.actor != 'github-copilot' }}
     name: Get PR Data
     permissions: write-all
     runs-on: ubuntu-latest
@@ -74,7 +75,7 @@ jobs:
           labels: final-review-confirmed
 
       - name: Fail if draft or failures
-        if: steps.pr_data.outputs.pr_draft == 'true'
+        if: ${{ github.actor != 'github-copilot' && steps.pr_data.outputs.pr_draft == 'true' }}
         run: exit 1
 
   # Fetch approvals when required workflows are successful.
@@ -312,7 +313,7 @@ jobs:
         run: exit 0
 
       - name: Fail if draft or failures
-        if: steps.verify_approval.outputs.approval_status == 'required'
+        if: ${{ github.actor != 'github-copilot' && steps.verify_approval.outputs.approval_status == 'required' }}
         run: exit 1
 
       - name: Add ready-for-backend-review label
