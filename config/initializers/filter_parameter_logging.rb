@@ -13,6 +13,7 @@ ALLOWLIST = %w[
   claim_id
   class
   code
+  completely_removed
   confirmation_number
   consumer_name
   content_type
@@ -33,6 +34,7 @@ ALLOWLIST = %w[
   form_id
   from_date
   grant_type
+  has_toxic_exposure_in_submission
   id
   ids
   in_progress_form_id
@@ -43,6 +45,7 @@ ALLOWLIST = %w[
   lookup_service
   message_id
   method
+  modified_keys
   number
   os_name
   page
@@ -50,6 +53,7 @@ ALLOWLIST = %w[
   qqtotalfilesize
   queue_time
   reason
+  removed_keys
   reply_id
   result
   root
