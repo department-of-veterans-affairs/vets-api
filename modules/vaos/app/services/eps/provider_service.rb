@@ -126,20 +126,16 @@ module Eps
       validate_search_params(npi, specialty, address)
 
       response = fetch_provider_services(npi)
-      if response.body[:provider_services].blank?
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI")
-        return nil
-      end
+      all_providers = response.body[:provider_services] || []
+      return nil if all_providers.blank?
 
-      specialty_matches = filter_by_specialty(response.body[:provider_services], specialty)
-      if specialty_matches.empty?
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.")
-        return nil
-      end
+      self_schedulable_providers = check_self_schedulable_results(all_providers, npi)
+      return nil if self_schedulable_providers.nil?
 
-      return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
+      specialty_matches = check_specialty_matches(self_schedulable_providers, specialty)
+      return nil if specialty_matches.nil?
 
-      find_address_match(specialty_matches, address)
+      check_address_match(specialty_matches, address)
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'search_provider_services')
       raise e
@@ -221,9 +217,86 @@ module Eps
       end
 
       with_monitoring do
-        query_params = { npi:, isSelfSchedulable: true }
+        query_params = { npi: }
         perform(:get, "/#{config.base_path}/provider-services", query_params,
                 request_headers_with_correlation_id)
+      end
+    end
+
+    ##
+    # Checks for self-schedulable providers and filters results
+    #
+    # @param all_providers [Array] All providers from EPS response
+    # @param npi [String] Provider NPI
+    # @return [Array, nil] Self-schedulable providers or nil if none found
+    #
+    def check_self_schedulable_results(all_providers, npi)
+      if all_providers.blank?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI")
+        return nil
+      end
+
+      self_schedulable_providers = filter_self_schedulable(all_providers)
+      if self_schedulable_providers.empty?
+        Rails.logger.error("#{CC_APPOINTMENTS}: No self-schedulable providers found for NPI",
+                           { npi: })
+        return nil
+      end
+
+      self_schedulable_providers
+    end
+
+    ##
+    # Checks for specialty matches among self-schedulable providers
+    #
+    # @param self_schedulable_providers [Array] Self-schedulable providers
+    # @param specialty [String] Specialty to match
+    # @return [Array, nil] Specialty matches or nil if none found
+    #
+    def check_specialty_matches(self_schedulable_providers, specialty)
+      specialty_matches = filter_by_specialty(self_schedulable_providers, specialty)
+      if specialty_matches.empty?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.")
+        return nil
+      end
+
+      specialty_matches
+    end
+
+    ##
+    # Checks for address match among specialty matches
+    #
+    # @param specialty_matches [Array] Providers matching specialty
+    # @param address [Hash] Address to match against
+    # @return [OpenStruct, nil] First matching provider or nil if none found
+    #
+    def check_address_match(specialty_matches, address)
+      return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
+
+      find_address_match(specialty_matches, address)
+    end
+
+    ##
+    # Filters providers to only those that are self-schedulable
+    #
+    # A provider is self-schedulable if:
+    # 1. Has at least one appointmentType with name "Office Visit" and isSelfSchedulable: true
+    # 2. features.isDigital is true
+    # 3. features.directBooking.isEnabled is true
+    #
+    # @param providers [Array] List of providers from EPS response
+    # @return [Array] All self-schedulable providers, or empty array if none found
+    #
+    def filter_self_schedulable(providers)
+      providers.select do |provider|
+        appointment_types = provider[:appointmentTypes] || []
+        has_office_visit = appointment_types.any? do |appt_type|
+          appt_type[:name] == 'Office Visit' && appt_type[:isSelfSchedulable] == true
+        end
+
+        has_office_visit &&
+          provider.dig(:features, :isDigital) == true &&
+          provider.dig(:features, :directBooking, :isEnabled) == true
       end
     end
 
