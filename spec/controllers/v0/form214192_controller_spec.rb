@@ -59,7 +59,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
       end
 
       it 'returns 404 Not Found (routing error)' do
@@ -167,7 +167,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
       end
 
       it 'returns 404 Not Found (routing error)' do
