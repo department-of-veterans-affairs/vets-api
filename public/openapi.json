@@ -547,14 +547,19 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "12345",
+                    "id": "375",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-01-15T10:30:00Z",
-                      "regional_office": [],
+                      "submitted_at": "2025-11-03T16:52:41.568Z",
+                      "regional_office": [
+                        "Department of Veterans Affairs",
+                        "Pension Management Center",
+                        "P.O. Box 5365",
+                        "Janesville, WI 53547-5365"
+                      ],
                       "confirmation_number": "12345678-1234-1234-1234-123456789abc",
                       "guid": "12345678-1234-1234-1234-123456789abc",
-                      "form": "21P-530a"
+                      "form": "21P-530A"
                     }
                   }
                 },
@@ -838,27 +843,58 @@
     },
     "/v0/form21p530a/download_pdf": {
       "post": {
-        "summary": "Download PDF for a submitted 21P-530a form",
+        "summary": "Download PDF for Form 21P-530a",
         "tags": [
           "benefits_forms"
         ],
         "operationId": "downloadForm21p530aPdf",
-        "description": "Download a PDF copy of a submitted Form 21P-530a. This endpoint accepts the same form data as the submission endpoint. Currently returns a stub message indicating the feature is not yet implemented.",
+        "description": "Generate and download a filled PDF for Form 21P-530a (Application for Burial Allowance)",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "PDF download stub response",
+            "description": "PDF generated successfully",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "PDF download stub - not yet implemented"
-                },
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - schema validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - PDF generation failed",
+            "content": {
+              "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "PDF download stub - not yet implemented"
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
                     }
                   }
                 }

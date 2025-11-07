@@ -32,11 +32,17 @@ module Eps
     ##
     # Get appointments data from EPS
     #
+    # @param referral_number [String] Optional referral number to filter appointments
     # @return [Array<Hash>] Array of appointment hashes from EPS
     #
-    def get_appointments
+    def get_appointments(referral_number: nil)
+      params = { patientId: patient_id }
+      params[:referralNumber] = referral_number if referral_number.present?
+
+      query_string = URI.encode_www_form(params)
+
       with_monitoring do
-        response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
+        response = perform(:get, "/#{config.base_path}/appointments?#{query_string}",
                            {}, request_headers_with_correlation_id)
 
         # Check for error field in successful responses using reusable helper

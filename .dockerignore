@@ -8,3 +8,4 @@ data
 docs
 log
 tmp
+script/vcr_inspector

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/benefits_documents/documents_status_polling_service'
+require 'lighthouse/benefits_documents/update_documents_status_service'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
   let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
@@ -194,6 +196,112 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         # Veterans pension claim should get veterans pension title
         expect(pension_claim['attributes']['displayTitle']).to eq('Claim for Veterans Pension')
         expect(pension_claim['attributes']['claimTypeBase']).to eq('Veterans Pension claim')
+      end
+
+      it 'handles claims with disability compensation codes correctly' do
+        # Create mock claims with disability compensation codes to verify the TitleGenerator mapping
+        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(
+          {
+            'data' => [
+              {
+                'id' => '123458',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => 'Compensation',
+                  'claimTypeCode' => '020NEW', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              },
+              {
+                'id' => '123459',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => nil,
+                  'claimTypeCode' => '110LCOMP7', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              },
+              {
+                'id' => '123460',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => 'Compensation',
+                  'claimTypeCode' => '010LCOMPBDD', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              }
+            ]
+          }
+        )
+
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+        claims = parsed_body['data']
+
+        # All three claims should get disability compensation title
+        claims.each do |claim|
+          expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
+          expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
+        end
+
+        # Verify we have all three claims
+        expect(claims.length).to eq(3)
+        expect(claims.map do |c|
+          c['attributes']['claimTypeCode']
+        end).to contain_exactly('020NEW', '110LCOMP7', '010LCOMPBDD')
+      end
+
+      context 'disability compensation claim titles with flipper flag' do
+        let(:mock_disability_claim) do
+          {
+            'data' => [
+              {
+                'id' => '123461',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => 'Compensation',
+                  'claimTypeCode' => '020SUPP', # Disability compensation code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              }
+            ]
+          }
+        end
+
+        it 'sets correct disability compensation titles when flag is enabled' do
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(mock_disability_claim)
+
+          get(:index)
+          parsed_body = JSON.parse(response.body)
+          claim = parsed_body['data'].first
+
+          # With flag enabled, claimType should remain as-is
+          expect(claim['attributes']['claimType']).to eq('Compensation')
+          # But displayTitle and claimTypeBase should be set to disability compensation
+          expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
+          expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
+        end
+
+        it 'does not set displayTitle and claimTypeBase when flag is disabled' do
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(mock_disability_claim)
+
+          get(:index)
+          parsed_body = JSON.parse(response.body)
+          claim = parsed_body['data'].first
+
+          # When flag is disabled, the title generator is not invoked
+          # so displayTitle and claimTypeBase should not be present
+          expect(claim['attributes']['displayTitle']).to be_nil
+          expect(claim['attributes']['claimTypeBase']).to be_nil
+          # claimType should remain unchanged
+          expect(claim['attributes']['claimType']).to eq('Compensation')
+        end
       end
 
       context 'when :cst_show_document_upload_status is disabled' do
@@ -493,12 +601,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
 
       context 'when :cst_show_document_upload_status is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(true)
+        end
+
         context 'when record does not have a tracked item' do
           before do
-            allow(Flipper).to receive(:enabled?).with(
-              :cst_show_document_upload_status,
-              instance_of(User)
-            ).and_return(true)
             create(:bd_lh_evidence_submission_success, claim_id:)
           end
 
@@ -516,10 +627,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           let(:tracked_item_id) { 394_443 }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(
-              :cst_show_document_upload_status,
-              instance_of(User)
-            ).and_return(true)
             create(:bd_lh_evidence_submission_success, claim_id:, tracked_item_id:)
           end
 
@@ -554,6 +661,278 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             expect(response).to have_http_status(:ok)
             expect(Rails.logger).to have_received(:error)
               .with(a_string_including('BenefitsClaimsController#show'))
+          end
+        end
+
+        context 'when :cst_update_evidence_submission_on_show is enabled' do
+          let(:pending_submission1) do
+            create(:bd_evidence_submission_pending, claim_id:, request_id: 111_111)
+          end
+          let(:pending_submission2) do
+            create(:bd_evidence_submission_pending, claim_id:, request_id: 222_222)
+          end
+          let(:polling_response) do
+            double('Response', status: 200, body: {
+                     'data' => {
+                       'statuses' => [
+                         { 'requestId' => 111_111, 'status' => 'SUCCESS' },
+                         { 'requestId' => 222_222, 'status' => 'SUCCESS' }
+                       ]
+                     }
+                   })
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(
+              :cst_update_evidence_submission_on_show,
+              instance_of(User)
+            ).and_return(true)
+            pending_submission1
+            pending_submission2
+            allow(BenefitsDocuments::DocumentsStatusPollingService).to receive(:call).and_return(polling_response)
+            allow(BenefitsDocuments::UpdateDocumentsStatusService).to receive(:call)
+          end
+
+          it 'polls pending evidence submissions before adding them to response' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+
+            expect(BenefitsDocuments::DocumentsStatusPollingService).to have_received(:call) do |request_ids|
+              expect(request_ids).to contain_exactly(111_111, 222_222)
+            end
+            expect(BenefitsDocuments::UpdateDocumentsStatusService).to have_received(:call)
+              .with(anything, polling_response.body)
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.show.upload_status_success',
+              tags: V0::BenefitsClaimsController::STATSD_TAGS
+            )
+          end
+
+          context 'when actually updating database records' do
+            let(:test_pending_submission1) do
+              create(:bd_evidence_submission_pending, claim_id:, request_id: 333_333)
+            end
+            let(:test_pending_submission2) do
+              create(:bd_evidence_submission_pending, claim_id:, request_id: 444_444)
+            end
+            let(:test_polling_response) do
+              double('Response', status: 200, body: {
+                       'data' => {
+                         'statuses' => [
+                           { 'requestId' => 333_333, 'status' => 'SUCCESS' },
+                           { 'requestId' => 444_444, 'status' => 'SUCCESS' }
+                         ]
+                       }
+                     })
+            end
+
+            before do
+              test_pending_submission1
+              test_pending_submission2
+              # Mock polling service but NOT update service - let it actually run
+              allow(BenefitsDocuments::DocumentsStatusPollingService).to receive(:call)
+                .and_return(test_polling_response)
+            end
+
+            it 'updates pending submissions to SUCCESS in database and returns updated status in response' do
+              # Record initial statuses
+              initial_status1 = test_pending_submission1.upload_status
+              initial_status2 = test_pending_submission2.upload_status
+
+              # Spy on UpdateDocumentsStatusService to verify it's called
+              allow(BenefitsDocuments::UpdateDocumentsStatusService).to receive(:call).and_call_original
+
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                get(:show, params: { id: claim_id })
+              end
+
+              # Verify UpdateDocumentsStatusService was actually called
+              expect(BenefitsDocuments::UpdateDocumentsStatusService).to have_received(:call)
+
+              # Verify submissions were updated in database
+              test_pending_submission1.reload
+              test_pending_submission2.reload
+
+              # Should have changed from PENDING (IN_PROGRESS) to SUCCESS
+              expect(test_pending_submission1.upload_status).to eq('SUCCESS')
+              expect(test_pending_submission2.upload_status).to eq('SUCCESS')
+              expect(test_pending_submission1.upload_status).not_to eq(initial_status1)
+              expect(test_pending_submission2.upload_status).not_to eq(initial_status2)
+
+              # Verify the response includes the updated statuses
+              response_body = JSON.parse(response.body)
+              evidence_submissions = response_body.dig('data', 'attributes', 'evidenceSubmissions')
+
+              expect(evidence_submissions).to be_present
+
+              # Verify that all evidence submissions in the response have SUCCESS status
+              # (since we updated all pending submissions to SUCCESS)
+              success_statuses = evidence_submissions.select { |es| es['upload_status'] == 'SUCCESS' }
+              expect(success_statuses.size).to eq(2)
+            end
+          end
+
+          it 'skips polling when no pending submissions exist' do
+            EvidenceSubmission.destroy_all
+
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+
+            expect(BenefitsDocuments::DocumentsStatusPollingService).not_to have_received(:call)
+            expect(BenefitsDocuments::UpdateDocumentsStatusService).not_to have_received(:call)
+          end
+
+          context 'when polling service returns non-200 status' do
+            let(:error_response) { double('Response', status: 500, body: 'Internal Server Error') }
+
+            before do
+              allow(BenefitsDocuments::DocumentsStatusPollingService).to receive(:call).and_return(error_response)
+            end
+
+            it 'does not call update service and logs error with all request IDs' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                get(:show, params: { id: claim_id })
+              end
+
+              expect(BenefitsDocuments::DocumentsStatusPollingService).to have_received(:call)
+              expect(BenefitsDocuments::UpdateDocumentsStatusService).not_to have_received(:call)
+              expect(response).to have_http_status(:ok)
+              expect(Rails.logger).to have_received(:error) do |message, payload|
+                expect(message).to eq('BenefitsClaimsController#show Error polling evidence submissions')
+                expect(payload[:claim_id]).to eq(claim_id.to_s)
+                expect(payload[:error_source]).to eq('polling')
+                expect(payload[:response_status]).to eq(500)
+                expect(payload[:response_body]).to eq('Internal Server Error')
+                expect(payload[:lighthouse_document_request_ids]).to contain_exactly(111_111, 222_222)
+                expect(payload[:timestamp]).to be_a(Time)
+              end
+              expect(StatsD).to have_received(:increment).with(
+                'api.benefits_claims.show.upload_status_error',
+                tags: V0::BenefitsClaimsController::STATSD_TAGS + ['error_source:polling']
+              )
+            end
+          end
+
+          context 'when polling raises an error' do
+            before do
+              allow(BenefitsDocuments::DocumentsStatusPollingService).to receive(:call)
+                .and_raise(StandardError, 'Polling service error')
+            end
+
+            it 'logs the error and continues processing gracefully' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                get(:show, params: { id: claim_id })
+              end
+
+              expect(response).to have_http_status(:ok)
+              expect(Rails.logger).to have_received(:error).with(
+                'BenefitsClaimsController#show Error polling evidence submissions',
+                hash_including(
+                  claim_id: claim_id.to_s,
+                  error_source: 'polling',
+                  response_status: nil,
+                  response_body: 'Polling service error',
+                  timestamp: kind_of(Time)
+                )
+              )
+              expect(StatsD).to have_received(:increment).with(
+                'api.benefits_claims.show.upload_status_error',
+                tags: V0::BenefitsClaimsController::STATSD_TAGS + ['error_source:polling']
+              )
+            end
+          end
+
+          context 'when update service raises an error' do
+            before do
+              allow(BenefitsDocuments::UpdateDocumentsStatusService).to receive(:call)
+                .and_raise(StandardError, 'Update service error')
+            end
+
+            it 'logs the error and continues processing gracefully' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                get(:show, params: { id: claim_id })
+              end
+
+              expect(response).to have_http_status(:ok)
+              expect(Rails.logger).to have_received(:error).with(
+                'BenefitsClaimsController#show Error polling evidence submissions',
+                hash_including(
+                  claim_id: claim_id.to_s,
+                  error_source: 'update',
+                  response_status: 200,
+                  response_body: 'Update service error',
+                  timestamp: kind_of(Time)
+                )
+              )
+              expect(StatsD).to have_received(:increment).with(
+                'api.benefits_claims.show.upload_status_error',
+                tags: V0::BenefitsClaimsController::STATSD_TAGS + ['error_source:update']
+              )
+            end
+          end
+
+          context 'when update service returns unsuccessful result with unknown IDs' do
+            before do
+              allow(BenefitsDocuments::UpdateDocumentsStatusService).to receive(:call).and_return(
+                {
+                  success: false,
+                  response: {
+                    status: 404,
+                    body: 'Upload Request Async Status Not Found',
+                    unknown_ids: [222_222]
+                  }
+                }
+              )
+            end
+
+            it 'logs the error with unknown IDs only' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                get(:show, params: { id: claim_id })
+              end
+
+              expect(response).to have_http_status(:ok)
+              expect(Rails.logger).to have_received(:error).with(
+                'BenefitsClaimsController#show Error polling evidence submissions',
+                hash_including(
+                  claim_id: claim_id.to_s,
+                  error_source: 'update',
+                  lighthouse_document_request_ids: ['222222'],
+                  response_status: 404,
+                  timestamp: kind_of(Time)
+                )
+              )
+              expect(StatsD).to have_received(:increment).with(
+                'api.benefits_claims.show.upload_status_error',
+                tags: V0::BenefitsClaimsController::STATSD_TAGS + ['error_source:update']
+              )
+            end
+          end
+        end
+
+        context 'when :cst_update_evidence_submission_on_show is disabled' do
+          let(:pending_submission1) do
+            create(:bd_evidence_submission_pending, claim_id:, request_id: 111_111)
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(
+              :cst_update_evidence_submission_on_show,
+              instance_of(User)
+            ).and_return(false)
+            pending_submission1
+            allow(BenefitsDocuments::DocumentsStatusPollingService).to receive(:call)
+            allow(BenefitsDocuments::UpdateDocumentsStatusService).to receive(:call)
+          end
+
+          it 'does not poll evidence submissions' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+
+            expect(BenefitsDocuments::DocumentsStatusPollingService).not_to have_received(:call)
+            expect(BenefitsDocuments::UpdateDocumentsStatusService).not_to have_received(:call)
           end
         end
       end

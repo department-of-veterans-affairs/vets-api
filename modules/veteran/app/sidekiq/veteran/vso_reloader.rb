@@ -18,7 +18,6 @@ module Veteran
     USER_TYPE_VSO = 'veteran_service_officer'
 
     def perform
-      remove_duplicates_by_rep_id
       # Track initial counts before processing
       @initial_counts = fetch_initial_counts
       @validation_results = {}
@@ -123,21 +122,6 @@ module Veteran
     #   This list is used to identify representatives that are no longer in OGC data and should be removed
     def reload_representatives
       reload_attorneys + reload_claim_agents + reload_vso_reps
-    end
-
-    def remove_duplicates_by_rep_id
-      klass   = Veteran::Service::Representative
-      dup_ids = klass.group(:representative_id)
-                     .having('COUNT(*) > 1')
-                     .pluck(:representative_id).to_a
-
-      # rubocop:disable Rails/WhereNotWithMultipleConditions
-      non_test_duplicates = klass.where(representative_id: dup_ids)
-                                 .where.not(first_name: 'Tamara', last_name: 'Ellis')
-                                 .where.not(first_name: 'John', last_name: 'Doe')
-      # rubocop:enable Rails/WhereNotWithMultipleConditions
-
-      non_test_duplicates.delete_all
     end
 
     def find_or_create_attorneys(attorney)

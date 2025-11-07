@@ -36,6 +36,7 @@ path 'modules' do
   gem 'representation_management'
   gem 'simple_forms_api'
   gem 'sob'
+  gem 'survivors_benefits'
   gem 'test_user_dashboard'
   gem 'travel_pay'
   gem 'va_notify'

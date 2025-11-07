@@ -1,0 +1,14 @@
+{
+  "veteranFullName": {
+    "first": "1A First",
+    "middle": "A",
+    "last": "1A Last"
+  },
+  "veteranSocialSecurityNumber": "123456789",
+  "vaClaimsHistory": true,
+  "vaFileNumber": "987654321",
+  "veteranDateOfBirth": "1900-01-01",
+  "diedOnDuty": true,
+  "veteranServiceNumber": "123456789",
+  "veteranDateOfDeath": "1999-03-31"
+}

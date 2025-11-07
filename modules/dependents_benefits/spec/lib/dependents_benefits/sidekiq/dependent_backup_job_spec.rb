@@ -55,6 +55,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
         allow(lh_submission).to receive(:initialize_service)
         allow(lh_submission).to receive(:prepare_submission).and_raise(test_error)
         allow(job).to receive(:monitor).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_submission_info)
       end
 
       it 'updates submission to failed, ensures cleanup, and re-raises error' do
@@ -216,6 +217,18 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
     it 'handles failure events and sends failure email to veteran' do
       expect_any_instance_of(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:send_failure_notification)
       expect { described_class.new.handle_permanent_failure(msg, StandardError.new('Test error')) }.not_to raise_error
+    end
+  end
+
+  describe 'sidekiq_retries_exhausted callback' do
+    it 'calls handle_permanent_failure' do
+      msg = { 'args' => [parent_claim.id, 'proc_id'], 'class' => job.class.name }
+      exception = StandardError.new('Service failed')
+
+      expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
+        .with(parent_claim.id, exception)
+
+      described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end
   end
 end

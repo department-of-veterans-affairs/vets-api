@@ -37,6 +37,16 @@ vamobile_mock.update!(authentication: SignIn::Constants::Auth::API,
                       access_token_audience: 'vamobile',
                       refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
 
+# Create Config for localhost mocked vets-api with "Production" Mobile Dev Tools
+vamobile_local_auth = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vamobile_local_auth')
+vamobile_local_auth.update!(authentication: SignIn::Constants::Auth::API,
+                            anti_csrf: false,
+                            redirect_uri: 'https://va-mobile-dev-tools-0cb741eb06ae.herokuapp.com/auth/login-success',
+                            pkce: true,
+                            access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_LONG_MINUTES,
+                            access_token_audience: 'vamobile',
+                            refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
+
 # Create Config for VA Identity Dashboard using cookie auth
 vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard_rails')
 vaid_dash.update!(authentication: SignIn::Constants::Auth::API,

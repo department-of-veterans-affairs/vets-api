@@ -1011,9 +1011,8 @@ RSpec.describe Form526Submission do
           )
         end
         expect(Form526JobStatus.all.count).to eq 2
-        expect_any_instance_of(Form526Submission).to receive(:log_message_to_sentry).with(
+        expect(Rails.logger).to receive(:warn).with(
           'There are multiple successful SubmitForm526 job statuses',
-          :warn,
           { form_526_submission_id: subject.id }
         )
         subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
@@ -1029,9 +1028,8 @@ RSpec.describe Form526Submission do
           )
         end
         expect(Form526JobStatus.all.count).to eq 2
-        expect_any_instance_of(Form526Submission).to receive(:log_message_to_sentry).with(
+        expect(Rails.logger).to receive(:warn).with(
           "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job",
-          :warn,
           { form_526_submission_id: subject.id }
         )
         subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)

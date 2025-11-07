@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'va_notify/service'
 
 class Form526SubmittedEmailJob
   include Sidekiq::Job
-  include SentryLogging
   sidekiq_options expires_in: 1.day
 
   STATSD_ERROR_NAME = 'worker.form526_submitted_email.error'
@@ -29,7 +27,7 @@ class Form526SubmittedEmailJob
   end
 
   def handle_errors(ex)
-    log_exception_to_sentry(ex)
+    Rails.logger.error('Form526SubmittedEmailJob error', error: ex)
     StatsD.increment(STATSD_ERROR_NAME)
 
     raise ex if ex.status_code.between?(500, 599)

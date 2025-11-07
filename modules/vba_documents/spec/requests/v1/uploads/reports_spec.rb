@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
-require_relative '../../../../app/serializers/vba_documents/upload_serializer'
+require_relative '../../../../app/serializers/vba_documents/v1/upload_serializer'
 
 RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
   describe '#create /v1/uploads/report' do
@@ -102,7 +102,7 @@ RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
         valid_doc = 'modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob'
         inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
         pdf_controller_data = json['data'].first['attributes']['uploaded_pdf']
-        pdf_data = VBADocuments::UploadSerializer.scrub_unnecessary_keys(inspector.pdf_data.as_json)
+        pdf_data = VBADocuments::V1::UploadSerializer.scrub_unnecessary_keys(inspector.pdf_data.as_json)
         expect(pdf_controller_data.eql?(pdf_data)).to be(true)
       end
     end

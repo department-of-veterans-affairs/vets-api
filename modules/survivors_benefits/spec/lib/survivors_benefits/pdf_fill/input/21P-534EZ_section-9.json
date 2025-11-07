@@ -1,0 +1,46 @@
+{
+  "veteranSocialSecurityNumber": "123456789",
+  "totalNetWorth": true,
+  "netWorthEstimation": 78550.75,
+  "transferredAssets": true,
+  "homeOwnership": true,
+  "homeAcreageMoreThanTwo": true,
+  "homeAcreageValue": 125000,
+  "landMarketable": true,
+  "moreThanFourIncomeSources": true,
+  "otherIncome": true,
+  "incomeEntries": [
+    {
+      "recipient": "SURVIVING_SPOUSE",
+      "recipientName": "9I(1) Recipient",
+      "incomeType": "SOCIAL_SECURITY",
+      "incomeTypeOther": "9I(2) Source of Income",
+      "incomePayer": "9I(3) Payer",
+      "monthlyIncome": 2150.75
+    },
+    {
+      "recipient": "SURVIVING_SPOUSE",
+      "recipientName": "9J(1) Recipient",
+      "incomeType": "SOCIAL_SECURITY",
+      "incomeTypeOther": "9J(2) Source of Income",
+      "incomePayer": "9J(3) Payer",
+      "monthlyIncome": 895.50
+    },
+    {
+      "recipient": "SURVIVING_SPOUSE",
+      "recipientName": "9K(1) Recipient",
+      "incomeType": "SOCIAL_SECURITY",
+      "incomeTypeOther": "9K(2) Source of Income",
+      "incomePayer": "9K(3) Payer",
+      "monthlyIncome": 325.00
+    },
+    {
+      "recipient": "SURVIVING_SPOUSE",
+      "recipientName": "9L(1) Recipient",
+      "incomeType": "SOCIAL_SECURITY",
+      "incomeTypeOther": "9L(2) Source of Income",
+      "incomePayer": "9L(3) Payer",
+      "monthlyIncome": 47.83
+    }
+  ]
+}

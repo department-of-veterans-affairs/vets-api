@@ -3,12 +3,10 @@
 require 'central_mail/service'
 require 'common/exceptions'
 require 'vba_documents/upload_error'
-require 'vba_documents/webhooks_registrations'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
-    include Webhooks
 
     attribute :s3_deleted, default: false
 
@@ -297,22 +295,8 @@ module VBADocuments
       metadata['status'][to] ||= {}
       metadata['status'][to]['start'] = time
 
-      # get the message to record the status change web hook
-      if Settings.vba_documents.v2_enabled
-        msg = format_msg(VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
-        params = { consumer_id:, consumer_name:,
-                   event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, api_guid: guid, msg: }
-        Webhooks::Utilities.record_notifications(**params)
-      end
-
       # set new current status
       @current_status = to
-    end
-
-    def format_msg(event, from_status, to_status, guid)
-      api = Webhooks::Utilities.event_to_api_name[event]
-      { api_name: api, guid:, event:, status_from: from_status, status_to: to_status,
-        epoch_time: Time.now.to_i }
     end
   end
 end

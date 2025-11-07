@@ -1,0 +1,61 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_EPS_API_URL>/care-navigation/v1/appointments?patientId=1012845331V153043&referralNumber=ref-123"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Authorization:
+      - Bearer test_token
+      Content-Type:
+      - application/json
+      X-Correlation-Id:
+      - test-correlation-id
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Thu, 02 Sep 2021 14:00:00 GMT
+      Server:
+      - nginx/1.18.0
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+      X-Request-Id:
+      - test-request-id
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - "3600"
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{
+        "count": 0
+      }'
+  recorded_at: Thu, 02 Sep 2021 14:00:00 GMT
+recorded_with: VCR 6.3.1

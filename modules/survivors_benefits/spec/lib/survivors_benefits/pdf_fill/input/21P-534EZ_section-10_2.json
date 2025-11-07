@@ -1,0 +1,28 @@
+{
+  "medicalExpenses": [
+    {
+      "recipients": "CHILD",
+      "paymentFrequency": "ONE_TIME"
+    },
+    {
+      "recipients": "CHILD",
+      "paymentFrequency": "ONE_TIME"
+    },
+    {
+      "recipients": "CHILD",
+      "paymentFrequency": "ONE_TIME"
+    },
+    {
+      "recipients": "CHILD",
+      "paymentFrequency": "ONE_TIME"
+    },
+    {
+      "recipients": "CHILD",
+      "paymentFrequency": "ONE_TIME"
+    },
+    {
+      "recipients": "CHILD",
+      "paymentFrequency": "ONE_TIME"
+    }
+  ]
+}

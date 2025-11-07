@@ -34,6 +34,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
   end
 
   before do
+    VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
     login_as(representative_user)
   end
 

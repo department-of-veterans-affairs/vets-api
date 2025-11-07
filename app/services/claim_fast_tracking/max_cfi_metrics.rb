@@ -2,8 +2,6 @@
 
 module ClaimFastTracking
   class MaxCfiMetrics
-    include SentryLogging
-
     attr_reader :form, :form_data, :metadata
 
     MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
@@ -51,7 +49,6 @@ module ClaimFastTracking
     rescue => e
       # Log the exception but but do not fail, otherwise in-progress form will not update
       Rails.logger.error("In-progress form failed to log Max CFI metrics: #{e.message}")
-      log_exception_to_sentry(e)
     end
 
     def claiming_increase?

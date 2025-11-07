@@ -69,4 +69,16 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
       end
     end
   end
+
+  describe 'sidekiq_retries_exhausted callback' do
+    it 'calls handle_permanent_failure' do
+      msg = { 'args' => [parent_claim.id, 'proc_id'], 'class' => job.class.name }
+      exception = StandardError.new('Service failed')
+
+      expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
+        .with(parent_claim.id, exception)
+
+      described_class.sidekiq_retries_exhausted_block.call(msg, exception)
+    end
+  end
 end

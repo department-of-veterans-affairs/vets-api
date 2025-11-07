@@ -233,14 +233,6 @@ The Prescription model provides aliases to match Mobile API serializer expectati
 - Large responses are streamed to prevent memory issues
 - Monitoring and metrics are collected via StatsD integration with `api.uhd` prefix
 
-## Feature Flags
-
-The service uses Flipper feature flags for:
-- `mhv_accelerated_delivery_uhd_filtering_enabled` - Controls lab result filtering
-- `mhv_accelerated_delivery_uhd_ch_enabled` - Chemistry lab results
-- `mhv_accelerated_delivery_uhd_sp_enabled` - Surgical pathology results
-- `mhv_accelerated_delivery_uhd_mb_enabled` - Microbiology results
-
 ## Configuration
 
 The service uses `UnifiedHealthData::Configuration` for:

@@ -55,10 +55,9 @@ RSpec.describe ClaimFastTracking::MaxCfiMetrics do
       before do
         allow(Rails.logger).to receive(:error)
         expect(metrics).to receive(:log_init_metric).once.and_raise(StandardError)
-        expect(metrics).to receive(:log_exception_to_sentry)
       end
 
-      it 'reports the error to Rails log and Sentry, and returns successfully' do
+      it 'reports the error to Rails log, and returns successfully' do
         subject
         expect(Rails.logger).to have_received(:error)
       end

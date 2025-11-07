@@ -71,6 +71,19 @@ RSpec.describe BenefitsClaims::TitleGenerator do
           end
         end
       end
+
+      context 'with disability compensation codes' do
+        BenefitsClaims::TitleGenerator::DISABILITY_COMPENSATION_CODES.each do |code|
+          it "returns disability compensation title for code #{code}" do
+            result = described_class.generate_titles('Some Type', code)
+
+            expect(result).to eq({
+                                   display_title: 'Claim for disability compensation',
+                                   claim_type_base: 'disability compensation claim'
+                                 })
+          end
+        end
+      end
     end
 
     context 'with special case transformations' do
@@ -212,6 +225,16 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         expect(claim['attributes']['displayTitle']).to eq('Request to add or remove a dependent')
         expect(claim['attributes']['claimTypeBase']).to eq('request to add or remove a dependent')
       end
+
+      it 'updates claim with disability compensation title when disability compensation code is present' do
+        claim['attributes']['claimType'] = 'Compensation'
+        claim['attributes']['claimTypeCode'] = '020NEW'
+
+        described_class.update_claim_title(claim)
+
+        expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
+        expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
+      end
     end
 
     context 'with special case claim type' do
@@ -321,6 +344,23 @@ RSpec.describe BenefitsClaims::TitleGenerator do
       end
     end
 
+    describe 'DISABILITY_COMPENSATION_CODES' do
+      it 'contains the expected codes' do
+        expected = %w[010INITMORE8 010LCOMP 010LCOMPBDD 020CLMINC 020NEW 020NI 020SUPP 110INITLESS8 110LCOMP7]
+        expect(BenefitsClaims::TitleGenerator::DISABILITY_COMPENSATION_CODES).to eq(expected)
+      end
+
+      it 'contains unique codes' do
+        codes = BenefitsClaims::TitleGenerator::DISABILITY_COMPENSATION_CODES
+        expect(codes.uniq.length).to eq(codes.length)
+      end
+
+      it 'contains only string values' do
+        codes = BenefitsClaims::TitleGenerator::DISABILITY_COMPENSATION_CODES
+        expect(codes.all? { |code| code.is_a?(String) }).to be true
+      end
+    end
+
     describe 'CLAIM_TYPE_SPECIAL_CASES' do
       it 'contains only the Death special case' do
         expect(BenefitsClaims::TitleGenerator::CLAIM_TYPE_SPECIAL_CASES.keys).to eq(['Death'])
@@ -350,6 +390,15 @@ RSpec.describe BenefitsClaims::TitleGenerator do
 
         all_pension_codes.each do |code|
           expect(mapping).to have_key(code)
+        end
+      end
+
+      it 'includes all disability compensation codes' do
+        mapping = BenefitsClaims::TitleGenerator::CLAIM_TYPE_CODE_MAPPING
+        BenefitsClaims::TitleGenerator::DISABILITY_COMPENSATION_CODES.each do |code|
+          expect(mapping).to have_key(code)
+          expect(mapping[code].display_title).to eq('Claim for disability compensation')
+          expect(mapping[code].claim_type_base).to eq('disability compensation claim')
         end
       end
     end

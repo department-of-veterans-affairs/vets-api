@@ -65,7 +65,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   'timezone' => 'America/New_York'
                 }
               },
-              'past' => true
+              'past' => true,
+              'referralId' => '12345'
             }
           }
         }

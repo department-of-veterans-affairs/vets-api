@@ -12,7 +12,7 @@
             { "resourceType": "Organization", "name": "Test Lab" },
             { "resourceType": "Practitioner", "name": [{ "given": ["John"], "family": "Doe" }] }
           ],
-          "presentedForm": [{ "data": "abc123" }]
+          "presentedForm": [{ "contentType": "text/plain", "data": "abc123" }]
         }
       }
     ]
@@ -923,7 +923,7 @@
               ]
             }
           ],
-          "presentedForm": [{ "data": "def456" }]
+          "presentedForm": [{ "contentType": "text/plain", "data": "def456" }]
         }
       }
     ]

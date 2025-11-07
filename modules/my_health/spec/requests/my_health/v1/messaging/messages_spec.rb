@@ -635,8 +635,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
             end
           end
 
-          expect(span_double).to have_received(:set_tag).with('http.url', '/attachments/3992130/[FILTERED]')
-          expect(trace_double).to have_received(:set_tag).with('http.url', '/attachments/3992130/[FILTERED]')
+          expect(span_double).to have_received(:set_tag).with('http.url', 'https://mhv-sysb-sm-attachments.s3.us-gov-west-1.amazonaws.com/attachments/3992130/[FILTERED]')
+          expect(trace_double).to have_received(:set_tag).with('http.url', 'https://mhv-sysb-sm-attachments.s3.us-gov-west-1.amazonaws.com/attachments/3992130/[FILTERED]')
         end
       end
 

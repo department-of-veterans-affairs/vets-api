@@ -10,7 +10,6 @@ module Sidekiq
     module JobTracker
       extend ActiveSupport::Concern
       extend BackupSubmission
-      include SentryLogging
 
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526.job_status'
 
@@ -137,7 +136,7 @@ module Sidekiq
         JobTracker.send_backup_submission_if_enabled(form526_submission_id: @status_submission_id,
                                                      job_class: klass, job_id: jid,
                                                      error_class:, error_message:)
-        log_exception_to_sentry(error, status: :non_retryable_error, jid:)
+
         log_error('non_retryable_error', error)
         metrics.increment_non_retryable(error, @is_bdd, @service_provider)
       end

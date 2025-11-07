@@ -5,13 +5,15 @@ require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
 RSpec.describe PdfFill::Forms::Va21p530a do
-  let(:form_data) { JSON.parse(File.read('spec/fixtures/pdf_fill/21P-530A/simple.json')) }
+  let(:form_data) do
+    JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21P-530a', 'simple.json').read)
+  end
 
   it_behaves_like 'a form filler', {
-    form_id: '21P-530A',
+    form_id: '21P-530a',
     factory: :fake_saved_claim,
-    input_data_fixture_dir: 'spec/fixtures/pdf_fill/21P-530A',
-    output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/21P-530A',
+    input_data_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
+    output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
     test_data_types: %w[simple],
     fill_options: {
       sign: false
@@ -131,11 +133,11 @@ RSpec.describe PdfFill::Forms::Va21p530a do
       file_path = PdfFill::Filler.fill_ancillary_form(
         form_data,
         'test-123',
-        '21P-530A'
+        '21P-530a'
       )
 
       expect(File.exist?(file_path)).to be true
-      expect(file_path).to include('21P-530A')
+      expect(file_path).to include('21P-530a')
 
       # Verify it's a valid PDF
       pdf_content = File.read(file_path)
@@ -149,7 +151,7 @@ RSpec.describe PdfFill::Forms::Va21p530a do
       file_path = PdfFill::Filler.fill_ancillary_form(
         form_data,
         'test-name',
-        '21P-530A'
+        '21P-530a'
       )
 
       expect(File.exist?(file_path)).to be true

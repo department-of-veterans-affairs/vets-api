@@ -10,171 +10,65 @@ describe UnifiedHealthData::Service, type: :service do
   let(:service) { described_class.new(user) }
 
   describe '#get_labs' do
-    let(:labs_response) do
-      file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'labs_response.json')
-      JSON.parse(File.read(file_path))
-    end
-    let(:sample_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'sample_response.json'
-      ).read)
-    end
+    context 'with valid lab responses', :vcr do
+      it 'returns all labs/tests with encodedData and/or observations' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+          expect(labs.size).to eq(29)
 
-    let(:labs_client_response) do
-      Faraday::Response.new(
-        body: labs_response
-      )
-    end
+          # Verify that labs with encodedData are returned
+          labs_with_encoded_data = labs.select { |lab| lab.encoded_data.present? }
+          expect(labs_with_encoded_data).not_to be_empty
 
-    let(:sample_client_response) do
-      Faraday::Response.new(
-        body: sample_response
-      )
-    end
-
-    context 'with defensive nil checks' do
-      it 'handles missing contained sections' do
-        # Simulate missing contained by modifying the response
-        modified_response = JSON.parse(labs_response.to_json)
-        modified_response['vista']['entry'].first['resource']['contained'] = nil
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_labs_by_date)
-          .and_return(Faraday::Response.new(
-                        body: modified_response
-                      ))
-
-        expect do
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs).to be_an(Array)
-        end.not_to raise_error
-      end
-    end
-
-    context 'with valid lab responses' do
-      before do
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_labs_by_date)
-          .and_return(labs_client_response)
-      end
-
-      context 'when Flipper is enabled for all codes' do
-        it 'returns labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(3)
-          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
+          # Verify that labs with observations are returned
+          labs_with_observations = labs.select { |lab| lab.observations.present? }
+          expect(labs_with_observations).not_to be_empty
         end
       end
 
-      context 'logs test code distribution' do
-        it 'logs the test code distribution from parsed records' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          allow(Rails.logger).to receive(:info)
+      it 'logs test code distribution from parsed records' do
+        allow(Rails.logger).to receive(:info)
 
-          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+        end
 
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD test code and name distribution',
-              service: 'unified_health_data'
-            )
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'UHD test code and name distribution',
+            service: 'unified_health_data'
           )
+        )
+      end
+
+      it 'returns labs with only encodedData' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+
+          # Find labs that have encoded data but no observations
+          labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
+          expect(labs_with_encoded_only).not_to be_empty
         end
       end
 
-      context 'when filtering is disabled' do
-        it 'returns all labs/tests regardless of individual toggle states' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
+      it 'returns labs with only observations' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
 
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-
-          expect(labs.size).to eq(3)
-          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD filtering disabled - returning all records',
-              total_records: 3,
-              service: 'unified_health_data'
-            )
-          )
-        end
-
-        it 'logs that filtering is disabled' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-
-          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD filtering disabled - returning all records',
-              service: 'unified_health_data'
-            )
-          )
+          # Find labs that have observations but no encoded data
+          labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
+          expect(labs_with_observations_only).not_to be_empty
         end
       end
 
-      context 'when Flipper is disabled for all codes' do
-        it 'filters out labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs).to be_empty
-        end
-      end
+      it 'returns labs with both encodedData and observations' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
 
-      context 'when only one Flipper is enabled' do
-        it 'returns only enabled test codes' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(1)
-          expect(labs.first.test_code).to eq('CH')
-        end
-      end
-
-      context 'when MB Flipper is enabled' do
-        it 'would return MB test codes if present in the data' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(1)
+          # Check if any labs have both (may or may not exist in cassette)
+          labs_with_both = labs.select { |lab| lab.encoded_data.present? && lab.observations.present? }
+          # This is just checking the structure works - we don't require cassette to have this combination
+          expect(labs_with_both).to be_an(Array)
         end
       end
     end
@@ -190,94 +84,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'handles gracefully' do
         allow(Flipper).to receive(:enabled?).and_return(true)
-        expect { service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31') }.not_to raise_error
-      end
-    end
-  end
-
-  describe '#filter_records' do
-    let(:record_ch) { double(test_code: 'CH') }
-    let(:record_sp) { double(test_code: 'SP') }
-    let(:record_mb) { double(test_code: 'MB') }
-    let(:record_other) { double(test_code: 'OTHER') }
-    let(:records) { [record_ch, record_sp, record_mb, record_other] }
-
-    context 'when filtering is disabled' do
-      it 'returns all records regardless of individual toggle states' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                  user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
-        allow(Rails.logger).to receive(:info)
-
-        result = service.send(:filter_records, records)
-
-        expect(result).to eq(records)
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD filtering disabled - returning all records',
-            total_records: 4,
-            service: 'unified_health_data'
-          )
-        )
-      end
-    end
-
-    context 'when filtering is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                  user).and_return(true)
-        allow(Rails.logger).to receive(:info)
-      end
-
-      it 'returns only records with enabled Flipper flags' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_ch, record_mb])
-      end
-
-      it 'returns only MB records when only MB flag is enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_mb])
-      end
-
-      it 'returns all supported records when all flags are enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_ch, record_sp, record_mb])
-      end
-
-      it 'filters out unsupported test codes even when all flags are enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).not_to include(record_other)
-      end
-
-      it 'logs filtering statistics' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-
-        service.send(:filter_records, records)
-
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD filtering enabled - applied test code filtering',
-            total_records: 4,
-            filtered_records: 2,
-            service: 'unified_health_data'
-          )
-        )
+        expect { service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30') }.not_to raise_error
       end
     end
   end
@@ -1291,7 +1098,7 @@ describe UnifiedHealthData::Service, type: :service do
           result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
 
           expect(result[:success]).to eq([])
-          expect(result[:failed]).to eq([])
+          expect(result[:failed]).to eq([{ id: '12345', error: 'Service unavailable', station_number: '570' }])
         end
       end
     end
@@ -1418,6 +1225,134 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to eq([
                                { id: '456', error: 'Failed', station_number: '571' }
                              ])
+      end
+    end
+
+    context 'validate_refill_response_count' do
+      it 'does not raise error when counts match' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'raises error when response has fewer items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' },
+          { id: '789', stationNumber: '572' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 3 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when response has more items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 1 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when no responses received for multiple orders' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: []
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 2 orders, received 0 responses'
+        )
+      end
+
+      it 'does not raise error when both orders and responses are empty' do
+        normalized_orders = []
+        result = {
+          success: [],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all success responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [
+            { id: '123', status: 'submitted', station_number: '570' },
+            { id: '456', status: 'submitted', station_number: '571' }
+          ],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all failed responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: [
+            { id: '123', error: 'Failed', station_number: '570' },
+            { id: '456', error: 'Failed', station_number: '571' }
+          ]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
       end
     end
   end

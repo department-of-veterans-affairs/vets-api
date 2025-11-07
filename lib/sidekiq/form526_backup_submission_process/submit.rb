@@ -17,7 +17,6 @@ module Sidekiq
 
     class Submit
       extend ActiveSupport::Concern
-      include SentryLogging
       include Sidekiq::Job
 
       sidekiq_options retry: 14
