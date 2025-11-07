@@ -39,14 +39,9 @@ CONFLUENCE_API_TOKEN = os.getenv('CONFLUENCE_API_TOKEN')
 CONFLUENCE_SPACE_KEY = os.getenv('CONFLUENCE_SPACE_KEY', 'pilot')
 
 # Target pages to export (customize based on your Confluence structure)
+# POC: Only syncing Backend Developer Documentation page
 TARGET_PAGES = [
     'Backend Developer Documentation',
-    'Best Practices',
-    'Error Handling Standards',
-    'Service Object Guidelines',
-    'Testing Requirements',
-    'API Endpoint Standards',
-    'Security Guidelines'
 ]
 
 # Output configuration
