@@ -124,19 +124,24 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           end
 
           # The service logs the error when processing real VCR responses
+          # Verify controller name comes from RequestStore (set by controller's before_action)
+          expect(RequestStore.store['controller_name']).to eq('VAOS::V2::EpsAppointmentsController')
+          # Verify station_number comes from user object
+          expected_station_number = current_user.va_treatment_facility_ids&.first
+
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: EPS service error',
-            hash_including(
+            {
               service: 'EPS',
               method: 'get_appointment',
               error_class: 'Eps::ServiceException',
               timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+              controller: RequestStore.store['controller_name'],
+              station_number: expected_station_number,
               code: 'VAOS_404',
               upstream_status: 404,
-              upstream_body: '{\"name\": \"Not Found\"}',
-              controller: 'VAOS::V2::EpsAppointmentsController',
-              station_number: current_user.va_treatment_facility_ids&.first
-            )
+              upstream_body: '{\"name\": \"Not Found\"}'
+            }
           )
         end
       end
@@ -172,19 +177,24 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           end
 
           # The service logs the error when processing real VCR responses
+          # Verify controller name comes from RequestStore (set by controller's before_action)
+          expect(RequestStore.store['controller_name']).to eq('VAOS::V2::EpsAppointmentsController')
+          # Verify station_number comes from user object
+          expected_station_number = current_user.va_treatment_facility_ids&.first
+
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: EPS service error',
-            hash_including(
+            {
               service: 'EPS',
               method: 'get_appointment',
               error_class: 'Eps::ServiceException',
               timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+              controller: RequestStore.store['controller_name'],
+              station_number: expected_station_number,
               code: 'VAOS_502',
               upstream_status: 500,
-              upstream_body: '{\"isFault\": true,\"isTemporary\": true,\"name\": \"Internal Server Error\"}',
-              controller: 'VAOS::V2::EpsAppointmentsController',
-              station_number: current_user.va_treatment_facility_ids&.first
-            )
+              upstream_body: '{\"isFault\": true,\"isTemporary\": true,\"name\": \"Internal Server Error\"}'
+            }
           )
         end
       end

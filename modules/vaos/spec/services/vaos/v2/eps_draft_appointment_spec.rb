@@ -416,15 +416,20 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
       it 'logs provider not found error when provider is nil' do
         allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
+        # Verify controller name comes from RequestStore
+        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+        # Verify station_number comes from user object
+        expected_station_number = current_user.va_treatment_facility_ids&.first
+
         expect(Rails.logger).to receive(:error).with(
           'Community Care Appointments: Provider not found while creating draft appointment',
-          hash_including(
+          {
             error_message: 'Provider not found while creating draft appointment',
             provider_npi: '1234567890',
             user_uuid: current_user.uuid,
-            controller: 'VAOS::V2::AppointmentsController',
-            station_number: current_user.va_treatment_facility_ids&.first
-          )
+            controller: RequestStore.store['controller_name'],
+            station_number: expected_station_number
+          }
         )
         expect(subject.error).to be_present
         expect(subject.error[:message]).to eq('Provider not found')
@@ -529,15 +534,20 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           invalid_date_referral = referral_data.dup
           invalid_date_referral.referral_date = 'invalid-date'
 
+          # Verify controller name comes from RequestStore
+          expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+          # Verify station_number comes from user object
+          expected_station_number = current_user.va_treatment_facility_ids&.first
+
           expect(Rails.logger).to receive(:error).with(
             'Community Care Appointments: Error fetching provider slots',
-            hash_including(
+            {
               error_class: 'Date::Error',
               error_message: 'invalid date',
               user_uuid: current_user.uuid,
-              controller: 'VAOS::V2::AppointmentsController',
-              station_number: current_user.va_treatment_facility_ids&.first
-            )
+              controller: RequestStore.store['controller_name'],
+              station_number: expected_station_number
+            }
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
           expect(result).to be_nil

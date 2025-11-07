@@ -98,15 +98,20 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
+        # Verify controller name comes from RequestStore
+        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+        # Verify station_number comes from user object
+        expected_station_number = user.va_treatment_facility_ids&.first
+
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          hash_including(
+          {
             error_type: 'conflict',
             method: 'get_appointment',
             status: 200,
-            controller: 'VAOS::V2::AppointmentsController',
-            station_number: user.va_treatment_facility_ids&.first
-          )
+            controller: RequestStore.store['controller_name'],
+            station_number: expected_station_number
+          }
         )
 
         expect { service.get_appointment(appointment_id:) }
@@ -173,15 +178,20 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
+        # Verify controller name comes from RequestStore
+        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+        # Verify station_number comes from user object
+        expected_station_number = user.va_treatment_facility_ids&.first
+
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          hash_including(
+          {
             error_type: 'conflict',
             method: 'get_appointments',
             status: 200,
-            controller: 'VAOS::V2::AppointmentsController',
-            station_number: user.va_treatment_facility_ids&.first
-          )
+            controller: RequestStore.store['controller_name'],
+            station_number: expected_station_number
+          }
         )
 
         expect { service.get_appointments }
@@ -252,15 +262,20 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
+        # Verify controller name comes from RequestStore
+        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+        # Verify station_number comes from user object
+        expected_station_number = user.va_treatment_facility_ids&.first
+
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          hash_including(
+          {
             error_type: 'conflict',
             method: 'create_draft_appointment',
             status: 200,
-            controller: 'VAOS::V2::AppointmentsController',
-            station_number: user.va_treatment_facility_ids&.first
-          )
+            controller: RequestStore.store['controller_name'],
+            station_number: expected_station_number
+          }
         )
 
         expect { service.create_draft_appointment(referral_id:) }
@@ -412,15 +427,20 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
+        # Verify controller name comes from RequestStore
+        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+        # Verify station_number comes from user object
+        expected_station_number = user.va_treatment_facility_ids&.first
+
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          hash_including(
+          {
             error_type: 'conflict',
             method: 'submit_appointment',
             status: 200,
-            controller: 'VAOS::V2::AppointmentsController',
-            station_number: user.va_treatment_facility_ids&.first
-          )
+            controller: RequestStore.store['controller_name'],
+            station_number: expected_station_number
+          }
         )
 
         expect { service.submit_appointment(appointment_id, valid_params) }

@@ -1671,14 +1671,19 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                     # Verify the log was called with controller name set by BaseController's before_action
                     # The controller name and station_number prove the RequestStore mechanism works correctly
+                    # Verify controller name comes from RequestStore (set by controller's before_action)
+                    expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+                    # Verify station_number comes from user object
+                    expected_station_number = current_user.va_treatment_facility_ids&.first
+
                     expect(Rails.logger).to have_received(:error).with(
                       'Community Care Appointments: Provider not found while creating draft appointment',
-                      hash_including(
+                      {
                         error_message: 'Provider not found while creating draft appointment',
                         user_uuid: current_user.uuid,
-                        controller: 'VAOS::V2::AppointmentsController',
-                        station_number: current_user.va_treatment_facility_ids&.first
-                      )
+                        controller: RequestStore.store['controller_name'],
+                        station_number: expected_station_number
+                      }
                     )
 
                     expect(response).to have_http_status(:not_found)
@@ -1758,18 +1763,24 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                         )
 
                         # Assert EXACTLY what our EPS logging emitted
+                        # Verify controller name comes from RequestStore (set by controller's before_action)
+                        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+                        # Verify station_number comes from user object
+                        expected_station_number = current_user.va_treatment_facility_ids&.first
+
                         expect(Rails.logger).to have_received(:error).with(
                           'Community Care Appointments: EPS service error',
-                          hash_including(
+                          {
                             service: 'EPS',
                             method: 'create_draft_appointment',
                             error_class: 'Eps::ServiceException',
+                            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+                            controller: RequestStore.store['controller_name'],
+                            station_number: expected_station_number,
                             code: 'VAOS_400',
                             upstream_status: 400,
-                            upstream_body: a_string_including('invalid patientId'),
-                            controller: 'VAOS::V2::AppointmentsController',
-                            station_number: current_user.va_treatment_facility_ids&.first
-                          )
+                            upstream_body: a_string_including('invalid patientId')
+                          }
                         )
                       end
                     end
