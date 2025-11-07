@@ -319,9 +319,9 @@ We also generally avoid `setState` inside regular components. This isn't because
 
 note
 
-Keep in mind that these are general conventions, not iron-clad rules, and we should revist them as we gain more experience using React and Redux.
+Keep in mind that these are general conventions, not iron-clad rules, and we should revisit them as we gain more experience using React and Redux.
 
-Keep in mind that these are general conventions, not iron-clad rules, and we should revist them as we gain more experience using React and Redux.
+Keep in mind that these are general conventions, not iron-clad rules, and we should revisit them as we gain more experience using React and Redux.
 
 ## Additional best practices documentation
 
