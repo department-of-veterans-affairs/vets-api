@@ -4,6 +4,8 @@ module Eps
   class ProviderService < BaseService
     # StatsD metrics for provider service calls with no parameters
     PROVIDER_SERVICE_NO_PARAMS_METRIC = "#{STATSD_PREFIX}.provider_service.no_params".freeze
+    # StatsD metric for when providers are found but none are self-schedulable
+    PROVIDER_SERVICE_NO_SELF_SCHEDULABLE_METRIC = "#{STATSD_PREFIX}.provider_service.no_self_schedulable".freeze
     ##
     # Get provider data from EPS
     #
@@ -238,6 +240,7 @@ module Eps
 
       self_schedulable_providers = filter_self_schedulable(all_providers)
       if self_schedulable_providers.empty?
+        StatsD.increment(PROVIDER_SERVICE_NO_SELF_SCHEDULABLE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
         Rails.logger.error("#{CC_APPOINTMENTS}: No self-schedulable providers found for NPI",
                            { npi: })
         return nil
@@ -289,14 +292,14 @@ module Eps
     #
     def filter_self_schedulable(providers)
       providers.select do |provider|
-        appointment_types = provider[:appointmentTypes] || []
+        appointment_types = provider[:appointment_types] || []
         has_office_visit = appointment_types.any? do |appt_type|
-          appt_type[:name] == 'Office Visit' && appt_type[:isSelfSchedulable] == true
+          appt_type[:name] == 'Office Visit' && appt_type[:is_self_schedulable] == true
         end
 
         has_office_visit &&
-          provider.dig(:features, :isDigital) == true &&
-          provider.dig(:features, :directBooking, :isEnabled) == true
+          provider.dig(:features, :is_digital) == true &&
+          provider.dig(:features, :direct_booking, :is_enabled) == true
       end
     end
 

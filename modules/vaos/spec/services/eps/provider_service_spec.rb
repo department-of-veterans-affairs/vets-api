@@ -838,16 +838,16 @@ describe Eps::ProviderService do
               {
                 id: 'provider1',
                 specialties: [{ name: 'Cardiology' }],
-                appointmentTypes: [
+                appointment_types: [
                   {
                     name: 'Office Visit',
-                    isSelfSchedulable: false
+                    is_self_schedulable: false
                   }
                 ],
                 features: {
-                  isDigital: true,
-                  directBooking: {
-                    isEnabled: true
+                  is_digital: true,
+                  direct_booking: {
+                    is_enabled: true
                   }
                 },
                 location: {
@@ -857,16 +857,16 @@ describe Eps::ProviderService do
               {
                 id: 'provider2',
                 specialties: [{ name: 'Cardiology' }],
-                appointmentTypes: [
+                appointment_types: [
                   {
                     name: 'Office Visit',
-                    isSelfSchedulable: true
+                    is_self_schedulable: true
                   }
                 ],
                 features: {
-                  isDigital: false,
-                  directBooking: {
-                    isEnabled: true
+                  is_digital: false,
+                  direct_booking: {
+                    is_enabled: true
                   }
                 },
                 location: {
@@ -887,7 +887,11 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'returns nil and logs error with npi' do
+        it 'returns nil, logs error with npi, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:error).with(
@@ -929,10 +933,10 @@ describe Eps::ProviderService do
             count: 1,
             provider_services: [
               self_schedulable_provider(
-                appointmentTypes: [
+                appointment_types: [
                   {
                     name: 'Office Visit',
-                    isSelfSchedulable: false
+                    is_self_schedulable: false
                   }
                 ]
               )
@@ -950,7 +954,11 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'returns nil and logs error' do
+        it 'returns nil, logs error, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:error).with(
@@ -967,9 +975,9 @@ describe Eps::ProviderService do
             provider_services: [
               self_schedulable_provider(
                 features: {
-                  isDigital: false,
-                  directBooking: {
-                    isEnabled: true
+                  is_digital: false,
+                  direct_booking: {
+                    is_enabled: true
                   }
                 }
               )
@@ -987,7 +995,11 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'returns nil and logs error' do
+        it 'returns nil, logs error, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:error).with(
@@ -1004,9 +1016,9 @@ describe Eps::ProviderService do
             provider_services: [
               self_schedulable_provider(
                 features: {
-                  isDigital: true,
-                  directBooking: {
-                    isEnabled: false
+                  is_digital: true,
+                  direct_booking: {
+                    is_enabled: false
                   }
                 }
               )
@@ -1024,7 +1036,11 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'returns nil and logs error' do
+        it 'returns nil, logs error, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:error).with(
@@ -1893,16 +1909,16 @@ describe Eps::ProviderService do
     {
       id: 'provider123',
       specialties: [{ name: 'Cardiology' }],
-      appointmentTypes: [
+      appointment_types: [
         {
           name: 'Office Visit',
-          isSelfSchedulable: true
+          is_self_schedulable: true
         }
       ],
       features: {
-        isDigital: true,
-        directBooking: {
-          isEnabled: true
+        is_digital: true,
+        direct_booking: {
+          is_enabled: true
         }
       },
       location: {
