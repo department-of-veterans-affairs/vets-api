@@ -163,7 +163,7 @@ brew install pdftk-java
 Make sure you're in the `vets-api` directory:
 
 ```bash
-rails db:drop db:create db:schema:load db:migrate db:seed
+rails db:create db:schema:load db:migrate db:seed
 ```
 
 ---
