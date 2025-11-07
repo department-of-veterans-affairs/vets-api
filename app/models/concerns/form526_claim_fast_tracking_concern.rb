@@ -250,7 +250,7 @@ module Form526ClaimFastTrackingConcern
       error_message: error.message
     )
   rescue => e
-    Rails.logger.error("Form526ClaimsFastTrackingConcern Failed to log error #{e.message}.", backtrace: e.backtrace)
+    Rails.logger.error("Form526ClaimsFastTrackingConcern Failed to log error: #{e.message}.", backtrace: e.backtrace)
   end
 
   def in_progress_form
