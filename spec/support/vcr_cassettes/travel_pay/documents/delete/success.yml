@@ -1,0 +1,41 @@
+---
+http_interactions:
+  - request:
+      method: delete
+      uri: "<TRAVEL_PAY_BASE_URL>/api/v1/claims/73611905-71bf-46ed-b1ec-e790593b8565/documents/123e4567-e89b-12d3-a456-426614174000"
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization:
+          - Bearer string
+        BTSSS-Access-Token:
+          - string
+        X-Correlation-ID:
+          - test-correlation-id-123
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: >-
+          {
+            "correlationId": "abc-123",
+            "timeStamp": "2025-09-10T17:26:28.867Z",
+            "statusCode": 0,
+            "message": "Document deleted successfully",
+            "success": true,
+            "data": {
+              "documentId": "123e4567-e89b-12d3-a456-426614174000"
+            }
+          }
+    recorded_at: Wed, 10 Sep 2025 00:00:00 GMT
+recorded_with: VCR 6.1.0

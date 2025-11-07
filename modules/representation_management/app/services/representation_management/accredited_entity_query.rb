@@ -67,7 +67,6 @@ module RepresentationManagement
             accredited_organizations
           WHERE
             word_similarity(:query_string, name) >= :threshold
-            AND location IS NOT NULL
         )
         SELECT
           id,

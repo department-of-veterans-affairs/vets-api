@@ -10,7 +10,7 @@ module Veteran
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must not decrease by more than this percentage from the previous count
-    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
+    DECREASE_THRESHOLD = 0.50 # 50% maximum decrease allowed
 
     # User type constants
     USER_TYPE_ATTORNEY = 'attorney'
@@ -125,50 +125,45 @@ module Veteran
     end
 
     def find_or_create_attorneys(attorney)
-      rep = find_or_initialize(attorney)
-      rep.user_types << USER_TYPE_ATTORNEY unless rep.user_types.include?(USER_TYPE_ATTORNEY)
+      rep = find_or_initialize_by_id(attorney, USER_TYPE_ATTORNEY)
       rep.save
     end
 
     def find_or_create_claim_agents(claim_agent)
-      rep = find_or_initialize(claim_agent)
-      rep.user_types << USER_TYPE_CLAIM_AGENT unless rep.user_types.include?(USER_TYPE_CLAIM_AGENT)
+      rep = find_or_initialize_by_id(claim_agent, USER_TYPE_CLAIM_AGENT)
       rep.save
     end
 
     def find_or_create_vso(vso)
-      unless vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
-        ClaimsApi::Logger.log('VSO',
-                              detail: "Rep name not in expected format: #{vso['Registration Num']}")
+      unless vso['Representative']&.match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
+        ClaimsApi::Logger.log('VSO', detail: "Rep name not in expected format: #{vso['Registration Num']}")
         return
       end
 
-      last_name, first_name, middle_initial = vso['Representative']
-                                              .match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures
-
-      last_name = last_name.strip
-
-      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
-                                                                   first_name:,
-                                                                   last_name:)
-      poa_code = vso['POA'].gsub(/\W/, '')
-      rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
-
-      rep.phone = vso['Org Phone']
-      rep.user_types << USER_TYPE_VSO unless rep.user_types.include?(USER_TYPE_VSO)
-      rep.middle_initial = middle_initial.presence || ''
+      rep = find_or_initialize_by_id(convert_vso_to_useable_hash(vso), USER_TYPE_VSO)
       rep.save
     end
 
-    def log_to_slack(message)
-      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                       channel: '#api-benefits-claims',
-                                       username: 'VSOReloader')
-      client.notify(message)
+    def convert_vso_to_useable_hash(vso)
+      last_name, first_name, middle_initial = vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures # rubocop:disable Layout/LineLength
+
+      {
+        'Last Name' => last_name,
+        'First Name' => first_name,
+        'Middle Initial' => middle_initial || '',
+        'Registration Num' => vso['Registration Num'],
+        'POA Code' => vso['POA'],
+        'Phone' => vso['Rep Phone'] || vso['Org Phone'],
+        'City' => vso['Rep City'] || vso['Org City'],
+        'State' => vso['Rep State'] || vso['Org State'],
+        'Zip' => vso['Rep Zip']
+      }
     end
 
-    def log_to_slack_threshold_channel(message)
-      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+    def log_to_slack(message)
+      return unless Settings.vsp_environment == 'production'
+
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'VSOReloader')
       client.notify(message)
@@ -229,7 +224,7 @@ module Veteran
                 "Threshold: #{(threshold * 100).round(2)}%\n" \
                 'Action: Update skipped, manual review required'
 
-      log_to_slack_threshold_channel(message)
+      log_to_slack(message)
       log_message_to_sentry("VSO Reloader threshold exceeded for #{rep_type}", :warn,
                             previous_count:,
                             new_count:,
@@ -257,7 +252,7 @@ module Veteran
     def calculate_vso_counts(vso_data)
       {
         reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
-        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count # rubocop:disable Rails/Pluck
+        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count
       }
     end
 

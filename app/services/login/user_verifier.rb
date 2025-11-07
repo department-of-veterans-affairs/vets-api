@@ -8,7 +8,8 @@ module Login
                    idme_uuid:,
                    dslogon_uuid:,
                    logingov_uuid:,
-                   icn:)
+                   icn:,
+                   credential_attributes_digest: nil)
       @login_type = login_type
       @auth_broker = auth_broker
       @mhv_uuid = mhv_uuid
@@ -16,6 +17,7 @@ module Login
       @dslogon_uuid = dslogon_uuid
       @logingov_uuid = logingov_uuid
       @icn = icn.presence
+      @credential_attributes_digest = credential_attributes_digest
       @deprecated_log = nil
       @user_account_mismatch_log = nil
     end
@@ -35,7 +37,8 @@ module Login
                 :icn,
                 :deprecated_log,
                 :user_account_mismatch_log,
-                :new_user_log
+                :new_user_log,
+                :credential_attributes_digest
 
     MHV_TYPE = :mhv_uuid
     IDME_TYPE = :idme_uuid
@@ -55,6 +58,7 @@ module Login
         if user_verification
           update_existing_user_verification if user_verification_needs_to_be_updated?
           update_backing_idme_uuid if backing_idme_uuid_has_changed?
+          update_credential_attributes_digest if credential_attributes_digest_changed?
         else
           create_user_verification
         end
@@ -87,6 +91,12 @@ module Login
       user_verification.update(backing_idme_uuid:)
     end
 
+    def update_credential_attributes_digest
+      return unless user_verification.verified?
+
+      user_verification.update(credential_attributes_digest:)
+    end
+
     def deprecate_unverified_user_account
       deprecated_user_account = user_verification.user_account
       DeprecatedUserAccount.create!(user_account: deprecated_user_account,
@@ -104,11 +114,14 @@ module Login
     def create_user_verification
       set_new_user_log
       verified_at = icn ? Time.zone.now : nil
+      credential_attributes_digest = nil unless icn
+
       UserVerification.create!(type => identifier,
                                user_account: existing_user_account || UserAccount.new(icn:),
                                backing_idme_uuid:,
                                verified_at:,
-                               locked:)
+                               locked:,
+                               credential_attributes_digest:)
     end
 
     def user_verification_needs_to_be_updated?
@@ -117,6 +130,10 @@ module Login
 
     def backing_idme_uuid_has_changed?
       backing_idme_uuid != user_verification.backing_idme_uuid
+    end
+
+    def credential_attributes_digest_changed?
+      credential_attributes_digest != user_verification.credential_attributes_digest
     end
 
     def set_new_user_log

@@ -39,10 +39,17 @@ module IncomeAndAssets
         # confirmation, error
         'first_name' => first_name,
         # received
-        'date_received' => claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
+        'date_received' => date_received
       }
 
       default.merge(template)
+    end
+
+    # Provides the date received with fallback to claim submission date
+    # @return [Time] the date the form was received or submitted
+    def date_received
+      lighthouse_date = claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
+      lighthouse_date || claim.submitted_at || claim.created_at
     end
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_klass

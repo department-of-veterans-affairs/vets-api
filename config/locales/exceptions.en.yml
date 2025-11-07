@@ -204,6 +204,12 @@ en:
         title: Bad Gateway
         code: 502
         status: 502
+      prescription_refill_response_mismatch:
+        <<: *defaults
+        title: Prescription Refill Response Mismatch
+        detail: The upstream service returned an incomplete response for prescription refill orders
+        code: 502
+        status: 502
       service_unavailable:
         <<: *defaults
         title: Service Unavailable
@@ -802,6 +808,29 @@ en:
         code: 'PPMS_502'
         detail: 'PPMS returned an invalid response'
         status: 502
+      RES_CH31_ELIGIBILITY_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'RES_CH31_ELIGIBILITY_400'
+        detail: 'Bad Request'
+        status: 400
+      RES_CH31_ELIGIBILITY_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'RES_CH31_ELIGIBILITY_403'
+        detail: 'Forbidden'
+        status: 403
+      RES_CH31_ELIGIBILITY_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: 'RES_CH31_ELIGIBILITY_500'
+        detail: 'Internal Server Error'
+      RES_CH31_ELIGIBILITY_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'RES_CH31_ELIGIBILITY_503'
+        detail: 'Service Unavailable'
+        status: 503
       SEARCH_400:
         <<: *external_defaults
         title: Bad Request

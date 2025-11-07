@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA107959c
     STATS_KEY = 'api.ivc_champva_form.10_7959c'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)

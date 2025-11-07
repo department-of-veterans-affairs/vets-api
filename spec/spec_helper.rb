@@ -8,6 +8,7 @@ require 'support/spool_helpers'
 require 'support/excel_helpers'
 require 'support/fixture_helpers'
 require 'support/silence_stream'
+require 'simplecov_helper'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/rswag/text_helpers'
 require 'support/sidekiq/batch'
@@ -21,92 +22,7 @@ require 'mock_redis'
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
   require 'simplecov'
-
-  SimpleCov.start 'rails' do
-    track_files '**/{app,lib}/**/*.rb'
-
-    add_filter 'app/models/in_progress_disability_compensation_form.rb'
-    add_filter 'lib/apps/configuration.rb'
-    add_filter 'lib/apps/responses/response.rb'
-    add_filter 'lib/config_helper.rb'
-    add_filter 'lib/feature_flipper.rb'
-    add_filter 'lib/gibft/configuration.rb'
-    add_filter 'lib/ihub/appointments/response.rb'
-    add_filter 'lib/salesforce/configuration.rb'
-    add_filter 'lib/va_profile/address_validation/configuration.rb'
-    add_filter 'lib/va_profile/v3/address_validation/configuration.rb'
-    add_filter 'lib/search/response.rb'
-    add_filter 'lib/search_gsa/response.rb'
-    add_filter 'lib/va_profile/exceptions/builder.rb'
-    add_filter 'lib/va_profile/response.rb'
-    add_filter 'modules/appeals_api/app/swagger'
-    add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
-    add_filter 'modules/apps_api/app/swagger'
-    add_filter 'modules/burials/lib/benefits_intake/submission_handler.rb'
-    add_filter 'modules/check_in/config/initializers/statsd.rb'
-    add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
-    add_filter 'modules/claims_api/app/swagger/*'
-    add_filter 'modules/pensions/app/swagger'
-    add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
-    add_filter 'version.rb'
-
-    # Modules
-    add_group 'AccreditedRepresentativePortal', 'modules/accredited_representative_portal/'
-    add_group 'AppealsApi', 'modules/appeals_api/'
-    add_group 'AppsApi', 'modules/apps_api'
-    add_group 'AskVAApi', 'modules/ask_va_api/'
-    add_group 'Avs', 'modules/avs/'
-    add_group 'Banners', 'modules/banners/'
-    add_group 'Burials', 'modules/burials/'
-    add_group 'CheckIn', 'modules/check_in/'
-    add_group 'ClaimsApi', 'modules/claims_api/'
-    add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
-    add_group 'CovidResearch', 'modules/covid_research/'
-    add_group 'DebtsApi', 'modules/debts_api/'
-    add_group 'DependentsVerification', 'modules/dependents_verification/'
-    add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
-    add_group 'FacilitiesApi', 'modules/facilities_api/'
-    add_group 'IncomeAndAssets', 'modules/income_and_assets/'
-    add_group 'IvcChampva', 'modules/ivc_champva/'
-    add_group 'MedicalExpenseReports', 'modules/medical_expense_reports/'
-    add_group 'RepresentationManagement', 'modules/representation_management/'
-    add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
-    add_group 'IncomeLimits', 'modules/income_limits/'
-    add_group 'MebApi', 'modules/meb_api/'
-    add_group 'Mobile', 'modules/mobile/'
-    add_group 'MyHealth', 'modules/my_health/'
-    add_group 'Pensions', 'modules/pensions/'
-    add_group 'Policies', 'app/policies'
-    add_group 'Serializers', 'app/serializers'
-    add_group 'Services', 'app/services'
-    add_group 'Swagger', 'app/swagger'
-    add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
-    add_group 'TravelPay', 'modules/travel_pay/'
-    add_group 'Uploaders', 'app/uploaders'
-    add_group 'VRE', 'modules/vre/'
-    add_group 'VaNotify', 'modules/va_notify/'
-    add_group 'VAOS', 'modules/vaos/'
-    add_group 'VBADocuments', 'modules/vba_documents/'
-    add_group 'Veteran', 'modules/veteran/'
-    add_group 'VeteranVerification', 'modules/veteran_verification/'
-    # End Modules
-
-    # Team Groups
-    codeowners_parser = CodeownersParser.new
-    octo_identity_files = codeowners_parser.perform('octo-identity')
-    add_group 'OctoIdentity', octo_identity_files
-
-    if ENV['CI']
-      SimpleCov.minimum_coverage 90
-      SimpleCov.refuse_coverage_drop
-    end
-  end
-  if ENV['TEST_ENV_NUMBER'] # parallel specs
-    SimpleCov.at_exit do
-      result = SimpleCov.result
-      result.format! if ParallelTests.number_of_running_processes <= 1
-    end
-  end
+  SimpleCovHelper.start_coverage
 end
 
 # @see https://medium.com/@petro.yakubiv/testing-time-and-date-in-rspec-98483ce7a138

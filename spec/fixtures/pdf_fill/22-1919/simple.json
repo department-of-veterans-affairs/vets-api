@@ -1,0 +1,45 @@
+{
+  "institutionDetails": {
+    "institutionName": "Example Proprietary School",
+    "facilityCode": "A1B2C3D4",
+    "institutionAddress": {
+      "street": "123 Main St",
+      "city": "Springfield",
+      "state": "VA",
+      "postalCode": "22150"
+    }
+  },
+  "proprietaryProfitConflicts": [
+    {
+      "affiliatedIndividuals": {
+        "first": "Alice",
+        "last": "Anderson",
+        "title": "Administrator",
+        "individualAssociationType": "va"
+      }
+    }
+  ],
+  "allProprietaryProfitConflicts": [
+    {
+      "certifyingOfficial": {
+        "first": "Brian",
+        "last": "Baker",
+        "title": "Director"
+      },
+      "fileNumber": "123456789",
+      "enrollmentPeriod": {
+        "from": "2024-01-01",
+        "to": "2024-12-31"
+      }
+    }
+  ],
+  "certifyingOfficial": {
+    "first": "Carol",
+    "last": "Clark",
+    "role": {
+      "level": "certifying official"
+    }
+  },
+  "statementOfTruthSignature": "Carol Clark",
+  "dateSigned": "2024-04-01"
+}

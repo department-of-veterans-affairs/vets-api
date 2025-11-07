@@ -22,7 +22,7 @@
     },
     "meta": {
       "type": "object",
-      "required": ["sort"],
+      "required": ["sort", "careSystems"],
       "properties": {
         "associatedTriageGroups": {
           "type": "integer"
@@ -35,6 +35,9 @@
         },
         "sort": {
           "type": "object"
+        },
+        "careSystems": {
+          "type": "array"
         }
       }
     }

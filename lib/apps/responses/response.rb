@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
-require 'common/models/base'
+require 'vets/model'
 
 module Apps
   module Responses
@@ -14,17 +14,20 @@ module Apps
     # @!attribute status
     #   @return [Integer] The HTTP status code.
     #
-    class Response < Common::Base
+    class Response
+      include Vets::Model
+
       attribute :body, String
       attribute :status, Integer
 
       def initialize(status, body, schema_name)
-        self.body = if status == 204
-                      nil
-                    else
-                      json_format_is_valid?(body, schema_name) ? body : {}
-                    end
-        self.status = status
+        @body = if status == 204
+                  nil
+                else
+                  json_format_is_valid?(body, schema_name) ? body : {}
+                end
+        @status = status
+        super()
       end
 
       private

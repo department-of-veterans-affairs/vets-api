@@ -26,7 +26,7 @@ properties:
     type: string
     format: date-time
   quantity:
-    type: integer
+    type: string
   expirationDate:
     type: string
     format: date-time

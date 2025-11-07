@@ -11,11 +11,7 @@ class PersistentAttachments::ClaimEvidence < PersistentAttachment
 
   before_destroy(:delete_file)
 
-  # Determines whether stamped PDF validation is required for the attachment.
-  #
-  # # See ClaimDocumentsController#create for how this method is used.
-  #
-  # @return [Boolean] always returns true, indicating that stamped PDF validation is required.
+  # @see PersistentAttachment#requires_stamped_pdf_validation
   def requires_stamped_pdf_validation?
     true
   end

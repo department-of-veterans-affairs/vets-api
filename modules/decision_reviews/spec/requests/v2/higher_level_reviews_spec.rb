@@ -56,6 +56,52 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
 
   before { sign_in_as(user) }
 
+  describe '#show' do
+    subject do
+      get "/decision_reviews/v2/higher_level_reviews/#{id}",
+          headers:
+    end
+
+    let(:id) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
+
+    def personal_information_logs
+      PersonalInformationLog.where 'error_class like ?',
+                                   'DecisionReviews::V2::HigherLevelReviewsController#show exception % (HLR_V2)'
+    end
+
+    context 'successful GET request' do
+      it 'returns the HLR data' do
+        VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200_V2') do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response.dig('data', 'id')).to eq(id)
+          expect(parsed_response.dig('data', 'type')).to eq('higherLevelReview')
+        end
+      end
+    end
+
+    context 'when the service raises an error' do
+      let(:expected_error_class) do
+        'DecisionReviews::V2::HigherLevelReviewsController#show exception ' \
+          'VCR::Errors::UnhandledHTTPRequestError (HLR_V2)'
+      end
+
+      it 'logs the exception properly' do
+        VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404_V1') do
+          expect(personal_information_logs.count).to be 0
+          subject
+          expect(personal_information_logs.count).to be 1
+
+          expect(response).to have_http_status(:internal_server_error)
+          pil = personal_information_logs.first
+          expect(pil.error_class).to eq(expected_error_class)
+        end
+      end
+    end
+  end
+
   describe '#create' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',

@@ -95,7 +95,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           representative_id: '98765',
           first_name: 'Tamara',
           last_name: 'Ellis',
-          email: 'va.api.user+idme.001@gmail.com',
           poa_codes: %w[067 A1Q 095 074 083 1NY]
         )
 
@@ -103,7 +102,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           representative_id: '12345',
           first_name: 'John',
           last_name: 'Doe',
-          email: 'va.api.user+idme.007@gmail.com',
           poa_codes: %w[072 A1H 095 074 083 1NY]
         )
       end
@@ -124,7 +122,8 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'notifies slack' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        allow_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
+        expect_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
         Veteran::VSOReloader.new.perform
       end
     end
@@ -135,8 +134,9 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'notifies slack' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-        subject.new.perform
+        allow_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
+        expect_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
+        Veteran::VSOReloader.new.perform
       end
     end
 
@@ -168,6 +168,114 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           expect(veteran_rep.last_name).to eq('Good')
         end
       end
+    end
+  end
+
+  describe 'dedup by representative_id (attorney)' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'does not create a duplicate when names vary' do
+      Veteran::Service::Representative.create!(
+        representative_id: 'A123',
+        first_name: 'Sarah',
+        last_name: 'Whitman',
+        user_types: ['attorney'],
+        poa_codes: ['XYZ']
+      )
+
+      payload = {
+        'Registration Num' => 'A123',
+        'First Name' => 'Sara',
+        'Last Name' => 'Whittman',
+        'Phone' => '202-555-0101',
+        'POA Code' => '9GB'
+      }
+
+      expect do
+        reloader.send(:find_or_create_attorneys, payload)
+      end.not_to change(Veteran::Service::Representative, :count)
+
+      rep = Veteran::Service::Representative.find_by(representative_id: 'A123')
+      expect(rep.first_name).to eq('Sarah')
+      expect(rep.last_name).to  eq('Whitman')
+      expect(rep.user_types).to include('attorney')
+      expect(rep.poa_codes).to include('9GB')
+    end
+  end
+
+  describe 'initial attribute population for new reps' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'fills names/contacts for a NEW attorney record' do
+      payload = {
+        'Registration Num' => 'A999',
+        'First Name' => 'June',
+        'Last Name' => 'Park',
+        'Phone' => '202-555-0123',
+        'POA Code' => 'ABC'
+      }
+
+      expect do
+        reloader.send(:find_or_create_attorneys, payload)
+      end.to change(Veteran::Service::Representative, :count).by(1)
+
+      rep = Veteran::Service::Representative.find_by!(representative_id: 'A999')
+      expect(rep.first_name).to eq('June')
+      expect(rep.last_name).to  eq('Park')
+      expect(rep.phone).to      eq('202-555-0123')
+      expect(rep.user_types).to include('attorney')
+      expect(rep.poa_codes).to  include('ABC')
+    end
+
+    it 'fills names/contacts for a NEW claim agent record' do
+      payload = {
+        'Registration Num' => 'C321',
+        'First Name' => 'Leo',
+        'Last Name' => 'Ng',
+        'Phone' => '202-555-0144',
+        'POA Code' => 'FDN'
+      }
+
+      expect do
+        reloader.send(:find_or_create_claim_agents, payload)
+      end.to change(Veteran::Service::Representative, :count).by(1)
+
+      rep = Veteran::Service::Representative.find_by!(representative_id: 'C321')
+      expect(rep.first_name).to eq('Leo')
+      expect(rep.last_name).to  eq('Ng')
+      expect(rep.phone).to      eq('202-555-0144')
+      expect(rep.user_types).to include('claim_agents')
+      expect(rep.poa_codes).to  include('FDN')
+    end
+  end
+
+  describe 'set semantics for array attributes' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'does not duplicate user_types or poa_codes when reprocessing' do
+      rep = Veteran::Service::Representative.create!(
+        representative_id: 'S111',
+        first_name: 'Sam',
+        last_name: 'Hill',
+        user_types: ['attorney'],
+        poa_codes: ['XYZ']
+      )
+
+      payload = {
+        'Registration Num' => 'S111',
+        'First Name' => 'Samuel',
+        'Last Name' => 'Hill',
+        'Phone' => '202-555-0000',
+        'POA Code' => 'XYZ'
+      }
+
+      expect do
+        reloader.send(:find_or_create_attorneys, payload)
+      end.not_to change(Veteran::Service::Representative, :count)
+
+      rep.reload
+      expect(rep.user_types.count { |t| t == 'attorney' }).to eq 1
+      expect(rep.poa_codes.count  { |p| p == 'XYZ' }).to eq 1
     end
   end
 
@@ -205,11 +313,16 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'blocks updates when decrease exceeds threshold' do
-        # 75 attorneys is a 25% decrease, which exceeds 20% threshold
-        expect(SlackNotify::Client).to receive(:new).with(
-          hash_including(channel: '#benefits-representation-management-notifications')
-        ).and_return(double(notify: true))
-        expect(reloader.send(:valid_count?, :attorneys, 75)).to be false
+        # 45 attorneys is a 55% decrease, which exceeds 50% threshold
+        expect(reloader.send(:valid_count?, :attorneys, 45)).to be false
+      end
+
+      it 'notifies slack when the decrease exceeds threshold' do
+        allow(reloader).to receive(:notify_threshold_exceeded)
+        expect(reloader).to receive(:notify_threshold_exceeded).with(
+          :attorneys, 100, 45, anything, anything
+        )
+        reloader.send(:valid_count?, :attorneys, 45)
       end
 
       it 'allows updates when decrease is within threshold' do
@@ -261,23 +374,17 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     describe '#notify_threshold_exceeded' do
       before { reloader.send(:ensure_initial_counts) }
 
-      it 'sends notification to the correct Slack channel' do
-        expect(SlackNotify::Client).to receive(:new).with(
-          hash_including(
-            webhook_url: Settings.claims_api.slack.webhook_url,
-            channel: '#benefits-representation-management-notifications',
-            username: 'VSOReloader'
-          )
-        ).and_return(double(notify: true))
+      it 'sends a notification to Slack' do
+        allow(reloader).to receive(:log_to_slack)
+
+        expect(reloader).to receive(:log_to_slack).with(
+          include('Attorneys count decreased beyond threshold!')
+        )
 
         reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.20)
       end
 
       it 'logs to Sentry' do
-        expect(SlackNotify::Client).to receive(:new).with(
-          hash_including(channel: '#benefits-representation-management-notifications')
-        ).and_return(double(notify: true))
-
         expect(reloader).to receive(:log_message_to_sentry).with(
           'VSO Reloader threshold exceeded for attorneys',
           :warn,
@@ -386,8 +493,8 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
             # Both VSO reps and orgs should remain unchanged
             expect(Veteran::Service::Representative
-                    .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
-                    .count).to eq initial_vso_rep_count
+                     .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
+                     .count).to eq initial_vso_rep_count
             expect(Veteran::Service::Organization.count).to eq initial_org_count
 
             # Check the saved totals

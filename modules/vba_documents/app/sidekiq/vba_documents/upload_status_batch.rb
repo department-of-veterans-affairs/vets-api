@@ -11,9 +11,6 @@ module VBADocuments
 
     BATCH_SIZE = 100
 
-    EMMS_SYSTEM_IO_ERROR = 'Upstream status: System.IO.IOException: The process cannot access the file%'
-    EMMS_DUP_CONFIRM_NUMBER_ERROR = 'ERR-EMMS-FAILED, ConfirmationNumber has already been submitted%'
-
     def perform
       return unless enabled? && filtered_submission_guids.present?
 
@@ -28,16 +25,7 @@ module VBADocuments
     private
 
     def filtered_submission_guids
-      ups = VBADocuments::UploadSubmission.in_flight
-
-      # Unlike most errors, these seem to be self resolving internal EMMS error, so continue
-      # to update the status for 30 days, so far all of the summissions that hit these errors recover on their own
-      # without us doing anything other than fetching their latest status
-      ups = ups.or(VBADocuments::UploadSubmission
-                     .where(status: 'error')
-                     .where('detail LIKE ? or detail LIKE ?', EMMS_SYSTEM_IO_ERROR, EMMS_DUP_CONFIRM_NUMBER_ERROR)
-                     .where(created_at: 30.days.ago..))
-      ups.order(created_at: :asc).pluck(:guid)
+      VBADocuments::UploadSubmission.in_flight.order(created_at: :asc).pluck(:guid)
     end
 
     def enabled?

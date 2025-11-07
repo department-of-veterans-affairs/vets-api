@@ -261,5 +261,55 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         expect(parsed_response['errors']).to include('Invalid JSON')
       end
     end
+
+    context 'when the Form 21a feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when nested form JSON is invalid' do
+      let(:payload) do
+        {
+          form21aSubmission: {
+            form: 'not-json' # will raise JSON::ParserError inside parse_request_body
+          }
+        }.to_json
+      end
+
+      it 'logs and returns a bad request for invalid nested JSON' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including(
+            "Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}"
+          )
+        )
+
+        make_post_request
+        expect(response).to have_http_status(:bad_request)
+        expect(parsed_response['errors']).to include('Invalid JSON')
+      end
+    end
+
+    context 'when a connection error occurs' do
+      it 'logs the error and returns a 503 (ConnectionFailed)' do
+        allow(AccreditationService).to receive(:submit_form21a)
+          .and_raise(Faraday::ConnectionFailed.new('connection down'))
+
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including('Form21aController: Network error: Faraday::ConnectionFailed')
+        )
+
+        make_post_request
+        expect(response).to have_http_status(:service_unavailable)
+        expect(parsed_response).to eq('errors' => 'Service temporarily unavailable')
+      end
+    end
   end
 end

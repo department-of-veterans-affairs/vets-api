@@ -12,6 +12,7 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
     OpenStruct.new({
                      base_url: 'https://fake-url.com',
                      breakers_error_threshold: 42,
+                     include_request: false,
                      jwt_secret: 'some-long-hash-value',
                      mock: false,
                      ssl: false
@@ -39,6 +40,10 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
     it 'returns use_mocks' do
       expect(config.use_mocks?).to eq(settings.mock)
     end
+
+    it 'returns include_request' do
+      expect(config.include_request?).to eq(settings.include_request)
+    end
   end
 
   context 'expected constants' do
@@ -53,9 +58,7 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
 
   describe '#base_request_headers' do
     it 'returns expected headers' do
-      expect_any_instance_of(ClaimsEvidenceApi::JwtGenerator).to receive(:encode_jwt).and_call_original
-
-      expected = base.base_request_headers.merge({ 'Authorization' => /Bearer .+/ })
+      expected = base.base_request_headers # no additional headers
 
       headers = config.base_request_headers
       expect(headers).to match(hash_including(**expected))
@@ -69,7 +72,7 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
       allow(Faraday).to receive(:new).and_yield(faraday)
 
       allow(config).to receive_messages(service_path: 'service_path', base_request_headers: 'base_request_headers',
-                                        request_options: 'request_options', use_mocks?: true)
+                                        request_options: 'request_options', use_mocks?: true, include_request?: true)
     end
 
     it 'returns existing connection' do
@@ -94,6 +97,7 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
       expect(faraday).to receive(:request).once.with(:json)
 
       expect(faraday).to receive(:response).once.with(:betamocks) # use_mocks? => true
+      expect(faraday).to receive(:response).once.with(:raise_error, include_request: true)
       expect(faraday).to receive(:response).once.with(:json)
 
       expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)

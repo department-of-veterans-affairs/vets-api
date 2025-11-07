@@ -121,7 +121,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
     )
   end
 
-  before(:all) do
+  before do
     # Because the 'lastUpdateDate' timestamps differ between the cassette's request body and when
     # they are set in the code, we'll ignore them when matching the request bodies on the put requests.
     VCR.configure do |config|
@@ -162,18 +162,18 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
 
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # creating associations works as expected
-    it 'reconciles and creates associations', run_at: 'Tue, 17 Jun 2025 20:23:09 GMT' do
+    it 'reconciles and creates associations', run_at: 'Thu, 24 Jul 2025 15:30:34 GMT' do
       VCR.use_cassette(
         'form1010_ezr/veteran_enrollment_system/associations/create_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
         response = described_class.new(user).reconcile_and_update_associations(associations)
 
-        expect_successful_response_output(response, '2025-06-17T20:23:09Z')
+        expect_successful_response_output(response, '2025-07-24T15:30:34Z')
       end
     end
 
-    it 'reconciles and deletes associations', run_at: 'Wed, 25 Jun 2025 20:21:08 GMT' do
+    it 'reconciles and deletes associations', run_at: 'Thu, 24 Jul 2025 15:34:01 GMT' do
       VCR.use_cassette(
         'form1010_ezr/veteran_enrollment_system/associations/delete_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
@@ -182,20 +182,20 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
         response =
           described_class.new(user).reconcile_and_update_associations(primary_next_of_kin)
 
-        expect_successful_response_output(response, '2025-06-25T20:21:08Z')
+        expect_successful_response_output(response, '2025-07-24T15:34:01Z')
       end
     end
 
     context 'when a 200 response status is returned' do
       context "when the Associations API code returned is not 'partial_success'" do
         it 'reconciles the associations, increments StatsD, logs a success message, and returns a success response',
-           run_at: 'Thu, 26 Jun 2025 02:13:15 GMT' do
+           run_at: 'Thu, 24 Jul 2025 15:39:15 GMT' do
           VCR.use_cassette(
             'form1010_ezr/veteran_enrollment_system/associations/update_associations_success',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
             response = described_class.new(user).reconcile_and_update_associations(updated_associations)
-            expect_successful_response_output(response, '2025-06-26T02:13:15Z')
+            expect_successful_response_output(response, '2025-07-24T15:39:15Z')
           end
         end
       end
@@ -213,7 +213,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
         end
 
         it 'reconciles the associations, increments StatsD, logs a partial success message, ' \
-           'and returns a partial success response', run_at: 'Thu, 26 Jun 2025 02:13:15 GMT' do
+           'and returns a partial success response', run_at: 'Thu, 24 Jul 2025 15:42:43 GMT' do
           VCR.use_cassette(
             'form1010_ezr/veteran_enrollment_system/associations/update_associations_partial_success',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
@@ -231,7 +231,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
               {
                 status: 'partial_success',
                 message: 'Some associations could not be updated',
-                timestamp: '2025-06-26T02:13:15Z',
+                timestamp: '2025-07-24T15:42:43Z',
                 successful_records: [
                   {
                     role: 'PRIMARY_NEXT_OF_KIN',
@@ -268,17 +268,17 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
         end
 
         it 'increments StatsD, logs a failure message, and raises an exception',
-           run_at: 'Wed, 25 Jun 2025 22:21:23 GMT' do
+           run_at: 'Thu, 24 Jul 2025 15:47:46 GMT' do
           VCR.use_cassette(
             'form1010_ezr/veteran_enrollment_system/associations/bad_request',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
             failure_message =
-              'associations[2].relationType: Relation type is required, associations[1].relationType: ' \
-              'Relation type is required, associations[1].role: Role is required, associations[0].relationType: ' \
-              'Relation type is required, associations[0].role: Role is required, associations[2].role: Role is ' \
-              'required, associations[3].relationType: Relation type is required, associations[3].role: Role is ' \
-              'required'
+              'associations[2].role: Role is required, associations[1].relationType: Relation type is required, ' \
+              'associations[3].role: Role is required, associations[1].role: Role is required, ' \
+              'associations[0].role: Role is required, associations[0].relationType: Relation type is required, ' \
+              'associations[2].relationType: Relation type is required, associations[3].relationType: Relation type ' \
+              'is required'
 
             expect { described_class.new(user).reconcile_and_update_associations(associations_with_missing_fields) }
               .to raise_error do |e|

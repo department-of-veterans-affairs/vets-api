@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/attribute_types/iso8601_time'
+require 'vets/model'
 require 'pagerduty/response'
 require 'pagerduty/models/service'
 require_relative 'service'
@@ -8,8 +8,8 @@ require_relative 'service'
 module PagerDuty
   module ExternalServices
     class Response < PagerDuty::Response
-      attribute :reported_at, Common::ISO8601Time
-      attribute :statuses, Array[Service]
+      attribute :reported_at, Vets::Type::ISO8601Time
+      attribute :statuses, Hash, array: true # PagerDuty::Models::Service
 
       validates :reported_at, presence: true
 
@@ -22,7 +22,7 @@ module PagerDuty
         new(
           raw_response&.status,
           reported_at: Time.current.iso8601,
-          statuses: PagerDuty::Models::Service.statuses_for(services).map(&:to_h)
+          statuses: PagerDuty::Models::Service.statuses_for(services).map(&:attributes)
         )
       end
     end

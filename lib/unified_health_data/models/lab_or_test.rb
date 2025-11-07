@@ -22,9 +22,11 @@ module UnifiedHealthData
     attribute :sample_tested, String
   end
 
-  class Attributes
+  class LabOrTest
     include Vets::Model
 
+    attribute :id, String
+    attribute :type, String
     attribute :display, String
     attribute :test_code, String
     attribute :date_completed, String
@@ -33,14 +35,7 @@ module UnifiedHealthData
     attribute :location, String
     attribute :ordered_by, String
     attribute :body_site, String
+    attribute :status, String
     attribute :observations, UnifiedHealthData::Observation, array: true
-  end
-
-  class LabOrTest
-    include Vets::Model
-
-    attribute :id, String
-    attribute :type, String
-    attribute :attributes, UnifiedHealthData::Attributes, array: false
   end
 end

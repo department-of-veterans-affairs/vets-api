@@ -2,6 +2,7 @@
 
 AccreditedRepresentativePortal::Engine.routes.draw do
   namespace :v0, defaults: { format: :json } do
+    get 'authorize_as_representative', to: 'representative_users#authorize_as_representative'
     get 'user', to: 'representative_users#show'
 
     post 'form21a', to: 'form21a#submit'

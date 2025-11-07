@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
+require 'vets/model'
 
 module BB
-  class GenerateReportRequestForm < Common::Form
+  class GenerateReportRequestForm
+    include Vets::Model
     include SentryLogging
 
     ELIGIBLE_DATA_CLASSES = %w[ seiactivityjournal seiallergies seidemographics
@@ -15,9 +16,9 @@ module BB
                                 vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
                                 vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ].freeze
 
-    attribute :from_date, Common::UTCTime
-    attribute :to_date, Common::UTCTime
-    attribute :data_classes, Array[String]
+    attribute :from_date, Vets::Type::UTCTime
+    attribute :to_date, Vets::Type::UTCTime
+    attribute :data_classes, String, array: true, default: []
 
     attr_reader :client
 

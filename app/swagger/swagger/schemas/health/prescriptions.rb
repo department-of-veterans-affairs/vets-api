@@ -58,7 +58,7 @@ module Swagger
             property :refill_remaining, type: :integer
             property :facility_name, type: :string
             property :ordered_date, type: :string, format: :date
-            property :quantity, type: :integer
+            property :quantity, type: :string
             property :expiration_date, type: :string, format: :date
             property :dispensed_date, type: %i[string null], format: :date
             property :sorted_dispensed_date, type: %i[string null], format: :date

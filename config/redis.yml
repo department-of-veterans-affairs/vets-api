@@ -114,9 +114,6 @@ development: &defaults
   debt_store:
     namespace: debt
     each_ttl: 3600 # 1 hour
-  pciu_address_dependencies:
-    namespace: pciu-address-dependencies
-    each_ttl: 604800
   va_profile_contact_info_response:
     namespace: va-profile-contact-info-response
     each_ttl: 3600 # 1 hour
@@ -226,6 +223,9 @@ development: &defaults
   travel_pay_store:
     namespace: travel-pay-store
     each_ttl: 3300 # 55 minutes
+  unique_user_metrics:
+    namespace: mhv-uum
+    each_ttl: 86400  # 1 day cache for event existence checks
 test:
   <<: *defaults
   redis:

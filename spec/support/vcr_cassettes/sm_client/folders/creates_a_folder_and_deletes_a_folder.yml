@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder"
     body:
       encoding: UTF-8
       string: '{"name":"test folder 66745"}'
@@ -38,7 +38,7 @@ http_interactions:
   recorded_at: Tue, 31 Jan 2017 22:56:03 GMT
 - request:
     method: delete
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/674886"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/674886"
     body:
       encoding: US-ASCII
       string: ''

@@ -9,6 +9,12 @@ Sidekiq::Testing.fake!
 # rubocop:disable Metrics/ModuleLength
 module AccreditedRepresentativePortal
   RSpec.describe RedactPowerOfAttorneyRequestsJob, type: :job do
+    before do
+      allow(Flipper).to receive(:enabled?).with(
+        :accredited_representative_portal_full_poa_redaction
+      ).and_return(true)
+    end
+
     # Helper to add redactable data to a submission
     def add_redactable_submission_data(submission)
       # Disable validation skip check: Directly setting ciphertext for test setup.
@@ -370,6 +376,32 @@ module AccreditedRepresentativePortal
           # If form isn't created by factory, ensure no error is raised
           expect { job.send(:redact_request, request) }.not_to raise_error
           skip("Skipping form destruction check as factory didn't create a form for this request.")
+        end
+      end
+
+      context 'Feature flag disables actual deletion' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(
+            :accredited_representative_portal_full_poa_redaction
+          ).and_return(false)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(
+            :accredited_representative_portal_full_poa_redaction
+          ).and_return(true)
+        end
+
+        it 'does NOT destroy the associated form if present' do
+          if form.present? # Only run expectation if form was created
+            expect do
+              job.send(:redact_request, request)
+            end.not_to(change { AccreditedRepresentativePortal::PowerOfAttorneyForm.exists?(form.id) })
+          else
+            # If form isn't created by factory, ensure no error is raised
+            expect { job.send(:redact_request, request) }.not_to raise_error
+            skip("Skipping form destruction check as factory didn't create a form for this request.")
+          end
         end
       end
 

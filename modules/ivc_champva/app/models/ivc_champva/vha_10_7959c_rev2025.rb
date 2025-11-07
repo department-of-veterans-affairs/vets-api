@@ -7,14 +7,18 @@
 #
 # This version of the form is used with the new 10-10d/10-7959c merged form
 # experience (e.g., "10-10D-EXTENDED").
+
+require 'vets/model'
+
 module IvcChampva
   class VHA107959cRev2025
     STATS_KEY = 'api.ivc_champva_form.10_7959c_rev2025'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
+    include StampableLogging
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -80,8 +84,16 @@ module IvcChampva
     private
 
     def initial_stamps
+      signature = @data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => {
+                                 value: signature.present? ? 'present' : nil
+                               }
+                             })
+
       [
-        { coords: [170, 65], text: @data['statement_of_truth_signature'], page: 0 }
+        { coords: [170, 65], text: signature, page: 0 }
       ]
     end
   end

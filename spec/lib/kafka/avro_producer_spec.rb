@@ -7,7 +7,7 @@ require 'kafka/schema_registry/service'
 
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
-  let(:topic) { 'submission_trace_form_status_change_test' }
+  let(:topic) { 'submission_trace_form_status_change' }
   let(:valid_payload) do
     {
       'priorId' => nil,
@@ -26,8 +26,9 @@ describe Kafka::AvroProducer do
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
   let(:schema) do
     VCR.use_cassette('kafka/topics') do
-      response = Kafka::SchemaRegistry::Service.new.subject_version('submission_trace_form_status_change_test',
-                                                                    'latest')
+      response = Kafka::SchemaRegistry::Service.new.subject_version(
+        'submission_trace_form_status_change', 'latest'
+      )
 
       schema = response['schema']
       Avro::Schema.parse(schema)
@@ -35,19 +36,11 @@ describe Kafka::AvroProducer do
   end
 
   before do
-    allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
-    allow(Flipper).to receive(:enabled?).with(:kafka_producer).and_return(true)
     allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
   end
 
   context 'using the correct client' do
     context 'in the test environment' do
-      before do
-        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
-        Kafka::ProducerManager.instance.send(:setup_producer) # Reinitialize the producer with the mocked environment
-        allow(avro_producer).to receive(:get_schema).and_return(schema)
-      end
-
       it 'uses the Buffered client' do
         expect(avro_producer.producer.client).to be_a(WaterDrop::Clients::Buffered)
       end
@@ -55,9 +48,12 @@ describe Kafka::AvroProducer do
 
     context 'in other environments' do
       before do
-        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
-        Kafka::ProducerManager.instance.send(:setup_producer) # Reinitialize the producer with the mocked environment
-        allow(avro_producer).to receive(:get_schema).and_return(schema)
+        allow(Rails.env).to receive(:test?).and_return(false)
+        Singleton.__init__(Kafka::ProducerManager)
+      end
+
+      after do
+        Singleton.__init__(Kafka::ProducerManager)
       end
 
       it 'uses the Rdkafka client' do
@@ -85,7 +81,7 @@ describe Kafka::AvroProducer do
             avro_producer.produce(topic, valid_payload)
             avro_producer.produce('submission_trace_mock_test', valid_test_payload)
             expect(avro_producer.producer.client.messages.length).to eq(2)
-            topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change_test')
+            topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change')
             expect(topic_1_messages.length).to eq(1)
             expect(topic_1_messages[0][:payload]).to be_a(String)
           end
@@ -190,7 +186,7 @@ describe Kafka::AvroProducer do
 
   describe '#encode_payload' do
     it 'encodes the payload using the specified schema' do
-      avro_producer.instance_variable_set(:@schema_id, 5)
+      avro_producer.instance_variable_set(:@schema_id, 7)
       encoder = Avro::IO::BinaryEncoder.new(StringIO.new)
       datum_writer = Avro::IO::DatumWriter.new(schema)
 

@@ -8,7 +8,7 @@ module MebApi
       module Submission
         class Response < MebApi::DGI::Response
           def initialize(status, _response = nil)
-            super(status, attributes)
+            super(status, nil)
           end
         end
       end

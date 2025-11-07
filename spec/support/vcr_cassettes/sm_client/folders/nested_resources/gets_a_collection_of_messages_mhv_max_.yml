@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/1/pageSize/2"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/0/message/page/1/pageSize/2"
     body:
       encoding: US-ASCII
       string: ''
@@ -44,7 +44,7 @@ http_interactions:
   recorded_at: Tue, 31 Jan 2017 21:29:12 GMT
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/2/pageSize/2"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/0/message/page/2/pageSize/2"
     body:
       encoding: US-ASCII
       string: ''
@@ -86,7 +86,7 @@ http_interactions:
   recorded_at: Tue, 31 Jan 2017 21:29:13 GMT
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/3/pageSize/2"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/0/message/page/3/pageSize/2"
     body:
       encoding: US-ASCII
       string: ''
@@ -128,7 +128,7 @@ http_interactions:
   recorded_at: Tue, 31 Jan 2017 21:29:13 GMT
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/4/pageSize/2"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/0/message/page/4/pageSize/2"
     body:
       encoding: US-ASCII
       string: ''
@@ -170,7 +170,7 @@ http_interactions:
   recorded_at: Tue, 31 Jan 2017 21:29:14 GMT
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/5/pageSize/2"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/0/message/page/5/pageSize/2"
     body:
       encoding: US-ASCII
       string: ''
@@ -212,7 +212,7 @@ http_interactions:
   recorded_at: Tue, 31 Jan 2017 21:29:14 GMT
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/6/pageSize/2"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/0/message/page/6/pageSize/2"
     body:
       encoding: US-ASCII
       string: ''

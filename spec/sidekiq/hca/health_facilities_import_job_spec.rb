@@ -131,36 +131,6 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
             'My Other Fake VA Clinic'
           )
         end
-
-        context ':hca_facility_import_job_filter_facilities disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:hca_facility_import_job_filter_facilities).and_return(false)
-          end
-
-          it 'fetches multiple pages of facilities and does not delete old facilities' do
-            expect(lighthouse_service).to receive(:get_facilities).with(
-              type: 'health', per_page: mock_per_page,
-              page: 1, mobile: true
-            ).and_return(mock_get_facilities_page_one)
-            expect(lighthouse_service).to receive(:get_facilities).with(
-              type: 'health', per_page: mock_per_page,
-              page: 2, mobile: true
-            ).and_return(mock_get_facilities_page_two)
-
-            expect do
-              described_class.new.perform
-            end.to change(HealthFacility, :count).by(2)
-
-            # Verify the correct facilities are added
-            expect(HealthFacility.pluck(:name)).to contain_exactly(
-              'My Fake VA Clinic',
-              'Yet Another Clinic Name',
-              'My Great New VA Clinic Name',
-              'My Other Fake VA Clinic',
-              'My Really Old VA Clinic Name' # Does not delete old facilities
-            )
-          end
-        end
       end
     end
 
