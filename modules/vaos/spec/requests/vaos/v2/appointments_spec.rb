@@ -1672,7 +1672,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                     # Verify the log was called with controller name set by BaseController's before_action
                     # The controller name and station_number prove the RequestStore mechanism works correctly
                     # Verify controller name comes from RequestStore (set by controller's before_action)
-                    expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+                    expected_controller_name = 'VAOS::V2::AppointmentsController'
                     # Verify station_number comes from user object
                     expected_station_number = current_user.va_treatment_facility_ids&.first
 
@@ -1680,8 +1680,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       'Community Care Appointments: Provider not found while creating draft appointment',
                       {
                         error_message: 'Provider not found while creating draft appointment',
+                        provider_npi: '7894563210',
                         user_uuid: current_user.uuid,
-                        controller: RequestStore.store['controller_name'],
+                        controller: expected_controller_name,
                         station_number: expected_station_number
                       }
                     )
@@ -1764,7 +1765,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                         # Assert EXACTLY what our EPS logging emitted
                         # Verify controller name comes from RequestStore (set by controller's before_action)
-                        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
+                        expected_controller_name = 'VAOS::V2::AppointmentsController'
                         # Verify station_number comes from user object
                         expected_station_number = current_user.va_treatment_facility_ids&.first
 
@@ -1775,7 +1776,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                             method: 'create_draft_appointment',
                             error_class: 'Eps::ServiceException',
                             timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
-                            controller: RequestStore.store['controller_name'],
+                            controller: expected_controller_name,
                             station_number: expected_station_number,
                             code: 'VAOS_400',
                             upstream_status: 400,

@@ -125,7 +125,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
           # The service logs the error when processing real VCR responses
           # Verify controller name comes from RequestStore (set by controller's before_action)
-          expect(RequestStore.store['controller_name']).to eq('VAOS::V2::EpsAppointmentsController')
+          expected_controller_name = 'VAOS::V2::EpsAppointmentsController'
           # Verify station_number comes from user object
           expected_station_number = current_user.va_treatment_facility_ids&.first
 
@@ -136,7 +136,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               method: 'get_appointment',
               error_class: 'Eps::ServiceException',
               timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
-              controller: RequestStore.store['controller_name'],
+              controller: expected_controller_name,
               station_number: expected_station_number,
               code: 'VAOS_404',
               upstream_status: 404,
@@ -178,7 +178,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
           # The service logs the error when processing real VCR responses
           # Verify controller name comes from RequestStore (set by controller's before_action)
-          expect(RequestStore.store['controller_name']).to eq('VAOS::V2::EpsAppointmentsController')
+          expected_controller_name = 'VAOS::V2::EpsAppointmentsController'
           # Verify station_number comes from user object
           expected_station_number = current_user.va_treatment_facility_ids&.first
 
@@ -189,7 +189,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               method: 'get_appointment',
               error_class: 'Eps::ServiceException',
               timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
-              controller: RequestStore.store['controller_name'],
+              controller: expected_controller_name,
               station_number: expected_station_number,
               code: 'VAOS_502',
               upstream_status: 500,
