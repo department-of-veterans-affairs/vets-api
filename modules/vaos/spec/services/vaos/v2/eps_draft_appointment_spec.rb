@@ -44,6 +44,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     allow(Eps::AppointmentService).to receive(:new).and_return(eps_appointment_service)
     allow(Eps::ProviderService).to receive(:new).and_return(eps_provider_service)
     allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+    # Set up RequestStore for controller name logging
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
     setup_successful_services
   end
 
@@ -419,7 +421,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           hash_including(
             error_message: 'Provider not found while creating draft appointment',
             provider_npi: '1234567890',
-            provider_specialty: 'Cardiology',
             user_uuid: current_user.uuid
           )
         )

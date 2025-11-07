@@ -479,10 +479,10 @@ module VAOS
       def log_provider_not_found_error(referral)
         error_data = {
           error_message: 'Provider not found while creating draft appointment',
-          provider_address: referral.treating_facility_address,
           provider_npi: referral.provider_npi,
-          provider_specialty: referral.provider_specialty,
-          user_uuid: @current_user&.uuid
+          user_uuid: @current_user&.uuid,
+          controller: RequestStore.store['controller_name'],
+          station_number: @current_user&.va_treatment_facility_ids&.first
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment", error_data)
       end
@@ -515,7 +515,7 @@ module VAOS
       # @param status [Symbol] HTTP status symbol (e.g., :bad_request, :not_found)
       # @return [nil] Always returns nil to support early return pattern
       def set_error(message, status)
-        @error = { message:, status: }
+        @error = { message:, status:, controller: RequestStore.store['controller_name'] }
         nil
       end
 
