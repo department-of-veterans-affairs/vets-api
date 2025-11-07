@@ -784,7 +784,7 @@
           "disabilityActionType": {
             "description": "The status of the current disability.",
             "type": "string",
-            "enum": ["NONE", "NEW", "INCREASE"],
+            "enum": ["NEW", "INCREASE"],
             "example": "NEW"
           },
           "name": {
@@ -1014,22 +1014,7 @@
               }
             }
           }
-        },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "disabilityActionType": {
-                  "enum": ["NONE"]
-                }
-              },
-              "required": ["secondaryDisabilities"]
-            },
-            "then": {
-              "required": ["diagnosticCode"]
-            }
-          }
-        ]
+        }
       }
     },
     "treatments": {
