@@ -185,7 +185,9 @@ module Eps
       # Log Rails warning with context
       log_data = {
         method: method_name,
-        service: 'eps_provider_service'
+        service: 'eps_provider_service',
+        controller: controller_name,
+        station_number:
       }
       log_data[:user_uuid] = @user.uuid if @user&.uuid
 
@@ -323,7 +325,8 @@ module Eps
     # @return [OpenStruct] The single provider match
     #
     def handle_single_specialty_match(specialty_matches)
-      Rails.logger.info('Single specialty match found for NPI, skipping address validation')
+      Rails.logger.info('Single specialty match found for NPI, skipping address validation',
+                        controller: controller_name, station_number:)
       OpenStruct.new(specialty_matches.first)
     end
 
@@ -342,7 +345,9 @@ module Eps
       if address_match.nil?
         warn_data = {
           specialty_matches_count: specialty_matches.size,
-          user_uuid: @current_user&.uuid
+          user_uuid: @current_user&.uuid,
+          controller: controller_name,
+          station_number:
         }
         message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI"
         Rails.logger.warn(message, warn_data)
@@ -365,7 +370,9 @@ module Eps
       error_data = {
         provider_id:,
         timeout_seconds:,
-        user_uuid: @current_user&.uuid
+        user_uuid: @current_user&.uuid,
+        controller: controller_name,
+        station_number:
       }
       Rails.logger.error("#{CC_APPOINTMENTS}: Provider slots pagination timeout", error_data)
       raise Common::Exceptions::BackendServiceException.new(

@@ -4,16 +4,19 @@ require 'rails_helper'
 
 describe Eps::ProviderService do
   let(:service) { described_class.new(user) }
-  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123') }
+  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123', va_treatment_facility_ids: ['123']) }
 
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)
     allow(Rails.logger).to receive(:public_send)
+    allow(Rails.logger).to receive(:warn)
     allow(StatsD).to receive(:increment)
     # Bypass token authentication which is tested in another spec
     allow(Settings.vaos.eps).to receive(:mock).and_return(true)
+    # Set up RequestStore for controller name logging
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
   end
 
   describe '#get_provider_service' do
@@ -1502,7 +1505,8 @@ describe Eps::ProviderService do
         it 'logs that address validation was skipped' do
           service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
           expect(Rails.logger).to have_received(:info)
-            .with('Single specialty match found for NPI, skipping address validation')
+            .with('Single specialty match found for NPI, skipping address validation',
+                  hash_including(controller: 'VAOS::V2::AppointmentsController', station_number: '123'))
         end
       end
 
@@ -1698,7 +1702,8 @@ describe Eps::ProviderService do
         it 'logs that address validation was skipped' do
           service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
           expect(Rails.logger).to have_received(:info)
-            .with('Single specialty match found for NPI, skipping address validation')
+            .with('Single specialty match found for NPI, skipping address validation',
+                  hash_including(controller: 'VAOS::V2::AppointmentsController', station_number: '123'))
         end
 
         it 'returns provider even when address does not match' do
