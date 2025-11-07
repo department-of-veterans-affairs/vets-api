@@ -165,7 +165,6 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
             hash_including(
               saved_claims_deleted: 1,
               secondary_forms_deleted: 1,
-              secondary_forms_deletion_enabled: true,
               total_deleted: 2
             )
           )
@@ -220,7 +219,7 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       end
     end
 
-    context 'when main feature flag is disabled' do
+    context 'when feature flags are disabled' do
       let(:guid1) { SecureRandom.uuid }
       let(:guid2) { SecureRandom.uuid }
 
@@ -228,7 +227,7 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(false)
         allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(true)
+          .with(:decision_review_delete_secondary_appeal_forms_enabled).and_return(false)
         allow(StatsD).to receive(:increment)
 
         SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', delete_date: delete_date1)
@@ -276,13 +275,12 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
         end
       end
 
-      it 'logs that secondary forms deletion is disabled' do
+      it 'logs correct deletion counts when secondary forms are not deleted' do
         expect(Rails.logger).to receive(:info).with(
           'DecisionReviews::DeleteSavedClaimRecordsJob completed successfully',
           hash_including(
             saved_claims_deleted: 1,
             secondary_forms_deleted: 0,
-            secondary_forms_deletion_enabled: false,
             total_deleted: 1
           )
         )
