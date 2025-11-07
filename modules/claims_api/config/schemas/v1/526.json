@@ -315,7 +315,6 @@
               "description": "Object describing Homeless Veteran Point of Contact.",
               "type": "object",
               "additionalProperties": false,
-              "required": ["pointOfContactName", "primaryPhone"],
               "properties": {
                 "pointOfContactName": {
                   "description": "Point of contact in direct contact with Veteran.",
