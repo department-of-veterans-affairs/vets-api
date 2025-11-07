@@ -98,7 +98,7 @@ module MedicalExpenseReports
     # Class name for notification email
     # @return [Class]
     def send_email(email_type)
-      MedicalExpenseReports::NotificationEmail.new(id).deliver(email_type)
+      # MedicalExpenseReports::NotificationEmail.new(id).deliver(email_type)
     end
   end
 end

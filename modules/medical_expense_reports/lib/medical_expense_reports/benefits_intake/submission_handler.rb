@@ -38,13 +38,7 @@ module MedicalExpenseReports
       # handle a failure result
       # inheriting class must assign @avoided before calling `super`
       def on_failure
-        @avoided = notification_email.deliver(:error)
-        super
-      end
-
-      # handle a success result
-      def on_success
-        notification_email.deliver(:received)
+        @avoided = true
         super
       end
 

@@ -162,7 +162,7 @@ module SurvivorsBenefits
 
       # VANotify job to send Submission in Progress email to veteran
       def send_submitted_email
-        SurvivorsBenefits::NotificationEmail.new(@claim.id).deliver(:submitted)
+        false
       rescue => e
         monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
       end
