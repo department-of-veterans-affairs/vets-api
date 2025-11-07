@@ -1,0 +1,173 @@
+IN-HOME CARE OR CARE FACILITY (Continued)
+
+10D(1). WHOSE EXPENSES WERE PAID?
+(Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specify)
+Joe Doe
+
+10D(2). NAME OF PROVIDER AND TYPE OF CARE (Select one)
+LA Care Provider
+
+CARE FACILITY IN-HOME CARE ATTENDANT
+
+10D(3). IF THIS IS AN INHOME CARE
+PROVIDER, WHAT IS THE RATE PER
+HOUR?
+$12.0 0
+
+1 Q HOURS WORKED PER WEEK
+
+0 0 | PERHOUR
+
+10D(4). PROVIDER START AND END DATE (MM/DD/YYYY)
+1\/\2\0\ 2/0
+
+start. 0 8 / 0
+
+END J J
+
+MONTHLY
+
+NOEND DATE
+
+10D(6). PAYMENT FREQUEN:
+
+CY 40D(6). AMOUNT YOU PAY BASED ON
+ANNUALLY
+
+FREQUENCY SELECTED
+
+2/2) |5/0/0|/olo
+
+OTHER MEDICAL, LAST AND/OR BURIAL EXPENSES
+
+10E(1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specifi)
+
+10E(2) PAID TO (Name of Provider, Insurance Company, etc.)
+Funeral Home
+
+10E(3) PURPOSE (Insurance premium, medical supplies, etc.)
+Burial expenses
+
+10E(4) DATE COSTS PAID (MM/DD/YYYY)
+01 3\/\1 5\//2/0]2/0
+
+10E(5) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [XX] ONE-TIME
+
+10E(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$1.0 000 00
+
+OF (1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+SPOUSE
+
+CHILD (Specify)
+Joe Doe
+
+10F(2) PAID TO (Name of Provider, Insurance Company, etc.)
+Health Provider
+
+10F(3) PURPOSE (Insurance premium, medical supplies, etc.)
+Medical expenses
+
+10F(4) DATE COSTS PAID (MM/DD/YYYY)
+07 //\0 1\/\2,0\2/3
+
+10F(5) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [XX] ONE-TIME
+
+10F(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$1.0 000 00
+
+0G(1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specifi)
+
+10G(2) PAID TO (Name of Provider, Insurance Company, etc.)
+Health Provider
+
+10G(3) PURPOSE (Insurance premium, medical supplies, etc.)
+Medical expenses
+
+10G(4) DATE COSTS PAID (MM/DD/YYYY)
+07 //\0 1\//2/0\2/3
+
+10G(S) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+10G(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$ [5/0/0|)\0/0
+
+0H(1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+SPOUSE
+
+CHILD (Specify)
+Joe Doe
+
+10H(2) PAID TO (Name of Provider, Insurance Company, etc.)
+Health Provider
+
+10H(3) PURPOSE (Insurance premium, medical supplies, etc.)
+Medical expenses
+
+10H(4) DATE COSTS PAID (MM/DD/YYYY)
+o|7//\0 1\/\2,0\2/3
+
+10H(5) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+10H(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$5 000 00
+
+01(1). WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specifi)
+
+VA FORM 21P-527EZ, FEB 2023
+
+101(2) PAID TO (Name of Provider, Insurance Company, etc.)
+Health Provider
+
+10I(3) PURPOSE (Insurance premium, medical supplies, etc.)
+Medical expenses
+
+101(4) DATE COSTS PAID (MM/DD/YYYY)
+o}7//\0 1\/\2,0/2/3
+
+101(6) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+101(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+200 00
+
+Page 13

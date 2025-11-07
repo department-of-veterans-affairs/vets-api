@@ -1,0 +1,75 @@
+4F. HAVE YOU RECEIVED TREATMENT FROM A VA MEDICAL CENTER? 4G. HAVE YOU RECENTLY RECEIVED TREATMENT FROM ANY FEDERAL
+YES NO Specify Facility. See attachment MEDICAL FACILITIES (Military base, etc.)?
+YES NO Specify Facility: See attachment
+
+SECTION V: EMPLOYMENT HISTORY
+
+5A. ARE YOU CURRENTLY EMPLOYED?
+Yes [JNO _(if"NO," skip questions 5B and 5C)
+5B. WHAT KIND OF WORK ARE YOU CURRENTLY DOING?
+
+See atitachmentt
+
+5C. HOW MANY HOURS PER WEEK DO YOU AVERAGE?
+5D. WHEN DID YOU LAST WORK? (MM/DD/YYYY) 5E. HOW MANY HOURS PER WEEK DID YOU AVERAGE?
+
+/ /
+
+5F. WHAT WAS YOUR JOB TITLE?
+
+5G. WHAT KIND OF WORK DID YOU DO?
+
+SECTION VI: MARITAL STATUS (MUST COMPLETE)
+
+6A. WHAT IS YOUR MARITAL STATUS? (Check one)
+MARRIED SEPARATED NOT MARRIED (Widowed or Never Married - Skip to Section VII)
+
+6B. SPOUSE'S CURRENT LEGAL NAME (First, Middle Initial, Last)
+
+Meg M Diojve
+
+6C. SPOUSE'S BIRTH DATE (MM/DD/YYYY) 6D. SPOUSE'S SOCIAL SECURITY NUMBER
+01/01/71 9°60 3/3 3-22-4444
+
+6E. DATE AND PLACE OF MARRIAGE (MM/DD/YYYY) CITY AND STATE OR COUNTRY
+
+03/70 2/199 4 Nort ih Adaims., MA
+6F. TYPE OF MARRIAGE (Ceremonial, Common-Law, Proxy, Tribal, etc.)
+
+CEREMONIAL OTHER (Specify) Olt hier reason
+
+IS YOUR SPOUSE ALSO A VETERAN? 6H. WHAT IS YOUR SPOUSE'S VA FILE NUMBER? (If any)
+YES NO (If"NO," skip question 6H) 2°31'4 213.414 4
+
+F YOU ARE SEPARATED, PLEASE TELL US THE REASON YOU ARE SEPARATED (Illness, work, efc.)
+MEDICAL REASON MARITAL DISCORD [[] WORK [XJ OTHER (Specify) See attachment
+
+6J. SPOUSE'S MAILING ADDRESS (If separated)
+No. &
+Nos 4}2)3) |7) tlh
+
+Apt/UnitNumber | A p Poi i d
+
+State/Province MA Conty Ui S ZIP CodePostalCode 0 1°0°5 0 7
+
+6K. HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT? (If separated)
+$ 2,444.0 0
+
+SECTION VII: PRIOR MARITAL HISTORY
+
+Tell us about your and your spouse's previous marriages. If you have never been married or your current marriage is yours and your spouse's only marriage skip to
+Section VIII
+
+VETERAN'S PRIOR MARRIAGES (If None, skip to question 7L)
+7A. WHO WERE YOU MARRIED 10? (First, Middle Initial, Last)
+
+7B. HOW DID YOUR PREVIOUS MARRIAGE END? (Death, divorce, cfc) | 7C. WHAT ARE THE DATES OF YOUR PREVIOUS MARRIAGE? (MM/DD/YYYY)
+DEATH DIVORCE OTHER (Specify) START: / /
+
+See attachment END J J
+
+7D. PLACE OF MARRIAGE (City and State or Country)
+
+TE. PLACE OF MARRIAGE TERMINATION (City and State or Country)
+
+VA FORM 21P-527EZ, FEB 2023 Page 9
