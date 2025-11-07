@@ -5,7 +5,7 @@ require 'kafka/monitor'
 
 RSpec.describe Kafka::Monitor do
   let(:monitor) { described_class.new }
-  let(:topic) { 'submission_trace_form_status_change_test' }
+  let(:topic) { 'submission_trace_form_status_change' }
   let(:payload) { { 'data' => { 'ICN' => '[REDACTED]' } } }
   let(:form_payload) do
     {

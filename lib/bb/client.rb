@@ -137,13 +137,8 @@ module BB
     end
 
     def get_session_tagged
-      Sentry.set_tags(error: 'mhv_session')
-
       BB::Configuration.custom_base_path = APIGW_BASE_PATH
-      env = perform(:get, 'v1/usermgmt/auth/session', nil, auth_headers)
-
-      Sentry.get_current_scope.tags.delete(:error)
-      env
+      perform(:get, 'v1/usermgmt/auth/session', nil, auth_headers)
     end
 
     def cache_key(action)
