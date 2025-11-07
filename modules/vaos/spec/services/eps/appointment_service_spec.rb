@@ -7,7 +7,7 @@ describe Eps::AppointmentService do
 
   let(:user) do
     double('User', account_uuid: '1234', icn:, uuid: '1234', email: 'test@example.com',
-                   va_profile_email: 'va.profile@example.com')
+                   va_profile_email: 'va.profile@example.com', va_treatment_facility_ids: ['123'])
   end
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
@@ -20,6 +20,8 @@ describe Eps::AppointmentService do
     allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false, api_url: 'https://api.wellhive.com')
     allow_any_instance_of(Eps::BaseService).to receive_messages(config:)
     allow_any_instance_of(Eps::BaseService).to receive(:request_headers_with_correlation_id).and_return(headers)
+    # Set up RequestStore for controller name logging
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
   end
 
   describe '#get_appointment' do
@@ -98,11 +100,11 @@ describe Eps::AppointmentService do
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          {
+          hash_including(
             error_type: 'conflict',
             method: 'get_appointment',
             status: 200
-          }
+          )
         )
 
         expect { service.get_appointment(appointment_id:) }
@@ -171,11 +173,11 @@ describe Eps::AppointmentService do
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          {
+          hash_including(
             error_type: 'conflict',
             method: 'get_appointments',
             status: 200
-          }
+          )
         )
 
         expect { service.get_appointments }
@@ -248,11 +250,11 @@ describe Eps::AppointmentService do
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          {
+          hash_including(
             error_type: 'conflict',
             method: 'create_draft_appointment',
             status: 200
-          }
+          )
         )
 
         expect { service.create_draft_appointment(referral_id:) }
@@ -406,11 +408,11 @@ describe Eps::AppointmentService do
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
           'Community Care Appointments: EPS appointment error',
-          {
+          hash_including(
             error_type: 'conflict',
             method: 'submit_appointment',
             status: 200
-          }
+          )
         )
 
         expect { service.submit_appointment(appointment_id, valid_params) }
