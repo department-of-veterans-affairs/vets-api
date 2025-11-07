@@ -639,7 +639,7 @@ kafka_producer:
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
   security_protocol: 'plaintext'
   test_topic_name: submission_trace_mock_test
-  topic_name: submission_trace_form_status_change_test
+  topic_name: submission_trace_form_status_change
 kms_key_id: ~
 lgy:
   api_key: fake_api_key
@@ -1937,8 +1937,6 @@ vye:
     salt: testing-vye-scrypt-salt
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 web_origin_regex: "\\Ahttps?:\\/\\/www\\.va\\.gov\\z"
-webhooks:
-  require_https: true
 websockets:
   require_https: ~
   websocket_settings: false
