@@ -6,7 +6,7 @@ module V0
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
-    before_action :check_feature_enabled
+    before_action :load_user, :check_feature_enabled
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
@@ -61,7 +61,7 @@ module V0
     private
 
     def check_feature_enabled
-      routing_error unless Flipper.enabled?(:form_530a_enabled)
+      routing_error unless Flipper.enabled?(:form_530a_enabled, current_user)
     end
 
     def handle_pdf_generation_error(error)
