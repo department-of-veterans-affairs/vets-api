@@ -419,6 +419,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         # Verify controller name comes from RequestStore
         expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
         # Verify station_number comes from user object
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = current_user.va_treatment_facility_ids&.first
 
         expect(Rails.logger).to receive(:error).with(
@@ -427,7 +428,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             error_message: 'Provider not found while creating draft appointment',
             provider_npi: '1234567890',
             user_uuid: current_user.uuid,
-            controller: RequestStore.store['controller_name'],
+            controller: expected_controller_name,
             station_number: expected_station_number
           }
         )
@@ -537,6 +538,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           # Verify controller name comes from RequestStore
           expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
           # Verify station_number comes from user object
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
           expected_station_number = current_user.va_treatment_facility_ids&.first
 
           expect(Rails.logger).to receive(:error).with(
@@ -544,7 +546,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             {
               error_class: 'Date::Error',
               user_uuid: current_user.uuid,
-              controller: RequestStore.store['controller_name'],
+              controller: expected_controller_name,
               station_number: expected_station_number
             }
           )

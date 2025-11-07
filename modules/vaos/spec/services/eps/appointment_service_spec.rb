@@ -101,6 +101,7 @@ describe Eps::AppointmentService do
         # Verify controller name comes from RequestStore
         expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
         # Verify station_number comes from user object
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 
         expect(Rails.logger).to receive(:warn).with(
@@ -109,7 +110,7 @@ describe Eps::AppointmentService do
             error_type: 'conflict',
             method: 'get_appointment',
             status: 200,
-            controller: RequestStore.store['controller_name'],
+            controller: expected_controller_name,
             station_number: expected_station_number
           }
         )
@@ -181,6 +182,7 @@ describe Eps::AppointmentService do
         # Verify controller name comes from RequestStore
         expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
         # Verify station_number comes from user object
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 
         expect(Rails.logger).to receive(:warn).with(
@@ -189,7 +191,7 @@ describe Eps::AppointmentService do
             error_type: 'conflict',
             method: 'get_appointments',
             status: 200,
-            controller: RequestStore.store['controller_name'],
+            controller: expected_controller_name,
             station_number: expected_station_number
           }
         )
@@ -265,6 +267,7 @@ describe Eps::AppointmentService do
         # Verify controller name comes from RequestStore
         expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
         # Verify station_number comes from user object
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 
         expect(Rails.logger).to receive(:warn).with(
@@ -273,7 +276,7 @@ describe Eps::AppointmentService do
             error_type: 'conflict',
             method: 'create_draft_appointment',
             status: 200,
-            controller: RequestStore.store['controller_name'],
+            controller: expected_controller_name,
             station_number: expected_station_number
           }
         )
@@ -430,6 +433,7 @@ describe Eps::AppointmentService do
         # Verify controller name comes from RequestStore
         expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
         # Verify station_number comes from user object
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 
         expect(Rails.logger).to receive(:warn).with(
@@ -438,7 +442,7 @@ describe Eps::AppointmentService do
             error_type: 'conflict',
             method: 'submit_appointment',
             status: 200,
-            controller: RequestStore.store['controller_name'],
+            controller: expected_controller_name,
             station_number: expected_station_number
           }
         )
