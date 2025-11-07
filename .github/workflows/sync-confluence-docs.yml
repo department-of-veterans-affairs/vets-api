@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install atlassian-python-api requests markdownify
+          pip install -r scripts/requirements.txt
 
       - name: Run Confluence sync
         env:

@@ -6,7 +6,7 @@ This script exports Backend Developer Documentation from Confluence and converts
 to GitHub Copilot custom instructions format (.github/copilot-instructions.md).
 
 Requirements:
-    pip install atlassian-python-api requests markdownify
+    pip install -r scripts/requirements.txt
 
 Usage:
     python scripts/sync_confluence_to_copilot_instructions.py
