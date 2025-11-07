@@ -249,10 +249,10 @@ module Form526ClaimFastTrackingConcern
       submission_id: id,
       error_message: error.message
     )
-  rescue => e
+  rescue
     # We need this to not ever fail or it blocks submission
     # So no variables or methods called in this block, to reduce chance of further errors
-    Rails.logger.error("Form526ClaimsFastTrackingConcern Failed to log error")
+    Rails.logger.error('Form526ClaimsFastTrackingConcern Failed to log error')
   end
 
   def in_progress_form
