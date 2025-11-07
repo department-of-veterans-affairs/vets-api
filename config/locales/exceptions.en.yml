@@ -204,6 +204,12 @@ en:
         title: Bad Gateway
         code: 502
         status: 502
+      prescription_refill_response_mismatch:
+        <<: *defaults
+        title: Prescription Refill Response Mismatch
+        detail: The upstream service returned an incomplete response for prescription refill orders
+        code: 502
+        status: 502
       service_unavailable:
         <<: *defaults
         title: Service Unavailable
