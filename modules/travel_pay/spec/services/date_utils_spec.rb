@@ -19,7 +19,7 @@ RSpec.describe TravelPay::DateUtils do
 
     context 'with valid Time objects' do
       it 'returns true for Time instances' do
-        time = Time.now
+        time = Time.zone.now
         expect(described_class.valid_datetime?(time)).to be(true)
       end
 
@@ -29,7 +29,7 @@ RSpec.describe TravelPay::DateUtils do
       end
 
       it 'returns true for Date instances' do
-        date = Date.today
+        date = Time.zone.today
         expect(described_class.valid_datetime?(date)).to be(true)
       end
     end
