@@ -103,7 +103,9 @@ describe Eps::AppointmentService do
           hash_including(
             error_type: 'conflict',
             method: 'get_appointment',
-            status: 200
+            status: 200,
+            controller: 'VAOS::V2::AppointmentsController',
+            station_number: user.va_treatment_facility_ids&.first
           )
         )
 
@@ -176,7 +178,9 @@ describe Eps::AppointmentService do
           hash_including(
             error_type: 'conflict',
             method: 'get_appointments',
-            status: 200
+            status: 200,
+            controller: 'VAOS::V2::AppointmentsController',
+            station_number: user.va_treatment_facility_ids&.first
           )
         )
 
@@ -253,7 +257,9 @@ describe Eps::AppointmentService do
           hash_including(
             error_type: 'conflict',
             method: 'create_draft_appointment',
-            status: 200
+            status: 200,
+            controller: 'VAOS::V2::AppointmentsController',
+            station_number: user.va_treatment_facility_ids&.first
           )
         )
 
@@ -411,7 +417,9 @@ describe Eps::AppointmentService do
           hash_including(
             error_type: 'conflict',
             method: 'submit_appointment',
-            status: 200
+            status: 200,
+            controller: 'VAOS::V2::AppointmentsController',
+            station_number: user.va_treatment_facility_ids&.first
           )
         )
 

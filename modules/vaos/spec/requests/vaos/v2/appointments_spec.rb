@@ -1654,9 +1654,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             namespace: 'eps-access-token',
             expires_in: redis_token_expiry
           )
+          RequestStore.clear!
         end
 
         it 'returns correct error status for provider not found' do
+          allow(Rails.logger).to receive(:error)
           VCR.use_cassette('vaos/ccra/post_get_referral_ref_123', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
               VCR.use_cassette 'vaos/eps/search_provider_services/empty_200', match_requests_on: %i[method path] do
@@ -1666,6 +1668,18 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                     expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
                       post '/vaos/v2/appointments/draft', params: draft_params
                     end
+
+                    # Verify the log was called with controller name set by BaseController's before_action
+                    # The controller name and station_number prove the RequestStore mechanism works correctly
+                    expect(Rails.logger).to have_received(:error).with(
+                      'Community Care Appointments: Provider not found while creating draft appointment',
+                      hash_including(
+                        error_message: 'Provider not found while creating draft appointment',
+                        user_uuid: current_user.uuid,
+                        controller: 'VAOS::V2::AppointmentsController',
+                        station_number: current_user.va_treatment_facility_ids&.first
+                      )
+                    )
 
                     expect(response).to have_http_status(:not_found)
                     response_obj = JSON.parse(response.body)
@@ -1752,7 +1766,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                             error_class: 'Eps::ServiceException',
                             code: 'VAOS_400',
                             upstream_status: 400,
-                            upstream_body: a_string_including('invalid patientId')
+                            upstream_body: a_string_including('invalid patientId'),
+                            controller: 'VAOS::V2::AppointmentsController',
+                            station_number: current_user.va_treatment_facility_ids&.first
                           )
                         )
                       end

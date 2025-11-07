@@ -421,7 +421,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           hash_including(
             error_message: 'Provider not found while creating draft appointment',
             provider_npi: '1234567890',
-            user_uuid: current_user.uuid
+            user_uuid: current_user.uuid,
+            controller: 'VAOS::V2::AppointmentsController',
+            station_number: current_user.va_treatment_facility_ids&.first
           )
         )
         expect(subject.error).to be_present
@@ -532,7 +534,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             hash_including(
               error_class: 'Date::Error',
               error_message: 'invalid date',
-              user_uuid: current_user.uuid
+              user_uuid: current_user.uuid,
+              controller: 'VAOS::V2::AppointmentsController',
+              station_number: current_user.va_treatment_facility_ids&.first
             )
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')

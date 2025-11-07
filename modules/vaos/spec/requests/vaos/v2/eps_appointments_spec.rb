@@ -133,7 +133,9 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
               code: 'VAOS_404',
               upstream_status: 404,
-              upstream_body: '{\"name\": \"Not Found\"}'
+              upstream_body: '{\"name\": \"Not Found\"}',
+              controller: 'VAOS::V2::EpsAppointmentsController',
+              station_number: current_user.va_treatment_facility_ids&.first
             )
           )
         end
@@ -179,7 +181,9 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
               code: 'VAOS_502',
               upstream_status: 500,
-              upstream_body: '{\"isFault\": true,\"isTemporary\": true,\"name\": \"Internal Server Error\"}'
+              upstream_body: '{\"isFault\": true,\"isTemporary\": true,\"name\": \"Internal Server Error\"}',
+              controller: 'VAOS::V2::EpsAppointmentsController',
+              station_number: current_user.va_treatment_facility_ids&.first
             )
           )
         end
