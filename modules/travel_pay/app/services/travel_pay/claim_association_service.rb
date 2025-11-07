@@ -149,6 +149,7 @@ module TravelPay
             matching_claim = find_matching_claim(claims, appt[:local_start_time])
             appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
           else
+            Rails.logger.warn(message: "Invalid local_start_time given: #{appt[:local_start_time]}")
             build_invalid_appt_date_response(appt)
           end
         rescue InvalidComparableError => e
