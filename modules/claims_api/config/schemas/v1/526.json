@@ -16,7 +16,7 @@
       "description": "Veteran Object being submitted in Claim",
       "type": "object",
       "additionalProperties": false,
-      "required": ["currentMailingAddress", "currentlyVAEmployee"],
+      "required": ["currentlyVAEmployee"],
       "properties": {
         "flashes": {
           "description": "Attributes that describe special circumstances which apply to a Veteran.",
