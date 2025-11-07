@@ -543,7 +543,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             'Community Care Appointments: Error fetching provider slots',
             {
               error_class: 'Date::Error',
-              error_message: 'invalid date',
               user_uuid: current_user.uuid,
               controller: RequestStore.store['controller_name'],
               station_number: expected_station_number

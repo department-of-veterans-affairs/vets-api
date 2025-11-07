@@ -297,25 +297,44 @@ module VAOS
         appointment_type_id = get_provider_appointment_type_id(provider)
         slots = eps_provider_service.get_provider_slots(
           provider.id,
-          {
-            appointmentTypeId: appointment_type_id,
-            startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
-            appointmentId: draft_appointment_id
-          }
+          build_slot_params(referral, appointment_type_id, draft_appointment_id)
         )
         log_provider_slots_info(slots)
         slots
       rescue ArgumentError => e
+        log_slot_fetch_error(e)
+        nil
+      end
+
+      ##
+      # Build parameters for provider slot request
+      #
+      # @param referral [OpenStruct] The referral containing date constraints
+      # @param appointment_type_id [String] The appointment type ID
+      # @param draft_appointment_id [String] The draft appointment ID
+      # @return [Hash] Parameters for slot request
+      def build_slot_params(referral, appointment_type_id, draft_appointment_id)
+        {
+          appointmentTypeId: appointment_type_id,
+          startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
+          startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
+          appointmentId: draft_appointment_id
+        }
+      end
+
+      ##
+      # Log error when fetching provider slots fails
+      #
+      # @param error [Exception] The error that occurred
+      # @return [void]
+      def log_slot_fetch_error(error)
         error_data = {
-          error_class: e.class.name,
-          error_message: e.message,
+          error_class: error.class.name,
           user_uuid: @current_user&.uuid,
           controller: RequestStore.store['controller_name'],
           station_number: @current_user&.va_treatment_facility_ids&.first
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
-        nil
       end
 
       ##
