@@ -2,6 +2,67 @@
 
 require 'rails_helper'
 
+## Flattens the form fields of a PDF and saves the result to a new file.
+#
+# @param file_path [String] The path to the input PDF file.
+# @param output_path [String] The path to save the flattened PDF file.
+#
+# @return [String] The path to the flattened PDF file.
+#
+def flatten_form(file_path, output_path)
+  # Open the PDF file
+  doc = HexaPDF::Document.open(file_path)
+
+  # Get the form object
+  form = doc.acro_form
+
+  # Flatten the form fields
+  form.flatten
+
+  # Write the modified document to a new file
+  doc.write(output_path)
+
+  output_path
+end
+
+##
+# Converts each page of a PDF to images and saves them to the specified output directory.
+#
+# @param pdf_path [String] The path to the PDF file.
+# @param options [Hash] Options for conversion.
+#  - :output_dir [String] The directory to save the images. Default is 'tmp/pdfs'.
+#   - :test_type [String] A label for the test type. Default is 'simple'.
+#   - :start_page [Integer] The starting page number (1-based). Default is 1.
+#   - :end_page [Integer] The ending page number (1-based). Default is the last page of the PDF.
+#
+# @return [Integer] The number of pages processed.
+#
+def pdf_to_images(pdf_path, options = {})
+  output_dir = options[:output_dir] || 'tmp/pdfs'
+  test_type = options[:test_type] || 'simple'
+  start_page = options[:start_page] || 1
+
+  pdf = MiniMagick::Image.open(pdf_path)
+
+  end_page = options[:end_page] || pdf.pages.size
+
+  pdf.pages.each_with_index do |page, index|
+    next if index + 1 < start_page || index + 1 > end_page
+
+    image_path = File.join(output_dir, "#{test_type}.page_#{index + 1}.png")
+    MiniMagick.convert do |convert|
+      convert.density 150
+      convert.background 'white'
+      convert << page.path
+      convert.flatten
+      convert.quality 100
+      convert << image_path
+    end
+  end
+
+  end_page
+end
+
 # Shared example for testing form fillers.
 # This shared example assumes that the form filler class
 # responds to a method `fill_form` that processes a form and
@@ -96,6 +157,29 @@ RSpec.shared_examples 'a form filler' do |options|
             # (IOError) if the fixture file can't be found
             expect(Pathname.new(fixture_pdf)).to exist
             expect(file_path).to match_pdf_fields(fixture_pdf)
+
+            if options[:use_ocr]
+              flattened_pdf = flatten_form(file_path, "#{file_path}.#{type}.flattened.pdf")
+
+              ocr_options = {
+                test_type: type,
+                start_page: options[:ocr_start_page] || 1,
+                end_page: options[:ocr_end_page] || nil
+              }
+
+              num_pages = pdf_to_images(flattened_pdf, ocr_options)
+
+              (0...num_pages).each do |index|
+                image_path = File.join('tmp/pdfs', "#{type}.page_#{index + 1}.png")
+                file_as_string = RTesseract.new(image_path).to_s
+                fixture_path = File.join(output_pdf_fixture_dir, 'ocr', type, "page_#{index + 1}.txt")
+                fixture_as_string = File.read(fixture_path)
+                expect(file_as_string).to eq(fixture_as_string)
+                File.delete(image_path)
+              end
+
+              File.delete(flattened_pdf)
+            end
 
             File.delete(file_path)
           end
