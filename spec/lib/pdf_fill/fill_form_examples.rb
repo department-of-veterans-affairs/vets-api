@@ -170,7 +170,7 @@ RSpec.shared_examples 'a form filler' do |options|
               num_pages = pdf_to_images(flattened_pdf, ocr_options)
 
               (0...num_pages).each do |index|
-                image_path = File.join('tmp/pdfs', "#{type}.page_#{index + 1}.png")
+                image_path = File.join('tmp/pdfs', "#{form_id}.#{type}.page_#{index + 1}.png")
                 file_as_string = RTesseract.new(image_path).to_s
                 fixture_path = File.join(output_pdf_fixture_dir, 'ocr', type, "page_#{index + 1}.txt")
                 fixture_as_string = File.read(fixture_path)
