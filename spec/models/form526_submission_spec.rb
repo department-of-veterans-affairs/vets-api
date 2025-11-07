@@ -1948,4 +1948,33 @@ RSpec.describe Form526Submission do
       end
     end
   end
+
+  describe '#log_error' do
+    let(:error) { StandardError.new('Test error message') }
+
+    it 'logs an error message with submission ID and error details' do
+      expect(Rails.logger).to receive(:error).with(
+        "Form526ClaimsFastTrackingConcern #{subject.id} encountered an error: Test error message",
+        submission_id: subject.id,
+        error_message: 'Test error message'
+      )
+
+      subject.send(:log_error, error)
+    end
+
+    context 'when logging itself fails' do
+      before do
+        allow(Rails.logger).to receive(:error).and_raise(StandardError.new('Logging failed'))
+      end
+
+      it 'logs a fallback error message' do
+        expect(Rails.logger).to receive(:error).with(
+          'Form526ClaimsFastTrackingConcern Failed to log error Logging failed.',
+          backtrace: instance_of(Array)
+        )
+
+        subject.send(:log_error, error)
+      end
+    end
+  end
 end
