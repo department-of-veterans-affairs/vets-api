@@ -477,17 +477,6 @@ RSpec.describe Login::UserVerifier do
       it_behaves_like 'user_verification with defined credential identifier'
     end
 
-    context 'when user credential is dslogon' do
-      let(:login_type) { SignIn::Constants::Auth::DSLOGON }
-      let(:authn_identifier) { dslogon_uuid }
-      let(:authn_identifier_type) { :dslogon_uuid }
-      let(:backing_idme_uuid) { idme_uuid }
-      let(:linked_user_verification_type) { :dslogon_user_verification }
-
-      it_behaves_like 'user_verification with nil credential identifier'
-      it_behaves_like 'user_verification with defined credential identifier'
-    end
-
     context 'when user credential is logingov' do
       let(:login_type) { SignIn::Constants::Auth::LOGINGOV }
       let(:authn_identifier) { logingov_uuid }

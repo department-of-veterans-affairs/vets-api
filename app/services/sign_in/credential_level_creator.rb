@@ -64,10 +64,6 @@ module SignIn
         verified_ial_level(verified_at)
       when Constants::Auth::MHV
         verified_ial_level(Constants::Auth::MHV_PREMIUM_VERIFIED.include?(mhv_assurance))
-      when Constants::Auth::DSLOGON
-        Rails.logger.info("[CredentialLevelCreator] DSLogon level of assurance: #{dslogon_assurance}, " \
-                          "credential_uuid: #{credential_uuid}")
-        verified_ial_level(Constants::Auth::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance))
       else
         verified_ial_level(level_of_assurance == Constants::Auth::LOA_THREE)
       end
@@ -79,9 +75,6 @@ module SignIn
         verified_ial_level(logingov_acr == Constants::Auth::LOGIN_GOV_IAL2 || previously_verified?(:logingov_uuid))
       when Constants::Auth::MHV
         verified_ial_level(requested_verified_account? && Constants::Auth::MHV_PREMIUM_VERIFIED.include?(mhv_assurance))
-      when Constants::Auth::DSLOGON
-        verified_ial_level(requested_verified_account? &&
-                           Constants::Auth::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance))
       else
         verified_ial_level(credential_ial == Constants::Auth::IDME_CLASSIC_LOA3 || previously_verified?(:idme_uuid))
       end
