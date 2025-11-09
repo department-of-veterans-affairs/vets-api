@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 class SavedClaim::Form21p530a < SavedClaim
+  include PdfFill::Forms::FormHelper
+
   FORM = '21P-530a'
 
   validates :form, presence: true
+  validate :country_code_is_valid
+
+  before_validation :transform_country_codes
 
   def form_schema
     schema = JSON.parse(Openapi::Requests::Form21p530a::FORM_SCHEMA.to_json)
@@ -68,6 +73,39 @@ class SavedClaim::Form21p530a < SavedClaim
   end
 
   private
+
+  def transform_country_codes
+    return unless form_is_string
+
+    parsed = JSON.parse(form)
+    address = parsed.dig('burialInformation', 'recipientOrganization', 'address')
+    if address&.key?('country')
+      transformed_country = extract_country(address)
+      if transformed_country
+        address['country'] = transformed_country
+        self.form = parsed.to_json
+        # Clear memoized parsed_form so it uses the updated form
+        @parsed_form = nil
+      end
+    end
+  end
+
+  def country_code_is_valid
+    return unless form_is_string
+
+    address = parsed_form.dig('burialInformation', 'recipientOrganization', 'address')
+    return unless address&.key?('country')
+
+    country_code = address['country']
+    return if country_code.blank?
+
+    # Validate that the country code (after transformation) is a valid ISO 3166-1 Alpha-2 code
+    # This prevents invalid codes from making it onto the PDF
+    IsoCountryCodes.find(country_code)
+  rescue IsoCountryCodes::UnknownCodeError
+    errors.add '/burialInformation/recipientOrganization/address/country',
+               "'#{country_code}' is not a valid country code"
+  end
 
   def organization_name
     parsed_form.dig('burialInformation', 'recipientOrganization', 'name') ||

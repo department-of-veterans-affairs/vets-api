@@ -134,7 +134,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
     let(:temp_file_path) { '/tmp/test_pdf.pdf' }
 
     before do
-      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file_path)
+      allow(PdfFill::Filler).to receive(:fill_form).and_return(temp_file_path)
       allow(PdfFill::Forms::Va21p530a).to receive(:stamp_signature).and_return(temp_file_path)
       allow(File).to receive(:read).and_call_original
       allow(File).to receive(:read).with(temp_file_path).and_return(pdf_content)
@@ -171,8 +171,8 @@ RSpec.describe V0::Form21p530aController, type: :controller do
     end
 
     it 'calls PDF filler with correct parameters' do
-      expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-        .with(anything, anything, '21P-530a')
+      expect(PdfFill::Filler).to receive(:fill_form)
+        .with(anything, nil)
         .and_return(temp_file_path)
 
       post(:download_pdf, body: valid_payload.to_json, as: :json)
@@ -192,7 +192,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
     end
 
     it 'deletes temporary file even when PDF generation fails' do
-      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF generation error')
+      allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'PDF generation error')
       # File.delete should not be called since source_file_path is nil
       expect(File).not_to receive(:delete)
 
@@ -231,9 +231,9 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       end
 
       it 'transforms 3-character country code to 2-character for PDF generation' do
-        expect(PdfFill::Filler).to receive(:fill_ancillary_form) do |form_data, _uuid, _form_type|
+        expect(PdfFill::Filler).to receive(:fill_form) do |claim, _file_name|
           # Verify the country code was transformed to 2-character
-          address = form_data.dig('burialInformation', 'recipientOrganization', 'address')
+          address = claim.parsed_form.dig('burialInformation', 'recipientOrganization', 'address')
           expect(address['country']).to eq('US')
           temp_file_path
         end
@@ -274,7 +274,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
 
     context 'error handling' do
       it 'returns 500 for PDF generation failures' do
-        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
+        allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'PDF error')
 
         post(:download_pdf, body: valid_payload.to_json, as: :json)
 

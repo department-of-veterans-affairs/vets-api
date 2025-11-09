@@ -3,17 +3,15 @@
 module V0
   class Form21p530aController < ApplicationController
     include RetriableConcern
-    include PdfFill::Forms::FormHelper
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    skip_before_action :verify_authenticity_token, only: %i[create download_pdf]
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
-      payload = request.raw_post
-      transformed_payload = transform_country_codes(payload)
-
-      claim = SavedClaim::Form21p530a.new(form: transformed_payload)
+      # Country code transformation and validation happen in the model via before_validation callback
+      claim = SavedClaim::Form21p530a.new(form: request.raw_post)
 
       if claim.save
         claim.process_attachments!
@@ -46,17 +44,22 @@ module V0
     end
 
     def download_pdf
-      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
-      raw_payload = request.raw_post
-      transformed_payload = transform_country_codes(raw_payload)
-      parsed_form = JSON.parse(transformed_payload)
+      # Create a temporary claim instance to handle transformation and validation
+      # This ensures country codes are transformed and validated before PDF generation
+      claim = SavedClaim::Form21p530a.new(form: request.raw_post)
+
+      # Validate the claim (this will trigger transformation and validation callbacks)
+      unless claim.valid?
+        raise Common::Exceptions::ValidationErrors, claim
+      end
 
       source_file_path = with_retries('Generate 21P-530A PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530a')
+        # Pass a UUID as file_name since the claim is not saved (no id)
+        claim.to_pdf(SecureRandom.uuid)
       end
 
       # Stamp signature (SignatureStamper returns original path if signature is blank)
-      source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, parsed_form)
+      source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, claim.parsed_form)
 
       client_file_name = "21P-530a_#{SecureRandom.uuid}.pdf"
 
@@ -88,35 +91,6 @@ module V0
 
     def stats_key
       'api.form21p530a'
-    end
-
-    def transform_country_codes(payload)
-      parsed = JSON.parse(payload)
-      address = parsed.dig('burialInformation', 'recipientOrganization', 'address')
-      if address&.key?('country')
-        transformed_country = extract_country(address)
-        if transformed_country
-          # Validate that the transformed country code is a valid ISO code
-          # This prevents invalid codes from making it onto the PDF for both create and download_pdf
-          validate_country_code!(transformed_country)
-          address['country'] = transformed_country
-        end
-      end
-      parsed.to_json
-    end
-
-    def validate_country_code!(country_code)
-      return if country_code.blank?
-
-      # Verify it's a valid ISO 3166-1 Alpha-2 code
-      IsoCountryCodes.find(country_code)
-    rescue IsoCountryCodes::UnknownCodeError
-      # Create a temporary claim object to hold the validation error
-      # This allows us to use ValidationErrors exception which expects an ActiveModel object
-      claim = SavedClaim::Form21p530a.new
-      claim.errors.add '/burialInformation/recipientOrganization/address/country',
-                       "'#{country_code}' is not a valid country code"
-      raise Common::Exceptions::ValidationErrors, claim
     end
   end
 end
