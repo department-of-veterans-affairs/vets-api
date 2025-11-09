@@ -38,7 +38,7 @@ module PdfFill
 
           search_result[0].alpha2
         end
-      rescue IsoCountryCodes::UnknownCodeError, NoMethodError
+      rescue IsoCountryCodes::UnknownCodeError
         country
       end
 

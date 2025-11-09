@@ -7,6 +7,7 @@ module V0
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    skip_before_action :verify_authenticity_token, only: %i[create download_pdf]
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
@@ -25,9 +26,17 @@ module V0
 
         render json: SavedClaimSerializer.new(claim)
       else
-        StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
+    rescue Common::Exceptions::ValidationErrors => e
+      # Increment failure stats for validation errors (e.g., invalid country codes, model validation failures)
+      StatsD.increment("#{stats_key}.failure")
+      # Include validation errors when present; helpful in logs/Sentry.
+      Rails.logger.error(
+        'Form21p530a: error submitting claim',
+        { error: e.message, claim_errors: e.resource&.errors&.full_messages }
+      )
+      raise
     rescue => e
       # Include validation errors when present; helpful in logs/Sentry.
       Rails.logger.error(
@@ -55,6 +64,10 @@ module V0
       file_contents = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+    rescue Common::Exceptions::ValidationErrors
+      # Re-raise validation errors so they're handled by the exception handling concern
+      # This ensures they return 422 instead of 500
+      raise
     rescue => e
       handle_pdf_generation_error(e)
     ensure
@@ -83,9 +96,28 @@ module V0
       address = parsed.dig('burialInformation', 'recipientOrganization', 'address')
       if address&.key?('country')
         transformed_country = extract_country(address)
-        address['country'] = transformed_country if transformed_country
+        if transformed_country
+          # Validate that the transformed country code is a valid ISO code
+          # This prevents invalid codes from making it onto the PDF for both create and download_pdf
+          validate_country_code!(transformed_country)
+          address['country'] = transformed_country
+        end
       end
       parsed.to_json
+    end
+
+    def validate_country_code!(country_code)
+      return if country_code.blank?
+
+      # Verify it's a valid ISO 3166-1 Alpha-2 code
+      IsoCountryCodes.find(country_code)
+    rescue IsoCountryCodes::UnknownCodeError
+      # Create a temporary claim object to hold the validation error
+      # This allows us to use ValidationErrors exception which expects an ActiveModel object
+      claim = SavedClaim::Form21p530a.new
+      claim.errors.add '/burialInformation/recipientOrganization/address/country',
+                       "'#{country_code}' is not a valid country code"
+      raise Common::Exceptions::ValidationErrors, claim
     end
   end
 end
