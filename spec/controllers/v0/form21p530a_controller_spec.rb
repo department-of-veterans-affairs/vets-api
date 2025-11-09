@@ -54,6 +54,23 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       post(:create, body: valid_payload.to_json, as: :json)
     end
 
+    context 'with 3-character country code' do
+      let(:payload_with_3char_country) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'USA'
+        payload
+      end
+
+      it 'transforms 3-character country code to 2-character' do
+        post(:create, body: payload_with_3char_country.to_json, as: :json)
+        expect(response).to have_http_status(:ok)
+
+        # Verify the claim was created successfully (transformation happened)
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['confirmation_number']).to be_present
+      end
+    end
+
     context 'with invalid form data' do
       let(:invalid_payload) do
         {
@@ -170,6 +187,26 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       post(:download_pdf, body: valid_payload.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'with 3-character country code' do
+      let(:payload_with_3char_country) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'USA'
+        payload
+      end
+
+      it 'transforms 3-character country code to 2-character for PDF generation' do
+        expect(PdfFill::Filler).to receive(:fill_ancillary_form) do |form_data, _uuid, _form_type|
+          # Verify the country code was transformed to 2-character
+          address = form_data.dig('burialInformation', 'recipientOrganization', 'address')
+          expect(address['country']).to eq('US')
+          temp_file_path
+        end
+
+        post(:download_pdf, body: payload_with_3char_country.to_json, as: :json)
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     context 'error handling' do

@@ -3,6 +3,7 @@
 module V0
   class Form21p530aController < ApplicationController
     include RetriableConcern
+    include PdfFill::Forms::FormHelper
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
@@ -10,8 +11,9 @@ module V0
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
       payload = request.raw_post
+      transformed_payload = transform_country_codes(payload)
 
-      claim = SavedClaim::Form21p530a.new(form: payload)
+      claim = SavedClaim::Form21p530a.new(form: transformed_payload)
 
       if claim.save
         claim.process_attachments!
@@ -37,7 +39,9 @@ module V0
 
     def download_pdf
       # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
-      parsed_form = JSON.parse(request.raw_post)
+      raw_payload = request.raw_post
+      transformed_payload = transform_country_codes(raw_payload)
+      parsed_form = JSON.parse(transformed_payload)
 
       source_file_path = with_retries('Generate 21P-530A PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530a')
@@ -72,6 +76,16 @@ module V0
 
     def stats_key
       'api.form21p530a'
+    end
+
+    def transform_country_codes(payload)
+      parsed = JSON.parse(payload)
+      address = parsed.dig('burialInformation', 'recipientOrganization', 'address')
+      if address&.key?('country')
+        transformed_country = extract_country(address)
+        address['country'] = transformed_country if transformed_country
+      end
+      parsed.to_json
     end
   end
 end
