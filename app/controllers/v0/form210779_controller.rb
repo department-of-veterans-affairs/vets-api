@@ -4,8 +4,8 @@ module V0
   class Form210779Controller < ApplicationController
     service_tag 'nursing-home-information'
     skip_before_action :authenticate
-    before_action :check_feature_enabled
     before_action :load_user
+    before_action :check_feature_enabled
 
     def create
       # using request.raw_post to avoid the middleware that transforms the JSON keys to snake case
