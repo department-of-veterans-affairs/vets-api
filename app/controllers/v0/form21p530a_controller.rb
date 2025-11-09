@@ -98,9 +98,7 @@ module V0
       transformed_payload = transform_country_codes(payload)
       claim = SavedClaim::Form21p530a.new(form: transformed_payload)
 
-      unless claim.save
-        raise Common::Exceptions::ValidationErrors, claim
-      end
+      raise Common::Exceptions::ValidationErrors, claim unless claim.save
 
       claim
     end
