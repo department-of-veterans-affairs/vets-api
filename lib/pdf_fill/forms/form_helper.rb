@@ -33,10 +33,7 @@ module PdfFill
         if country.size == 3
           IsoCountryCodes.find(country).alpha2
         else
-          search_result = IsoCountryCodes.search_by_name(country)
-          return country if search_result.empty?
-
-          search_result[0].alpha2
+          IsoCountryCodes.search_by_name(country)[0].alpha2
         end
       rescue IsoCountryCodes::UnknownCodeError
         country
