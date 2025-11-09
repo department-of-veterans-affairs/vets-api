@@ -9,40 +9,13 @@ module V0
     skip_before_action :authenticate, only: %i[create download_pdf]
 
     def create
-      # Body parsed by Rails; schema validated by committee before hitting here.
-      payload = request.raw_post
-      transformed_payload = transform_country_codes(payload)
-
-      claim = SavedClaim::Form21p530a.new(form: transformed_payload)
-
-      if claim.save
-        claim.process_attachments!
-
-        Rails.logger.info(
-          "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        )
-        StatsD.increment("#{stats_key}.success")
-
-        render json: SavedClaimSerializer.new(claim)
-      else
-        raise Common::Exceptions::ValidationErrors, claim
-      end
+      claim = build_and_save_claim!
+      handle_successful_claim(claim)
+      render json: SavedClaimSerializer.new(claim)
     rescue Common::Exceptions::ValidationErrors => e
-      # Increment failure stats for validation errors (e.g., invalid country codes, model validation failures)
-      StatsD.increment("#{stats_key}.failure")
-      # Include validation errors when present; helpful in logs/Sentry.
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: e.message, claim_errors: e.resource&.errors&.full_messages }
-      )
-      raise
+      handle_validation_error(e)
     rescue => e
-      # Include validation errors when present; helpful in logs/Sentry.
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
-      raise
+      handle_general_error(e, claim)
     end
 
     def download_pdf
@@ -117,6 +90,45 @@ module V0
       claim.errors.add '/burialInformation/recipientOrganization/address/country',
                        "'#{country_code}' is not a valid country code"
       raise Common::Exceptions::ValidationErrors, claim
+    end
+
+    def build_and_save_claim!
+      # Body parsed by Rails; schema validated by committee before hitting here.
+      payload = request.raw_post
+      transformed_payload = transform_country_codes(payload)
+      claim = SavedClaim::Form21p530a.new(form: transformed_payload)
+
+      unless claim.save
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+
+      claim
+    end
+
+    def handle_successful_claim(claim)
+      claim.process_attachments!
+      Rails.logger.info("ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}")
+      StatsD.increment("#{stats_key}.success")
+    end
+
+    def handle_validation_error(error)
+      # Increment failure stats for validation errors (e.g., invalid country codes, model validation failures)
+      StatsD.increment("#{stats_key}.failure")
+      # Include validation errors when present; helpful in logs/Sentry.
+      Rails.logger.error(
+        'Form21p530a: error submitting claim',
+        { error: error.message, claim_errors: error.resource&.errors&.full_messages }
+      )
+      raise
+    end
+
+    def handle_general_error(error, claim)
+      # Include validation errors when present; helpful in logs/Sentry.
+      Rails.logger.error(
+        'Form21p530a: error submitting claim',
+        { error: error.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
+      )
+      raise
     end
   end
 end
