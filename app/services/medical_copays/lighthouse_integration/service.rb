@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'lighthouse/healthcare_cost_and_coverage/account/service'
 require 'lighthouse/healthcare_cost_and_coverage/invoice/service'
-require 'lighthouse/healthcare_cost_and_coverage/charge_item/service'
 
 module MedicalCopays
   module LighthouseIntegration
