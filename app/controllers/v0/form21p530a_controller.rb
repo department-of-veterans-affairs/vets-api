@@ -69,8 +69,6 @@ module V0
       if address&.key?('country')
         transformed_country = extract_country(address)
         if transformed_country
-          # Validate that the transformed country code is a valid ISO code
-          # This prevents invalid codes from making it onto the PDF for both create and download_pdf
           validate_country_code!(transformed_country)
           address['country'] = transformed_country
         end
@@ -81,11 +79,8 @@ module V0
     def validate_country_code!(country_code)
       return if country_code.blank?
 
-      # Verify it's a valid ISO 3166-1 Alpha-2 code
       IsoCountryCodes.find(country_code)
     rescue IsoCountryCodes::UnknownCodeError
-      # Create a temporary claim object to hold the validation error
-      # This allows us to use ValidationErrors exception which expects an ActiveModel object
       claim = SavedClaim::Form21p530a.new
       claim.errors.add '/burialInformation/recipientOrganization/address/country',
                        "'#{country_code}' is not a valid country code"
@@ -93,7 +88,7 @@ module V0
     end
 
     def build_and_save_claim!
-      # Body parsed by Rails; schema validated by committee before hitting here.
+      # Body parsed by Rails,schema validated by committee before hitting here.
       payload = request.raw_post
       transformed_payload = transform_country_codes(payload)
       claim = SavedClaim::Form21p530a.new(form: transformed_payload)
@@ -110,9 +105,7 @@ module V0
     end
 
     def handle_validation_error(error)
-      # Increment failure stats for validation errors (e.g., invalid country codes, model validation failures)
       StatsD.increment("#{stats_key}.failure")
-      # Include validation errors when present; helpful in logs/Sentry.
       Rails.logger.error(
         'Form21p530a: error submitting claim',
         { error: error.message, claim_errors: error.resource&.errors&.full_messages }
@@ -121,7 +114,6 @@ module V0
     end
 
     def handle_general_error(error, claim)
-      # Include validation errors when present; helpful in logs/Sentry.
       Rails.logger.error(
         'Form21p530a: error submitting claim',
         { error: error.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
