@@ -20,7 +20,6 @@ RSpec.describe 'V0::MedicalCopaysHistory', type: :request do
         data_element = response_body['data'].first
         expect(data_element['attributes'].keys).to match_array(
           %w[
-            id
             url
             facility
             externalId

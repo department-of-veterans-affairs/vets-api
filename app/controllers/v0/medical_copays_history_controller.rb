@@ -5,12 +5,11 @@ module V0
     service_tag 'debt-resolution'
 
     def index
-      copays = medical_copay_service.list
-      render json: Lighthouse::HealthcareCostAndCoverage::InvoiceSerializer.new(copays)
-    end
+      invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
 
-    def count
-      render json: { count: medical_copay_service.count }
+      render json: Lighthouse::HealthcareCostAndCoverage::InvoiceSerializer.new(
+        invoice_bundle.entries, links: invoice_bundle.links, meta: invoice_bundle.meta
+      )
     end
 
     private

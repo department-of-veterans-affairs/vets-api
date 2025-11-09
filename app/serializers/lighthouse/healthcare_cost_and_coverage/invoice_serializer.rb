@@ -3,14 +3,15 @@
 class Lighthouse::HealthcareCostAndCoverage::InvoiceSerializer
   include JSONAPI::Serializer
 
+  set_type :invoice
   set_key_transform :camel_lower
+  set_id :external_id
 
-  attribute :id
-  attribute :url
-  attribute :facility
-  attribute :external_id
-  attribute :billing_ref
-  attribute :current_balance
-  attribute :previous_balance
-  attribute :previous_unpaid_balance
+  attributes :url,
+             :facility,
+             :external_id,
+             :billing_ref,
+             :current_balance,
+             :previous_balance,
+             :previous_unpaid_balance
 end

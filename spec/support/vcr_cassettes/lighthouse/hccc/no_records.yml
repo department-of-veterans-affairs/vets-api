@@ -64,7 +64,7 @@ http_interactions:
   recorded_at: Wed, 05 Nov 2025 14:14:48 GMT
 - request:
     method: get
-    uri: "https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=123"
+    uri: "https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&page=1&patient=123"
     body:
       encoding: US-ASCII
       string: ''
