@@ -2268,7 +2268,7 @@ spec/support/vcr_cassettes/vha/sharepoint/update_list_item_fields_400.yml @depar
 spec/support/vcr_cassettes/vha/sharepoint/upload_pdf_400_response.yml @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/vre @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_multipart_matcher_helper.rb @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/lighthouse/hccc/ @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/hcc/ @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/support/vcr.rb @department-of-veterans-affairs/backend-review-group
 spec/swagger_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/uploaders/evss_claim_document_uploader_base_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
