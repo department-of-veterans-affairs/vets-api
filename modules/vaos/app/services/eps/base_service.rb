@@ -33,15 +33,6 @@ module Eps
     protected
 
     ##
-    # Override perform to extract and store EPS trace ID from response headers
-    # Note: The eps_trace_id_extractor middleware extracts trace IDs from all responses (including errors)
-    # before exceptions are raised, ensuring trace IDs are available in error logs.
-    #
-    def perform(method, path, params, headers = nil, options = nil)
-      super(method, path, params, headers, options)
-    end
-
-    ##
     # Checks EPS response for error field and raises exception if found.
     # This provides consistent error handling across all EPS service methods.
     #
