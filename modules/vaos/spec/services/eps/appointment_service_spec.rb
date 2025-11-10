@@ -48,7 +48,7 @@ describe Eps::AppointmentService do
         before do
           path = "/#{config.base_path}/appointments/#{appointment_id}?retrieveLatestDetails=true"
           expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, path, {}, headers, nil)
+            .with(:get, path, {}, headers)
             .and_return(success_response)
         end
 
@@ -340,7 +340,7 @@ describe Eps::AppointmentService do
 
         path = "/#{config.base_path}/appointments/#{appointment_id}/submit"
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:post, path, expected_payload, kind_of(Hash), nil)
+          .with(:post, path, expected_payload, kind_of(Hash))
           .and_return(successful_response)
 
         exp_response = OpenStruct.new(successful_response.body)
@@ -364,7 +364,7 @@ describe Eps::AppointmentService do
 
         path = "/#{config.base_path}/appointments/#{appointment_id}/submit"
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:post, path, expected_payload, kind_of(Hash), nil)
+          .with(:post, path, expected_payload, kind_of(Hash))
           .and_return(successful_response)
 
         service.submit_appointment(appointment_id, params_with_attributes)
