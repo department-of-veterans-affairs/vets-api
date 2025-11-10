@@ -22,7 +22,7 @@ module V0
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
-    rescue JSON::ParserError => e
+    rescue JSON::ParserError
       raise Common::Exceptions::ParameterMissing, 'form'
     rescue => e
       # Include validation errors when present; helpful in logs/Sentry.

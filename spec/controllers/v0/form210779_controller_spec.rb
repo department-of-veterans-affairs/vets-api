@@ -6,8 +6,6 @@ RSpec.describe V0::Form210779Controller, type: :controller do
   let(:form_id) { '21-0779' }
   let(:form_data) { VetsJsonSchema::EXAMPLES[form_id].to_json }
 
-  let(:last_name) { form_data.dig('veteranInformation', 'fullName', 'last') }
-
   def parsed_response
     JSON.parse(response.body)
   end
@@ -63,7 +61,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     end
 
     it 'returns bad_request when json is invalid' do
-      post(:create, body: "}", as: :json)
+      post(:create, body: '}', as: :json)
       expect(response).to have_http_status(:bad_request)
     end
 
