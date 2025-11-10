@@ -167,3 +167,49 @@ You have the capability to call multiple tools in a single response. For maximum
 Especially when exploring repository, searching, reading files, viewing directories, validating changes, reporting progress or replying to comments. For example you can read 3 different files in parallel, or report progress and edit different files in parallel. Always report progress in parallel with other tool calls that follow it as it does not depend on the result of those calls.
 
 However, if some tool calls depend on previous calls to inform dependent values like the parameters, do NOT call these tools in parallel and instead call them sequentially.
+
+---
+
+## Platform Documentation (Auto-synced from Confluence)
+
+**Last synced**: 2025-11-07 21:34:23 UTC
+
+The following standards are automatically synced from Backend Developer Documentation in Confluence.
+
+### Backend developer documentation
+
+Last Updated:
+
+## Introduction
+
+[VA.gov](http://VA.gov)’s frontend repository (vets-website) uses vets-api as a service layer for all features. To expose new data or systems to vets-website, engineers should create an integration in vets-api. If you would like to expose an existing service's API, without an associated vets-website form, save in progress functionality, or prefill, please [reach out to the Platform on slack for](https://depo-platform-documentation.scrollhelp.site/support/getting-help-from-the-platform-in-slack) additional options.
+
+The vets-api Platform is a wrapper around VA data services with utilities and tools that support interaction with those services on behalf of a Veteran. It exposes tools to retrieve information and submit data to VA systems, and does so with a unified sign-in mechanism. When services are down or are experiencing problems, vets-api integrations are designed to gracefully handle failures and provide useful notifications to consumers. vets-api is built on top of Ruby on Rails, providing a unified JSON-based REST interface and additional resilience for VA data services that may not be designed to operate directly with users 24x7.
+
+## Platform features
+
+* Authentication and authorization
+* PDF generation
+* Monitoring
+* Exception tracking
+* [Downtime Notifications](https://depo-platform-documentation.scrollhelp.site/developer-docs/downtime-notifications)/Maintenance Windows
+
+## Development
+
+See the vets-api Development documentation to get started with a local instance of vets-api and for guidance on how to submit changes and new features.
+
+## Integration overview
+
+A vets-api integration must handle user requests, validate inputs, make one or multiple requests to another (external) service, and then render a response based on the results of those external service responses. To expose a service integration, a developer must:
+
+1. Provide routing for a new endpoint on [api.va.gov](http://api.va.gov)
+2. Authorize requests to this endpoint appropriately through a policy
+3. Validate user input or form submissions
+4. Instantiate an External Service client connection and interact with an External Service
+5. Serialize and render response data
+
+vets-api provides utilities and patterns for appropriate instrumentation, error handling, and documentation for defining this integration consistently and resiliently. Refer to the guides in the sidebar for more information on how to utilize each of these features and develop an integration.
+
+**Full Platform Documentation**: https://vfs.atlassian.net/wiki/spaces/pilot
+
+---

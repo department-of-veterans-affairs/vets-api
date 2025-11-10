@@ -1,0 +1,6 @@
+# Python dependencies for Confluence documentation sync script
+# Pin versions for reproducible builds
+
+atlassian-python-api==4.0.7
+markdownify==1.2.0
+requests==2.32.5
