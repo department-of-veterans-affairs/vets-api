@@ -33,6 +33,14 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
+  let(:json_headers) do
+    {
+      '_headers' => {
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json'
+      }
+    }
+  end
 
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
@@ -2787,55 +2795,41 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'form 21-0779 nursing home information' do
-      let(:valid_form210779) do
-        {
-          veteranInformation: {
-            first: 'John',
-            last: 'Doe',
-            dateOfBirth: '1950-01-01',
-            veteranId: {
-              ssn: '123456789'
-            }
-          },
-          claimantInformation: {
-            first: 'Jane',
-            last: 'Doe',
-            dateOfBirth: '1952-05-15',
-            veteranId: {
-              ssn: '987654321'
-            }
-          },
-          nursingHomeInformation: {
-            nursingHomeName: 'Sunrise Senior Living',
-            nursingHomeAddress: {
-              street: '123 Care Lane',
-              city: 'Springfield',
-              state: 'IL',
-              country: 'USA',
-              postalCode: '62701'
-            }
-          },
-          generalInformation: {
-            admissionDate: '2024-01-01',
-            medicaidFacility: true,
-            medicaidApplication: true,
-            patientMedicaidCovered: true,
-            medicaidStartDate: '2024-02-01',
-            monthlyCosts: '3000.00',
-            certificationLevelOfCare: true,
-            nursingOfficialName: 'Dr. Sarah Smith',
-            nursingOfficialTitle: 'Director of Nursing',
-            nursingOfficialPhoneNumber: '555-789-0123'
-          }
-        }
-      end
-
-      it 'supports submitting a form 21-0779 (stub endpoint)' do
+      it 'supports submitting a form 21-0779' do
         expect(subject).to validate(
           :post,
           '/v0/form210779',
           200,
-          '_data' => valid_form210779
+          json_headers.merge('_data' => { 'form' => VetsJsonSchema::EXAMPLES['21-0779'] }.to_json)
+        )
+      end
+
+      it 'handles 422' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779',
+          422,
+          json_headers.merge('_data' => { 'form' => { foo: :bar } }.to_json)
+        )
+      end
+
+      it 'handles 400' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779',
+          400,
+          json_headers.merge('_data' => {})
+        )
+      end
+
+      it 'successfully downloads form210779 pdf', skip: 'need apivore update to accept binary response' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779/download_pdf',
+          200,
+          headers.merge('_data' => {
+            'form' => VetsJsonSchema::EXAMPLES['21-0779']
+          }.to_json)
         )
       end
     end
