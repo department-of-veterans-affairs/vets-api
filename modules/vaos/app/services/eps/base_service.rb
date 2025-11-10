@@ -33,6 +33,15 @@ module Eps
     protected
 
     ##
+    # Override perform to extract and store EPS trace ID from response headers
+    # Note: The eps_trace_id_extractor middleware extracts trace IDs from all responses (including errors)
+    # before exceptions are raised, ensuring trace IDs are available in error logs.
+    #
+    def perform(method, path, params, headers = nil, options = nil)
+      super(method, path, params, headers, options)
+    end
+
+    ##
     # Checks EPS response for error field and raises exception if found.
     # This provides consistent error handling across all EPS service methods.
     #
@@ -53,7 +62,8 @@ module Eps
                           method: method_name,
                           status: response.status || 'unknown',
                           controller: controller_name,
-                          station_number:
+                          station_number:,
+                          eps_trace_id:
                         })
 
       raise_eps_error(error_value, response)
@@ -66,7 +76,8 @@ module Eps
         error_class: e.class.name,
         timestamp: Time.current.iso8601,
         controller: controller_name,
-        station_number:
+        station_number:,
+        eps_trace_id:
       }.merge(parse_eps_backend_fields(e.message.to_s)).compact
 
       Rails.logger.error("#{CC_APPOINTMENTS}: EPS service error", error_context)
@@ -90,6 +101,15 @@ module Eps
     #
     def station_number
       user&.va_treatment_facility_ids&.first
+    end
+
+    ##
+    # Returns the EPS trace ID from RequestStore
+    #
+    # @return [String, nil] The trace ID or nil if not set
+    #
+    def eps_trace_id
+      RequestStore.store['eps_trace_id']
     end
 
     def parse_eps_backend_fields(raw_message)
