@@ -14,7 +14,7 @@ module MyHealth
         # documentation: Drug documentation JSON object from the API
         documentation = client.get_rx_documentation(rx.cmop_ndc_value)
         # Build PrescriptionDocumentation object
-        # https://api.krames.com/v3/content/2<ContentType>-<ContentID>
+        # https://api.krames.com/v3/content/<ContentType>-<ContentID>
         #
         # prescription_documentation: PrescriptionDocumentation object with HTML content containing drug information
         prescription_documentation = PrescriptionDocumentation.new({ html: documentation[:data] })
