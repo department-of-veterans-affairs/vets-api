@@ -29,7 +29,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
         expect(response.entries).to be_empty
         expect(response.page).to be_zero
-        expect(response.meta).to eq({ total: 0, page: 0, per_page: 50 })
+        expect(response.meta).to eq({ total: 0, page: 0, per_page: 10 })
       end
     end
 

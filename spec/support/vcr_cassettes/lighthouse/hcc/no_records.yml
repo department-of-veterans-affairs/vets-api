@@ -132,6 +132,6 @@ http_interactions:
       - no-cache, no-store
     body:
       encoding: UTF-8
-      string: '{"resourceType":"Bundle","type":"searchset","link":[{"url":"https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=123","relation":"self"}],"entry":[]}'
+      string: '{"resourceType":"Bundle","type":"searchset","link":[{"url":"https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&patient=123","relation":"self"}],"entry":[]}'
   recorded_at: Wed, 05 Nov 2025 14:14:49 GMT
 recorded_with: VCR 6.3.1

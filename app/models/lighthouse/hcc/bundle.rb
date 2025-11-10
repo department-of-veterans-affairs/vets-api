@@ -60,11 +60,12 @@ module Lighthouse
       def build_meta
         relations = @bundle['link'].index_by { |l| l['relation'] }
         self_url = relations['self']&.dig('url')
+        query_string = CGI.parse(URI(self_url).query.to_s)
 
         {
           total: @bundle['total'].to_i,
-          page: self_url['page']&.first.to_i,
-          per_page: self_url['_count']&.first.to_i
+          page: query_string['page']&.first.to_i,
+          per_page: query_string['_count']&.first.to_i
         }
       end
     end
