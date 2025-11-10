@@ -1,0 +1,42 @@
+name: Notify Mobile team of PR needing review
+on:
+  pull_request:
+    paths:
+      - 'modules/mobile/**'
+    types: [opened, reopened]
+
+jobs:
+  notify_mobile_team:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SLACK_API_TOKEN: ${{ secrets.SLACK_MOBILE_BOT_TOKEN }}
+      SLACK_CHANNEL_ID: ${{ secrets.SLACK_MOBILE_ALERTS_CHANNEL_ID }}
+    if: github.event.pull_request.base.ref == 'master'
+    steps:
+      - name: Check if PR author is a mobile team member
+        id: check_author
+        run: |
+          PR_AUTHOR=${{ github.event.pull_request.user.login }}
+          IS_TEAM_MEMBER=false
+
+          if gh api \
+            --method GET \
+            "orgs/department-of-veterans-affairs/teams/mobile-api-team/memberships/$PR_AUTHOR" > /dev/null 2>&1; then
+            echo "Author $PR_AUTHOR is a member of the mobile team."
+            IS_TEAM_MEMBER=true
+          fi
+
+          echo "is_team_member=$IS_TEAM_MEMBER" >> $GITHUB_OUTPUT
+
+      - name: Send Slack Notification
+        if: steps.check_author.outputs.is_team_member == 'false'
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          method: chat.postMessage
+          token: ${{ env.SLACK_API_TOKEN }}
+          payload: |
+            {
+              "channel": ${{ env.SLACK_CHANNEL_ID }},
+              "text": ":party-github: Attention <!subteam^S059TUBATEY> - a new PR (<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>) has been opened that requires your review.\n*Title:* ${{ github.event.pull_request.title }}\n*Author:* <${{ github.event.pull_request.user.html_url }}|${{ github.event.pull_request.user.login }}>\n*Description:* ${{ github.event.pull_request.body }}"
+            }
