@@ -7,8 +7,8 @@ module DependentsBenefits
   # DependentsBenefit 686C-674 Active::Record
   # @see app/model/saved_claim
   #
-  # todo: migrate encryption to DependentsBenefits::SavedClaim, remove inheritance and encryption shim
-  class SavedClaim < ::SavedClaim
+  # todo: migrate encryption to DependentsBenefits::PrimaryDependencyClaim, remove inheritance and encryption shim
+  class PrimaryDependencyClaim < ::SavedClaim
     include DependentsBenefits::ClaimBehavior
 
     # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
