@@ -24,8 +24,6 @@ module Lighthouse
 
       private
 
-      # ---------- LINK REWRITE ----------
-
       def build_links
         raw_links = @bundle['link']
         return {} if raw_links.empty?

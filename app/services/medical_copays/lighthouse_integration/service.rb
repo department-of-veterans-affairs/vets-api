@@ -10,7 +10,6 @@ module MedicalCopays
       end
 
       def list(count:, page:)
-        # Datadog stuff
         raw_invoices = invoice_service.list(count:, page:)
         entries = raw_invoices['entry'].map do |entry|
           ::Lighthouse::HCC::Invoice.new(entry)
@@ -18,7 +17,6 @@ module MedicalCopays
 
         Lighthouse::HCC::Bundle.new(raw_invoices, entries)
       rescue => e
-        # Datadog stuff here?
         Rails.logger.error("MedicalCopays::Lighthouse::Service#list error: #{e.message}")
         raise e
       end
