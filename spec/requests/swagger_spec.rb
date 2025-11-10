@@ -2785,7 +2785,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         context 'when feature toggle is disabled' do
-          before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false) }
+          before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
 
           it 'handles 404' do
             expect(subject).to validate(
