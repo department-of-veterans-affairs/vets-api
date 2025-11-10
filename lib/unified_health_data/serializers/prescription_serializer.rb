@@ -26,7 +26,8 @@ module UnifiedHealthData
                  :tracking,
                  :prescription_source,
                  :instructions,
-                 :facility_phone_number
+                 :facility_phone_number,
+                 :remarks
     end
   end
 end
