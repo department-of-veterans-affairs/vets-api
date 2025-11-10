@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../concerns/logging_context'
+
 module VAOS
   module V2
     ##
@@ -27,6 +29,7 @@ module VAOS
     #
     class EpsDraftAppointment
       include VAOS::CommunityCareConstants
+      include VAOS::LoggingContext
 
       REFERRAL_DRAFT_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_draft_station_id.access".freeze
       PROVIDER_DRAFT_NETWORK_ID_METRIC = "#{STATSD_PREFIX}.provider_draft_network_id.access".freeze
@@ -331,8 +334,8 @@ module VAOS
         error_data = {
           error_class: error.class.name,
           user_uuid: @current_user&.uuid,
-          controller: RequestStore.store['controller_name'],
-          station_number: @current_user&.va_treatment_facility_ids&.first
+          controller: controller_name,
+          station_number: station_number(@current_user)
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
       end
@@ -502,8 +505,8 @@ module VAOS
           error_message: 'Provider not found while creating draft appointment',
           provider_npi: referral.provider_npi,
           user_uuid: @current_user&.uuid,
-          controller: RequestStore.store['controller_name'],
-          station_number: @current_user&.va_treatment_facility_ids&.first
+          controller: controller_name,
+          station_number: station_number(@current_user)
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment", error_data)
       end
