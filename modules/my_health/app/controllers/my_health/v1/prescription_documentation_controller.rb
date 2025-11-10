@@ -23,5 +23,5 @@ module MyHealth
         render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
       end
     end
-  endx
+  end
 end
