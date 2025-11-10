@@ -117,6 +117,16 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(oracle_prescription).to be_present
       end
 
+      it 'sets cmop_division_phone correctly for both sources' do
+        prescriptions = subject.parse(unified_response)
+
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        expect(vista_prescription.cmop_division_phone).to eq('555-1234')
+        expect(oracle_prescription.cmop_division_phone).to be_nil
+      end
+
       context 'business rules filtering (applied regardless of current_only)' do
         context 'when display_pending_meds flipper is enabled' do
           let(:vista_medication_pf) do
