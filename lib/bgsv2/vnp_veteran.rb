@@ -4,8 +4,6 @@ require_relative 'service'
 
 module BGSV2
   class VnpVeteran
-    include SentryLogging
-
     def initialize(proc_id:, payload:, user:, claim_type:)
       @user = user
       @proc_id = proc_id
@@ -15,17 +13,9 @@ module BGSV2
       @va_file_number = @payload['veteran_information']['va_file_number']
     end
 
-    # rubocop:disable Metrics/MethodLength
     def create
       participant = bgs_service.create_participant(@proc_id, @user.participant_id)
       claim_type_end_product = bgs_service.find_benefit_claim_type_increment(@claim_type)
-
-      # This conditional makes it easier to write specs asserting that
-      # log_message_to_sentry is called in #create_person. Though, we may
-      # consider removing :warn logs like this from Sentry.
-      unless Rails.env.test?
-        log_message_to_sentry("#{@proc_id}-#{claim_type_end_product}", :warn, '', { team: 'vfs-ebenefits' })
-      end
 
       address = create_address(participant)
       regional_office_number = get_regional_office(address[:zip_prefix_nbr], address[:cntry_nm], '')
@@ -44,21 +34,20 @@ module BGSV2
         }
       )
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
     def create_person(participant)
-      sentry_params = [:error, {}, { team: 'vfs-ebenefits' }]
+      payload = { team: 'vfs-ebenefits', service: 'bgs' }
       if @veteran_info['ssn']&.length != 9
-        Rails.logger.info('Malformed SSN! Reassigning to User#ssn.')
+        Rails.logger.info('Malformed SSN! Reassigning to User#ssn.', payload)
         @veteran_info['ssn'] = @user.ssn
       end
       ssn = @veteran_info['ssn']
       if ssn == '********'
-        log_message_to_sentry('SSN is redacted!', *sentry_params)
+        Rails.logger.error('SSN is redacted!', payload)
       elsif ssn.present? && ssn.length != 9
-        log_message_to_sentry("SSN has #{ssn.length} digits!", *sentry_params)
+        Rails.logger.error("SSN has #{ssn.length} digits!", payload)
       end
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
@@ -90,7 +79,7 @@ module BGSV2
       # retrieve the list of all regional offices
       # match the regional number to find the corresponding location id
       regional_offices = bgs_service.find_regional_offices
-      return '347' if regional_offices.nil? # return default value 347 if regional office is not found
+      return '347' if regional_offices.blank? # return default value 347 if regional office is not found
 
       regional_office = regional_offices.find { |ro| ro[:station_number] == regional_office_number }
       return '347' if regional_office.nil? # return default value 347 if regional office is not found

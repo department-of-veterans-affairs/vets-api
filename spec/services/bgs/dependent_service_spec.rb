@@ -59,7 +59,6 @@ RSpec.describe BGS::DependentService do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           service = BGS::DependentService.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
@@ -79,7 +78,6 @@ RSpec.describe BGS::DependentService do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
           vet_info['veteran_information']['va_file_number'] = '12345678'
           service = BGS::DependentService.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
@@ -97,7 +95,6 @@ RSpec.describe BGS::DependentService do
       it 'strips out the dashes before enqueuing the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
           user.uuid, claim.id,
           encrypted_vet_info
@@ -116,7 +113,6 @@ RSpec.describe BGS::DependentService do
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -136,7 +132,6 @@ RSpec.describe BGS::DependentService do
         vet_info['veteran_information']['va_file_number'] = '1234567'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -156,7 +151,6 @@ RSpec.describe BGS::DependentService do
         vet_info['veteran_information']['va_file_number'] = '123456789'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -183,7 +177,6 @@ RSpec.describe BGS::DependentService do
           allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError,
                                                                                   'Test error')
           service = BGS::DependentService.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
           expect(service).to receive(:submit_to_central_service)
 
@@ -197,7 +190,7 @@ RSpec.describe BGS::DependentService do
                                                                              'Test error')
 
           service = BGS::DependentService.new(user)
-          expect(service).to receive(:log_exception_to_sentry)
+          expect(monitor).to receive(:track_event)
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
 
           expect do
@@ -258,7 +251,6 @@ RSpec.describe BGS::DependentService do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           service = BGS::DependentService.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
@@ -278,7 +270,6 @@ RSpec.describe BGS::DependentService do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
           vet_info['veteran_information']['va_file_number'] = '12345678'
           service = BGS::DependentService.new(user)
-          expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
@@ -296,7 +287,6 @@ RSpec.describe BGS::DependentService do
       it 'strips out the dashes before enqueuing the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
           user.uuid, claim.id,
           encrypted_vet_info
@@ -315,7 +305,6 @@ RSpec.describe BGS::DependentService do
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -335,7 +324,6 @@ RSpec.describe BGS::DependentService do
         vet_info['veteran_information']['va_file_number'] = '1234567'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -355,7 +343,6 @@ RSpec.describe BGS::DependentService do
         vet_info['veteran_information']['va_file_number'] = '123456789'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
           user.uuid, claim.id,

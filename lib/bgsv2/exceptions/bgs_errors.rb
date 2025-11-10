@@ -4,7 +4,6 @@ require 'bgsv2/exceptions/service_exception'
 module BGSV2
   module Exceptions
     module BGSErrors
-      include SentryLogging
       MAX_ATTEMPTS = 3
 
       def with_multiple_attempts_enabled
@@ -25,13 +24,17 @@ module BGSV2
         if error.message.present? && error.message.include?('CEST11')
           raise_backend_exception('BGS_686c_SERVICE_403', self.class, error.class.new('CEST11 Error'))
         end
+
         msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
-        tags = { team: 'vfs-ebenefits' }
+        tags = { team: 'vfs-ebenefits', service: 'bgs' }
 
-        return log_message_to_sentry(msg, :warn, {}, tags) if status == :warn
+        return Rails.logger.warn(msg, tags) if status == :warn
 
-        log_oracle_errors!(error:)
-        log_exception_to_sentry(error, {}, tags)
+        if oracle_error?(error:)
+          log_oracle_errors!(error:)
+        else
+          Rails.logger.error(error, tags)
+        end
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
       end
 
@@ -54,15 +57,18 @@ module BGSV2
       # these errors separately because the original error message is so long that it obscures its only relevant
       # information and actually breaks Sentry's UI.
       def log_oracle_errors!(error:)
-        oracle_error_match_data = error.message.match(/ORA-.+?(?=\s*{prepstmnt)/m)
-        if oracle_error_match_data&.length&.positive?
-          log_message_to_sentry(
-            oracle_error_match_data[0],
-            :error,
-            {},
-            { team: 'vfs-ebenefits' }
-          )
-        end
+        Rails.logger.error(
+          oracle_error_match_data(error:)[0],
+          { team: 'vfs-ebenefits', service: 'bgs' }
+        )
+      end
+
+      def oracle_error?(error:)
+        oracle_error_match_data(error:)&.length&.positive?
+      end
+
+      def oracle_error_match_data(error:)
+        error.message.match(/ORA-.+?(?=\s*{prepstmnt)/m)
       end
     end
   end
