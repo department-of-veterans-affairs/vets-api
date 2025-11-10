@@ -102,7 +102,7 @@ module PdfFill
               }
             },
             veteranId: {
-              ssn: { 
+              ssn: {
                 first: {
                   key: 'F[0].Page_1[0].Claimants_Social_Security_Number_FirstThreeNumbers[0]',
                   question_text: '6. Claimant\'s Social Security Number. Enter First Three Digits.',
@@ -117,7 +117,7 @@ module PdfFill
                   key: 'F[0].Page_1[0].Claimants_Social_Security_Number_LastFourNumbers[0]',
                   question_text: '6. Claimant\'s Social Security Number. Enter Last Four Digits.',
                   type: 'Text'
-                } 
+                }
               },
               vaFileNumber: {
                 key: 'F[0].Page_1[0].Claimants_VA_File_Number_If_Applicable[0]',
@@ -238,7 +238,7 @@ module PdfFill
               thousands: {
                 key: 'F[0].Page_1[0].Amount[1]',
                 question_text: '15. MONTHLY AMOUNT PATIENT IS RESPONSIBLE FOR OUT OF POCKET.' \
-                                ' Enter AMOUNT.  3 digits.',
+                               ' Enter AMOUNT.  3 digits.',
                 type: 'Text'
               },
               ones: {
