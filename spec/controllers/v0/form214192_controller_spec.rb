@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
+  end
+
   let(:valid_payload) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
 
   let(:form_data) do
@@ -51,6 +55,17 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     it 'does not require authentication' do
       post(:create, body: valid_payload.to_json, as: :json)
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:create, body: valid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 
@@ -148,6 +163,17 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       post(:download_pdf, body: form_data.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:download_pdf, body: form_data.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
     end
 
     context 'error handling' do

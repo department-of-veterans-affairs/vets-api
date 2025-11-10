@@ -65,7 +65,7 @@ module BGS
 
       InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
 
-      encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
+      encrypted_vet_info = setup_vet_info(claim)
       submit_pdf_job(claim:, encrypted_vet_info:)
 
       if claim.submittable_686? || claim.submittable_674?
@@ -82,6 +82,13 @@ module BGS
     end
 
     private
+
+    def setup_vet_info(claim)
+      vet_info = get_form_hash_686c
+      claim.add_veteran_info(vet_info)
+
+      KmsEncrypted::Box.new.encrypt(vet_info.to_json)
+    end
 
     def service
       @service ||= BGS::Services.new(external_uid: icn, external_key:)

@@ -117,8 +117,8 @@ module Openapi
                       },
                       country: {
                         type: :string,
-                        maxLength: 2,
-                        description: 'Country code (max 2 characters)',
+                        maxLength: 3,
+                        description: 'Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)',
                         example: 'US'
                       },
                       postalCode: {
