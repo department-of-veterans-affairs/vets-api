@@ -12,16 +12,21 @@ module V0
     # Generate and download a pre-filled PDF with veteran sections (I-V) completed
     # Physician sections (VI-VIII) are left blank for manual completion
     def download_pdf
-      params.require('form')
       # using request.raw_post to avoid the middleware that transforms the JSON keys to snake case
-      form_body = JSON.parse(request.raw_post)['form'].to_json
+      parsed_body = JSON.parse(request.raw_post)
+      form_data = parsed_body['form']
+      
+      unless form_data
+        raise Common::Exceptions::ParameterMissing.new('form')
+      end
 
+      form_body = form_data.to_json
       claim = SavedClaim::Form212680.new(form: form_body)
       if claim.save
-        pdf_path = claim.generate_prefilled_pdf
-        file_data = with_retries('Generate 21-2680 PDF') do
-          File.read(pdf_path)
+        pdf_path = with_retries('Generate 21-2680 PDF') do
+          claim.generate_prefilled_pdf
         end
+        file_data = File.read(pdf_path)
 
         send_data file_data,
                   filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
@@ -30,15 +35,17 @@ module V0
       else
         raise(Common::Exceptions::ValidationErrors, claim)
       end
+    rescue JSON::ParserError
+      raise Common::Exceptions::ParameterMissing.new('form')
     ensure
       # Delete the temporary PDF file
-      File.delete(pdf_path) if pdf_path.present?
+      File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
     end
 
     private
 
     def check_feature_enabled
-      routing_error unless Flipper.enabled?(:form_2680_enabled, @current_user)
+      routing_error unless Flipper.enabled?(:form_2680_enabled, current_user)
     end
   end
 end

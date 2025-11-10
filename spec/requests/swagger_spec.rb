@@ -2771,7 +2771,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             :post,
             '/v0/form212680/download_pdf',
             422,
-            headers.merge('_data' => { 'form' => { foo: :bar } }.to_json)
+            headers.merge('_data' => { 'form' => { foo: :bar } })
           )
         end
 
@@ -2801,7 +2801,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'form 21-0779 nursing home information' do
+    describe 'form 21-0779 submission' do
       let(:valid_form210779) do
         {
           veteranInformation: {

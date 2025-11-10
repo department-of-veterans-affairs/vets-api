@@ -78,7 +78,7 @@ module PdfFill
 
       def split_claimant_postal_code
         addr = @form_data.dig('claimantInformation', 'address')
-        if addr['postalCode'].present?
+        if addr&.dig('postalCode').present?
           @form_data['claimantInformation']['address']['postalCode'] =
             split_postal_code(addr)
         end

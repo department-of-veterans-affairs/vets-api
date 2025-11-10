@@ -13,7 +13,7 @@ RSpec.describe 'V0::Form212680', type: :request do
   context 'while inflection header provided' do
     let(:status) { '200' }
 
-    it 'returns an success' do
+    it 'returns a success' do
       metrics = capture_statsd_calls do
         post(
           '/v0/form212680/download_pdf',
@@ -38,7 +38,7 @@ RSpec.describe 'V0::Form212680', type: :request do
   context 'when pdf generation raises' do
     let(:status) { '500' }
 
-    it 'returns an properly handled error' do
+    it 'returns a properly handled error' do
       allow_any_instance_of(SavedClaim).to receive(:to_pdf).and_raise(StandardError, 'PDF generation error')
 
       metrics = capture_statsd_calls do
