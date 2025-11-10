@@ -60,7 +60,8 @@ module UnifiedHealthData
           instructions: extract_instructions(resource),
           facility_phone_number: extract_facility_phone_number(resource),
           prescription_source: extract_prescription_source(resource),
-          category: extract_category(resource)
+          category: extract_category(resource),
+          remarks: extract_remarks(resource)
         }
       end
 
@@ -266,6 +267,17 @@ module UnifiedHealthData
         end
 
         codes
+      end
+
+      def extract_remarks(resource)
+        # Concatenate all MedicationRequest.note.text fields
+        notes = resource['note'] || []
+        return nil if notes.empty?
+
+        note_texts = notes.filter_map { |note| note['text'] if note['text'].present? }
+        return nil if note_texts.empty?
+
+        note_texts.join(' ')
       end
 
       def non_va_med?(resource)
