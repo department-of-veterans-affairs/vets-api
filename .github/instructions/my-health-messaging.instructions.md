@@ -920,7 +920,7 @@ properties:
 
 ---
 
-## �🔄 Maintaining These Instructions
+## 🔄 Maintaining These Instructions
 
 ### When to Update This File
 
