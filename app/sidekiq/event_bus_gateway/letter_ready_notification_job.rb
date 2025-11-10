@@ -28,105 +28,69 @@ module EventBusGateway
     end
 
     def perform(participant_id, email_template_id = nil, push_template_id = nil)
-      # Fetch participant data upfront
-      get_mpi_profile(participant_id)
-      icn = get_icn(participant_id)
+      # Fetch BGS and MPI data once upfront
+      bgs_person = get_bgs_person(participant_id)
+      mpi_profile = get_mpi_profile(participant_id)
 
+      notifications_sent = []
       errors = []
 
-      # Send email notification if template provided and ICN available
-      if email_template_id.present? && icn.present?
-        first_name = get_first_name_from_participant_id(participant_id)
-
-        errors << send_email_async(participant_id, email_template_id, first_name, icn) if first_name.present?
+      # Send email notification if template provided
+      if email_template_id.present? && bgs_person&.dig(:first_nm).present? && mpi_profile&.icn.present?
+        begin
+          LetterReadyEmailJob.perform_async(participant_id, email_template_id, bgs_person.dig(:first_nm), mpi_profile.icn)
+          notifications_sent << 'email'
+        rescue => e
+          errors << { type: 'email', error: e.message }
+          ::Rails.logger.error('LetterReadyNotificationJob email failed', {
+                                 participant_id:,
+                                 email_template_id:,
+                                 error: e.message
+                               })
+        end
       end
 
       # Send push notification if template provided and ICN available
-      errors << send_push_async(participant_id, push_template_id, icn) if should_send_push?(push_template_id, icn)
+      if push_template_id.present? && mpi_profile&.icn.present?
+        begin
+          LetterReadyPushJob.perform_async(participant_id, push_template_id, mpi_profile.icn)
+          notifications_sent << 'push'
+        rescue => e
+          errors << { type: 'push', error: e.message }
+          ::Rails.logger.error('LetterReadyNotificationJob push failed', {
+                                 participant_id:,
+                                 push_template_id:,
+                                 error: e.message
+                               })
+        end
+      end
 
-      errors.compact!
+      # Log completion status
+      ::Rails.logger.info('LetterReadyNotificationJob completed', {
+                            participant_id:,
+                            notifications_sent: notifications_sent.join(', '),
+                            notifications_failed: errors.map { |h| "#{h[:type]}: #{h[:error]}" }.join(', '),
+                            email_template_id:,
+                            push_template_id:
+                          })
 
-      log_completion(participant_id, email_template_id, push_template_id, errors)
-      handle_errors(errors)
-
+      # Re-raise if ALL notifications failed, otherwise consider it a partial success
+      if errors.any? && notifications_sent.empty?
+        raise
+      elsif errors.any?
+        # Log warning for partial failures but don't raise (some notifications succeeded)
+        error_messages = errors.map { |h| "#{h[:type]}: #{h[:error]}" }.join(', ')
+        ::Rails.logger.warn('LetterReadyNotificationJob partial failure', {
+                              participant_id:,
+                              successful: notifications_sent.join(', '),
+                              failed: error_messages
+                            })
+      end
       errors
     rescue => e
-      # Only catch errors from the initial BGS/MPI lookups
-      record_notification_send_failure(e, 'Notification') if @bgs_person.nil? || @mpi_profile.nil?
+      # Only catch errors from the initial BGS/MPI lookups, others are caught in individual rescues above
+      record_notification_send_failure(e, 'Notification') if bgs_person.nil? || mpi_profile.nil?
       raise
-    end
-
-    private
-
-    def should_send_push?(push_template_id, icn)
-      push_template_id.present? && icn.present?
-    end
-
-    def send_email_async(participant_id, email_template_id, first_name, icn)
-      LetterReadyEmailJob.perform_async(participant_id, email_template_id, first_name, icn)
-      nil
-    rescue => e
-      log_notification_failure('email', participant_id, email_template_id, e)
-      { type: 'email', error: e.message }
-    end
-
-    def send_push_async(participant_id, push_template_id, icn)
-      LetterReadyPushJob.perform_async(participant_id, push_template_id, icn)
-      nil
-    rescue => e
-      log_notification_failure('push', participant_id, push_template_id, e)
-      { type: 'push', error: e.message }
-    end
-
-    def log_notification_failure(notification_type, participant_id, template_id, error)
-      ::Rails.logger.error(
-        "LetterReadyNotificationJob #{notification_type} failed",
-        {
-          participant_id:,
-          template_id:,
-          error: error.message
-        }
-      )
-    end
-
-    def log_completion(participant_id, email_template_id, push_template_id, errors)
-      successful_notifications = []
-      successful_notifications << 'email' if email_template_id.present? && errors.none? { |e| e[:type] == 'email' }
-      successful_notifications << 'push' if push_template_id.present? && errors.none? { |e| e[:type] == 'push' }
-
-      failed_messages = errors.map { |h| "#{h[:type]}: #{h[:error]}" }.join(', ')
-
-      ::Rails.logger.info(
-        'LetterReadyNotificationJob completed',
-        {
-          participant_id:,
-          notifications_sent: successful_notifications.join(', '),
-          notifications_failed: failed_messages,
-          email_template_id:,
-          push_template_id:
-        }
-      )
-    end
-
-    def handle_errors(errors)
-      return if errors.empty?
-
-      if errors.length == 2
-        # Both notifications failed
-        raise StandardError, "All notifications failed: #{errors.map { |e| e[:error] }.join('; ')}"
-      else
-        # Partial failure - determine which notification succeeded
-        successful = errors[0][:type] == 'email' ? 'push' : 'email'
-        error_messages = errors.map { |h| "#{h[:type]}: #{h[:error]}" }.join(', ')
-
-        ::Rails.logger.warn(
-          'LetterReadyNotificationJob partial failure',
-          {
-            successful:,
-            failed: error_messages
-          }
-        )
-      end
     end
   end
 end

@@ -25,8 +25,9 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
     end
 
-    def perform(participant_id, template_id)
-      icn = get_icn(participant_id)
+    def perform(participant_id, template_id, icn = nil)
+      icn = icn || get_mpi_profile(participant_id)&.icn
+
       if icn.present?
         notify_client.send_push(
           mobile_app: 'VA_FLAGSHIP_APP',
@@ -34,9 +35,8 @@ module EventBusGateway
           template_id:,
           personalisation: {}
         )
-        # TODO: Do we create a new table, or add a column to differentiate the types of notifications
-        # EventBusGatewayNotification.create(user_account: user_account(participant_id), template_id:,
-        #                                   va_notify_id: nil)
+
+        EventBusGatewayPushNotification.create!(user_account: user_account(icn), template_id: template_id)
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
       else
         raise 'Failed to fetch ICN'
@@ -49,12 +49,8 @@ module EventBusGateway
     private
 
     def notify_client
-      # TODO: Determine if this is different
+      # TODO: Determine if this api key is different
       @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.api_key)
-    end
-
-    def user_account(icn)
-      UserAccount.find_by(icn:)
     end
   end
 end

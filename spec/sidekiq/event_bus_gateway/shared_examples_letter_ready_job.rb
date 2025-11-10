@@ -98,8 +98,8 @@ RSpec.shared_examples 'letter ready job sidekiq retries exhausted' do |job_type|
               })
 
       expect(StatsD).to receive(:increment)
-        .with("#{described_class::STATSD_METRIC_PREFIX}.exhausted",
-              tags: EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"])
+                    .with("#{described_class::STATSD_METRIC_PREFIX}.exhausted",
+                          tags: EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"])
 
       retries_exhausted_callback.call(msg, exception)
     end
@@ -131,10 +131,10 @@ RSpec.shared_examples 'letter ready job va notify error handling' do |job_type, 
     end
 
     let(:error_message) { "LetterReady#{job_type}Job #{job_type.downcase} error" }
-    let(:message_detail) { 'Service initialization failed' }
+    let(:message_detail) { 'StandardError' }
     let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
-    it "does not send a #{notification_method}, logs the error, and increments the statsd metric" do
+    it "does not send a #{notification_method}, logs the error, increments the statsd metric, and re-raises for retry" do
       expect(Rails.logger)
         .to receive(:error)
         .with(error_message, { message: message_detail })

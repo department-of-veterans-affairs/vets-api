@@ -46,5 +46,17 @@ module EventBusGateway
       tags = Constants::DD_TAGS + ["function: #{error_message}"]
       StatsD.increment("#{self.class::STATSD_METRIC_PREFIX}.failure", tags:)
     end
+
+    # Helper method to validate participant data exists before queuing individual jobs
+    def validate_participant_data(participant_id)
+      get_mpi_profile(participant_id)
+    rescue => e
+      ::Rails.logger.error("Failed to validate participant data for #{participant_id}", { message: e.message })
+      raise
+    end
+
+    def user_account(icn)
+      UserAccount.find_by(icn:)
+    end
   end
 end
