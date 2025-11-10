@@ -14,6 +14,8 @@ module V0
           'telephone',
           telephone_params
         )
+        telephone_id = params[:id] || 'not_provided'
+        Rails.logger.info("TelephonesController#create telephone_id captured: #{telephone_id}")
         Rails.logger.warn('TelephonesController#create request completed', sso_logging_info)
       end
 
