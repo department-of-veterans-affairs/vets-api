@@ -5,67 +5,66 @@ module PdfFill
     module FieldMappings
       class Va210779
         KEY = {
-          veteranInformation:
-            {
-              fullName: {
-                first: {
-                  key: 'F[0].Page_1[0].Veterans_First_Name[0]',
-                  question_text: "1. VETERAN'S NAME Enter First Name.",
-                  type: 'Text'
-                },
-                middle: {
-                  key: 'F[0].Page_1[0].Veterans_Middle_Initial[0]',
-                  question_text: "1. Veteran's Name. Enter Middle Initial.",
-                  type: 'Text'
-                },
-                last: {
-                  key: 'F[0].Page_1[0].Veterans_Last_Name[0]',
-                  question_text: "1. Veteran's Name. Enter Last Name.",
-                  type: 'Text'
-                }
+          veteranInformation: {
+            fullName: {
+              first: {
+                key: 'F[0].Page_1[0].Veterans_First_Name[0]',
+                question_text: "1. VETERAN'S NAME Enter First Name.",
+                type: 'Text'
               },
-              dateOfBirth: {
-                month: {
-                  key: 'F[0].Page_1[0].Date_Of_Birth_Month[0]',
-                  question_text: '4. Date of Birth. Enter 2 digit Month.  ',
-                  type: 'Text'
-                },
-                day: {
-                  key: 'F[0].Page_1[0].Date_Of_Birth_Day[0]',
-                  question_text: '4. Date of Birth. Enter 2 digit day.',
-                  type: 'Text'
-                },
-                year: {
-                  key: 'F[0].Page_1[0].Date_Of_Birth_Year[0]',
-                  question_text: '4. Date of Birth. Enter 4 digit year.',
-                  type: 'Text'
-                }
+              middle: {
+                key: 'F[0].Page_1[0].Veterans_Middle_Initial[0]',
+                question_text: "1. Veteran's Name. Enter Middle Initial.",
+                type: 'Text'
               },
-              veteranId: {
-                ssn: {
-                  first: {
-                    key: 'F[0].Page_1[0].Social_Security_Number_FirstThreeNumbers[0]',
-                    question_text: '2. Social Security Number. Enter First Three Digits.',
-                    type: 'Text'
-                  },
-                  second: {
-                    key: 'F[0].Page_1[0].Social_Security_Number_SecondTwoNumbers[0]',
-                    question_text: '2. Social Security Number. Enter middle 2 digits.',
-                    type: 'Text'
-                  },
-                  third: {
-                    key: 'F[0].Page_1[0].Social_Security_Number_LastFourNumbers[0]',
-                    question_text: '2. Social Security Number. Enter Last Four Digits.',
-                    type: 'Text'
-                  }
-                },
-                vaFileNumber: {
-                  key: 'F[0].Page_1[0].VA_File_Number[0]',
-                  question_text: '3. V. A. File Number ',
-                  type: 'Text'
-                }
+              last: {
+                key: 'F[0].Page_1[0].Veterans_Last_Name[0]',
+                question_text: "1. Veteran's Name. Enter Last Name.",
+                type: 'Text'
               }
             },
+            dateOfBirth: {
+              month: {
+                key: 'F[0].Page_1[0].Date_Of_Birth_Month[0]',
+                question_text: '4. Date of Birth. Enter 2 digit Month.  ',
+                type: 'Text'
+              },
+              day: {
+                key: 'F[0].Page_1[0].Date_Of_Birth_Day[0]',
+                question_text: '4. Date of Birth. Enter 2 digit day.',
+                type: 'Text'
+              },
+              year: {
+                key: 'F[0].Page_1[0].Date_Of_Birth_Year[0]',
+                question_text: '4. Date of Birth. Enter 4 digit year.',
+                type: 'Text'
+              }
+            },
+            veteranId: {
+              ssn: {
+                first: {
+                  key: 'F[0].Page_1[0].Social_Security_Number_FirstThreeNumbers[0]',
+                  question_text: '2. Social Security Number. Enter First Three Digits.',
+                  type: 'Text'
+                },
+                second: {
+                  key: 'F[0].Page_1[0].Social_Security_Number_SecondTwoNumbers[0]',
+                  question_text: '2. Social Security Number. Enter middle 2 digits.',
+                  type: 'Text'
+                },
+                third: {
+                  key: 'F[0].Page_1[0].Social_Security_Number_LastFourNumbers[0]',
+                  question_text: '2. Social Security Number. Enter Last Four Digits.',
+                  type: 'Text'
+                }
+              },
+              vaFileNumber: {
+                key: 'F[0].Page_1[0].VA_File_Number[0]',
+                question_text: '3. V. A. File Number ',
+                type: 'Text'
+              }
+            }
+          },
           claimantInformation: {
             fullName: {
               first: {
