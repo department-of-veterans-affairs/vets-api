@@ -255,6 +255,37 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to eq([])
       end
     end
+
+    context 'with isTrackable field' do
+      it 'uses isTrackable field from Vista data when true' do
+        medication_trackable_no_data = base_vista_medication.merge('isTrackable' => true)
+        result = subject.parse(medication_trackable_no_data)
+        expect(result.is_trackable).to be(true)
+        expect(result.tracking).to eq([])
+      end
+
+      it 'uses isTrackable field from Vista data when false' do
+        medication_not_trackable_with_data = base_vista_medication.merge(
+          'isTrackable' => false,
+          'trackingInfo' => [
+            {
+              'trackingNumber' => '1Z999AA1012345675',
+              'shippedDate' => 'Wed, 07 Sep 2016 00:00:00 EDT',
+              'deliveryService' => 'UPS'
+            }
+          ]
+        )
+        result = subject.parse(medication_not_trackable_with_data)
+        expect(result.is_trackable).to be(false)
+        expect(result.tracking.length).to eq(1)
+      end
+
+      it 'defaults to false when isTrackable is nil' do
+        medication_nil_trackable = base_vista_medication.except('isTrackable')
+        result = subject.parse(medication_nil_trackable)
+        expect(result.is_trackable).to be(false)
+      end
+    end
   end
 
   describe '#format_shipped_date' do
