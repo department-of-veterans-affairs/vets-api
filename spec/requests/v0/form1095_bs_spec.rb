@@ -46,7 +46,6 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       # this will be irrelevant after we add the template
       it 'throws 422 when no template exists for requested year' do
-        create(:form1095_b, tax_year: 2018)
         get '/v0/form1095_bs/download_pdf/2018'
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -100,14 +99,12 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       it 'throws 422 when requested year is outside of available years range' do
-        create(:form1095_b, tax_year: 2018)
         get '/v0/form1095_bs/download_txt/2018'
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
       # this will be irrelevant after we add the template
       it 'throws 422 when no template exists for requested year' do
-        create(:form1095_b, tax_year: 2023)
         get '/v0/form1095_bs/download_txt/2023'
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -138,20 +135,21 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         sign_in_as(user)
       end
 
-      it 'returns success with only the most recent tax year form data' do
-        this_year = Date.current.year
-        create(:form1095_b, tax_year: this_year - 1)
-        create(:form1095_b, tax_year: this_year)
-        create(:form1095_b, tax_year: this_year - 2)
-
+      it 'returns success with list of available form years from the past four tax years' do
         VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
                          { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/available_forms'
         end
         expect(response).to have_http_status(:success)
         expect(response.parsed_body.deep_symbolize_keys).to eq(
-          { available_forms: [{ year: 2024,
-                                last_updated: nil }] }
+          { available_forms: [
+            { year: 2021,
+              last_updated: nil },
+            { year: 2022,
+              last_updated: nil },
+            { year: 2024,
+              last_updated: nil }
+          ] }
         )
       end
     end
