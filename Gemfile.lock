@@ -602,7 +602,7 @@ GEM
       builder (>= 2.1.2)
       rexml (~> 3.0)
     hana (1.3.7)
-    hashdiff (1.1.2)
+    hashdiff (1.2.1)
     hashery (2.1.2)
     hashie (5.0.0)
     hexapdf (1.4.1)
