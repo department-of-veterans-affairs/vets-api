@@ -171,7 +171,6 @@ RSpec.describe BGS::DependentService do
           allow(BGS::SubmitForm686cJob).to receive(:perform_async).and_raise(StandardError,
                                                                              'Test error')
 
-
           expect(service).to receive(:log_exception_to_sentry)
 
           expect do
@@ -211,7 +210,6 @@ RSpec.describe BGS::DependentService do
 
     it 'calls find_person_by_participant_id' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
 
@@ -222,7 +220,6 @@ RSpec.describe BGS::DependentService do
     context 'enqueues SubmitForm674Job' do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
             user.uuid, claim.id,
