@@ -18,7 +18,8 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       'prescriptionNumber' => 'RX123',
       'stationNumber' => '660',
       'sig' => 'Take as directed',
-      'cmopDivisionPhone' => '555-1234'
+      'cmopDivisionPhone' => '555-1234',
+      'dialCmopDivisionPhone' => '555-DIAL-TEST'
     }
   end
 
@@ -81,6 +82,12 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('12345')
         expect(result.prescription_name).to eq('Test Medication')
+      end
+
+      it 'maps dialCmopDivisionPhone field correctly' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.dial_cmop_division_phone).to eq('555-DIAL-TEST')
       end
     end
 
