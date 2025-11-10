@@ -13,7 +13,6 @@ ALLOWLIST = %w[
   claim_id
   class
   code
-  completely_removed
   confirmation_number
   consumer_name
   content_type
@@ -51,7 +50,6 @@ ALLOWLIST = %w[
   qqtotalfilesize
   queue_time
   reason
-  removed_keys
   reply_id
   result
   root
