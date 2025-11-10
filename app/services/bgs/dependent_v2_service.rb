@@ -66,7 +66,7 @@ module BGS
       InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
 
       encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
-      submit_pdf_job(claim:, encrypted_vet_info:)
+      submit_pdf_job(claim:)
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
@@ -139,7 +139,7 @@ module BGS
       @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
     end
 
-    def submit_pdf_job(claim:, encrypted_vet_info:)
+    def submit_pdf_job(claim:)
       @monitor = init_monitor(claim&.id)
       @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                            "#{STATS_KEY}.submit_pdf.begin")
