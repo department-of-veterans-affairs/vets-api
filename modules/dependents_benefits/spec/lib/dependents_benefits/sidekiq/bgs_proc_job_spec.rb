@@ -99,193 +99,185 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
     end
   end
 
-  describe '#handle_job_success' do
-    before do
-      job.instance_variable_set(:@proc_id, proc_id)
-      job.instance_variable_set(:@parent_claim_id, parent_claim.id)
-      allow(job).to receive(:mark_submission_succeeded)
-      allow(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
-      allow(job).to receive(:monitor).and_return(double('monitor', track_submission_error: nil))
-    end
-
-    context 'when success handling succeeds' do
-      it 'marks submission as succeeded and enqueues submissions' do
-        job.handle_job_success
-
-        expect(job).to have_received(:mark_submission_succeeded)
-        expect(DependentsBenefits::ClaimProcessor).to have_received(:enqueue_submissions)
-          .with(parent_claim.id, proc_id)
+  describe 'private methods' do
+    describe '#handle_job_success' do
+      before do
+        job.instance_variable_set(:@proc_id, proc_id)
+        job.instance_variable_set(:@parent_claim_id, parent_claim.id)
+        allow(job).to receive(:mark_submission_succeeded)
+        allow(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
+        allow(job).to receive(:monitor).and_return(double('monitor', track_submission_error: nil))
       end
 
       context 'when success handling succeeds' do
         it 'marks submission as succeeded and enqueues submissions' do
-          job.handle_job_success
+          job.send(:handle_job_success)
 
           expect(job).to have_received(:mark_submission_succeeded)
           expect(DependentsBenefits::ClaimProcessor).to have_received(:enqueue_submissions)
             .with(parent_claim.id, proc_id)
         end
       end
+
+      context 'when success handling fails' do
+        let(:error) { StandardError.new('Success handling error') }
+        let(:monitor) { double('monitor') }
+
+        before do
+          allow(job).to receive(:mark_submission_succeeded).and_raise(error)
+          allow(job).to receive(:monitor).and_return(monitor)
+        end
+
+        it 'tracks the error with monitor' do
+          expect(monitor).to receive(:track_submission_error).with(
+            'Error handling job success',
+            'success_failure',
+            error:
+          )
+
+          job.send(:handle_job_success)
+        end
+      end
     end
 
-    context 'when success handling fails' do
-      let(:error) { StandardError.new('Success handling error') }
-      let(:monitor) { double('monitor') }
+    describe '#find_or_create_form_submission' do
+      let(:submission) { instance_double(BGS::Submission) }
 
       before do
-        allow(job).to receive(:mark_submission_succeeded).and_raise(error)
-        allow(job).to receive(:monitor).and_return(monitor)
+        allow(BGS::Submission).to receive(:find_or_create_by).and_return(submission)
       end
 
-      it 'tracks the error with monitor' do
-        expect(monitor).to receive(:track_submission_error).with(
-          'Error handling job success',
-          'success_failure',
-          error:
+      it 'finds or creates BGS submission with form 686C-674' do
+        result = job.send(:find_or_create_form_submission)
+
+        expect(BGS::Submission).to have_received(:find_or_create_by).with(
+          form_id: '686C-674',
+          saved_claim_id: parent_claim.id
         )
+        expect(result).to eq(submission)
+      end
 
-        job.handle_job_success
+      it 'memoizes the submission' do
+        job.send(:find_or_create_form_submission)
+        job.send(:find_or_create_form_submission)
+
+        expect(BGS::Submission).to have_received(:find_or_create_by).once
       end
     end
-  end
 
-  describe '#find_or_create_form_submission' do
-    let(:submission) { instance_double(BGS::Submission) }
+    describe '#create_form_submission_attempt' do
+      let(:submission) { instance_double(BGS::Submission) }
+      let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
 
-    before do
-      allow(BGS::Submission).to receive(:find_or_create_by).and_return(submission)
-    end
-
-    it 'finds or creates BGS submission with form 686C-674' do
-      result = job.find_or_create_form_submission
-
-      expect(BGS::Submission).to have_received(:find_or_create_by).with(
-        form_id: '686C-674',
-        saved_claim_id: parent_claim.id
-      )
-      expect(result).to eq(submission)
-    end
-
-    it 'memoizes the submission' do
-      job.find_or_create_form_submission
-      job.find_or_create_form_submission
-
-      expect(BGS::Submission).to have_received(:find_or_create_by).once
-    end
-  end
-
-  describe '#create_form_submission_attempt' do
-    let(:submission) { instance_double(BGS::Submission) }
-    let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
-
-    before do
-      allow(job).to receive(:submission).and_return(submission)
-      allow(BGS::SubmissionAttempt).to receive(:create).and_return(submission_attempt)
-    end
-
-    it 'creates submission attempt linked to submission' do
-      result = job.create_form_submission_attempt
-
-      expect(BGS::SubmissionAttempt).to have_received(:create).with(submission:)
-      expect(result).to eq(submission_attempt)
-    end
-
-    it 'memoizes the submission attempt' do
-      job.create_form_submission_attempt
-      job.create_form_submission_attempt
-
-      expect(BGS::SubmissionAttempt).to have_received(:create).once
-    end
-  end
-
-  describe '#mark_submission_succeeded' do
-    let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
-
-    before do
-      allow(job).to receive(:submission_attempt).and_return(submission_attempt)
-      allow(submission_attempt).to receive(:success!)
-    end
-
-    it 'marks submission attempt as successful' do
-      job.mark_submission_succeeded
-
-      expect(submission_attempt).to have_received(:success!)
-    end
-
-    context 'when submission_attempt is nil' do
       before do
-        allow(job).to receive(:submission_attempt).and_return(nil)
+        allow(job).to receive(:submission).and_return(submission)
+        allow(BGS::SubmissionAttempt).to receive(:create).and_return(submission_attempt)
       end
 
-      it 'does not raise error' do
-        expect { job.mark_submission_succeeded }.not_to raise_error
+      it 'creates submission attempt linked to submission' do
+        result = job.send(:create_form_submission_attempt)
+
+        expect(BGS::SubmissionAttempt).to have_received(:create).with(submission:)
+        expect(result).to eq(submission_attempt)
+      end
+
+      it 'memoizes the submission attempt' do
+        job.send(:create_form_submission_attempt)
+        job.send(:create_form_submission_attempt)
+
+        expect(BGS::SubmissionAttempt).to have_received(:create).once
       end
     end
-  end
 
-  describe '#mark_submission_attempt_failed' do
-    let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
-    let(:exception) { StandardError.new('Test error') }
+    describe '#mark_submission_succeeded' do
+      let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
 
-    before do
-      allow(job).to receive(:submission_attempt).and_return(submission_attempt)
-      allow(submission_attempt).to receive(:fail!)
-    end
-
-    it 'marks submission attempt as failed with error details' do
-      job.mark_submission_attempt_failed(exception)
-
-      expect(submission_attempt).to have_received(:fail!).with(error: exception)
-    end
-
-    context 'when submission_attempt is nil' do
       before do
-        allow(job).to receive(:submission_attempt).and_return(nil)
+        allow(job).to receive(:submission_attempt).and_return(submission_attempt)
+        allow(submission_attempt).to receive(:success!)
       end
 
-      it 'does not raise error' do
-        expect { job.mark_submission_attempt_failed(exception) }.not_to raise_error
+      it 'marks submission attempt as successful' do
+        job.send(:mark_submission_succeeded)
+
+        expect(submission_attempt).to have_received(:success!)
+      end
+
+      context 'when submission_attempt is nil' do
+        before do
+          allow(job).to receive(:submission_attempt).and_return(nil)
+        end
+
+        it 'does not raise error' do
+          expect { job.send(:mark_submission_succeeded) }.not_to raise_error
+        end
       end
     end
-  end
 
-  describe '#mark_submission_failed' do
-    it 'is a no-op for BGS submissions' do
-      expect(job.mark_submission_failed(StandardError.new)).to be_nil
-    end
-  end
+    describe '#mark_submission_attempt_failed' do
+      let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
+      let(:exception) { StandardError.new('Test error') }
 
-  describe 'memoization methods' do
-    let(:submission) { instance_double(BGS::Submission) }
-    let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
-
-    describe '#submission' do
       before do
-        allow(job).to receive(:find_or_create_form_submission).and_return(submission)
+        allow(job).to receive(:submission_attempt).and_return(submission_attempt)
+        allow(submission_attempt).to receive(:fail!)
       end
 
-      it 'delegates to find_or_create_form_submission and memoizes' do
-        result1 = job.submission
-        result2 = job.submission
+      it 'marks submission attempt as failed with error details' do
+        job.send(:mark_submission_attempt_failed, exception)
 
-        expect(job).to have_received(:find_or_create_form_submission).once
-        expect(result1).to eq(submission)
-        expect(result2).to eq(submission)
+        expect(submission_attempt).to have_received(:fail!).with(error: exception)
+      end
+
+      context 'when submission_attempt is nil' do
+        before do
+          allow(job).to receive(:submission_attempt).and_return(nil)
+        end
+
+        it 'does not raise error' do
+          expect { job.send(:mark_submission_attempt_failed, exception) }.not_to raise_error
+        end
       end
     end
 
-    describe '#submission_attempt' do
-      before do
-        allow(job).to receive(:create_form_submission_attempt).and_return(submission_attempt)
+    describe '#mark_submission_failed' do
+      it 'is a no-op for BGS submissions' do
+        expect(job.send(:mark_submission_failed, StandardError.new)).to be_nil
+      end
+    end
+
+    describe 'memoization methods' do
+      let(:submission) { instance_double(BGS::Submission) }
+      let(:submission_attempt) { instance_double(BGS::SubmissionAttempt) }
+
+      describe '#submission' do
+        before do
+          allow(job).to receive(:find_or_create_form_submission).and_return(submission)
+        end
+
+        it 'delegates to find_or_create_form_submission and memoizes' do
+          result1 = job.send(:submission)
+          result2 = job.send(:submission)
+
+          expect(job).to have_received(:find_or_create_form_submission).once
+          expect(result1).to eq(submission)
+          expect(result2).to eq(submission)
+        end
       end
 
-      it 'delegates to create_form_submission_attempt and memoizes' do
-        result1 = job.submission_attempt
-        result2 = job.submission_attempt
+      describe '#submission_attempt' do
+        before do
+          allow(job).to receive(:create_form_submission_attempt).and_return(submission_attempt)
+        end
 
-        expect(job).to have_received(:create_form_submission_attempt).once
-        expect(result1).to eq(submission_attempt)
-        expect(result2).to eq(submission_attempt)
+        it 'delegates to create_form_submission_attempt and memoizes' do
+          result1 = job.send(:submission_attempt)
+          result2 = job.send(:submission_attempt)
+
+          expect(job).to have_received(:create_form_submission_attempt).once
+          expect(result1).to eq(submission_attempt)
+          expect(result2).to eq(submission_attempt)
+        end
       end
     end
   end
