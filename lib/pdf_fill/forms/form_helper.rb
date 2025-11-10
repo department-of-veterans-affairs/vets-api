@@ -137,7 +137,7 @@ module PdfFill
         {
           thousands: reverse_dollars[1]&.reverse&.rjust(3),
           ones: reverse_dollars[0]&.reverse&.rjust(3),
-          cents:
+          cents: cents || '00'
         }
       end
 

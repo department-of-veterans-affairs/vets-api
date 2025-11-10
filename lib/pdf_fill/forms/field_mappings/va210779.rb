@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-# PdfFill::Forms::FieldMappings::Va210779::KEY
 module PdfFill
   module Forms
     module FieldMappings
       class Va210779
-        include FormHelper
-
         KEY = {
           veteranInformation:
            {

@@ -33,9 +33,11 @@ module V0
 
     def download_pdf
       claim = SavedClaim::Form210779.find_by(guid: params[:guid])
+      raise ActiveRecord::RecordNotFound unless claim
+
       source_file_path = claim.to_pdf
 
-      send_data File.read(source_file_path),
+      send_file source_file_path,
                 filename: "21-0779_#{SecureRandom.uuid}.pdf",
                 type: 'application/pdf',
                 disposition: 'attachment'

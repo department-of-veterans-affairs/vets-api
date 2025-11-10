@@ -18,7 +18,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
   describe 'POST #create' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:form_07790_enabled).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:form_07790_enabled, nil).and_return(true)
     end
 
     it 'returns expected response structure' do
@@ -65,6 +65,10 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     context 'when feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false)
+      end
+
+      after do
+        allow(Flipper).to receive(:enabled?).with(:form_07790_enabled, nil).and_return(true)
       end
 
       it 'returns 404 Not Found (routing error)' do

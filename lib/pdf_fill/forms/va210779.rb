@@ -25,20 +25,31 @@ module PdfFill
 
       def reformat_vet_info
         vet_info = @form_data['veteranInformation']
-        vet_info['dateOfBirth'] = split_date(vet_info['dateOfBirth'])
-        vet_info['veteranId']['ssn'] = split_ssn(vet_info.dig('veteranId', 'ssn'))
+        return unless vet_info
+
+        vet_info['dateOfBirth'] = split_date(vet_info['dateOfBirth']) if vet_info['dateOfBirth'].present?
+        vet_ssn = vet_info.dig('veteranId', 'ssn')
+        vet_info['veteranId']['ssn'] = split_ssn(vet_ssn) if vet_ssn.present?
       end
 
       def reformat_claimant_info
         claimant_info = @form_data['claimantInformation']
-        claimant_info['dateOfBirth'] = split_date(claimant_info['dateOfBirth'])
-        claimant_info['veteranId']['ssn'] = split_ssn(claimant_info.dig('veteranId', 'ssn'))
+
+        if claimant_info['dateOfBirth'].present?
+          claimant_info['dateOfBirth'] =
+            split_date(claimant_info['dateOfBirth'])
+        end
+        claimant_ssn = claimant_info.dig('veteranId', 'ssn')
+        claimant_info['veteranId']['ssn'] = split_ssn(claimant_ssn) if claimant_ssn
       end
 
       def reformat_nursing_home_info
         nh_info = @form_data['nursingHomeInformation']
-        nh_info['dateOfBirth'] = split_date(nh_info['dateOfBirth'])
-        nh_info['nursingHomeAddress']['postalCode'] = split_postal_code(nh_info['nursingHomeAddress'])
+        nh_info['dateOfBirth'] = split_date(nh_info['dateOfBirth']) if nh_info['dateOfBirth'].present?
+        if nh_info['nursingHomeAddress'].present?
+          nh_info['nursingHomeAddress']['postalCode'] =
+            split_postal_code(nh_info['nursingHomeAddress'])
+        end
       end
 
       def reformat_general_info

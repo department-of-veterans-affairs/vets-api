@@ -21,6 +21,10 @@ describe PdfFill::Forms::FormHelper do
       expect(including_class.new.split_currency_string('')).to be_nil
     end
 
+    it 'returns ones without cents' do
+      expect(including_class.new.split_currency_string('123')).to eq({ thousands: nil, ones: '123', cents: '00' })
+    end
+
     it 'returns cents' do
       expect(including_class.new.split_currency_string('.00')).to eq({ thousands: nil, ones: nil, cents: '00' })
     end

@@ -4,7 +4,7 @@ class SavedClaim::Form210779 < SavedClaim
   FORM = '21-0779'
 
   def process_attachments!
-    # Form 21-0779 does not support attachments in MVP
+    # Form 21-0779 does not support user-uploaded attachments in MVP
     Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
   end
 
@@ -14,8 +14,10 @@ class SavedClaim::Form210779 < SavedClaim
     'CMP'
   end
 
+  # VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance
+  # see LighthouseDocument::DOCUMENT_TYPES
   def document_type
-    119 # VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance
+    222
   end
 
   def send_confirmation_email

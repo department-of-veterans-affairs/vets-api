@@ -35,7 +35,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::RecordNotFoundError
 
-          key :description, 'Download a the submitted 21-0779 PDF form'
+          key :description, 'Download the submitted 21-0779 PDF form'
           key :operationId, 'downloadForm210779Pdf'
           key :tags, %w[benefits_forms]
           key :produces, ['application/pdf', 'application/json']

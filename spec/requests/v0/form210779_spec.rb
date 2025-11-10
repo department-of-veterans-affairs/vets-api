@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Form210889', type: :request do
+RSpec.describe 'V0::Form210779', type: :request do
   let(:form_data) { VetsJsonSchema::EXAMPLES['21-0779'].to_json }
 
-  context 'while inflection header provided' do
-    it 'returns an success' do
+  context 'when inflection header provided' do
+    it 'returns a success' do
       post(
         '/v0/form210779',
         params: form_data,
