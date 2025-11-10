@@ -287,6 +287,10 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
     let(:user_services) { Mobile::V0::UserAccessibleServices.new(user, request) }
     let(:request) { double('request', headers: { 'App-Version' => app_version }) }
 
+    before do
+      allow(Settings.vahb.version_requirement).to receive(:allergies_oracle_health).and_return('3.0.0')
+    end
+
     context 'when app version meets minimum requirement' do
       let(:app_version) { '5.0.0' }
 
