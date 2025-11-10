@@ -27,6 +27,7 @@ module UnifiedHealthData
     attribute :facility_phone_number, String
     attribute :prescription_source, String
     attribute :category, Array, default: []
+    attribute :provider_name, String
 
     # Method aliases to match serializer expectations
     def prescription_id

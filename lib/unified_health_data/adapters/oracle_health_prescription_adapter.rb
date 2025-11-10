@@ -60,7 +60,8 @@ module UnifiedHealthData
           instructions: extract_instructions(resource),
           facility_phone_number: extract_facility_phone_number(resource),
           prescription_source: extract_prescription_source(resource),
-          category: extract_category(resource)
+          category: extract_category(resource),
+          provider_name: extract_provider_name(resource)
         }
       end
 
@@ -266,6 +267,10 @@ module UnifiedHealthData
         end
 
         codes
+      end
+
+      def extract_provider_name(resource)
+        resource.dig('requester', 'display')
       end
 
       def non_va_med?(resource)

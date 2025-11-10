@@ -57,7 +57,8 @@ module UnifiedHealthData
         {
           instructions: medication['sig'],
           facility_phone_number: medication['cmopDivisionPhone'],
-          prescription_source: medication['prescriptionSource']
+          prescription_source: medication['prescriptionSource'],
+          provider_name: build_provider_name(medication)
         }
       end
 
@@ -103,6 +104,15 @@ module UnifiedHealthData
       rescue ArgumentError => e
         Rails.logger.warn("Failed to parse #{field_name} '#{date_string}': #{e.message}")
         date_string
+      end
+
+      def build_provider_name(medication)
+        last_name = medication['providerLastName']
+        first_name = medication['providerFirstName']
+        
+        return nil if last_name.blank? && first_name.blank?
+        
+        [last_name, first_name].compact.join(', ')
       end
     end
   end
