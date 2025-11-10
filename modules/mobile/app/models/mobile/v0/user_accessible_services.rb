@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../../config/initializers/app_version_requirements'
-
 module Mobile
   module V0
     class UserAccessibleServices
@@ -24,7 +22,7 @@ module Mobile
         @service_auth_map ||= {
           allergiesOracleHealthEnabled: versioned_flagged_access?(%i[mhv_accelerated_delivery_allergies_enabled
                                                                      mhv_accelerated_delivery_uhd_enabled],
-                                                                  :allergiesOracleHealth),
+                                                                  :allergies_oracle_health),
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
           claims: access?(lighthouse: :access?),
@@ -35,12 +33,12 @@ module Mobile
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           labsAndTestsEnabled: versioned_flagged_access?(%i[mhv_accelerated_delivery_labs_and_tests_enabled
                                                             mhv_accelerated_delivery_uhd_enabled],
-                                                         :labsOracleHealth),
+                                                         :labs_oracle_health),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
           medicationsOracleHealthEnabled: versioned_flagged_access?(%i[mhv_medications_cerner_pilot
                                                                        mhv_accelerated_delivery_uhd_enabled],
-                                                                    :medicationsOracleHealth),
+                                                                    :medications_oracle_health),
           paymentHistory: access?(bgs: :access?),
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
@@ -56,7 +54,7 @@ module Mobile
       # Returns true if the provided app version meets or exceeds the minimum required version for the feature
       def min_version?(feature)
         app_version = @request&.headers&.[]('App-Version')
-        required_version = Mobile::APP_VERSION_REQUIREMENTS[feature]
+        required_version = Settings.vahb.version_requirement[feature]
 
         # Treat missing versions as an old version
         return false if app_version.nil? || required_version.nil?
