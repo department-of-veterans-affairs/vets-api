@@ -60,7 +60,8 @@ module UnifiedHealthData
           instructions: extract_instructions(resource),
           facility_phone_number: extract_facility_phone_number(resource),
           prescription_source: extract_prescription_source(resource),
-          category: extract_category(resource)
+          category: extract_category(resource),
+          indication_for_use: extract_indication_for_use(resource)
         }
       end
 
@@ -266,6 +267,17 @@ module UnifiedHealthData
         end
 
         codes
+      end
+
+      def extract_indication_for_use(resource)
+        # Extract indication from FHIR MedicationRequest.reasonCode
+        reason_codes = resource['reasonCode'] || []
+        return nil if reason_codes.empty?
+
+        # reasonCode is an array of CodeableConcept objects
+        # Use the text field from the first reasonCode entry
+        first_reason = reason_codes.first
+        first_reason['text']
       end
 
       def non_va_med?(resource)

@@ -84,6 +84,26 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       end
     end
 
+    context 'with indication for use' do
+      let(:vista_medication_with_indication) do
+        base_vista_medication.merge('indicationForUse' => 'For blood pressure management')
+      end
+
+      it 'extracts the indication for use field' do
+        result = subject.parse(vista_medication_with_indication)
+
+        expect(result.indication_for_use).to eq('For blood pressure management')
+      end
+    end
+
+    context 'without indication for use' do
+      it 'sets indication_for_use to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.indication_for_use).to be_nil
+      end
+    end
+
     context 'when medication includes RFC1123 date fields' do
       it 'converts them to ISO 8601 strings' do
         result = subject.parse(vista_medication_with_tracking)
