@@ -13,7 +13,13 @@ module SSOe
 
     STATSD_KEY_PREFIX = 'api.ssoe'
 
-    # rubocop:disable Metrics/MethodLength
+    CONNECTION_ERRORS = [
+      Faraday::ConnectionFailed,
+      Faraday::TimeoutError,
+      Common::Exceptions::GatewayTimeout,
+      Breakers::OutageException
+    ].freeze
+
     def get_traits(credential_method:, credential_id:, user:, address:)
       with_monitoring do
         raw_response = perform(
@@ -25,29 +31,16 @@ module SSOe
         parse_response(raw_response.body)
       end
     rescue Common::Client::Errors::ClientError => e
-      error_response(e, SSOe::Errors::RequestError, :client)
-    rescue Faraday::ConnectionFailed => e
-      error_response(e, SSOe::Errors::ConnectionError, :connection)
-    rescue Faraday::TimeoutError => e
-      error_response(e, SSOe::Errors::TimeoutError, :timeout)
-    rescue Common::Exceptions::GatewayTimeout => e
-      error_response(e, SSOe::Errors::TimeoutError, :gateway_timeout)
-    rescue Breakers::OutageException => e
-      error_response(e, SSOe::Errors::ConnectionError, :outage)
+      raise SSOe::Errors::RequestError, "[SSOe][Service] #{e.class} - #{e.message}"
+    rescue *CONNECTION_ERRORS => e
+      raise SSOe::Errors::ServerError, "[SSOe][Service] #{e.class} - #{e.message}"
+    rescue SSOe::Errors::Error
+      raise
     rescue => e
-      error_response(e, SSOe::Errors::UnknownError, :unknown)
+      raise SSOe::Errors::Error, "[SSOe][Service] #{e.class} - #{e.message}"
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
-
-    def error_response(original_error, error_class, type)
-      Rails.logger.error(
-        "[SSOe::Service::get_traits] #{type} error: #{original_error.class} - #{original_error.message}"
-      )
-
-      raise error_class, "[SSOe][Service] #{type.to_s.capitalize} error - #{original_error.message}"
-    end
 
     def build_message(credential_method, credential_id, user, address)
       SSOe::GetSSOeTraitsByCspidMessage.new(
@@ -68,18 +61,22 @@ module SSOe
 
     def parse_response(response_body)
       parsed = Hash.from_xml(Ox.dump(response_body))
-      icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
 
+      check_for_fault(parsed)
+
+      icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
       return { success: true, icn: } if icn.present?
 
-      if parsed.dig('Envelope', 'Body', 'Fault')
-        fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
-        fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
+      raise SSOe::Errors::ParsingError, '[SSOe][Service] Unable to parse SOAP response'
+    end
 
-        raise SSOe::Errors::SOAPFaultError, "[SSOe][Service] SOAP Fault - #{fault_string} (Code: #{fault_code})"
-      end
+    def check_for_fault(parsed)
+      return unless parsed.dig('Envelope', 'Body', 'Fault')
 
-      raise SSOe::Errors::SOAPParseError, '[SSOe][Service] Unable to parse SOAP response'
+      fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
+      fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
+
+      raise SSOe::Errors::ParsingError, "[SSOe][Service] SOAP Fault - #{fault_string} (Code: #{fault_code})"
     end
   end
 end

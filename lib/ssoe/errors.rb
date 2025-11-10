@@ -2,11 +2,9 @@
 
 module SSOe
   module Errors
-    class SOAPParseError < StandardError; end
-    class SOAPFaultError < StandardError; end
-    class RequestError < StandardError; end
-    class ConnectionError < StandardError; end
-    class TimeoutError < StandardError; end
-    class UnknownError < StandardError; end
+    class Error < StandardError; end
+    class RequestError < Error; end
+    class ServerError < Error; end
+    class ParsingError < Error; end
   end
 end
