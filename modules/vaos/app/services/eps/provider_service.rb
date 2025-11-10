@@ -187,7 +187,8 @@ module Eps
         method: method_name,
         service: 'eps_provider_service',
         controller: controller_name,
-        station_number:
+        station_number:,
+        eps_trace_id:
       }
       log_data[:user_uuid] = @user.uuid if @user&.uuid
 
@@ -347,7 +348,8 @@ module Eps
           specialty_matches_count: specialty_matches.size,
           user_uuid: @current_user&.uuid,
           controller: controller_name,
-          station_number:
+          station_number:,
+          eps_trace_id:
         }
         message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI"
         Rails.logger.warn(message, warn_data)
@@ -372,7 +374,8 @@ module Eps
         timeout_seconds:,
         user_uuid: @current_user&.uuid,
         controller: controller_name,
-        station_number:
+        station_number:,
+        eps_trace_id:
       }
       Rails.logger.error("#{CC_APPOINTMENTS}: Provider slots pagination timeout", error_data)
       raise Common::Exceptions::BackendServiceException.new(
@@ -443,7 +446,8 @@ module Eps
           zip_matches:,
           provider_address:,
           referral_address: "#{address[:street1]}, #{address[:zip]}",
-          user_uuid: @current_user&.uuid
+          user_uuid: @current_user&.uuid,
+          eps_trace_id:
         }
         Rails.logger.warn("#{CC_APPOINTMENTS}: Provider address partial match", warn_data)
       end
