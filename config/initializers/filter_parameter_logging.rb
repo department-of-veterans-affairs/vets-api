@@ -17,7 +17,6 @@ ALLOWLIST = %w[
   confirmation_number
   consumer_name
   content_type
-  context
   controller
   cookie_id
   document_id
@@ -34,7 +33,6 @@ ALLOWLIST = %w[
   folder_id
   form_id
   from_date
-  function
   grant_type
   id
   ids
