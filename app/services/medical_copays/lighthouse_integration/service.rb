@@ -13,7 +13,6 @@ module MedicalCopays
         raw_invoices = invoice_service.list(count:, page:)
         entries = raw_invoices['entry'].map do |entry|
           ::Lighthouse::HCC::Invoice.new(entry)
-          binding.pry
         end
 
         Lighthouse::HCC::Bundle.new(raw_invoices, entries)
