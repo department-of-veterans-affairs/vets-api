@@ -6,10 +6,12 @@ module Lighthouse
       include Vets::Model
       attribute :external_id, String
       attribute :facility, String
-      attribute :billing_ref, Array
+      attribute :latest_billing_ref, String
       attribute :current_balance, Float
       attribute :previous_balance, String
       attribute :previous_unpaid_balance, String
+      attribute :last_updated_at, String
+      attribute :last_credit_debit, Float
       attribute :url, String
 
       def initialize(params)
@@ -19,12 +21,9 @@ module Lighthouse
 
       def assign_attributes
         @facility = @params['resource']['issuer']['display']
-        # Seems like we need to maybe make a collection for latest charges where this
-        # attribute is mentioned in the mapping doc we made
-        # We are just ripping this code for now
-        @billing_ref = @params['resource']['lineItem'].map do |li|
-          li['chargeItemReference']['reference'].split('/').last
-        end
+        @latest_billing_ref = @params['resource']['lineItem'].first['chargeItemReference']['reference'].split('/').last
+        @last_updated_at = @params['resource']['meta']['lastUpdated']
+        @last_credit_debit = @params['resource']['lineItem'].first['priceComponent'].first['amount']['value']
         @current_balance = @params['resource']['totalPriceComponent'].map do |tpc|
           next if tpc['type'] == 'informational'
 
