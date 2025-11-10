@@ -1,18 +1,15 @@
 # frozen_string_literal: true
-require "uri"
-require "cgi"
 
 module Lighthouse
   module HCC
     class Bundle
       include Vets::Model
 
-      # declare if you want them exposed to serializers, but we'll just set ivars
-      attribute :entries, Array
-      attribute :links, Hash
-      attribute :meta, Hash
-      attribute :total, Integer
-      attribute :page, Integer
+      attribute :entries,  Array
+      attribute :links,    Hash
+      attribute :meta,     Hash
+      attribute :total,    Integer
+      attribute :page,     Integer
       attribute :per_page, Integer
 
       def initialize(bundle_hash, entries)
@@ -27,35 +24,47 @@ module Lighthouse
 
       private
 
+      # ---------- LINK REWRITE ----------
+
       def build_links
-        rels = (@bundle['link']).index_by { |l| l['relation'] }
-        links = {
-          self:  rels['self']&.dig('url'),
-          first: rels['first']&.dig('url'),
-          prev:  (rels['previous'] || rels['prev'])&.dig('url'),
-          next:  rels['next']&.dig('url'),
-          last:  rels['last']&.dig('url')
+        raw_links = @bundle['link']
+        return {} if raw_links.empty?
+
+        relations = raw_links.index_by { |l| l['relation'] }
+
+        lh_links = {
+          self: relations['self']&.dig('url'),
+          first: relations['first']&.dig('url'),
+          prev: (relations['previous'] || relations['prev'])&.dig('url'),
+          next: relations['next']&.dig('url'),
+          last: relations['last']&.dig('url')
         }.compact
 
-        return links unless @link_builder # keep LH links if no builder provided
+        lh_links.transform_values { |u| rewrite_to_vets_api(u) }.compact
+      end
 
-        # Rewrite to YOUR API using page + size from each LH link
-        links.transform_values do |lh_url|
-          qs   = CGI.parse(URI(lh_url).query.to_s)
-          page = (qs['page']&.first || 1).to_i
-          size = (qs['_count']&.first || @per_page || 50).to_i
-          @link_builder.call(page, size)
-        end
+      def rewrite_to_vets_api(lh_url)
+        uri = URI(lh_url)
+        base = URI(api_base_uri)
+
+        uri.scheme = base.scheme
+        uri.host = base.host
+        uri.port = base.port
+        uri.to_s
+      end
+
+      def api_base_uri
+        "#{Rails.application.config.protocol}://#{Rails.application.config.hostname}"
       end
 
       def build_meta
-        self_url = @links[:self]
-        query_string = self_url ? CGI.parse(URI(self_url).query.to_s) : {}
+        relations = @bundle['link'].index_by { |l| l['relation'] }
+        self_url = relations['self']&.dig('url')
 
         {
-          total: (@bundle['total'] || 0).to_i,
-          page: (query_string['page']&.first).to_i,
-          per_page: (query_string['_count']&.first).to_i
+          total: @bundle['total'].to_i,
+          page: self_url['page']&.first.to_i,
+          per_page: self_url['_count']&.first.to_i
         }
       end
     end
