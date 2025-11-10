@@ -21,6 +21,7 @@ module PdfFill
                    'smp' => 2 }.freeze
 
       def merge_fields(_options = {})
+        transform_country_codes
         expand_veteran_ssn
         split_claimant_postal_code
         split_dates
@@ -35,6 +36,22 @@ module PdfFill
       end
 
       private
+
+      def transform_country_codes
+        # Transform claimant address country code from 3-char to 2-char
+        claimant_address = @form_data.dig('claimantInformation', 'address')
+        if claimant_address&.key?('country')
+          transformed = extract_country(claimant_address)
+          claimant_address['country'] = transformed if transformed
+        end
+
+        # Transform hospital address country code from 3-char to 2-char
+        hospital_address = @form_data.dig('additionalInformation', 'hospitalAddress')
+        if hospital_address&.key?('country')
+          transformed = extract_country(hospital_address)
+          hospital_address['country'] = transformed if transformed
+        end
+      end
 
       # TODO: review everything below here for nil checks
       def relationship

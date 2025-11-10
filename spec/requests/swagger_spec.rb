@@ -2779,7 +2779,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             :post,
             '/v0/form212680/download_pdf',
             422,
-            headers.merge('_data' => { 'form' => { foo: :bar } })
+            headers.merge('_data' => { 'form' => { foo: :bar } }.to_json)
           )
         end
 
