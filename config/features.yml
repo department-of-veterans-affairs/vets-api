@@ -143,7 +143,6 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
-    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -678,6 +677,9 @@ features:
   decision_review_stuck_records_monitoring:
     actor_type: user
     description: Enables monitoring for stuck records in decision review applications
+  decision_review_sc_redesign_nov2025:
+    actor_type: user
+    description: Enables the Nov 2025 Supplemental Claims redesign
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
