@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../../config/initializers/app_version_requirements'
-
 module Mobile
   module V0
     class UserAccessibleServices
@@ -56,7 +54,7 @@ module Mobile
       # Returns true if the provided app version meets or exceeds the minimum required version for the feature
       def min_version?(feature)
         app_version = @request&.headers&.[]('App-Version')
-        required_version = Mobile::APP_VERSION_REQUIREMENTS[feature]
+        required_version = version_requirement_for(feature)
 
         # Treat missing versions as an old version
         return false if app_version.nil? || required_version.nil?
@@ -73,6 +71,17 @@ module Mobile
       # Returns true if the feature flag is enabled for the user and the app version meets the minimum requirement
       def versioned_flagged_access?(flag_names, feature)
         flag_names.all? { |flag_name| Flipper.enabled?(flag_name, @user) } && min_version?(feature)
+      end
+
+      def version_requirement_for(feature)
+        case feature
+        when :allergiesOracleHealth
+          Settings.vahb.version_requirement.allergies_oracle_health
+        when :medicationsOracleHealth
+          Settings.vahb.version_requirement.medications_oracle_health
+        when :labsOracleHealth
+          Settings.vahb.version_requirement.labs_oracle_health
+        end
       end
 
       def flagged_access?(flag_name, flag_on_policy, flag_off_policy)
