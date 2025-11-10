@@ -798,7 +798,7 @@ For general vets-api patterns and guidelines, see:
 
 ---
 
-## � OpenAPI Documentation
+## 📄 OpenAPI Documentation
 
 ### Location and Structure
 
