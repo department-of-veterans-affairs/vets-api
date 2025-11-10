@@ -245,7 +245,7 @@ module UnifiedHealthData
       end
 
       def extract_prescription_source(resource)
-        non_va_med?(resource) ? 'NV' : ''
+        non_va_med?(resource) ? 'NV' : 'VA'
       end
 
       def extract_category(resource)

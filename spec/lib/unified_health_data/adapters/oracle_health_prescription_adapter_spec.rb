@@ -51,9 +51,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'with reportedBoolean false' do
       let(:not_reported_resource) { base_resource.merge('reportedBoolean' => false) }
 
-      it 'returns prescription object for non-reported medications' do
+      it 'returns prescription source VA for VA medications' do
         result = subject.parse(not_reported_resource)
-        expect(result.prescription_source).to eq('')
+        expect(result.prescription_source).to eq('VA')
       end
     end
 
@@ -93,9 +93,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
   describe '#extract_prescription_source' do
     context 'with reportedBoolean nil' do
-      it 'returns empty string for default VA medications' do
+      it 'returns VA for default VA medications' do
         result = subject.send(:extract_prescription_source, base_resource)
-        expect(result).to eq('')
+        expect(result).to eq('VA')
       end
     end
   end
