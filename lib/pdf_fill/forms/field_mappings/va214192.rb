@@ -107,7 +107,7 @@ module PdfFill
                 limit: 4
               }
             },
-            'amountEarnedLast12Months' => {
+            'amountEarnedLast12MonthsOfEmployment' => {
               'thousands' => {
                 key: 'F[0].Page_1[0].ThousandsDollarAmount[0]',
                 limit: 3
@@ -265,7 +265,7 @@ module PdfFill
               key: 'F[0].#subform[1].TYPEOFBENEFIT[1]'
             }
           },
-          'employerCertification' => {
+          'certification' => {
             'certificationDate' => {
               key: 'F[0].#subform[1].DateSigned[0]'
             },

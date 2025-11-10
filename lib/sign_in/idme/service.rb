@@ -22,12 +22,15 @@ module SignIn
         super()
       end
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1, operation: Constants::Auth::AUTHORIZE)
-        scoped_acr = append_optional_scopes(acr)
+      def render_auth(state: SecureRandom.hex,
+                      acr: { acr: Constants::Auth::IDME_LOA1 },
+                      operation: Constants::Auth::AUTHORIZE)
+        scoped_acr = append_optional_scopes(acr[:acr])
         Rails.logger.info('[SignIn][Idme][Service] Rendering auth, ' \
                           "state: #{state}, acr: #{scoped_acr}, operation: #{operation}")
 
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(scoped_acr, state, operation)).perform
+        RedirectUrlGenerator.new(redirect_uri: auth_url,
+                                 params_hash: auth_params(scoped_acr, acr[:acr_comparison], state, operation)).perform
       end
 
       def normalized_attributes(user_info, credential_level)
@@ -40,8 +43,9 @@ module SignIn
                        mhv_attributes(user_info)
                      end
 
-        digest = credential_attributes_digest(attributes)
-        attributes.merge(standard_attributes(user_info, credential_level)).merge(digest:)
+        attributes.merge(standard_attributes(user_info, credential_level)).tap do |attrs|
+          attrs[:digest] = credential_attributes_digest(attrs)
+        end
       end
 
       def token(code)
@@ -64,15 +68,20 @@ module SignIn
 
       private
 
-      def auth_params(acr, state, operation)
+      def auth_params(acr, acr_comparison, state, operation)
         {
           scope: acr,
           state:,
           client_id: config.client_id,
           redirect_uri: config.redirect_uri,
           response_type: config.response_type,
+          acr_values: format_acr_comparison(acr_comparison),
           op: convert_operation(operation)
         }.compact
+      end
+
+      def format_acr_comparison(acr_comparison)
+        acr_comparison ? "#{acr_comparison} #{Constants::Auth::IDME_LOA1}" : nil
       end
 
       def convert_operation(operation)

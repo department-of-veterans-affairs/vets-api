@@ -47,10 +47,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/fhir_client.git
-  revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
-  tag: v6.0.0
+  revision: 81d0c0c98f317e7ad25c8211011d81f52d6e31a2
+  tag: v6.1.0
   specs:
-    fhir_client (6.0.0)
+    fhir_client (6.1.0)
       activesupport (>= 3)
       addressable (>= 2.3)
       fhir_dstu2_models (>= 1.1.1)
@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 0a3ddc2b647869ba38d0dcae2886a729b7dde13d
+  revision: 40ba7a29e498c7a98756d8934d578b89917d6244
   branch: master
   specs:
-    vets_json_schema (25.2.15)
+    vets_json_schema (25.2.21)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -123,6 +123,8 @@ PATH
     pensions (0.1.0)
     representation_management (0.1.0)
     simple_forms_api (0.1.0)
+    sob (0.1.0)
+    survivors_benefits (0.1.0)
     test_user_dashboard (0.1.0)
       rails
     travel_pay (0.1.0)
@@ -151,7 +153,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (2.0.1)
-    aasm (5.5.1)
+    aasm (5.5.2)
       concurrent-ruby (~> 1.0)
     actioncable (7.2.2.2)
       actionpack (= 7.2.2.2)
@@ -279,7 +281,7 @@ GEM
     base64 (0.3.0)
     bcp47 (0.3.3)
       i18n
-    benchmark (0.4.1)
+    benchmark (0.5.0)
     bigdecimal (3.3.1)
     bigdecimal (3.3.1-java)
     bindex (0.8.1)
@@ -289,7 +291,7 @@ GEM
     blueprinter (1.2.1)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
-    brakeman (7.1.0)
+    brakeman (7.1.1)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -345,7 +347,7 @@ GEM
     coverband (6.1.5)
       base64
       redis (>= 3.0)
-    crack (1.0.0)
+    crack (1.0.1)
       bigdecimal
       rexml
     crass (1.0.6)
@@ -452,7 +454,7 @@ GEM
       railties (>= 6.1.0)
     faker (3.5.2)
       i18n (>= 1.8.11, < 2)
-    faraday (2.13.4)
+    faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -600,7 +602,7 @@ GEM
       builder (>= 2.1.2)
       rexml (~> 3.0)
     hana (1.3.7)
-    hashdiff (1.1.2)
+    hashdiff (1.2.1)
     hashery (2.1.2)
     hashie (5.0.0)
     hexapdf (1.4.1)
@@ -679,8 +681,8 @@ GEM
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    kms_encrypted (1.7.0)
-      activesupport (>= 7.1)
+    kms_encrypted (1.8.0)
+      activesupport (>= 7.2)
       base64
     kramdown (2.5.1)
       rexml (>= 3.3.9)
@@ -732,7 +734,7 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.0)
+    minitest (5.26.1)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -796,8 +798,8 @@ GEM
       rails (>= 4.0)
     open4 (1.3.4)
     openapi_parser (2.1.0)
-    openssl (3.3.0)
-    openssl (3.3.0-java)
+    openssl (3.3.1)
+    openssl (3.3.1-java)
       jruby-openssl (~> 0.14)
     operating_hours (0.1.0)
     optimist (3.2.1)
@@ -964,7 +966,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.4.2)
+    rexml (3.4.4)
     rgeo (3.0.1)
     rgeo-activerecord (8.0.0)
       activerecord (>= 7.0)
@@ -1091,7 +1093,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.17.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.27.1)
+    sentry-ruby (5.28.1)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
@@ -1137,7 +1139,7 @@ GEM
       activerecord (>= 7.1)
     strscan (3.1.5)
     strscan (3.1.5-java)
-    super_diff (0.16.0)
+    super_diff (0.17.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -1192,7 +1194,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.25.1)
+    webmock (3.26.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -1287,7 +1289,7 @@ DEPENDENCIES
   facilities_api!
   factory_bot_rails
   faker
-  faraday (~> 2.13)
+  faraday (~> 2.14)
   faraday-follow_redirects
   faraday-httpclient
   faraday-multipart
@@ -1419,11 +1421,13 @@ DEPENDENCIES
   simple_forms_api!
   simplecov
   slack-notify
+  sob!
   socksify
   staccato
   statsd-instrument
   strong_migrations
   super_diff
+  survivors_benefits!
   swagger-blocks
   test_user_dashboard!
   timecop

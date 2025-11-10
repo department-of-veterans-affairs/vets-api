@@ -516,6 +516,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
           end
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
             stub_poa_verification
             stub_claims_api_auth_token
 

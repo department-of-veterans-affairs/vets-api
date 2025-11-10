@@ -65,9 +65,26 @@ module Openapi
               dateBenefitWillStop: { type: :string, format: :date },
               remarks: { type: :string }
             }
+          },
+          certification: {
+            type: :object,
+            required: %i[signature certified],
+            properties: {
+              signature: {
+                type: :string,
+                description: 'Signature of employer or supervisor',
+                example: 'John Doe'
+              },
+              certified: {
+                type: :boolean,
+                enum: [true],
+                description: 'Certified by the employer or supervisor (must be true)',
+                example: true
+              }
+            }
           }
         },
-        required: %i[veteranInformation employmentInformation]
+        required: %i[veteranInformation employmentInformation certification]
       }.freeze
     end
   end
