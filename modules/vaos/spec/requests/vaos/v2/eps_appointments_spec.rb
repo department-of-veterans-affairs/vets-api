@@ -138,6 +138,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
               controller: expected_controller_name,
               station_number: expected_station_number,
+              eps_trace_id: '1dba6dccb4a50f0c512d5bd661ebc013',
               code: 'VAOS_404',
               upstream_status: 404,
               upstream_body: '{\"name\": \"Not Found\"}'
