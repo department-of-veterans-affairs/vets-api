@@ -291,7 +291,7 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       let(:app_version) { '5.0.0' }
 
       it 'returns true' do
-        expect(user_services.send(:min_version?, :allergiesOracleHealth)).to be(true)
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(true)
       end
     end
 
@@ -299,7 +299,7 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       let(:app_version) { '1.0.0' }
 
       it 'returns false' do
-        expect(user_services.send(:min_version?, :allergiesOracleHealth)).to be(false)
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(false)
       end
     end
 
@@ -307,7 +307,7 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       let(:app_version) { nil }
 
       it 'returns false' do
-        expect(user_services.send(:min_version?, :allergiesOracleHealth)).to be(false)
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(false)
       end
     end
 
@@ -315,7 +315,15 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       let(:app_version) { 'invalid.version.string' }
 
       it 'returns false' do
-        expect(user_services.send(:min_version?, :allergiesOracleHealth)).to be(false)
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(false)
+      end
+    end
+
+    context 'when feature is not configured in settings' do
+      let(:app_version) { '5.0.0' }
+
+      it 'returns false' do
+        expect(user_services.send(:min_version?, :non_existent_feature)).to be(false)
       end
     end
   end
