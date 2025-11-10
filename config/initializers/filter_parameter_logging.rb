@@ -13,9 +13,11 @@ ALLOWLIST = %w[
   claim_id
   class
   code
+  completely_removed
   confirmation_number
   consumer_name
   content_type
+  context
   controller
   cookie_id
   document_id
@@ -32,6 +34,7 @@ ALLOWLIST = %w[
   folder_id
   form_id
   from_date
+  function
   grant_type
   id
   ids
@@ -50,6 +53,7 @@ ALLOWLIST = %w[
   qqtotalfilesize
   queue_time
   reason
+  removed_keys
   reply_id
   result
   root
