@@ -11,7 +11,7 @@ describe Eps::AppointmentService do
   end
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
-  let(:response_headers) { { 'Content-Type' => 'application/json' } }
+  let(:response_headers) { { 'Content-Type' => 'application/json', 'x-wellhive-trace-id' => 'test-trace-id-123' } }
 
   let(:appointment_id) { 'appointment-123' }
   let(:icn) { '123ICN' }
@@ -46,8 +46,9 @@ describe Eps::AppointmentService do
 
       context 'when retrieve_latest_details is true' do
         before do
+          path = "/#{config.base_path}/appointments/#{appointment_id}?retrieveLatestDetails=true"
           expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/appointments/#{appointment_id}?retrieveLatestDetails=true", {}, headers)
+            .with(:get, path, {}, headers, nil)
             .and_return(success_response)
         end
 
@@ -90,6 +91,8 @@ describe Eps::AppointmentService do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
         allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
       end
 
       it 'raises VAOS::Exceptions::BackendServiceException' do
@@ -111,7 +114,8 @@ describe Eps::AppointmentService do
             method: 'get_appointment',
             status: 200,
             controller: expected_controller_name,
-            station_number: expected_station_number
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
           }
         )
 
@@ -171,6 +175,8 @@ describe Eps::AppointmentService do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
         allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
       end
 
       it 'raises VAOS::Exceptions::BackendServiceException' do
@@ -192,7 +198,8 @@ describe Eps::AppointmentService do
             method: 'get_appointments',
             status: 200,
             controller: expected_controller_name,
-            station_number: expected_station_number
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
           }
         )
 
@@ -256,6 +263,8 @@ describe Eps::AppointmentService do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
         allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
       end
 
       it 'raises VAOS::Exceptions::BackendServiceException' do
@@ -277,7 +286,8 @@ describe Eps::AppointmentService do
             method: 'create_draft_appointment',
             status: 200,
             controller: expected_controller_name,
-            station_number: expected_station_number
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
           }
         )
 
@@ -328,8 +338,9 @@ describe Eps::AppointmentService do
           appointment_id.last(4)
         )
 
+        path = "/#{config.base_path}/appointments/#{appointment_id}/submit"
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
+          .with(:post, path, expected_payload, kind_of(Hash), nil)
           .and_return(successful_response)
 
         exp_response = OpenStruct.new(successful_response.body)
@@ -351,8 +362,9 @@ describe Eps::AppointmentService do
           additional_patient_attributes: patient_attributes
         }
 
+        path = "/#{config.base_path}/appointments/#{appointment_id}/submit"
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
+          .with(:post, path, expected_payload, kind_of(Hash), nil)
           .and_return(successful_response)
 
         service.submit_appointment(appointment_id, params_with_attributes)
@@ -422,6 +434,8 @@ describe Eps::AppointmentService do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
         allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
       end
 
       it 'raises VAOS::Exceptions::BackendServiceException' do
@@ -443,7 +457,8 @@ describe Eps::AppointmentService do
             method: 'submit_appointment',
             status: 200,
             controller: expected_controller_name,
-            station_number: expected_station_number
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
           }
         )
 

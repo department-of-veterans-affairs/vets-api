@@ -1777,6 +1777,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                             timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
                             controller: expected_controller_name,
                             station_number: expected_station_number,
+                            eps_trace_id: 'f2febe1c93219db9e208a8f1422d1d04',
                             code: 'VAOS_400',
                             upstream_status: 400,
                             upstream_body: a_string_including('invalid patientId')
