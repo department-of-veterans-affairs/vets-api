@@ -53,13 +53,12 @@ RSpec.describe BGS::DependentV2Service do
         service = BGS::DependentV2Service.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
-        allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
 
         service.submit_686c_form(claim)
       end
     end
 
-    context 'enqueues SubmitForm686cJob and SubmitDependentsPdfJob' do
+    context 'enqueues SubmitForm686cJob' do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           service = BGS::DependentV2Service.new(user)
@@ -67,10 +66,6 @@ RSpec.describe BGS::DependentV2Service do
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
-          )
-          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-            claim.id, encrypted_vet_info, true,
-            true
           )
           service.submit_686c_form(claim)
         end
@@ -88,10 +83,6 @@ RSpec.describe BGS::DependentV2Service do
             user.uuid, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-            claim.id, encrypted_vet_info, true,
-            true
-          )
           service.submit_686c_form(claim)
         end
       end
@@ -104,10 +95,6 @@ RSpec.describe BGS::DependentV2Service do
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
           encrypted_vet_info
-        )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, encrypted_vet_info,
-          true, true
         )
         service.submit_686c_form(claim)
       end
@@ -124,10 +111,6 @@ RSpec.describe BGS::DependentV2Service do
           user.uuid, claim.id,
           enc_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, enc_vet_info,
-          true, true
-        )
         service.submit_686c_form(claim)
       end
     end
@@ -143,10 +126,6 @@ RSpec.describe BGS::DependentV2Service do
           user.uuid, claim.id,
           enc_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, enc_vet_info,
-          true, true
-        )
         service.submit_686c_form(claim)
       end
     end
@@ -161,10 +140,6 @@ RSpec.describe BGS::DependentV2Service do
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
           enc_vet_info
-        )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, enc_vet_info,
-          true, true
         )
         service.submit_686c_form(claim)
       end
@@ -199,10 +174,6 @@ RSpec.describe BGS::DependentV2Service do
             user.uuid, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-            claim.id, encrypted_vet_info, true,
-            true
-          )
           service.submit_686c_form(claim)
         end
       end
@@ -210,18 +181,19 @@ RSpec.describe BGS::DependentV2Service do
 
     context 'on error' do
       let(:monitor) { instance_double(Dependents::Monitor) }
+      let(:uploader) { double('uploader') }
 
       before do
         allow(Dependents::Monitor).to receive(:new).and_return(monitor).at_least(:once)
         allow(monitor).to receive(:track_event).at_least(:once)
+
+        allow(ClaimsEvidenceApi::Uploader).to receive(:new).and_return(uploader)
       end
 
       it 'submits to backup job on pdf submission errors' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-          allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError,
-                                                                                    'Test error')
+          allow(uploader).to receive(:upload_evidence).and_raise(StandardError, 'Test error')
           service = BGS::DependentV2Service.new(user)
-
           expect(BGS::SubmitForm686cV2Job).not_to receive(:perform_async)
           expect(service).to receive(:submit_to_central_service)
 
@@ -235,9 +207,6 @@ RSpec.describe BGS::DependentV2Service do
                                                                                'Test error')
 
           service = BGS::DependentV2Service.new(user)
-
-          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
-
           expect do
             service.submit_686c_form(claim)
           end.to raise_error(StandardError, 'Test error')
@@ -272,10 +241,6 @@ RSpec.describe BGS::DependentV2Service do
             user.uuid, claim.id,
             enc_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-            claim.id, enc_vet_info,
-            true, true
-          )
           service.submit_686c_form(claim)
         end
       end
@@ -300,8 +265,6 @@ RSpec.describe BGS::DependentV2Service do
             allow(StatsD).to receive(:increment)
 
             service = BGS::DependentV2Service.new(user)
-
-            expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
 
             expect do
               service.submit_686c_form(claim)
@@ -331,8 +294,6 @@ RSpec.describe BGS::DependentV2Service do
             allow(StatsD).to receive(:increment)
 
             service = BGS::DependentV2Service.new(user)
-
-            expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
 
             expect do
               service.submit_686c_form(claim)
@@ -381,7 +342,6 @@ RSpec.describe BGS::DependentV2Service do
     end
 
     it 'calls find_person_by_participant_id' do
-      allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentV2Service.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
@@ -391,7 +351,7 @@ RSpec.describe BGS::DependentV2Service do
       end
     end
 
-    context 'enqueues SubmitForm674Job and SubmitDependentsPdfJob' do
+    context 'enqueues SubmitForm674Job' do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           service = BGS::DependentV2Service.new(user)
@@ -399,10 +359,6 @@ RSpec.describe BGS::DependentV2Service do
           expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
-          )
-          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-            claim.id, encrypted_vet_info, false,
-            true
           )
           service.submit_686c_form(claim)
         end
@@ -420,10 +376,6 @@ RSpec.describe BGS::DependentV2Service do
             user.uuid, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-            claim.id, encrypted_vet_info, false,
-            true
-          )
           service.submit_686c_form(claim)
         end
       end
@@ -436,10 +388,6 @@ RSpec.describe BGS::DependentV2Service do
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
           encrypted_vet_info
-        )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, encrypted_vet_info, false,
-          true
         )
         service.submit_686c_form(claim)
       end
@@ -456,10 +404,6 @@ RSpec.describe BGS::DependentV2Service do
           user.uuid, claim.id,
           enc_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, enc_vet_info, false,
-          true
-        )
         service.submit_686c_form(claim)
       end
     end
@@ -475,10 +419,6 @@ RSpec.describe BGS::DependentV2Service do
           user.uuid, claim.id,
           enc_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, enc_vet_info, false,
-          true
-        )
         service.submit_686c_form(claim)
       end
     end
@@ -493,10 +433,6 @@ RSpec.describe BGS::DependentV2Service do
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
           enc_vet_info
-        )
-        expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-          claim.id, enc_vet_info, false,
-          true
         )
         service.submit_686c_form(claim)
       end
@@ -557,31 +493,6 @@ RSpec.describe BGS::DependentV2Service do
                                                     "#{stats_key}.submit_pdf.completed")
 
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
-    end
-  end
-
-  describe '#submit_pdf_job' do
-    before do
-      allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
-    end
-
-    it 'calls the VBMS::SubmitDependentsPdfJob with the correct arguments' do
-      service = BGS::DependentV2Service.new(user)
-      expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-        claim.id, encrypted_vet_info, false,
-        true
-      )
-      # use 'send' to call the private method
-      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
-    end
-
-    it 'in case of error it logs the exception and raises a custom error' do
-      service = BGS::DependentV2Service.new(user)
-      allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError)
-      expect(Rails.logger).to receive(:warn)
-      expect do
-        service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
-      end.to raise_error(BGS::DependentV2Service::PDFSubmissionError)
     end
   end
 end
