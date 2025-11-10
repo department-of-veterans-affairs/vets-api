@@ -28,11 +28,13 @@ module V0
       pdf_path = generate_and_send_pdf(claim)
     rescue JSON::ParserError
       raise Common::Exceptions::ParameterMissing, 'form'
-    rescue Common::Exceptions::ValidationErrors
-      raise
     ensure
       # Delete the temporary PDF file
-      File.delete(pdf_path) if pdf_path rescue Errno::ENOENT
+      begin
+        File.delete(pdf_path) if pdf_path
+      rescue Errno::ENOENT
+        # Ignore if file doesn't exist
+      end
     end
 
     private
