@@ -55,6 +55,7 @@ module UnifiedHealthData
 
       def build_contact_and_source_attributes(medication)
         {
+          sig: medication['sig'],
           instructions: medication['sig'],
           facility_phone_number: medication['cmopDivisionPhone'],
           prescription_source: medication['prescriptionSource']

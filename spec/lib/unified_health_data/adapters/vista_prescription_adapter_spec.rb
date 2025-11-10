@@ -82,6 +82,13 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result.id).to eq('12345')
         expect(result.prescription_name).to eq('Test Medication')
       end
+
+      it 'populates the sig field from Vista sig field' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.sig).to eq('Take as directed')
+        expect(result.instructions).to eq('Take as directed')
+      end
     end
 
     context 'when medication includes RFC1123 date fields' do

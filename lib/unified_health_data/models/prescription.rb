@@ -23,6 +23,7 @@ module UnifiedHealthData
     attribute :is_refillable, Bool
     attribute :is_trackable, Bool
     attribute :tracking, Array, default: []
+    attribute :sig, String
     attribute :instructions, String
     attribute :facility_phone_number, String
     attribute :prescription_source, String

@@ -37,6 +37,13 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('12345')
       end
+
+      it 'populates the sig field from dosageInstruction.text' do
+        result = subject.parse(base_resource)
+
+        expect(result.sig).to eq('Take as directed')
+        expect(result.instructions).to eq('Take as directed')
+      end
     end
 
     context 'with reportedBoolean true' do

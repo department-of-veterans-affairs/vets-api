@@ -56,8 +56,10 @@ module UnifiedHealthData
       end
 
       def build_contact_and_source_attributes(resource)
+        instructions_text = extract_instructions(resource)
         {
-          instructions: extract_instructions(resource),
+          sig: instructions_text,
+          instructions: instructions_text,
           facility_phone_number: extract_facility_phone_number(resource),
           prescription_source: extract_prescription_source(resource),
           category: extract_category(resource)
