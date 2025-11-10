@@ -66,6 +66,17 @@ Rails.application.routes.draw do
         post :download_pdf
       end
     end
+    resources :form21p530a, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
+    resources :form212680, only: [] do
+      collection do
+        post :download_pdf
+      end
+    end
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
@@ -433,6 +444,7 @@ Rails.application.routes.draw do
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   mount DecisionReviews::Engine, at: '/decision_reviews'
+  mount SurvivorsBenefits::Engine, at: '/survivors_benefits'
   # End Modules
 
   require 'sidekiq/web'
