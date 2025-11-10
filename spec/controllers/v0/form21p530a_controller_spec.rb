@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form21p530aController, type: :controller do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:form_530a_enabled).and_return(true)
+  end
+
   let(:valid_payload) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form21p530a', 'valid_form.json').read) }
 
   describe 'POST #create' do
@@ -102,6 +106,17 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       it 'increments failure stats' do
         expect(StatsD).to receive(:increment).with('api.form21p530a.failure')
         post(:create, body: payload_with_invalid_country.to_json, as: :json)
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_530a_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:create, body: valid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -269,6 +284,17 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
         expect(json['errors'].first['detail']).to include("'ZZZ' is not a valid country code")
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_530a_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:download_pdf, body: valid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
       end
     end
 

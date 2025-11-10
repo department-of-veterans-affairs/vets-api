@@ -7,6 +7,7 @@ module V0
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    before_action :load_user, :check_feature_enabled
 
     def create
       claim = build_and_save_claim!
@@ -47,6 +48,10 @@ module V0
     end
 
     private
+
+    def check_feature_enabled
+      routing_error unless Flipper.enabled?(:form_530a_enabled, current_user)
+    end
 
     def handle_pdf_generation_error(error)
       Rails.logger.error('Form21p530a: Error generating PDF', error: error.message, backtrace: error.backtrace)
