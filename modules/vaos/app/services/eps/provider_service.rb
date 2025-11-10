@@ -21,6 +21,9 @@ module Eps
 
         OpenStruct.new(response.body)
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_provider_service')
+      raise e
     end
 
     def get_provider_services_by_ids(provider_ids:)
@@ -38,6 +41,9 @@ module Eps
 
         OpenStruct.new(response.body)
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_provider_services_by_ids')
+      raise e
     end
 
     ##
@@ -51,6 +57,9 @@ module Eps
 
         OpenStruct.new(response.body)
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_networks')
+      raise e
     end
 
     ##
@@ -71,6 +80,9 @@ module Eps
 
         OpenStruct.new(response.body)
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_drive_times')
+      raise e
     end
 
     ##
@@ -90,26 +102,14 @@ module Eps
     def get_provider_slots(provider_id, opts = {})
       raise ArgumentError, 'provider_id is required and cannot be blank' if provider_id.blank?
 
-      all_slots = []
-      next_token = nil
-      start_time = Time.current
-
-      loop do
-        check_pagination_timeout(start_time, provider_id)
-        params = build_slot_params(next_token, opts)
-        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
-                           request_headers_with_correlation_id)
-
-        current_response = response.body
-
-        all_slots.concat(current_response[:slots]) if current_response[:slots].present?
-
-        next_token = current_response[:next_token]
-        break if next_token.blank?
+      with_monitoring do
+        all_slots = fetch_all_provider_slots(provider_id, opts)
+        combined_response = { slots: all_slots, count: all_slots.length }
+        OpenStruct.new(combined_response)
       end
-
-      combined_response = { slots: all_slots, count: all_slots.length }
-      OpenStruct.new(combined_response)
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_provider_slots')
+      raise e
     end
 
     ##
@@ -126,17 +126,54 @@ module Eps
       validate_search_params(npi, specialty, address)
 
       response = fetch_provider_services(npi)
-      return nil if response.body[:provider_services].blank?
+      if response.body[:provider_services].blank?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI")
+        return nil
+      end
 
       specialty_matches = filter_by_specialty(response.body[:provider_services], specialty)
-      return nil if specialty_matches.empty?
+      if specialty_matches.empty?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.")
+        return nil
+      end
 
       return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
 
       find_address_match(specialty_matches, address)
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'search_provider_services')
+      raise e
     end
 
     private
+
+    ##
+    # Fetches all provider slots by paginating through responses
+    #
+    # @param provider_id [String] The unique identifier of the provider
+    # @param opts [Hash] Request options including required parameters
+    # @return [Array] All slots from all pages
+    #
+    def fetch_all_provider_slots(provider_id, opts)
+      all_slots = []
+      next_token = nil
+      start_time = Time.current
+
+      loop do
+        check_pagination_timeout(start_time, provider_id)
+        params = build_slot_params(next_token, opts)
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
+                           request_headers_with_correlation_id)
+
+        current_response = response.body
+        all_slots.concat(current_response[:slots]) if current_response[:slots].present?
+
+        next_token = current_response[:next_token]
+        break if next_token.blank?
+      end
+
+      all_slots
+    end
 
     ##
     # Logs StatsD metric and Rails log for provider service calls with no parameters
@@ -421,4 +458,8 @@ module Eps
       }.compact
     end
   end
+
+  # Mirrors the middleware-defined EPS exception so callers can rely on
+  # BackendServiceException fields (e.g., original_status, original_body).
+  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Eps::ServiceException)
 end

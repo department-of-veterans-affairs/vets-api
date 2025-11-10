@@ -6,6 +6,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
   before do
     login_as(representative_user)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+      if file.respond_to?(:path) && file.path.end_with?('.pdf')
+        nil
+      else
+        original.call(file)
+      end
+    end
   end
 
   describe 'GET /accredited_representative_portal/v0/claim_submissions' do
@@ -132,17 +142,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
         dates = body['data'].map { |h| Date.iso8601(h['submittedDate']) }
         expect(dates).to eq(dates.sort.reverse) # sorted desc
         expect(dates).to include(newest.created_at.to_date) # newest included on page 1
-      end
-    end
-
-    describe 'feature disabled' do
-      it 'returns 403 when submissions are disabled' do
-        allow_any_instance_of(AccreditedRepresentativePortal::V0::ClaimSubmissionsController)
-          .to receive(:deny_access_unless_submissions_enabled)
-          .and_raise(Pundit::NotAuthorizedError)
-
-        get '/accredited_representative_portal/v0/claim_submissions'
-        expect(response).to have_http_status(:forbidden)
       end
     end
 

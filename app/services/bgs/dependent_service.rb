@@ -38,9 +38,15 @@ module BGS
     end
 
     def get_dependents
-      return { persons: [] } if participant_id.blank?
+      backup_response = { persons: [] }
+      return backup_response if participant_id.blank?
 
-      service.claimant.find_dependents_by_participant_id(participant_id, ssn) || { persons: [] }
+      response = service.claimant.find_dependents_by_participant_id(participant_id, ssn)
+      if response.presence && response[:persons]
+        response
+      else
+        backup_response
+      end
     end
 
     def submit_686c_form(claim)
@@ -111,7 +117,7 @@ module BGS
       error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       @monitor.track_event('warn',
                            'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { error: })
+                           "#{STATS_KEY}.submit_pdf.failure", error:)
       raise PDFSubmissionError
     end
 
@@ -189,13 +195,6 @@ module BGS
       # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
       # the dashes and proceed with form submission.
       @file_number = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
-
-      # The `validate_*!` calls below will raise errors if we have an invalid
-      # file number, or if the file number and SSN don't match. Even if this is
-      # the case, we still want to submit a PDF to the veteran's VBMS eFolder.
-      # This is because we are currently relying on the presence of a PDF and
-      # absence of a BGS-established claim to identify cases where Form 686c-674
-      # submission failed.
 
       generate_hash_from_details
     end

@@ -2,8 +2,6 @@
 
 module DebtsApi
   class V0::FsrRehydrationService
-    include SentryLogging
-
     class UserDoesNotOwnsubmission < StandardError; end
     class NoInProgressFormDataStored < StandardError; end
 

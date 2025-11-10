@@ -2,9 +2,15 @@
 
 require 'rails_helper'
 require 'dependents_benefits/claim_processor'
+require 'dependents_benefits/sidekiq/bgs_674_job'
+require 'dependents_benefits/sidekiq/bgs_686c_job'
+require 'dependents_benefits/sidekiq/claims_686c_job'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
-  let(:parent_claim_id) { 12_345 }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:form_674_claim) { create(:student_claim) }
+  let(:form_686_claim) { create(:add_remove_dependents_claim) }
+  let(:parent_claim_id) { parent_claim.id }
   let(:proc_id) { 'proc-123-456' }
   let(:processor) { described_class.new(parent_claim_id, proc_id) }
   let(:mock_monitor) { instance_double(DependentsBenefits::Monitor) }
@@ -20,36 +26,36 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   describe '.enqueue_submissions' do
     it 'creates processor instance and delegates to instance method' do
       expect(described_class).to receive(:new).with(parent_claim_id, proc_id).and_return(processor)
-
+      expect(processor).to receive(:enqueue_submissions)
       described_class.enqueue_submissions(parent_claim_id, proc_id)
     end
   end
 
   describe '#enqueue_submissions' do
-    let(:form_686c_claim) { create(:dependents_claim, form_id: '21-686C') }
-    let(:form_674_claim) { create(:dependents_claim, form_id: '21-674') }
-    let(:child_claims) { [form_686c_claim, form_674_claim] }
-
     before do
-      allow(processor).to receive_messages(
-        collect_child_claims: child_claims,
-        enqueue_686c_submission: 1,
-        enqueue_674_submission: 1
-      )
+      allow(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).and_return(true)
+      allow(processor).to receive(:collect_child_claims).and_return([form_686_claim, form_674_claim])
     end
 
-    it 'processes claims and tracks events' do
-      expect(processor).to receive(:enqueue_686c_submission).with(form_686c_claim)
-      expect(processor).to receive(:enqueue_674_submission).with(form_674_claim)
-
+    it 'processes claims' do
       result = processor.enqueue_submissions
 
-      expect(result).to eq({ data: { jobs_enqueued: 2 }, error: nil })
+      expect(result).to eq({ data: { jobs_enqueued: 3 }, error: nil })
+    end
+
+    it 'monitors submissions' do
+      expect(processor).to receive(:enqueue_686c_submission).with(form_686_claim).and_return(2)
+      expect(processor).to receive(:enqueue_674_submission).with(form_674_claim).and_return(1)
+
+      processor.enqueue_submissions
+
       expect(mock_monitor).to have_received(:track_processor_info).with(
         'Starting claim submission processing', 'start', { parent_claim_id: }
       )
       expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Successfully enqueued all submission jobs', 'enqueue_success', { parent_claim_id:, jobs_count: 2 }
+        'Successfully enqueued all submission jobs', 'enqueue_success', { parent_claim_id:, jobs_count: 3 }
       )
     end
 
@@ -58,36 +64,44 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       allow(processor).to receive(:enqueue_686c_submission).and_raise(error)
       allow(processor).to receive(:handle_enqueue_failure)
 
+      expect(processor).not_to receive(:enqueue_674_submission)
+
       expect { processor.enqueue_submissions }.to raise_error(StandardError, 'Enqueue failed')
       expect(processor).to have_received(:handle_enqueue_failure).with(error)
     end
   end
 
   describe '#collect_child_claims' do
-    it 'tracks and returns child claims' do
-      claim1 = create(:dependents_claim)
-      claim2 = create(:dependents_claim)
-      allow(SavedClaim).to receive(:where).with(id: []).and_return([claim1, claim2])
+    let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
 
+    it 'tracks and returns child claims' do
+      create(:saved_claim_group, saved_claim: form_674_claim, parent_claim:)
+      create(:saved_claim_group, saved_claim: form_686_claim, parent_claim:)
       result = processor.send(:collect_child_claims)
 
-      expect(result).to eq([claim1, claim2])
+      expect(result).to contain_exactly(form_674_claim, form_686_claim)
       expect(mock_monitor).to have_received(:track_processor_info).with(
         'Collected child claims for processing', 'collect_children', { parent_claim_id:, child_claims_count: 2 }
+      )
+    end
+
+    it 'raises error when no child claims found' do
+      # Don't create any child claim groups - only parent group exists
+      expect { processor.send(:collect_child_claims) }.to raise_error(
+        StandardError, "No child claims found for parent claim #{parent_claim_id}"
       )
     end
   end
 
   describe '#enqueue_686c_submissions and #enqueue_674_submissions' do
-    it 'tracks enqueued submissions for both form types' do
-      form_686c_claim = create(:dependents_claim, form_id: '21-686C')
-      form_674_claim = create(:dependents_claim, form_id: '21-674')
+    let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
 
-      processor.send(:enqueue_686c_submission, form_686c_claim)
+    it 'tracks enqueued submissions for both form types' do
+      processor.send(:enqueue_686c_submission, form_686_claim)
       processor.send(:enqueue_674_submission, form_674_claim)
 
       expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Enqueued 686c submission jobs', 'enqueue_686c', { parent_claim_id:, claim_id: form_686c_claim.id }
+        'Enqueued 686c submission jobs', 'enqueue_686c', { parent_claim_id:, claim_id: form_686_claim.id }
       )
       expect(mock_monitor).to have_received(:track_processor_info).with(
         'Enqueued 674 submission jobs', 'enqueue_674', { parent_claim_id:, claim_id: form_674_claim.id }
@@ -96,14 +110,19 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   end
 
   describe '#handle_enqueue_failure' do
+    let(:claim_group) { create(:saved_claim_group, saved_claim: form_686_claim, parent_claim:) }
+
     it 'tracks failure' do
       error = StandardError.new('Original error')
+      allow(SavedClaimGroup).to receive(:find_by).and_return(claim_group)
       allow(mock_monitor).to receive(:track_processor_error)
+
       expect(mock_monitor).to receive(:track_processor_error).with(
         'Failed to enqueue submission jobs', 'enqueue_failure', instance_of(Hash)
       )
 
       processor.send(:handle_enqueue_failure, error)
+      expect(claim_group.status).to eq('failure')
     end
   end
 end

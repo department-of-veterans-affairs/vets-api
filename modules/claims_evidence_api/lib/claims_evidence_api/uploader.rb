@@ -163,7 +163,7 @@ module ClaimsEvidenceApi
     def attempt_failed(error)
       return unless attempt
 
-      error_message = error.respond_to?('body') ? error.body : error.message
+      error_message = error.try(:body) || error.message
 
       attempt.status = 'failed'
       attempt.error_message = error_message

@@ -327,8 +327,7 @@
                 "enum": [
                   "representative",
                   "organization"
-                ],
-                "example": "representative"
+                ]
               },
               "attributes": {
                 "type": "object",
@@ -727,6 +726,195 @@
                       }
                     ]
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/representation_management/v0/accredited_individuals": {
+      "get": {
+        "summary": "Search for accredited individuals",
+        "tags": [
+          "Accredited Individuals"
+        ],
+        "operationId": "searchAccreditedIndividuals",
+        "description": "Returns accredited individuals based on search criteria including location and type",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "format": "float",
+            "required": true,
+            "description": "Latitude coordinate",
+            "example": 40.7128,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "long",
+            "in": "query",
+            "format": "float",
+            "required": true,
+            "description": "Longitude coordinate",
+            "example": -74.006,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "description": "Type of accredited individual",
+            "enum": [
+              "attorney",
+              "claims_agent",
+              "vso_representative"
+            ],
+            "example": "attorney",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "distance",
+            "in": "query",
+            "description": "Maximum distance in miles",
+            "example": 50,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name to search for",
+            "example": "Bob Law",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of results per page",
+            "example": 10,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort order",
+            "enum": [
+              "distance_asc",
+              "first_name_asc",
+              "first_name_desc",
+              "last_name_asc",
+              "last_name_desc"
+            ],
+            "example": "distance_asc",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/accreditedIndividual"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "current_page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "example": 10
+                            },
+                            "total_pages": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "total_entries": {
+                              "type": "integer",
+                              "example": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "unprocessable entity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errors"
                 }
               }
             }

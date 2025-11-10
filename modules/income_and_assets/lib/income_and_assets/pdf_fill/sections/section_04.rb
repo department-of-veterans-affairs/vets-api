@@ -92,7 +92,6 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
-            key: "grossMonthlyIncomeOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 10,
             dollar: true,
             question_num: 4,
@@ -116,7 +115,6 @@ module IncomeAndAssets
             }
           },
           'accountValueOverflow' => {
-            key: "accountValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 4,
@@ -136,7 +134,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         associated_incomes = form_data['associatedIncomes']
-        form_data['associatedIncome'] = associated_incomes&.length ? 0 : 1
+        form_data['associatedIncome'] = radio_yesno(associated_incomes&.length)
         form_data['associatedIncomes'] = associated_incomes&.map do |item|
           expand_item(item)
         end

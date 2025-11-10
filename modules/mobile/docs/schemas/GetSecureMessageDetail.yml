@@ -32,6 +32,7 @@ properties:
       - readReceipt
       - triageGroupName
       - proxySenderName
+      - isOhMessage
     properties:
       messageId:
         type: integer
@@ -77,6 +78,9 @@ properties:
         type: string
         nullable: true
         example: "SMITH, JOHN"
+      isOhMessage:
+        type: boolean
+        example: true
   relationships:
     type: object
     additionalProperties: false

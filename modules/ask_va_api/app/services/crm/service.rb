@@ -6,21 +6,6 @@ module Crm
 
     attr_reader :icn, :logger, :settings, :token
 
-    crm_env = {
-      'test' => 'iris-dev',
-      'development' => 'iris-dev',
-      'staging' => 'ava-preprod',
-      'production' => 'veft'
-    }
-
-    if Flipper.enabled?(:ask_va_api_patsr_separation)
-      crm_env.merge!(
-        'production' => 'ava'
-      )
-    end
-
-    CRM_ENV = crm_env.freeze
-
     def_delegators :settings,
                    :base_url,
                    :veis_api_path,
@@ -28,6 +13,20 @@ module Crm
                    :service_name,
                    :e_subscription_key,
                    :s_subscription_key
+
+    def crm_env
+      env = {
+        'test' => 'iris-dev',
+        'development' => 'iris-dev',
+        'staging' => 'ava-qa',
+        'production' => 'veft'
+      }
+
+      env['production'] = 'ava' if Flipper.enabled?(:ask_va_api_patsr_separation)
+      env['staging'] = 'ava-preprod' if Flipper.enabled?(:ask_va_api_preprod_for_end_to_end_testing)
+
+      env
+    end
 
     def initialize(icn:, logger: LogService.new)
       @settings = Settings.ask_va_api.crm_api
@@ -38,7 +37,8 @@ module Crm
 
     # Calls the CRM API with given method, endpoint, and optional payload
     def call(endpoint:, method: :get, payload: {})
-      organization = CRM_ENV[vsp_environment]
+      organization = crm_env[vsp_environment]
+
       uri = build_uri(endpoint, method, organization)
       response = conn(url: base_url).public_send(method, uri, request_body(method, payload, organization)) do |req|
         req.headers = request_headers

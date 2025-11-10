@@ -69,142 +69,47 @@ describe Burials::PdfFill::Forms::Va21p530ez do
     ]
   )
 
-  describe '#convert_location_of_death' do
-    subject do
-      new_form_class.convert_location_of_death
-    end
-
-    context 'with no location of death' do
-      it 'returns nil' do
-        expect(subject).to be_nil
-      end
-    end
-
-    context 'with a location of death of home hospice care after discharge' do
-      let(:form_data) do
-        {
-          'locationOfDeath' => {
-            'location' => 'atHome'
-          },
-          'homeHospiceCare' => true,
-          'homeHospiceCareAfterDischarge' => true
-        }
-      end
-
-      it 'returns the directly mapped location' do
-        subject
-        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomePaid' => 'On' })
-      end
-    end
-
-    context 'with a location of death of home hospice care (not after discharge)' do
-      let(:form_data) do
-        {
-          'locationOfDeath' => {
-            'location' => 'atHome'
-          },
-          'homeHospiceCare' => true,
-          'homeHospiceCareAfterDischarge' => false
-        }
-      end
-
-      it 'returns the directly mapped location' do
-        subject
-        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
-      end
-    end
-
-    context 'with a regular location of death in new format' do
-      let(:form_data) do
-        {
-          'locationOfDeath' => {
-            'location' => 'nursingHomeUnpaid'
-          },
-          'nursingHomeUnpaid' => {
-            'facilityName' => 'facility name',
-            'facilityLocation' => 'Washington, DC'
-          }
-        }
-      end
-
-      it 'returns the directly mapped location' do
-        subject
-        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
-        expect(class_form_data['locationOfDeath']['placeAndLocation']).to eq('facility name - Washington, DC')
-      end
-    end
-
-    context 'with a location needed for translation' do
-      let(:form_data) do
-        {
-          'locationOfDeath' => {
-            'location' => 'atHome'
-          },
-          'homeHospiceCare' => false,
-          'homeHospiceCareAfterDischarge' => false
-        }
-      end
-
-      it 'returns the directly mapped location' do
-        subject
-        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
-      end
-    end
-  end
-
-  describe 'set_state_to_no_if_national' do
-    subject do
-      new_form_class.set_state_to_no_if_national
-    end
-
-    context 'with a regular location of death' do
-      let(:form_data) do
-        {
-          'nationalOrFederal' => true
-        }
-      end
-
-      it 'returns the directly mapped location' do
-        subject
-        expect(class_form_data['cemetaryLocationQuestion']).to eq('none')
-      end
-    end
-  end
-
   describe '#merge_fields' do
+    let(:fixture_path) { "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}" }
+
     it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do
-      expect(described_class.new(
-        JSON.parse(File.read(
-                     "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json"
-                   ))
-      ).merge_fields.to_json).to eq(
-        JSON.parse(File.read(
-                     "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json"
-                   )).to_json
-      )
+      expected_path = "#{fixture_path}/kitchen_sink.json"
+      actual_path = "#{fixture_path}/merge_fields.json"
+
+      expected = described_class.new(JSON.parse(File.read(expected_path))).merge_fields
+      actual = JSON.parse(File.read(actual_path))
+
+      # Create a diff that is easy to read when expected/actual differ
+      diff = Hashdiff.diff(expected, actual)
+
+      expect(diff).to eq([])
     end
 
     it 'leaves benefit selections blank on pdf if unselected', run_at: '2024-03-21 00:00:00 EDT' do
       unselected_benefits_data = JSON.parse(
-        File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json")
+        File.read("#{fixture_path}/kitchen_sink.json")
       ).except(
         'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
         'previouslyReceivedAllowance', 'govtContributions'
       )
 
-      expected_merge_data = JSON.parse(
-        File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json")
+      expected = JSON.parse(
+        File.read("#{fixture_path}/merge_fields.json")
       ).except(
         'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
         'previouslyReceivedAllowance', 'govtContributions', 'hasBurialExpenseResponsibility',
         'noBurialExpenseResponsibility', 'hasPlotExpenseResponsibility', 'noPlotExpenseResponsibility'
       )
-      expected_merge_data['hasTransportation'] = nil
-      expected_merge_data['hasGovtContributions'] = nil
-      expected_merge_data['hasPreviouslyReceivedAllowance'] = nil
-      expect(described_class.new(unselected_benefits_data).merge_fields.to_json).to eq(
-        expected_merge_data.to_json
-      )
+      expected['hasTransportation'] = nil
+      expected['hasGovtContributions'] = nil
+      expected['hasPreviouslyReceivedAllowance'] = nil
+
+      actual = described_class.new(unselected_benefits_data).merge_fields
+
+      # Create a diff that is easy to read when expected/actual differ
+      diff = Hashdiff.diff(expected, actual)
+
+      expect(diff).to eq([])
     end
   end
 end

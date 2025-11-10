@@ -20,6 +20,16 @@ module DependentsBenefits
       add_disabled_child
     ].freeze
 
+    # Checks if the claim was successfully submitted by checking the status of submission attempts
+    # @return [Boolean] true if all submission attempts succeeded, false otherwise
+    def submissions_succeeded?
+      # TODO: Add checks for each submission type for claim
+      bgs_submissions = BGS::Submission.where(saved_claim_id: id)
+      return false if bgs_submissions.empty?
+
+      bgs_submissions.all? { |submission| submission.latest_attempt&.status == 'submitted' }
+    end
+
     ##
     # Validates whether the form matches the expected VetsJsonSchema::JSON schema
     #
@@ -27,13 +37,12 @@ module DependentsBenefits
     def form_matches_schema
       return unless form_is_string
 
-      # TODO: Use the form_id from the saved claim when we have multiple forms
-      schema = VetsJsonSchema::SCHEMAS['686C-674-V2']
+      schema = VetsJsonSchema::SCHEMAS["#{self.class::FORM}-V2"]
 
       schema_errors = validate_schema(schema)
       unless schema_errors.empty?
         monitor.track_error_event('SavedClaim schema failed validation.', "#{stats_key}.schema_error",
-                                  { form_id:, errors: schema_errors })
+                                  form_id:, errors: schema_errors)
       end
 
       validation_errors = validate_form(schema)
@@ -44,10 +53,14 @@ module DependentsBenefits
 
       unless validation_errors.empty?
         monitor.track_error_event('SavedClaim form did not pass validation', "#{stats_key}.validation_error",
-                                  { form_id:, guid:, errors: validation_errors })
+                                  form_id:, guid:, errors: validation_errors)
       end
 
       schema_errors.empty? && validation_errors.empty?
+    end
+
+    def to_pdf(file_name = nil)
+      DependentsBenefits::PdfFill::Filler.fill_form(self, file_name)
     end
 
     def submittable_686?
@@ -56,6 +69,22 @@ module DependentsBenefits
 
     def submittable_674?
       parsed_form.dig('view:selectable686_options', 'report674')
+    end
+
+    def add_veteran_info(user_data)
+      parsed_form.merge!(user_data)
+    end
+
+    def folder_identifier
+      fid = 'VETERAN'
+      { ssn:, participant_id:, icn: }.each do |k, v|
+        if v.present?
+          fid += ":#{k.to_s.upcase}:#{v}"
+          break
+        end
+      end
+
+      fid
     end
 
     private
@@ -87,6 +116,18 @@ module DependentsBenefits
 
     def stats_key
       'api.dependents_claim'
+    end
+
+    def ssn
+      parsed_form&.dig('veteran_information', 'ssn')
+    end
+
+    def participant_id
+      parsed_form&.dig('veteran_information', 'participant_id')
+    end
+
+    def icn
+      parsed_form&.dig('veteran_information', 'icn')
     end
   end
 end

@@ -33,7 +33,7 @@
   },
   "primaryOfficialTraining": {
     "trainingCompletionDate": "2024-03-15",
-    "trainingExempt": false
+    "trainingExempt": true
   },
   "primaryOfficialBenefitStatus": {
     "hasVaEducationBenefits": true
@@ -104,6 +104,7 @@
         "phoneNumber": "5556071235",
         "emailAddress": "john_official1@example.com",
         "trainingCompletionDate": "2024-03-16",
+        "trainingExempt": true,
         "hasVaEducationBenefits": true
       }
     },

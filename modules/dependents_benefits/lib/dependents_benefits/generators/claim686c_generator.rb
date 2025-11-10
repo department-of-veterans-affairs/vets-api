@@ -16,7 +16,7 @@ module DependentsBenefits
     class Claim686cGenerator < Generators::DependentClaimGenerator
       private
 
-      FORM_KEYS = ['veteran_information', 'view:selectable_686_options',
+      FORM_KEYS = ['veteran_information', 'view:selectable686_options',
                    'statement_of_truth_signature', 'statement_of_truth_certified'].freeze
       APPLICATION_KEYS = %w[
         veteran_contact_information
@@ -32,6 +32,8 @@ module DependentsBenefits
         deaths
         child_marriage
         child_stopped_attending_school
+        spouse_supporting_documents
+        child_supporting_documents
       ].freeze
 
       ##

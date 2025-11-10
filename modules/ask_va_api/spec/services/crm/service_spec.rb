@@ -64,6 +64,45 @@ RSpec.describe Crm::Service do
   include_examples 'crm request with header', 'staging', true, 'ava-preprod'
   include_examples 'crm request with header', 'production', true, 'ava'
 
+  describe 'api_end_to_end_testing' do
+    let(:response) { mock_response(status: 200, body: mock_data) }
+
+    before do
+      allow(Settings).to receive(:vsp_environment).and_return('staging')
+      allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+
+      # Capture the request
+      @captured_request = nil
+      allow_any_instance_of(Faraday::Connection).to receive(:get) do |_, url, params, _|
+        @captured_request = { url:, params: }
+        response
+      end
+    end
+
+    context 'when the feature toggle is enabled' do
+      it 'sends ICN header and returns parsed response with correct organizationName' do
+        allow(Flipper).to receive(:enabled?).with(:ask_va_api_preprod_for_end_to_end_testing).and_return(true)
+
+        service.call(endpoint:)
+
+        # Check captured request
+        expect(@captured_request[:params]).to include({ organizationName: 'ava-preprod' })
+      end
+    end
+
+    context 'when the feature toggle is disabled' do
+      it 'sends ICN header and returns parsed response with correct organizationName' do
+        allow(Flipper).to receive(:enabled?).with(:ask_va_api_preprod_for_end_to_end_testing).and_return(false)
+        service.call(endpoint:)
+
+        service.call(endpoint:)
+
+        # Check captured request
+        expect(@captured_request[:params]).to include({ organizationName: 'ava-qa' })
+      end
+    end
+  end
+
   describe '#call' do
     context 'when the server returns an error' do
       let(:resp) { mock_response(body: { error: 'server error' }, status: 500) }

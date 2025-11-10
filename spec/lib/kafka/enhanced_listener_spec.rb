@@ -54,7 +54,7 @@ RSpec.describe Kafka::EnhancedListener do
     end
 
     context 'when broker state is INIT or TRY_CONNECT' do
-      %w[INIT TRY_CONNECT].each do |state|
+      %w[INIT CONNECT].each do |state|
         context "with state #{state}" do
           before do
             event[:statistics]['brokers']['localhost:9092/1001']['state'] = state

@@ -18,7 +18,7 @@ RSpec.describe Message do
                                                                :triage_group_name, :proxy_sender_name,
                                                                :has_attachments, :attachment1_id,
                                                                :attachment2_id, :attachment3_id,
-                                                               :attachment4_id, :metadata)
+                                                               :attachment4_id, :metadata, :is_large_attachment_upload)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])
@@ -89,6 +89,46 @@ RSpec.describe Message do
             expect(message).not_to be_valid
             expect(message.errors[:base]).to include('Total size of uploads exceeds 10.0 MB')
           end
+
+          context 'with is_large_attachment_upload flag' do
+            it 'allows files up to 25 MB for large attachments' do
+              large_message = build(:message, is_large_attachment_upload: true, uploads: [file5])
+              expect(large_message).to be_valid
+            end
+
+            it 'rejects files over 25 MB for large attachments' do
+              big_large_file = instance_double(upload_class, original_filename: 'big_large_file.jpg',
+                                                             size: 26.megabytes)
+              allow(big_large_file).to receive(:is_a?).with(ActionDispatch::Http::UploadedFile).and_return(true)
+              allow(big_large_file).to receive(:is_a?).with(Hash).and_return(false)
+
+              large_message = build(:message, is_large_attachment_upload: true, uploads: [big_large_file])
+              expect(large_message).not_to be_valid
+              expect(large_message.errors[:base])
+                .to include('The big_large_file.jpg exceeds file size limit of 25.0 MB')
+            end
+
+            it 'allows for more than 4 uploads and up to 10 when is_large_attachment_upload is true' do
+              large_message = build(:message, is_large_attachment_upload: true,
+                                              uploads: [file1, file2, file3, file4, file5, file6])
+              expect(large_message).to be_valid
+            end
+
+            it 'returns 6.0 MB for regular messages (is_large_attachment_upload = false)' do
+              message = build(:message, is_large_attachment_upload: false)
+              expect(message.send(:max_single_file_size_mb)).to eq(6.0)
+            end
+
+            it 'returns 6.0 MB for messages with is_large_attachment_upload = nil (default)' do
+              message = build(:message)
+              expect(message.send(:max_single_file_size_mb)).to eq(6.0)
+            end
+
+            it 'returns 25.0 MB for large messages (is_large_attachment_upload = true)' do
+              message = build(:message, is_large_attachment_upload: true)
+              expect(message.send(:max_single_file_size_mb)).to eq(25.0)
+            end
+          end
         end
       end
 
@@ -155,20 +195,6 @@ RSpec.describe Message do
       message = build(:message, uploads: [big_file])
       expect(message).not_to be_valid
       expect(message.errors[:base]).to include('Total size of uploads exceeds 10.0 MB')
-    end
-
-    it 'validates file count and size with feature flag enabled' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(true)
-      message = build(:message, uploads: Array.new(11) { file1 })
-      expect(message).not_to be_valid
-      expect(message.errors[:base]).to include('Total file count exceeds 10 files')
-
-      big_file = instance_double(upload_class, original_filename: 'big.jpg', size: 26.megabytes)
-      allow(big_file).to receive(:is_a?).with(ActionDispatch::Http::UploadedFile).and_return(true)
-      allow(big_file).to receive(:is_a?).with(Hash).and_return(false)
-      message = build(:message, uploads: [big_file])
-      expect(message).not_to be_valid
-      expect(message.errors[:base]).to include('Total size of uploads exceeds 25.0 MB')
     end
   end
 end

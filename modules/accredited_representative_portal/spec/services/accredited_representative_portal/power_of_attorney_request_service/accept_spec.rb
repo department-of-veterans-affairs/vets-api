@@ -262,4 +262,39 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
       expect(Rails.logger).to have_received(:error).at_least(:twice)
     end
   end
+
+  describe '#create_error_form_submission' do
+    before do
+      allow_any_instance_of(described_class)
+        .to receive(:create_error_form_submission)
+        .and_call_original
+    end
+
+    it 'stores string response bodies as-is' do
+      instance = described_class.new(poa_request, creator.uuid, memberships)
+
+      expect do
+        instance.send(:create_error_form_submission, 'boom', 'raw-string-body')
+      end.to change(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission, :count).by(1)
+
+      failed = AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.order(:created_at).last
+      expect(failed.status).to eq('enqueue_failed')
+      expect(failed.error_message).to eq('boom')
+      expect(failed.service_response).to eq('raw-string-body')
+    end
+
+    it 'serializes non-string response bodies to JSON' do
+      instance = described_class.new(poa_request, creator.uuid, memberships)
+      body = { 'foo' => 'bar', 'baz' => [1, 2, 3] }
+
+      expect do
+        instance.send(:create_error_form_submission, 'oops', body)
+      end.to change(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission, :count).by(1)
+
+      failed = AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.order(:created_at).last
+      expect(failed.status).to eq('enqueue_failed')
+      expect(failed.error_message).to eq('oops')
+      expect(failed.service_response).to eq(body.to_json)
+    end
+  end
 end

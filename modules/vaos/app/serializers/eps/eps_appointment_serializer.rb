@@ -15,13 +15,17 @@ module Eps
 
     attribute :last_retrieved, &:last_retrieved
 
-    attribute :modality do |_object|
-      # NOTE: this is intentionally hardcoded for now for prototype,
-      # will be updated once confirmed that the data will be available
-      # from the referral object
-      'OV'
-    end
+    attribute :modality, &:modality
 
     attribute :provider, &:provider_details
+
+    attribute :past, &:past
+
+    attribute :referral_id, &:referral_id
+
+    attribute :location do |object|
+      location_data = object.location
+      location_data.presence
+    end
   end
 end
