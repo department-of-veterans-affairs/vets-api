@@ -6,7 +6,7 @@ RSpec.describe BGS::DependentV2Service do
   let(:user) { create(:evss_user, :loa3, birth_date:, ssn: '796043735') }
   let(:user2) { create(:evss_user, :loa3, participant_id: nil, birth_date:, ssn: '796043735') }
   let(:birth_date) { '1809-02-12' }
-  let(:claim) { double('claim') }
+  let(:claim) { build(:dependency_claim_v2) }
   let(:vet_info) do
     {
       'veteran_information' => {
@@ -30,27 +30,27 @@ RSpec.describe BGS::DependentV2Service do
   end
   let(:parsed_form) { { 'dependents_application' => vet_info } }
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
+  let(:service) { BGS::DependentV2Service.new(user) }
 
   before do
     # TODO: add user_account_id back once the DB migration is done
     allow(claim).to receive_messages(id: '1234', use_v2: true, form_id: '686C-674-V2',
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
-                                     valid?: true, persistent_attachments: [], upload_pdf: true)
+                                     valid?: true, persistent_attachments: [], document_type: 148)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(false)
   end
 
   describe '#submit_686c_form' do
     before do
       allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true)
+      allow(service).to receive(:submit_pdf_job)
     end
 
     it 'calls find_person_by_participant_id' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-        service = BGS::DependentV2Service.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
 
@@ -61,8 +61,6 @@ RSpec.describe BGS::DependentV2Service do
     context 'enqueues SubmitForm686cJob' do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-          service = BGS::DependentV2Service.new(user)
-
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
@@ -77,7 +75,6 @@ RSpec.describe BGS::DependentV2Service do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
           vet_info['veteran_information']['va_file_number'] = '12345678'
-          service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
@@ -91,7 +88,6 @@ RSpec.describe BGS::DependentV2Service do
     context 'BGS returns valid file number with dashes' do
       it 'strips out the dashes before enqueuing the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
-        service = BGS::DependentV2Service.new(user)
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
           encrypted_vet_info
@@ -105,7 +101,6 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567890' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
-        service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -120,7 +115,6 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
-        service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -135,7 +129,6 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '123456789'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
-        service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -168,13 +161,15 @@ RSpec.describe BGS::DependentV2Service do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
           vet_info['veteran_information']['va_profile_email'] = 'test@test.com'
           vet_info['veteran_information']['va_file_number'] = '12345678'
-          service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
           )
-          service.submit_686c_form(claim)
+
+          no_email = BGS::DependentV2Service.new(user)
+          allow(no_email).to receive(:submit_pdf_job)
+          no_email.submit_686c_form(claim)
         end
       end
     end
@@ -192,8 +187,8 @@ RSpec.describe BGS::DependentV2Service do
 
       it 'submits to backup job on pdf submission errors' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          allow(service).to receive(:submit_pdf_job).and_call_original
           allow(uploader).to receive(:upload_evidence).and_raise(StandardError, 'Test error')
-          service = BGS::DependentV2Service.new(user)
           expect(BGS::SubmitForm686cV2Job).not_to receive(:perform_async)
           expect(service).to receive(:submit_to_central_service)
 
@@ -205,8 +200,6 @@ RSpec.describe BGS::DependentV2Service do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           allow(BGS::SubmitForm686cV2Job).to receive(:perform_async).and_raise(StandardError,
                                                                                'Test error')
-
-          service = BGS::DependentV2Service.new(user)
           expect do
             service.submit_686c_form(claim)
           end.to raise_error(StandardError, 'Test error')
@@ -235,7 +228,6 @@ RSpec.describe BGS::DependentV2Service do
 
           vet_info['veteran_information']['va_file_number'] = '796043735'
           enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
-          service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
@@ -264,8 +256,6 @@ RSpec.describe BGS::DependentV2Service do
 
             allow(StatsD).to receive(:increment)
 
-            service = BGS::DependentV2Service.new(user)
-
             expect do
               service.submit_686c_form(claim)
             end.to raise_error(custom_error)
@@ -293,8 +283,6 @@ RSpec.describe BGS::DependentV2Service do
 
             allow(StatsD).to receive(:increment)
 
-            service = BGS::DependentV2Service.new(user)
-
             expect do
               service.submit_686c_form(claim)
             end.to raise_error(custom_error)
@@ -309,24 +297,15 @@ RSpec.describe BGS::DependentV2Service do
   describe '#get_dependents' do
     it 'returns dependents' do
       VCR.use_cassette('bgs/dependent_service/get_dependents') do
-        response = BGS::DependentV2Service.new(user).get_dependents
+        response = service.get_dependents
 
         expect(response).to include(number_of_records: '6', persons: Array)
       end
     end
 
-    it 'calls get_dependents' do
-      VCR.use_cassette('bgs/dependent_service/get_dependents') do
-        expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
-          .with(user.participant_id, user.ssn)
-
-        BGS::DependentV2Service.new(user).get_dependents
-      end
-    end
-
     it 'returns a valid response when empty array' do
       VCR.use_cassette('bgs/dependent_service/get_dependents') do
-        allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+        expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
           .with(user.participant_id, user.ssn).and_return([])
 
         response = BGS::DependentV2Service.new(user).get_dependents
@@ -339,11 +318,11 @@ RSpec.describe BGS::DependentV2Service do
   describe '#submit_674_form' do
     before do
       allow(claim).to receive_messages(submittable_686?: false, submittable_674?: true)
+      allow(service).to receive(:submit_pdf_job)
     end
 
     it 'calls find_person_by_participant_id' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-        service = BGS::DependentV2Service.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
 
@@ -354,8 +333,6 @@ RSpec.describe BGS::DependentV2Service do
     context 'enqueues SubmitForm674Job' do
       it 'fires jobs correctly' do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-          service = BGS::DependentV2Service.new(user)
-
           expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
             encrypted_vet_info
@@ -370,7 +347,6 @@ RSpec.describe BGS::DependentV2Service do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '12345678' }) # rubocop:disable Layout/LineLength
           vet_info['veteran_information']['va_file_number'] = '12345678'
-          service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
             user.uuid, claim.id,
@@ -384,7 +360,6 @@ RSpec.describe BGS::DependentV2Service do
     context 'BGS returns valid file number with dashes' do
       it 'strips out the dashes before enqueuing the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
-        service = BGS::DependentV2Service.new(user)
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
           encrypted_vet_info
@@ -398,7 +373,6 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567890' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
-        service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -413,7 +387,6 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
-        service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -428,7 +401,6 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '123456789'
         enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
-        service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
           user.uuid, claim.id,
@@ -439,8 +411,7 @@ RSpec.describe BGS::DependentV2Service do
     end
   end
 
-  context 'claims evidence enabled' do
-    let(:claim) { build(:dependency_claim_v2) }
+  describe '#submit_pdf_job' do
     let(:pa) { build(:claim_evidence, id: 23) }
     let(:ssn) { '123456789' }
     let(:folder_identifier) { "VETERAN:SSN:#{ssn}" }
@@ -452,8 +423,6 @@ RSpec.describe BGS::DependentV2Service do
     let(:stats_key) { BGS::DependentService::STATS_KEY }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(true)
-
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
       allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true, process_pdf: pdf_path)
 
@@ -492,7 +461,7 @@ RSpec.describe BGS::DependentV2Service do
       expect(monitor).to receive(:track_event).with('info', 'BGS::DependentV2Service#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")
 
-      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+      service.send(:submit_pdf_job, claim:)
     end
   end
 end
