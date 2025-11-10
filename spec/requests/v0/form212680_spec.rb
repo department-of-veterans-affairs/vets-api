@@ -62,4 +62,3 @@ RSpec.describe 'V0::Form212680', type: :request do
     end
   end
 end
-# api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,source_app:21-2680-house-bound-status,status:200

@@ -5,6 +5,7 @@ module V0
     include RetriableConcern
     service_tag 'form-21-2680'
     skip_before_action :authenticate, only: %i[download_pdf]
+    before_action :load_user
     before_action :check_feature_enabled
 
     # POST /v0/form212680/download_pdf
@@ -37,7 +38,7 @@ module V0
     private
 
     def check_feature_enabled
-      routing_error unless Flipper.enabled?(:form_2680_enabled)
+      routing_error unless Flipper.enabled?(:form_2680_enabled, @current_user)
     end
   end
 end

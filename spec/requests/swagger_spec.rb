@@ -2791,7 +2791,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             expect(subject).to validate(
               :post,
               '/v0/form212680/download_pdf',
-              200,
+              404,
               headers.merge('_data' => {
                 'form' => VetsJsonSchema::EXAMPLES['21-2680']
               }.to_json)

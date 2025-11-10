@@ -61,11 +61,11 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false)
       end
 
       it 'returns 404 Not Found (routing error)' do
-        post(:create, body: valid_form_data, as: :json)
+        post(:download_pdf, params: valid_form_data, as: :json)
         expect(response).to have_http_status(:not_found)
       end
     end
