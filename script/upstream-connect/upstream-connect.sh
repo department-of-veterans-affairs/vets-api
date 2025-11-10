@@ -214,8 +214,14 @@ check_aws_auth() {
   fi
   
   # Try to run a simple AWS command to check auth
-  if ! aws sts get-caller-identity > /dev/null 2>&1; then
-    log_warning "AWS authentication required"
+  local aws_check_result
+  aws_check_result=$(aws sts get-caller-identity 2>&1)
+  if [[ $? -ne 0 ]]; then
+    if [[ "$aws_check_result" =~ "ExpiredToken" ]] || [[ "$aws_check_result" =~ "RequestExpired" ]]; then
+      log_warning "AWS session expired, need to re-authenticate"
+    else
+      log_warning "AWS authentication required"
+    fi
     return 1
   fi
   
@@ -462,15 +468,8 @@ setup_tunnel_setting() {
     return 1
   fi
   
-  # Use our upstream_settings_sync script to preserve comments
-  "$SCRIPT_DIR/upstream_settings_sync.rb" \
-    --namespace "$namespace" \
-    --environment "local" \
-    --force \
-    --devops-path "$DEVOPS_PATH" \
-    2>/dev/null || {
-    
-    # Fallback: directly update the specific line to preserve comments
+  # Directly update the settings file to preserve comments (no Parameter Store needed)
+  # Update the specific line to preserve comments
     ruby -e "
       settings_file = '$settings_file'
       namespace = '$namespace'
@@ -516,7 +515,6 @@ setup_tunnel_setting() {
       # If not found, add it (simplified approach)
       puts \"Warning: Could not find \#{namespace}.\#{tunnel_setting} to update\"
     "
-  }
   
   if [[ $? -eq 0 ]]; then
     log_success "Updated $namespace.$tunnel_setting to https://localhost:$port"
@@ -548,9 +546,9 @@ setup_port_forwarding() {
     log_info "Setting up port forwarding: localhost:$port → staging:$port"
     
     if [[ -n "$DRY_RUN" ]]; then
-      log_info "[DRY RUN] Would start SSM port forwarding: fwdproxy staging $port $port"
+      log_info "[DRY RUN] Would start SSM port forwarding: forward-proxy staging $port $port"
     else
-      start_ssm_port_forwarding "fwdproxy" "staging" "$port" "$port"
+      start_ssm_port_forwarding "forward-proxy" "staging" "$port" "$port"
     fi
   done
   
@@ -576,34 +574,49 @@ start_ssm_port_forwarding() {
     return 1
   fi
   
-  # Check AWS authentication with dry run
-  local aws_check_result
-  aws_check_result=$(aws ec2 describe-instances --dry-run --filters "Name=instance-state-name,Values=running" "Name=tag:deployment_name,Values=${deployment_name}" "Name=tag:environment,Values=${app_env}" --query 'Reservations[*].Instances[*].[InstanceId]' --output text 2>&1)
+  # Source AWS credentials and check authentication
+  if [[ -f ~/.aws/session_credentials.sh ]]; then
+    source ~/.aws/session_credentials.sh
+    log_info "AWS credentials sourced (token: ${AWS_SESSION_TOKEN:0:20}...)"
+  fi
   
-  if [[ ! $aws_check_result =~ "Request would have succeeded" ]] || [[ -z $AWS_SESSION_TOKEN ]]; then
+  # Simple authentication check - just verify we can call AWS STS
+  if ! aws sts get-caller-identity &>/dev/null; then
     log_error "AWS authentication invalid for SSM operations"
     log_info "Please ensure you have valid AWS session credentials"
     return 1
   fi
   
+  log_info "AWS authentication verified for SSM operations"
+  
   local instance_ids=()
   
   if [[ -z "${instance_id}" ]]; then
-    log_info "Finding instances for $deployment_name $app_env"
+    log_info "Finding instances for deployment_name=$deployment_name app_env=$app_env"
     
     # Get instances matching the deployment and environment
     local lines
-    lines=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=tag:deployment_name,Values=${deployment_name}" "Name=tag:environment,Values=${app_env}" --query 'Reservations[*].Instances[*].[InstanceId]' --output text)
+    log_info "Running AWS EC2 describe-instances query..."
+    lines=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=tag:deployment_name,Values=${deployment_name}" "Name=tag:environment,Values=${app_env}" --query 'Reservations[*].Instances[*].[InstanceId]' --output text 2>&1)
+    
+    if [[ $? -ne 0 ]]; then
+      log_error "Failed to query EC2 instances: $lines"
+      return 1
+    fi
     
     # Build array of instance IDs
     for id in $lines; do
-      instance_ids+=($(echo -n ${id} | tr -d '\r'))
+      if [[ -n "$id" && "$id" != "None" ]]; then
+        instance_ids+=($(echo -n ${id} | tr -d '\r'))
+      fi
     done
     
     log_info "Found instances: ${instance_ids[@]}"
     
     if [[ ${#instance_ids[@]} -eq 0 ]]; then
-      log_error "No instances found for $deployment_name $app_env"
+      log_error "No instances found for deployment_name=$deployment_name app_env=$app_env"
+      log_info "Double-checking with detailed query..."
+      aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=tag:deployment_name,Values=${deployment_name}" "Name=tag:environment,Values=${app_env}" --query 'Reservations[*].Instances[*].[InstanceId,Tags[?Key==`deployment_name`].Value|[0],Tags[?Key==`environment`].Value|[0]]' --output table
       return 1
     fi
     
@@ -632,6 +645,7 @@ start_ssm_port_forwarding() {
   local log_file="/tmp/ssm-port-forward-${local_port}-${remote_port}.log"
   
   # Start SSM session in background and capture PID
+  log_info "Running: aws ssm start-session --target $instance_id --document-name AWS-StartPortForwardingSession --parameters \"$parameters\""
   aws ssm start-session \
     --target "$instance_id" \
     --document-name AWS-StartPortForwardingSession \
@@ -810,27 +824,54 @@ cleanup_port_forwarding() {
   echo -e "${BLUE}🧹 Cleaning up port forwarding sessions${NC}"
   echo ""
   
-  local pid_file="/tmp/upstream-connect-pids.txt"
   local cleaned_count=0
   
-  if [[ ! -f "$pid_file" ]]; then
-    log_info "No active sessions found (PID file not found)"
-    return 0
-  fi
-  
-  while read -r pid; do
-    if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
-      log_info "Stopping process $pid..."
-      if kill "$pid" 2>/dev/null; then
-        cleaned_count=$((cleaned_count + 1))
-        log_success "Process $pid stopped"
-      else
-        log_warning "Failed to stop process $pid (may already be stopped)"
+  # Find and kill active session-manager processes on our common ports
+  for port in 4437 4492; do
+    if lsof -i :$port > /dev/null 2>&1; then
+      local pid
+      pid=$(lsof -i :$port | tail -n +2 | awk '{print $2}' | head -1)
+      local process_name
+      process_name=$(lsof -i :$port | tail -n +2 | awk '{print $1}' | head -1)
+      
+      if [[ -n "$pid" ]]; then
+        log_info "Stopping $process_name process $pid on port $port..."
+        if kill "$pid" 2>/dev/null; then
+          cleaned_count=$((cleaned_count + 1))
+          log_success "Process $pid stopped"
+        else
+          log_warning "Failed to stop process $pid (may already be stopped)"
+        fi
       fi
-    else
-      log_info "Process $pid already stopped"
     fi
-  done < "$pid_file"
+  done
+  
+  # Also clean up any PIDs from the tracking file (for completeness)
+  local pid_file="/tmp/upstream-connect-pids.txt"
+  if [[ -f "$pid_file" ]]; then
+    while read -r pid; do
+      if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+        # Only kill if it's not already handled above
+        local already_handled=false
+        for port in 4437 4492; do
+          if lsof -i :$port -p "$pid" > /dev/null 2>&1; then
+            already_handled=true
+            break
+          fi
+        done
+        
+        if [[ "$already_handled" = false ]]; then
+          log_info "Stopping tracked process $pid..."
+          if kill "$pid" 2>/dev/null; then
+            cleaned_count=$((cleaned_count + 1))
+            log_success "Process $pid stopped"
+          else
+            log_info "Process $pid already stopped"
+          fi
+        fi
+      fi
+    done < "$pid_file"
+  fi
   
   # Remove the PID file
   rm -f "$pid_file"

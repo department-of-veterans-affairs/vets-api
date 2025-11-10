@@ -457,12 +457,21 @@ class UpstreamSettingsSync
   def format_yaml_value(value)
     case value
     when String
-      # Quote if contains special characters or looks like other types
-      if value.match(/[:\[\]{}|>@`]/) || value.start_with?('#') ||
-         value =~ /^\d+$/ || %w[true false null].include?(value.downcase)
-        value.inspect
+      # Convert string representations of booleans to actual booleans (weird, but it works)
+      case value.downcase
+      when 'true'
+        'true'
+      when 'false'
+        'false'
+      when 'null', ''
+        'null'
       else
-        value
+        # Quote if contains special characters or looks like other types
+        if value.match(/[:\[\]{}|>@`]/) || value.start_with?('#') || value =~ /^\d+$/
+          value.inspect
+        else
+          value
+        end
       end
     when Numeric, TrueClass, FalseClass, NilClass
       value.to_s
