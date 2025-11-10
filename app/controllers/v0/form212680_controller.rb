@@ -15,34 +15,41 @@ module V0
       # using request.raw_post to avoid the middleware that transforms the JSON keys to snake case
       parsed_body = JSON.parse(request.raw_post)
       form_data = parsed_body['form']
-      
-      unless form_data
-        raise Common::Exceptions::ParameterMissing.new('form')
-      end
 
-      form_body = form_data.to_json
-      claim = SavedClaim::Form212680.new(form: form_body)
-      if claim.save
-        pdf_path = with_retries('Generate 21-2680 PDF') do
-          claim.generate_prefilled_pdf
-        end
-        file_data = File.read(pdf_path)
+      raise Common::Exceptions::ParameterMissing, 'form' unless form_data
 
-        send_data file_data,
-                  filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'attachment'
-      else
-        raise(Common::Exceptions::ValidationErrors, claim)
-      end
+      claim = create_claim_from_form_data(form_data)
+      pdf_path = generate_and_send_pdf(claim)
     rescue JSON::ParserError
-      raise Common::Exceptions::ParameterMissing.new('form')
+      raise Common::Exceptions::ParameterMissing, 'form'
     ensure
       # Delete the temporary PDF file
       File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
     end
 
     private
+
+    def create_claim_from_form_data(form_data)
+      form_body = form_data.to_json
+      claim = SavedClaim::Form212680.new(form: form_body)
+      raise(Common::Exceptions::ValidationErrors, claim) unless claim.save
+
+      claim
+    end
+
+    def generate_and_send_pdf(claim)
+      pdf_path = with_retries('Generate 21-2680 PDF') do
+        claim.generate_prefilled_pdf
+      end
+      file_data = File.read(pdf_path)
+
+      send_data file_data,
+                filename: "VA_Form_21-2680_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
+                type: 'application/pdf',
+                disposition: 'attachment'
+
+      pdf_path
+    end
 
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_2680_enabled, current_user)
