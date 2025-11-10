@@ -59,7 +59,8 @@
   },
   "certification": {
     "titleOfStateOrTribalOfficial": "Director of Veterans Services",
-    "signature": "John M. Smith"
+    "signature": "John M. Smith",
+    "certified": true
   },
   "remarks": "Application for state cemetery burial allowance"
 }
