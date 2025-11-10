@@ -412,4 +412,43 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       expect(second_tracking[:other_prescriptions]).to eq([])
     end
   end
+
+  describe '#tracking_list' do
+    context 'when trackingList is present' do
+      let(:medication_with_tracking_list) do
+        base_vista_medication.merge(
+          'trackingList' => [
+            { 'id' => 1, 'trackingNumber' => 'ABC123' },
+            { 'id' => 2, 'trackingNumber' => 'XYZ789' }
+          ]
+        )
+      end
+
+      it 'extracts trackingList from Vista medication data' do
+        result = subject.parse(medication_with_tracking_list)
+        expect(result.tracking_list).to eq([
+          { 'id' => 1, 'trackingNumber' => 'ABC123' },
+          { 'id' => 2, 'trackingNumber' => 'XYZ789' }
+        ])
+      end
+    end
+
+    context 'when trackingList is nil' do
+      let(:medication_without_tracking_list) do
+        base_vista_medication.merge('trackingList' => nil)
+      end
+
+      it 'returns empty array' do
+        result = subject.parse(medication_without_tracking_list)
+        expect(result.tracking_list).to eq([])
+      end
+    end
+
+    context 'when trackingList is not present' do
+      it 'returns empty array' do
+        result = subject.parse(base_vista_medication)
+        expect(result.tracking_list).to eq([])
+      end
+    end
+  end
 end

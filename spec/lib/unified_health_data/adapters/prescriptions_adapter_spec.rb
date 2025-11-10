@@ -596,5 +596,55 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(prescriptions).to be_empty
       end
     end
+
+    context 'with tracking_list field' do
+      let(:vista_medication_with_tracking_list) do
+        vista_medication_data.merge(
+          'trackingList' => [
+            { 'id' => 1, 'trackingNumber' => 'ABC123' },
+            { 'id' => 2, 'trackingNumber' => 'XYZ789' }
+          ]
+        )
+      end
+
+      let(:response_with_vista_tracking_list) do
+        {
+          'vista' => {
+            'medicationList' => {
+              'medication' => [vista_medication_with_tracking_list]
+            }
+          },
+          'oracle-health' => nil
+        }
+      end
+
+      it 'includes tracking_list from VistA prescriptions' do
+        prescriptions = subject.parse(response_with_vista_tracking_list)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.tracking_list).to eq([
+          { 'id' => 1, 'trackingNumber' => 'ABC123' },
+          { 'id' => 2, 'trackingNumber' => 'XYZ789' }
+        ])
+      end
+
+      it 'returns empty array for Oracle Health prescriptions' do
+        prescriptions = subject.parse(unified_response)
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+        expect(oracle_prescription.tracking_list).to eq([])
+      end
+
+      it 'returns empty array when VistA trackingList is nil' do
+        response_with_nil_tracking_list = {
+          'vista' => {
+            'medicationList' => {
+              'medication' => [vista_medication_data.merge('trackingList' => nil)]
+            }
+          },
+          'oracle-health' => nil
+        }
+        prescriptions = subject.parse(response_with_nil_tracking_list)
+        expect(prescriptions.first.tracking_list).to eq([])
+      end
+    end
   end
 end

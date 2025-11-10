@@ -1311,4 +1311,23 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
   end
+
+  describe '#tracking_list' do
+    let(:base_oracle_resource) do
+      {
+        'id' => '12345',
+        'resourceType' => 'MedicationRequest',
+        'status' => 'active',
+        'authoredOn' => '2025-01-29T19:41:43Z',
+        'medicationCodeableConcept' => {
+          'text' => 'Test Medication'
+        }
+      }
+    end
+
+    it 'returns empty array for Oracle Health prescriptions' do
+      result = subject.parse(base_oracle_resource)
+      expect(result.tracking_list).to eq([])
+    end
+  end
 end

@@ -36,6 +36,9 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
           other_prescriptions: []
         }
       ],
+      tracking_list: [
+        { 'id' => 1, 'trackingNumber' => 'ABC123' }
+      ],
       instructions: 'Take twice daily with meals',
       facility_phone_number: '555-123-4567',
       prescription_source: 'VA'
@@ -73,6 +76,12 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
         tracking_number: '1Z999AA1234567890',
         carrier: 'UPS'
       )
+
+      # tracking_list
+      expect(attributes[:tracking_list]).to be_an(Array)
+      expect(attributes[:tracking_list]).to eq([
+        { 'id' => 1, 'trackingNumber' => 'ABC123' }
+      ])
     end
   end
 end
