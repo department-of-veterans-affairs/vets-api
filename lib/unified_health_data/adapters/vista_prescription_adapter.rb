@@ -31,16 +31,16 @@ module UnifiedHealthData
           id: medication['prescriptionId'].to_s,
           type: 'Prescription',
           refill_status: medication['refillStatus'],
-          refill_submit_date: medication['refillSubmitDate'],
-          refill_date: medication['refillDate'],
+          refill_submit_date: convert_to_iso8601(medication['refillSubmitDate'], field_name: 'refill_submit_date'),
+          refill_date: convert_to_iso8601(medication['refillDate'], field_name: 'refill_date'),
           refill_remaining: medication['refillRemaining'],
           facility_name: medication['facilityName'],
-          ordered_date: medication['orderedDate'],
+          ordered_date: convert_to_iso8601(medication['orderedDate'], field_name: 'ordered_date'),
           quantity: medication['quantity'],
-          expiration_date: medication['expirationDate'],
+          expiration_date: convert_to_iso8601(medication['expirationDate'], field_name: 'expiration_date'),
           prescription_number: medication['prescriptionNumber'],
           prescription_name: medication['prescriptionName'].presence || medication['orderableItem'],
-          dispensed_date: medication['dispensedDate'],
+          dispensed_date: convert_to_iso8601(medication['dispensedDate'], field_name: 'dispensed_date'),
           station_number: medication['stationNumber'],
           is_refillable: medication['isRefillable']
         }
@@ -80,13 +80,7 @@ module UnifiedHealthData
       end
 
       def format_shipped_date(date_string)
-        return nil if date_string.blank?
-
-        # Parse the VistA date format "Wed, 07 Sep 2016 00:00:00 EDT" and convert to ISO 8601
-        Time.parse(date_string).utc.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
-      rescue ArgumentError => e
-        Rails.logger.warn("Failed to parse shipped_date '#{date_string}': #{e.message}")
-        date_string # Return original string if parsing fails
+        convert_to_iso8601(date_string, field_name: 'shipped_date')
       end
 
       def build_other_prescriptions(other_prescriptions)
@@ -100,6 +94,15 @@ module UnifiedHealthData
             station_number: prescription['stationNumber']
           }
         end
+      end
+
+      def convert_to_iso8601(date_string, field_name:)
+        return nil if date_string.blank?
+
+        Time.parse(date_string.to_s).utc.iso8601(3)
+      rescue ArgumentError => e
+        Rails.logger.warn("Failed to parse #{field_name} '#{date_string}': #{e.message}")
+        date_string
       end
     end
   end
