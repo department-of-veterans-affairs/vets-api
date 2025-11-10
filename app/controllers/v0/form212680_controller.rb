@@ -36,10 +36,17 @@ module V0
 
     def transform_country_codes!(form_data)
       # Transform claimant address country code
-      address = form_data.dig('claimantInformation', 'address')
-      if address&.key?('country')
-        transformed_country = extract_country(address)
-        address['country'] = transformed_country if transformed_country
+      claimant_address = form_data.dig('claimantInformation', 'address')
+      if claimant_address&.key?('country')
+        transformed_country = extract_country(claimant_address)
+        claimant_address['country'] = transformed_country if transformed_country
+      end
+
+      # Transform hospital address country code
+      hospital_address = form_data.dig('additionalInformation', 'hospitalAddress')
+      if hospital_address&.key?('country')
+        transformed_country = extract_country(hospital_address)
+        hospital_address['country'] = transformed_country if transformed_country
       end
     end
 
