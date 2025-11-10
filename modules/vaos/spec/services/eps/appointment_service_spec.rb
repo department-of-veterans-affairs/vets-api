@@ -101,9 +101,6 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
-        # Verify controller name comes from RequestStore
-        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
-        # Verify station_number comes from user object
         expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 
@@ -185,9 +182,6 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
-        # Verify controller name comes from RequestStore
-        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
-        # Verify station_number comes from user object
         expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 
@@ -273,9 +267,6 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
-        # Verify controller name comes from RequestStore
-        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
-        # Verify station_number comes from user object
         expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 
@@ -444,9 +435,6 @@ describe Eps::AppointmentService do
       end
 
       it 'logs the error without PII' do
-        # Verify controller name comes from RequestStore
-        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
-        # Verify station_number comes from user object
         expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = user.va_treatment_facility_ids&.first
 

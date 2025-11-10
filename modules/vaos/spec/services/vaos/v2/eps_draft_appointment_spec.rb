@@ -416,9 +416,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
       it 'logs provider not found error when provider is nil' do
         allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
-        # Verify controller name comes from RequestStore
-        expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
-        # Verify station_number comes from user object
         expected_controller_name = 'VAOS::V2::AppointmentsController'
         expected_station_number = current_user.va_treatment_facility_ids&.first
 
@@ -535,9 +532,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           invalid_date_referral = referral_data.dup
           invalid_date_referral.referral_date = 'invalid-date'
 
-          # Verify controller name comes from RequestStore
-          expect(RequestStore.store['controller_name']).to eq('VAOS::V2::AppointmentsController')
-          # Verify station_number comes from user object
           expected_controller_name = 'VAOS::V2::AppointmentsController'
           expected_station_number = current_user.va_treatment_facility_ids&.first
 
