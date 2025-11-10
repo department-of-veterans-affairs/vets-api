@@ -143,47 +143,72 @@ jobs:
       - name: Check if workflows have completed successfully
         id: check_workflow_status
         run: |
-          failures_detected=false
           failures=false
           unsuccessful_count=0
 
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
           WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Service Tags" "CodeQL")
 
-          for WORKFLOW in "${WORKFLOWS[@]}"; do
-            # Check if there's any in-progress run for this workflow
+          echo "Checking workflows for branch: ${pr_branch}"
+          echo "PR Number: ${pr_number}"
 
-            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --limit 100 --json headBranch,event,headSha -q \
-              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | .headSha" | head -n 1 || true)
+          for WORKFLOW in "${WORKFLOWS[@]}"; do
+            echo "================================================"
+            echo "Checking workflow: $WORKFLOW"
+
+            # Check if there's any in-progress run for this workflow on this branch
+            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" \
+              --workflow="$WORKFLOW" \
+              --branch="${pr_branch}" \
+              --event=pull_request \
+              --status=in_progress \
+              --limit 10 \
+              --json databaseId -q '.[0].databaseId' || true)
 
             if [ -n "$IN_PROGRESS" ]; then
-              echo "$WORKFLOW is still in progress."
+              echo "✗ $WORKFLOW is still in progress."
               failures=true
             else
-              # Check if the latest completed run was successful
-              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --limit 100 --json headBranch,event,conclusion,headSha -q \
-                ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1 || true)
+              # Get the most recent completed run for this workflow on this branch
+              LATEST_RUN=$(gh run list --repo "$GITHUB_REPOSITORY" \
+                --workflow="$WORKFLOW" \
+                --branch="${pr_branch}" \
+                --event=pull_request \
+                --status=completed \
+                --limit 10 \
+                --json conclusion,databaseId,status -q '.[0]' || true)
 
-              if [ -z "$SUCCESSFUL" ]; then
-                echo "$WORKFLOW did not complete successfully."
+              if [ -z "$LATEST_RUN" ] || [ "$LATEST_RUN" = "null" ]; then
+                echo "⚠ No runs found for $WORKFLOW on this branch"
                 ((unsuccessful_count++))
                 failures=true
               else
-                echo "$WORKFLOW completed successfully."
+                CONCLUSION=$(echo "$LATEST_RUN" | jq -r '.conclusion')
+                RUN_ID=$(echo "$LATEST_RUN" | jq -r '.databaseId')
+
+                if [ "$CONCLUSION" = "success" ]; then
+                  echo "✓ $WORKFLOW completed successfully (Run ID: $RUN_ID)"
+                else
+                  echo "✗ $WORKFLOW conclusion: $CONCLUSION (Run ID: $RUN_ID)"
+                  ((unsuccessful_count++))
+                  failures=true
+                fi
               fi
             fi
           done
 
-          if [ "$unsuccessful_count" -eq 4 ]; then
+          echo "================================================"
+          echo "Summary: $unsuccessful_count out of ${#WORKFLOWS[@]} workflows unsuccessful"
+
+          if [ "$unsuccessful_count" -eq ${#WORKFLOWS[@]} ]; then
             failures=false
-            echo "All workflows are failing."
+            echo "All workflows are failing - setting failures to false"
           fi
 
-          echo "$failures"
+          echo "Final failures value: $failures"
           echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   fetch-pr-reviews:
     name: Fetch Pull Request Reviews
     needs: [get-pr-data, check-workflow-status]
