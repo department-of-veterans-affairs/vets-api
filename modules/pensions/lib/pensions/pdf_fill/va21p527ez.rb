@@ -17,7 +17,6 @@ require_relative 'sections/section_10'
 require_relative 'sections/section_11'
 require_relative 'sections/section_12'
 
-# rubocop:disable Metrics/MethodLength
 module Pensions
   module PdfFill
     # The Va21p527ez Form
@@ -222,9 +221,6 @@ module Pensions
       def merge_fields(_options = {})
         expand_veteran_identification_information
         expand_veteran_contact_information
-        expand_veteran_service_information
-        expand_pension_information
-        expand_employment_history
 
         # Sections 7 - 12
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
@@ -252,36 +248,6 @@ module Pensions
         @form_data['veteranAddress']['country'] = @form_data.dig('veteranAddress', 'country')&.slice(0, 2)
         @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
       end
-
-      # SECTION III: VETERAN'S SERVICE INFORMATION
-      def expand_veteran_service_information
-        prev_names = @form_data['previousNames']
-
-        @form_data['previousNames'] = prev_names.pluck('previousFullName') if prev_names.present?
-        @form_data['activeServiceDateRange'] = {
-          'from' => split_date(@form_data.dig('activeServiceDateRange', 'from')),
-          'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
-        }
-        @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
-        @form_data['serviceBranch'] = @form_data['serviceBranch']&.each_key { |k| @form_data['serviceBranch'][k] = '1' }
-
-        @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
-        if @form_data['pow'].zero?
-          @form_data['powDateRange'] ||= {}
-          @form_data['powDateRange']['from'] = split_date(@form_data.dig('powDateRange', 'from'))
-          @form_data['powDateRange']['to'] = split_date(@form_data.dig('powDateRange', 'to'))
-        end
-
-        place_of_separation = @form_data['placeOfSeparation'].to_s
-
-        if place_of_separation.length <= 36 # split lines
-          @form_data['placeOfSeparationLineOne'] = place_of_separation[0..17]
-          @form_data['placeOfSeparationLineTwo'] = place_of_separation[18..]
-        else # overflow
-          @form_data['placeOfSeparationLineOne'] = place_of_separation
-        end
-      end
     end
   end
 end
-# rubocop:enable Metrics/MethodLength
