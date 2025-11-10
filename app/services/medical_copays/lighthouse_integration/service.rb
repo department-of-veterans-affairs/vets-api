@@ -12,7 +12,7 @@ module MedicalCopays
       def list(count:, page:)
         raw_invoices = invoice_service.list(count:, page:)
         entries = raw_invoices['entry'].map do |entry|
-          ::Lighthouse::HCC::Invoice.new(entry)
+          Lighthouse::HCC::Invoice.new(entry)
         end
 
         Lighthouse::HCC::Bundle.new(raw_invoices, entries)
