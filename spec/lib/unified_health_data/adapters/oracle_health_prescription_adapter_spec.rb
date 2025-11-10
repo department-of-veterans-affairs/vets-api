@@ -1042,9 +1042,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'sets is_trackable to true when tracking data exists' do
+      it 'sets is_trackable to false (hard-coded for Oracle Health)' do
         result = subject.parse(resource_with_tracking)
-        expect(result.is_trackable).to be(true)
+        expect(result.is_trackable).to be(false)
       end
     end
 

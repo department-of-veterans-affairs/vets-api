@@ -50,7 +50,7 @@ module UnifiedHealthData
 
       def build_tracking_attributes(tracking_data)
         {
-          is_trackable: tracking_data.any?,
+          is_trackable: false,
           tracking: tracking_data
         }
       end
