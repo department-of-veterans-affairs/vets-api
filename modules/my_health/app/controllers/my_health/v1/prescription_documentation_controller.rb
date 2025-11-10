@@ -8,6 +8,7 @@ module MyHealth
         rx = client.get_rx_details(id)
         raise StandardError, 'Rx not found' if rx.nil?
         raise StandardError, 'Missing NDC number' if rx.cmop_ndc_value.nil?
+        
         # Fetch prescription documentation using the NDC number
         # https://api.krames.com/v3/content/search?ndc=<NDC>
         #
