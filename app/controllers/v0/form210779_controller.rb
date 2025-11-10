@@ -38,6 +38,7 @@ module V0
       raise ActiveRecord::RecordNotFound unless claim
 
       source_file_path = claim.to_pdf
+      raise Common::Exceptions::InternalServerError, 'Failed to generate PDF' unless source_file_path
 
       send_data File.read(source_file_path),
                 filename: "21-0779_#{SecureRandom.uuid}.pdf",

@@ -44,7 +44,7 @@ module Swagger
 
           parameter do
             key :name, 'guid'
-            key :in, :query
+            key :in, :path
             key :description, 'the guid from the form submission response'
             key :required, true
             key :type, :string

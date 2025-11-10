@@ -16,7 +16,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
   describe 'POST #create' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:form_07790_enabled, nil).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
     end
 
     it 'returns expected response structure' do
@@ -71,7 +71,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       end
 
       after do
-        allow(Flipper).to receive(:enabled?).with(:form_07790_enabled, nil).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
       end
 
       it 'returns 404 Not Found (routing error)' do
@@ -86,6 +86,10 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
     let(:claim) { create(:va210779) }
     let(:temp_file_path) { "tmp/pdfs/21-0779_#{claim.id}.pdf" }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
+    end
 
     it 'generates and downloads PDF' do
       get(:download_pdf, params: { guid: claim.guid })
@@ -107,14 +111,15 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       get(:download_pdf, params: { guid: claim.guid })
     end
 
-    it 'deletes temporary file even when PDF generation fails' do
-      allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_raise(StandardError, 'PDF generation error')
+    it 'returns 500 when to_pdf returns nil' do
+      allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_return(nil)
       # File.delete should not be called since source_file_path is nil
-      expect(File).not_to receive(:delete).with(temp_file_path)
+      expect(File).not_to receive(:delete)
 
       get(:download_pdf, params: { guid: claim.guid })
       expect(response).to have_http_status(:internal_server_error)
       expect(parsed_response['errors']).to be_present
+      expect(parsed_response['errors'].first['status']).to eq('500')
     end
 
     it 'deletes temporary file even when file read fails' do

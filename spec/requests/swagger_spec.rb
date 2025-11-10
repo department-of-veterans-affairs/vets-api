@@ -2755,6 +2755,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     describe 'form 21-0779 nursing home information' do
       let(:saved_claim) { create(:va210779) }
 
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
+      end
+
       it 'supports submitting a form 21-0779' do
         expect(subject).to validate(
           :post,
@@ -2773,7 +2777,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
-      it 'successfully downloads form210779 pdf', skip: 'need apivore update to accept binary response' do
+      it 'successfully downloads form210779 pdf', skip: 'swagger validation cannot handle binary PDF response' do
         expect(subject).to validate(
           :get,
           '/v0/form210779/download_pdf/{guid}',
