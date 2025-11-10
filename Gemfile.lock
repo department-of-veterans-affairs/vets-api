@@ -281,7 +281,7 @@ GEM
     base64 (0.3.0)
     bcp47 (0.3.3)
       i18n
-    benchmark (0.4.1)
+    benchmark (0.5.0)
     bigdecimal (3.3.1)
     bigdecimal (3.3.1-java)
     bindex (0.8.1)
@@ -681,8 +681,8 @@ GEM
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    kms_encrypted (1.7.0)
-      activesupport (>= 7.1)
+    kms_encrypted (1.8.0)
+      activesupport (>= 7.2)
       base64
     kramdown (2.5.1)
       rexml (>= 3.3.9)
@@ -734,7 +734,7 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.0)
+    minitest (5.26.1)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
