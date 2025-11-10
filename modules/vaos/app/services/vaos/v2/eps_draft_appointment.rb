@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../concerns/logging_context'
-
 module VAOS
   module V2
     ##
@@ -29,7 +27,6 @@ module VAOS
     #
     class EpsDraftAppointment
       include VAOS::CommunityCareConstants
-      include VAOS::LoggingContext
 
       REFERRAL_DRAFT_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_draft_station_id.access".freeze
       PROVIDER_DRAFT_NETWORK_ID_METRIC = "#{STATSD_PREFIX}.provider_draft_network_id.access".freeze
@@ -70,6 +67,35 @@ module VAOS
         return unless validate_params(referral_id, referral_consult_id)
 
         build_appointment_draft(referral_id, referral_consult_id)
+      end
+
+      ##
+      # Returns the controller name from RequestStore for logging context
+      #
+      # @return [String, nil] The controller name or nil if not set
+      #
+      def controller_name
+        RequestStore.store['controller_name']
+      end
+
+      ##
+      # Returns the user's primary station number (first treatment facility ID) for logging context
+      #
+      # @param user [User] The user object (optional, will try to use @current_user if not provided)
+      # @return [String, nil] The station number or nil if not available
+      #
+      def station_number(user = nil)
+        user_obj = user || @current_user
+        user_obj&.va_treatment_facility_ids&.first
+      end
+
+      ##
+      # Returns the EPS trace ID from RequestStore
+      #
+      # @return [String, nil] The trace ID or nil if not set
+      #
+      def eps_trace_id
+        RequestStore.store['eps_trace_id']
       end
 
       private

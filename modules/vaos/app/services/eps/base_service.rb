@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'token_authentication'
-require_relative '../concerns/logging_context'
 
 module Eps
   # Eps::BaseService provides common functionality for making REST API requests
@@ -10,7 +9,6 @@ module Eps
     include Common::Client::Concerns::Monitoring
     include Eps::TokenAuthentication
     include VAOS::CommunityCareConstants
-    include VAOS::LoggingContext
 
     STATSD_KEY_PREFIX = 'api.eps'
     REDIS_TOKEN_KEY = REDIS_CONFIG[:eps_access_token][:namespace]
@@ -77,6 +75,33 @@ module Eps
     end
 
     private
+
+    ##
+    # Returns the controller name from RequestStore for logging context
+    #
+    # @return [String, nil] The controller name or nil if not set
+    #
+    def controller_name
+      RequestStore.store['controller_name']
+    end
+
+    ##
+    # Returns the user's primary station number (first treatment facility ID) for logging context
+    #
+    # @return [String, nil] The station number or nil if not available
+    #
+    def station_number
+      user&.va_treatment_facility_ids&.first
+    end
+
+    ##
+    # Returns the EPS trace ID from RequestStore
+    #
+    # @return [String, nil] The trace ID or nil if not set
+    #
+    def eps_trace_id
+      RequestStore.store['eps_trace_id']
+    end
 
     def parse_eps_backend_fields(raw_message)
       # Extract code from the top level
