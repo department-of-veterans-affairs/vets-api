@@ -15,6 +15,7 @@ module V0
     # Physician sections (VI-VIII) are left blank for manual completion
     def download_pdf
       # using request.raw_post to avoid the middleware that transforms the JSON keys to snake case
+      pdf_path = nil
       parsed_body = JSON.parse(request.raw_post)
       form_data = parsed_body['form']
 
@@ -27,9 +28,11 @@ module V0
       pdf_path = generate_and_send_pdf(claim)
     rescue JSON::ParserError
       raise Common::Exceptions::ParameterMissing, 'form'
+    rescue Common::Exceptions::ValidationErrors
+      raise
     ensure
       # Delete the temporary PDF file
-      File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
+      File.delete(pdf_path) if pdf_path rescue Errno::ENOENT
     end
 
     private
