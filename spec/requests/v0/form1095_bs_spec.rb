@@ -45,7 +45,12 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       # this will be irrelevant after we add the template
-      it 'throws 422 when no template exists for requested year' do
+      it 'throws 422 when template is not available' do
+        get '/v0/form1095_bs/download_pdf/2023'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'throws 422 when requested year is more than 5 years ago' do
         get '/v0/form1095_bs/download_pdf/2018'
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -104,8 +109,13 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       # this will be irrelevant after we add the template
-      it 'throws 422 when no template exists for requested year' do
+      it 'throws 422 when template is not available' do
         get '/v0/form1095_bs/download_txt/2023'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'throws 422 when requested year is more than 5 years ago' do
+        get '/v0/form1095_bs/download_txt/2018'
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
