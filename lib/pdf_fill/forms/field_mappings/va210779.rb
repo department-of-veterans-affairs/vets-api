@@ -237,7 +237,7 @@ module PdfFill
               thousands: {
                 key: 'F[0].Page_1[0].Amount[1]',
                 question_text: '15. MONTHLY AMOUNT PATIENT IS RESPONSIBLE FOR OUT OF POCKET.' \
-                              ' Enter AMOUNT.  3 digits.',
+                               ' Enter AMOUNT.  3 digits.',
                 type: 'Text'
               },
               ones: {
