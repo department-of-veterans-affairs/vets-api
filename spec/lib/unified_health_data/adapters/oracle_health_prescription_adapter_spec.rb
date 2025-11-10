@@ -89,6 +89,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
       end
     end
+
+    context 'with disclaimer field' do
+      it 'sets disclaimer to nil for Oracle Health prescriptions' do
+        result = subject.parse(base_resource)
+
+        expect(result.disclaimer).to be_nil
+      end
+    end
   end
 
   describe '#extract_prescription_source' do
