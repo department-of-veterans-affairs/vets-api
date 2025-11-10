@@ -3270,6 +3270,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/form210779/download_pdf/{guid}')
       subject.untested_mappings.delete('/v0/form0969')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
+      subject.untested_mappings.delete('/v0/form212680/download_pdf')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
