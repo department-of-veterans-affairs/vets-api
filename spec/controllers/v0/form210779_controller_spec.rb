@@ -62,6 +62,11 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
+    it 'returns bad_request when json is invalid' do
+      post(:create, body: "}", as: :json)
+      expect(response).to have_http_status(:bad_request)
+    end
+
     context 'when feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false)
