@@ -44,7 +44,9 @@ RSpec.describe DependentsBenefits::NotificationEmail do
     context 'when only 686c is submitted' do
       before do
         allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_686?).and_return(true)
-        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_674?).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_674?
+        ).and_return(false)
       end
 
       it 'sends the 686c only received notification email' do
@@ -56,7 +58,9 @@ RSpec.describe DependentsBenefits::NotificationEmail do
 
     context 'when only 674 is submitted' do
       before do
-        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_686?).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_686?
+        ).and_return(false)
         allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_674?).and_return(true)
       end
 
@@ -82,7 +86,9 @@ RSpec.describe DependentsBenefits::NotificationEmail do
     context 'when only 686c is submitted' do
       before do
         allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_686?).and_return(true)
-        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_674?).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_674?
+        ).and_return(false)
       end
 
       it 'sends the 686c only error notification email' do
@@ -94,7 +100,9 @@ RSpec.describe DependentsBenefits::NotificationEmail do
 
     context 'when only 674 is submitted' do
       before do
-        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_686?).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_686?
+        ).and_return(false)
         allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_674?).and_return(true)
       end
 
