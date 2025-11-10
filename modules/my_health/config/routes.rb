@@ -12,6 +12,10 @@ MyHealth::Engine.routes.draw do
                                     constraints: { format: /(xml|html|pdf)/ },
                                     defaults: { format: 'xml' }
     end
+
+    resources :prescriptions, only: [], defaults: { format: :json } do
+      post :refill, on: :collection
+    end
   end
 
   namespace :v1 do
