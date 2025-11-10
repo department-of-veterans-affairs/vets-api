@@ -3,6 +3,8 @@
 module V0
   class Form212680Controller < ApplicationController
     include RetriableConcern
+    include PdfFill::Forms::FormHelper
+
     service_tag 'form-21-2680'
     skip_before_action :authenticate, only: %i[download_pdf]
     before_action :load_user
@@ -18,6 +20,9 @@ module V0
 
       raise Common::Exceptions::ParameterMissing, 'form' unless form_data
 
+      # Transform 3-character country codes to 2-character codes for PDF compatibility
+      transform_country_codes!(form_data)
+
       claim = create_claim_from_form_data(form_data)
       pdf_path = generate_and_send_pdf(claim)
     rescue JSON::ParserError
@@ -28,6 +33,15 @@ module V0
     end
 
     private
+
+    def transform_country_codes!(form_data)
+      # Transform claimant address country code
+      address = form_data.dig('claimantInformation', 'address')
+      if address&.key?('country')
+        transformed_country = extract_country(address)
+        address['country'] = transformed_country if transformed_country
+      end
+    end
 
     def create_claim_from_form_data(form_data)
       form_body = form_data.to_json
