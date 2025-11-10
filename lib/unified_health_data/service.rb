@@ -109,11 +109,11 @@ module UnifiedHealthData
       build_error_response(normalized_orders)
     end
 
-    def get_care_summaries_and_notes
+    def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
         # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = default_start_date
-        end_date = default_end_date
+        start_date ||= default_start_date
+        end_date ||= default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body

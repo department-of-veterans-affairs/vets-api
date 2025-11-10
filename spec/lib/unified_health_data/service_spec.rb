@@ -494,6 +494,44 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
+    context 'with date parameters' do
+      it 'accepts and uses provided start_date and end_date' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '2024-01-01', end_date: '2024-12-31')
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2024-12-31')
+      end
+
+      it 'uses default dates when parameters not provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes
+      end
+
+      it 'uses default start_date when only end_date provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: '2024-12-31')
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(end_date: '2024-12-31')
+      end
+
+      it 'uses default end_date when only start_date provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '2024-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(start_date: '2024-01-01')
+      end
+    end
+
     context 'error handling' do
       it 'handles unknown errors' do
         uhd_service = double
