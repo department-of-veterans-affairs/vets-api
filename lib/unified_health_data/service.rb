@@ -30,12 +30,11 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
-        filtered_records = filter_records(parsed_records)
 
-        # Log test code distribution after filtering is applied
+        # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        filtered_records
+        parsed_records
       end
     end
 
@@ -96,15 +95,18 @@ module UnifiedHealthData
     end
 
     def refill_prescription(orders)
+      normalized_orders = normalize_orders(orders)
       with_monitoring do
-        response = uhd_client.refill_prescription_orders(build_refill_request_body(orders))
-        parse_refill_response(response)
+        response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
+        result = parse_refill_response(response)
+        validate_refill_response_count(normalized_orders, result)
+        result
       end
     rescue Common::Exceptions::BackendServiceException => e
       raise e if e.original_status && e.original_status >= 500
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
-      build_error_response(orders)
+      build_error_response(normalized_orders)
     end
 
     def get_care_summaries_and_notes
@@ -216,6 +218,27 @@ module UnifiedHealthData
       end
     end
 
+    # Retrieves CCD binary data for download
+    # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
+    # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
+    # @raise [ArgumentError] if the format is invalid or not available
+    def get_ccd_binary(format: 'xml')
+      with_monitoring do
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+
+        document_ref = body['entry']&.find do |entry|
+          entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
+        end
+        return nil unless document_ref
+
+        clinical_notes_adapter.parse_ccd_binary(document_ref, format)
+      end
+    end
+
     private
 
     # Shared
@@ -227,60 +250,14 @@ module UnifiedHealthData
       vista_records + oracle_health_records
     end
 
-    # Labs and Tests methods
-    def filter_records(records)
-      return all_records_response(records) unless filtering_enabled?
-
-      apply_test_code_filtering(records)
-    end
-
-    def filtering_enabled?
-      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
-    end
-
-    def all_records_response(records)
-      Rails.logger.info(
-        message: 'UHD filtering disabled - returning all records',
-        total_records: records.size,
-        service: 'unified_health_data'
-      )
-      records
-    end
-
-    def apply_test_code_filtering(records)
-      filtered = records.select { |record| test_code_enabled?(record.test_code) }
-
-      Rails.logger.info(
-        message: 'UHD filtering enabled - applied test code filtering',
-        total_records: records.size,
-        filtered_records: filtered.size,
-        service: 'unified_health_data'
-      )
-
-      filtered
-    end
-
-    def test_code_enabled?(test_code)
-      case test_code
-      when 'CH'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-      when 'SP'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-      when 'MB'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-      else
-        false # Reject any other test codes for now, but we'll log them for analysis
-      end
-    end
-
     # Prescription refill helper methods
     def build_refill_request_body(orders)
       {
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            orderId: order['id'].to_s,
-            stationNumber: order['stationNumber'].to_s
+            orderId: order[:id].to_s,
+            stationNumber: order[:stationNumber].to_s
           }
         end
       }
@@ -293,6 +270,16 @@ module UnifiedHealthData
           { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] }
         end
       }
+    end
+
+    def normalize_orders(orders)
+      return [] if orders.blank?
+
+      orders.map do |order|
+        next order unless order.respond_to?(:with_indifferent_access)
+
+        order.with_indifferent_access
+      end
     end
 
     def parse_refill_response(response)
@@ -311,6 +298,18 @@ module UnifiedHealthData
         success: successes || [],
         failed: failures || []
       }
+    end
+
+    def validate_refill_response_count(normalized_orders, result)
+      orders_sent = normalized_orders.size
+      orders_received = result[:success].size + result[:failed].size
+
+      return if orders_sent == orders_received
+
+      error_message = "Refill response count mismatch: sent #{orders_sent} orders, " \
+                      "received #{orders_received} responses"
+      Rails.logger.error(error_message)
+      raise Common::Exceptions::PrescriptionRefillResponseMismatch.new(orders_sent, orders_received)
     end
 
     def extract_successful_refills(refill_items)

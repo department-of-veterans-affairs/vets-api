@@ -17,7 +17,8 @@ RSpec.describe SignIn::UserCodeMapCreator do
         csp_email:,
         all_csp_emails:,
         first_name:,
-        last_name:
+        last_name:,
+        digest: credential_attributes_digest
       }
     end
     let(:state_payload) do
@@ -52,6 +53,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
     let(:device_sso) { true }
     let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
     let(:expected_user_attributes) { { first_name:, last_name:, email: csp_email, all_emails: all_csp_emails } }
+    let(:credential_attributes_digest) { 'some-digest-value' }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -70,6 +72,21 @@ RSpec.describe SignIn::UserCodeMapCreator do
       expect { subject }.to change(UserAcceptableVerifiedCredential, :count)
       user_acceptable_verified_credential = UserAcceptableVerifiedCredential.last
       expect(user_acceptable_verified_credential.acceptable_verified_credential_at).to eq(expected_avc_at)
+    end
+
+    it 'calls Login::UserVerifier with expected arguments' do
+      expect(Login::UserVerifier).to receive(:new).with(
+        login_type: type,
+        auth_broker:,
+        mhv_uuid: nil,
+        idme_uuid: nil,
+        dslogon_uuid: nil,
+        logingov_uuid:,
+        icn:,
+        credential_attributes_digest:
+      ).and_call_original
+
+      subject
     end
 
     it 'returns a user code map with expected attributes' do

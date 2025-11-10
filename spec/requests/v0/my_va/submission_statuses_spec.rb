@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'forms/submission_statuses/benefits_intake_gateway'
+require 'forms/submission_statuses/gateways/benefits_intake_gateway'
 
 RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
                                                team_owner: :vfs_authenticated_experience_backend, type: :request do
   let(:user) { build(:user, :loa1) }
   let(:account_id) { user.user_account_uuid }
   let(:display_all_forms_toggle) { :my_va_display_all_lighthouse_benefits_intake_forms }
+  let(:benefits_intake_gateway) { Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway }
 
   before do
     sign_in_as(user)
@@ -146,7 +147,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
   end
 
   context 'with my_va_display_all_lighthouse_benefits_intake_forms toggle enabled' do
-    # Making sure it passed the Forms::SubmissionStatuses::Report#subsmission_recent? check
+    # Making sure it passed the benefits_intake_gateway#submission_recent? check
     let(:two_days_ago) { 2.days.ago }
 
     before do
@@ -173,7 +174,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
     let!(:saved_claim) { create(:burials_saved_claim, :pending, user_account: user.user_account) }
 
     before do
-      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:form_submissions).and_return([])
 
       # Mock the Benefits Intake API response to avoid 401 errors
       benefits_intake_uuid = saved_claim.lighthouse_submissions.first.submission_attempts.first.benefits_intake_uuid
@@ -190,7 +191,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
         }],
         nil
       ]
-      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+      allow_any_instance_of(benefits_intake_gateway)
         .to receive(:intake_statuses).and_return(lighthouse_intake_statuses)
 
       allow(Flipper[display_all_forms_toggle]).to receive(:enabled?).and_return(false)
@@ -207,9 +208,8 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
 
   context 'when user has no submissions' do
     before do
-      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:submissions).and_return([])
-      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
-        .to receive(:lighthouse_submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:form_submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:lighthouse_submissions).and_return([])
     end
 
     it 'returns an empty array' do

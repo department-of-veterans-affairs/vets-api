@@ -12,7 +12,7 @@ module VAOS
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
-      AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
+      AVS_ERROR_MESSAGE = 'Error retrieving AVS info'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -55,7 +55,27 @@ module VAOS
                            tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
         cnp_count = 0
 
-        response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+        # Determine if we should fetch travel claims in parallel
+        should_fetch_travel_claims = Flipper.enabled?(:travel_pay_view_claim_details, user) &&
+                                     include[:travel_pay_claims]
+        parallelize_fetch = should_fetch_travel_claims &&
+                            Flipper.enabled?(:va_online_scheduling_parallel_travel_claims, user)
+
+        if parallelize_fetch
+          # Track that parallel execution path is being used
+          StatsD.increment('appointments.fetch.parallel')
+          # Fetch appointments and travel claims in parallel
+          response, travel_claims_result = fetch_appointments_and_claims_parallel(
+            start_date, end_date, statuses, pagination_params, tp_client
+          )
+        else
+          # Track that sequential execution path is being used
+          StatsD.increment('appointments.fetch.sequential')
+          # Original sequential behavior
+          response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+          travel_claims_result = nil
+        end
+
         return response if response.dig(:meta, :failures)
 
         appointments = response.body[:data]
@@ -67,8 +87,15 @@ module VAOS
 
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
-        if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-          appointments = merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+        # Merge travel claims - either from parallel fetch or sequential fetch
+        if should_fetch_travel_claims
+          appointments = if parallelize_fetch && travel_claims_result
+                           # Use pre-fetched claims data from parallel execution
+                           merge_claims_with_appointments(appointments, travel_claims_result)
+                         else
+                           # Fetch and merge sequentially (original behavior)
+                           merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+                         end
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
@@ -133,11 +160,38 @@ module VAOS
           return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
         end
 
-        eps_appointments = eps_appointments_service.get_appointments
+        eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
 
         # Filter out draft EPS appointments when checking referral usage
         non_draft_eps_appointments = eps_appointments&.reject { |appt| appt[:state] == 'draft' } || []
-        { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
+        { exists: non_draft_eps_appointments.any? }
+      end
+
+      ##
+      # Get appointments for a referral from both EPS and VAOS
+      #
+      # Returns appointments from both sources with normalized status (active/cancelled)
+      # Deduplicates appointments within each source by start time + providerServiceId (EPS) or start time (VAOS)
+      # Logs discrepancies when same start time has different status across sources
+      #
+      # @param referral_number [String] The referral number to search for
+      # @return [Hash] Contains EPS and VAOS data: { EPS: { data: [...] }, VAOS: { data: [...] } }
+      # @raise [BackendServiceException] If either EPS or VAOS fails
+      #
+      def get_active_appointments_for_referral(referral_number)
+        start_time = Time.current
+        eps_appointments = fetch_and_normalize_eps_appointments(referral_number)
+        vaos_appointments = fetch_and_normalize_vaos_appointments(referral_number)
+
+        StatsD.histogram('vaos.get_active_appointments_for_referral.duration',
+                         (Time.current - start_time) * 1000)
+
+        log_status_discrepancies(eps_appointments, vaos_appointments, referral_number)
+
+        {
+          EPS: { data: eps_appointments },
+          VAOS: { data: vaos_appointments }
+        }
       end
 
       # rubocop:enable Metrics/MethodLength
@@ -344,6 +398,216 @@ module VAOS
 
       private
 
+      def fetch_and_normalize_eps_appointments(referral_number)
+        raw_appointments = eps_appointments_service.get_appointments(referral_number:)
+        filtered = raw_appointments.reject { |appt| appt[:state] == 'draft' }
+        normalized = filtered.map do |appt|
+          {
+            id: appt[:id],
+            status: normalize_eps_status(appt),
+            start: appt.dig(:appointment_details, :start),
+            provider_service_id: appt[:provider_service_id],
+            last_retrieved: appt.dig(:appointment_details, :last_retrieved)
+          }
+        end
+
+        deduplicated = deduplicate_eps_appointments(normalized)
+        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
+      rescue Common::Exceptions::BackendServiceException => e
+        log_fetch_error('EPS', referral_number, e.class.name.to_s)
+        raise
+      end
+
+      def fetch_and_normalize_vaos_appointments(referral_number)
+        vaos_response = get_all_appointments({})
+        check_vaos_response_for_failures(vaos_response, referral_number)
+        process_vaos_appointments(vaos_response[:data], referral_number)
+      rescue Common::Exceptions::BackendServiceException => e
+        log_fetch_error('VAOS', referral_number, e.class.name.to_s)
+        raise
+      end
+
+      def check_vaos_response_for_failures(vaos_response, referral_number)
+        return if vaos_response[:meta][:failures].blank?
+
+        log_fetch_error('VAOS', referral_number, vaos_response[:meta][:failures])
+        raise Common::Exceptions::BackendServiceException.new('VAOS_502',
+                                                              { detail: vaos_response[:meta][:failures].to_s })
+      end
+
+      def process_vaos_appointments(appointments_data, referral_number)
+        filtered = appointments_data.select { |appt| appt[:referral_id] == referral_number }
+        normalized = filtered.map do |appt|
+          {
+            id: appt[:id],
+            status: normalize_vaos_status(appt),
+            start: appt[:start],
+            created: appt[:created]
+          }
+        end
+
+        deduplicated = deduplicate_vaos_appointments(normalized)
+        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
+      end
+
+      def log_fetch_error(source, referral_number, error_details)
+        masked_referral = "***#{referral_number.to_s.last(4)}"
+        Rails.logger.error("Failed to fetch #{source} appointments for referral #{masked_referral}: #{error_details}")
+      end
+
+      def normalize_eps_status(appointment)
+        if appointment.dig(:appointment_details, :status) == 'cancelled'
+          'cancelled'
+        else
+          'active'
+        end
+      end
+
+      def normalize_vaos_status(appointment)
+        appointment[:status] == 'cancelled' ? 'cancelled' : 'active'
+      end
+
+      def deduplicate_eps_appointments(appointments)
+        grouped = appointments.group_by { |appt| [appt[:start], appt[:provider_service_id]] }
+
+        grouped.map do |_key, duplicates|
+          next duplicates.first if duplicates.size == 1
+
+          active = duplicates.select { |appt| appt[:status] == 'active' }
+          candidates = active.any? ? active : duplicates
+
+          # Choose most recent lastRetrieved
+          candidates.max_by { |appt| appt[:last_retrieved] || '' }
+        end
+      end
+
+      def deduplicate_vaos_appointments(appointments)
+        grouped = appointments.group_by { |appt| appt[:start] }
+
+        grouped.map do |_key, duplicates|
+          next duplicates.first if duplicates.size == 1
+
+          active = duplicates.select { |appt| appt[:status] == 'active' }
+          candidates = active.any? ? active : duplicates
+          candidates.max_by { |appt| appt[:created] || '' }
+        end
+      end
+
+      def log_status_discrepancies(eps_appointments, vaos_appointments, referral_number)
+        eps_by_start = eps_appointments.group_by { |appt| appt[:start] }
+        vaos_by_start = vaos_appointments.group_by { |appt| appt[:start] }
+
+        common_start_times = eps_by_start.keys & vaos_by_start.keys
+
+        common_start_times.each do |start_time|
+          eps_statuses = eps_by_start[start_time].map { |appt| appt[:status] }.uniq
+          vaos_statuses = vaos_by_start[start_time].map { |appt| appt[:status] }.uniq
+
+          next if eps_statuses == vaos_statuses
+
+          masked_referral = referral_number&.last(4) || 'unknown'
+          Rails.logger.warn('Appointment status discrepancy between EPS and VAOS',
+                            { referral_ending_in: masked_referral,
+                              start_time:,
+                              eps_statuses:,
+                              vaos_statuses: })
+        end
+      end
+
+      # Fetches appointments and travel claims in parallel using Concurrent::Promises
+      # @return [Array] Array containing [response, travel_claims_result]
+      def fetch_appointments_and_claims_parallel(start_date, end_date, statuses, pagination_params, tp_client)
+        require 'concurrent-ruby'
+
+        # Preload user attributes to avoid thread safety issues with ActiveRecord
+        preload_user_attributes
+
+        # Track overall parallel fetch duration
+        StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total_duration") do
+          appointments_future = create_appointments_future(start_date, end_date, statuses, pagination_params,
+                                                           :get_appointments)
+          travel_claims_future = create_travel_claims_future(start_date, end_date, tp_client)
+
+          # Wait for both futures and handle results
+          appointments_response = handle_appointments_future(appointments_future)
+          travel_claims_result = handle_travel_claims_future(travel_claims_future)
+
+          track_parallel_fetch_metrics(travel_claims_result)
+
+          [appointments_response, travel_claims_result]
+        end
+      end
+
+      def preload_user_attributes
+        # Force load attributes before threading to prevent race conditions
+        user.user_account_uuid
+        user.icn
+      end
+
+      def create_appointments_future(start_date, end_date, statuses, pagination_params, caller_method_name)
+        Concurrent::Promises.future do
+          StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.appointments_service.duration") do
+            send_appointments_request(start_date, end_date, caller_method_name, pagination_params, statuses)
+          end
+        end
+      end
+
+      def create_travel_claims_future(start_date, end_date, tp_client)
+        current_user = user
+        Concurrent::Promises.future do
+          StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_service.duration") do
+            service = TravelPay::ClaimAssociationService.new(current_user, tp_client)
+            service.fetch_claims_by_date(start_date, end_date)
+          end
+        end
+      end
+
+      def track_parallel_fetch_metrics(travel_claims_result)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total")
+        return unless travel_claims_result[:error]
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_error")
+      end
+
+      # Handles the appointments future result, re-raising errors
+      def handle_appointments_future(future)
+        future.value!
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.appointments_error")
+        Rails.logger.error("Error fetching appointments in parallel: #{e.message}")
+        raise e
+      end
+
+      # Handles the travel claims future result, returning error metadata on failure
+      def handle_travel_claims_future(future)
+        future.value!
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_error")
+        Rails.logger.error("Error fetching travel claims in parallel: #{e.message}")
+        Rails.logger.warn("Travel claims fetch failed, continuing without claims: #{e.message}")
+        { error: true, metadata: { 'status' => 500, 'success' => false,
+                                   'message' => 'Travel claims service unavailable' } }
+      end
+
+      # Merges pre-fetched claims data with appointments
+      # @param appointments [Array] Array of appointment hashes
+      # @param claims_result [Hash] Result from fetch_claims_by_date
+      # @return [Array] Appointments with merged travel claim data
+      def merge_claims_with_appointments(appointments, claims_result)
+        appointments.each do |appt|
+          appt['travelPayClaim'] = { 'metadata' => claims_result[:metadata] }
+          attach_matching_claim(appt, claims_result) unless claims_result[:error]
+        end
+        appointments
+      end
+
+      def attach_matching_claim(appt, claims_result)
+        matching_claim = TravelPay::ClaimMatcher.find_matching_claim(claims_result[:claims], appt[:local_start_time])
+        appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
+      rescue TravelPay::InvalidComparableError => e
+        Rails.logger.warn(message: "Cannot compare start times. #{e.message}")
+      end
+
       # rubocop:disable Metrics/MethodLength
       def parse_possible_token_related_errors(e, method_name)
         prefix = "VAOS::V2::AppointmentService##{method_name}"
@@ -463,7 +727,8 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment, include[:avs])
+        fetch_avs_and_update_appt_body(appt: appointment, binary: include[:binary]) if avs_applicable?(appointment,
+                                                                                                       include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
@@ -538,6 +803,10 @@ module VAOS
         @reason_code_service ||= VAOS::V2::AppointmentsReasonCodeService.new
       end
 
+      def unified_health_data_service
+        @unified_health_data_service ||= UnifiedHealthData::Service.new(user)
+      end
+
       def log_cnp_appt_count(cnp_count)
         Rails.logger.info('Compensation and Pension count on an appointment list retrieval',
                           { CompPenCount: cnp_count }.to_json)
@@ -563,6 +832,16 @@ module VAOS
         return if identifier.nil?
 
         identifier[:value]&.split(':', 2)
+      end
+
+      def extract_cerner_identifier(appointment)
+        return nil if appointment[:identifier].nil?
+
+        identifier = appointment[:identifier].find { |id| id[:system].include? 'cerner' }
+
+        return if identifier.nil?
+
+        identifier[:value]&.split('/', 2)&.last
       end
 
       # Normalizes an Integration Control Number (ICN) by removing the 'V' character and the trailing six digits.
@@ -614,24 +893,41 @@ module VAOS
         avs_path(data[:sid])
       end
 
+      def get_avs_pdf(appt, binary)
+        cerner_system_id = extract_cerner_identifier(appt)
+
+        return nil if cerner_system_id.nil?
+
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: binary)
+
+        return nil if avs_resp.empty? || avs_resp.nil?
+
+        avs_resp
+      end
+
       # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..
       #
       # In case of an error the method logs the error details and sets the `:avs_path` attribute of `appt` to `nil`.
       #
       # @param [Hash] appt The object representing the appointment. Must be an object that allows hash-like access
       #
+      # @param [boolean] binary Indicates if Oracle Health AVS binary data should be returned for cerner appts
+      #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
-      def fetch_avs_and_update_appt_body(appt)
+      def fetch_avs_and_update_appt_body(appt:, binary: false)
         if appt[:id].nil?
           appt[:avs_path] = nil
+        elsif VAOS::AppointmentsHelper.cerner?(appt)
+          avs_pdf = get_avs_pdf(appt, binary)
+          appt[:avs_pdf] = avs_pdf
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
         end
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
-        Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
-        appt[:avs_path] = AVS_ERROR_MESSAGE
+        Rails.logger.error("VAOS: Error retrieving AVS info: #{e.class}, #{e.message} \n   #{err_stack}")
+        appt[:avs_error] = AVS_ERROR_MESSAGE
       end
 
       # Determines if the appointment cannot be cancelled.
@@ -1113,7 +1409,7 @@ module VAOS
           failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
         end
 
-        log_message_to_sentry(
+        log_message_to_rails(
           "VAOS::V2::AppointmentService##{method_name} has response errors.",
           :info,
           failures: failures_dup.to_json
@@ -1179,14 +1475,17 @@ module VAOS
       end
 
       def merge_all_travel_claims(start_date, end_date, appointments, tp_client)
-        service = TravelPay::ClaimAssociationService.new(user, tp_client)
-        service.associate_appointments_to_claims(
-          {
-            'start_date' => start_date,
-            'end_date' => end_date,
-            'appointments' => appointments
-          }
-        )
+        # Track sequential travel claims fetch duration for comparison with parallel approach
+        StatsD.measure('appointments.sequential_fetch.travel_claims_service.duration') do
+          service = TravelPay::ClaimAssociationService.new(user, tp_client)
+          service.associate_appointments_to_claims(
+            {
+              'start_date' => start_date,
+              'end_date' => end_date,
+              'appointments' => appointments
+            }
+          )
+        end
       end
 
       def merge_one_travel_claim(appointment, tp_client)
@@ -1352,18 +1651,6 @@ module VAOS
                                                                                                     caller_name)
                                                     })
         }
-      end
-
-      ##
-      # Checks if any appointment in the given list has a referral that matches the referral_id
-      #
-      # @param appointments [Array<Hash>] List of appointments to check
-      # @param referral_id [String] The referral ID to search for
-      # @return [Boolean] true if an appointment with matching referral exists, false otherwise
-      def appointment_with_referral_exists?(appointments, referral_id)
-        appointments.any? do |appt|
-          appt[:referral] && appt[:referral][:referral_number] == referral_id
-        end
       end
     end
   end

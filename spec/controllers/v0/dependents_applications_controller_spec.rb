@@ -58,13 +58,17 @@ RSpec.describe V0::DependentsApplicationsController do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
       end
 
+      let(:vanotify) { double(send_email: true) }
+
       it 'validates successfully' do
-        expect(VANotify::EmailJob).to receive(:perform_async) do |email, template_id, personalization, secret|
-          expect(email).to_be(user.va_profile_email)
-          expect(template_id).to_be('fake_submitted686c674')
-          expect(personalization).to_have.keys(%w[date_submitted first_name confirmation_number])
-          expect(secret).to_be('fake_secret')
-        end
+        expect(VaNotify::Service).to receive(:new).and_return(vanotify)
+        expect(vanotify).to receive(:send_email).with(
+          {
+            email_address: user.va_profile_email,
+            template_id: 'fake_submitted686c674',
+            personalisation: hash_including('date_submitted', 'first_name', 'confirmation_number')
+          }.compact
+        )
 
         expect(BGS::DependentService).to receive(:new)
           .with(instance_of(User))

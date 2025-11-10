@@ -298,13 +298,11 @@ dgi:
   jwt:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
-  post911_sob:
-    claimants:
-      mock: false
-      url: ~
+  sob:
     jwt:
-      private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
-      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
+      private_key_path: ~
+      public_ica11_rca2_key_path: ~
+      public_key_path: ~
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -641,7 +639,7 @@ kafka_producer:
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
   security_protocol: 'plaintext'
   test_topic_name: submission_trace_mock_test
-  topic_name: submission_trace_form_status_change_test
+  topic_name: submission_trace_form_status_change
 kms_key_id: ~
 lgy:
   api_key: fake_api_key
@@ -733,6 +731,7 @@ lighthouse:
       - system/MedicationDispense.read
       - system/Encounter.read
       - system/Account.read
+      - system/Medication.read
       - launch
     timeout: 30
     use_mocks: false
@@ -839,11 +838,12 @@ maintenance:
     dslogon: P9DJJAV
     es: PH7OPR4
     evss: PZKWB6Y
-    form1010d: P69N8ZY
-    form107959a: POTKY39
-    form107959c: PEP32F2
-    form107959f1: P63EKXC
-    form107959f2: PZWR9XI
+    form1010d: ~
+    form1010d_ext: ~
+    form107959a: ~
+    form107959c: ~
+    form107959f1: ~
+    form107959f2: ~
     global: PLPSIB0
     hcq: PWGA814
     idme: PVWB4R8
@@ -905,7 +905,6 @@ mcp:
     url: https://fwdproxy-staging.vfs.va.gov:4491
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
-  breakers: false
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
@@ -956,6 +955,7 @@ mhv:
     app_token: fake-app-token
     gw_base_path: v1/sm/patient/
     mock: true
+    timeout: <%= ENV['mhv__sm__timeout'] || 60 %>
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
@@ -1381,6 +1381,30 @@ vanotify:
         submitted:
           flipper_id: dv_email_notification
           template_id: fake_dv_submitted
+    21_686c_674: &vanotify_services_dependents_benefits
+      api_key: fake_secret
+      email:
+        error_674_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form674_only_error_email_template_id
+        error_686c_674:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form686c_674_error_email_template_id
+        error_686c_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form686c_only_error_email_template_id
+        received_674_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form674_only_received_email_template_id
+        received_686c_674:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form686c_674_received_email_template_id
+        received_686c_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form686c_only_received_email_template_id
+        submitted:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c_674_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
@@ -1433,6 +1457,24 @@ vanotify:
           flipper_id: burial_submitted_email_notification
           template_id: burial_submitted_email_template_id
     21p_530: *vanotify_services_burial
+    21p_534ez: &vanotify_services_survivors_benefits
+      api_key: fake_secret
+      email:
+        confirmation:
+          flipper_id: false
+          template_id: form527ez_confirmation_email_template_id
+        error:
+          flipper_id: survivors_benefits_error_email_notification
+          template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: survivors_benefits_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
+        received:
+          flipper_id: survivors_benefits_received_email_notification
+          template_id: form527ez_received_email_template_id
+        submitted:
+          flipper_id: survivors_benefits_submitted_email_notification
+          template_id: form534ez_submitted_email_template_id
     21p_530v2: *vanotify_services_burial
     accredited_representative_portal:
       api_key: fake_secret
@@ -1489,6 +1531,7 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
+    dependents_benefits: *vanotify_services_dependents_benefits
     dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret
@@ -1546,6 +1589,7 @@ vanotify:
         claim_submission_success_text: oh_fake_success_template_id
         claim_submission_timeout_text: oh_fake_timeout_template_id
     pensions: *vanotify_services_pension
+    survivors_benefits: *vanotify_services_survivors_benefits
     va_gov:
       api_key: fake_secret
       template_id:
@@ -1707,11 +1751,6 @@ vba_documents:
       - vetsgov-arn
       - vagov-arn
   updater_enabled: ~
-  v2_enabled: true
-  v2_upload_endpoint_enabled: true
-  webhooks:
-    registration_max_retries: 3
-    registration_next_run_in_minutes: 15
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
@@ -1898,8 +1937,6 @@ vye:
     salt: testing-vye-scrypt-salt
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 web_origin_regex: "\\Ahttps?:\\/\\/www\\.va\\.gov\\z"
-webhooks:
-  require_https: true
 websockets:
   require_https: ~
   websocket_settings: false
