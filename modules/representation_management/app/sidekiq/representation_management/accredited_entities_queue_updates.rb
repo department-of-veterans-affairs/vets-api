@@ -23,6 +23,7 @@ module RepresentationManagement
   #
   # @example Force update for multiple entity types
   #   RepresentationManagement::AccreditedEntitiesQueueUpdates.perform_async(['agents', 'attorneys'])
+  # rubocop:disable Metrics/ClassLength
   class AccreditedEntitiesQueueUpdates
     include Sidekiq::Job
 
@@ -54,6 +55,7 @@ module RepresentationManagement
       process_entity_type(AGENTS)
       process_entity_type(ATTORNEYS)
       process_orgs_and_reps
+      remove_skipped_deletions
       delete_removed_accredited_individuals
       delete_removed_accredited_organizations
       delete_removed_accreditations
@@ -77,6 +79,9 @@ module RepresentationManagement
       @representative_json_for_address_validation = []
       @rep_to_vso_associations = {}
       @accreditation_ids = []
+      @processing_error_types = []
+      @expected_counts = {}
+      @count_mismatch_types = []
     end
 
     def setup_daily_report
@@ -89,8 +94,51 @@ module RepresentationManagement
       end_time = Time.current
       duration = calculate_duration(@start_time, end_time)
 
+      # Add deletion skip summary
+      add_deletion_skip_summary
+
       @report << "\nJob Duration: #{duration}\n"
       log_to_slack_channel(@report)
+    end
+
+    # Adds a summary of skipped deletions to the report
+    #
+    # @return [void]
+    def add_deletion_skip_summary
+      skipped_types = (@processing_error_types + @count_mismatch_types.map(&:to_s)).uniq
+      return if skipped_types.empty?
+
+      @report << "\n⚠️ **Deletion Skipped for Some Entity Types:**\n"
+
+      if @processing_error_types.any?
+        @report << "Due to errors during processing:\n"
+        @processing_error_types.each { |type| @report << "  - #{type.humanize}\n" }
+      end
+
+      if @count_mismatch_types.any?
+        threshold_display = (DECREASE_THRESHOLD.abs * 100).round(0)
+        @report << "Due to count mismatches (>#{threshold_display}% decrease):\n"
+        @count_mismatch_types.each do |type|
+          expected = @expected_counts[type]
+          actual = get_processed_count_for_type(type)
+          change = ((actual - expected).to_f / expected * 100).round(2)
+          @report << "  - #{type.to_s.humanize}: Expected #{expected}, Processed #{actual} (#{change}% change)\n"
+        end
+      end
+    end
+
+    # Gets the processed count for a given entity type
+    #
+    # @param type [Symbol] The entity type
+    # @return [Integer] The number of processed records
+    def get_processed_count_for_type(type)
+      case type
+      when :agents then @agent_ids.uniq.compact.size
+      when :attorneys then @attorney_ids.uniq.compact.size
+      when :veteran_service_organizations then @vso_ids.uniq.compact.size
+      when :representatives then @representative_ids.uniq.compact.size
+      else 0
+      end
     end
 
     # Processes entities of a specific type based on count validation and force update settings
@@ -102,6 +150,9 @@ module RepresentationManagement
       return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
 
       if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
+        # Capture expected count before processing
+        @expected_counts[entity_type.to_sym] = @entity_counts.current_api_counts[entity_type.to_sym]
+
         if entity_type == AGENTS
           update_agents
           @report << "Agents processed: #{@agent_ids.uniq.compact.size}\n"
@@ -133,6 +184,11 @@ module RepresentationManagement
         log_error('Both Orgs and Reps must have valid counts to process together - skipping update for both')
         return
       end
+
+      # Capture expected counts before processing
+      api_counts = @entity_counts.current_api_counts
+      @expected_counts[:veteran_service_organizations] = api_counts[:veteran_service_organizations]
+      @expected_counts[:representatives] = api_counts[:representatives]
 
       # Process VSOs first (must exist before representatives can reference them)
       update_vsos
@@ -178,6 +234,7 @@ module RepresentationManagement
         page += 1
       end
     rescue => e
+      @processing_error_types << entity_type unless @processing_error_types.include?(entity_type)
       log_error("Error updating #{entity_type}s: #{e.message}")
     end
 
@@ -196,6 +253,7 @@ module RepresentationManagement
         page += 1
       end
     rescue => e
+      @processing_error_types << VSOS unless @processing_error_types.include?(VSOS)
       log_error("Error updating VSOs: #{e.message}")
     end
 
@@ -243,6 +301,7 @@ module RepresentationManagement
         page += 1
       end
     rescue => e
+      @processing_error_types << REPRESENTATIVES unless @processing_error_types.include?(REPRESENTATIVES)
       log_error("Error updating representatives: #{e.message}")
     end
 
@@ -284,14 +343,8 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_representative(rep)
       data_transform_for_entity(rep['representative'], 'representative', {
-                                  city: rep['workCity'],
-                                  state_code: rep['workState'],
                                   phone: rep['representative']['workNumber'],
                                   email: rep['representative']['workEmailAddress'],
-                                  address_line1: rep['workAddress1'],
-                                  address_line2: rep['workAddress2'],
-                                  address_line3: rep['workAddress3'],
-                                  zip_code: rep['workZip'],
                                   raw_address: raw_address_for_representative(rep),
                                   registration_number: rep.dig('representative', 'id')
                                 })
@@ -326,6 +379,88 @@ module RepresentationManagement
       [AGENTS, ATTORNEYS, REPRESENTATIVES].filter_map do |type|
         ENTITY_CONFIG.public_send(type.downcase).individual_type if @force_update_types.include?(type)
       end
+    end
+
+    def remove_skipped_deletions
+      # If @processing_error_types includes an entity type, we skip deletions for that type
+      # by preloading the current IDs into the respective ID arrays.
+      # Also skip deletions if processed counts don't match expected counts.
+
+      # Validate all processed counts
+      validate_all_counts
+
+      individual_types = {
+        AGENTS => :@agent_ids,
+        ATTORNEYS => :@attorney_ids,
+        REPRESENTATIVES => :@representative_ids
+      }
+
+      individual_types.each do |type, ivar|
+        skip_due_to_error = @processing_error_types.include?(type)
+        skip_due_to_mismatch = @count_mismatch_types.include?(type.to_sym)
+
+        next unless skip_due_to_error || skip_due_to_mismatch
+
+        ids = AccreditedIndividual.where(
+          individual_type: ENTITY_CONFIG.send(type).individual_type
+        ).pluck(:id)
+        instance_variable_set(ivar, ids)
+      end
+
+      skip_vso_deletion = @processing_error_types.include?(VSOS) ||
+                          @count_mismatch_types.include?(:veteran_service_organizations)
+      @vso_ids = AccreditedOrganization.all.pluck(:id) if skip_vso_deletion
+    end
+
+    # Validates processed counts for all entity types against expected counts
+    #
+    # @return [void]
+    def validate_all_counts
+      entity_mappings = {
+        agents: @agent_ids,
+        attorneys: @attorney_ids,
+        veteran_service_organizations: @vso_ids,
+        representatives: @representative_ids
+      }
+
+      entity_mappings.each do |type_key, ids|
+        next unless @expected_counts[type_key]
+
+        counts_match_expected?(type_key.to_s, ids.uniq.compact.size)
+      end
+    end
+
+    # Validates that the processed count matches the expected count within tolerance
+    # Uses the same DECREASE_THRESHOLD as count validation to maintain consistency
+    #
+    # @param entity_type [String, Symbol] The type of entity to validate
+    # @param processed_count [Integer] The number of records actually processed
+    # @return [Boolean] true if counts match within tolerance, false otherwise
+    def counts_match_expected?(entity_type, processed_count)
+      entity_type = entity_type.to_sym
+      expected_count = @expected_counts[entity_type]
+
+      # If we don't have an expected count, we can't validate
+      return true if expected_count.nil? || expected_count.zero?
+
+      # If processed count is greater or equal to expected, that's fine
+      return true if processed_count >= expected_count
+
+      # Calculate percentage change (negative for decrease)
+      change_percentage = ((processed_count - expected_count).to_f / expected_count)
+
+      # Check if decrease is within acceptable threshold (DECREASE_THRESHOLD is negative, e.g., -0.20)
+      within_tolerance = change_percentage > DECREASE_THRESHOLD
+
+      # Track mismatch if outside tolerance
+      unless within_tolerance
+        @count_mismatch_types << entity_type unless @count_mismatch_types.include?(entity_type)
+        percentage_display = (change_percentage * 100).round(2)
+        log_error("Count mismatch for #{entity_type}: expected #{expected_count}, " \
+                  "processed #{processed_count} (#{percentage_display}% change)")
+      end
+
+      within_tolerance
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
@@ -391,8 +526,6 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_agent(agent)
       data_transform_for_entity(agent, ENTITY_CONFIG.send(AGENTS).individual_type, {
-                                  country_code_iso3: agent['workCountry'],
-                                  country_name: agent['workCountry'],
                                   phone: agent['workPhoneNumber'],
                                   email: agent['workEmailAddress'],
                                   raw_address: raw_address_for_agent(agent)
@@ -405,8 +538,6 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_attorney(attorney)
       data_transform_for_entity(attorney, ENTITY_CONFIG.send(ATTORNEYS).individual_type, {
-                                  city: attorney['workCity'],
-                                  state_code: attorney['workState'],
                                   phone: attorney['workNumber'],
                                   email: attorney['emailAddress'],
                                   raw_address: raw_address_for_attorney(attorney)
@@ -427,11 +558,7 @@ module RepresentationManagement
         ogc_id: entity['id'],
         first_name: entity['firstName'],
         middle_initial: entity['middleName'].to_s.strip.first,
-        last_name: entity['lastName'],
-        address_line1: entity['workAddress1'],
-        address_line2: entity['workAddress2'],
-        address_line3: entity['workAddress3'],
-        zip_code: entity['workZip']
+        last_name: entity['lastName']
       }.merge(extra_attrs)
     end
 
@@ -685,4 +812,5 @@ module RepresentationManagement
       log_error("Error creating/updating accreditations: #{e.message}")
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

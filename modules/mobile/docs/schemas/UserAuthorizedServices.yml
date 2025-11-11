@@ -23,6 +23,7 @@ properties:
         type: object
         additionalProperties: false
         example:
+          allergiesOracleHealthEnabled: false
           appeals: true
           appointments: true
           claims: true

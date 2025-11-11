@@ -5,7 +5,8 @@ require 'logging/monitor'
 
 RSpec.describe Logging::Monitor do
   let(:service) { 'test-application' }
-  let(:monitor) { described_class.new(service) }
+  let(:allowlist) { %w[user_account_uuid document_id error errors tags form_id claim_id confirmation_number] }
+  let(:monitor) { described_class.new(service, allowlist:) }
   let(:call_location) { double('Location', base_label: 'method_name', path: '/path/to/file.rb', lineno: 42) }
   let(:metric) { 'api.monitor.404' }
   let(:additional_context) do
@@ -84,7 +85,7 @@ RSpec.describe Logging::Monitor do
           errors: ['Phone: [REDACTED]', 'Email: [REDACTED]', 'ICN: [REDACTED]', 'Credit card: [REDACTED]'],
           icn: '[FILTERED]',
           debug_info: '[FILTERED]',
-          nested_info: [{ id: 1, foo: '[FILTERED]' }],
+          nested_info: '[FILTERED]',
           tags:
         }
 

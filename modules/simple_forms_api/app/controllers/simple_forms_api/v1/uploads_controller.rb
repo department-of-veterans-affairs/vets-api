@@ -26,6 +26,7 @@ module SimpleFormsApi
         '21-4142' => 'vba_21_4142',
         '21P-0537' => 'vba_21p_0537',
         '21P-0847' => 'vba_21p_0847',
+        '21P-601' => 'vba_21p_601',
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
         '40-10007' => 'vba_40_10007'
@@ -56,7 +57,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007 21-4140].include?(params[:form_id])
+        return unless %w[40-0247 20-10207 40-10007 21-4140 21P-601].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
@@ -205,7 +206,7 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
+        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007 vba_21p_601].include?(form_id)
 
         [file_path, metadata, form]
       end

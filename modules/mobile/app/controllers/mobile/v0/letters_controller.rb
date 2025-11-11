@@ -93,8 +93,9 @@ module Mobile
         end
       rescue => e
         # log the error but don't prevent other letters from being shown
-        Rails.logger.error('LGY COE status check failed', error: e.message)
         StatsD.increment('mobile.letters.coe_status.failure')
+        Rails.logger.error('LGY COE status check failed', error: e.message)
+        nil
       end
 
       def download_lighthouse_letters(params)

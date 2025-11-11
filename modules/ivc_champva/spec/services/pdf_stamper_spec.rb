@@ -134,6 +134,93 @@ describe IvcChampva::PdfStamper do
         ]
       end
     end
+
+    context 'when flipper toggle is enabled and not in production' do
+      let(:test_payload) { 'vha_10_10d' }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_stamper_logging).and_return(true)
+        allow(Settings).to receive(:vsp_environment).and_return('development')
+        allow(described_class).to receive(:stamp).and_return(true)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs the desired stamp text for each stamp' do
+        stamp_signature
+
+        form.desired_stamps.each do |desired_stamp|
+          expect(Rails.logger).to have_received(:info).with(
+            "IVC Champva Forms - PdfStamper: desired stamp text: #{desired_stamp[:text]}"
+          ).at_least(:once)
+        end
+      end
+
+      it 'calls stamp for each desired stamp' do
+        stamp_signature
+
+        form.desired_stamps.each do |desired_stamp|
+          expect(described_class).to have_received(:stamp).with(desired_stamp, path)
+        end
+      end
+    end
+
+    context 'when flipper toggle is disabled' do
+      let(:test_payload) { 'vha_10_10d' }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_stamper_logging).and_return(false)
+        allow(Settings).to receive(:vsp_environment).and_return('development')
+        allow(described_class).to receive(:stamp).and_return(true)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'does not log the desired stamp text' do
+        stamp_signature
+
+        form.desired_stamps.each do |desired_stamp|
+          expect(Rails.logger).not_to have_received(:info).with(
+            "IVC Champva Forms - PdfStamper: desired stamp text: #{desired_stamp[:text]}"
+          )
+        end
+      end
+
+      it 'still calls stamp for each desired stamp' do
+        stamp_signature
+
+        form.desired_stamps.each do |desired_stamp|
+          expect(described_class).to have_received(:stamp).with(desired_stamp, path)
+        end
+      end
+    end
+
+    context 'when in production environment' do
+      let(:test_payload) { 'vha_10_10d' }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_stamper_logging).and_return(true)
+        allow(Settings).to receive(:vsp_environment).and_return('production')
+        allow(described_class).to receive(:stamp).and_return(true)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'does not log the desired stamp text even when flipper is enabled' do
+        stamp_signature
+
+        form.desired_stamps.each do |desired_stamp|
+          expect(Rails.logger).not_to have_received(:info).with(
+            "IVC Champva Forms - PdfStamper: desired stamp text: #{desired_stamp[:text]}"
+          )
+        end
+      end
+
+      it 'still calls stamp for each desired stamp' do
+        stamp_signature
+
+        form.desired_stamps.each do |desired_stamp|
+          expect(described_class).to have_received(:stamp).with(desired_stamp, path)
+        end
+      end
+    end
   end
 
   describe '.multistamp' do

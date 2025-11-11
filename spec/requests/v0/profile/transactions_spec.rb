@@ -52,7 +52,7 @@ RSpec.describe 'transactions' do
             get("/v0/profile/status/#{transaction.transaction_id}")
             expect(response).to have_http_status(:ok)
             response_body = JSON.parse(response.body)
-            expect(response_body['data']['type']).to eq('async_transaction_vet360_address_transactions')
+            expect(response_body['data']['type']).to eq('async_transaction_va_profile_address_transactions')
             # @TODO The ...data.attributes.type has the original, non-snake-cased version of the class
           end
         end
