@@ -203,48 +203,48 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "40f6d201998a17c223c578939f85e8ec4fc3308ef4503b748d764c8a49a12bfa",
+      "fingerprint": "b50d5ce3f94b7618ba7789292642555ef2530f56b5f278fc1f365966f6c7edde",
       "check_name": "FileAccess",
       "message": "Model attribute used in file name",
       "file": "app/controllers/v0/form210779_controller.rb",
-      "line": 38,
+      "line": 46,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.read(SavedClaim::Form210779.find_by(:guid => params[:guid]).to_pdf)",
+      "code": "File.delete(SavedClaim::Form210779.find_by!(:guid => params[:guid]).to_pdf)",
       "render_path": null,
       "location": {
         "type": "method",
         "class": "V0::Form210779Controller",
         "method": "download_pdf"
       },
-      "user_input": "SavedClaim::Form210779.find_by(:guid => params[:guid]).to_pdf",
+      "user_input": "SavedClaim::Form210779.find_by!(:guid => params[:guid]).to_pdf",
       "confidence": "Medium",
       "cwe_id": [
         22
       ],
-      "note": ".to_pdf is not a model attribute and uses SecureRandom"
+      "note": "to_pdf is a method, not a model attribute and uses SecureRandom.uuid"
     },
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "e917fc5009ca162fd23246a78462234ccc3ebf9c6438e99a745f327ea54b8fae",
+      "fingerprint": "c70b5ee6e728d67df51cd8d7fbdc8455e90614e751a80acdc2c241214c07e8fb",
       "check_name": "FileAccess",
       "message": "Model attribute used in file name",
       "file": "app/controllers/v0/form210779_controller.rb",
-      "line": 43,
+      "line": 41,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.delete(SavedClaim::Form210779.find_by(:guid => params[:guid]).to_pdf)",
+      "code": "File.read(SavedClaim::Form210779.find_by!(:guid => params[:guid]).to_pdf)",
       "render_path": null,
       "location": {
         "type": "method",
         "class": "V0::Form210779Controller",
         "method": "download_pdf"
       },
-      "user_input": "SavedClaim::Form210779.find_by(:guid => params[:guid]).to_pdf",
+      "user_input": "SavedClaim::Form210779.find_by!(:guid => params[:guid]).to_pdf",
       "confidence": "Medium",
       "cwe_id": [
         22
       ],
-      "note": ".to_pdf is not a model attribute and uses SecureRandom"
+      "note": "to_pdf is a method, not a model attribute and uses SecureRandom.uuid"
     }
   ],
   "brakeman_version": "7.1.1"
