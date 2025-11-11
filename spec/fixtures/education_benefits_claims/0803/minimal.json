@@ -1,6 +1,6 @@
 {
   "remarks": "lorem ispum",
-  "testCost": "55",
+  "testCost": 55,
   "organizationName": "Acme Co.",
   "organizationAddress": {
     "country": "USA",
@@ -11,16 +11,8 @@
   },
   "testName": "Fake test",
   "testDate": "2022-11-13",
-  "mobilePhone": {
-    "callingCode": 1,
-    "countryCode": "US",
-    "contact": "6665431234"
-  },
-  "homePhone": {
-    "callingCode": 1,
-    "countryCode": "US",
-    "contact": "9998765456"
-  },
+  "mobilePhone": "6665431234",
+  "homePhone": "9998765456",
   "emailAddress": "example@example.com",
   "mailingAddress": {
     "country": "USA",
@@ -32,6 +24,5 @@
   "payeeNumber": "AB",
   "vaBenefitProgram": "chapter35",
   "hasPreviouslyApplied": true,
-  "statementOfTruthCertified": true,
   "statementOfTruthSignature": "Jackie Doe"
 }
