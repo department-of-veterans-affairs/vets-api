@@ -47,9 +47,20 @@ module PdfFill
         nh_info = @form_data['nursingHomeInformation']
         nh_info['dateOfBirth'] = split_date(nh_info['dateOfBirth']) if nh_info['dateOfBirth'].present?
         if nh_info['nursingHomeAddress'].present?
+          country_iso2(nh_info['nursingHomeAddress'])
           nh_info['nursingHomeAddress']['postalCode'] =
             split_postal_code(nh_info['nursingHomeAddress'])
         end
+      end
+
+      def country_iso2(address)
+        # Transform address country code from 3-char to 2-char if necessary
+        country_code = address['country']
+        address['country'] = if country_code&.length == 3
+                               IsoCountryCodes.find(country_code)&.alpha2
+                             elsif country_code&.length == 2
+                               country_code
+                             end
       end
 
       def reformat_general_info

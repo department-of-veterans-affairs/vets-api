@@ -34,9 +34,7 @@ module V0
     end
 
     def download_pdf
-      claim = SavedClaim::Form210779.find_by(guid: params[:guid])
-      raise ActiveRecord::RecordNotFound unless claim
-
+      claim = SavedClaim::Form210779.find_by!(guid: params[:guid])
       source_file_path = claim.to_pdf
       raise Common::Exceptions::InternalServerError, 'Failed to generate PDF' unless source_file_path
 
