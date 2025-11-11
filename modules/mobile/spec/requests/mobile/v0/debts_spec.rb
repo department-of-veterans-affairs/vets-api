@@ -193,6 +193,77 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
         end
       end
     end
+
+    context 'with missing fiscalTransactionData' do
+      it 'handles missing fiscalTransactionData key gracefully in list response' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters') do
+            # Mock the service to return debt data without fiscalTransactionData
+            allow_any_instance_of(DebtManagementCenter::DebtsService).to receive(:get_debts).and_return(
+              {
+                debts: [
+                  {
+                    'fileNumber' => '796043735',
+                    'payeeNumber' => '00',
+                    'personEntitled' => nil,
+                    'deductionCode' => '30',
+                    'benefitType' => 'Comp & Pen',
+                    'diaryCode' => '914',
+                    'diaryCodeDescription' => 'Paid In Full',
+                    'amountOverpaid' => 123.34,
+                    'amountWithheld' => 50.0,
+                    'originalAR' => 1177.0,
+                    'currentAR' => 123.34,
+                    'debtHistory' => []
+                  }
+                ]
+              }
+            )
+
+            get '/mobile/v0/debts', headers: sis_headers
+            assert_schema_conform(200)
+            expect(response.body).to match_json_schema('debts', strict: true)
+            debt_data = response.parsed_body['data'].first
+            expect(debt_data['attributes']['fiscalTransactionData']).to eq([])
+          end
+        end
+      end
+
+      it 'handles nil fiscalTransactionData gracefully in list response' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters') do
+            # Mock the service to return debt data with nil fiscalTransactionData
+            allow_any_instance_of(DebtManagementCenter::DebtsService).to receive(:get_debts).and_return(
+              {
+                debts: [
+                  {
+                    'fileNumber' => '796043735',
+                    'payeeNumber' => '00',
+                    'personEntitled' => nil,
+                    'deductionCode' => '30',
+                    'benefitType' => 'Comp & Pen',
+                    'diaryCode' => '914',
+                    'diaryCodeDescription' => 'Paid In Full',
+                    'amountOverpaid' => 123.34,
+                    'amountWithheld' => 50.0,
+                    'originalAR' => 1177.0,
+                    'currentAR' => 123.34,
+                    'debtHistory' => [],
+                    'fiscalTransactionData' => nil
+                  }
+                ]
+              }
+            )
+
+            get '/mobile/v0/debts', headers: sis_headers
+            assert_schema_conform(200)
+            expect(response.body).to match_json_schema('debts', strict: true)
+            debt_data = response.parsed_body['data'].first
+            expect(debt_data['attributes']['fiscalTransactionData']).to eq([])
+          end
+        end
+      end
+    end
   end
 
   describe 'GET /mobile/v0/debts/:id' do
@@ -269,6 +340,98 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
                                            'detail' => 'Received a bad request response from the upstream server',
                                            'code' => 'DMC400', 'source' => 'DebtManagementCenter::DebtsService',
                                            'status' => '400' })
+          end
+        end
+      end
+    end
+
+    context 'with missing fiscalTransactionData' do
+      let(:debt_without_fiscal_data) do
+        {
+          'type' => 'debts',
+          'attributes' =>
+            { 'fileNumber' => '796043735',
+              'payeeNumber' => '00',
+              'personEntitled' => nil,
+              'deductionCode' => '30',
+              'benefitType' => 'Comp & Pen',
+              'diaryCode' => '914',
+              'diaryCodeDescription' => 'Paid In Full',
+              'amountOverpaid' => 123.34,
+              'amountWithheld' => 50.0,
+              'originalAr' => 1177.0,
+              'currentAr' => 123.34,
+              'debtHistory' =>
+                [{ 'date' => '09/12/1998', 'letterCode' => '123',
+                   'description' => 'Third Demand Letter - Potential Treasury Referral' }],
+              'fiscalTransactionData' => [] }
+        }
+      end
+
+      let(:load_debt_store_without_fiscal_data) do
+        debts = [{ 'fileNumber' => '796043735',
+                   'payeeNumber' => '00',
+                   'personEntitled' => nil,
+                   'deductionCode' => '30',
+                   'benefitType' => 'Comp & Pen',
+                   'diaryCode' => '914',
+                   'diaryCodeDescription' => 'Paid In Full',
+                   'amountOverpaid' => 123.34,
+                   'amountWithheld' => 50.0,
+                   'originalAR' => 1177.0,
+                   'currentAR' => 123.34,
+                   'debtHistory' =>
+                     [{ 'date' => '09/12/1998', 'letterCode' => '123',
+                        'description' => 'Third Demand Letter - Potential Treasury Referral' }] }]
+        debts[0]['id'] = debt_id
+        debt_store = DebtManagementCenter::DebtStore.find_or_build(user.uuid)
+        debt_store.update(debts:, uuid: user.uuid)
+      end
+
+      it 'handles missing fiscalTransactionData key gracefully' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters') do
+            load_debt_store_without_fiscal_data
+            get "/mobile/v0/debts/#{debt_id}", headers: sis_headers
+
+            assert_schema_conform(200)
+            expect(response.body).to match_json_schema('debt', strict: true)
+            debt_data = response.parsed_body['data'].except('id')
+            expect(debt_data).to include(debt_without_fiscal_data)
+            expect(debt_data['attributes']['fiscalTransactionData']).to eq([])
+          end
+        end
+      end
+
+      it 'handles nil fiscalTransactionData gracefully' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters') do
+            debts = [{ 'fileNumber' => '796043735',
+                       'payeeNumber' => '00',
+                       'personEntitled' => nil,
+                       'deductionCode' => '30',
+                       'benefitType' => 'Comp & Pen',
+                       'diaryCode' => '914',
+                       'diaryCodeDescription' => 'Paid In Full',
+                       'amountOverpaid' => 123.34,
+                       'amountWithheld' => 50.0,
+                       'originalAR' => 1177.0,
+                       'currentAR' => 123.34,
+                       'debtHistory' =>
+                         [{ 'date' => '09/12/1998', 'letterCode' => '123',
+                            'description' => 'Third Demand Letter - Potential Treasury Referral' }],
+                       'fiscalTransactionData' => nil }]
+            debts[0]['id'] = debt_id
+            debt_store = DebtManagementCenter::DebtStore.find_or_build(user.uuid)
+            debt_store.update(debts:, uuid: user.uuid)
+
+            get "/mobile/v0/debts/#{debt_id}", headers: sis_headers
+
+            assert_schema_conform(200)
+            expect(response.body).to match_json_schema('debt', strict: true)
+            debt_data = response.parsed_body['data'].except('id')
+            expect(debt_data).to include(debt_without_fiscal_data)
+            expect(debt_data['attributes']['fiscalTransactionData']).to eq([])
           end
         end
       end
