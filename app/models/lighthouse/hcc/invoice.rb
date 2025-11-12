@@ -23,19 +23,14 @@ module Lighthouse
         line_item = @params.dig('resource', 'lineItem')&.first
         @facility = @params.dig('resource', 'issuer', 'display')
         @latest_billing_ref = line_item
-          &.dig('chargeItemReference', 'reference')
-          &.split('/')
-          &.last
+                              &.dig('chargeItemReference', 'reference')
+                              &.split('/')
+                              &.last
         @last_credit_debit = line_item&.dig('priceComponent', 0, 'amount', 'value')
 
         @last_updated_at = @params.dig('resource', 'meta', 'lastUpdated')
-        current_balance = @params.dig('resource', 'totalPriceComponent')&.map do |tpc|
-          next if tpc['type'] == 'informational'
 
-          tpc['amount']['value']
-        end
-
-        @current_balance = current_balance ? current_balance.compact.sum : 0.0
+        @current_balance = calculate_current_balance ? calculate_current_balance.compact.sum : 0.0
         @previous_balance = @params['resource']['totalPriceComponent'].find do |c|
           c['type'] == 'informational' && c.dig('code', 'text') == 'Original Amount'
         end&.dig('amount', 'value')&.to_f
@@ -46,6 +41,14 @@ module Lighthouse
 
         @url = @params.dig('resource', 'fullUrl')
         @external_id = @params.dig('resource', 'id')
+      end
+
+      def calculate_current_balance
+        @params.dig('resource', 'totalPriceComponent')&.map do |tpc|
+          next if tpc['type'] == 'informational'
+
+          tpc['amount']['value']
+        end
       end
     end
   end
