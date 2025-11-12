@@ -97,7 +97,7 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string", "pattern": "^[0-9]{1,14}$",
-              "example": "555-5555"
+              "example": "5555555"
             },
             "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
           },
@@ -258,7 +258,7 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string", "pattern": "^[0-9]{1,14}$",
-              "example": "555-5555"
+              "example": "5555555"
             },
             "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
           },
