@@ -25,8 +25,22 @@ module DependentsBenefits
 
     PREFILL_STATS_KEY = 'api.dependents_benefits.prefill'
 
+    ALLOWLIST = %w[
+      tags
+      submission_id
+      form_type
+      from_state
+      to_state
+      message
+      parent_claim_id
+      child_claims_count
+      jobs_count
+      detail
+      original_error
+    ].freeze
+
     def initialize
-      super('dependents-benefits-application')
+      super('dependents-benefits-application', allowlist: ALLOWLIST)
     end
 
     def track_error_event(message, stats_key, **context)
