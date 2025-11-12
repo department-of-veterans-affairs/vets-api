@@ -17,6 +17,8 @@ describe Eps::ProviderService do
     allow(Settings.vaos.eps).to receive(:mock).and_return(true)
     # Set up RequestStore for controller name logging
     RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
+    # Clear eps_trace_id to ensure test isolation
+    RequestStore.store['eps_trace_id'] = nil
   end
 
   describe '#get_provider_service' do
