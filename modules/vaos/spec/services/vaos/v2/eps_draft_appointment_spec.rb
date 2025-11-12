@@ -67,9 +67,11 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
                                                        config: OpenStruct.new(mock_enabled?: false))
     allow(eps_provider_service).to receive_messages(search_provider_services: provider_data,
                                                     get_provider_slots: slots_data, get_drive_times: drive_time_data)
-    allow(current_user).to receive(:vet360_contact_info).and_return(
-      OpenStruct.new(residential_address: OpenStruct.new(latitude: 39.7392, longitude: -104.9903))
-    )
+    if current_user
+      allow(current_user).to receive(:vet360_contact_info).and_return(
+        OpenStruct.new(residential_address: OpenStruct.new(latitude: 39.7392, longitude: -104.9903))
+      )
+    end
   end
 
   describe '#initialize' do
