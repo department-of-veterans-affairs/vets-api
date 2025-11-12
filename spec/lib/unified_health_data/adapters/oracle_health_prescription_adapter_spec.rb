@@ -1424,6 +1424,51 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to be_nil
       end
     end
+
+    context 'with multiple dosageInstruction elements' do
+      let(:dispense_multiple_instructions) do
+        {
+          'dosageInstruction' => [
+            {
+              'text' => 'Take one tablet by mouth daily'
+            },
+            {
+              'text' => 'with food'
+            },
+            {
+              'text' => 'in the morning'
+            }
+          ]
+        }
+      end
+
+      it 'concatenates all dosage instruction texts' do
+        result = subject.send(:extract_sig_from_dispense, dispense_multiple_instructions)
+        expect(result).to eq('Take one tablet by mouth daily with food in the morning')
+      end
+    end
+
+    context 'with multiple dosageInstruction elements including non-hash' do
+      let(:dispense_mixed_instructions) do
+        {
+          'dosageInstruction' => [
+            {
+              'text' => 'Take one tablet'
+            },
+            'invalid-string-element',
+            {
+              'text' => 'with food'
+            },
+            nil
+          ]
+        }
+      end
+
+      it 'concatenates only valid hash elements with text' do
+        result = subject.send(:extract_sig_from_dispense, dispense_mixed_instructions)
+        expect(result).to eq('Take one tablet with food')
+      end
+    end
   end
 
   describe '#extract_facility_name_from_dispense' do

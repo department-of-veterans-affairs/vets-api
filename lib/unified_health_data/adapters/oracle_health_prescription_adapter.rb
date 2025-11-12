@@ -131,8 +131,12 @@ module UnifiedHealthData
         dosage_instructions = dispense['dosageInstruction'] || []
         return nil if dosage_instructions.empty?
 
-        first_instruction = dosage_instructions.first
-        first_instruction['text'] if first_instruction.is_a?(Hash)
+        # Concatenate all dosage instruction texts
+        texts = dosage_instructions.filter_map do |instruction|
+          instruction['text'] if instruction.is_a?(Hash)
+        end
+        
+        texts.empty? ? nil : texts.join(' ')
       end
 
       def find_identifier_value(identifiers, type_text)
