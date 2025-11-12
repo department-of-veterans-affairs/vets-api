@@ -22,54 +22,21 @@ module RepresentationManagement
     self.table_name = 'accreditation_data_ingestion_logs'
 
     # Dataset sources for accreditation data
-    enum :dataset, {
-      accreditation_api: 0,
-      trexler_file: 1
-    }
+    enum :dataset, { accreditation_api: 0, trexler_file: 1 }
 
     # Overall ingestion process status
-    enum :status, {
-      running: 0,
-      success: 1,
-      failed: 2
-    }
+    enum :status, { running: 0, success: 1, failed: 2 }
 
-    # Agents ingestion status
-    enum :agents_status, {
-      not_started: 0,
-      running: 1,
-      success: 2,
-      failed: 3
-    }, prefix: :agents
+    # Entity status enums (agents, attorneys, representatives, VSOs)
+    ENTITY_STATUS_VALUES = { not_started: 0, running: 1, success: 2, failed: 3 }.freeze
 
-    # Attorneys ingestion status
-    enum :attorneys_status, {
-      not_started: 0,
-      running: 1,
-      success: 2,
-      failed: 3
-    }, prefix: :attorneys
-
-    # Representatives ingestion status
-    enum :representatives_status, {
-      not_started: 0,
-      running: 1,
-      success: 2,
-      failed: 3
-    }, prefix: :representatives
-
-    # Veteran Service Organizations ingestion status
-    enum :veteran_service_organizations_status, {
-      not_started: 0,
-      running: 1,
-      success: 2,
-      failed: 3
-    }, prefix: :veteran_service_organizations
+    enum :agents_status, ENTITY_STATUS_VALUES, prefix: :agents
+    enum :attorneys_status, ENTITY_STATUS_VALUES, prefix: :attorneys
+    enum :representatives_status, ENTITY_STATUS_VALUES, prefix: :representatives
+    enum :veteran_service_organizations_status, ENTITY_STATUS_VALUES, prefix: :veteran_service_organizations
 
     # Valid entity types that can be tracked
     ENTITY_TYPES = %w[agents attorneys representatives veteran_service_organizations].freeze
-
-    # Class methods
 
     # Starts a new ingestion run and returns the created log
     #
@@ -78,11 +45,7 @@ module RepresentationManagement
     # @example
     #   log = AccreditationDataIngestionLog.start_ingestion!(dataset: :accreditation_api)
     def self.start_ingestion!(dataset:)
-      create!(
-        dataset:,
-        status: :running,
-        started_at: Time.current
-      )
+      create!(dataset:, status: :running, started_at: Time.current)
     end
 
     # Finds the most recent successfully completed log
@@ -107,8 +70,6 @@ module RepresentationManagement
     def self.current_running_for_dataset(dataset)
       where(status: :running, dataset:).order(started_at: :desc).first
     end
-
-    # Instance methods
 
     # Marks a specific entity type as running
     #
@@ -181,19 +142,14 @@ module RepresentationManagement
     #
     # @return [Float, nil] Duration in seconds or nil if not finished
     def duration
-      return nil unless finished_at
-
-      finished_at - started_at
+      finished_at ? finished_at - started_at : nil
     end
 
     # Checks if all entity types have completed (either success or failed)
     #
     # @return [Boolean] true if all entities are done processing
     def all_entities_completed?
-      ENTITY_TYPES.all? do |entity_type|
-        status_value = send("#{entity_type}_status")
-        %w[success failed].include?(status_value)
-      end
+      ENTITY_TYPES.all? { |entity_type| %w[success failed].include?(send("#{entity_type}_status")) }
     end
 
     # Checks if any entity type has failed
@@ -220,8 +176,7 @@ module RepresentationManagement
     # @param entity_type [String, Symbol] The entity type to validate
     # @raise [ArgumentError] if the entity type is not valid
     def validate_entity_type!(entity_type)
-      entity_type_str = entity_type.to_s
-      return if ENTITY_TYPES.include?(entity_type_str)
+      return if ENTITY_TYPES.include?(entity_type.to_s)
 
       raise ArgumentError, "Invalid entity type: #{entity_type}. Must be one of: #{ENTITY_TYPES.join(', ')}"
     end
