@@ -539,7 +539,7 @@ module Eps
         controller: controller_name,
         station_number:,
         eps_trace_id:,
-        user_uuid: @user&.uuid
+        user_uuid: user&.uuid
       }
     end
   end
