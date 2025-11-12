@@ -28,7 +28,7 @@ class SavedClaim::Form212680 < SavedClaim
 
   # Generate pre-filled PDF with veteran sections
   def generate_prefilled_pdf
-    pdf_path = to_pdf
+    pdf_path = to_pdf(SecureRandom.uuid)
 
     # Update metadata to track PDF generation
     update_metadata_with_pdf_generation
@@ -68,6 +68,6 @@ class SavedClaim::Form212680 < SavedClaim
     current_metadata['submission_method'] = 'print_and_upload'
 
     self.metadata = current_metadata.to_json
-    save(validate: false)
+    save!(validate: false)
   end
 end
