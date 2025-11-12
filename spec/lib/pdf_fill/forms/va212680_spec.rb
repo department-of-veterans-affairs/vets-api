@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/forms/va1010cg'
 require 'lib/pdf_fill/fill_form_examples'
 
 describe PdfFill::Forms::Va212680 do
+  let(:form_data) { build(:form212680Simple, country:).parsed_form }
+  let(:form) { described_class.new(form_data) }
+
   it_behaves_like 'a form filler', {
     form_id: '21-2680',
     factory: :form212680Simple,
@@ -13,4 +15,24 @@ describe PdfFill::Forms::Va212680 do
     test_data_types: %w[simple],
     run_at: '2025-10-24T18:48:27Z'
   }
+
+  describe '#extract_country_expanded' do
+    context 'with countries of length 2' do
+      let(:country) { 'US' }
+
+      it 'returns US' do
+        merged = form.merge_fields
+        expect(merged['claimantInformation']['address']['country']).to eq('US')
+      end
+    end
+
+    context 'with countries of length 3' do
+      let(:country) { 'USA' }
+
+      it 'returns US' do
+        merged = form.merge_fields
+        expect(merged['claimantInformation']['address']['country']).to eq('US')
+      end
+    end
+  end
 end

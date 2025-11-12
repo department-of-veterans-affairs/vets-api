@@ -44,20 +44,11 @@ module PdfFill
         hospital_address['country'] = extract_country_expanded(hospital_address) if hospital_address
       end
 
-      def extract_country_expanded(address, return_invalid: true)
-        return if address.blank?
+      def extract_country_expanded(address)
+        country = address['country']
+        return country if country.blank? || country.length == 2
 
-        country = address['country'] || address['country_name']
-        return if country.blank?
-
-        if [3, 2].include?(country.size)
-          IsoCountryCodes.find(country).alpha2
-        else
-          IsoCountryCodes.search_by_name(country)[0].alpha2
-        end
-      rescue IsoCountryCodes::UnknownCodeError
-        Rails.logger.warn("Unknown Country '#{country}' passed to to extract_country")
-        country if return_invalid
+        extract_country(address)
       end
 
       # TODO: review everything below here for nil checks
