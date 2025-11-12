@@ -386,4 +386,43 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       expect(subject.errors[:arrival_date]).to include('must be after departure date')
     end
   end
+
+  describe '.permitted_params' do
+    it 'extends base expense permitted parameters with flight-specific fields' do
+      params = described_class.permitted_params
+      expect(params).to include(:vendor, :trip_type, :departure_location, :arrival_location, :departure_date,
+                                :arrival_date)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        description: 'Flight to medical appointment',
+        cost_requested: 350.00,
+        vendor: 'Delta Airlines',
+        trip_type: 'RoundTrip',
+        departure_location: 'Atlanta, GA',
+        arrival_location: 'Boston, MA',
+        departure_date: DateTime.new(2024, 3, 15, 10, 0, 0),
+        arrival_date: DateTime.new(2024, 3, 15, 14, 30, 0),
+        claim_id: 'claim-uuid-flight'
+      )
+    end
+
+    it 'includes flight-specific fields' do
+      params = subject.to_service_params
+      expect(params['vendor']).to eq('Delta Airlines')
+      expect(params['trip_type']).to eq('RoundTrip')
+      expect(params['departure_location']).to eq('Atlanta, GA')
+      expect(params['arrival_location']).to eq('Boston, MA')
+    end
+
+    it 'formats datetime fields as ISO8601 strings' do
+      params = subject.to_service_params
+      expect(params['departure_date']).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+      expect(params['arrival_date']).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+    end
+  end
 end

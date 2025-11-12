@@ -141,4 +141,71 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
       end
     end
   end
+
+  describe '.permitted_params' do
+    it 'returns mileage-specific permitted parameters' do
+      params = described_class.permitted_params
+      expect(params).to eq(%i[trip_type requested_mileage receipt])
+    end
+
+    it 'does not include base expense parameters' do
+      params = described_class.permitted_params
+      expect(params).not_to include(:purchase_date)
+      expect(params).not_to include(:description)
+      expect(params).not_to include(:cost_requested)
+    end
+
+    it 'overrides the base class permitted_params' do
+      expect(described_class.permitted_params).not_to eq(TravelPay::BaseExpense.permitted_params)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        trip_type: 'RoundTrip',
+        requested_mileage: 42.5,
+        claim_id: 'claim-uuid-456'
+      )
+    end
+
+    it 'returns a hash with expense_type' do
+      params = subject.to_service_params
+      expect(params['expense_type']).to eq('mileage')
+    end
+
+    it 'includes trip_type' do
+      params = subject.to_service_params
+      expect(params['trip_type']).to eq('RoundTrip')
+    end
+
+    it 'includes requested_mileage' do
+      params = subject.to_service_params
+      expect(params['requested_mileage']).to eq(42.5)
+    end
+
+    it 'includes claim_id when present' do
+      params = subject.to_service_params
+      expect(params['claim_id']).to eq('claim-uuid-456')
+    end
+
+    it 'excludes claim_id when nil' do
+      subject.claim_id = nil
+      params = subject.to_service_params
+      expect(params).not_to have_key('claim_id')
+    end
+
+    it 'does not include base expense fields' do
+      params = subject.to_service_params
+      expect(params).not_to have_key('purchase_date')
+      expect(params).not_to have_key('description')
+      expect(params).not_to have_key('cost_requested')
+    end
+
+    it 'handles nil requested_mileage' do
+      subject.requested_mileage = nil
+      params = subject.to_service_params
+      expect(params['requested_mileage']).to be_nil
+    end
+  end
 end

@@ -69,4 +69,28 @@ RSpec.describe TravelPay::MealExpense, type: :model do
       expect(hash['expense_type']).to eq(TravelPay::Constants::EXPENSE_TYPES[:meal])
     end
   end
+
+  describe '.permitted_params' do
+    it 'extends base expense permitted parameters with meal-specific fields' do
+      params = described_class.permitted_params
+      expect(params).to include(:vendor_name)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        description: 'Lunch expense',
+        cost_requested: 25.00,
+        vendor_name: 'Restaurant ABC',
+        claim_id: 'claim-uuid-meal'
+      )
+    end
+
+    it 'includes meal-specific fields' do
+      params = subject.to_service_params
+      expect(params['vendor_name']).to eq('Restaurant ABC')
+    end
+  end
 end
