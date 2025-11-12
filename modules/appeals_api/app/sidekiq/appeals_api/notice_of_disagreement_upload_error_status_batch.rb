@@ -6,7 +6,7 @@ require 'sidekiq'
 require 'appeals_api/central_mail_updater'
 
 module AppealsApi
-  class SupplementalClaimUploadErrorStatusBatch
+  class NoticeOfDisagreementUploadErrorStatusBatch
     include Sidekiq::Job
 
     # No need to retry since the schedule will run this regularly
