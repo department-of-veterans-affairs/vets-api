@@ -2313,7 +2313,7 @@ describe VAOS::V2::AppointmentsService do
       context 'when UHD Service successfully retrieved the AVS PDF' do
         it 'fetches the AVS PDF and updates the appt hash' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
-          subject.send(:fetch_avs_and_update_appt_body, appt: appt_cerner, binary: 'true')
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
           expect(appt_cerner[:avs_pdf]).to eq(avs_pdf)
         end
       end
@@ -2323,7 +2323,7 @@ describe VAOS::V2::AppointmentsService do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs)
             .and_raise(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to receive(:error)
-          subject.send(:fetch_avs_and_update_appt_body, appt: appt_cerner, binary: 'true')
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
           expect(appt_cerner[:avs_error]).to eq(avs_error_message)
           expect(appt_cerner[:avs_pdf]).to be_nil
           expect(appt_cerner[:avs_path]).to be_nil
@@ -2335,7 +2335,7 @@ describe VAOS::V2::AppointmentsService do
 
         it 'returns an avs error message field in the appointment response' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return([])
-          subject.send(:fetch_avs_and_update_appt_body, appt: appt_cerner, binary: 'true')
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
           expect(appt_cerner[:avs_pdf]).to be_nil
         end
       end
@@ -2345,7 +2345,7 @@ describe VAOS::V2::AppointmentsService do
       context 'when AVS successfully retrieved the AVS link' do
         it 'fetches the avs link and updates the appt hash' do
           allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
-          subject.send(:fetch_avs_and_update_appt_body, appt: appt_vista)
+          subject.send(:fetch_avs_and_update_appt_body, appt_vista)
           expect(appt_vista[:avs_path]).to eq(avs_link)
         end
       end
@@ -2355,7 +2355,7 @@ describe VAOS::V2::AppointmentsService do
           allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
             .and_raise(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to receive(:error)
-          subject.send(:fetch_avs_and_update_appt_body, appt: appt_vista)
+          subject.send(:fetch_avs_and_update_appt_body, appt_vista)
           expect(appt_vista[:avs_error]).to eq(avs_error_message)
           expect(appt_vista[:avs_path]).to be_nil
         end
@@ -2366,7 +2366,7 @@ describe VAOS::V2::AppointmentsService do
         let(:appt_no_avs) { { id: '192308' } }
 
         it 'returns an avs error message field in the appointment response' do
-          subject.send(:fetch_avs_and_update_appt_body, appt: appt_no_avs)
+          subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
           expect(appt_no_avs[:avs_path]).to be_nil
         end
       end

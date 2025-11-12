@@ -269,7 +269,7 @@ module IvcChampva
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-          log_message_to_sentry(sanitized_message, 'warn')
+          Rails.logger.warn(sanitized_message)
           has_pdf_err = true
         end
 
@@ -296,7 +296,7 @@ module IvcChampva
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-          log_message_to_sentry(sanitized_message, 'warn')
+          Rails.logger.warn(sanitized_message)
           has_pdf_err = true
         end
 
@@ -520,29 +520,45 @@ module IvcChampva
         # Create a copy of the applicant hash to avoid modifying the original
         updated_applicant = Marshal.load(Marshal.dump(applicant))
 
-        # Map primary insurance policy (policies[0]) if it exists
-        if policies&.[](0)
-          updated_applicant['applicant_primary_provider'] = policies[0]['provider']
-          updated_applicant['applicant_primary_effective_date'] = policies[0]['effective_date']
-          updated_applicant['applicant_primary_expiration_date'] = policies[0]['expiration_date']
-          updated_applicant['applicant_primary_through_employer'] = policies[0]['through_employer']
-          updated_applicant['applicant_primary_insurance_type'] = policies[0]['insurance_type']
-          updated_applicant['primary_medigap_plan'] = policies[0]['medigap_plan']
-          updated_applicant['primary_additional_comments'] = policies[0]['additional_comments']
-        end
-
-        # Map secondary insurance policy (policies[1]) if it exists
-        if policies&.[](1)
-          updated_applicant['applicant_secondary_provider'] = policies[1]['provider']
-          updated_applicant['applicant_secondary_effective_date'] = policies[1]['effective_date']
-          updated_applicant['applicant_secondary_expiration_date'] = policies[1]['expiration_date']
-          updated_applicant['applicant_secondary_through_employer'] = policies[1]['through_employer']
-          updated_applicant['applicant_secondary_insurance_type'] = policies[1]['insurance_type']
-          updated_applicant['secondary_medigap_plan'] = policies[1]['medigap_plan']
-          updated_applicant['secondary_additional_comments'] = policies[1]['additional_comments']
-        end
+        # Map primary and secondary insurance policies
+        map_primary_policy_to_applicant(policies[0], updated_applicant) if policies&.[](0)
+        map_secondary_policy_to_applicant(policies[1], updated_applicant) if policies&.[](1)
 
         updated_applicant
+      end
+
+      ##
+      # Maps primary insurance policy fields to the applicant hash
+      #
+      # @param [Hash] policy Primary insurance policy data
+      # @param [Hash] applicant Applicant hash to update
+      #
+      def map_primary_policy_to_applicant(policy, applicant)
+        applicant['applicant_primary_provider'] = policy['provider']
+        applicant['applicant_primary_effective_date'] = policy['effective_date']
+        applicant['applicant_primary_expiration_date'] = policy['expiration_date']
+        applicant['applicant_primary_through_employer'] = policy['through_employer']
+        applicant['applicant_primary_insurance_type'] = policy['insurance_type']
+        applicant['applicant_primary_eob'] = policy['eob']
+        applicant['primary_medigap_plan'] = policy['medigap_plan']
+        applicant['primary_additional_comments'] = policy['additional_comments']
+      end
+
+      ##
+      # Maps secondary insurance policy fields to the applicant hash
+      #
+      # @param [Hash] policy Secondary insurance policy data
+      # @param [Hash] applicant Applicant hash to update
+      #
+      def map_secondary_policy_to_applicant(policy, applicant)
+        applicant['applicant_secondary_provider'] = policy['provider']
+        applicant['applicant_secondary_effective_date'] = policy['effective_date']
+        applicant['applicant_secondary_expiration_date'] = policy['expiration_date']
+        applicant['applicant_secondary_through_employer'] = policy['through_employer']
+        applicant['applicant_secondary_insurance_type'] = policy['insurance_type']
+        applicant['applicant_secondary_eob'] = policy['eob']
+        applicant['secondary_medigap_plan'] = policy['medigap_plan']
+        applicant['secondary_additional_comments'] = policy['additional_comments']
       end
 
       def fill_ohi_and_return_path(form)

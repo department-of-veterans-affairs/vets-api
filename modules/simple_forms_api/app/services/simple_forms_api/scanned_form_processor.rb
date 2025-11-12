@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'common/pdf_helpers'
 module SimpleFormsApi
   class ScannedFormProcessor
     PDF_VALIDATOR_OPTIONS = {
@@ -22,12 +23,14 @@ module SimpleFormsApi
     class ConversionError < ProcessingError; end
     class ValidationError < ProcessingError; end
 
-    def initialize(attachment)
+    def initialize(attachment, password: nil)
       @attachment = attachment
+      @password = password
     end
 
     def process!
       pdf_path = convert_to_pdf
+      pdf_path = decrypt_pdf(pdf_path) if password.present?
       validate_pdf_at_path(pdf_path)
 
       File.open(pdf_path, 'rb') do |pdf_file|
@@ -40,12 +43,21 @@ module SimpleFormsApi
       Rails.logger.error("ScannedFormProcessor failed: #{e.message}")
       raise
     ensure
-      File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
+      cleanup_decrypted_file
+      File.delete(pdf_path) if pdf_path && File.exist?(pdf_path) && pdf_path != @decrypted_file_path
     end
 
     private
 
-    attr_reader :attachment
+    attr_reader :attachment, :password
+
+    def cleanup_decrypted_file
+      return unless @decrypted_file_path
+
+      File.delete(@decrypted_file_path)
+    rescue => e
+      Rails.logger.warn("Failed to cleanup decrypted temp file: #{e.message}")
+    end
 
     def convert_to_pdf
       Rails.logger.info("Converting file to PDF for attachment #{attachment.guid}")
@@ -59,6 +71,22 @@ module SimpleFormsApi
         [{
           title: 'File conversion error',
           detail: 'Unable to convert file to PDF. Please ensure your file is valid and try again.'
+        }]
+      )
+    end
+
+    def decrypt_pdf(pdf_path)
+      output_path = Tempfile.new(['decrypted', '.pdf']).path
+      Common::PdfHelpers.unlock_pdf(pdf_path, password, output_path)
+      @decrypted_file_path = output_path
+      output_path
+    rescue Common::Exceptions::UnprocessableEntity => e
+      Rails.logger.error("PDF decryption failed: #{e.message}")
+      raise ValidationError.new(
+        'PDF decryption failed',
+        [{
+          title: 'Invalid password',
+          detail: 'The password you entered is incorrect. Please try again.'
         }]
       )
     end

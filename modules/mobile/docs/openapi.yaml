@@ -2927,18 +2927,6 @@ paths:
           required: false
           schema:
             type: string
-        - description: The page number requested
-          example: 1
-          in: query
-          name: page
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 100
-          example: 10
-          in: query
-          name: perPage
-          schema:
-            type: integer
         - description: Whether or not to use this API's cache or fetch records from
             the upstream service. Defaults to true.
           example: true

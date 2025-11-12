@@ -50,7 +50,6 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   describe 'POST create' do
     context 'with valid params and flipper enabled' do
       before do
-        allow_any_instance_of(BGSV2::Service).to receive(:create_proc).and_return({ vnp_proc_id: '21875' })
         allow(BGS::Services).to receive(:new).and_return(bgs_service)
         allow(bgs_service).to receive(:people).and_return(bgs_people)
         allow(bgs_people).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '987654321' })
@@ -97,9 +96,8 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
 
       it 'calls ClaimProcessor with correct parameters' do
-        expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
-          .with(a_kind_of(Integer), '21875')
-          .and_return({ data: { jobs_enqueued: 2 }, error: nil })
+        expect(DependentsBenefits::ClaimProcessor).to receive(:create_proc_forms)
+          .with(a_kind_of(Integer))
 
         post(:create, params: test_form, as: :json)
         expect(response).to have_http_status(:ok)

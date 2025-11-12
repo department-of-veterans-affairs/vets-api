@@ -673,7 +673,7 @@ describe 'PowerOfAttorney',
               'declinedReason' => nil, 'healthInfoAuth' => 'Y', 'poaCode' => '074',
               'procID' => '3857362', 'secondaryStatus' => 'Accepted',
               'vetFirstName' => 'ANDREA', 'vetLastName' => 'MITCHELL',
-              'vetMiddleName' => 'L', 'vetPtcpntID' => '600049322'
+              'vetMiddleName' => 'L', 'vetPtcpntID' => '600049322', 'id' => id
             }
           end
 
