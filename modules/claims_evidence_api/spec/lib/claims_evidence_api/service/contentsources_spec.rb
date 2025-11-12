@@ -29,14 +29,4 @@ RSpec.describe ClaimsEvidenceApi::Service::ContentSources do
       expect { service.retrieve }.to raise_error ClaimsEvidenceApi::Service::ContentSources::UndefinedXFolderURI
     end
   end
-
-  describe '#get' do
-    it 'performs a GET via class method' do
-      allow(ClaimsEvidenceApi::Service::ContentSources).to receive(:new).and_return service
-
-      path = 'contentsources'
-      expect(service).to receive(:perform).with(:get, path, {}, headers)
-      ClaimsEvidenceApi::Service::ContentSources.get
-    end
-  end
 end

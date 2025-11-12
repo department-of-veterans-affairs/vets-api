@@ -7,11 +7,6 @@ module ClaimsEvidenceApi
     # ContentSources API
     # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Content%20Sources
     class ContentSources < Base
-      # @see #retrieve
-      def self.get
-        new.retrieve
-      end
-
       # GET retrieve the list of content sources
       # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Content%20Sources/getContentSources
       def retrieve
