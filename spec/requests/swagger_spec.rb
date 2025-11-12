@@ -2758,100 +2758,124 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe '21-2680' do
-      let(:headers) do
-        {
-          '_headers' => {
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-          }
-        }
+    describe 'form 21-2680 house bound status' do
+      let(:saved_claim) { create(:form212680) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(true)
       end
 
-      context 'submitting form212680 claim form' do
-        it 'successfully downloads form212680 pdf', skip: 'need apivore update to accept binary response' do
+      it 'supports submitting a form 21-2680' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form212680',
+          200,
+          json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
+        )
+      end
+
+      it 'handles 422' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form212680',
+          400,
+          json_headers.merge('_data' => { foo: :bar }.to_json)
+        )
+      end
+
+      it 'handles 400' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form212680',
+          422,
+          json_headers.merge('_data' => { form: { foo: :bar }.to_json }.to_json)
+        )
+      end
+
+      it 'successfully downloads form212680 pdf', skip: 'swagger validation cannot handle binary PDF response' do
+        expect(subject).to validate(
+          :get,
+          '/v0/form212680/download_pdf/{guid}',
+          200,
+          'guid' => saved_claim.guid
+        )
+      end
+
+      it 'returns not found for bad guids' do
+        expect(subject).to validate(
+          :get,
+          '/v0/form212680/download_pdf/{guid}',
+          404,
+          'guid' => 'bad-guid'
+        )
+      end
+
+      context 'when feature toggle is disabled' do
+        before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
+
+        it 'handles 403 for create' do
           expect(subject).to validate(
             :post,
-            '/v0/form212680/download_pdf',
-            200,
-            headers.merge('_data' => {
-              'form' => VetsJsonSchema::EXAMPLES['21-2680']
-            }.to_json)
+            '/v0/form212680',
+            404,
+            json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
           )
         end
 
-        it 'handles 422' do
+        it 'handles 403 for download_pdf' do
           expect(subject).to validate(
-            :post,
-            '/v0/form212680/download_pdf',
-            422,
-            headers.merge('_data' => { 'form' => { foo: :bar } }.to_json)
+            :get,
+            '/v0/form212680/download_pdf/{guid}',
+            404,
+            'guid' => saved_claim.guid
           )
-        end
-
-        it 'handles 400' do
-          expect(subject).to validate(
-            :post,
-            '/v0/form212680/download_pdf',
-            400,
-            headers.merge('_data' => {})
-          )
-        end
-
-        context 'when feature toggle is disabled' do
-          before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
-
-          it 'handles 404' do
-            expect(subject).to validate(
-              :post,
-              '/v0/form212680/download_pdf',
-              404,
-              headers.merge('_data' => {
-                'form' => VetsJsonSchema::EXAMPLES['21-2680']
-              }.to_json)
-            )
-          end
         end
       end
     end
 
-    describe 'form 21-0779 submission' do
-      let(:valid_form210779) do
-        {
-          '_headers' => {
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-          }
-        }
+    describe 'form 21-0779 nursing home information' do
+      let(:saved_claim) { create(:va210779) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
       end
 
-      context 'submitting form212680 claim form' do
-        it 'successfully downloads form212680 pdf', skip: 'need apivore update to accept binary response' do
-          expect(subject).to validate(
-            :post,
-            '/v0/form212680/download_pdf',
-            200,
-            headers.merge('_data' => {
-              'form' => VetsJsonSchema::EXAMPLES['21-2680']
-            }.to_json)
-          )
-        end
+      it 'supports submitting a form 21-0779' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779',
+          200,
+          json_headers.merge('_data' => VetsJsonSchema::EXAMPLES['21-0779'].to_json)
+        )
+      end
 
-        it 'handles 422' do
-          expect(subject).to validate(
-            :post,
-            '/v0/form212680/download_pdf',
-            422,
-            headers.merge('_data' => { 'form' => { foo: :bar } }.to_json)
-          )
-        end
+      it 'handles 422' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779',
+          422,
+          json_headers.merge('_data' => { foo: :bar }.to_json)
+        )
+      end
 
-        it 'handles 400' do
+      it 'successfully downloads form210779 pdf', skip: 'swagger validation cannot handle binary PDF response' do
+        expect(subject).to validate(
+          :get,
+          '/v0/form210779/download_pdf/{guid}',
+          200,
+          'guid' => saved_claim.guid
+        )
+      end
+
+      context 'when feature toggle is disabled' do
+        before { allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false) }
+
+        it 'handles 404' do
           expect(subject).to validate(
-            :post,
-            '/v0/form212680/download_pdf',
-            400,
-            headers.merge('_data' => {})
+            :get,
+            '/v0/form210779/download_pdf/{guid}',
+            404,
+            'guid' => saved_claim.guid
           )
         end
       end
@@ -3379,7 +3403,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/form210779/download_pdf/{guid}')
       subject.untested_mappings.delete('/v0/form0969')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
-      subject.untested_mappings.delete('/v0/form212680/download_pdf')
+      subject.untested_mappings['/v0/form212680/download_pdf/{guid}']['get'].delete('200')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
