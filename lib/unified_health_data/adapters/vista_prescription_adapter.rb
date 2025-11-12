@@ -105,23 +105,27 @@ module UnifiedHealthData
         rf_records.filter_map do |record|
           next unless record.is_a?(Hash)
 
-          {
-            status: record['refillStatus'],
-            refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
-            facility_name: record['facilityName'],
-            sig: record['sig'],
-            quantity: record['quantity'],
-            medication_name: record['prescriptionName'],
-            id: record['id'],
-            refill_submit_date: convert_to_iso8601(record['refillSubmitDate'], field_name: 'refill_submit_date'),
-            prescription_number: record['prescriptionNumber'],
-            cmop_division_phone: record['cmopDivisionPhone'],
-            cmop_ndc_number: record['cmopNdcNumber'],
-            remarks: record['remarks'],
-            dial_cmop_division_phone: record['dialCmopDivisionPhone'],
-            disclaimer: record['disclaimer']
-          }
+          build_dispense_attributes(record)
         end
+      end
+
+      def build_dispense_attributes(record)
+        {
+          status: record['refillStatus'],
+          refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
+          facility_name: record['facilityName'],
+          sig: record['sig'],
+          quantity: record['quantity'],
+          medication_name: record['prescriptionName'],
+          id: record['id'],
+          refill_submit_date: convert_to_iso8601(record['refillSubmitDate'], field_name: 'refill_submit_date'),
+          prescription_number: record['prescriptionNumber'],
+          cmop_division_phone: record['cmopDivisionPhone'],
+          cmop_ndc_number: record['cmopNdcNumber'],
+          remarks: record['remarks'],
+          dial_cmop_division_phone: record['dialCmopDivisionPhone'],
+          disclaimer: record['disclaimer']
+        }
       end
 
       def convert_to_iso8601(date_string, field_name:)
