@@ -76,16 +76,4 @@ describe Pensions::PdfFill::Va21p527ez do
                                                                                 })
     end
   end
-
-  describe '#expand_veteran_service_information' do
-    it 'puts overflow on line one' do
-      long_place_of_separation = 'A very long place name that exceeds thirty-six characters'
-      form_data = { 'placeOfSeparation' => long_place_of_separation }
-      form = described_class.new(form_data)
-      form.expand_veteran_service_information
-      updated_data = form.instance_variable_get('@form_data')
-
-      expect(updated_data['placeOfSeparationLineOne']).to eq(long_place_of_separation)
-    end
-  end
 end

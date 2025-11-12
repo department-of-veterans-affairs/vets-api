@@ -403,12 +403,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             end
           end
 
-          it 'fetches appointment list and includes OH avs binary on past booked appointments' do
+          it 'fetches appointment list and includes OH avs on past booked appointments' do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner_avs',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
               get '/vaos/v2/appointments' \
-                  '?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&_include=avs,binary',
+                  '?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&_include=avs',
                   params:, headers: inflection_header
 
               data = JSON.parse(response.body)['data']
@@ -855,12 +855,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
-        it 'has access and returns appointment with OH avs binary included' do
+        it 'has access and returns appointment with OH avs' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs_cerner',
                            match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:info).at_least(:once)
             allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
-            get '/vaos/v2/appointments/70060?_include=avs,binary', headers: inflection_header
+            get '/vaos/v2/appointments/70060?_include=avs', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
             data = JSON.parse(response.body)['data']

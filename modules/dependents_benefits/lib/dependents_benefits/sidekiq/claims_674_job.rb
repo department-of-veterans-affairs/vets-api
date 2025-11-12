@@ -7,17 +7,16 @@ require 'claims_evidence_api/uploader'
 
 module DependentsBenefits
   module Sidekiq
-    class Claims686cJob < DependentSubmissionJob
-      class Invalid686cClaim < StandardError; end
-
-      FORM_ID = DependentsBenefits::ADD_REMOVE_DEPENDENT.freeze
+    class Claims674Job < DependentSubmissionJob
+      class Invalid674Claim < StandardError; end
+      FORM_ID = DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL.freeze
       ##
       # Service-specific submission logic - BGS vs Lighthouse vs Fax
       # @return [ServiceResponse] Must respond to success? and error methods
       def submit_to_service
         saved_claim.add_veteran_info(user_data)
 
-        raise Invalid686cClaim unless saved_claim.valid?(:run_686_form_jobs)
+        raise Invalid674Claim unless saved_claim.valid?(:run_686_form_jobs)
 
         file_path = lighthouse_submission.process_pdf(
           saved_claim.to_pdf(form_id: FORM_ID),
@@ -41,7 +40,7 @@ module DependentsBenefits
       # @return [LighthouseFormSubmission, BGSFormSubmission] instance
       def find_or_create_form_submission
         @submission ||= ClaimsEvidenceApi::Submission.find_or_create_by(
-          form_id: DependentsBenefits::ADD_REMOVE_DEPENDENT,
+          form_id: FORM_ID,
           saved_claim_id: saved_claim.id
         )
       end
@@ -108,7 +107,8 @@ module DependentsBenefits
       end
 
       def lighthouse_submission
-        @lighthouse_submission ||= DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(saved_claim, user_data)
+        @lighthouse_submission ||= DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(saved_claim,
+                                                                                                user_data)
       end
     end
   end

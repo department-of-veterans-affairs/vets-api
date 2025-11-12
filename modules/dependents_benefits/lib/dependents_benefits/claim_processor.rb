@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/sidekiq/bgs_proc_job'
 require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'dependents_benefits/sidekiq/bgs_686c_job'
 require 'dependents_benefits/sidekiq/claims_686c_job'
+require 'dependents_benefits/sidekiq/claims_674_job'
 require 'dependents_benefits/monitor'
 
 module DependentsBenefits
@@ -12,6 +14,15 @@ module DependentsBenefits
     def initialize(parent_claim_id, proc_id)
       @parent_claim_id = parent_claim_id
       @proc_id = proc_id
+    end
+
+    def self.create_proc_forms(parent_claim_id)
+      processor = new(parent_claim_id, nil)
+      processor.create_proc_forms
+    end
+
+    def create_proc_forms
+      DependentsBenefits::Sidekiq::BGSProcJob.perform_async(parent_claim_id)
     end
 
     # Synchronously enqueue all (async) submission jobs for 686c and 674 claims
@@ -85,6 +96,9 @@ module DependentsBenefits
 
       # Enqueue primary 674 submission job
       Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
+      jobs_count += 1
+
+      Sidekiq::Claims674Job.perform_async(claim.id, proc_id)
       jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',
