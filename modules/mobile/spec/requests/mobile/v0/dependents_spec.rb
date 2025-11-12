@@ -81,6 +81,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+        allow_any_instance_of(BGS::DependentService).to receive(:submit_pdf_job)
       end
 
       it 'returns job ids' do
