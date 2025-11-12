@@ -4,7 +4,6 @@ require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/snakecase'
-require 'eps/middleware/response/trace_id_extractor'
 require 'faraday/multipart'
 
 module Eps
@@ -39,8 +38,7 @@ module Eps
         conn.response :betamocks if mock_enabled?
         conn.response :snakecase
         conn.response :json_parser
-        conn.response :vaos_errors
-        conn.response :eps_trace_id_extractor # Runs BEFORE vaos_errors (middleware runs in reverse for responses)
+        conn.response :eps_errors
         conn.adapter Faraday.default_adapter
       end
     end
