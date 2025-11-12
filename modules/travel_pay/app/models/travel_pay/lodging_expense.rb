@@ -18,6 +18,14 @@ module TravelPay
     validates :check_out_date, presence: true
     validate :check_out_after_check_in
 
+    # Returns the list of permitted parameters for lodging expenses
+    # Extends base params with lodging-specific fields
+    #
+    # @return [Array<Symbol>] list of permitted parameter names
+    def self.permitted_params
+      super + %i[vendor check_in_date check_out_date]
+    end
+
     # Override expense_type for LodgingExpense
     #
     # @return [String] the expense type

@@ -21,6 +21,14 @@ module TravelPay
     validate :departure_and_arrival_locations_must_be_different
     validate :departure_date_must_be_before_arrival_date
 
+    # Returns the list of permitted parameters for flight expenses
+    # Extends base params with flight-specific fields
+    #
+    # @return [Array<Symbol>] list of permitted parameter names
+    def self.permitted_params
+      super + %i[vendor trip_type departure_location arrival_location departure_date arrival_date]
+    end
+
     # Returns the expense type for flight expenses
     #
     # @return [String] the expense type

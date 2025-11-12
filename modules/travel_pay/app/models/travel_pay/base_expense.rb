@@ -18,6 +18,14 @@ module TravelPay
     validates :description, presence: true, length: { maximum: 255 }
     validates :cost_requested, presence: true, numericality: { greater_than: 0 }
 
+    # Returns the list of permitted parameters for this expense type
+    # Subclasses can override completely or extend with super + [...]
+    #
+    # @return [Array<Symbol>] list of permitted parameter names
+    def self.permitted_params
+      %i[purchase_date description cost_requested receipt]
+    end
+
     # Custom belongs_to association with Claim
     #
     # @return [Object, nil] the associated claim object or nil if not found
