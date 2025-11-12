@@ -27,7 +27,7 @@ module RepresentationManagement
 
           collection = Common::Collection.new(model_class, data:)
           resource = collection.paginate(**pagination_params)
-          options = { meta: resource.metadata.merge(data_source_metadata) }
+          options = { meta: resource.metadata }
 
           render json: RepresentationManagement::AccreditedIndividuals::IndividualSerializer.new(resource.data, options)
         else
@@ -167,22 +167,6 @@ module RepresentationManagement
 
       def determine_model_class
         use_veteran_model? ? Veteran::Service::Representative : AccreditedIndividual
-      end
-
-      def data_source_metadata
-        if current_data_source_log
-          {
-            data_source: current_data_source_log.dataset,
-            last_updated: current_data_source_log.finished_at&.iso8601,
-            ingestion_status: current_data_source_log.status
-          }
-        else
-          {
-            data_source: 'trexler_file',
-            last_updated: nil,
-            ingestion_status: 'unknown'
-          }
-        end
       end
 
       # Veteran::Service::Representative specific query methods
