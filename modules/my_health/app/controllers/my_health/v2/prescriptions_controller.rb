@@ -15,7 +15,6 @@ module MyHealth
 
         result = service.refill_prescription(orders)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
-        raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
 
         # Log unique user event for prescription refill requested
         UniqueUserEvents.log_event(
