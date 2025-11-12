@@ -622,9 +622,9 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         prescriptions = subject.parse(response_with_vista_tracking_list)
         expect(prescriptions.size).to eq(1)
         expect(prescriptions.first.tracking_list).to eq([
-          { 'id' => 1, 'trackingNumber' => 'ABC123' },
-          { 'id' => 2, 'trackingNumber' => 'XYZ789' }
-        ])
+                                                          { 'id' => 1, 'trackingNumber' => 'ABC123' },
+                                                          { 'id' => 2, 'trackingNumber' => 'XYZ789' }
+                                                        ])
       end
 
       it 'returns empty array for Oracle Health prescriptions' do

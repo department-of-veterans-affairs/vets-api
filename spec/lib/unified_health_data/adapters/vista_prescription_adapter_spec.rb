@@ -427,9 +427,9 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       it 'extracts trackingList from Vista medication data' do
         result = subject.parse(medication_with_tracking_list)
         expect(result.tracking_list).to eq([
-          { 'id' => 1, 'trackingNumber' => 'ABC123' },
-          { 'id' => 2, 'trackingNumber' => 'XYZ789' }
-        ])
+                                             { 'id' => 1, 'trackingNumber' => 'ABC123' },
+                                             { 'id' => 2, 'trackingNumber' => 'XYZ789' }
+                                           ])
       end
     end
 

@@ -80,8 +80,8 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       # tracking_list
       expect(attributes[:tracking_list]).to be_an(Array)
       expect(attributes[:tracking_list]).to eq([
-        { 'id' => 1, 'trackingNumber' => 'ABC123' }
-      ])
+                                                 { 'id' => 1, 'trackingNumber' => 'ABC123' }
+                                               ])
     end
   end
 end
