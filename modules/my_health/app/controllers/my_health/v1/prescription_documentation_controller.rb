@@ -8,15 +8,16 @@ module MyHealth
         rx = client.get_rx_details(id)
         raise StandardError, 'Rx not found' if rx.nil?
         raise StandardError, 'Missing NDC number' if rx.cmop_ndc_value.nil?
+        
         # Fetch prescription documentation using the NDC number
         # https://api.krames.com/v3/content/search?ndc=<NDC>
         #
-        # documentation: Drug documentation JSON object from the API
+        # Drug documentation JSON object from the API
         documentation = client.get_rx_documentation(rx.cmop_ndc_value)
         # Build PrescriptionDocumentation object
         # https://api.krames.com/v3/content/<ContentType>-<ContentID>
         #
-        # prescription_documentation: PrescriptionDocumentation object with HTML content containing drug information
+        # PrescriptionDocumentation object with HTML content containing drug information
         prescription_documentation = PrescriptionDocumentation.new({ html: documentation[:data] })
         render json: PrescriptionDocumentationSerializer.new(prescription_documentation)
       rescue => e
