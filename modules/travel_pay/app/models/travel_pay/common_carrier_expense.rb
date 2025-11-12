@@ -25,5 +25,16 @@ module TravelPay
     def expense_type
       TravelPay::Constants::EXPENSE_TYPES[:common_carrier]
     end
+
+    # Returns a hash of parameters formatted for the service layer
+    # Extends base params with common carrier-specific fields
+    #
+    # @return [Hash] parameters formatted for the service
+    def to_service_params
+      super.merge(
+        'reason_not_using_pov' => reason_not_using_pov,
+        'carrier_type' => carrier_type
+      )
+    end
   end
 end

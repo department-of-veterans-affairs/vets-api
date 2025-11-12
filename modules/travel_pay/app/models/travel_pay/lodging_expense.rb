@@ -33,6 +33,18 @@ module TravelPay
       TravelPay::Constants::EXPENSE_TYPES[:lodging]
     end
 
+    # Returns a hash of parameters formatted/mapped for the service layer
+    # Extends base params with lodging-specific fields
+    #
+    # @return [Hash] parameters formatted for the service
+    def to_service_params
+      super.merge(
+        'vendor' => vendor,
+        'check_in_date' => format_date(check_in_date),
+        'check_out_date' => format_date(check_out_date)
+      )
+    end
+
     private
 
     # This validation ensures check_out_date is after check_in_date

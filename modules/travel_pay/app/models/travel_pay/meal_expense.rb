@@ -27,5 +27,13 @@ module TravelPay
     def expense_type
       TravelPay::Constants::EXPENSE_TYPES[:meal]
     end
+
+    # Returns a hash of parameters formatted for the service layer
+    # Extends base params with meal-specific fields
+    #
+    # @return [Hash] parameters formatted for the service
+    def to_service_params
+      super.merge('vendor_name' => vendor_name)
+    end
   end
 end

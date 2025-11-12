@@ -28,5 +28,19 @@ module TravelPay
     def expense_type
       TravelPay::Constants::EXPENSE_TYPES[:mileage]
     end
+
+    # Returns a hash of parameters formatted for the service layer
+    # Overrides base implementation since mileage has different params
+    #
+    # @return [Hash] parameters formatted for the service
+    def to_service_params
+      params = {
+        'expense_type' => expense_type,
+        'trip_type' => trip_type,
+        'requested_mileage' => requested_mileage
+      }
+      params['claim_id'] = claim_id if claim_id.present?
+      params
+    end
   end
 end

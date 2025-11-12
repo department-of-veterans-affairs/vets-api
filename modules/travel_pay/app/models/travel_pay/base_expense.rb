@@ -78,6 +78,21 @@ module TravelPay
       'other'
     end
 
+    # Returns a hash of parameters formatted for the service layer
+    # Subclasses can override completely or extend with super.merge(...)
+    #
+    # @return [Hash] parameters formatted for the service
+    def to_service_params
+      params = {
+        'expense_type' => expense_type,
+        'purchase_date' => format_date(purchase_date),
+        'description' => description,
+        'cost_requested' => cost_requested
+      }
+      params['claim_id'] = claim_id if claim_id.present?
+      params
+    end
+
     private
 
     # Finds a claim by ID - this will need to be implemented based on
@@ -91,6 +106,24 @@ module TravelPay
       # For now, returning nil as a safe default
       Rails.logger.debug { "BaseExpense: Looking for claim with ID #{id}" }
       nil
+    end
+
+    # Formats a date/datetime value as ISO8601 string for the service layer
+    #
+    # @param date [Date, Time, DateTime, String, nil] the date to format
+    # @return [String, nil] ISO8601 formatted date string or nil
+    def format_date(date)
+      return nil if date.nil?
+
+      if date.is_a?(Date) || date.is_a?(Time) || date.is_a?(DateTime)
+        date.iso8601
+      elsif date.is_a?(String)
+        begin
+          Date.iso8601(date).iso8601
+        rescue ArgumentError
+          nil
+        end
+      end
     end
   end
 end

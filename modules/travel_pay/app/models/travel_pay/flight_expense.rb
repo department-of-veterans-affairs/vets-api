@@ -36,6 +36,21 @@ module TravelPay
       TravelPay::Constants::EXPENSE_TYPES[:airtravel]
     end
 
+    # Returns a hash of parameters formatted for the service layer
+    # Extends base params with flight-specific fields
+    #
+    # @return [Hash] parameters formatted for the service
+    def to_service_params
+      super.merge(
+        'vendor' => vendor,
+        'trip_type' => trip_type,
+        'departure_location' => departure_location,
+        'arrival_location' => arrival_location,
+        'departure_date' => format_date(departure_date),
+        'arrival_date' => format_date(arrival_date)
+      )
+    end
+
     private
 
     # Validates that departure and arrival locations are different
