@@ -9,6 +9,7 @@ require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
+require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
 require_relative 'client'
@@ -109,11 +110,16 @@ module UnifiedHealthData
       build_error_response(normalized_orders)
     end
 
-    def get_care_summaries_and_notes
+    def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
         # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = default_start_date
-        end_date = default_end_date
+        # Validate user-provided dates BEFORE applying defaults
+        validate_date_param(start_date, 'start_date') if start_date
+        validate_date_param(end_date, 'end_date') if end_date
+
+        # Apply defaults after validation
+        start_date ||= default_start_date
+        end_date ||= default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
@@ -180,6 +186,20 @@ module UnifiedHealthData
         return nil unless filtered
 
         allergy_adapter.parse_single_allergy(filtered)
+      end
+    end
+
+    def get_vitals
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        vitals_adapter.parse(combined_records)
       end
     end
 
@@ -399,6 +419,10 @@ module UnifiedHealthData
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
+    def vitals_adapter
+      @vitals_adapter ||= UnifiedHealthData::Adapters::VitalAdapter.new
+    end
+
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
@@ -410,6 +434,12 @@ module UnifiedHealthData
 
     def default_end_date
       Time.zone.today.to_s
+    end
+
+    def validate_date_param(date_string, param_name)
+      Date.parse(date_string)
+    rescue ArgumentError, TypeError
+      raise ArgumentError, "Invalid #{param_name}: '#{date_string}'. Expected format: YYYY-MM-DD"
     end
   end
 end
