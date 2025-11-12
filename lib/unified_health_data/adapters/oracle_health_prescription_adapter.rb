@@ -274,7 +274,7 @@ module UnifiedHealthData
         notes = resource['note'] || []
         return nil if notes.empty?
 
-        note_texts = notes.filter_map { |note| note['text'] if note['text'].present? }
+        note_texts = notes.filter_map { |note| note['text'].presence }
         return nil if note_texts.empty?
 
         note_texts.join(' ')
