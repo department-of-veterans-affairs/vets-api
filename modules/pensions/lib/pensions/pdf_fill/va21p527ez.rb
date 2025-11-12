@@ -8,6 +8,8 @@ require 'string_helpers'
 require_relative 'constants'
 
 # Sections
+require_relative 'sections/section_03'
+require_relative 'sections/section_04'
 require_relative 'sections/section_05'
 require_relative 'sections/section_06'
 require_relative 'sections/section_07'
@@ -17,7 +19,6 @@ require_relative 'sections/section_10'
 require_relative 'sections/section_11'
 require_relative 'sections/section_12'
 
-# rubocop:disable Metrics/MethodLength
 module Pensions
   module PdfFill
     # The Va21p527ez Form
@@ -204,179 +205,12 @@ module Pensions
           question_label: "Veteran's E-Mail Address",
           question_text: 'VETERAN\'S E-MAIL ADDRESS',
           key: 'form1[0].#subform[48].Veterans_Email_Address_Optional[0]'
-        },
-        # 3a
-        'previousNames' => {
-          item_label: 'Other service name',
-          limit: 1,
-          first_key: 'first',
-          'first' => {
-            limit: 12,
-            question_num: 3,
-            question_suffix: 'A',
-            question_label: 'Other First Name',
-            question_text: 'OTHER FIRST NAME',
-            key: "form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[#{ITERATOR}]"
-          },
-          'last' => {
-            limit: 18,
-            question_num: 3,
-            question_suffix: 'A',
-            question_label: 'Other Last Name',
-            question_text: 'OTHER LAST NAME',
-            key: "form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[#{ITERATOR}]"
-          }
-        },
-        # 3b
-        'activeServiceDateRange' => {
-          'from' => {
-            'month' => {
-              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Month[0]'
-            },
-            'day' => {
-              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Day[0]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Year[0]'
-            }
-          },
-          'to' => {
-            'month' => {
-              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Month[0]'
-            },
-            'day' => {
-              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Day[0]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Year[0]'
-            }
-          }
-        },
-        # 3e
-        'serviceBranch' => {
-          'army' => {
-            key: 'form1[0].#subform[48].Army[0]'
-          },
-          'navy' => {
-            key: 'form1[0].#subform[48].Navy[0]'
-          },
-          'airForce' => {
-            key: 'form1[0].#subform[48].Air_Force[0]'
-          },
-          'coastGuard' => {
-            key: 'form1[0].#subform[48].Coast_Guard[0]'
-          },
-          'marineCorps' => {
-            key: 'form1[0].#subform[48].Marine_Corps[0]'
-          },
-          'spaceForce' => {
-            key: 'form1[0].#subform[48].Space_Force[0]'
-          },
-          'usphs' => {
-            key: 'form1[0].#subform[48].USPHS[0]'
-          },
-          'noaa' => {
-            key: 'form1[0].#subform[48].NOAA[0]'
-          }
-        },
-        # 3d
-        'serviceNumber' => {
-          key: 'form1[0].#subform[48].Your_Service_Number[0]'
-        },
-        # 3f
-        'placeOfSeparationLineOne' => {
-          key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[1]'
-        },
-        'placeOfSeparationLineTwo' => {
-          key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[0]'
-        },
-        # 3g
-        'pow' => {
-          key: 'form1[0].#subform[48].RadioButtonList[1]'
-        },
-        # 3h
-        'powDateRange' => {
-          'from' => {
-            'month' => {
-              key: 'form1[0].#subform[48].Date_Confinement_Started_Month[1]'
-            },
-            'day' => {
-              key: 'form1[0].#subform[48].Date_Confinement_Started_Day[1]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[48].Date_Confinement_Started_Year[1]'
-            }
-          },
-          'to' => {
-            'month' => {
-              key: 'form1[0].#subform[48].Date_Confinement_Ended_Month[1]'
-            },
-            'day' => {
-              key: 'form1[0].#subform[48].Date_Confinement_Ended_Day[1]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[48].Date_Confinement_Ended_Year[1]'
-            }
-          }
-        },
-        # 4a
-        'socialSecurityDisability' => {
-          key: 'form1[0].#subform[48].RadioButtonList[2]'
-        },
-        # 4b
-        'medicalCondition' => {
-          key: 'form1[0].#subform[48].RadioButtonList[3]'
-        },
-        # 4c
-        'nursingHome' => {
-          key: 'form1[0].#subform[48].RadioButtonList[4]'
-        },
-        # 4d
-        'medicaidStatus' => {
-          key: 'form1[0].#subform[48].RadioButtonList[5]'
-        },
-        # 4e
-        'specialMonthlyPension' => {
-          key: 'form1[0].#subform[48].RadioButtonList[6]'
-        },
-        # 4f
-        'vaTreatmentHistory' => {
-          key: 'form1[0].#subform[49].RadioButtonList[7]'
-        },
-        'vaMedicalCenters' => {
-          item_label: 'VA medical center',
-          limit: 1,
-          first_key: 'medicalCenter',
-          'medicalCenter' => {
-            limit: 33,
-            question_num: 4,
-            question_suffix: 'F',
-            question_label: 'Specify VA Facility',
-            question_text: 'Specify VA Facility',
-            key: 'form1[0].#subform[49].Facility[0]'
-          }
-        },
-        # 4g
-        'federalTreatmentHistory' => {
-          key: 'form1[0].#subform[49].RadioButtonList[8]'
-        },
-        'federalMedicalCenters' => {
-          item_label: 'Federal medical facility',
-          limit: 1,
-          first_key: 'medicalCenter',
-          'medicalCenter' => {
-            limit: 44,
-            question_num: 4,
-            question_suffix: 'G',
-            question_label: 'Specify Federal Facility',
-            question_text: 'Specify Federal Facility',
-            key: 'form1[0].#subform[49].Facility[1]'
-          }
         }
       }.freeze
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section5, Section6, Section7, Section8, Section9, Section10, Section11, Section12].freeze
+      SECTION_CLASSES = [Section3, Section4, Section5, Section6, Section7, Section8, Section9, Section10, Section11,
+                         Section12].freeze
 
       # Sections 7 - 12
       SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
@@ -390,9 +224,6 @@ module Pensions
       def merge_fields(_options = {})
         expand_veteran_identification_information
         expand_veteran_contact_information
-        expand_veteran_service_information
-        expand_pension_information
-        expand_employment_history
 
         # Sections 7 - 12
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
@@ -420,72 +251,6 @@ module Pensions
         @form_data['veteranAddress']['country'] = @form_data.dig('veteranAddress', 'country')&.slice(0, 2)
         @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
       end
-
-      # SECTION III: VETERAN'S SERVICE INFORMATION
-      def expand_veteran_service_information
-        prev_names = @form_data['previousNames']
-
-        @form_data['previousNames'] = prev_names.pluck('previousFullName') if prev_names.present?
-        @form_data['activeServiceDateRange'] = {
-          'from' => split_date(@form_data.dig('activeServiceDateRange', 'from')),
-          'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
-        }
-        @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
-        @form_data['serviceBranch'] = @form_data['serviceBranch']&.each_key { |k| @form_data['serviceBranch'][k] = '1' }
-
-        @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
-        if @form_data['pow'].zero?
-          @form_data['powDateRange'] ||= {}
-          @form_data['powDateRange']['from'] = split_date(@form_data.dig('powDateRange', 'from'))
-          @form_data['powDateRange']['to'] = split_date(@form_data.dig('powDateRange', 'to'))
-        end
-
-        place_of_separation = @form_data['placeOfSeparation'].to_s
-
-        if place_of_separation.length <= 36 # split lines
-          @form_data['placeOfSeparationLineOne'] = place_of_separation[0..17]
-          @form_data['placeOfSeparationLineTwo'] = place_of_separation[18..]
-        else # overflow
-          @form_data['placeOfSeparationLineOne'] = place_of_separation
-        end
-      end
-
-      # SECTION IV: PENSION INFORMATION
-      def expand_pension_information
-        @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
-        @form_data['medicaidStatus'] = to_radio_yes_no(
-          @form_data['medicaidStatus'] || @form_data['medicaidCoverage']
-        )
-        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
-        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
-        @form_data['socialSecurityDisability'] = to_radio_yes_no(
-          @form_data['socialSecurityDisability'] || @form_data['isOver65']
-        )
-
-        # If "YES," skip question 4B
-        @form_data['medicalCondition'] = nil if @form_data['socialSecurityDisability'].zero?
-
-        # If "NO," skip question 4D
-        @form_data['medicaidStatus'] = nil if @form_data['nursingHome'] == 1
-
-        @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
-        @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
-      end
-
-      # SECTION V: EMPLOYMENT HISTORY
-      def expand_employment_history
-        @form_data['currentEmployment'] = to_radio_yes_no(@form_data['currentEmployment'])
-
-        @form_data['previousEmployers'] = @form_data['previousEmployers']&.map do |pe|
-          pe.merge({
-                     'jobDate' => split_date(pe['jobDate']),
-                     'jobDateOverflow' => to_date_string(pe['jobDate'])
-                   })
-        end
-
-        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
-      end
     end
   end
 end
-# rubocop:enable Metrics/MethodLength

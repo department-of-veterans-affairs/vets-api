@@ -30,9 +30,15 @@ module PdfFill
         country = address['country'] || address['country_name']
         return if country.blank?
 
-        if country.size == 3
+        case country.size
+        when 3
+          # 3-character code (ISO 3166-1 alpha-3), convert to 2-character (alpha-2)
           IsoCountryCodes.find(country).alpha2
+        when 2
+          # Already a 2-character code (ISO 3166-1 alpha-2), return as-is
+          country
         else
+          # Country name or other format, search by name
           IsoCountryCodes.search_by_name(country)[0].alpha2
         end
       rescue IsoCountryCodes::UnknownCodeError
