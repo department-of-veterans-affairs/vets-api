@@ -20,10 +20,15 @@ module Lighthouse
       end
 
       def assign_attributes
+        line_item = @params.dig('resource', 'lineItem')&.first
         @facility = @params.dig('resource', 'issuer', 'display')
-        @latest_billing_ref = @params['resource']['lineItem'].first['chargeItemReference']['reference'].split('/').last
+        @latest_billing_ref = line_item
+          &.dig('chargeItemReference', 'reference')
+          &.split('/')
+          &.last
+        @last_credit_debit = line_item&.dig('priceComponent', 0, 'amount', 'value')
+
         @last_updated_at = @params.dig('resource', 'meta', 'lastUpdated')
-        @last_credit_debit = @params['resource']['lineItem'].first['priceComponent'].first['amount']['value']
         current_balance = @params.dig('resource', 'totalPriceComponent')&.map do |tpc|
           next if tpc['type'] == 'informational'
 
