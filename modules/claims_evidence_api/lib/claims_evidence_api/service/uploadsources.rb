@@ -7,12 +7,7 @@ module ClaimsEvidenceApi
     # UploadSources API
     # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Upload%20Sources
     class UploadSources < Base
-      # @see #retrieve
-      def self.get
-        new.retrieve
-      end
-
-      # GET retrieve the list of content sources
+      # GET retrieve the list of upload sources
       # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Upload%20Sources/getUploadSources
       def retrieve
         raise UndefinedXFolderURI unless folder_identifier
@@ -31,7 +26,7 @@ module ClaimsEvidenceApi
         'uploadsources'
       end
 
-      # end ContentSources
+      # end UploadSources
     end
 
     # end Service
