@@ -1335,6 +1335,11 @@ va_profile:
     enabled: <%= ENV['va_profile__veteran_status__enabled'] %>
     mock: <%= ENV['va_profile__veteran_status__mock'] %>
     timeout: 30
+vahb:
+  version_requirement:
+    allergies_oracle_health: <%= ENV['vahb__version_requirement__allergies_oracle_health'] || '3.0.0' %>
+    labs_oracle_health: <%= ENV['vahb__version_requirement__labs_oracle_health'] || '3.0.0' %>
+    medications_oracle_health: <%= ENV['vahb__version_requirement__medications_oracle_health'] || '2.99.99' %>
 valid_va_file_number: false
 vanotify:
   callback_url: <%= ENV['vanotify__callback_url'] %>
@@ -1913,8 +1918,6 @@ vye:
     salt: <%= ENV['vye__scrypt__salt'] %>
 web_origin: <%= ENV['web_origin'] %>
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\.cms\\.va\\.gov\\z"
-webhooks:
-  require_https: true
 websockets:
   require_https: <%= ENV['websockets__require_https'] %>
   websocket_settings: <%= ENV['websockets__websocket_settings'] %>

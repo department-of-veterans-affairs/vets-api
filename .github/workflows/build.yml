@@ -75,26 +75,14 @@ jobs:
             ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
-  deploy_dev_staging:
+  deploy:
     needs: build_and_push
     if: ${{ github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.conclusion == 'success' }}
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"
       manifests_directory: "vets-api"
-      auto_deploy_envs: "dev staging"
-      commit_sha: ${{ github.event.workflow_run.head_commit.id }}
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  deploy_prod_sandbox:
-    needs: build_and_push
-    if: ${{ github.event.workflow_run.head_branch == 'production-bypass' && github.event.workflow_run.conclusion == 'success' }}
-    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
-    with:
-      ecr_repository: "vets-api"
-      manifests_directory: "vets-api"
-      auto_deploy_envs: "prod sandbox"
+      auto_deploy_envs: "dev staging prod sandbox"
       commit_sha: ${{ github.event.workflow_run.head_commit.id }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
