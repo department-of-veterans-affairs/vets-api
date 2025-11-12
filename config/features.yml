@@ -22,10 +22,6 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_api:
-    actor_type: user
-    description: Enables the endpoints of the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_intent_to_file_api:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
@@ -1454,10 +1450,6 @@ features:
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
     description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
-    enable_in_development: true
-  mhv_medical_records_redact_fhir_client_logs:
-    actor_type: user
-    description: Replaces IDs in fhir_client INFO-level logs with X's when enabled
     enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
