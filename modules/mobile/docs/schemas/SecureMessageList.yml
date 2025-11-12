@@ -27,20 +27,8 @@ properties:
         type: object
         additionalProperties: false
         required:
-          - currentPage
-          - perPage
-          - totalPages
           - totalEntries
         properties:
-          currentPage:
-            type: integer
-            example: 1
-          perPage:
-            type: integer
-            example: 10
-          totalPages:
-            type: integer
-            example: 2
           totalEntries:
             type: integer
             example: 15
