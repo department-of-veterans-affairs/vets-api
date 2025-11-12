@@ -50,18 +50,10 @@ module HCA
 
         send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
 
-        if Flipper.enabled?(:hca_disable_sentry_logging)
-          Form1010Ezr::Service.log_submission_failure(
-            parsed_form,
-            '[10-10EZR] total failure'
-          )
-        else
-          Form1010Ezr::Service.log_submission_failure_to_sentry(
-            parsed_form,
-            '1010EZR total failure',
-            'total_failure'
-          )
-        end
+        Form1010Ezr::Service.log_submission_failure(
+          parsed_form,
+          '[10-10EZR] total failure'
+        )
       end
     end
 
@@ -112,13 +104,8 @@ module HCA
     private
 
     def log_validation_error(parsed_form, e)
-      if Flipper.enabled?(:hca_disable_sentry_logging)
-        Form1010Ezr::Service.log_submission_failure(parsed_form, '[10-10EZR] failure')
-        self.class.log_exception_to_rails(e)
-      else
-        Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
-        self.class.log_exception_to_sentry(e)
-      end
+      Form1010Ezr::Service.log_submission_failure(parsed_form, '[10-10EZR] failure')
+      self.class.log_exception_to_rails(e)
     end
 
     def log_parse_error(parsed_form, e)
@@ -128,13 +115,7 @@ module HCA
 
       Rails.logger.info("Form1010Ezr FailedDidNotRetry: #{e.message}")
 
-      if Flipper.enabled?(:hca_disable_sentry_logging)
-        Form1010Ezr::Service.log_submission_failure(parsed_form, '[10-10EZR] failure did not retry')
-      else
-        Form1010Ezr::Service.log_submission_failure_to_sentry(
-          parsed_form, '1010EZR failure did not retry', 'failure_did_not_retry'
-        )
-      end
+      Form1010Ezr::Service.log_submission_failure(parsed_form, '[10-10EZR] failure did not retry')
     end
   end
 end
