@@ -114,7 +114,7 @@ module UnifiedHealthData
         end
       end
 
-      def extract_facility_name_from_dispense(resource, dispense)
+      def extract_facility_name_from_dispense(_resource, dispense)
         # Create a temporary resource with just this dispense to use existing extract_facility_name
         temp_resource = { 'contained' => [dispense] }
         extract_facility_name(temp_resource)
