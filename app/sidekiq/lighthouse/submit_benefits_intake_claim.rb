@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pcpg/monitor'
@@ -10,7 +12,7 @@ require 'pdf_info'
 module Lighthouse
   class SubmitBenefitsIntakeClaim
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     class BenefitsIntakeClaimError < StandardError; end
 
