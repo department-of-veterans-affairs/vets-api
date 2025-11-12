@@ -26,6 +26,8 @@ module MyHealth
 
         render json: serialized_notes,
                status: :ok
+      rescue ArgumentError => e
+        render_error('Invalid Parameter', e.message, '400', 400, :bad_request)
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
              StandardError => e

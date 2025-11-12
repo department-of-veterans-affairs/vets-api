@@ -123,6 +123,30 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
         end
         expect(response).to have_http_status(:bad_gateway)
       end
+
+      it 'returns an error when start_date is invalid' do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+          get '/my_health/v2/medical_records/clinical_notes',
+              headers: { 'X-Key-Inflection' => 'camel' },
+              params: { start_date: 'invalid-date', end_date: '2025-05-31' }
+        end
+        expect(response).to have_http_status(:bad_request)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+        expect(json_response['errors'].first['detail']).to include("Invalid start_date: 'invalid-date'")
+      end
+
+      it 'returns an error when end_date is invalid' do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+          get '/my_health/v2/medical_records/clinical_notes',
+              headers: { 'X-Key-Inflection' => 'camel' },
+              params: { start_date: '2024-01-01', end_date: 'bad-format' }
+        end
+        expect(response).to have_http_status(:bad_request)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+        expect(json_response['errors'].first['detail']).to include("Invalid end_date: 'bad-format'")
+      end
     end
   end
 

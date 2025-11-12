@@ -115,6 +115,9 @@ module UnifiedHealthData
         start_date ||= default_start_date
         end_date ||= default_end_date
 
+        validate_date_param(start_date, 'start_date')
+        validate_date_param(end_date, 'end_date')
+
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
 
@@ -410,6 +413,14 @@ module UnifiedHealthData
 
     def default_end_date
       Time.zone.today.to_s
+    end
+
+    def validate_date_param(date_string, param_name)
+      return if date_string.nil?
+
+      Date.parse(date_string)
+    rescue ArgumentError, TypeError
+      raise ArgumentError, "Invalid #{param_name}: '#{date_string}'. Expected format: YYYY-MM-DD"
     end
   end
 end
