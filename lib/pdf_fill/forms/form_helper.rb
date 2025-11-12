@@ -24,19 +24,20 @@ module PdfFill
         full_name
       end
 
-      def extract_country(address)
+      def extract_country(address, return_invalid: true)
         return if address.blank?
 
         country = address['country'] || address['country_name']
         return if country.blank?
 
-        if country.size == 3
+        if [3, 2].include?(country.size)
           IsoCountryCodes.find(country).alpha2
         else
           IsoCountryCodes.search_by_name(country)[0].alpha2
         end
       rescue IsoCountryCodes::UnknownCodeError
-        country
+        Rails.logger.warn("Unknown Country '#{country}' passed to to extract_country")
+        country if return_invalid
       end
 
       def split_postal_code(address)

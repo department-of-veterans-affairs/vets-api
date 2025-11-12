@@ -48,29 +48,39 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#extract_country' do
-    it 'returns the correct code for country' do
-      address = {
-        'country' => 'USA'
-      }
-      expect(including_class.new.extract_country(address)).to eq('US')
-    end
-  end
+    country_data = {
+      'when country is USA' => [
+        { description: 'length is 2', in: 'US', out: 'US' },
+        { description: 'length is 3', in: 'USA', out: 'US' },
+        { description: 'Full Country Name', in: 'United States', out: 'US' }
+      ],
+      'when country is non-us' => [
+        { description: 'length is 2', in: 'GH', out: 'GH' },
+        { description: 'length is 3', in: 'GHA', out: 'GH' },
+        { description: 'Full Country Name', in: 'Ghana', out: 'GH' }
+      ],
+      'when country is invalid' => [
+        { description: 'length is 2', in: 'ZZ', out: 'ZZ' },
+        { description: 'length is 3', in: 'ZZZ', out: 'ZZZ' },
+        { description: 'Full Country Name', in: 'Invalid Country', out: 'Invalid Country' }
+      ],
+      'when country is invalid and return_invalid: false' => [
+        { description: 'length is 2', in: 'ZZ', out: nil, options: { return_invalid: false } },
+        { description: 'length is 3', in: 'ZZZ', out: nil, options: { return_invalid: false } },
+        { description: 'Full Country Name', in: 'Invalid Country', out: nil, options: { return_invalid: false } }
+      ]
+    }
 
-  describe '#extract_country_if_not_usa' do
-    it 'returns the correct code for country' do
-      address = {
-        'country' => 'Ghana'
-      }
-      expect(including_class.new.extract_country(address)).to eq('GH')
-    end
-  end
-
-  describe '#extract_country_if_not_valid_code' do
-    it 'returns the passed value as country' do
-      address = {
-        'country' => 'InvalidCountry'
-      }
-      expect(including_class.new.extract_country(address)).to eq('InvalidCountry')
+    country_data.each do |desc, cases|
+      context desc do
+        cases.each do |c|
+          it "returns the correct code if #{c[:description]}" do
+            address = { 'country' => c[:in] }
+            options = c[:options] || {}
+            expect(including_class.new.extract_country(address, **options)).to eq(c[:out])
+          end
+        end
+      end
     end
   end
 
