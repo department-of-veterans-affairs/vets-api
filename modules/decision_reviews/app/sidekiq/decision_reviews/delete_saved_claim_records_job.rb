@@ -14,15 +14,8 @@ module DecisionReviews
     def perform
       return unless enabled?
 
-      deleted_saved_claims = delete_saved_claims
-      deleted_secondary_forms = secondary_forms_deletion_enabled? ? delete_secondary_appeal_forms : []
-
-      StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_saved_claims.size)
-
-      Rails.logger.info('DecisionReviews::DeleteSavedClaimRecordsJob completed successfully',
-                        saved_claims_deleted: deleted_saved_claims.size,
-                        secondary_forms_deleted: deleted_secondary_forms.size,
-                        total_deleted: deleted_saved_claims.size + deleted_secondary_forms.size)
+      deleted_records = ::SavedClaim.where(delete_date: ..DateTime.now).destroy_all
+      StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_records.size)
 
       nil
     rescue => e
@@ -34,18 +27,6 @@ module DecisionReviews
 
     def enabled?
       Flipper.enabled? :decision_review_delete_saved_claims_job_enabled
-    end
-
-    def secondary_forms_deletion_enabled?
-      Flipper.enabled? :decision_review_delete_secondary_appeal_forms_enabled
-    end
-
-    def delete_saved_claims
-      ::SavedClaim.where(delete_date: ..DateTime.now).destroy_all
-    end
-
-    def delete_secondary_appeal_forms
-      SecondaryAppealForm.where(delete_date: ..DateTime.now).destroy_all
     end
   end
 end
