@@ -237,6 +237,31 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
       end
     end
+
+    context 'when verifying allowlist filtering' do
+      before do
+        # SavedClaim uses camelCase
+        form_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true }
+          }
+        }
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      # NOTE: submission_id, completely_removed, and removed_keys are allowlisted
+      # in DisabilityCompensation::Loggers::Monitor#initialize to ensure they are not filtered
+      # when written to Rails.logger. This test verifies the allowlist is working correctly.
+      it 'does not filter out allowlisted toxic exposure tracking keys when writing to Rails logger' do
+        expect(Rails.logger).to receive(:info) do |_, payload|
+          expect(payload[:context][:submission_id]).to eq(submission.id)
+          expect(payload[:context][:completely_removed]).to be(false)
+          expect(payload[:context][:removed_keys]).to eq(['gulfWar1990'])
+        end
+
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+      end
+    end
   end
 
   describe('#track_526_submission_with_banking_info') do
