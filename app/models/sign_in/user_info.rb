@@ -72,7 +72,7 @@ module SignIn
         email: user.email,
         full_name: derive_full_name(user),
         birth_date: user.birth_date,
-        ssn: normalized_ssn(user.ssn),
+        ssn: user.ssn,
         gender: user.gender,
         address: user.address,
         phone_number: user.phone,
@@ -85,10 +85,6 @@ module SignIn
         corp_id: user.corp_id,
         birls: user.birls_id
       }
-    end
-
-    def normalized_ssn(ssn)
-      ssn&.gsub(/\D/, '')
     end
 
     def full_name_from(user)
