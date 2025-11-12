@@ -3,10 +3,6 @@
 module SignIn
   class UserInfo
     include ActiveModel::Model
-    include ActiveModel::Validations
-
-    validates :email, presence: true
-    validates :icn, presence: true
 
     attr_accessor :csp_type,
                   :csp_uuid,
@@ -70,7 +66,7 @@ module SignIn
         ial: user.ial,
         aal: user.aal,
         email: user.email,
-        full_name: derive_full_name(user),
+        full_name: full_name_from(user),
         birth_date: user.birth_date,
         ssn: user.ssn,
         gender: user.gender,
