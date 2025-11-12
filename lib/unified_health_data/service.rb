@@ -9,6 +9,7 @@ require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
+require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
 require_relative 'client'
@@ -98,7 +99,9 @@ module UnifiedHealthData
       normalized_orders = normalize_orders(orders)
       with_monitoring do
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
-        parse_refill_response(response)
+        result = parse_refill_response(response)
+        validate_refill_response_count(normalized_orders, result)
+        result
       end
     rescue Common::Exceptions::BackendServiceException => e
       raise e if e.original_status && e.original_status >= 500
@@ -178,6 +181,20 @@ module UnifiedHealthData
         return nil unless filtered
 
         allergy_adapter.parse_single_allergy(filtered)
+      end
+    end
+
+    def get_vitals
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        vitals_adapter.parse(combined_records)
       end
     end
 
@@ -298,6 +315,18 @@ module UnifiedHealthData
       }
     end
 
+    def validate_refill_response_count(normalized_orders, result)
+      orders_sent = normalized_orders.size
+      orders_received = result[:success].size + result[:failed].size
+
+      return if orders_sent == orders_received
+
+      error_message = "Refill response count mismatch: sent #{orders_sent} orders, " \
+                      "received #{orders_received} responses"
+      Rails.logger.error(error_message)
+      raise Common::Exceptions::PrescriptionRefillResponseMismatch.new(orders_sent, orders_received)
+    end
+
     def extract_successful_refills(refill_items)
       # Parse successful refills from API response array
       successful_refills = refill_items.select { |item| item['success'] == true }
@@ -383,6 +412,10 @@ module UnifiedHealthData
 
     def conditions_adapter
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
+
+    def vitals_adapter
+      @vitals_adapter ||= UnifiedHealthData::Adapters::VitalAdapter.new
     end
 
     def logger
