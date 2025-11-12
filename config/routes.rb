@@ -401,6 +401,7 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
+    resources :medical_copays, only: %i[index]
   end
 
   root 'v0/example#index', module: 'v0'
