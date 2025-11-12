@@ -13,7 +13,7 @@ module RepresentationManagement
   class VeteranRepresentativeAdapter
     attr_reader :representative
 
-    delegate :id, :first_name, :last_name, :phone, :email, :city, :state_code, :zip_code,
+    delegate :id, :first_name, :last_name, :full_name, :phone, :email, :city, :state_code, :zip_code,
              :address_line1, :address_line2, :address_line3, :distance, :lat, :long,
              to: :representative
 
@@ -35,10 +35,6 @@ module RepresentationManagement
 
     def registration_number
       representative.representative_id
-    end
-
-    def full_name
-      representative.full_name
     end
 
     # Veteran::Service::Representative doesn't have these fields from AccreditedIndividual

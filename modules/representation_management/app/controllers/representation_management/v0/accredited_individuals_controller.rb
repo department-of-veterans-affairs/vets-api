@@ -19,7 +19,11 @@ module RepresentationManagement
           data = individual_query
 
           # Wrap Veteran::Service::Representative records in adapter if needed
-          data = data.map { |record| RepresentationManagement::VeteranRepresentativeAdapter.new(record) } if use_veteran_model?
+          if use_veteran_model?
+            data = data.map do |record|
+              RepresentationManagement::VeteranRepresentativeAdapter.new(record)
+            end
+          end
 
           collection = Common::Collection.new(model_class, data:)
           resource = collection.paginate(**pagination_params)
@@ -192,7 +196,7 @@ module RepresentationManagement
                        else type_param
                        end
 
-        ["? = ANY(veteran_representatives.user_types)", veteran_type]
+        ['? = ANY(veteran_representatives.user_types)', veteran_type]
       end
 
       def select_query_string_for_veteran
