@@ -157,28 +157,45 @@ module TravelPay
         expense_class.new(expense_params)
       end
 
-      def expense_class_for_type(_expense_type)
-        # TODO: Implement specific expense models (MileageExpense, LodgingExpense, MealExpense)
-        # For now, all expense types use BaseExpense
-        TravelPay::BaseExpense
+      def expense_class_for_type(expense_type)
+        case expense_type.to_sym
+        when :airtravel
+          TravelPay::FlightExpense
+        when :common_carrier
+          TravelPay::CommonCarrierExpense
+        when :lodging
+          TravelPay::LodgingExpense
+        when :meal
+          TravelPay::MealExpense
+        when :mileage
+          TravelPay::MileageExpense
+        when :parking
+          TravelPay::ParkingExpense
+        when :toll
+          TravelPay::TollExpense
+        else
+          # :other or any unknown type defaults to BaseExpense
+          TravelPay::BaseExpense
+        end
       end
 
       def permitted_params
-        params.require(:expense).permit(
-          :purchase_date,
-          :description,
-          :cost_requested,
-          :receipt
-        )
+        expense_class = expense_class_for_type(params[:expense_type])
+        params.require(:expense).permit(*expense_class.permitted_params)
       end
 
       def expense_params_for_service(expense)
-        params = {
-          'purchase_date' => format_purchase_date(expense.purchase_date),
-          'description' => expense.description,
-          'cost_requested' => expense.cost_requested,
-          'expense_type' => expense.expense_type
-        }
+        params = { 'expense_type' => expense.expense_type }
+
+        if expense.is_a?(TravelPay::MileageExpense)
+          params['trip_type'] = expense.trip_type
+          params['requested_mileage'] = expense.requested_mileage
+        else
+          params['purchase_date'] = format_purchase_date(expense.purchase_date)
+          params['description'] = expense.description
+          params['cost_requested'] = expense.cost_requested
+        end
+
         params['claim_id'] = expense.claim_id if expense.claim_id.present?
         params
       end
