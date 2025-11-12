@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'date'
-
+# rubocop:disable Metrics/ModuleLength
 module PdfFill
   module Forms
     module FormHelper
@@ -133,6 +133,20 @@ module PdfFill
         bool_attribute ? 'Yes' : 'No'
       end
 
+      def split_currency_string(decimal_string)
+        return if decimal_string.blank?
+
+        dollars, cents = decimal_string.split('.')
+        dollars ||= ''
+        reverse_dollars = dollars.reverse.scan(/\d{1,3}/)
+
+        {
+          thousands: reverse_dollars[1]&.reverse&.rjust(3),
+          ones: reverse_dollars[0]&.reverse&.rjust(3),
+          cents: cents || '00'
+        }
+      end
+
       # Further readability improvements require various refactoring and code
       # de-duplication across different forms.
       module PhoneNumberFormatting
@@ -148,3 +162,4 @@ module PdfFill
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
