@@ -98,7 +98,9 @@ module Mobile
         Rails.logger.error("Invalid travel pay document ID: #{e.message}")
         head :bad_request
       rescue Faraday::ResourceNotFound
-        Rails.logger.error("Travel pay document not found: claim_id=#{params[:claim_id]}, document_id=#{params[:document_id]}")
+        Rails.logger.error(
+          "Travel pay document not found: claim_id=#{params[:claim_id]}, document_id=#{params[:document_id]}"
+        )
         head :not_found
       rescue => e
         Rails.logger.error("Error downloading travel pay document: #{e.class}, #{e.message}")
