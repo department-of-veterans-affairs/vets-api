@@ -68,20 +68,31 @@ module IncreaseCompensation
         'previousEmployers' => {
           limit: 5,
           question_num: 18,
+          question_label: 'Previous Employment',
+          question_text: 'Previous Employment',
           first_key: 'nameAndAddress',
           'nameAndAddress' => {
             limit: 110,
+            question_num: 18,
+            question_label: 'Previous Employer Name',
+            question_text: 'Previous Employer Name',
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[1].NAMEANDADDRESSOFEMPLOYERORUNIT#{ITERATOR}[0]"
           },
           'typeOfWork' => {
             limit: 39,
+            question_num: 18,
+            question_label: 'Previous Employer Type',
+            question_text: 'Previous Employer Type',
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[1].TYPEOFWORK#{ITERATOR}[0]"
           },
           'hoursPerWeek' => {
             iterator_offset: ->(iterator) { iterator + 1 },
             limit: 3,
+            question_num: 18,
+            question_label: 'Previous Employer Hours per week',
+            question_text: 'Previous Employer Hours per week',
             key: "form1[0].#subform[1].HOURSPERWEEK#{ITERATOR}[0]"
           },
           'datesOfEmployment' => {
@@ -170,19 +181,32 @@ module IncreaseCompensation
         'appliedEmployers' => {
           limit: 3,
           question_text: 'Employers Applied For Work Since Unemployment',
+          question_label: 'Employers Applied For Work Since Unemployment',
           question_num: 22,
           first_key: 'nameAndAddress',
           'nameAndAddress' => {
             limit: 110,
+            question_num: 22,
+            question_suffix: 'A',
+            question_label: 'Employers Applied Post Unemployment',
+            question_text: 'Employers Applied Post Unemployment',
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].NAME_AND_ADDRESS_OF_EMPLOYER[0]"
           },
           'typeOfWork' => {
             limit: 62,
+            question_num: 22,
+            question_suffix: 'B',
+            question_label: 'Employers Applied Post Unemployment',
+            question_text: 'Employers Applied Post Unemployment',
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].TYPE_OF-WORK[0]"
           },
           'dateApplied' => {
+            question_num: 22,
+            question_suffix: 'C',
+            question_label: 'Employers Applied Post Unemployment',
+            question_text: 'Employers Applied Post Unemployment',
             'month' => {
               iterator_offset: ->(iterator) { iterator + 1 },
               key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].#subform[0].DATESOFEMPLOYMENT5_FROM_MONTH[0]"
