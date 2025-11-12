@@ -135,7 +135,7 @@ module UnifiedHealthData
         texts = dosage_instructions.filter_map do |instruction|
           instruction['text'] if instruction.is_a?(Hash)
         end
-        
+
         texts.empty? ? nil : texts.join(' ')
       end
 

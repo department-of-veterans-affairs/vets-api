@@ -1361,7 +1361,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'filters out non-hash elements and non-MedicationDispense resources' do
         result = subject.send(:build_dispenses_information, resource_with_invalid_elements)
-        
+
         expect(result).to be_an(Array)
         expect(result.length).to eq(2)
         expect(result.first[:id]).to eq('valid-1')
