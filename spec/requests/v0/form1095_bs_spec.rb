@@ -151,10 +151,6 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         expect(response).to have_http_status(:success)
         expect(response.parsed_body.deep_symbolize_keys).to eq(
           { available_forms: [
-            { year: 2021,
-              last_updated: nil },
-            { year: 2022,
-              last_updated: nil },
             { year: 2024,
               last_updated: nil }
           ] }

@@ -16,8 +16,7 @@ module V0
         periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
         years = model_class.available_years(periods)
         forms = years.map { |year| { year:, last_updated: nil } } # last_updated is not used on front end.
-        # the front end currently displays based on order and we want to show most recent first
-        forms.sort_by { |f| f[:year] }.reverse
+        forms.sort_by { |f| f[:year] }
       else
         current_form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
         forms = current_form.nil? ? [] : [{ year: current_form.tax_year, last_updated: current_form.updated_at }]
