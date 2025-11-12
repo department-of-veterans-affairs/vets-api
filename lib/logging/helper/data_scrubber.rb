@@ -77,8 +77,17 @@ module Logging
       REDACTION = '[REDACTED]'
 
       # protected keys not to be scrubbed
-      SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id response_code
-                     in_progress_form_id].freeze
+      SAFE_KEYS = %w[
+        claim_id
+        confirmation_number
+        form_id
+        id
+        in_progress_form_id
+        response_code
+        saved_claim_id
+        tags
+        user_account_uuid
+      ].freeze
 
       module_function
 
@@ -156,8 +165,19 @@ module Logging
 
         # Build combined regex pattern from all REGEX patterns
         # Order matters: most specific patterns first to avoid conflicts
-        pattern_order = %i[ICN SSN EMAIL PHONE CREDIT_CARD BIRTH_DATE VA_FILE_NUMBER EDIPI ROUTING_NUMBER
-                           PARTICIPANT_ID ZIP_CODE]
+        pattern_order = %i[
+          ICN
+          SSN
+          EMAIL
+          PHONE
+          CREDIT_CARD
+          BIRTH_DATE
+          VA_FILE_NUMBER
+          EDIPI
+          ROUTING_NUMBER
+          PARTICIPANT_ID
+          ZIP_CODE
+        ]
 
         combined_regex = Regexp.new(
           pattern_order.map { |key| REGEX[key] }.join('|'),
