@@ -155,7 +155,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
-          expect(response_body['expenseId']).to eq(expense_id)
+          expect(response_body['id']).to eq(expense_id)
         end
       end
     end
@@ -229,7 +229,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
               expect(response).to have_http_status(:ok)
               body = JSON.parse(response.body)
 
-              expect(body['expenseId']).to eq(expense_id)
+              expect(body['id']).to eq(expense_id)
             end
           end
 
@@ -240,7 +240,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
               expect(response).to have_http_status(:ok)
               body = JSON.parse(response.body)
 
-              expect(body['expenseId']).to eq(expense_id)
+              expect(body['id']).to eq(expense_id)
             end
           end
 
@@ -251,7 +251,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
               expect(response).to have_http_status(:ok)
               body = JSON.parse(response.body)
 
-              expect(body['expenseId']).to eq(expense_id)
+              expect(body['id']).to eq(expense_id)
             end
           end
 
@@ -262,7 +262,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
               expect(response).to have_http_status(:ok)
               body = JSON.parse(response.body)
 
-              expect(body['expenseId']).to eq(expense_id)
+              expect(body['id']).to eq(expense_id)
             end
           end
         end
