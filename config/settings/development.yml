@@ -1354,6 +1354,11 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+vahb:
+  version_requirement:
+    allergies_oracle_health: '3.0.0'
+    labs_oracle_health: '3.0.0'
+    medications_oracle_health: '2.99.99'
 valid_va_file_number: false
 vanotify:
   callback_url: https://dev-api.va.gov/va_notify/callbacks

@@ -58,7 +58,7 @@ module TravelPay
         expense = create_and_validate_expense
         response_data = expense_service.update_expense(expense_id, expense_type, expense_params_for_service(expense))
 
-        render json: { expenseId: response_data['id'] }, status: :ok
+        render json: { id: response_data['id'] }, status: :ok
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, detail: e.message
       rescue Faraday::ClientError, Faraday::ServerError => e
@@ -77,7 +77,7 @@ module TravelPay
         )
         response_data = expense_service.delete_expense(expense_id:, expense_type:)
 
-        render json: { expenseId: response_data['id'] }, status: :ok
+        render json: { id: response_data['id'] }, status: :ok
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, detail: e.message
       rescue Faraday::ClientError, Faraday::ServerError => e
