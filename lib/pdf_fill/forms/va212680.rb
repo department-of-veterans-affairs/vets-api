@@ -38,19 +38,26 @@ module PdfFill
       private
 
       def transform_country_codes
-        # Transform claimant address country code from 3-char to 2-char
         claimant_address = @form_data.dig('claimantInformation', 'address')
-        if claimant_address&.key?('country')
-          transformed = extract_country(claimant_address)
-          claimant_address['country'] = transformed if transformed
-        end
-
-        # Transform hospital address country code from 3-char to 2-char
+        claimant_address['country'] = extract_country_expanded(claimant_address) if claimant_address
         hospital_address = @form_data.dig('additionalInformation', 'hospitalAddress')
-        if hospital_address&.key?('country')
-          transformed = extract_country(hospital_address)
-          hospital_address['country'] = transformed if transformed
+        hospital_address['country'] = extract_country_expanded(hospital_address) if hospital_address
+      end
+
+      def extract_country_expanded(address, return_invalid: true)
+        return if address.blank?
+
+        country = address['country'] || address['country_name']
+        return if country.blank?
+
+        if [3, 2].include?(country.size)
+          IsoCountryCodes.find(country).alpha2
+        else
+          IsoCountryCodes.search_by_name(country)[0].alpha2
         end
+      rescue IsoCountryCodes::UnknownCodeError
+        Rails.logger.warn("Unknown Country '#{country}' passed to to extract_country")
+        country if return_invalid
       end
 
       # TODO: review everything below here for nil checks

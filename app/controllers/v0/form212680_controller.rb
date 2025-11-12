@@ -21,9 +21,6 @@ module V0
 
       raise Common::Exceptions::ParameterMissing, 'form' unless form_data
 
-      # Transform 3-character country codes to 2-character codes for PDF compatibility
-      transform_country_codes!(form_data)
-
       claim = create_claim_from_form_data(form_data)
       pdf_path = generate_and_send_pdf(claim)
     rescue JSON::ParserError
@@ -39,25 +36,8 @@ module V0
 
     private
 
-    def transform_country_codes!(form_data)
-      # Transform claimant address country code
-      claimant_address = form_data.dig('claimantInformation', 'address')
-      if claimant_address&.key?('country')
-        transformed_country = extract_country(claimant_address)
-        claimant_address['country'] = transformed_country if transformed_country
-      end
-
-      # Transform hospital address country code
-      hospital_address = form_data.dig('additionalInformation', 'hospitalAddress')
-      if hospital_address&.key?('country')
-        transformed_country = extract_country(hospital_address)
-        hospital_address['country'] = transformed_country if transformed_country
-      end
-    end
-
     def create_claim_from_form_data(form_data)
-      form_body = form_data.to_json
-      claim = SavedClaim::Form212680.new(form: form_body)
+      claim = SavedClaim::Form212680.new(form: form_data.to_json)
       raise(Common::Exceptions::ValidationErrors, claim) unless claim.save
 
       claim
