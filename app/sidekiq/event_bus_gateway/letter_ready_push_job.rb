@@ -26,27 +26,32 @@ module EventBusGateway
     end
 
     def perform(participant_id, template_id, icn = nil)
-      icn = icn || get_mpi_profile(participant_id)&.icn
+      icn ||= get_icn(participant_id)
 
-      if icn.present?
-        notify_client.send_push(
-          mobile_app: 'VA_FLAGSHIP_APP',
-          recipient_identifier: { id_value: icn, id_type: 'ICN' },
-          template_id:,
-          personalisation: {}
-        )
+      raise 'Failed to fetch ICN' if icn.blank?
 
-        EventBusGatewayPushNotification.create!(user_account: user_account(icn), template_id: template_id)
-        StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
-      else
-        raise 'Failed to fetch ICN'
-      end
+      send_push_notification(icn, template_id)
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
     rescue => e
       record_notification_send_failure(e, 'Push')
       raise
     end
 
     private
+
+    def send_push_notification(icn, template_id)
+      notify_client.send_push(
+        mobile_app: 'VA_FLAGSHIP_APP',
+        recipient_identifier: { id_value: icn, id_type: 'ICN' },
+        template_id:,
+        personalisation: {}
+      )
+
+      EventBusGatewayPushNotification.create!(
+        user_account: user_account(icn),
+        template_id:
+      )
+    end
 
     def notify_client
       # TODO: Determine if this api key is different

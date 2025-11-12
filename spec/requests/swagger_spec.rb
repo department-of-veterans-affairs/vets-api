@@ -1580,7 +1580,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'Event Bus Gateway' do
-      include_context 'with service account authentication', 'eventbus', ['http://www.example.com/v0/event_bus_gateway/send_email', 'http://www.example.com/v0/event_bus_gateway/send_push', 'http://www.example.com/v0/event_bus_gateway/send_notifications'], { user_attributes: { participant_id: '1234' } }
+      include_context 'with service account authentication', 'eventbus',
+                      ['http://www.example.com/v0/event_bus_gateway/send_email',
+                       'http://www.example.com/v0/event_bus_gateway/send_push',
+                       'http://www.example.com/v0/event_bus_gateway/send_notifications'], { user_attributes: { participant_id: '1234' } }
 
       context 'when sending emails' do
         let(:params) do
