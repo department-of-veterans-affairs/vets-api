@@ -109,9 +109,9 @@ module UnifiedHealthData
       def build_provider_name(medication)
         last_name = medication['providerLastName']
         first_name = medication['providerFirstName']
-        
+
         return nil if last_name.blank? && first_name.blank?
-        
+
         [last_name, first_name].compact.join(', ')
       end
     end
