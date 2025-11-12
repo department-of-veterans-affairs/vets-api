@@ -1680,6 +1680,39 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             end
           end
         end
+
+        it 'returns correct error status when providers are returned but none are self-schedulable' do
+          captured = []
+          allow(Rails.logger).to receive(:error) { |msg, ctx| captured << [msg, ctx] }
+          VCR.use_cassette('vaos/ccra/post_get_referral_ref_123', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette 'vaos/eps/search_provider_services/no_self_schedulable_200',
+                               match_requests_on: %i[method path] do
+                VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
+                  VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                   match_requests_on: %i[method path]) do
+                    expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
+                      post '/vaos/v2/appointments/draft', params: draft_params
+                    end
+
+                    expect(response).to have_http_status(:not_found)
+                    response_obj = JSON.parse(response.body)
+                    expect(response_obj).to have_key('errors')
+                    expect(response_obj['errors']).to be_an(Array)
+                    error = response_obj['errors'].first
+                    expect(error['title']).to eq('Appointment creation failed')
+                    expect(error['detail']).to eq('Provider not found')
+
+                    expect(Rails.logger).to have_received(:error).with(
+                      'Community Care Appointments: No self-schedulable providers found for NPI',
+                      { npi: }
+                    )
+                  end
+                end
+              end
+            end
+          end
+        end
       end
 
       context 'when patient id is invalid' do
