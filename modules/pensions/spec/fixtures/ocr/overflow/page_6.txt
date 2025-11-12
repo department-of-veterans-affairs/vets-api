@@ -1,0 +1,132 @@
+IN-HOME CARE OR CARE FACILITY (Continued)
+
+10D(1). WHOSE EXPENSES WERE PAID?
+(Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specify)
+Joe Doe
+
+10D(2). NAME OF PROVIDER AND TYPE OF CARE (Select one) | 10D(3). IF THIS IS AN IN-HOME CARE
+LA Care Provider PROVIDER, WHAT IS THE RATE PER
+HOUR?
+
+$2 0.0.0. 0 PERHOUR
+1 0 HOURS WORKED PER WEEK
+
+CARE FACILITY IN-HOME CARE ATTENDANT
+
+10D(4). PROVIDER START AND END DATE (MM/DD/YYYY) 10D(6). PAYMENT FREQUENCY 10D(6). AMOUNT YOU PAY BASED ON
+
+starkt. 08 70 1/7 2
+END J J
+
+0120 MONTHLY [XJ ANNUALLY FREQUENCY SELECTED
+NO END DATE 22.500 00
+
+OTHER MEDICAL, LAST AND/OR BURIAL EXPENSES
+
+10E(1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+SPOUSE
+
+CHILD (Specify)
+See attachment
+
+10E(2) PAID TO (Name of Provider, Insurance Company, etc.) 10E(4) DATE COSTS PAID (MM/DD/YYYY)
+
+/ /
+
+10E(5) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+10E(3) PURPOSE (Insurance premium, medical supplies, etc.)
+10E(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$
+
+OF (1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specifi)
+
+10F (2) PAID TO (Name of Provider, Insurance Company, etc.) 10F (4) DATE COSTS PAID (MM/DD/YYYY)
+
+/ /
+
+10F(5) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+10F(3) PURPOSE (Insurance premium, medical supplies, etc.)
+10F(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$
+
+0G(1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specifi)
+
+10G(2) PAID TO (Name of Provider, Insurance Company, etc.) 10G(4) DATE COSTS PAID (MM/DD/YYYY)
+
+/ /
+
+10G(S) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+10G(3) PURPOSE (Insurance premium, medical supplies, etc.)
+10G(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$
+
+0H(1) WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specifi)
+
+10H(2) PAID TO (Name of Provider, Insurance Company, etc.) 10H(4) DATE COSTS PAID (MM/DD/YYYY)
+
+/ /
+
+10H(5) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+10H(3) PURPOSE (Insurance premium, medical supplies, ete.)
+10H(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+$
+
+01(1). WHOSE EXPENSES WERE
+PAID? (Select one)
+
+VETERAN
+‘SPOUSE
+CHILD (Specifi)
+
+VA FORM 21P-527EZ, FEB 2023
+
+101(2) PAID TO (Name of Provider, Insurance Company, etc.) 101(4) DATE COSTS PAID (MM/DD/YYYY)
+
+/ /
+
+101(6) PAYMENT FREQUENCY
+MONTHLY JANNUALLY [[] ONE-TIME
+
+101(3) PURPOSE (Insurance premium, medical supplies, etc.)
+101(6) AMOUNT YOU PAY
+(Based on Frequency selected)
+
+Page 13
