@@ -1449,6 +1449,7 @@ spec/lib/dependents @department-of-veterans-affairs/benefits-dependents-manageme
 spec/lib/disability_compensation @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/lib/disability_max_ratings @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-vro-engineers @department-of-veterans-affairs/benefits-employee-exp-engineers
 spec/lib/efolder/service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/lib/eps/middleware/ @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-vaos
 spec/lib/evss/auth_headers_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/evss/common_service_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/evss/disability_compensation_form @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
