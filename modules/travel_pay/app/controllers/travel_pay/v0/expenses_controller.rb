@@ -185,34 +185,7 @@ module TravelPay
       end
 
       def expense_params_for_service(expense)
-        params = { 'expense_type' => expense.expense_type }
-
-        if expense.is_a?(TravelPay::MileageExpense)
-          params['trip_type'] = expense.trip_type
-          params['requested_mileage'] = expense.requested_mileage
-        else
-          params['purchase_date'] = format_purchase_date(expense.purchase_date)
-          params['description'] = expense.description
-          params['cost_requested'] = expense.cost_requested
-        end
-
-        params['claim_id'] = expense.claim_id if expense.claim_id.present?
-        params
-      end
-
-      # Ensures purchase_date is formatted as ISO8601, regardless of input type
-      def format_purchase_date(purchase_date)
-        return nil if purchase_date.nil?
-
-        if purchase_date.is_a?(Date) || purchase_date.is_a?(Time) || purchase_date.is_a?(DateTime)
-          purchase_date.iso8601
-        elsif purchase_date.is_a?(String)
-          begin
-            Date.iso8601(purchase_date).iso8601
-          rescue ArgumentError
-            nil
-          end
-        end
+        expense.to_service_params
       end
     end
   end
