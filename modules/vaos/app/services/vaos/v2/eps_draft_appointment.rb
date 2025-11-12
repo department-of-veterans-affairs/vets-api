@@ -199,8 +199,7 @@ module VAOS
       rescue Redis::BaseError => e
         error_data = {
           error_class: e.class.name,
-          error_message: e.message,
-          user_uuid: @current_user&.uuid
+          **common_logging_context
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
         set_error('Redis connection error', :bad_gateway)
@@ -359,9 +358,7 @@ module VAOS
       def log_slot_fetch_error(error)
         error_data = {
           error_class: error.class.name,
-          user_uuid: @current_user&.uuid,
-          controller: controller_name,
-          station_number: station_number(@current_user)
+          **common_logging_context
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
       end
@@ -415,7 +412,7 @@ module VAOS
       def handle_missing_appointment_types_error
         error_data = {
           error_message: 'Provider appointment types data is not available',
-          user_uuid: @current_user&.uuid
+          **common_logging_context
         }
         message = "#{CC_APPOINTMENTS}: Provider appointment types data is not available"
         Rails.logger.error(message, error_data)
@@ -439,7 +436,7 @@ module VAOS
       def handle_missing_self_schedulable_types_error
         error_data = {
           error_message: 'No self-schedulable appointment types available for this provider',
-          user_uuid: @current_user&.uuid
+          **common_logging_context
         }
         message = "#{CC_APPOINTMENTS}: No self-schedulable appointment types available for this provider"
         Rails.logger.error(message, error_data)
@@ -490,13 +487,11 @@ module VAOS
         return if referral.nil?
 
         referring_facility_code = sanitize_log_value(referral.referring_facility_code)
-        provider_npi = sanitize_log_value(referral.provider_npi)
         station_id = sanitize_log_value(referral.station_id)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
                            COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "provider_npi:#{provider_npi}",
                            "station_id:#{station_id}"
                          ])
       end
@@ -526,13 +521,10 @@ module VAOS
       #
       # @param referral [OpenStruct] The referral containing failed search criteria
       # @return [void] Logs error details to Rails logger
-      def log_provider_not_found_error(referral)
+      def log_provider_not_found_error(_referral)
         error_data = {
           error_message: 'Provider not found while creating draft appointment',
-          provider_npi: referral.provider_npi,
-          user_uuid: @current_user&.uuid,
-          controller: controller_name,
-          station_number: station_number(@current_user)
+          **common_logging_context
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment", error_data)
       end
@@ -611,6 +603,15 @@ module VAOS
       # @return [VAOS::V2::AppointmentsService] The memoized VAOS appointments service instance
       def appointments_service
         @appointments_service ||= VAOS::V2::AppointmentsService.new(@current_user)
+      end
+
+      def common_logging_context
+        {
+          user_uuid: @current_user&.uuid,
+          controller: controller_name,
+          station_number: station_number(@current_user),
+          eps_trace_id:
+        }
       end
     end
   end
