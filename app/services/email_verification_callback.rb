@@ -39,7 +39,7 @@ class EmailVerificationCallback
 
   def self.build_log_payload(notification, tags)
     {
-      notification_id: notification.id,
+      notification_id: notification.notification_id,
       notification_type: notification.notification_type,
       status: notification.status,
       status_reason: notification.status_reason,
