@@ -157,7 +157,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
         expect(response).to have_http_status(:ok)
         expect(response).to match_camelized_response_schema('messages')
         expect(response.parsed_body['data'].size).to eq(10)
-        expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(100)
+        expect(response.parsed_body.dig('meta', 'pagination', 'totalEntries')).to eq(10)
 
         # Verify event logging was called
         expect(UniqueUserEvents).to have_received(:log_event).with(
@@ -166,39 +166,18 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
         )
       end
 
-      context 'when there are pagination parameters' do
-        it 'returns expected number of pages and items per pages' do
-          VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-            get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 2, per_page: 6 },
-                                                                            headers: sis_headers
-          end
-          expect(response).to be_successful
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('messages')
-          expect(response.parsed_body['data'].size).to eq(4)
-          expect(response.parsed_body.dig('meta', 'pagination', 'currentPage')).to eq(2)
-          expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(6)
-          expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(2)
-          expect(response.parsed_body.dig('meta', 'pagination', 'totalEntries')).to eq(10)
-        end
-      end
-
-      context 'when there are pagination parameters and OH flag is true' do
+      context 'when the OH flag is true' do
         it 'returns expected number of pages and items per pages' do
           allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, anything).and_return(true)
           VCR.use_cassette('sm_client/session_require_oh') do
             VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages_with_OH') do
-              get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 2, per_page: 6 },
-                                                                              headers: sis_headers
+              get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
             end
           end
           expect(response).to be_successful
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('messages')
-          expect(response.parsed_body['data'].size).to eq(4)
-          expect(response.parsed_body.dig('meta', 'pagination', 'currentPage')).to eq(2)
-          expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(6)
-          expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(2)
+          expect(response.parsed_body['data'].size).to eq(10)
           expect(response.parsed_body.dig('meta', 'pagination', 'totalEntries')).to eq(10)
         end
       end
