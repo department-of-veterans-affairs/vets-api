@@ -7,26 +7,27 @@ AccreditedRepresentativePortal::Engine.routes.draw do
 
     post 'form21a', to: 'form21a#submit'
 
+    VALID_DETAIL_SLUGS = %w[
+      conviction-details
+      court-martialed-details
+      under-charges-details
+      resigned-from-education-details
+      withdrawn-from-education-details
+      disciplined-for-dishonesty-details
+      resigned-for-dishonesty-details
+      representative-for-agency-details
+      reprimanded-in-agency-details
+      resigned-from-agency-details
+      applied-for-va-accreditation-details
+      terminated-by-vsorg-details
+      condition-that-affects-representation-details
+      condition-that-affects-examination-details
+    ].freeze
+
     scope 'form21a' do
-      post ':details_slug', to: 'form21a#details', constraints: {
-        details_slug: /
-          (?:conviction-details|
-             court-martialed-details|
-             under-charges-details|
-             resigned-from-education-details|
-             withdrawn-from-education-details|
-             disciplined-for-dishonesty-details|
-             resigned-for-dishonesty-details|
-             representative-for-agency-details|
-             reprimanded-in-agency-details|
-             resigned-from-agency-details|
-             applied-for-va-accreditation-details|
-             terminated-by-vsorg-details|
-             condition-that-affects-representation-details|
-             condition-that-affects-examination-details
-          )
-        /x
-      }
+      post ':details_slug',
+           to: 'form21a#details',
+           constraints: { details_slug: Regexp.union(VALID_DETAIL_SLUGS) }
     end
 
     resources :in_progress_forms, only: %i[update show destroy]
