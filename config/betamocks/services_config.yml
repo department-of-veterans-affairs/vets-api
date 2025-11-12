@@ -1107,6 +1107,12 @@
         :uid_location: "query"
         :uid_locator: "patient-id"
     - :method: :get
+      :path: "/v1/medicalrecords/vitals"
+      :file_path: "mhv/uhd/vitals"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"
+    - :method: :get
       :path: "/v1/medicalrecords/ccd"
       :file_path: "mhv/uhd/ccd"
       :cache_multiple_responses:
