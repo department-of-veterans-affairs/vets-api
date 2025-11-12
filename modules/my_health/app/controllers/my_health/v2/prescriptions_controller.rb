@@ -13,11 +13,7 @@ module MyHealth
       def refill
         return unless validate_feature_flag
 
-        # Parse and validate orders first (let validation errors bubble up)
-        parsed_orders = orders
-
-        # Call service and handle service-specific errors
-        result = service.refill_prescription(parsed_orders)
+        result = service.refill_prescription(orders)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
 
         # Log unique user event for prescription refill requested
@@ -27,43 +23,9 @@ module MyHealth
         )
 
         render json: response.serializable_hash
-      rescue Common::Client::Errors::ClientError,
-             Common::Exceptions::BackendServiceException => e
-        handle_error(e)
       end
 
       private
-
-      def handle_error(error)
-        log_error(error)
-
-        case error
-        when Common::Client::Errors::ClientError
-          render_error('FHIR API Error', error.message, error.status, error.status, :bad_request)
-        when Common::Exceptions::BackendServiceException
-          render json: { errors: error.errors }, status: :bad_request
-        end
-      end
-
-      def log_error(error)
-        message = case error
-                  when Common::Client::Errors::ClientError
-                    "Prescriptions FHIR API error: #{error.message}"
-                  when Common::Exceptions::BackendServiceException
-                    "Backend service exception: #{error.errors.first&.detail}"
-                  end
-        Rails.logger.error(message)
-      end
-
-      def render_error(title, detail, code, status, http_status)
-        error = {
-          title:,
-          detail:,
-          code:,
-          status:
-        }
-        render json: { errors: [error] }, status: http_status
-      end
 
       def service
         @service ||= UnifiedHealthData::Service.new(@current_user)
