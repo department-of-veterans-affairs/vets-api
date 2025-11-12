@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DependentsBenefits::PrimaryDependencyClaim::FORM do
+RSpec.describe DependentsBenefits::PrimaryDependencyClaim do
   before do
     allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:pdf_overflow_tracking)
   end
