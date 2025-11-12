@@ -102,7 +102,7 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model 
   end
 
   describe '#user_account' do
-    let(:user_account) { AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id) }
+    let(:user_account) { create(:user_account) }
     let(:representative_user) { build(:representative_user, user_account_uuid: user_account.id) }
 
     it 'returns expected user_account' do

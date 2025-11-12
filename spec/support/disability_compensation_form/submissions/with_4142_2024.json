@@ -156,12 +156,17 @@
   },
   "form526_uploads": null,
   "form4142": {
+    "completed2024Form": true,
     "privacyAgreementAccepted": true,
     "limitedConsent": "Test data for limiting consent",
     "providerFacility": [
       {
         "providerFacilityName": "provider 1",
-        "conditionsTreated": "PTSD (post traumatic stress disorder)",
+        "treatedDisabilityNames": [
+          "PTSD (post traumatic stress disorder)",
+          "Coding Trauma",
+          "Nasal Trauma"
+        ],
         "treatmentDateRange": [
           {
             "from": "1980-01-01",
@@ -179,7 +184,9 @@
       },
       {
         "providerFacilityName": "provider 2",
-        "conditionsTreated": "Coding Trauma",
+        "treatedDisabilityNames": [
+          "Coding Trauma"
+        ],
         "treatmentDateRange": [
           {
             "from": "1980-02-01",
@@ -197,7 +204,11 @@
       },
       {
         "providerFacilityName": "provider 3",
-        "conditionsTreated": "Nasal Trauma",
+        "treatedDisabilityNames": [
+          "PTSD (post traumatic stress disorder)",
+          "Coding Trauma",
+          "Nasal Trauma"
+        ],
         "treatmentDateRange": [
           {
             "from": "1980-03-01",
@@ -206,42 +217,6 @@
         ],
         "providerFacilityAddress": {
           "street": "789 Main Street",
-          "street2": "1B",
-          "city": "Baltimore",
-          "state": "MD",
-          "country": "USA",
-          "postalCode": "21200-1111"
-        }
-      },
-      {
-        "providerFacilityName": "provider 4",
-        "conditionsTreated": "Hearing Loss",
-        "treatmentDateRange": [
-          {
-            "from": "1980-04-01",
-            "to": "1985-04-01"
-          }
-        ],
-        "providerFacilityAddress": {
-          "street": "101 Main Street",
-          "street2": "1B",
-          "city": "Baltimore",
-          "state": "MD",
-          "country": "USA",
-          "postalCode": "21200-1111"
-        }
-      },
-      {
-        "providerFacilityName": "provider 5",
-        "conditionsTreated": "Verdigo",
-        "treatmentDateRange": [
-          {
-            "from": "1980-05-01",
-            "to": "1985-05-01"
-          }
-        ],
-        "providerFacilityAddress": {
-          "street": "102 Main Street",
           "street2": "1B",
           "city": "Baltimore",
           "state": "MD",

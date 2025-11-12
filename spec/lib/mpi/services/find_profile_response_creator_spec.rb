@@ -12,20 +12,17 @@ describe MPI::Services::FindProfileResponseCreator do
     let(:error) { 'some-error' }
 
     shared_examples 'error response' do
-      let(:expected_error_message) { "MPI #{type} response error" }
+      let(:expected_error_message) { "[MPI][Services][FindProfileResponseCreator] MPI #{type} response error" }
       let(:error_details) do
         { error_details: { ack_detail_code:,
                            id_extension:,
                            transaction_id:,
                            error_texts: } }
       end
-      let(:sentry_context) { { error_message: expected_error.message } }
-      let(:sentry_log_level) { :warn }
+      let(:rails_logger_context) { { error_message: expected_error.message } }
 
-      it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+      it 'logs error to Rails logger' do
+        expect(Rails.logger).to receive(:warn).with(expected_error_message, rails_logger_context)
         subject
       end
 

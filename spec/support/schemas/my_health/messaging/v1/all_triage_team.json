@@ -16,7 +16,8 @@
     "group_type_enum_val",
     "sub_group_type_enum_val",
     "group_type_patient_display",
-    "sub_group_type_patient_display"
+    "sub_group_type_patient_display",
+    "oh_triage_group"
   ],
   "properties": {
     "triage_team_id": {
@@ -37,7 +38,7 @@
     "relation_type": {
       "type": "string"
     },
-    "location_name":{
+    "location_name": {
       "type": "string"
     },
     "lead_provider_name": {
@@ -46,7 +47,7 @@
     "team_name": {
       "type": "string"
     },
-    "suggested_name_display":{
+    "suggested_name_display": {
       "type": "string"
     },
     "health_care_system_name": {
@@ -63,6 +64,9 @@
     },
     "sub_group_type_patient_display": {
       "type": "string"
+    },
+    "oh_triage_group": {
+      "type": "boolean"
     }
   }
 }

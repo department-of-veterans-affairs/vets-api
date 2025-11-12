@@ -3,6 +3,9 @@
 module TravelPay
   module V0
     class ClaimsController < ApplicationController
+      include AppointmentHelper
+      include ClaimHelper
+
       after_action :scrub_logs, only: [:show]
 
       def index
@@ -49,9 +52,8 @@ module TravelPay
         begin
           Rails.logger.info(message: 'SMOC transaction START')
 
-          appt_id = get_appt_or_raise(params)
-          claim_id = get_claim_id(appt_id)
-
+          appt_id = find_or_create_appt_id!('SMOC', params)
+          claim_id = create_claim(appt_id, 'SMOC')
           Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
           expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_date_time'] })
 
@@ -105,26 +107,6 @@ module TravelPay
 
           true
         end
-      end
-
-      def get_appt_or_raise(params = {})
-        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
-        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
-        appt = appts_service.find_or_create_appointment(params)
-
-        if appt[:data].nil?
-          Rails.logger.error(message: appt_not_found_msg)
-          raise Common::Exceptions::ResourceNotFound, detail: appt_not_found_msg
-        end
-
-        appt[:data]['id']
-      end
-
-      def get_claim_id(appt_id)
-        Rails.logger.info(message: 'SMOC transaction: Create claim')
-        claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt_id })
-
-        claim['claimId']
       end
 
       def handle_resource_not_found_error(message, cid)

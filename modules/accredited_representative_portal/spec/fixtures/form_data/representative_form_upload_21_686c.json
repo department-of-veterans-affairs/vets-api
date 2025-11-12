@@ -1,4 +1,5 @@
 {
+  "form_id": "21-686c",
   "representative_form_upload": {
     "formName": "Declaration of Status of Dependents",
     "formData": {
@@ -7,7 +8,10 @@
       "veteranDateOfBirth": "1932-02-05",
       "formNumber": "21-686c",
       "email": "john@veteran.com",
-      "veteranFullName": { "first": "Hector", "last": "Allen" }
+      "veteranFullName": {
+        "first": "Hector",
+        "last": "Allen"
+      }
     }
   }
 }

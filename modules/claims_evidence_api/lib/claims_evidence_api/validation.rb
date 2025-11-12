@@ -2,16 +2,15 @@
 
 require 'claims_evidence_api/json_schema'
 require 'claims_evidence_api/validation/field'
-require 'claims_evidence_api/x_folder_uri'
+require 'claims_evidence_api/folder_identifier'
 
 module ClaimsEvidenceApi
-  # Validations to be used with ClaimsEvidence API requests
   module Validation
     module_function
 
-    # @see ClaimsEvidenceApi::XFolderUri#validate
+    # @see ClaimsEvidenceApi::FolderIdentifier#validate
     def validate_folder_identifier(folder_identifier)
-      ClaimsEvidenceApi::XFolderUri.validate(folder_identifier)
+      ClaimsEvidenceApi::FolderIdentifier.validate(folder_identifier)
     end
 
     # @see ClaimsEvidenceApi::Validation::BaseField
@@ -48,6 +47,22 @@ module ClaimsEvidenceApi
       JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::PROVIDER_DATA, provider_data)
 
       provider_data
+    end
+
+    # validate a single property against the schema
+    # @see ClaimsEvidenceApi::JsonSchema::PROPERTIES
+    #
+    # @param property [String|Symbol] the property to validate
+    # @param value [Mixed] the value to validate
+    #
+    # @return [Mixed] valid value
+    # @raise JSON::Schema::ValidationError
+    def validate_schema_property(property, value)
+      prop = property.to_sym
+      raise ArgumentError unless ClaimsEvidenceApi::JsonSchema::PROPERTIES.key?(prop)
+
+      JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::PROPERTIES[prop], value)
+      value
     end
 
     # end Validation

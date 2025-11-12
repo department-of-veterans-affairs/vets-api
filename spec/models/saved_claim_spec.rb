@@ -92,11 +92,13 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   end
 
   describe 'callbacks' do
+    let(:tags) { ["form_id:#{saved_claim.form_id}", "doctype:#{saved_claim.doctype}"] }
+
     context 'after create' do
       it 'increments the saved_claim.create metric' do
         allow(StatsD).to receive(:increment)
         saved_claim.save!
-        expect(StatsD).to have_received(:increment).with('saved_claim.create', tags: ["form_id:#{saved_claim.form_id}"])
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', tags:)
       end
 
       context 'if form_start_date is set' do
@@ -111,7 +113,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           expect(StatsD).to have_received(:measure).with(
             'saved_claim.time-to-file',
             be_within(1.second).of(claim_duration),
-            tags: ["form_id:#{saved_claim.form_id}"]
+            tags:
           )
         end
       end
@@ -121,9 +123,9 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           allow(StatsD).to receive(:increment)
           saved_claim.save!
 
-          expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: ['form_id:SOME_FORM_ID'] })
-          expect(StatsD).not_to have_received(:increment).with('saved_claim.pdf.overflow',
-                                                               { tags: ['form_id:SOME_FORM_ID'] })
+          expect(StatsD).to have_received(:increment).with('saved_claim.create',
+                                                           tags: ['form_id:SOME_FORM_ID', 'doctype:10'])
+          expect(StatsD).not_to have_received(:increment).with('saved_claim.pdf.overflow', tags:)
         end
       end
     end
@@ -133,8 +135,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
         saved_claim.save!
         allow(StatsD).to receive(:increment)
         saved_claim.destroy
-        expect(StatsD).to have_received(:increment).with('saved_claim.destroy',
-                                                         tags: ["form_id:#{saved_claim.form_id}"])
+        expect(StatsD).to have_received(:increment).with('saved_claim.destroy', tags:)
       end
     end
   end

@@ -20,19 +20,19 @@ describe VRE::VRESubmit1900Job do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
   let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
-  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   let(:monitor) { double('VRE::VREMonitor') }
   let(:exhaustion_msg) do
     { 'args' => [], 'class' => 'VRE::VRESubmit1900Job', 'error_message' => 'An error occurred',
       'queue' => 'default' }
   end
+  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   describe '#perform' do
     subject { described_class.new.perform(claim.id, encrypted_user) }
 
     before do
-      allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
     end
 
     after do
@@ -51,44 +51,21 @@ describe VRE::VRESubmit1900Job do
     end
   end
 
-  describe 'queue exhaustion' do
+  describe 'when queue is exhausted' do
     before do
-      allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-      allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
-      allow(monitor).to receive :track_submission_exhaustion
-      Flipper.enable(:vre_trigger_action_needed_email)
+      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+      allow(Flipper).to receive(:enabled?)
+        .with(:vre_use_new_vfs_notification_library)
+        .and_return(true)
     end
 
-    context 'when email is present' do
-      it 'raises an exception and sends email to user' do
-        VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-          expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-          exhaustion_msg['args'] = [claim.id, encrypted_user]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            'test@gmail.xom',
-            'form1900_action_needed_email_template_id',
-            {
-              'first_name' => 'Homer',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
-      end
-    end
+    it 'sends a failure email to user' do
+      notification_email = double('notification_email')
+      expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+      expect(notification_email).to receive(:deliver).with(SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE)
 
-    context 'when email is not present' do
-      it 'raises an exception and sends no email' do
-        user_struct.va_profile_email = nil
-
-        VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-          expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-          exhaustion_msg['args'] = [claim.id, encrypted_user]
-          claim.parsed_form.delete('email')
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
-          expect(VANotify::EmailJob).not_to receive(:perform_async)
-        end
+      VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+        exhaustion_msg['args'] = [claim.id, encrypted_user]
       end
     end
   end

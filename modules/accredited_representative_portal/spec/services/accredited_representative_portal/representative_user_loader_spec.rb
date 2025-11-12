@@ -22,49 +22,26 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
     let(:request_ip) { '123.456.78.90' }
 
     shared_examples 'reloaded user' do
-      context 'and the accredited_representative_portal_self_service_auth feature flag' do
-        let(:all_emails) { ['primary@example.com', 'secondary@example.com'] }
-        let(:user_attributes) { { 'all_emails' => all_emails } }
+      let(:all_emails) { ['primary@example.com', 'secondary@example.com'] }
+      let(:user_attributes) { { 'all_emails' => all_emails } }
 
-        context 'when enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?)
-              .with(:accredited_representative_portal_self_service_auth)
-              .and_return(true)
-          end
-
-          context 'and all_emails is present in user_attributes' do
-            before do
-              allow(access_token).to receive(:user_attributes).and_return(user_attributes)
-            end
-
-            it 'sets all_emails from access_token' do
-              expect(reloaded_user.all_emails).to eq(all_emails)
-            end
-          end
-
-          context 'and user_attributes is missing all_emails key' do
-            before do
-              allow(access_token).to receive(:user_attributes).and_return({})
-            end
-
-            it 'sets all_emails to an empty array' do
-              expect(reloaded_user.all_emails).to eq([])
-            end
-          end
+      context 'and all_emails is present in user_attributes' do
+        before do
+          allow(access_token).to receive(:user_attributes).and_return(user_attributes)
         end
 
-        context 'when disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?)
-              .with(:accredited_representative_portal_self_service_auth)
-              .and_return(false)
-            allow(access_token).to receive(:user_attributes).and_return(user_attributes)
-          end
+        it 'sets all_emails from access_token' do
+          expect(reloaded_user.all_emails).to eq(all_emails)
+        end
+      end
 
-          it 'does not set all_emails' do
-            expect(reloaded_user.all_emails).to eq([])
-          end
+      context 'and user_attributes is missing all_emails key' do
+        before do
+          allow(access_token).to receive(:user_attributes).and_return({})
+        end
+
+        it 'sets all_emails to an empty array' do
+          expect(reloaded_user.all_emails).to eq([])
         end
       end
 

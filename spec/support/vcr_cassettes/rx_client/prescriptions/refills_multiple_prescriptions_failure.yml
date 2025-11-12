@@ -1,0 +1,53 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_HOST>/v1/pharmacy/ess/rxrefill"
+    body:
+      encoding: UTF-8
+      string: "[13650545,13650546]"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 04 Sep 2025 22:36:14 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '388'
+      X-Amzn-Requestid:
+      - cfa50487-0c9d-4def-b2d8-a4468fb3febb
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - QZge2Ha4vHMFRig=
+      Server-Timing:
+      - dtRpid;desc="2059899444", dtSInfo;desc="0"
+      X-Amzn-Remapped-Date:
+      - Thu, 04 Sep 2025 22:36:14 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"failedStationList":"","successfulStationList":"","lastUpdatedTime":"Thu,
+        04 Sep 2025 17:27:36 EDT","prescriptionList":null,"errors":[{"errorCode":138,"developerMessage":"Prescription
+        not found for id: 13650545","message":"Prescription is not Found"},{"errorCode":138,"developerMessage":"Prescription
+        not found for id: 13650546","message":"Prescription is not Found"}],"infoMessages":[]}'
+  recorded_at: Thu, 04 Sep 2025 22:36:14 GMT
+recorded_with: VCR 6.3.1

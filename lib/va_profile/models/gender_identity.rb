@@ -23,7 +23,7 @@ module VAProfile
       attribute :code, String
       attribute :name, String
       attribute :source_system_user, String
-      attribute :source_date, Common::ISO8601Time
+      attribute :source_date, Vets::Type::ISO8601Time
 
       validates :code, presence: true
       validates_inclusion_of :code, in: OPTIONS, message: 'invalid code', if: -> { @code.present? }

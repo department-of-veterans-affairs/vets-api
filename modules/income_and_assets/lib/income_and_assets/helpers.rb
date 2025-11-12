@@ -25,43 +25,6 @@ module IncomeAndAssets
     end
 
     ##
-    # Splits a currency amount into parts like cents, dollars, thousands, and optionally millions.
-    # Determines whether to use small or large field config based on amount.
-    #
-    # @param amount [Numeric, nil]
-    # @param field_lengths [Hash]
-    # @return [Hash]
-    #
-    def split_currency_amount(amount, field_lengths = {})
-      return {} unless amount&.positive?
-
-      if amount < 999_999
-        lengths = CURRENCY_LENGTHS_SM.merge(field_lengths)
-      elsif amount < 999_999_999
-        lengths = CURRENCY_LENGTHS_LG.merge(field_lengths)
-      else
-        return {}
-      end
-
-      fields = lengths.keys
-      parts = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.scan(/\d+/)
-
-      result = fields.map.with_index do |field, i|
-        [field, get_currency_field(parts, -(i + 1), lengths[field])]
-      end.to_h
-
-      # Ensure that thousands and dollars have 3 digits, prefix with zeros if necessary
-      %w[thousands dollars].each do |field|
-        result[field] = result[field].to_s.rjust(3, '0') if result[field]
-      end
-
-      # Remove "thousands" if it's zero AND "millions" doesn't exist
-      result.delete('thousands') if result['thousands'].to_i.zero? && !result.key?('millions')
-
-      result
-    end
-
-    ##
     # Splits a currency amount into thousands, dollars, and cents.
     #
     # @param amount [Numeric, nil]
@@ -69,15 +32,19 @@ module IncomeAndAssets
     # @return [Hash]
     #
     def split_currency_amount_sm(amount, field_lengths = {})
-      return {} if !amount || amount.negative? || amount >= 1_000_000
+      return {} if !amount&.nonzero? || amount.negative? || amount >= 1_000_000
 
       lengths = CURRENCY_LENGTHS_SM.merge(field_lengths)
       arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
-      {
+      amount_hash = {
         'cents' => get_currency_field(arr, -1, lengths['cents']),
         'dollars' => get_currency_field(arr, -2, lengths['dollars']),
         'thousands' => get_currency_field(arr, -3, lengths['thousands'])
-      }
+      }.compact
+
+      return {} if amount_hash.any? { |k, v| v.size > lengths[k] }
+
+      amount_hash
     end
 
     ##
@@ -88,16 +55,44 @@ module IncomeAndAssets
     # @return [Hash]
     #
     def split_currency_amount_lg(amount, field_lengths = {})
-      return {} if !amount || amount.negative? || amount >= 99_999_999
+      return {} if !amount&.nonzero? || amount.negative? || amount >= 99_999_999
 
       lengths = CURRENCY_LENGTHS_LG.merge(field_lengths)
       arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
-      {
+      amount_hash = {
         'cents' => get_currency_field(arr, -1, lengths['cents']),
         'dollars' => get_currency_field(arr, -2, lengths['dollars']),
         'thousands' => get_currency_field(arr, -3, lengths['thousands']),
         'millions' => get_currency_field(arr, -4, lengths['millions'])
-      }
+      }.compact
+
+      return {} if amount_hash.any? { |k, v| v.size > lengths[k] }
+
+      amount_hash
+    end
+
+    # NOTE: in regards to the checkbox_value and radio_yesno helpers below,
+    #   HexaPDF is more strict about the values it accepts for checkboxes and radio buttons
+    #   than PDFtk. HexaPDF wants true/false for checkboxes and strings/symbols for radio buttons.
+
+    ##
+    # Converts a value to a checkbox-compatible boolean.
+    #
+    # @param value [Any]
+    # @return [Boolean]
+    #
+    def checkbox_value(value)
+      value ? '1' : 'Off'
+    end
+
+    ##
+    # Converts a value to a radio button-compatible 0 or 1.
+    #
+    # @param value [Any]
+    # @return [Integer] 0 for 'yes', 1 for 'no'
+    #
+    def radio_yesno(value)
+      value ? 0 : 1
     end
 
     ##
@@ -109,8 +104,9 @@ module IncomeAndAssets
     # @return [String]
     #
     def get_currency_field(arr, neg_i, field_length)
-      value = arr.length >= -neg_i ? arr[neg_i] : 0
-      format("%0#{field_length}d", value.to_i)
+      value = arr.length >= -neg_i ? arr[neg_i] : nil
+      (field_length - value.length).times { value = value.dup.prepend(' ') } if value
+      value
     end
 
     ##

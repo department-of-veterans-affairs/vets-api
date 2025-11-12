@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_MR_HOST>/mhvapi/v2/phrmgr/status/12345"
+    uri: "<MHV_MR_HOST>/v2/phrmgr/status/12345"
     body:
       encoding: US-ASCII
       string: ''

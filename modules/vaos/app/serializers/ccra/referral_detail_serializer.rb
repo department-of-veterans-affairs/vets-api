@@ -16,6 +16,7 @@ module Ccra
     attribute :referral_consult_id
     attribute :uuid
     attribute :has_appointments
+    attribute :appointments
     attribute :referral_date
     attribute :station_id
 

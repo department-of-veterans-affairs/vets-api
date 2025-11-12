@@ -14,7 +14,7 @@ describe Eps::Configuration do
       expect(Eps::Configuration.instance.connection).not_to be_nil
     end
 
-    context 'when VAOS_DEBUG is set and not in production' do
+    context 'when VAOS_EPS_DEBUG is set and not in production' do
       it 'sets up the connection with a stdout logger to display requests in curl format' do
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('VAOS_EPS_DEBUG').and_return('true')

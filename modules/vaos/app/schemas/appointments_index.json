@@ -272,6 +272,7 @@
           "cancellable": { "type": "boolean" },
           "patient_instruction": { "type": "string" },
           "showScheduleLink": { "type": "boolean" },
+          "isCerner": { "type": "boolean" },
           "telehealth": {
             "type": "object",
             "additionalProperties": false,

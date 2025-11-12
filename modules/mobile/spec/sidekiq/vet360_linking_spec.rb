@@ -5,10 +5,6 @@ require 'rails_helper'
 RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
   let(:user) { create(:user, :loa3) }
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
-  end
-
   context 'when linking request is successfully made' do
     it 'logs the user id, transaction id, and creates a mobile user that linked an account with vet360' do
       VCR.use_cassette('mobile/profile/v2/init_vet360_id_success') do
@@ -47,7 +43,7 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
           'Mobile Vet360 account linking request failed for user with uuid',
           {
             user_uuid: user.uuid,
-            message: 'BackendServiceException: {:source=>"VAProfile::V2::Person::Service", :code=>"VET360_PERS101"}'
+            message: 'BackendServiceException: {:source=>"VAProfile::Person::Service", :code=>"VET360_PERS101"}'
           }
         )
         subject.perform(user.uuid)

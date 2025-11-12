@@ -3,7 +3,8 @@
     "first": "Test",
     "last": "Personage"
   },
-  "applicantFileNumber": "123456789",
+  "vaFileNumber": "123456789",
+  "ssn": "123456789",
   "mailingAddress" :{
     "street": "123 Test St",
     "street2": "Apt B",
@@ -16,13 +17,18 @@
     "emailAddress": "test@test.com",
     "mobilePhone": "5551234567"
   },
+  "veteranStatus": true,
   "dateOfBirth": "1970-01-01",
-  "hasCompletedActiveDuty": true,
+  "statementOfTruthSignature": "John Hancock",
+  "dateSigned": "2025-01-01",
   "dateReleasedFromActiveDuty": "2025-01-01",
   "activeDutyDuringHitechVets": true,
   "isEmployed": true,
+  "isInTechnologyIndustry": true,
   "highestLevelOfEducation": "BD",
-  "privacyAgreementAccepted": true,
+  "attestationAgreementAccepted": true,
+  "technologyAreaOfFocus": "computerProgramming",
+  "currentSalary": "twentyToThirtyFive",
   "bankAccount": {
     "accountType": "checking",
     "routingNumber": "123456789",

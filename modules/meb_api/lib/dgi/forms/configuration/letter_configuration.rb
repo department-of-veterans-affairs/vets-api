@@ -13,13 +13,17 @@ module MebApi
 
         def connection
           @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-            faraday.use :breakers
+            faraday.use(:breakers, service_name:)
             faraday.use Faraday::Response::RaiseError
 
             faraday.request :multipart
             faraday.response :betamocks if mock_enabled?
             faraday.adapter Faraday.default_adapter
           end
+        end
+
+        def service_name
+          'DGI/Letters'
         end
 
         def mock_enabled?

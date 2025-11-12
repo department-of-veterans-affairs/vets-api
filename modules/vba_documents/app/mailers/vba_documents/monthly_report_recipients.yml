@@ -3,6 +3,8 @@ common:
   - 'michael.hobson@adhocteam.us'
   - 'mmcdonald@technatomy.com'
   - 'pstevens@technatomy.com'
+  - 'alattimore@technatomy.com'
+  - 'dorner_brandon@bah.com'
 dev:
 staging:
 sandbox:

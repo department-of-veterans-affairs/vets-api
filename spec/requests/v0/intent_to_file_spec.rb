@@ -128,6 +128,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
 
         def test_error(cassette_path, status, headers)
           VCR.use_cassette(cassette_path) do
+            expect(monitor).to receive(:track_itf_controller_error)
             get('/v0/intent_to_file', params: nil, headers:)
             expect(response).to have_http_status(status)
             expect(response).to match_response_schema('evss_errors', strict: false)
@@ -152,11 +153,11 @@ RSpec.describe 'V0::IntentToFile', type: :request do
           expect(monitor).to have_received(:track_missing_user_icn_itf_controller)
         end
 
-        it 'raises MissingParticipantIDError' do
+        it 'tracks missing participant ID' do
           user_no_pid = build(:disabilities_compensation_user, participant_id: nil)
 
-          expect { subject.send(:validate_data, user_no_pid, 'get', 'form_id', 'survivor') }
-            .to raise_error V0::IntentToFilesController::MissingParticipantIDError
+          expect { subject.send(:validate_data, user_no_pid, 'get', '21P-534EZ', 'survivor') }
+            .not_to raise_error
 
           expect(monitor).to have_received(:track_missing_user_pid_itf_controller)
         end
@@ -166,6 +167,28 @@ RSpec.describe 'V0::IntentToFile', type: :request do
             .to raise_error V0::IntentToFilesController::InvalidITFTypeError
 
           expect(monitor).to have_received(:track_invalid_itf_type_itf_controller)
+        end
+
+        it 'logs validation data when pension_itf_validate_data_logger flipper is enabled' do
+          allow(Flipper).to receive(:enabled?).with(:pension_itf_validate_data_logger, user).and_return(true)
+          expect(Rails.logger).to receive(:info).with(
+            'IntentToFilesController ITF Validate Data',
+            {
+              user_icn_present: true,
+              user_participant_id_present: true,
+              itf_type: 'pension',
+              user_uuid: user.uuid
+            }
+          )
+
+          subject.send(:validate_data, user, 'get', '21P-527EZ', 'pension')
+        end
+
+        it 'does not log validation data when pension_itf_validate_data_logger flipper is disabled' do
+          allow(Flipper).to receive(:enabled?).with(:pension_itf_validate_data_logger, user).and_return(false)
+          expect(Rails.logger).not_to receive(:info).with('IntentToFilesController ITF Validate Data', anything)
+
+          subject.send(:validate_data, user, 'get', '21P-527EZ', 'pension')
         end
       end
     end
@@ -195,7 +218,9 @@ RSpec.describe 'V0::IntentToFile', type: :request do
       it 'matches the respective intent to file schema' do
         expect_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file)
           .with(itf_type, user.ssn, nil).and_return(intent_to_file)
-        expect(monitor).to receive(:track_submit_itf)
+
+        form_id = { 'pension' => '21P-527EZ', 'survivor' => '21P-534EZ' }[itf_type]
+        expect(monitor).to receive(:track_submit_itf).with(form_id, itf_type, user.uuid)
 
         post "/v0/intent_to_file/#{itf_type}"
 

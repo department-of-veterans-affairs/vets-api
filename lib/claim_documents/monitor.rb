@@ -39,7 +39,7 @@ module ClaimDocuments
         attachment_id:,
         user_account_uuid: current_user&.user_account_uuid,
         tags: ["form_id:#{form_id}"],
-        message: e&.message
+        error: e&.message
       }
       track_request('error', "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{e}",
                     "#{DOCUMENT_STATS_KEY}.failure", **additional_context)
@@ -50,7 +50,7 @@ module ClaimDocuments
         attachment_id:,
         user_account_uuid: current_user&.user_account_uuid,
         tags: ["form_id:#{form_id}"],
-        message: e&.message
+        error: e&.message
       }
       track_request('error',
                     "Input error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{e}",

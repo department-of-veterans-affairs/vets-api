@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ClaimsEvidenceApi
-  # collection of module exceptions
   module Exceptions
     # service exceptions
     module Service

@@ -74,6 +74,9 @@ properties:
             subGroupTypePatientDisplay:
               type: string
               example: "Specialty Care"
+            ohTriageGroup:
+              type: boolean
+              example: false
   meta:
     type: object
     required:

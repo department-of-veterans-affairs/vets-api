@@ -16,10 +16,10 @@ module BGSV2
 
     attr_reader :user, :saved_claim, :proc_id
 
-    def initialize(user, saved_claim)
+    def initialize(user, saved_claim, proc_id = nil)
       @user = user
       @saved_claim = saved_claim
-      @proc_id = vnp_proc_id(saved_claim)
+      @proc_id = proc_id || vnp_proc_id(saved_claim)
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
       @proc_state = 'Ready'
@@ -33,7 +33,7 @@ module BGSV2
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
-      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
+      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674 when submitted w/686c
       if @saved_claim.submittable_686?
         set_claim_type('MANUAL_VAGOV')
         @proc_state = 'MANUAL_VAGOV'
@@ -70,17 +70,17 @@ module BGSV2
 
     def log_claim_status(benefit_claim_record, proc_id)
       if @proc_state == 'MANUAL_VAGOV'
+        reason = 'This application needs manual review.'
+        # if 674 is being submitted alongside a 686c, note that in the reason
         if @saved_claim.submittable_686?
-          monitor.track_event('info', '21-674 Combination 686C-674 claim set to manual by VA.gov: This
-                              application needs manual review because a 674 was submitted alongside a 686c.',
+          reason = 'This application needs manual review because a 674 was submitted alongside a 686c.'
+          monitor.track_event('info', "21-674 Combination 686C-674 claim set to manual by VA.gov: #{reason}",
                               "#{stats_key}.manual.combo", { proc_id: @proc_id, manual: true, combination_claim: true })
         else
-          monitor.track_event('info', '21-674 Claim set to manual by VA.gov: This application needs manual review.',
+          monitor.track_event('info', "21-674 Claim set to manual by VA.gov: #{reason}",
                               "#{stats_key}.manual", { proc_id: @proc_id, manual: true })
         end
-        # keep bgs note the same
-        note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
-        bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
+        bgs_service.create_note(benefit_claim_record[:benefit_claim_id], "Claim set to manual by VA.gov: #{reason}")
 
         bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
       else

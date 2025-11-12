@@ -15,7 +15,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
@@ -64,12 +63,22 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
     end
 
     it 'responds to GET #index' do
+      allow(UniqueUserEvents).to receive(:log_events)
       VCR.use_cassette('mr_client/get_a_list_of_vitals') do
         get '/my_health/v1/medical_records/vitals'
       end
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
+
+      # Verify event logging was called
+      expect(UniqueUserEvents).to have_received(:log_events).with(
+        user: anything,
+        event_names: [
+          UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+          UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VITALS_ACCESSED
+        ]
+      )
     end
 
     context 'when the patient is not found' do

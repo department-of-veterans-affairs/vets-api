@@ -216,7 +216,7 @@ FactoryBot.define do
             },
             'student_income' => true,
             'ssn' => '987654321',
-            'is_parent' => true,
+            'relationship_to_student' => 'adopted',
             'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'student' },
             'birth_date' => '2005-01-01'
           }],

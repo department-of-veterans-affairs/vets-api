@@ -5,6 +5,10 @@ class PersistentAttachments::MilitaryRecords < PersistentAttachment
 
   before_destroy(:delete_file)
 
+  def warnings
+    @warnings ||= []
+  end
+
   private
 
   def delete_file
