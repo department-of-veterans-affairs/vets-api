@@ -1315,6 +1315,43 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(dispense[:id]).to eq('dispense-minimal')
       end
     end
+
+    context 'with non-hash elements in contained resources' do
+      let(:resource_with_invalid_elements) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'valid-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            },
+            'invalid-string-element',
+            nil,
+            123,
+            {
+              'resourceType' => 'Encounter',
+              'id' => 'encounter-1'
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'valid-2',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-20T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'filters out non-hash elements and non-MedicationDispense resources' do
+        result = subject.send(:build_dispenses_information, resource_with_invalid_elements)
+        
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+        expect(result.first[:id]).to eq('valid-1')
+        expect(result.second[:id]).to eq('valid-2')
+      end
+    end
   end
 
   describe '#extract_sig_from_dispense' do
@@ -1355,6 +1392,19 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns nil' do
         result = subject.send(:extract_sig_from_dispense, dispense_empty_sig)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with non-hash element as first dosageInstruction' do
+      let(:dispense_invalid_instruction) do
+        {
+          'dosageInstruction' => ['invalid-string-element']
+        }
+      end
+
+      it 'returns nil when first instruction is not a hash' do
+        result = subject.send(:extract_sig_from_dispense, dispense_invalid_instruction)
         expect(result).to be_nil
       end
     end

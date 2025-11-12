@@ -99,7 +99,7 @@ module UnifiedHealthData
 
       def build_dispenses_information(resource)
         contained_resources = resource['contained'] || []
-        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
+        dispenses = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'MedicationDispense' }
 
         dispenses.map do |dispense|
           {
@@ -125,7 +125,7 @@ module UnifiedHealthData
         return nil if dosage_instructions.empty?
 
         first_instruction = dosage_instructions.first
-        first_instruction['text'] if first_instruction
+        first_instruction['text'] if first_instruction.is_a?(Hash)
       end
 
       def find_identifier_value(identifiers, type_text)

@@ -463,6 +463,45 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to eq([])
       end
     end
+
+    context 'with non-hash elements in rxRFRecords' do
+      let(:medication_with_invalid_records) do
+        base_vista_medication.merge(
+          'rxRFRecords' => [
+            {
+              'id' => 'valid-1',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'Test Facility',
+              'sig' => 'Take as directed',
+              'quantity' => 30,
+              'prescriptionName' => 'Test Med'
+            },
+            'invalid-string-element',
+            nil,
+            123,
+            {
+              'id' => 'valid-2',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'Test Facility',
+              'sig' => 'Take as directed',
+              'quantity' => 30,
+              'prescriptionName' => 'Test Med'
+            }
+          ]
+        )
+      end
+
+      it 'filters out non-hash elements and only returns valid dispenses' do
+        result = subject.send(:build_dispenses_information, medication_with_invalid_records)
+        
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+        expect(result.first[:id]).to eq('valid-1')
+        expect(result.second[:id]).to eq('valid-2')
+      end
+    end
   end
 
   describe 'Vista prescription with tracking integration' do

@@ -102,7 +102,9 @@ module UnifiedHealthData
         rf_records = medication['rxRFRecords'] || []
         return [] unless rf_records.is_a?(Array)
 
-        rf_records.map do |record|
+        rf_records.filter_map do |record|
+          next unless record.is_a?(Hash)
+
           {
             status: record['refillStatus'],
             refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
