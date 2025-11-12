@@ -639,7 +639,7 @@ kafka_producer:
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
   security_protocol: 'plaintext'
   test_topic_name: submission_trace_mock_test
-  topic_name: submission_trace_form_status_change_test
+  topic_name: submission_trace_form_status_change
 kms_key_id: ~
 lgy:
   api_key: fake_api_key
@@ -1353,6 +1353,11 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+vahb:
+  version_requirement:
+    allergies_oracle_health: '3.0.0'
+    labs_oracle_health: '3.0.0'
+    medications_oracle_health: '2.99.99'
 valid_va_file_number: false
 vanotify:
   callback_url: https://test-api.va.gov/va_notify/callbacks
