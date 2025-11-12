@@ -112,7 +112,14 @@ module UnifiedHealthData
             sig: record['sig'],
             quantity: record['quantity'],
             medication_name: record['prescriptionName'],
-            id: record['id']
+            id: record['id'],
+            refill_submit_date: convert_to_iso8601(record['refillSubmitDate'], field_name: 'refill_submit_date'),
+            prescription_number: record['prescriptionNumber'],
+            cmop_division_phone: record['cmopDivisionPhone'],
+            cmop_ndc_number: record['cmopNdcNumber'],
+            remarks: record['remarks'],
+            dial_cmop_division_phone: record['dialCmopDivisionPhone'],
+            disclaimer: record['disclaimer']
           }
         end
       end

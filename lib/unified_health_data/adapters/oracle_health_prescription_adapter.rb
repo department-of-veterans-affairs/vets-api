@@ -109,7 +109,14 @@ module UnifiedHealthData
             sig: extract_sig_from_dispense(dispense),
             quantity: dispense.dig('quantity', 'value'),
             medication_name: dispense.dig('medicationCodeableConcept', 'text'),
-            id: dispense['id']
+            id: dispense['id'],
+            refill_submit_date: nil,
+            prescription_number: nil,
+            cmop_division_phone: nil,
+            cmop_ndc_number: nil,
+            remarks: nil,
+            dial_cmop_division_phone: nil,
+            disclaimer: nil
           }
         end
       end

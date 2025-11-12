@@ -381,10 +381,17 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
               'id' => 'dispense-1',
               'refillStatus' => 'dispensed',
               'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+              'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
               'facilityName' => 'Salt Lake City VAMC',
               'sig' => 'Take one tablet by mouth twice daily',
               'quantity' => 60,
-              'prescriptionName' => 'METFORMIN HCL 500MG TAB'
+              'prescriptionName' => 'METFORMIN HCL 500MG TAB',
+              'prescriptionNumber' => 'RX123456',
+              'cmopDivisionPhone' => '555-1234',
+              'cmopNdcNumber' => '00093-1058-01',
+              'remarks' => 'Test remarks',
+              'dialCmopDivisionPhone' => '5551234',
+              'disclaimer' => 'Test disclaimer'
             },
             {
               'id' => 'dispense-2',
@@ -409,11 +416,18 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(first_dispense).to include(
           status: 'dispensed',
           refill_date: '2025-07-14T04:00:00.000Z',
+          refill_submit_date: '2025-07-13T04:00:00.000Z',
           facility_name: 'Salt Lake City VAMC',
           sig: 'Take one tablet by mouth twice daily',
           quantity: 60,
           medication_name: 'METFORMIN HCL 500MG TAB',
-          id: 'dispense-1'
+          id: 'dispense-1',
+          prescription_number: 'RX123456',
+          cmop_division_phone: '555-1234',
+          cmop_ndc_number: '00093-1058-01',
+          remarks: 'Test remarks',
+          dial_cmop_division_phone: '5551234',
+          disclaimer: 'Test disclaimer'
         )
 
         second_dispense = result.second
@@ -426,6 +440,14 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           medication_name: 'METFORMIN HCL 500MG TAB',
           id: 'dispense-2'
         )
+        # Verify new fields default to nil when not present
+        expect(second_dispense[:refill_submit_date]).to be_nil
+        expect(second_dispense[:prescription_number]).to be_nil
+        expect(second_dispense[:cmop_division_phone]).to be_nil
+        expect(second_dispense[:cmop_ndc_number]).to be_nil
+        expect(second_dispense[:remarks]).to be_nil
+        expect(second_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(second_dispense[:disclaimer]).to be_nil
       end
 
       it 'includes dispenses in parsed prescription' do

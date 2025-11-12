@@ -605,10 +605,17 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
               'id' => 'rf-1',
               'refillStatus' => 'dispensed',
               'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+              'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
               'facilityName' => 'SLC4',
               'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
               'quantity' => 1,
-              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
+              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
+              'prescriptionNumber' => 'RX001',
+              'cmopDivisionPhone' => '800-555-0100',
+              'cmopNdcNumber' => '12345-678-90',
+              'remarks' => 'Handle with care',
+              'dialCmopDivisionPhone' => '8005550100',
+              'disclaimer' => 'This is a test disclaimer'
             },
             {
               'id' => 'rf-2',
@@ -646,11 +653,18 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         first_dispense = vista_prescription.dispenses.first
         expect(first_dispense[:status]).to eq('dispensed')
         expect(first_dispense[:refill_date]).to eq('2025-07-14T04:00:00.000Z')
+        expect(first_dispense[:refill_submit_date]).to eq('2025-07-13T04:00:00.000Z')
         expect(first_dispense[:facility_name]).to eq('SLC4')
         expect(first_dispense[:sig]).to eq('APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY')
         expect(first_dispense[:quantity]).to eq(1)
         expect(first_dispense[:medication_name]).to eq('COAL TAR 2.5% TOP SOLN')
         expect(first_dispense[:id]).to eq('rf-1')
+        expect(first_dispense[:prescription_number]).to eq('RX001')
+        expect(first_dispense[:cmop_division_phone]).to eq('800-555-0100')
+        expect(first_dispense[:cmop_ndc_number]).to eq('12345-678-90')
+        expect(first_dispense[:remarks]).to eq('Handle with care')
+        expect(first_dispense[:dial_cmop_division_phone]).to eq('8005550100')
+        expect(first_dispense[:disclaimer]).to eq('This is a test disclaimer')
       end
     end
 
@@ -729,6 +743,14 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(first_dispense[:quantity]).to eq(30)
         expect(first_dispense[:medication_name]).to eq('amLODIPine (amLODIPine 5 mg tablet)')
         expect(first_dispense[:id]).to eq('dispense-1')
+        # Verify Vista-only fields are nil for Oracle Health
+        expect(first_dispense[:refill_submit_date]).to be_nil
+        expect(first_dispense[:prescription_number]).to be_nil
+        expect(first_dispense[:cmop_division_phone]).to be_nil
+        expect(first_dispense[:cmop_ndc_number]).to be_nil
+        expect(first_dispense[:remarks]).to be_nil
+        expect(first_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(first_dispense[:disclaimer]).to be_nil
       end
     end
 

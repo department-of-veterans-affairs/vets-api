@@ -1241,6 +1241,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           medication_name: 'amLODIPine 5 mg tablet',
           id: 'dispense-1'
         )
+        # Verify new Vista-only fields are nil for Oracle Health
+        expect(first_dispense[:refill_submit_date]).to be_nil
+        expect(first_dispense[:prescription_number]).to be_nil
+        expect(first_dispense[:cmop_division_phone]).to be_nil
+        expect(first_dispense[:cmop_ndc_number]).to be_nil
+        expect(first_dispense[:remarks]).to be_nil
+        expect(first_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(first_dispense[:disclaimer]).to be_nil
 
         second_dispense = result.second
         expect(second_dispense).to include(
@@ -1252,6 +1260,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           medication_name: 'amLODIPine 5 mg tablet',
           id: 'dispense-2'
         )
+        # Verify new Vista-only fields are nil for Oracle Health
+        expect(second_dispense[:refill_submit_date]).to be_nil
+        expect(second_dispense[:prescription_number]).to be_nil
+        expect(second_dispense[:cmop_division_phone]).to be_nil
+        expect(second_dispense[:cmop_ndc_number]).to be_nil
+        expect(second_dispense[:remarks]).to be_nil
+        expect(second_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(second_dispense[:disclaimer]).to be_nil
       end
 
       it 'includes dispenses in parsed prescription' do
