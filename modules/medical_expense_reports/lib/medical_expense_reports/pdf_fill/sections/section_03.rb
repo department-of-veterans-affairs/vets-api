@@ -18,6 +18,7 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand reporting period
       def expand(form_data = {})
         form_data
       end

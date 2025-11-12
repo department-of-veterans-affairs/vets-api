@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_13_162933) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_07_143043) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1947,7 +1947,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_162933) do
     t.index "lower((email)::text)", name: "index_veteran_representatives_on_lower_email"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
-    t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
+    t.index ["representative_id"], name: "index_veteran_representatives_on_representative_id", unique: true
     t.check_constraint "representative_id IS NOT NULL", name: "veteran_representatives_representative_id_null"
   end
 
@@ -2105,47 +2105,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_162933) do
     t.index ["created_at"], name: "index_vye_verifications_on_created_at"
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
     t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
-  end
-
-  create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
-    t.bigint "webhooks_notification_id", null: false
-    t.bigint "webhooks_notification_attempt_id", null: false
-    t.index ["webhooks_notification_attempt_id"], name: "index_wh_assoc_attempt_id"
-    t.index ["webhooks_notification_id"], name: "index_wh_assoc_notification_id"
-  end
-
-  create_table "webhooks_notification_attempts", force: :cascade do |t|
-    t.boolean "success", default: false
-    t.jsonb "response", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "webhooks_notifications", force: :cascade do |t|
-    t.string "api_name", null: false
-    t.string "consumer_name", null: false
-    t.uuid "consumer_id", null: false
-    t.uuid "api_guid", null: false
-    t.string "event", null: false
-    t.string "callback_url", null: false
-    t.jsonb "msg", null: false
-    t.integer "final_attempt_id"
-    t.integer "processing"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["api_name", "consumer_id", "api_guid", "event", "final_attempt_id"], name: "index_wh_notify"
-    t.index ["final_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
-  end
-
-  create_table "webhooks_subscriptions", force: :cascade do |t|
-    t.string "api_name", null: false
-    t.string "consumer_name", null: false
-    t.uuid "consumer_id", null: false
-    t.uuid "api_guid"
-    t.jsonb "events", default: {"subscriptions"=>[]}
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhooks_subscription", unique: true
   end
 
   add_foreign_key "accreditations", "accredited_individuals"

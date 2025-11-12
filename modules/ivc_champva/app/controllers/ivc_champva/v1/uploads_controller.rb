@@ -106,6 +106,12 @@ module IvcChampva
 
           response = build_json(statuses, error_messages)
 
+          if should_generate_ves_json?(form_id)
+            # Remove the VES JSON file from disk after upload
+            ves_json_file = file_paths.find { |path| path.end_with?('_ves.json') }
+            FileUtils.rm_f(ves_json_file) if ves_json_file
+          end
+
           # if the response is successful, submit the VES request
           submit_ves_request(ves_request, metadata) if response[:status] == 200
 
@@ -115,6 +121,37 @@ module IvcChampva
 
           build_json(statuses, error_messages)
         end
+      end
+
+      ##
+      # Determines if VES JSON should be generated as a supporting document
+      #
+      # @param [String] form_id The ID of the current form
+      # @return [Boolean] true if VES JSON should be generated
+      def should_generate_ves_json?(form_id)
+        Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && form_id == 'vha_10_10d'
+      end
+
+      ##
+      # Generates VES JSON file and returns the file path
+      #
+      # @param [Object] form The form instance with proper UUID and form_id
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @return [String] The path to the generated VES JSON file
+      def generate_ves_json_file(form, parsed_form_data)
+        # Generate VES data
+        ves_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+
+        # Create temporary JSON file using form.uuid (absolute path like PDF files)
+        ves_file_path = Rails.root.join("tmp/#{form.uuid}_#{form.form_id}_ves.json").to_s
+        File.write(ves_file_path, ves_data.to_json)
+
+        Rails.logger.info "VES JSON file generated for form #{form.form_id}: #{ves_file_path}"
+        ves_file_path
+      rescue => e
+        # Don't raise - we don't want VES JSON generation failure to break the entire submission
+        Rails.logger.error "Error generating VES JSON file for form #{form.form_id}: #{e.message}"
+        nil
       end
 
       # Prepares data for VES, raising an exception if this cannot be done
@@ -232,7 +269,7 @@ module IvcChampva
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-          log_message_to_sentry(sanitized_message, 'warn')
+          Rails.logger.warn(sanitized_message)
           has_pdf_err = true
         end
 
@@ -259,7 +296,7 @@ module IvcChampva
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-          log_message_to_sentry(sanitized_message, 'warn')
+          Rails.logger.warn(sanitized_message)
           has_pdf_err = true
         end
 
@@ -483,29 +520,45 @@ module IvcChampva
         # Create a copy of the applicant hash to avoid modifying the original
         updated_applicant = Marshal.load(Marshal.dump(applicant))
 
-        # Map primary insurance policy (policies[0]) if it exists
-        if policies&.[](0)
-          updated_applicant['applicant_primary_provider'] = policies[0]['provider']
-          updated_applicant['applicant_primary_effective_date'] = policies[0]['effective_date']
-          updated_applicant['applicant_primary_expiration_date'] = policies[0]['expiration_date']
-          updated_applicant['applicant_primary_through_employer'] = policies[0]['through_employer']
-          updated_applicant['applicant_primary_insurance_type'] = policies[0]['insurance_type']
-          updated_applicant['primary_medigap_plan'] = policies[0]['medigap_plan']
-          updated_applicant['primary_additional_comments'] = policies[0]['additional_comments']
-        end
-
-        # Map secondary insurance policy (policies[1]) if it exists
-        if policies&.[](1)
-          updated_applicant['applicant_secondary_provider'] = policies[1]['provider']
-          updated_applicant['applicant_secondary_effective_date'] = policies[1]['effective_date']
-          updated_applicant['applicant_secondary_expiration_date'] = policies[1]['expiration_date']
-          updated_applicant['applicant_secondary_through_employer'] = policies[1]['through_employer']
-          updated_applicant['applicant_secondary_insurance_type'] = policies[1]['insurance_type']
-          updated_applicant['secondary_medigap_plan'] = policies[1]['medigap_plan']
-          updated_applicant['secondary_additional_comments'] = policies[1]['additional_comments']
-        end
+        # Map primary and secondary insurance policies
+        map_primary_policy_to_applicant(policies[0], updated_applicant) if policies&.[](0)
+        map_secondary_policy_to_applicant(policies[1], updated_applicant) if policies&.[](1)
 
         updated_applicant
+      end
+
+      ##
+      # Maps primary insurance policy fields to the applicant hash
+      #
+      # @param [Hash] policy Primary insurance policy data
+      # @param [Hash] applicant Applicant hash to update
+      #
+      def map_primary_policy_to_applicant(policy, applicant)
+        applicant['applicant_primary_provider'] = policy['provider']
+        applicant['applicant_primary_effective_date'] = policy['effective_date']
+        applicant['applicant_primary_expiration_date'] = policy['expiration_date']
+        applicant['applicant_primary_through_employer'] = policy['through_employer']
+        applicant['applicant_primary_insurance_type'] = policy['insurance_type']
+        applicant['applicant_primary_eob'] = policy['eob']
+        applicant['primary_medigap_plan'] = policy['medigap_plan']
+        applicant['primary_additional_comments'] = policy['additional_comments']
+      end
+
+      ##
+      # Maps secondary insurance policy fields to the applicant hash
+      #
+      # @param [Hash] policy Secondary insurance policy data
+      # @param [Hash] applicant Applicant hash to update
+      #
+      def map_secondary_policy_to_applicant(policy, applicant)
+        applicant['applicant_secondary_provider'] = policy['provider']
+        applicant['applicant_secondary_effective_date'] = policy['effective_date']
+        applicant['applicant_secondary_expiration_date'] = policy['expiration_date']
+        applicant['applicant_secondary_through_employer'] = policy['through_employer']
+        applicant['applicant_secondary_insurance_type'] = policy['insurance_type']
+        applicant['applicant_secondary_eob'] = policy['eob']
+        applicant['secondary_medigap_plan'] = policy['medigap_plan']
+        applicant['secondary_additional_comments'] = policy['additional_comments']
       end
 
       def fill_ohi_and_return_path(form)
@@ -846,6 +899,15 @@ module IvcChampva
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
 
         file_paths = form.handle_attachments(file_path)
+
+        # Generate VES JSON file and add to file_paths if conditions are met
+        if should_generate_ves_json?(form.form_id)
+          ves_json_path = generate_ves_json_file(form, parsed_form_data)
+          if ves_json_path
+            file_paths << ves_json_path
+            attachment_ids << 'VES JSON'
+          end
+        end
 
         [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
       end
