@@ -416,8 +416,6 @@ module UnifiedHealthData
     end
 
     def validate_date_param(date_string, param_name)
-      return if date_string.nil?
-
       Date.parse(date_string)
     rescue ArgumentError, TypeError
       raise ArgumentError, "Invalid #{param_name}: '#{date_string}'. Expected format: YYYY-MM-DD"
