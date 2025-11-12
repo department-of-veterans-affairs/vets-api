@@ -425,6 +425,24 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
         expect(response.body).to be_empty
       end
 
+      it 'returns 404 when claim does not exist' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        documents_service = instance_double(TravelPay::DocumentsService)
+        allow(TravelPay::DocumentsService).to receive(:new).and_return(documents_service)
+        allow(documents_service).to receive(:download_document)
+          .and_raise(Faraday::ResourceNotFound.new('Claim not found'))
+
+        claim_id = '00000000-0000-0000-0000-000000000000'
+        document_id = 'doc1-decision-letter'
+
+        get("/mobile/v0/travel-pay/claims/#{claim_id}/documents/#{document_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:not_found)
+        expect(response.body).to be_empty
+      end
+
       it 'returns 400 for invalid claim or document ID format' do
         allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
           .and_return({ veis_token: 'vt', btsss_token: 'bt' })
