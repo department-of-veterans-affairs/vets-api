@@ -46,7 +46,9 @@ module RepresentationManagement
     private
 
     def use_veteran_tables?
-      @data_source_log&.trexler_file? || @data_source_log.nil?
+      return false if @data_source_log.nil?
+
+      @data_source_log.trexler_file?
     end
 
     def wrap_veteran_results(results)
