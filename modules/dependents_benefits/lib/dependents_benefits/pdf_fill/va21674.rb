@@ -822,6 +822,9 @@ module DependentsBenefits
           @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
         end
 
+        # We add the user data to the form data in some jobs. It should always be present here.
+        raise DependentsBenefits::MissingVeteranInfoError unless @form_data['veteran_information']
+
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']

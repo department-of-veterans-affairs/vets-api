@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form21p530aController, type: :controller do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:form_530a_enabled).and_return(true)
+  end
+
   let(:valid_payload) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form21p530a', 'valid_form.json').read) }
 
   describe 'POST #create' do
@@ -52,6 +56,68 @@ RSpec.describe V0::Form21p530aController, type: :controller do
     it 'queues Lighthouse submission job' do
       expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(anything)
       post(:create, body: valid_payload.to_json, as: :json)
+    end
+
+    context 'with 3-character country code' do
+      let(:payload_with_3char_country) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'USA'
+        payload
+      end
+
+      it 'transforms 3-character country code to 2-character' do
+        post(:create, body: payload_with_3char_country.to_json, as: :json)
+        expect(response).to have_http_status(:ok)
+
+        # Verify the claim was created successfully (transformation happened)
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['confirmation_number']).to be_present
+      end
+    end
+
+    context 'with invalid country code' do
+      let(:payload_with_invalid_country) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'XX'
+        payload
+      end
+
+      it 'rejects invalid 2-character country code' do
+        post(:create, body: payload_with_invalid_country.to_json, as: :json)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+        expect(json['errors'].first['detail']).to include("'XX' is not a valid country code")
+      end
+
+      it 'rejects invalid 3-character country code' do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'ZZZ'
+
+        post(:create, body: payload.to_json, as: :json)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+        expect(json['errors'].first['detail']).to include("'ZZZ' is not a valid country code")
+      end
+
+      it 'increments failure stats' do
+        expect(StatsD).to receive(:increment).with('api.form21p530a.failure')
+        post(:create, body: payload_with_invalid_country.to_json, as: :json)
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_530a_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:create, body: valid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
     end
 
     context 'with invalid form data' do
@@ -170,6 +236,66 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       post(:download_pdf, body: valid_payload.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'with 3-character country code' do
+      let(:payload_with_3char_country) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'USA'
+        payload
+      end
+
+      it 'transforms 3-character country code to 2-character for PDF generation' do
+        expect(PdfFill::Filler).to receive(:fill_ancillary_form) do |form_data, _uuid, _form_type|
+          # Verify the country code was transformed to 2-character
+          address = form_data.dig('burialInformation', 'recipientOrganization', 'address')
+          expect(address['country']).to eq('US')
+          temp_file_path
+        end
+
+        post(:download_pdf, body: payload_with_3char_country.to_json, as: :json)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with invalid country code' do
+      let(:payload_with_invalid_country) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'XX'
+        payload
+      end
+
+      it 'rejects invalid 2-character country code' do
+        post(:download_pdf, body: payload_with_invalid_country.to_json, as: :json)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+        expect(json['errors'].first['detail']).to include("'XX' is not a valid country code")
+      end
+
+      it 'rejects invalid 3-character country code' do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['country'] = 'ZZZ'
+
+        post(:download_pdf, body: payload.to_json, as: :json)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+        expect(json['errors'].first['detail']).to include("'ZZZ' is not a valid country code")
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_530a_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:download_pdf, body: valid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
     end
 
     context 'error handling' do

@@ -39,7 +39,7 @@ jobs:
           echo "environments=${{ env.environments }}" >> $GITHUB_OUTPUT
   release:
     needs: [prepare-values]
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production-bypass'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

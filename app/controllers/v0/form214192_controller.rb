@@ -6,12 +6,13 @@ module V0
 
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    before_action :load_user, :check_feature_enabled
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
-      payload = request.request_parameters
+      payload = request.raw_post
 
-      claim = SavedClaim::Form214192.new(form: payload.to_json)
+      claim = SavedClaim::Form214192.new(form: payload)
 
       if claim.save
         claim.process_attachments!
@@ -36,7 +37,8 @@ module V0
     end
 
     def download_pdf
-      parsed_form = request.request_parameters
+      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
+      parsed_form = JSON.parse(request.raw_post)
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
@@ -57,6 +59,10 @@ module V0
     end
 
     private
+
+    def check_feature_enabled
+      routing_error unless Flipper.enabled?(:form_4192_enabled, current_user)
+    end
 
     def handle_pdf_generation_error(error)
       Rails.logger.error('Form214192: Error generating PDF', error: error.message, backtrace: error.backtrace)

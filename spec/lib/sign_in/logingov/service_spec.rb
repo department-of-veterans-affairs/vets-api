@@ -48,13 +48,14 @@ describe SignIn::Logingov::Service do
   let(:expected_authorization_page) { 'https://idp.int.identitysandbox.gov/openid_connect/authorize' }
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
+  let(:acr_param) { { acr: } }
   let(:operation) { 'some-operation' }
   let(:optional_scopes) { ['all_emails'] }
   let(:current_time) { 1_692_663_038 }
   let(:expiration_time) { 1_692_663_938 }
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state:, acr:, operation:).to_s }
+    let(:response) { subject.render_auth(state:, acr: acr_param, operation:).to_s }
     let(:expected_scopes) { ['profile', 'profile:verified_at', 'address', 'email', 'openid', 'social_security_number'] }
     let(:expected_scope_query) { "scope=#{CGI.escape(expected_scopes.join(' '))}" }
     let(:expected_optional_scopes) { described_class::OPTIONAL_SCOPES & optional_scopes }

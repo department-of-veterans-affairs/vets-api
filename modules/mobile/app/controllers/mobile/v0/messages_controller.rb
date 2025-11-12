@@ -17,8 +17,9 @@ module Mobile
         resource = resource.sort(params[:sort])
 
         links = pagination_links(resource)
-        resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
+        # Add total_entries to metadata for backwards compatibility
+        resource.metadata.merge!(total_entries(resource.size))
 
         # Log unique user event for inbox accessed
         UniqueUserEvents.log_event(
@@ -172,6 +173,14 @@ module Mobile
               hash[:unread] += 1
             end
           end
+        }
+      end
+
+      def total_entries(count)
+        {
+          pagination: {
+            total_entries: count
+          }
         }
       end
 

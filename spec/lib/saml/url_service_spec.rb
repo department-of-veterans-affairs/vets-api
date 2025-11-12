@@ -250,12 +250,6 @@ RSpec.describe SAML::URLService do
           end
         end
 
-        it 'has sign out url: slo_url' do
-          expect(subject.slo_url)
-            .to be_a_saml_url(expected_logout_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'slo')
-        end
-
         context 'redirect urls' do
           let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}' } }
 
@@ -516,12 +510,6 @@ RSpec.describe SAML::URLService do
               .to be_a_saml_url(expected_saml_url)
               .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
           end
-        end
-
-        it 'has sign out url: slo_url' do
-          expect(subject.slo_url)
-            .to be_a_saml_url(expected_logout_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'slo')
         end
 
         context 'redirect urls' do

@@ -75,6 +75,18 @@ module DependentsBenefits
       parsed_form.merge!(user_data)
     end
 
+    def folder_identifier
+      fid = 'VETERAN'
+      { ssn:, participant_id:, icn: }.each do |k, v|
+        if v.present?
+          fid += ":#{k.to_s.upcase}:#{v}"
+          break
+        end
+      end
+
+      fid
+    end
+
     private
 
     def validate_form(schema)
@@ -104,6 +116,18 @@ module DependentsBenefits
 
     def stats_key
       'api.dependents_claim'
+    end
+
+    def ssn
+      parsed_form&.dig('veteran_information', 'ssn')
+    end
+
+    def participant_id
+      parsed_form&.dig('veteran_information', 'participant_id')
+    end
+
+    def icn
+      parsed_form&.dig('veteran_information', 'icn')
     end
   end
 end

@@ -39,4 +39,6 @@ module DependentsBenefits
   # @see lib/zero_silent_failures
   module ZeroSilentFailures
   end
+
+  class MissingVeteranInfoError < StandardError; end
 end
