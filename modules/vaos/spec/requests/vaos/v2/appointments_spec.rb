@@ -1532,7 +1532,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                   tags: [
                                     'service:community_care_appointments',
                                     'referring_facility_code:528A6',
-                                    'provider_npi:7894563210',
                                     'station_id:528A6'
                                   ])
                             .once
@@ -1679,10 +1678,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       'Community Care Appointments: Provider not found while creating draft appointment',
                       {
                         error_message: 'Provider not found while creating draft appointment',
-                        provider_npi: '7894563210',
                         user_uuid: current_user.uuid,
                         controller: expected_controller_name,
-                        station_number: expected_station_number
+                        station_number: expected_station_number,
+                        eps_trace_id: 'c9182a0e90280e7cc9ea83a192c1b787'
                       }
                     )
 
@@ -1722,9 +1721,19 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                     expect(error['title']).to eq('Appointment creation failed')
                     expect(error['detail']).to eq('Provider not found')
 
+                    # Verify controller name comes from RequestStore (set by controller's before_action)
+                    expected_controller_name = 'VAOS::V2::AppointmentsController'
+                    # Verify station_number comes from user object
+                    expected_station_number = current_user.va_treatment_facility_ids&.first
+
                     expect(Rails.logger).to have_received(:error).with(
                       'Community Care Appointments: No self-schedulable providers found for NPI',
-                      { npi: }
+                      {
+                        controller: expected_controller_name,
+                        station_number: expected_station_number,
+                        eps_trace_id: 'c9182a0e90280e7cc9ea83a192c1b787',
+                        user_uuid: current_user.uuid
+                      }
                     )
                   end
                 end

@@ -890,16 +890,23 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'returns nil, logs error with npi, and increments metric' do
+        it 'returns nil, logs error, and increments metric' do
           expect(StatsD).to receive(:increment).with(
             'api.vaos.provider_service.no_self_schedulable',
             tags: ['service:community_care_appointments']
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end
@@ -964,9 +971,16 @@ describe Eps::ProviderService do
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end
@@ -1005,9 +1019,16 @@ describe Eps::ProviderService do
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end
@@ -1046,9 +1067,16 @@ describe Eps::ProviderService do
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end
@@ -1505,8 +1533,7 @@ describe Eps::ProviderService do
         it 'logs that address validation was skipped' do
           service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
           expect(Rails.logger).to have_received(:info)
-            .with('Single specialty match found for NPI, skipping address validation',
-                  hash_including(controller: 'VAOS::V2::AppointmentsController', station_number: '123'))
+            .with('Single specialty match found for NPI, skipping address validation')
         end
       end
 
@@ -1702,8 +1729,7 @@ describe Eps::ProviderService do
         it 'logs that address validation was skipped' do
           service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
           expect(Rails.logger).to have_received(:info)
-            .with('Single specialty match found for NPI, skipping address validation',
-                  hash_including(controller: 'VAOS::V2::AppointmentsController', station_number: '123'))
+            .with('Single specialty match found for NPI, skipping address validation')
         end
 
         it 'returns provider even when address does not match' do

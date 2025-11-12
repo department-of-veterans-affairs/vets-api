@@ -399,7 +399,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           tags: [
             'service:community_care_appointments',
             'referring_facility_code:FAC123',
-            'provider_npi:1234567890',
             'station_id:no_value'
           ]
         )
@@ -423,10 +422,10 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           'Community Care Appointments: Provider not found while creating draft appointment',
           {
             error_message: 'Provider not found while creating draft appointment',
-            provider_npi: '1234567890',
             user_uuid: current_user.uuid,
             controller: expected_controller_name,
-            station_number: expected_station_number
+            station_number: expected_station_number,
+            eps_trace_id: nil
           }
         )
         expect(subject.error).to be_present
@@ -541,7 +540,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
               error_class: 'Date::Error',
               user_uuid: current_user.uuid,
               controller: expected_controller_name,
-              station_number: expected_station_number
+              station_number: expected_station_number,
+              eps_trace_id: nil
             }
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
