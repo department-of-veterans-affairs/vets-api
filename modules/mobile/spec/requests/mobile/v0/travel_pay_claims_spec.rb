@@ -425,7 +425,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
         expect(response.body).to be_empty
       end
 
-      it 'returns 404 when claim does not exist' do
+      it 'returns 404 when claim is not found' do
         allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
           .and_return({ veis_token: 'vt', btsss_token: 'bt' })
 
