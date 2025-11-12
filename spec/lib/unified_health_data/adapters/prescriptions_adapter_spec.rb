@@ -596,5 +596,174 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(prescriptions).to be_empty
       end
     end
+
+    context 'with Vista prescriptions containing dispenses' do
+      let(:vista_medication_with_dispenses) do
+        vista_medication_data.merge(
+          'rxRFRecords' => [
+            {
+              'id' => 'rf-1',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'SLC4',
+              'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
+              'quantity' => 1,
+              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
+            },
+            {
+              'id' => 'rf-2',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'SLC4',
+              'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
+              'quantity' => 1,
+              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
+            }
+          ]
+        )
+      end
+
+      let(:response_with_vista_dispenses) do
+        {
+          'vista' => {
+            'medicationList' => {
+              'medication' => [vista_medication_with_dispenses]
+            }
+          },
+          'oracle-health' => nil
+        }
+      end
+
+      it 'includes dispenses in Vista prescriptions' do
+        prescriptions = subject.parse(response_with_vista_dispenses)
+
+        expect(prescriptions.size).to eq(1)
+        vista_prescription = prescriptions.first
+
+        expect(vista_prescription.dispenses).to be_an(Array)
+        expect(vista_prescription.dispenses.size).to eq(2)
+
+        first_dispense = vista_prescription.dispenses.first
+        expect(first_dispense[:status]).to eq('dispensed')
+        expect(first_dispense[:refill_date]).to eq('2025-07-14T04:00:00.000Z')
+        expect(first_dispense[:facility_name]).to eq('SLC4')
+        expect(first_dispense[:sig]).to eq('APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY')
+        expect(first_dispense[:quantity]).to eq(1)
+        expect(first_dispense[:medication_name]).to eq('COAL TAR 2.5% TOP SOLN')
+        expect(first_dispense[:id]).to eq('rf-1')
+      end
+    end
+
+    context 'with Oracle Health prescriptions containing dispenses' do
+      let(:oracle_medication_with_dispenses) do
+        oracle_health_medication_data.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z',
+              'quantity' => { 'value' => 30 },
+              'location' => { 'display' => '648-PHARMACY' },
+              'dosageInstruction' => [
+                {
+                  'text' => 'See Instructions, daily, 1 EA, 0 Refill(s)'
+                }
+              ],
+              'medicationCodeableConcept' => {
+                'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
+              }
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T14:30:00Z',
+              'quantity' => { 'value' => 30 },
+              'location' => { 'display' => '648-PHARMACY' },
+              'dosageInstruction' => [
+                {
+                  'text' => 'See Instructions, daily, 1 EA, 0 Refill(s)'
+                }
+              ],
+              'medicationCodeableConcept' => {
+                'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
+              }
+            }
+          ]
+        )
+      end
+
+      let(:response_with_oracle_dispenses) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_with_dispenses
+              }
+            ]
+          }
+        }
+      end
+
+      before do
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
+      end
+
+      it 'includes dispenses in Oracle Health prescriptions' do
+        prescriptions = subject.parse(response_with_oracle_dispenses)
+
+        expect(prescriptions.size).to eq(1)
+        oracle_prescription = prescriptions.first
+
+        expect(oracle_prescription.dispenses).to be_an(Array)
+        expect(oracle_prescription.dispenses.size).to eq(2)
+
+        first_dispense = oracle_prescription.dispenses.first
+        expect(first_dispense[:status]).to eq('completed')
+        expect(first_dispense[:refill_date]).to eq('2025-01-15T10:00:00Z')
+        expect(first_dispense[:facility_name]).to eq('Portland VA Medical Center')
+        expect(first_dispense[:sig]).to eq('See Instructions, daily, 1 EA, 0 Refill(s)')
+        expect(first_dispense[:quantity]).to eq(30)
+        expect(first_dispense[:medication_name]).to eq('amLODIPine (amLODIPine 5 mg tablet)')
+        expect(first_dispense[:id]).to eq('dispense-1')
+      end
+    end
+
+    context 'with prescriptions without dispenses' do
+      it 'includes empty dispenses array for Vista prescriptions without rxRFRecords' do
+        prescriptions = subject.parse(unified_response)
+
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+        expect(vista_prescription.dispenses).to eq([])
+      end
+
+      it 'includes empty dispenses array for Oracle Health prescriptions without MedicationDispense' do
+        oracle_only_response = {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => {
+                  'resourceType' => 'MedicationRequest',
+                  'id' => 'no-dispenses',
+                  'status' => 'active',
+                  'authoredOn' => '2025-01-29T19:41:43Z',
+                  'medicationCodeableConcept' => {
+                    'text' => 'Test Medication'
+                  }
+                }
+              }
+            ]
+          }
+        }
+
+        prescriptions = subject.parse(oracle_only_response)
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.dispenses).to eq([])
+      end
+    end
   end
 end

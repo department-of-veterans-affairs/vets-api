@@ -20,10 +20,12 @@ module UnifiedHealthData
 
       def build_prescription_attributes(medication)
         tracking_data = build_tracking_information(medication)
+        dispenses_data = build_dispenses_information(medication)
 
         build_core_attributes(medication)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(medication))
+          .merge(dispenses: dispenses_data)
       end
 
       def build_core_attributes(medication)
@@ -92,6 +94,23 @@ module UnifiedHealthData
             prescription_number: prescription['prescriptionNumber'],
             ndc_number: prescription['ndcNumber'],
             station_number: prescription['stationNumber']
+          }
+        end
+      end
+
+      def build_dispenses_information(medication)
+        rf_records = medication['rxRFRecords'] || []
+        return [] unless rf_records.is_a?(Array)
+
+        rf_records.map do |record|
+          {
+            status: record['refillStatus'],
+            refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
+            facility_name: record['facilityName'],
+            sig: record['sig'],
+            quantity: record['quantity'],
+            medication_name: record['prescriptionName'],
+            id: record['id']
           }
         end
       end

@@ -1179,6 +1179,209 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
+  describe '#build_dispenses_information' do
+    context 'with MedicationDispense resources in contained' do
+      let(:resource_with_dispenses) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z',
+              'quantity' => { 'value' => 30 },
+              'location' => { 'display' => '648-PHARMACY-MAIN' },
+              'dosageInstruction' => [
+                {
+                  'text' => 'Take one tablet by mouth daily'
+                }
+              ],
+              'medicationCodeableConcept' => {
+                'text' => 'amLODIPine 5 mg tablet'
+              }
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T14:30:00Z',
+              'quantity' => { 'value' => 30 },
+              'location' => { 'display' => '648-PHARMACY-MAIN' },
+              'dosageInstruction' => [
+                {
+                  'text' => 'Take one tablet by mouth daily'
+                }
+              ],
+              'medicationCodeableConcept' => {
+                'text' => 'amLODIPine 5 mg tablet'
+              }
+            }
+          ]
+        )
+      end
+
+      before do
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
+      end
+
+      it 'returns dispenses information with all fields' do
+        result = subject.send(:build_dispenses_information, resource_with_dispenses)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+
+        first_dispense = result.first
+        expect(first_dispense).to include(
+          status: 'completed',
+          refill_date: '2025-01-15T10:00:00Z',
+          facility_name: 'Portland VA Medical Center',
+          sig: 'Take one tablet by mouth daily',
+          quantity: 30,
+          medication_name: 'amLODIPine 5 mg tablet',
+          id: 'dispense-1'
+        )
+
+        second_dispense = result.second
+        expect(second_dispense).to include(
+          status: 'completed',
+          refill_date: '2025-01-29T14:30:00Z',
+          facility_name: 'Portland VA Medical Center',
+          sig: 'Take one tablet by mouth daily',
+          quantity: 30,
+          medication_name: 'amLODIPine 5 mg tablet',
+          id: 'dispense-2'
+        )
+      end
+
+      it 'includes dispenses in parsed prescription' do
+        result = subject.parse(resource_with_dispenses)
+        expect(result.dispenses.length).to eq(2)
+        expect(result.dispenses.first[:status]).to eq('completed')
+      end
+    end
+
+    context 'with no MedicationDispense resources' do
+      it 'returns empty array when no contained resources' do
+        result = subject.send(:build_dispenses_information, base_resource)
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when contained has no MedicationDispense' do
+        resource_no_dispenses = base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'Encounter',
+              'id' => 'encounter-1'
+            }
+          ]
+        )
+        result = subject.send(:build_dispenses_information, resource_no_dispenses)
+        expect(result).to eq([])
+      end
+
+      it 'includes empty dispenses array in parsed prescription' do
+        result = subject.parse(base_resource)
+        expect(result.dispenses).to eq([])
+      end
+    end
+
+    context 'with MedicationDispense missing optional fields' do
+      let(:resource_with_minimal_dispense) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-minimal',
+              'status' => 'completed'
+            }
+          ]
+        )
+      end
+
+      it 'returns dispense with nil values for missing fields' do
+        result = subject.send(:build_dispenses_information, resource_with_minimal_dispense)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(1)
+
+        dispense = result.first
+        expect(dispense[:status]).to eq('completed')
+        expect(dispense[:refill_date]).to be_nil
+        expect(dispense[:facility_name]).to be_nil
+        expect(dispense[:sig]).to be_nil
+        expect(dispense[:quantity]).to be_nil
+        expect(dispense[:medication_name]).to be_nil
+        expect(dispense[:id]).to eq('dispense-minimal')
+      end
+    end
+  end
+
+  describe '#extract_sig_from_dispense' do
+    context 'with dosageInstruction text' do
+      let(:dispense_with_sig) do
+        {
+          'dosageInstruction' => [
+            {
+              'text' => 'Take one tablet by mouth daily'
+            }
+          ]
+        }
+      end
+
+      it 'returns the dosage instruction text' do
+        result = subject.send(:extract_sig_from_dispense, dispense_with_sig)
+        expect(result).to eq('Take one tablet by mouth daily')
+      end
+    end
+
+    context 'without dosageInstruction' do
+      let(:dispense_without_sig) do
+        {}
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_sig_from_dispense, dispense_without_sig)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with empty dosageInstruction array' do
+      let(:dispense_empty_sig) do
+        {
+          'dosageInstruction' => []
+        }
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_sig_from_dispense, dispense_empty_sig)
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#extract_facility_name_from_dispense' do
+    let(:dispense_with_location) do
+      {
+        'resourceType' => 'MedicationDispense',
+        'id' => 'dispense-1',
+        'location' => { 'display' => '556-RX-MAIN-OP' }
+      }
+    end
+
+    let(:resource_for_facility) { base_resource }
+
+    before do
+      allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Bay Pines VA Healthcare System')
+      allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
+    end
+
+    it 'extracts facility name using existing extract_facility_name method' do
+      result = subject.send(:extract_facility_name_from_dispense, resource_for_facility, dispense_with_location)
+      expect(result).to eq('Bay Pines VA Healthcare System')
+    end
+  end
+
   describe '#extract_category' do
     context 'with category field containing inpatient code' do
       let(:resource_with_inpatient_category) do
