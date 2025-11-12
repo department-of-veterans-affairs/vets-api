@@ -136,7 +136,6 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
     ADDRESS
 
     str += address_hash['country'] unless %w[US USA].include?(address_hash['country'])
-    str += '(military)' if address_hash['isMilitary']
     str
   end
 
