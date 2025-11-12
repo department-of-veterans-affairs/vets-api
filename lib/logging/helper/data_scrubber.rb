@@ -70,6 +70,21 @@ module Logging
         BIRTH_DATE: %r{\b(?:0?[1-9]|1[0-2])[/\-.](?:0?[1-9]|[12][0-9]|3[01])[/\-.](?:19|20)\d{2}\b}
       }.freeze
 
+      # Order matters: most specific patterns first to avoid conflicts
+      PATTERN_ORDER = %i[
+        ICN
+        SSN
+        EMAIL
+        PHONE
+        CREDIT_CARD
+        BIRTH_DATE
+        VA_FILE_NUMBER
+        EDIPI
+        ROUTING_NUMBER
+        PARTICIPANT_ID
+        ZIP_CODE
+      ].freeze
+
       # Patterns that could match UUID segments and need exclusion
       UUID_SENSITIVE_PATTERNS = %i[SSN EDIPI ROUTING_NUMBER PARTICIPANT_ID PHONE CREDIT_CARD ZIP_CODE].freeze
 
@@ -164,23 +179,8 @@ module Logging
         return message if message.blank?
 
         # Build combined regex pattern from all REGEX patterns
-        # Order matters: most specific patterns first to avoid conflicts
-        pattern_order = %i[
-          ICN
-          SSN
-          EMAIL
-          PHONE
-          CREDIT_CARD
-          BIRTH_DATE
-          VA_FILE_NUMBER
-          EDIPI
-          ROUTING_NUMBER
-          PARTICIPANT_ID
-          ZIP_CODE
-        ]
-
         combined_regex = Regexp.new(
-          pattern_order.map { |key| REGEX[key] }.join('|'),
+          PATTERN_ORDER.map { |key| REGEX[key] }.join('|'),
           Regexp::EXTENDED
         )
 
