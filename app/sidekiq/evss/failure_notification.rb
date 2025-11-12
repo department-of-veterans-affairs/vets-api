@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 class EVSS::FailureNotification
   include Sidekiq::Job
-  include SentryLogging
+  include Vets::SharedLogging
 
   NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
   MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
@@ -35,5 +37,6 @@ class EVSS::FailureNotification
     ::Rails.logger.error('EVSS::FailureNotification email error',
                          { message: e.message })
     log_exception_to_sentry(e)
+    log_exception_to_rails(e)
   end
 end
