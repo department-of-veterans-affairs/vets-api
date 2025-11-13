@@ -5,6 +5,7 @@ module EventBusGateway
     # VA Notify service settings
     NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
 
+    # The following retry counts each used to be 16, which was causing production strain and staging strain.
     # Controls the sidekiq (infrastructure level) retry when the letter ready email job fails.
     SIDEKIQ_RETRY_COUNT_FIRST_EMAIL = 5
     # Controls the sidekiq (infrastructure level) retry when the letter ready email retry job fails.
