@@ -23,3 +23,4 @@ RSpec.describe DependentsBenefits::SchoolAttendanceApproval do
     end
   end
 end
+
