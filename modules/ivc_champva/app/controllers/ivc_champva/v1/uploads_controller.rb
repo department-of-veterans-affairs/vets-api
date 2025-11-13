@@ -68,6 +68,7 @@ module IvcChampva
         return unless Settings.vsp_environment != 'production'
 
         parsed_form_data = JSON.parse(params.to_json)
+        form_id = get_form_id
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
         apps.each do |app|
@@ -78,6 +79,7 @@ module IvcChampva
             ohi_path = fill_ohi_and_return_path(f)
             ohi_supporting_doc = create_custom_attachment(f, ohi_path, 'VA form 10-7959c')
             add_supporting_doc(parsed_form_data, ohi_supporting_doc)
+            f.track_delegate_form(form_id) if f.respond_to?(:track_delegate_form)
           end
         end
 
