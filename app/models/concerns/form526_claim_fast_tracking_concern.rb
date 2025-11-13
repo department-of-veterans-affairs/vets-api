@@ -243,10 +243,11 @@ module Form526ClaimFastTrackingConcern
 
   private
 
-  def log_error(_error)
+  def log_error(error)
     Rails.logger.error(
       "Form526ClaimsFastTrackingConcern #{id} encountered an error",
-      submission_id: id
+      submission_id: id,
+      error_message: error.message
     )
   rescue
     # We need this to not ever fail or it blocks submission
