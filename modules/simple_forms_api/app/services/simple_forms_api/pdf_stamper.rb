@@ -52,7 +52,27 @@ module SimpleFormsApi
     end
 
     def all_form_stamps
-      form ? form.desired_stamps + form.submission_date_stamps(timestamp) : []
+      case form
+      when String
+        get_scanned_form_stamps(form)
+      when nil
+        []
+      else
+        form.desired_stamps + form.submission_date_stamps(timestamp)
+      end
+    end
+
+    def get_scanned_form_stamps(form_number)
+      return [] unless SimpleFormsApi::ScannedFormStamps.stamps?(form_number)
+
+      stamp_config = SimpleFormsApi::ScannedFormStamps.new(form_number)
+      stamp_config.submission_date_stamps(timestamp)
+    rescue => e
+      Rails.logger.error(
+        'Simple forms api - error loading scanned form stamps',
+        { form_number:, error: e.message }
+      )
+      []
     end
 
     def stamp_form(desired_stamp)
@@ -163,13 +183,13 @@ module SimpleFormsApi
     def get_auth_text_stamp
       current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
       coords = [10, 10]
-      submission_text = form ? SUBMISSION_TEXT : FORM_UPLOAD_SUBMISSION_TEXT
+      submission_text = form.is_a?(String) || form.nil? ? FORM_UPLOAD_SUBMISSION_TEXT : SUBMISSION_TEXT
       text = submission_text + current_time
       { coords:, text: }
     end
 
     def auth_text
-      if form
+      if form && !form.is_a?(String)
         case loa
         when 3
           'Signee signed with an identity-verified account.'
