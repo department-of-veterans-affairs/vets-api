@@ -243,7 +243,7 @@ GEM
       fiddle
     ast (2.4.3)
     attr_extras (7.1.0)
-    avro (1.12.0)
+    avro (1.12.1)
       multi_json (~> 1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.4.0)
