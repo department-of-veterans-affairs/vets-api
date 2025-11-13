@@ -1925,6 +1925,10 @@ features:
     actor_type: user
     description: Enables the ability to hide the My HealtheVet sign in button (Identity)
     enable_in_development: true
+  portal_notice_interstitial_enabled:
+    actor_type: user
+    description: Enables the MHV portal notice interstital page
+    enable_in_development: true
   sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
