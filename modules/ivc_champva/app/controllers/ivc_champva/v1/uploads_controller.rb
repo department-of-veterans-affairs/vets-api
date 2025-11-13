@@ -68,7 +68,7 @@ module IvcChampva
         return unless Settings.vsp_environment != 'production'
 
         parsed_form_data = JSON.parse(params.to_json)
-        form_id = get_form_id(parsed_form_data)
+        form_id = get_form_id
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
         apps.each do |app|
