@@ -68,11 +68,6 @@ module SAML
       end
     end
 
-    # logout URL for SSOe
-    def ssoe_slo_url
-      IdentitySettings.saml_ssoe.logout_url
-    end
-
     private
 
     def terms_of_use_enabled_application

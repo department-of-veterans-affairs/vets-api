@@ -161,6 +161,7 @@ module ClaimsApi
           addressLine1: line1,
           addressLine2: addr[:addressLine2],
           addressLine3: addr[:addressLine3],
+          city: addr[:city],
           country: addr[:country] || 'USA',
           zipFirstFive: addr[:zipFirstFive],
           zipLastFour: addr[:zipLastFour],
@@ -170,7 +171,6 @@ module ClaimsApi
         if type == 'INTERNATIONAL'
           formatted_addr[:internationalPostalCode] = addr[:internationalPostalCode]
         else
-          formatted_addr[:city] = addr[:city]
           formatted_addr[:state] = addr[:state]
         end
 
@@ -204,6 +204,7 @@ module ClaimsApi
           addressLine1: line1,
           addressLine2: change_data[:addressLine2],
           addressLine3: change_data[:addressLine3],
+          city: change_data[:city],
           country: change_data[:country] || 'USA'
         }.compact_blank
       end
@@ -222,7 +223,6 @@ module ClaimsApi
           )
         else
           addr.merge!(
-            city: change_data[:city],
             state: change_data[:state],
             addressType: 'DOMESTIC'
           )
@@ -292,7 +292,7 @@ module ClaimsApi
         {
           data: {
             serviceTransactionId: @auto_claim.auth_headers['va_eauth_service_transaction_id'],
-            claimantParticipantId: extract_claimant_participant_id,
+            claimantParticipantId: extract_veteran_participant_id,
             veteranParticipantId: extract_veteran_participant_id,
             form526: @fes_claim
           }
@@ -349,19 +349,10 @@ module ClaimsApi
       end
 
       def validate_required_fields!
-        # Validate participant IDs are present.
-        # These fields are being extracted from request headers which may not be present.
-        # NOTE: If these are missing, consider implementing BGS lookup using veteran_icn.
-        # to retrieve participant IDs as a fallback strategy.
         veteran_pid = extract_veteran_participant_id
-        claimant_pid = extract_claimant_participant_id
 
         if veteran_pid.blank? || veteran_pid == @auto_claim.veteran_icn
           raise ArgumentError, 'Missing veteranParticipantId - auth_headers do not contain valid participant ID'
-        end
-
-        if claimant_pid.blank? || claimant_pid == @auto_claim.veteran_icn
-          raise ArgumentError, 'Missing claimantParticipantId - auth_headers do not contain valid participant ID'
         end
 
         # Validate other required fields
@@ -379,16 +370,6 @@ module ClaimsApi
         @auto_claim.auth_headers&.dig('va_eauth_pid') ||
           @auto_claim.auth_headers&.dig('participant_id') ||
           @auto_claim.veteran_icn # fallback, would need BGS lookup to convert
-      end
-
-      def extract_claimant_participant_id
-        # For dependent claims, use dependent participant ID
-        if @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
-          @auto_claim.auth_headers.dig('dependent', 'participant_id')
-        else
-          # Otherwise, claimant is the veteran
-          extract_veteran_participant_id
-        end
       end
 
       def return_separation_location_code
