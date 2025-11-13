@@ -252,6 +252,7 @@ module ClaimsApi
         return if form_attributes['disabilities'].nil? || form_attributes['disabilities'].blank?
 
         alt_rev_validate_disability_name
+        alt_rev_validate_form_526_disability_unique_names
         alt_rev_validate_form_526_disability_classification_code
         alt_rev_validate_form_526_disability_approximate_begin_date
         alt_rev_validate_form_526_disability_service_relevance
@@ -267,6 +268,28 @@ module ClaimsApi
                                    detail: "The disability name (#{idx}) is required.")
           end
         end
+      end
+
+      def alt_rev_validate_form_526_disability_unique_names
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        names = disabilities.map { |d| d['name']&.downcase }.compact
+        duplicates = names.tally.select { |_, count| count > 1 }.keys
+        return if duplicates.empty?
+
+        idx = disabilities.index { |d| d['name']&.downcase == duplicates[0] }
+        masked_duplicates = duplicates.map { |name| alt_rev_mask_all_but_first_character(name) }
+        collect_error_messages(source: "/disabilities/#{idx}/name",
+                               detail: "Duplicate disability name found: #{masked_duplicates.join(', ')}")
+      end
+
+      def alt_rev_mask_all_but_first_character(value)
+        return value if value.blank?
+        return value unless value.is_a? String
+
+        # Mask all but the first character of the string
+        value[0] + ('*' * (value.length - 1))
       end
 
       def alt_rev_validate_form_526_disability_classification_code
