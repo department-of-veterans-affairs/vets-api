@@ -18,6 +18,7 @@ require 'pdf_fill/forms/va686c674v2'
 require 'pdf_fill/forms/va281900'
 require 'pdf_fill/forms/va281900v2'
 require 'pdf_fill/forms/va288832'
+require 'pdf_fill/forms/va210779'
 require 'pdf_fill/forms/va21674'
 require 'pdf_fill/forms/va21674v2'
 require 'pdf_fill/forms/va210538'
@@ -91,6 +92,7 @@ module PdfFill
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
       '22-0839' => PdfFill::Forms::Va220839,
+      '21-0779' => PdfFill::Forms::Va210779,
       '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
@@ -245,6 +247,7 @@ module PdfFill
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
 
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
+
       submit_date = Utilities::DateParser.parse(
         fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
       )
