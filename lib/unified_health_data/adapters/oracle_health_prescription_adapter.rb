@@ -44,7 +44,8 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource)
+          is_refillable: extract_is_refillable(resource),
+          cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
 
@@ -62,6 +63,7 @@ module UnifiedHealthData
           prescription_source: extract_prescription_source(resource),
           category: extract_category(resource),
           indication_for_use: extract_indication_for_use(resource)
+          remarks: extract_remarks(resource)
         }
       end
 
@@ -246,7 +248,7 @@ module UnifiedHealthData
       end
 
       def extract_prescription_source(resource)
-        non_va_med?(resource) ? 'NV' : ''
+        non_va_med?(resource) ? 'NV' : 'VA'
       end
 
       def extract_category(resource)
@@ -278,6 +280,17 @@ module UnifiedHealthData
         # Concatenate text from all reasonCode entries
         texts = reason_codes.filter_map { |reason_code| reason_code['text'] }
         texts.join('; ') if texts.any?
+      end
+
+      def extract_remarks(resource)
+        # Concatenate all MedicationRequest.note.text fields
+        notes = resource['note'] || []
+        return nil if notes.empty?
+
+        note_texts = notes.filter_map { |note| note['text'].presence }
+        return nil if note_texts.empty?
+
+        note_texts.join(' ')
       end
 
       def non_va_med?(resource)
