@@ -855,7 +855,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
             ]
           }
         }
-      end 
+      end
 
       it 'handles missing provider data gracefully' do
         prescriptions = subject.parse(response_with_missing_providers)
