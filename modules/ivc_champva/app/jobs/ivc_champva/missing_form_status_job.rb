@@ -33,7 +33,8 @@ module IvcChampva
         # Check if we've been missing Pega status for > custom thresholds:
         elapsed_days = (current_time - form.created_at).to_i / 1.day
         elapsed_minutes = (current_time - form.created_at).to_i / 1.minute
-        failure_email_threshold_days = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.presence&.to_i || 7
+        failure_email_threshold_days =
+          Settings.vanotify.services.ivc_champva.failure_email_threshold_days.presence&.to_i || 7
         pega_email_threshold_hours =
           Settings.vanotify.services.ivc_champva.missing_pega_status_email_threshold_hours.presence&.to_i || 2
 
