@@ -14,7 +14,7 @@ MyHealth::Engine.routes.draw do
                                     defaults: { format: 'xml' }
     end
 
-    resources :prescriptions, only: [], defaults: { format: :json } do
+    resources :prescriptions, only: %i[index], defaults: { format: :json } do
       post :refill, on: :collection
     end
   end
