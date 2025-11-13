@@ -232,7 +232,7 @@ RSpec.describe BGS::VnpVeteran do
               )
               expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
                                                           include(service: 'bgs'))
-              expect(Rails.logger).to receive(:error).with('SSN has 8 digits!', include(service: 'bgs'))
+              expect(Rails.logger).to receive(:error).with('SSN has 8 characters!', include(service: 'bgs'))
               expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
               vnp_veteran.create
             end
@@ -251,10 +251,7 @@ RSpec.describe BGS::VnpVeteran do
               )
               expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
                                                           include(service: 'bgs'))
-              expect(Rails.logger).to receive(:error).with(
-                'SSN is redacted!',
-                include(service: 'bgs')
-              )
+              expect(Rails.logger).to receive(:error).with('SSN is redacted!', include(service: 'bgs'))
               expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
               vnp_veteran.create
             end
@@ -483,7 +480,7 @@ RSpec.describe BGS::VnpVeteran do
               )
               expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
                                                           include(service: 'bgs'))
-              expect(Rails.logger).to receive(:error).with('SSN has 8 digits!', include(service: 'bgs'))
+              expect(Rails.logger).to receive(:error).with('SSN has 8 characters!', include(service: 'bgs'))
               expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
               vnp_veteran.create
             end

@@ -38,20 +38,46 @@ module BGS
 
     private
 
+    # Creates BGS person record for participant after validating/fixing SSN
+    # @param participant [Hash] BGS participant data with vnp_ptcpnt_id
+    # @return [Hash] BGS create_person response
     def create_person(participant)
-      if @veteran_info['ssn']&.length != 9
-        monitor.info('Malformed SSN! Reassigning to User#ssn.', 'vnp_veteran_ssn_fix', user_uuid: @user.uuid)
-        @veteran_info['ssn'] = @user.ssn
-      end
-      ssn = @veteran_info['ssn']
-      if ssn == '********'
-        monitor.error('SSN is redacted!', 'vnp_veteran_ssn_redacted', user_uuid: @user.uuid)
-      elsif ssn.present? && ssn.length != 9
-        monitor.error("SSN has #{ssn.length} digits!", 'vnp_veteran_ssn_invalid', user_uuid: @user.uuid)
-      end
+      fallback_to_user_ssn
+      log_ssn_issues
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       bgs_service.create_person(person_params)
+    end
+
+    # Replaces invalid veteran SSN with user's SSN as fallback
+    # Logs replacement event when veteran_info SSN fails format validation
+    # @return [void]
+    def fallback_to_user_ssn
+      return if ssn_format?(@veteran_info['ssn'])
+
+      monitor.info('Malformed SSN! Reassigning to User#ssn.', 'vnp_veteran_ssn_fix', user_uuid: @user.uuid)
+      @veteran_info['ssn'] = @user.ssn
+    end
+
+    # Logs SSN data quality issues without stopping execution
+    # Detects redacted SSNs (asterisks) and invalid formats for monitoring
+    # @return [void]
+    def log_ssn_issues
+      ssn = @veteran_info['ssn']
+
+      case ssn
+      when '********'
+        monitor.error('SSN is redacted!', 'vnp_veteran_ssn_redacted', user_uuid: @user.uuid)
+      when ->(s) { s.present? && !ssn_format?(s) }
+        monitor.error("SSN has #{ssn.length} characters!", 'vnp_veteran_ssn_invalid', user_uuid: @user.uuid)
+      end
+    end
+
+    # Validates SSN format as exactly 9 digits
+    # @param ssn [String, nil] SSN to validate
+    # @return [Boolean] true if SSN matches 9-digit format, false otherwise
+    def ssn_format?(ssn)
+      ssn =~ /\A\d{9}\z/
     end
 
     def create_address(participant)
