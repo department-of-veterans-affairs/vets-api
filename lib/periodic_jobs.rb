@@ -264,7 +264,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
 
   # Engine version: Clean SecondaryAppealForm records that are past delete date (weekly due to lower volume)
-  mgr.register('0 5 * * 0', 'DecisionReviews::DeleteSecondaryAppealFormsJob')
+  mgr.register('30 5 * * 0', 'DecisionReviews::DeleteSecondaryAppealFormsJob')
 
   # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
