@@ -106,7 +106,7 @@ module UnifiedHealthData
             status: dispense['status'],
             refill_date: dispense['whenHandedOver'],
             facility_name: extract_facility_name_from_dispense(resource, dispense),
-            sig: extract_sig_from_dispense(dispense),
+            instructions: extract_sig_from_dispense(dispense),
             quantity: dispense.dig('quantity', 'value'),
             medication_name: dispense.dig('medicationCodeableConcept', 'text'),
             id: dispense['id'],

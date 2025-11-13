@@ -114,7 +114,7 @@ module UnifiedHealthData
           status: record['refillStatus'],
           refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
           facility_name: record['facilityName'],
-          sig: record['sig'],
+          instructions: record['sig'],
           quantity: record['quantity'],
           medication_name: record['prescriptionName'],
           id: record['id'],

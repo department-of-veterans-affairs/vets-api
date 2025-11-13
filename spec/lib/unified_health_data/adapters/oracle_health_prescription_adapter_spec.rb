@@ -1236,7 +1236,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           status: 'completed',
           refill_date: '2025-01-15T10:00:00Z',
           facility_name: 'Portland VA Medical Center',
-          sig: 'Take one tablet by mouth daily',
+          instructions: 'Take one tablet by mouth daily',
           quantity: 30,
           medication_name: 'amLODIPine 5 mg tablet',
           id: 'dispense-1'
@@ -1255,7 +1255,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           status: 'completed',
           refill_date: '2025-01-29T14:30:00Z',
           facility_name: 'Portland VA Medical Center',
-          sig: 'Take one tablet by mouth daily',
+          instructions: 'Take one tablet by mouth daily',
           quantity: 30,
           medication_name: 'amLODIPine 5 mg tablet',
           id: 'dispense-2'

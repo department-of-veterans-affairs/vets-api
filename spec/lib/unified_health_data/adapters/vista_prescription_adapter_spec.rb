@@ -418,7 +418,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           refill_date: '2025-07-14T04:00:00.000Z',
           refill_submit_date: '2025-07-13T04:00:00.000Z',
           facility_name: 'Salt Lake City VAMC',
-          sig: 'Take one tablet by mouth twice daily',
+          instructions: 'Take one tablet by mouth twice daily',
           quantity: 60,
           medication_name: 'METFORMIN HCL 500MG TAB',
           id: 'dispense-1',
@@ -435,7 +435,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           status: 'dispensed',
           refill_date: '2025-07-15T04:00:00.000Z',
           facility_name: 'Salt Lake City VAMC',
-          sig: 'Take one tablet by mouth twice daily',
+          instructions: 'Take one tablet by mouth twice daily',
           quantity: 60,
           medication_name: 'METFORMIN HCL 500MG TAB',
           id: 'dispense-2'
