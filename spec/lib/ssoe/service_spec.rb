@@ -56,17 +56,18 @@ RSpec.describe SSOe::Service, type: :service do
     end
 
     context 'when the response has a client error' do
+      let(:error_message) { '[SSOe][Service] Common::Client::Errors::HTTPError - SOAP HTTP call failed' }
+
       it 'raises RequestError' do
         VCR.use_cassette('mpi/get_traits/error') do
-          expect { get_traits }.to raise_error(SSOe::Errors::RequestError) do |error|
-            expect(error.message).to include('[SSOe][Service]')
-            expect(error.message).to include('SOAP HTTP call failed')
-          end
+          expect { get_traits }.to raise_error(SSOe::Errors::RequestError).with_message(error_message)
         end
       end
     end
 
     context 'when the response contains a SOAP fault' do
+      let(:error_message) { '[SSOe][Service] SOAP Fault - Internal Server Error (Code: env:Server)' }
+
       it 'raises ParsingError', vcr: false do
         fault_xml = Ox.parse(<<~XML)
           <Envelope>
@@ -82,77 +83,70 @@ RSpec.describe SSOe::Service, type: :service do
         fault_response = double(body: fault_xml)
         allow_any_instance_of(described_class).to receive(:perform).and_return(fault_response)
 
-        expect { get_traits }.to raise_error(SSOe::Errors::ParsingError) do |error|
-          expect(error.message).to include('Internal Server Error')
-          expect(error.message).to include('env:Server')
-        end
+        expect { get_traits }.to raise_error(SSOe::Errors::ParsingError).with_message(error_message)
       end
     end
 
     context 'when the response is unparseable' do
+      let(:error_message) { '[SSOe][Service] Unable to parse SOAP response' }
+
       it 'raises ParsingError', vcr: false do
         bad_response = double(body: '<unexpected>response</unexpected>')
         allow_any_instance_of(described_class).to receive(:perform).and_return(bad_response)
 
-        expect do
-          get_traits
-        end.to raise_error(SSOe::Errors::ParsingError, '[SSOe][Service] Unable to parse SOAP response')
+        expect { get_traits }.to raise_error(SSOe::Errors::ParsingError).with_message(error_message)
       end
     end
 
     context 'when there is a connection error' do
+      let(:error_message) { '[SSOe][Service] Faraday::ConnectionFailed - Connection error' }
+
       before do
         allow_any_instance_of(described_class).to receive(:perform)
           .and_raise(Faraday::ConnectionFailed.new('Connection error'))
       end
 
       it 'raises ServerError' do
-        expect { get_traits }.to raise_error(SSOe::Errors::ServerError) do |error|
-          expect(error.message).to start_with('[SSOe][Service]')
-          expect(error.message).to include('Faraday::ConnectionFailed')
-          expect(error.message).to include('Connection error')
-        end
+        expect { get_traits }.to raise_error(SSOe::Errors::ServerError).with_message(error_message)
       end
     end
 
     context 'when there is a timeout error' do
+      let(:error_message) { '[SSOe][Service] Faraday::TimeoutError - Timeout error' }
+
       before do
         allow_any_instance_of(described_class).to receive(:perform)
           .and_raise(Faraday::TimeoutError.new('Timeout error'))
       end
 
       it 'raises ServerError' do
-        expect { get_traits }.to raise_error(SSOe::Errors::ServerError) do |error|
-          expect(error.message).to include('Faraday::TimeoutError')
-          expect(error.message).to include('Timeout error')
-        end
+        expect { get_traits }.to raise_error(SSOe::Errors::ServerError).with_message(error_message)
       end
     end
 
     context 'when there is a gateway timeout' do
+      let(:error_message) { '[SSOe][Service] Common::Exceptions::GatewayTimeout - Gateway timeout' }
+
       before do
         allow_any_instance_of(described_class).to receive(:perform)
           .and_raise(Common::Exceptions::GatewayTimeout.new('Gateway timeout'))
       end
 
       it 'raises ServerError' do
-        expect { get_traits }.to raise_error(SSOe::Errors::ServerError) do |error|
-          expect(error.message).to include('Common::Exceptions::GatewayTimeout')
-        end
+        expect { get_traits }.to raise_error(SSOe::Errors::ServerError).with_message(error_message)
       end
     end
 
     context 'when an unexpected error occurs', vcr: false do
+      let(:error_message) { '[SSOe][Service] StandardError - Unexpected error' }
+
       before do
         allow_any_instance_of(Common::Client::Base).to receive(:perform)
           .and_raise(StandardError, 'Unexpected error')
       end
 
       it 'raises generic Error' do
-        expect { get_traits }.to raise_error(SSOe::Errors::Error) do |error|
-          expect(error.message).to include('StandardError')
-          expect(error.message).to include('Unexpected error')
-        end
+        expect { get_traits }.to raise_error(SSOe::Errors::Error).with_message(error_message)
       end
     end
   end
