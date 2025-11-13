@@ -45,7 +45,7 @@ module UnifiedHealthData
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
           is_refillable: extract_is_refillable(resource),
-          cmop_ndc_number: nil # Not available in Oracle Health
+          cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
 
