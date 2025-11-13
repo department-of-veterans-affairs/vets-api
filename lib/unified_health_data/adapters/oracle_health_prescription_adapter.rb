@@ -62,7 +62,7 @@ module UnifiedHealthData
           facility_phone_number: extract_facility_phone_number(resource),
           prescription_source: extract_prescription_source(resource),
           category: extract_category(resource),
-          provider_name: extract_provider_name(resource)
+          provider_name: extract_provider_name(resource),
           remarks: extract_remarks(resource)
         }
       end
