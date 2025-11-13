@@ -59,7 +59,7 @@ module UnifiedHealthData
           instructions: medication['sig'],
           facility_phone_number: medication['cmopDivisionPhone'],
           prescription_source: medication['prescriptionSource'],
-          provider_name: build_provider_name(medication)
+          provider_name: build_provider_name(medication),
           remarks: medication['remarks']
         }
       end
