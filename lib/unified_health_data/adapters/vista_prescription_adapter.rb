@@ -20,10 +20,12 @@ module UnifiedHealthData
 
       def build_prescription_attributes(medication)
         tracking_data = build_tracking_information(medication)
+        dispenses_data = build_dispenses_information(medication)
 
         build_core_attributes(medication)
           .merge(build_tracking_attributes(tracking_data, medication))
           .merge(build_contact_and_source_attributes(medication))
+          .merge(dispenses: dispenses_data)
       end
 
       def build_core_attributes(medication)
@@ -101,6 +103,36 @@ module UnifiedHealthData
             station_number: prescription['stationNumber']
           }
         end
+      end
+
+      def build_dispenses_information(medication)
+        rf_records = medication['rxRFRecords'] || []
+        return [] unless rf_records.is_a?(Array)
+
+        rf_records.filter_map do |record|
+          next unless record.is_a?(Hash)
+
+          build_dispense_attributes(record)
+        end
+      end
+
+      def build_dispense_attributes(record)
+        {
+          status: record['refillStatus'],
+          refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
+          facility_name: record['facilityName'],
+          instructions: record['sig'],
+          quantity: record['quantity'],
+          medication_name: record['prescriptionName'],
+          id: record['id'],
+          refill_submit_date: convert_to_iso8601(record['refillSubmitDate'], field_name: 'refill_submit_date'),
+          prescription_number: record['prescriptionNumber'],
+          cmop_division_phone: record['cmopDivisionPhone'],
+          cmop_ndc_number: record['cmopNdcNumber'],
+          remarks: record['remarks'],
+          dial_cmop_division_phone: record['dialCmopDivisionPhone'],
+          disclaimer: record['disclaimer']
+        }
       end
 
       def convert_to_iso8601(date_string, field_name:)

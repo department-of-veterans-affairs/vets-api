@@ -22,10 +22,12 @@ module UnifiedHealthData
 
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
+        dispenses_data = build_dispenses_information(resource)
 
         build_core_attributes(resource)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(resource))
+          .merge(dispenses: dispenses_data)
       end
 
       def build_core_attributes(resource)
@@ -100,6 +102,48 @@ module UnifiedHealthData
           carrier:,
           other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
         }
+      end
+
+      def build_dispenses_information(resource)
+        contained_resources = resource['contained'] || []
+        dispenses = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'MedicationDispense' }
+
+        dispenses.map do |dispense|
+          {
+            status: dispense['status'],
+            refill_date: dispense['whenHandedOver'],
+            facility_name: extract_facility_name_from_dispense(resource, dispense),
+            instructions: extract_sig_from_dispense(dispense),
+            quantity: dispense.dig('quantity', 'value'),
+            medication_name: dispense.dig('medicationCodeableConcept', 'text'),
+            id: dispense['id'],
+            refill_submit_date: nil,
+            prescription_number: nil,
+            cmop_division_phone: nil,
+            cmop_ndc_number: nil,
+            remarks: nil,
+            dial_cmop_division_phone: nil,
+            disclaimer: nil
+          }
+        end
+      end
+
+      def extract_facility_name_from_dispense(_resource, dispense)
+        # Create a temporary resource with just this dispense to use existing extract_facility_name
+        temp_resource = { 'contained' => [dispense] }
+        extract_facility_name(temp_resource)
+      end
+
+      def extract_sig_from_dispense(dispense)
+        dosage_instructions = dispense['dosageInstruction'] || []
+        return nil if dosage_instructions.empty?
+
+        # Concatenate all dosage instruction texts
+        texts = dosage_instructions.filter_map do |instruction|
+          instruction['text'] if instruction.is_a?(Hash)
+        end
+
+        texts.empty? ? nil : texts.join(' ')
       end
 
       def find_identifier_value(identifiers, type_text)

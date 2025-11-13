@@ -474,6 +474,160 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
     end
   end
 
+  describe '#build_dispenses_information' do
+    context 'with rxRFRecords present' do
+      let(:medication_with_dispenses) do
+        base_vista_medication.merge(
+          'rxRFRecords' => [
+            {
+              'id' => 'dispense-1',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+              'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'Salt Lake City VAMC',
+              'sig' => 'Take one tablet by mouth twice daily',
+              'quantity' => 60,
+              'prescriptionName' => 'METFORMIN HCL 500MG TAB',
+              'prescriptionNumber' => 'RX123456',
+              'cmopDivisionPhone' => '555-1234',
+              'cmopNdcNumber' => '00093-1058-01',
+              'remarks' => 'Test remarks',
+              'dialCmopDivisionPhone' => '5551234',
+              'disclaimer' => 'Test disclaimer'
+            },
+            {
+              'id' => 'dispense-2',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'Salt Lake City VAMC',
+              'sig' => 'Take one tablet by mouth twice daily',
+              'quantity' => 60,
+              'prescriptionName' => 'METFORMIN HCL 500MG TAB'
+            }
+          ]
+        )
+      end
+
+      it 'returns dispenses information with all fields' do
+        result = subject.send(:build_dispenses_information, medication_with_dispenses)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+
+        first_dispense = result.first
+        expect(first_dispense).to include(
+          status: 'dispensed',
+          refill_date: '2025-07-14T04:00:00.000Z',
+          refill_submit_date: '2025-07-13T04:00:00.000Z',
+          facility_name: 'Salt Lake City VAMC',
+          instructions: 'Take one tablet by mouth twice daily',
+          quantity: 60,
+          medication_name: 'METFORMIN HCL 500MG TAB',
+          id: 'dispense-1',
+          prescription_number: 'RX123456',
+          cmop_division_phone: '555-1234',
+          cmop_ndc_number: '00093-1058-01',
+          remarks: 'Test remarks',
+          dial_cmop_division_phone: '5551234',
+          disclaimer: 'Test disclaimer'
+        )
+
+        second_dispense = result.second
+        expect(second_dispense).to include(
+          status: 'dispensed',
+          refill_date: '2025-07-15T04:00:00.000Z',
+          facility_name: 'Salt Lake City VAMC',
+          instructions: 'Take one tablet by mouth twice daily',
+          quantity: 60,
+          medication_name: 'METFORMIN HCL 500MG TAB',
+          id: 'dispense-2'
+        )
+        # Verify new fields default to nil when not present
+        expect(second_dispense[:refill_submit_date]).to be_nil
+        expect(second_dispense[:prescription_number]).to be_nil
+        expect(second_dispense[:cmop_division_phone]).to be_nil
+        expect(second_dispense[:cmop_ndc_number]).to be_nil
+        expect(second_dispense[:remarks]).to be_nil
+        expect(second_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(second_dispense[:disclaimer]).to be_nil
+      end
+
+      it 'includes dispenses in parsed prescription' do
+        result = subject.parse(medication_with_dispenses)
+        expect(result.dispenses.length).to eq(2)
+        expect(result.dispenses.first[:status]).to eq('dispensed')
+      end
+    end
+
+    context 'with no rxRFRecords' do
+      it 'returns empty array when rxRFRecords is nil' do
+        result = subject.send(:build_dispenses_information, base_vista_medication)
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when rxRFRecords is empty array' do
+        medication_empty_dispenses = base_vista_medication.merge('rxRFRecords' => [])
+        result = subject.send(:build_dispenses_information, medication_empty_dispenses)
+        expect(result).to eq([])
+      end
+
+      it 'includes empty dispenses array in parsed prescription' do
+        result = subject.parse(base_vista_medication)
+        expect(result.dispenses).to eq([])
+      end
+    end
+
+    context 'with invalid rxRFRecords format' do
+      let(:medication_invalid_dispenses) do
+        base_vista_medication.merge('rxRFRecords' => 'not-an-array')
+      end
+
+      it 'returns empty array when rxRFRecords is not an array' do
+        result = subject.send(:build_dispenses_information, medication_invalid_dispenses)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'with non-hash elements in rxRFRecords' do
+      let(:medication_with_invalid_records) do
+        base_vista_medication.merge(
+          'rxRFRecords' => [
+            {
+              'id' => 'valid-1',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'Test Facility',
+              'sig' => 'Take as directed',
+              'quantity' => 30,
+              'prescriptionName' => 'Test Med'
+            },
+            'invalid-string-element',
+            nil,
+            123,
+            {
+              'id' => 'valid-2',
+              'refillStatus' => 'dispensed',
+              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+              'facilityName' => 'Test Facility',
+              'sig' => 'Take as directed',
+              'quantity' => 30,
+              'prescriptionName' => 'Test Med'
+            }
+          ]
+        )
+      end
+
+      it 'filters out non-hash elements and only returns valid dispenses' do
+        result = subject.send(:build_dispenses_information, medication_with_invalid_records)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+        expect(result.first[:id]).to eq('valid-1')
+        expect(result.second[:id]).to eq('valid-2')
+      end
+    end
+  end
+
   describe 'Vista prescription with tracking integration' do
     let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
     let(:vista_trackable_response) do
