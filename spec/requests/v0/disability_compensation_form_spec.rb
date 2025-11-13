@@ -506,11 +506,13 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             expect(context[:submission_id]).to be > 0
             expect(context[:completely_removed]).to be(false)
             expect(context[:removed_keys]).to eq(['gulfWar2001'])
+            expect(context[:tags]).to eq(['form_id:21-526EZ-ALLCLAIMS'])
 
             # Verify none of the values are filtered
             expect(context[:submission_id]).not_to eq('[FILTERED]')
             expect(context[:completely_removed]).not_to eq('[FILTERED]')
             expect(context[:removed_keys]).not_to eq('[FILTERED]')
+            expect(context[:tags]).not_to eq('[FILTERED]')
           end
         end
 
