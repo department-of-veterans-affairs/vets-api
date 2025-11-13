@@ -51,7 +51,10 @@ module Eps
       Rails.logger.warn("#{CC_APPOINTMENTS}: EPS appointment error", {
                           error_type: error_value,
                           method: method_name,
-                          status: response.status || 'unknown'
+                          status: response.status || 'unknown',
+                          controller: controller_name,
+                          station_number:,
+                          eps_trace_id:
                         })
 
       raise_eps_error(error_value, response)
@@ -62,13 +65,43 @@ module Eps
         service: 'EPS',
         method: method_name,
         error_class: e.class.name,
-        timestamp: Time.current.iso8601
+        timestamp: Time.current.iso8601,
+        controller: controller_name,
+        station_number:,
+        eps_trace_id:
       }.merge(parse_eps_backend_fields(e.message.to_s)).compact
 
       Rails.logger.error("#{CC_APPOINTMENTS}: EPS service error", error_context)
     end
 
     private
+
+    ##
+    # Returns the controller name from RequestStore for logging context
+    #
+    # @return [String, nil] The controller name or nil if not set
+    #
+    def controller_name
+      RequestStore.store['controller_name']
+    end
+
+    ##
+    # Returns the user's primary station number (first treatment facility ID) for logging context
+    #
+    # @return [String, nil] The station number or nil if not available
+    #
+    def station_number
+      user&.va_treatment_facility_ids&.first
+    end
+
+    ##
+    # Returns the EPS trace ID from RequestStore
+    #
+    # @return [String, nil] The trace ID or nil if not set
+    #
+    def eps_trace_id
+      RequestStore.store['eps_trace_id']
+    end
 
     def parse_eps_backend_fields(raw_message)
       # Extract code from the top level
