@@ -47,10 +47,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/fhir_client.git
-  revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
-  tag: v6.0.0
+  revision: 81d0c0c98f317e7ad25c8211011d81f52d6e31a2
+  tag: v6.1.0
   specs:
-    fhir_client (6.0.0)
+    fhir_client (6.1.0)
       activesupport (>= 3)
       addressable (>= 2.3)
       fhir_dstu2_models (>= 1.1.1)
@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 40ba7a29e498c7a98756d8934d578b89917d6244
+  revision: 78c6261c69724f9fcc5db119ee631c19c67a8c7b
   branch: master
   specs:
-    vets_json_schema (25.2.21)
+    vets_json_schema (25.2.22)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -243,15 +243,15 @@ GEM
       fiddle
     ast (2.4.3)
     attr_extras (7.1.0)
-    avro (1.12.0)
+    avro (1.12.1)
       multi_json (~> 1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.4.0)
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1173.0)
-    aws-sdk-core (3.233.0)
+    aws-partitions (1.1181.0)
+    aws-sdk-core (3.237.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -262,15 +262,15 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.114.0)
-      aws-sdk-core (~> 3, >= 3.231.0)
+    aws-sdk-kms (1.117.0)
+      aws-sdk-core (~> 3, >= 3.234.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.199.1)
-      aws-sdk-core (~> 3, >= 3.231.0)
+    aws-sdk-s3 (1.203.1)
+      aws-sdk-core (~> 3, >= 3.234.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.106.0)
-      aws-sdk-core (~> 3, >= 3.231.0)
+    aws-sdk-sns (1.108.0)
+      aws-sdk-core (~> 3, >= 3.234.0)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -281,7 +281,7 @@ GEM
     base64 (0.3.0)
     bcp47 (0.3.3)
       i18n
-    benchmark (0.4.1)
+    benchmark (0.5.0)
     bigdecimal (3.3.1)
     bigdecimal (3.3.1-java)
     bindex (0.8.1)
@@ -347,7 +347,7 @@ GEM
     coverband (6.1.5)
       base64
       redis (>= 3.0)
-    crack (1.0.0)
+    crack (1.0.1)
       bigdecimal
       rexml
     crass (1.0.6)
@@ -372,15 +372,15 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.21.0)
+    datadog (2.22.0)
       datadog-ruby_core_source (~> 3.4, >= 3.4.1)
-      libdatadog (~> 18.1.0.1.0)
-      libddwaf (~> 1.24.1.2.1)
+      libdatadog (~> 22.0.1.1.0)
+      libddwaf (~> 1.25.1.1.0)
       logger
       msgpack
     datadog-ruby_core_source (3.4.1)
-    date (3.4.1)
-    date (3.4.1-java)
+    date (3.5.0)
+    date (3.5.0-java)
     date_time_precision (0.8.1)
     date_validator (0.12.0)
       activemodel (>= 3)
@@ -440,13 +440,14 @@ GEM
       dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
-    erb (5.0.2)
-    erb (5.0.2-java)
+    erb (6.0.0)
+    erb (6.0.0-java)
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
-    ethon (0.17.0)
+    ethon (0.18.0)
       ffi (>= 1.15.0)
+      logger
     factory_bot (6.5.5)
       activesupport (>= 6.1.0)
     factory_bot_rails (6.5.1)
@@ -454,7 +455,7 @@ GEM
       railties (>= 6.1.0)
     faker (3.5.2)
       i18n (>= 1.8.11, < 2)
-    faraday (2.13.4)
+    faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -602,7 +603,7 @@ GEM
       builder (>= 2.1.2)
       rexml (~> 3.0)
     hana (1.3.7)
-    hashdiff (1.1.2)
+    hashdiff (1.2.1)
     hashery (2.1.2)
     hashie (5.0.0)
     hexapdf (1.4.1)
@@ -634,7 +635,7 @@ GEM
       ruby-vips (>= 2.0.17, < 3)
     io-console (0.8.1)
     io-console (0.8.1-java)
-    irb (1.15.2)
+    irb (1.15.3)
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
@@ -642,8 +643,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.5-java)
-    json (2.15.1)
-    json (2.15.1-java)
+    json (2.16.0)
+    json (2.16.0-java)
     json-schema (5.2.2)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -681,25 +682,25 @@ GEM
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    kms_encrypted (1.7.0)
-      activesupport (>= 7.1)
+    kms_encrypted (1.8.0)
+      activesupport (>= 7.2)
       base64
     kramdown (2.5.1)
       rexml (>= 3.3.9)
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.5)
-    libdatadog (18.1.0.1.0)
-    libdatadog (18.1.0.1.0-aarch64-linux)
-    libdatadog (18.1.0.1.0-x86_64-linux)
-    libddwaf (1.24.1.2.1)
+    libdatadog (22.0.1.1.0)
+    libdatadog (22.0.1.1.0-aarch64-linux)
+    libdatadog (22.0.1.1.0-x86_64-linux)
+    libddwaf (1.25.1.1.0)
       ffi (~> 1.0)
-    libddwaf (1.24.1.2.1-aarch64-linux)
+    libddwaf (1.25.1.1.0-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.24.1.2.1-x86_64-linux)
+    libddwaf (1.25.1.1.0-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.8.7)
+    liquid (5.10.0)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -734,7 +735,7 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.0)
+    minitest (5.26.1)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -835,7 +836,7 @@ GEM
       activerecord (>= 6.1)
       activesupport (>= 6.1)
     pkce_challenge (1.0.0)
-    pp (0.6.2)
+    pp (0.6.3)
       prettyprint
     prawn (2.4.0)
       pdf-core (~> 0.9.0)
@@ -930,7 +931,7 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
-    rake (13.3.0)
+    rake (13.3.1)
     ransack (4.4.1)
       activerecord (>= 7.2)
       activesupport (>= 7.2)
@@ -939,9 +940,10 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.9.0)
-    rdoc (6.14.2)
+    rdoc (6.15.1)
       erb
       psych (>= 4.0.0)
+      tsort
     redis (5.4.1)
       redis-client (>= 0.22.0)
     redis-client (0.25.1)
@@ -949,7 +951,7 @@ GEM
     redis-namespace (1.11.0)
       redis (>= 4)
     regexp_parser (2.11.3)
-    reline (0.6.2)
+    reline (0.6.3)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -966,7 +968,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.4.2)
+    rexml (3.4.4)
     rgeo (3.0.1)
     rgeo-activerecord (8.0.0)
       activerecord (>= 7.0)
@@ -1018,9 +1020,9 @@ GEM
       json-schema (>= 2.2, < 6.0)
       railties (>= 5.2, < 8.1)
       rspec-core (>= 2.14)
-    rswag-ui (2.16.0)
-      actionpack (>= 5.2, < 8.1)
-      railties (>= 5.2, < 8.1)
+    rswag-ui (2.17.0)
+      actionpack (>= 5.2, < 8.2)
+      railties (>= 5.2, < 8.2)
     rtesseract (3.1.4)
     rubocop (1.81.1)
       json (~> 2.3)
@@ -1093,12 +1095,12 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.17.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.27.1)
+    sentry-ruby (5.28.1)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
-    shoulda-matchers (6.5.0)
-      activesupport (>= 5.2.0)
+    shoulda-matchers (7.0.1)
+      activesupport (>= 7.1)
     shrine (3.6.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
@@ -1134,12 +1136,12 @@ GEM
     ssrf_filter (1.2.0)
     staccato (0.5.3)
     statsd-instrument (3.9.10)
-    stringio (3.1.7)
+    stringio (3.1.8)
     strong_migrations (2.5.0)
       activerecord (>= 7.1)
     strscan (3.1.5)
     strscan (3.1.5-java)
-    super_diff (0.16.0)
+    super_diff (0.17.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -1153,6 +1155,7 @@ GEM
     timecop (0.9.10)
     timeout (0.4.3)
     trailblazer-option (0.1.2)
+    tsort (0.2.0)
     ttfunk (1.7.0)
     typhoeus (1.4.1)
       ethon (>= 0.9.0)
@@ -1194,7 +1197,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.25.1)
+    webmock (3.26.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -1289,7 +1292,7 @@ DEPENDENCIES
   facilities_api!
   factory_bot_rails
   faker
-  faraday (~> 2.13)
+  faraday (~> 2.14)
   faraday-follow_redirects
   faraday-httpclient
   faraday-multipart
