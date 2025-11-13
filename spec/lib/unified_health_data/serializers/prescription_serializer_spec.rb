@@ -40,6 +40,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       facility_phone_number: '555-123-4567',
       prescription_source: 'VA',
       remarks: 'Patient should monitor blood sugar levels'
+      cmop_ndc_number: '00093721410'
     )
   end
 
@@ -75,6 +76,9 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
         tracking_number: '1Z999AA1234567890',
         carrier: 'UPS'
       )
+
+      # cmop_ndc_number
+      expect(attributes[:cmop_ndc_number]).to eq('00093721410')
     end
   end
 end
