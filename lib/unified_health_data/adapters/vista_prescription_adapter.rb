@@ -58,6 +58,7 @@ module UnifiedHealthData
         {
           instructions: medication['sig'],
           facility_phone_number: medication['cmopDivisionPhone'],
+          dial_cmop_division_phone: medication['dialCmopDivisionPhone'],
           prescription_source: medication['prescriptionSource'],
           provider_name: build_provider_name(medication),
           remarks: medication['remarks']

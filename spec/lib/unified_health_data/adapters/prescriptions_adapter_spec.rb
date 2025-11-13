@@ -29,6 +29,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'cmopDivisionPhone' => '555-1234',
       'providerLastName' => 'SMITH',
       'providerFirstName' => 'JOHN',
+      'dialCmopDivisionPhone' => '555-DIAL',
       'dataSourceSystem' => 'VISTA',
       'remarks' => 'TEST REMARKS FOR VISTA'
       'cmopNdcNumber' => '00093721410',
@@ -687,6 +688,22 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
         prescriptions = subject.parse(response)
         expect(prescriptions.first.provider_name).to eq('JOHN')
+      end
+    end
+
+    context 'dial_cmop_division_phone field' do
+      it 'maps dialCmopDivisionPhone from Vista prescriptions' do
+        prescriptions = subject.parse(unified_response)
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+
+        expect(vista_prescription.dial_cmop_division_phone).to eq('555-DIAL')
+      end
+
+      it 'sets dial_cmop_division_phone to null for Oracle Health prescriptions' do
+        prescriptions = subject.parse(unified_response)
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        expect(oracle_prescription.dial_cmop_division_phone).to be_nil
       end
     end
 
