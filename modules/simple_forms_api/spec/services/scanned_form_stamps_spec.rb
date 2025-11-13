@@ -36,11 +36,11 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
 
   FORMS_WITH_PAGE_1_STAMPS = ['21-0304'].freeze
 
-  describe '.has_stamps?' do
+  describe '.stamps?' do
     context 'for forms that need stamps' do
       FORMS_WITH_STAMPS.each do |form_number|
         it "returns true for #{form_number}" do
-          expect(described_class.has_stamps?(form_number)).to be true
+          expect(described_class.stamps?(form_number)).to be true
         end
       end
     end
@@ -48,14 +48,14 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
     context 'for forms that do not need stamps' do
       FORMS_WITHOUT_STAMPS.each do |form_number|
         it "returns false for #{form_number}" do
-          expect(described_class.has_stamps?(form_number)).to be false
+          expect(described_class.stamps?(form_number)).to be false
         end
       end
     end
 
     context 'for unknown forms' do
       it 'returns false for non-existent form' do
-        expect(described_class.has_stamps?('99-9999')).to be false
+        expect(described_class.stamps?('99-9999')).to be false
       end
     end
   end
@@ -121,16 +121,12 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
       it 'formats timestamp correctly' do
         stamp_config = described_class.new('21-0779')
         stamps = stamp_config.submission_date_stamps(timestamp)
-
-        # Verify timestamp is formatted and included in the stamps
         expect(stamps.any? { |stamp| stamp[:text].match?(/\d{2}:\d{2}/) }).to be true
       end
 
       it 'uses UTC timezone' do
         stamp_config = described_class.new('21-0779')
         stamps = stamp_config.submission_date_stamps(timestamp)
-
-        # Check that at least one stamp contains a formatted timestamp
         timestamp_stamp = stamps.find { |stamp| stamp[:text].match?(/\d{2}:\d{2}/) }
         expect(timestamp_stamp[:text]).to include('UTC')
       end
