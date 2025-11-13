@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'bgsv2/exceptions/service_exception'
+require 'bgs/monitor'
+
 module BGSV2
   module Exceptions
     module BGSErrors
@@ -26,14 +28,12 @@ module BGSV2
         end
 
         msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
-        tags = { team: 'vfs-ebenefits', service: 'bgs' }
-
-        return Rails.logger.warn(msg, tags) if status == :warn
+        return monitor.warn(msg, 'service_exception_warning') if status == :warn
 
         if oracle_error?(error:)
           log_oracle_errors!(error:)
         else
-          Rails.logger.error(error, tags)
+          monitor.error(error, 'service_exception')
         end
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
       end
@@ -57,18 +57,27 @@ module BGSV2
       # these errors separately because the original error message is so long that it obscures its only relevant
       # information and actually breaks Sentry's UI.
       def log_oracle_errors!(error:)
-        Rails.logger.error(
-          oracle_error_match_data(error:)[0],
-          { team: 'vfs-ebenefits', service: 'bgs' }
-        )
+        monitor.error(oracle_error_match_data(error:)[0], 'oracle_error')
       end
 
+      # Checks if an error contains an Oracle database error signature.
+      #
+      # @param error [Exception] The error to check for Oracle error patterns
+      # @return [Boolean] true if the error contains Oracle error patterns
       def oracle_error?(error:)
         oracle_error_match_data(error:)&.length&.positive?
       end
 
+      # Extracts Oracle error message using regex pattern matching.
+      #
+      # @param error [Exception] The error containing potential Oracle error message
+      # @return [MatchData, nil] MatchData object if Oracle error found, nil otherwise
       def oracle_error_match_data(error:)
         error.message.match(/ORA-.+?(?=\s*{prepstmnt)/m)
+      end
+
+      def monitor
+        @monitor ||= BGS::Monitor.new
       end
     end
   end

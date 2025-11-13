@@ -209,7 +209,7 @@ RSpec.describe BGSV2::VnpVeteran do
             claim_type: '130DPNEBNADJ'
           )
           expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
-                                                      { service: 'bgs', team: 'vfs-ebenefits' })
+                                                      include(service: 'bgs'))
           expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                       anything).at_least(:once)
           expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '123456789'))
@@ -229,7 +229,7 @@ RSpec.describe BGSV2::VnpVeteran do
             )
 
             expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
-                                                        { service: 'bgs', team: 'vfs-ebenefits' })
+                                                        include(service: 'bgs'))
             expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                         anything).at_least(:once)
             expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
@@ -251,8 +251,8 @@ RSpec.describe BGSV2::VnpVeteran do
             expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                         anything).at_least(:once)
             expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
-                                                        { service: 'bgs', team: 'vfs-ebenefits' })
-            expect(Rails.logger).to receive(:error).with('SSN is redacted!', { service: 'bgs', team: 'vfs-ebenefits' })
+                                                        include(service: 'bgs'))
+            expect(Rails.logger).to receive(:error).with('SSN is redacted!', include(service: 'bgs'))
             expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
             vnp_veteran.create
           end

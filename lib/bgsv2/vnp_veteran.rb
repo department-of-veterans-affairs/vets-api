@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'service'
+require 'bgs/monitor'
 
 module BGSV2
   class VnpVeteran
@@ -40,14 +41,14 @@ module BGSV2
     def create_person(participant)
       payload = { team: 'vfs-ebenefits', service: 'bgs' }
       if @veteran_info['ssn']&.length != 9
-        Rails.logger.info('Malformed SSN! Reassigning to User#ssn.', payload)
+        monitor.info('Malformed SSN! Reassigning to User#ssn.', 'vnp_veteran_ssn_fix', user_uuid: @user.uuid)
         @veteran_info['ssn'] = @user.ssn
       end
       ssn = @veteran_info['ssn']
       if ssn == '********'
-        Rails.logger.error('SSN is redacted!', payload)
+        monitor.error('SSN is redacted!', 'vnp_veteran_ssn_redacted', user_uuid: @user.uuid)
       elsif ssn.present? && ssn.length != 9
-        Rails.logger.error("SSN has #{ssn.length} digits!", payload)
+        monitor.error("SSN has #{ssn.length} digits!", 'vnp_veteran_ssn_invalid', user_uuid: @user.uuid)
       end
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
@@ -93,6 +94,10 @@ module BGSV2
 
     def bgs_service
       BGSV2::Service.new(@user)
+    end
+
+    def monitor
+      @monitor ||= BGS::Monitor.new
     end
   end
 end
