@@ -1,0 +1,67 @@
+{
+  "veteranInformation": {
+    "fullName": {
+      "first": "John",
+      "middle": "M",
+      "last": "Doe"
+    },
+    "ssn": "123456789",
+    "vaServiceNumber": "987654321",
+    "vaFileNumber": "987654321",
+    "dateOfBirth": "1950-01-01",
+    "dateOfDeath": "2024-01-15",
+    "placeOfBirth": {
+      "city": "Kansas City",
+      "state": "MO"
+    }
+  },
+  "veteranServicePeriods": {
+    "periods": [
+      {
+        "serviceBranch": "Army",
+        "dateEnteredService": "1968-06-01",
+        "placeEnteredService": "Fort Benning, GA",
+        "rankAtSeparation": "Sergeant",
+        "dateLeftService": "1972-05-31",
+        "placeLeftService": "Fort Hood, TX"
+      },
+      {
+        "serviceBranch": "Air Force",
+        "dateEnteredService": "1972-06-01",
+        "placeEnteredService": "Fort Benning, GA",
+        "rankAtSeparation": "Sergeant",
+        "dateLeftService": "1976-05-31",
+        "placeLeftService": "Fort Hood, TX"
+      }
+    ],
+    "servedUnderDifferentName": "Rusty Shackleford"
+  },
+  "burialInformation": {
+    "nameOfStateCemeteryOrTribalOrganization": "Missouri State Veterans Cemetery",
+    "placeOfBurial": {
+      "stateCemeteryOrTribalCemeteryName": "Missouri State Veterans Cemetery",
+      "stateCemeteryOrTribalCemeteryLocation": "Higginsville, MO"
+    },
+    "dateOfBurial": "2024-01-18",
+    "recipientOrganization": {
+      "name": "Missouri Veterans Commission",
+      "phoneNumber": "555-123-4567",
+      "address": {
+        "streetAndNumber": "2400 Veterans Memorial Drive",
+        "aptOrUnitNumber": "123",
+        "city": "Higginsville",
+        "state": "MO",
+        "country": "US",
+        "postalCode": "64037",
+        "postalCodeExtension": "1234"
+      }
+    }
+  },
+  "certification": {
+    "titleOfStateOrTribalOfficial": "Director of Veterans Services",
+    "signature": "John M. Smith",
+    "certified": true
+  },
+  "remarks": "Application for state cemetery burial allowance"
+}
+

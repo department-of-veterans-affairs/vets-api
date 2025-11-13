@@ -20,9 +20,7 @@ module DecisionReviews
     def on_delivered
       update_database
 
-      if email? && email_type.to_s == 'error'
-        monitor.log_silent_failure_avoided(context, email_confirmed: true, call_location:)
-      end
+      monitor.log_silent_failure_avoided(context, call_location:) if email? && email_type.to_s == 'error'
     end
 
     # notification has permanently failed

@@ -3,6 +3,7 @@
 require 'sign_in/public_jwks'
 require 'sign_in/idme/configuration'
 require 'sign_in/idme/errors'
+require 'sign_in/credential_attributes_digester'
 require 'mockdata/writer'
 
 module SignIn
@@ -21,12 +22,15 @@ module SignIn
         super()
       end
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1, operation: Constants::Auth::AUTHORIZE)
-        scoped_acr = append_optional_scopes(acr)
+      def render_auth(state: SecureRandom.hex,
+                      acr: { acr: Constants::Auth::IDME_LOA1 },
+                      operation: Constants::Auth::AUTHORIZE)
+        scoped_acr = append_optional_scopes(acr[:acr])
         Rails.logger.info('[SignIn][Idme][Service] Rendering auth, ' \
                           "state: #{state}, acr: #{scoped_acr}, operation: #{operation}")
 
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(scoped_acr, state, operation)).perform
+        RedirectUrlGenerator.new(redirect_uri: auth_url,
+                                 params_hash: auth_params(scoped_acr, acr[:acr_comparison], state, operation)).perform
       end
 
       def normalized_attributes(user_info, credential_level)
@@ -38,7 +42,10 @@ module SignIn
                      when Constants::Auth::MHV
                        mhv_attributes(user_info)
                      end
-        attributes.merge(standard_attributes(user_info, credential_level))
+
+        attributes.merge(standard_attributes(user_info, credential_level)).tap do |attrs|
+          attrs[:digest] = credential_attributes_digest(attrs)
+        end
       end
 
       def token(code)
@@ -61,15 +68,20 @@ module SignIn
 
       private
 
-      def auth_params(acr, state, operation)
+      def auth_params(acr, acr_comparison, state, operation)
         {
           scope: acr,
           state:,
           client_id: config.client_id,
           redirect_uri: config.redirect_uri,
           response_type: config.response_type,
+          acr_values: format_acr_comparison(acr_comparison),
           op: convert_operation(operation)
         }.compact
+      end
+
+      def format_acr_comparison(acr_comparison)
+        acr_comparison ? "#{acr_comparison} #{Constants::Auth::IDME_LOA1}" : nil
       end
 
       def convert_operation(operation)
@@ -216,6 +228,16 @@ module SignIn
 
       def valid_optional_scopes(optional_scopes)
         optional_scopes.to_a & OPTIONAL_SCOPES
+      end
+
+      def credential_attributes_digest(attributes)
+        SignIn::CredentialAttributesDigester.new(credential_uuid: attributes[:idme_uuid],
+                                                 first_name: attributes[:first_name],
+                                                 last_name: attributes[:last_name],
+                                                 ssn: attributes[:ssn],
+                                                 birth_date: attributes[:birth_date],
+                                                 email: attributes[:csp_email],
+                                                 address: attributes[:address]).perform
       end
     end
   end

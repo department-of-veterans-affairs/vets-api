@@ -30,6 +30,11 @@ module UnifiedHealthData
       perform(:get, path, nil, request_headers)
     end
 
+    def get_vitals_by_date(patient_id:, start_date:, end_date:)
+      path = "#{config.base_path}vitals?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      perform(:get, path, nil, request_headers)
+    end
+
     def get_prescriptions_by_date(patient_id:, start_date:, end_date:)
       path = "#{config.base_path}medications?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
       perform(:get, path, nil, request_headers)
@@ -43,6 +48,12 @@ module UnifiedHealthData
     def get_avs(patient_id:, appt_id:)
       path = "#{config.base_path}appointments/#{appt_id}/avs?patientId=#{patient_id}"
       perform(:get, path, nil, request_headers)
+    end
+
+    def get_ccd(patient_id:, start_date:, end_date:)
+      path = "#{config.base_path}ccd"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date }
+      perform(:get, path, params, request_headers)
     end
 
     private
