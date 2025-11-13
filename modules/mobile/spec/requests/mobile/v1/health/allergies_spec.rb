@@ -53,7 +53,8 @@ RSpec.describe 'Mobile::V1::AllergyIntolerances', :skip_json_api_validation, typ
 
       it 'returns a successful response with when given pagination params' do
         VCR.use_cassette('unified_health_data/get_allergies_200', match_requests_on: %i[method path]) do
-          get '/mobile/v1/health/allergy-intolerances?page[number]=1&page[size]=100', headers: sis_headers
+          get '/mobile/v1/health/allergy-intolerances?page[number]=1&page[size]=100',
+              headers: sis_headers
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)

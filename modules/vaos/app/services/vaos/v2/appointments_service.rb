@@ -727,8 +727,8 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        fetch_avs_and_update_appt_body(appt: appointment, binary: include[:binary]) if avs_applicable?(appointment,
-                                                                                                       include[:avs])
+        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment,
+                                                                       include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
@@ -893,12 +893,12 @@ module VAOS
         avs_path(data[:sid])
       end
 
-      def get_avs_pdf(appt, binary)
+      def get_avs_pdf(appt)
         cerner_system_id = extract_cerner_identifier(appt)
 
         return nil if cerner_system_id.nil?
 
-        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: binary)
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: true)
 
         return nil if avs_resp.empty? || avs_resp.nil?
 
@@ -911,14 +911,12 @@ module VAOS
       #
       # @param [Hash] appt The object representing the appointment. Must be an object that allows hash-like access
       #
-      # @param [boolean] binary Indicates if Oracle Health AVS binary data should be returned for cerner appts
-      #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
-      def fetch_avs_and_update_appt_body(appt:, binary: false)
+      def fetch_avs_and_update_appt_body(appt)
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
-          avs_pdf = get_avs_pdf(appt, binary)
+          avs_pdf = get_avs_pdf(appt)
           appt[:avs_pdf] = avs_pdf
         else
           avs_link = get_avs_link(appt)
