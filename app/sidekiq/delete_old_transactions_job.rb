@@ -22,7 +22,8 @@ class DeleteOldTransactionsJob
       )
 
       log_message_to_rails(
-        'DeleteOldTransactionsJob raised an exception', :info)
+        'DeleteOldTransactionsJob raised an exception', :info
+      )
       end
   end
   # :nocov:

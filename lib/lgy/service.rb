@@ -52,7 +52,8 @@ module LGY
         )
 
         log_message_to_rails(
-          'Unexpected COE statuses!', :error)
+          'Unexpected COE statuses!', :error
+        )
         nil
       end
     end
@@ -104,7 +105,8 @@ module LGY
       )
 
       log_message_to_rails(
-        "COE application submission failed with http status: #{e.status}", :error)
+        "COE application submission failed with http status: #{e.status}", :error
+      )
       raise e
     end
 

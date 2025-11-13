@@ -21,7 +21,6 @@ class SavedClaim::DependencyVerificationClaim < CentralMailClaim
 
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
 
-
     log_message_to_rails(guid, :warn)
     process_attachments!
   end

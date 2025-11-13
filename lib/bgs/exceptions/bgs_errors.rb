@@ -66,7 +66,8 @@ module BGS
           )
 
           log_message_to_rails(
-            oracle_error_match_data[0], :error)
+            oracle_error_match_data[0], :error
+          )
         end
       end
     end
