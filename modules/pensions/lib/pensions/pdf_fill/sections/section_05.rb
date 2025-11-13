@@ -96,7 +96,16 @@ module Pensions
       # Note: This method modifies `form_data`
       #
       def expand(form_data)
-        # Add expansion logic here
+        form_data['currentEmployment'] = to_radio_yes_no(form_data['currentEmployment'])
+
+        form_data['previousEmployers'] = form_data['previousEmployers']&.map do |pe|
+          pe.merge({
+                     'jobDate' => split_date(pe['jobDate']),
+                     'jobDateOverflow' => to_date_string(pe['jobDate'])
+                   })
+        end
+
+        form_data['currentEmployers'] = nil if form_data['currentEmployment'] == 1
       end
     end
   end

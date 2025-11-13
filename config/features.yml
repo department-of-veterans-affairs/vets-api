@@ -22,10 +22,6 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_api:
-    actor_type: user
-    description: Enables the endpoints of the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_intent_to_file_api:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
@@ -143,7 +139,6 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
-    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -200,9 +195,6 @@ features:
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
-  hca_disable_sentry_logging:
-    actor_type: user
-    description: Disables Sentry logging in the 10-10EZ and 10-10EZR
   hca_health_facilities_update_job:
     actor_type: user
     description: Enables the health facilities import job - should only run daily by default in prod, staging, and sandbox.
@@ -678,6 +670,9 @@ features:
   decision_review_stuck_records_monitoring:
     actor_type: user
     description: Enables monitoring for stuck records in decision review applications
+  decision_review_sc_redesign_nov2025:
+    actor_type: user
+    description: Enables the Nov 2025 Supplemental Claims redesign
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1452,10 +1447,6 @@ features:
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
     description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
-    enable_in_development: true
-  mhv_medical_records_redact_fhir_client_logs:
-    actor_type: user
-    description: Replaces IDs in fhir_client INFO-level logs with X's when enabled
     enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
