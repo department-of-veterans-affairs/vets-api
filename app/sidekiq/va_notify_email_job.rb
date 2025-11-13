@@ -14,7 +14,7 @@ class VANotifyEmailJob
   # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
   sidekiq_options retry: 16
 
-  def perform(email, template_id, personalisation = nil)
+  def perform(email, template_id, personalisation = nil) # rubocop:disable Metrics/MethodLength
     notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
 
     notify_client.send_email(
