@@ -19,7 +19,7 @@ module TravelPay
     #
     # @return [Array<Symbol>] list of permitted parameter names
     def self.permitted_params
-      %i[trip_type requested_mileage receipt]
+      %i[trip_type requested_mileage]
     end
 
     # Returns the expense type for mileage expenses

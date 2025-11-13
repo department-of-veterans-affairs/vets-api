@@ -145,7 +145,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
   describe '.permitted_params' do
     it 'returns mileage-specific permitted parameters' do
       params = described_class.permitted_params
-      expect(params).to eq(%i[trip_type requested_mileage receipt])
+      expect(params).to eq(%i[trip_type requested_mileage])
     end
 
     it 'does not include base expense parameters' do
@@ -153,6 +153,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
       expect(params).not_to include(:purchase_date)
       expect(params).not_to include(:description)
       expect(params).not_to include(:cost_requested)
+      expect(params).not_to include(:receipt)
     end
 
     it 'overrides the base class permitted_params' do
