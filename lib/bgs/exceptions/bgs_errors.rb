@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'bgs/exceptions/service_exception'
+require 'vets/shared_logging'
 module BGS
   module Exceptions
     module BGSErrors
-      include SentryLogging
+      include Vets::SharedLogging
       MAX_ATTEMPTS = 3
 
       def with_multiple_attempts_enabled
@@ -32,6 +33,7 @@ module BGS
 
         log_oracle_errors!(error:)
         log_exception_to_sentry(error, {}, tags)
+        log_exception_to_rails(error)
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
       end
 
@@ -62,6 +64,9 @@ module BGS
             {},
             { team: 'vfs-ebenefits' }
           )
+
+          log_message_to_rails(
+            oracle_error_match_data[0], :error)
         end
       end
     end

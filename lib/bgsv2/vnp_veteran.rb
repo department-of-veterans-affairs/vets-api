@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require_relative 'service'
 
 module BGSV2
   class VnpVeteran
-    include SentryLogging
+    include Vets::SharedLogging
 
     def initialize(proc_id:, payload:, user:, claim_type:)
       @user = user
@@ -25,6 +27,8 @@ module BGSV2
       # consider removing :warn logs like this from Sentry.
       unless Rails.env.test?
         log_message_to_sentry("#{@proc_id}-#{claim_type_end_product}", :warn, '', { team: 'vfs-ebenefits' })
+
+        log_message_to_rails("#{@proc_id}-#{claim_type_end_product}", :warn)
       end
 
       address = create_address(participant)
@@ -59,6 +63,10 @@ module BGSV2
         log_message_to_sentry('SSN is redacted!', *sentry_params)
       elsif ssn.present? && ssn.length != 9
         log_message_to_sentry("SSN has #{ssn.length} digits!", *sentry_params)
+
+        log_message_to_rails('SSN is redacted!', *sentry_params)
+      elsif ssn.present? && ssn.length != 9
+        log_message_to_sentry("SSN has #{ssn.length} digits!")
       end
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)

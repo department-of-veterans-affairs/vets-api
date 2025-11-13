@@ -4,13 +4,14 @@ require_relative 'exceptions/bgs_errors'
 require 'common/client/concerns/monitoring'
 require 'logging/helper/data_scrubber'
 require 'logging/helper/parameter_filter'
+require 'vets/shared_logging'
 
 module BGSV2
   class Service
     STATSD_KEY_PREFIX = 'api.bgs'
 
     include BGSV2::Exceptions::BGSErrors
-    include SentryLogging
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
     include Logging::Helper::DataScrubber
     include Logging::Helper::ParameterFilter
@@ -49,6 +50,8 @@ module BGSV2
     def create_proc_form(vnp_proc_id, form_type_code)
       # Temporary log proc_id to sentry
       log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
+
+      log_message_to_rails(vnp_proc_id, :warn)
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
           log_and_return({ vnp_proc_id:, form_type_cd: form_type_code }.merge(bgs_auth))
