@@ -57,7 +57,7 @@ Rails.application.routes.draw do
 
     resources :form210779, only: [:create] do
       collection do
-        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
+        post :download_pdf
       end
     end
 
@@ -116,6 +116,14 @@ Rails.application.routes.draw do
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
+
+    resources :idp_documents, only: [:create] do
+      member do
+        get :status
+        get :output
+        get :download
+      end
+    end
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
