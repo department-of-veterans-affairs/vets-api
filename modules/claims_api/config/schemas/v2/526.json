@@ -612,7 +612,7 @@
               "maxItems": 2,
               "additionalProperties": false,
               "type": "string",
-              "enum": ["POW", "EMP", "RRD"]
+              "enum": ["POW", "EMP", "RRD", "HEPC"]
             }
           },
           "secondaryDisabilities": {
