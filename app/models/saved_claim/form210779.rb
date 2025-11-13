@@ -2,7 +2,7 @@
 
 class SavedClaim::Form210779 < SavedClaim
   FORM = '21-0779'
-  before_validation :duplicate_data_for_lighthouse
+  NURSING_HOME_DOCUMENT_TYPE = 222
 
   def process_attachments!
     # Form 21-0779 does not support user-uploaded attachments in MVP
@@ -18,7 +18,7 @@ class SavedClaim::Form210779 < SavedClaim
   # VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance
   # see LighthouseDocument::DOCUMENT_TYPES
   def document_type
-    222
+    NURSING_HOME_DOCUMENT_TYPE
   end
 
   def send_confirmation_email
@@ -31,34 +31,11 @@ class SavedClaim::Form210779 < SavedClaim
     # )
   end
 
-  def veteran_name
-    first = parsed_form.dig('veteranInformation', 'fullName', 'first')
-    last = parsed_form.dig('veteranInformation', 'fullName', 'last')
-    "#{first} #{last}".strip.presence || 'Veteran'
-  end
-
-  def send_to_benefits_intake_api
-    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
-  end
-
-  # Lighthouse::SubmitBenefitsIntakeClaim#generate_metadata makes the assumption that `claim.parsed_form`
-  # has the following attributes:
-  # {
-  #   veteranFullName: {first: "", last: ""}
-  #   vaFileNumber: "", # either vaFileNumber OR veteranSocialSecurityNumber if file number is null
-  #   veteranSocialSecurityNumber: "",
-  #   veteranAddress: {postalCode: ""} # or claimantAddress
-  # }
-
-  def duplicate_data_for_lighthouse
-    unless parsed_form['veteranFullName']
-      updated_form = parsed_form
-      updated_form['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
-      updated_form['veteranAddress'] = parsed_form.dig('nursingHomeInformation', 'nursingHomeAddress')
-      updated_form['vaFileNumber'] = parsed_form.dig('veteranInformation', 'veteranId', 'vaFileNumber')
-      updated_form['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'veteranId', 'ssn')
-      @parsed_form = updated_form # because parsed_form memoizes
-      self.form = updated_form.to_json
-    end
+  def metadata_for_benefits_intake
+    { veteranFirstName: parsed_form.dig('veteranInformation', 'fullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranInformation', 'fullName', 'last'),
+      fileNumber: parsed_form.dig('veteranInformation', 'veteranId', 'ssn'),
+      zipCode: parsed_form.dig('nursingHomeInformation', 'nursingHomeAddress', 'postalCode'),
+      businessLine: business_line }
   end
 end

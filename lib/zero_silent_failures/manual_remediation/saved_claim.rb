@@ -89,22 +89,27 @@ module ZeroSilentFailures
 
       # assemble metadata for _claim_
       # - inheritor should append to _super_ if needed
+
       def generate_metadata
         form = claim.parsed_form
         address = form['claimantAddress'] || form['veteranAddress']
-
-        {
+        metadata = {
           claimId: claim.id,
           docType: claim.form_id,
           formStartDate: claim.form_start_date,
           claimSubmissionDate: claim.created_at,
-          claimConfirmation: claim.guid,
-          veteranFirstName: form['veteranFullName']['first'],
-          veteranLastName: form['veteranFullName']['last'],
-          fileNumber: form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-          zipCode: address['postalCode'],
-          businessLine: claim.business_line
+          claimConfirmation: claim.guid
         }
+        if @claim.respond_to?(:metadata_for_benefits_intake) && @claim.metadata_for_benefits_intake.present?
+          metadata.merge!(@claim.metadata_for_benefits_intake)
+          return metadata
+        end
+        metadata.merge!({ veteranFirstName: form['veteranFullName']['first'],
+                          veteranLastName: form['veteranFullName']['last'],
+                          fileNumber: form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+                          zipCode: address['postalCode'],
+                          businessLine: claim.business_line })
+        metadata
       end
 
       # create the _claim_ metadata.json file

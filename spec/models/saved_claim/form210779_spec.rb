@@ -12,23 +12,18 @@ RSpec.describe SavedClaim::Form210779, type: :model do
     context 'with valid form data' do
       it 'validates successfully' do
         expect(claim).to be_valid
-        # attributes added before_validation
-        expect(claim.parsed_form['veteranFullName']).to be_present
-        expect(claim.parsed_form['veteranAddress']).to be_present
-        expect(claim.parsed_form['vaFileNumber']).to be_present
-        expect(claim.parsed_form['veteranSocialSecurityNumber']).to be_present
       end
     end
 
     context 'with invalid form data' do
       let(:form) { invalid_form_data }
 
-      it 'validates successfully' do
+      it 'fails validation' do
         expect(claim).to be_invalid
       end
     end
   end
-    
+
   describe '#send_confirmation_email' do
     it 'does not send email (MVP does not include email)' do
       expect(VANotify::EmailJob).not_to receive(:perform_async)
@@ -43,7 +38,7 @@ RSpec.describe SavedClaim::Form210779, type: :model do
   end
 
   describe '#document_type' do
-    it 'returns 119 for employment information' do
+    it 'returns 222 for nursing home' do
       expect(claim.document_type).to eq(222)
     end
   end
