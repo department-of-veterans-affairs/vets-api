@@ -3,12 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
+  include StatsD::Instrument::Helpers
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:fake_saved_claim) }
 
   describe '#perform' do
-    context 'with SavedClaim::Test and lots of stubs' do
+    context 'with SavedClaim::Test and many of stubs' do
       let(:service) { double('service') }
       let(:response) { double('response') }
       let(:pdf_path) { 'random/path/to/pdf' }
@@ -63,7 +64,32 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         expect { job.perform(claim.id) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
       end
     end
-    # perform
+
+    context 'With SavedClaim::SavedClaim::Form210779' do
+      let(:va210779claim) { create(:va210779) }
+      let(:job779) { described_class.new }
+
+      it 'submits the saved claim successfully' do
+        VCR.use_cassette('lighthouse/benefits_claims/submit210779') do
+          Sidekiq::Testing.inline! do
+            expect(job779).to receive(:create_form_submission_attempt)
+            expect(job779).to receive(:generate_metadata).once.and_call_original
+            expect(job779).to receive(:send_confirmation_email).once
+
+            metrics = capture_statsd_calls do
+              job779.perform(va210779claim.id)
+            end
+            puts metrics.collect(&:source)
+            expect(metrics.collect(&:source)).to include(
+              'saved_claim.create:1|c|#form_id:21-0779,doctype:222',
+              'worker.lighthouse.submit_benefits_intake_claim.success:1|c'
+            )
+            expect(va210779claim.form_submissions).not_to be_nil
+            expect(va210779claim.business_line).not_to be_nil
+          end
+        end
+      end
+    end
   end
 
   describe '#process_record' do
