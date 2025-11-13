@@ -2,7 +2,6 @@
 
 require 'common/client/middleware/response/json_parser'
 require 'evss/error_middleware'
-require 'sentry_logging'
 require 'vets/shared_logging'
 
 module EVSS

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'octokit'
-require 'sentry_logging'
 require 'vets/shared_logging'
 
 module Representatives

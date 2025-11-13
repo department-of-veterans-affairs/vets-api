@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'vets/shared_logging'
 
 module VAProfileRedis

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 require 'vets/shared_logging'
 require_relative 'names'
 

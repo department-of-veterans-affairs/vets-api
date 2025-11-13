@@ -2,7 +2,6 @@
 
 require_relative 'service'
 require_relative 'errors/ch31_errors'
-require 'sentry_logging'
 require 'vets/shared_logging'
 
 module RES
