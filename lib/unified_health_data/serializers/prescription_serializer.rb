@@ -27,7 +27,7 @@ module UnifiedHealthData
                  :prescription_source,
                  :instructions,
                  :facility_phone_number,
-                 :cmop_division_phone
+                 :cmop_division_phone,
                  :cmop_ndc_number
     end
   end
