@@ -64,6 +64,7 @@ module UnifiedHealthData
           dial_cmop_division_phone: nil,
           prescription_source: extract_prescription_source(resource),
           category: extract_category(resource),
+          provider_name: extract_provider_name(resource),
           indication_for_use: extract_indication_for_use(resource),
           remarks: extract_remarks(resource)
         }
@@ -271,6 +272,10 @@ module UnifiedHealthData
         end
 
         codes
+      end
+
+      def extract_provider_name(resource)
+        resource.dig('requester', 'display')
       end
 
       def extract_indication_for_use(resource)

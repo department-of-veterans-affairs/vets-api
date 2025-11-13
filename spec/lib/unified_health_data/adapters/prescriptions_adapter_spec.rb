@@ -27,6 +27,8 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'dispensedDate' => nil,
       'stationNumber' => '991',
       'cmopDivisionPhone' => '555-1234',
+      'providerLastName' => 'SMITH',
+      'providerFirstName' => 'JOHN',
       'dialCmopDivisionPhone' => '555-DIAL',
       'remarks' => 'TEST REMARKS FOR VISTA',
       'cmopNdcNumber' => '00093721410',
@@ -39,6 +41,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'id' => '15208365735',
       'status' => 'active',
       'authoredOn' => '2025-01-29T19:41:43Z',
+      'requester' => {
+        'reference' => 'Practitioner/12345',
+        'display' => 'Doe, Jane, MD'
+      },
       'medicationCodeableConcept' => {
         'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
       },
@@ -122,6 +128,20 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
         expect(vista_prescription).to be_present
         expect(oracle_prescription).to be_present
+      end
+
+      it 'extracts provider_name from VistA data' do
+        prescriptions = subject.parse(unified_response)
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+
+        expect(vista_prescription.provider_name).to eq('SMITH, JOHN')
+      end
+
+      it 'extracts provider_name from Oracle Health data' do
+        prescriptions = subject.parse(unified_response)
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        expect(oracle_prescription.provider_name).to eq('Doe, Jane, MD')
       end
 
       it 'sets cmop_division_phone correctly for both sources' do
@@ -621,6 +641,62 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       it 'excludes prescriptions if any category is inpatient' do
         prescriptions = subject.parse(response_with_inpatient_and_community)
         expect(prescriptions).to be_empty
+      end
+    end
+
+    context 'with missing provider information' do
+      let(:vista_medication_no_provider) do
+        vista_medication_data.except('providerLastName', 'providerFirstName')
+      end
+
+      let(:oracle_medication_no_requester) do
+        oracle_health_medication_data.except('requester')
+      end
+
+      let(:response_with_missing_providers) do
+        {
+          'vista' => { 'medicationList' => { 'medication' => [vista_medication_no_provider] } },
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_no_requester
+              }
+            ]
+          }
+        }
+      end
+
+      it 'handles missing provider data gracefully' do
+        prescriptions = subject.parse(response_with_missing_providers)
+
+        expect(prescriptions.size).to eq(2)
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        expect(vista_prescription.provider_name).to be_nil
+        expect(oracle_prescription.provider_name).to be_nil
+      end
+
+      it 'handles partial VistA provider data (only last name)' do
+        partial_data = vista_medication_data.except('providerFirstName')
+        response = {
+          'vista' => { 'medicationList' => { 'medication' => [partial_data] } },
+          'oracle-health' => nil
+        }
+
+        prescriptions = subject.parse(response)
+        expect(prescriptions.first.provider_name).to eq('SMITH')
+      end
+
+      it 'handles partial VistA provider data (only first name)' do
+        partial_data = vista_medication_data.except('providerLastName')
+        response = {
+          'vista' => { 'medicationList' => { 'medication' => [partial_data] } },
+          'oracle-health' => nil
+        }
+
+        prescriptions = subject.parse(response)
+        expect(prescriptions.first.provider_name).to eq('JOHN')
       end
     end
 
