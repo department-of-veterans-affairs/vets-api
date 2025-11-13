@@ -27,8 +27,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'dispensedDate' => nil,
       'stationNumber' => '991',
       'cmopDivisionPhone' => '555-1234',
-      'dataSourceSystem' => 'VISTA',
-      'remarks' => 'TEST REMARKS FOR VISTA'
+      'remarks' => 'TEST REMARKS FOR VISTA',
       'cmopNdcNumber' => '00093721410',
       'dataSourceSystem' => 'VISTA'
     }
