@@ -8,19 +8,37 @@ module BGS
   #
   class Monitor < ::Logging::Monitor
     DEFAULT_STATS_KEY = 'bgs'
+    ALLOWLIST = %w[
+      tags
+    ].freeze
 
     def initialize
-      super('bgs')
+      super('bgs', allowlist: ALLOWLIST)
     end
 
+    # Logs an info-level event with action and context
+    #
+    # @param message [String] Log message
+    # @param action [String] Action identifier for tagging
+    # @param context [Hash] Additional context for logging
     def info(message, action, **context)
       log_event(:info, message, action, **context)
     end
 
+    # Logs an error-level event with action and context
+    #
+    # @param message [String] Log message
+    # @param action [String] Action identifier for tagging
+    # @param context [Hash] Additional context for logging
     def error(message, action, **context)
       log_event(:error, message, action, **context)
     end
 
+    # Logs a warning-level event with action and context
+    #
+    # @param message [String] Log message
+    # @param action [String] Action identifier for tagging
+    # @param context [Hash] Additional context for logging
     def warn(message, action, **context)
       log_event(:warn, message, action, **context)
     end
@@ -33,10 +51,11 @@ module BGS
       track_request(level, message, stats_key, **context)
     end
 
-    # append tags to the context being logged
+    # Appends tags to the context being logged
     #
-    # @param context [Hash] the context being passed to the logger
-    # @param tags [Mixed] the list of tags to be appended - key:value
+    # @param context [Hash] Context being passed to the logger
+    # @param tags [Hash] Tags to append as key:value pairs
+    # @return [Hash] Updated context with appended tags
     def append_tags(context, **tags)
       context[:tags] ||= []
       tags.each { |k, v| context[:tags] += ["#{k}:#{v}"] }
@@ -44,9 +63,9 @@ module BGS
       context
     end
 
-    ##
     # Service name used for logging
-    # @return [String]
+    #
+    # @return [String] Service identifier
     def service_name
       'bgs'
     end

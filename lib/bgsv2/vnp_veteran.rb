@@ -39,7 +39,6 @@ module BGSV2
     private
 
     def create_person(participant)
-      payload = { team: 'vfs-ebenefits', service: 'bgs' }
       if @veteran_info['ssn']&.length != 9
         monitor.info('Malformed SSN! Reassigning to User#ssn.', 'vnp_veteran_ssn_fix', user_uuid: @user.uuid)
         @veteran_info['ssn'] = @user.ssn
