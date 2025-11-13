@@ -60,6 +60,7 @@ module UnifiedHealthData
         {
           instructions: extract_instructions(resource),
           facility_phone_number: extract_facility_phone_number(resource),
+          cmop_division_phone: nil,
           dial_cmop_division_phone: nil,
           prescription_source: extract_prescription_source(resource),
           category: extract_category(resource),
