@@ -28,7 +28,7 @@ RSpec.describe SavedClaim::Form210779, type: :model do
       end
     end
   end
-    
+
   describe '#send_confirmation_email' do
     it 'does not send email (MVP does not include email)' do
       expect(VANotify::EmailJob).not_to receive(:perform_async)
