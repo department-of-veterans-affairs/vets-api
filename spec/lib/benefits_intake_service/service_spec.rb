@@ -63,4 +63,83 @@ RSpec.describe BenefitsIntakeService::Service do
       expect { job.valid_document?(document:) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
     end
   end
+
+  describe '#upload_doc' do
+    let(:upload_url)  { 'https://example.com/s3-upload-url' }
+    let(:metadata)    { { doc_type: '21-526EZ' } }
+    let(:main_file)   { 'main.pdf' }
+    let(:attachments) { [{ file: 'attach-a.pdf' }, { file: 'attach-b.pdf' }] }
+
+    before do
+      allow(job).to receive(:get_file_path_from_objs) do |arg|
+        case arg
+        when Hash then arg[:file]
+        else arg
+        end
+      end
+
+      allow(job).to receive(:get_upload_docs)
+        .and_return([{ dummy: true }, instance_double(Tempfile)])
+
+      allow(job).to receive(:upload_deletion_logic)
+    end
+
+    context 'when all documents are valid' do
+      it 'validates main and each attachment, then performs the PUT and returns the response' do
+        allow(job).to receive(:validate_if_pdf).and_return(true)
+
+        success_response = double('response', success?: true, body: '{}')
+        expect(job).to receive(:perform)
+          .with(:put, upload_url, kind_of(Hash), hash_including('Content-Type' => 'multipart/form-data'))
+          .and_return(success_response)
+
+        result = job.upload_doc(upload_url:, file: main_file, metadata:, attachments:)
+        expect(result).to eq(success_response)
+
+        expect(job).to have_received(:validate_if_pdf).with(main_file)
+        expect(job).to have_received(:validate_if_pdf).with('attach-a.pdf')
+        expect(job).to have_received(:validate_if_pdf).with('attach-b.pdf')
+      end
+    end
+
+    context 'when the main document is invalid' do
+      it 'raises InvalidDocumentError and does not perform the PUT' do
+        allow(job).to receive(:validate_if_pdf)
+          .with(main_file)
+          .and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
+
+        expect(job).not_to receive(:perform).with(:put, anything, anything, anything)
+
+        expect do
+          job.upload_doc(upload_url:, file: main_file, metadata:, attachments: [])
+        end.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
+      end
+    end
+
+    context 'when an attachment is invalid' do
+      it 'raises InvalidDocumentError and does not perform the PUT' do
+        allow(job).to receive(:validate_if_pdf).with(main_file).and_return(true)
+        allow(job).to receive(:validate_if_pdf)
+          .with('attach-a.pdf')
+          .and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
+
+        expect(job).not_to receive(:perform).with(:put, anything, anything, anything)
+
+        expect do
+          job.upload_doc(upload_url:, file: main_file, metadata:, attachments:)
+        end.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
+      end
+    end
+
+    context 'when the remote upload returns non-success' do
+      it 'raises the response body' do
+        failure_response = double('response', success?: false, body: 'upload failed')
+        allow(job).to receive_messages(validate_if_pdf: true, perform: failure_response)
+
+        expect do
+          job.upload_doc(upload_url:, file: main_file, metadata:, attachments: [])
+        end.to raise_error('upload failed')
+      end
+    end
+  end
 end

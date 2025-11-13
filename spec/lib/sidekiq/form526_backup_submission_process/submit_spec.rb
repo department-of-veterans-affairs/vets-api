@@ -15,6 +15,17 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
+
+    # Mock PDF validation to avoid actual PDF validation during tests
+    validator = instance_double(PDFUtilities::PDFValidator::Validator)
+    result    = instance_double(ValidatorResult, valid_pdf?: true, errors: [])
+    allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(validator)
+    allow(validator).to receive(:validate).and_return(result)
+
+    # Mock remote Benefits Intake validate_document to always succeed
+    success_resp = instance_double(FaradayResponse, success?: true, body: '{}', status: 200)
+    allow_any_instance_of(BenefitsIntakeService::Service)
+      .to receive(:validate_document).and_return(success_resp)
   end
 
   let(:user) { create(:user, :loa3, :legacy_icn) }

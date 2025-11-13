@@ -163,8 +163,17 @@ module BenefitsIntakeService
 
     def upload_doc(upload_url:, file:, metadata:, attachments: [])
       file_with_full_path = get_file_path_from_objs(file)
+
+      validate_if_pdf(file_with_full_path)
+
+      attachments.each do |attachment|
+        attachment_path = get_file_path_from_objs(attachment)
+        validate_if_pdf(attachment_path)
+      end
+
       params, _json_tmpfile = get_upload_docs(file_with_full_path:, metadata:,
                                               attachments:)
+
       response = perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
 
       raise response.body unless response.success?
@@ -172,6 +181,13 @@ module BenefitsIntakeService
       upload_deletion_logic(file_with_full_path:, attachments:)
 
       response
+    end
+
+    def validate_if_pdf(file_path)
+      mime = Marcel::MimeType.for(Pathname.new(file_path), name: File.basename(file_path))
+      return unless mime == 'application/pdf'
+
+      valid_document?(document: file_path)
     end
 
     def upload_deletion_logic(file_with_full_path:, attachments:)
