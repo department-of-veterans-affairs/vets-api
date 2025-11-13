@@ -2,10 +2,11 @@
 
 require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class DependentService
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :first_name,
                 :middle_name,
@@ -70,6 +71,8 @@ module BGS
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: e.message })
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
+
+      log_exception_to_rails(e)
 
       raise e
     end

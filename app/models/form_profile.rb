@@ -5,6 +5,7 @@ require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
 require 'vets/model'
+require 'vets/shared_logging'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -84,7 +85,7 @@ end
 
 class FormProfile
   include Vets::Model
-  include SentryLogging
+  include Vets::SharedLogging
 
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
@@ -297,6 +298,8 @@ class FormProfile
     military_information_data
   rescue => e
     log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
+
+    log_exception_to_rails(e)
 
     {}
   end

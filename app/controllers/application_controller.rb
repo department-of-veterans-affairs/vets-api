@@ -2,6 +2,7 @@
 
 require 'feature_flipper'
 require 'aes_256_cbc_encryptor'
+require 'vets/shared_logging'
 
 class ApplicationController < ActionController::API
   include AuthenticationAndSSOConcerns
@@ -11,7 +12,7 @@ class ApplicationController < ActionController::API
   include Instrumentation
   include Pundit::Authorization
   include ControllerLoggingContext
-  include SentryLogging
+  include Vets::SharedLogging
   include SentryControllerLogging
   include Traceable
 
