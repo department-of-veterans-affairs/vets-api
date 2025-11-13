@@ -428,6 +428,7 @@ app/services/claim_fast_tracking/constants.rb @department-of-veterans-affairs/di
 app/services/claim_fast_tracking/diagnostic_codes.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/services/debt_transaction_log_service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/services/debt_transaction_log/ @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+app/services/email_verification_callback.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/services/evss_claim_service.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/services/feature_toggles_service.rb @department-of-veterans-affairs/backend-review-group
 app/services/form1010_ezr_attachments/file_type_validator.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
@@ -1857,6 +1858,7 @@ spec/serializers/valid_va_file_number_serializer_spec.rb @department-of-veterans
 spec/services/bgs @department-of-veterans-affairs/backend-review-group
 spec/services/claim_fast_tracking @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/services/debt_transaction_log_service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/services/email_verification_callback_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/services/evss_claim_service_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/services/feature_toggles_service_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/services/form1010_ezr_attachments/file_type_validator_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group

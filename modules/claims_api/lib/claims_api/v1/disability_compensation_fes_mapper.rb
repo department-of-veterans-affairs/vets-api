@@ -76,7 +76,7 @@ module ClaimsApi
           data: {
             serviceTransactionId: @auto_claim.auth_headers['va_eauth_service_transaction_id'],
             veteranParticipantId: extract_veteran_participant_id,
-            claimantParticipantId: extract_claimant_participant_id,
+            claimantParticipantId: extract_veteran_participant_id,
             form526: @fes_claim
           }
         }
@@ -250,14 +250,6 @@ module ClaimsApi
         # Try auth_headers first, then fall back to other sources
         @auto_claim.auth_headers&.dig('va_eauth_pid')&.to_i ||
           @auto_claim.auth_headers&.dig('participant_id')&.to_i
-      end
-
-      def extract_claimant_participant_id
-        if @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
-          @auto_claim.auth_headers.dig('dependent', 'participant_id')&.to_i
-        else
-          extract_veteran_participant_id
-        end
       end
     end
   end
