@@ -60,6 +60,7 @@ module UnifiedHealthData
           facility_phone_number: medication['cmopDivisionPhone'],
           dial_cmop_division_phone: medication['dialCmopDivisionPhone'],
           prescription_source: medication['prescriptionSource'],
+          indication_for_use: medication['indicationForUse'],
           remarks: medication['remarks']
         }
       end
