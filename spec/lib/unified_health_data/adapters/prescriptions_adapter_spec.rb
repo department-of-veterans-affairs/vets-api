@@ -27,6 +27,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'dispensedDate' => nil,
       'stationNumber' => '991',
       'cmopDivisionPhone' => '555-1234',
+      'cmopNdcNumber' => '00093721410',
       'dataSourceSystem' => 'VISTA'
     }
   end
@@ -125,6 +126,16 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
         expect(vista_prescription.cmop_division_phone).to eq('555-1234')
         expect(oracle_prescription.cmop_division_phone).to be_nil
+      end
+
+      it 'sets cmop_ndc_number from VistA source and null for Oracle Health source' do
+        prescriptions = subject.parse(unified_response)
+
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        expect(vista_prescription.cmop_ndc_number).to eq('00093721410')
+        expect(oracle_prescription.cmop_ndc_number).to be_nil
       end
 
       context 'business rules filtering (applied regardless of current_only)' do

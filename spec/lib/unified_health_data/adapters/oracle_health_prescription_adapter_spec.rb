@@ -95,6 +95,15 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
       end
     end
+
+    context 'with cmop_ndc_number field' do
+      it 'sets cmop_ndc_number to nil for Oracle Health prescriptions' do
+        result = subject.parse(base_resource)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to be_nil
+      end
+    end
   end
 
   describe '#extract_prescription_source' do
