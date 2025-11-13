@@ -38,6 +38,12 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.id).to eq('12345')
       end
 
+      it 'sets cmop_division_phone to nil for Oracle Health prescriptions' do
+        result = subject.parse(base_resource)
+
+        expect(result.cmop_division_phone).to be_nil
+      end
+
       it 'sets dial_cmop_division_phone to nil' do
         result = subject.parse(base_resource)
 
