@@ -51,13 +51,11 @@ class SavedClaim::Form210779 < SavedClaim
   # }
 
   def duplicate_data_for_lighthouse
-    unless parsed_form['veteranFullName']
-      updated_form = parsed_form
-      updated_form['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
-      updated_form['veteranAddress'] = parsed_form.dig('nursingHomeInformation', 'nursingHomeAddress')
-      updated_form['vaFileNumber'] = parsed_form.dig('veteranInformation', 'veteranId', 'vaFileNumber')
-      updated_form['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'veteranId', 'ssn')
-      @parsed_form = updated_form # because parsed_form memoizes
+    unless @parsed_form['veteranFullName']
+      @parsed_form['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
+      @parsed_form['veteranAddress'] = parsed_form.dig('nursingHomeInformation', 'nursingHomeAddress')
+      @parsed_form['vaFileNumber'] = parsed_form.dig('veteranInformation', 'veteranId', 'vaFileNumber')
+      @parsed_form['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'veteranId', 'ssn')
       self.form = updated_form.to_json
     end
   end

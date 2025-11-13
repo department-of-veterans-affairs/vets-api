@@ -67,7 +67,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       end
     end
 
-    context 'With SavedClaim::SavedClaim::Form210779' do
+    context 'With SavedClaim::Form210779' do
       let(:va210779claim) { create(:va210779) }
       let(:job779) { described_class.new }
 
@@ -81,7 +81,6 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
             metrics = capture_statsd_calls do
               job779.perform(va210779claim.id)
             end
-            puts metrics.collect(&:source)
             expect(metrics.collect(&:source)).to include(
               'saved_claim.create:1|c|#form_id:21-0779,doctype:222',
               'worker.lighthouse.submit_benefits_intake_claim.success:1|c'

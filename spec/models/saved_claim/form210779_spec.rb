@@ -43,7 +43,7 @@ RSpec.describe SavedClaim::Form210779, type: :model do
   end
 
   describe '#document_type' do
-    it 'returns 119 for employment information' do
+    it 'returns 222 for nursing home' do
       expect(claim.document_type).to eq(222)
     end
   end
