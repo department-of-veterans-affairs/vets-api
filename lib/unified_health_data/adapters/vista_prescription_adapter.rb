@@ -23,7 +23,7 @@ module UnifiedHealthData
         dispenses_data = build_dispenses_information(medication)
 
         build_core_attributes(medication)
-          .merge(build_tracking_attributes(tracking_data))
+          .merge(build_tracking_attributes(tracking_data, medication))
           .merge(build_contact_and_source_attributes(medication))
           .merge(dispenses: dispenses_data)
       end
@@ -44,13 +44,14 @@ module UnifiedHealthData
           prescription_name: medication['prescriptionName'].presence || medication['orderableItem'],
           dispensed_date: convert_to_iso8601(medication['dispensedDate'], field_name: 'dispensed_date'),
           station_number: medication['stationNumber'],
-          is_refillable: medication['isRefillable']
+          is_refillable: medication['isRefillable'],
+          cmop_ndc_number: medication['cmopNdcNumber']
         }
       end
 
-      def build_tracking_attributes(tracking_data)
+      def build_tracking_attributes(tracking_data, medication)
         {
-          is_trackable: tracking_data.any?,
+          is_trackable: medication['isTrackable'] || false,
           tracking: tracking_data
         }
       end
@@ -59,7 +60,8 @@ module UnifiedHealthData
         {
           instructions: medication['sig'],
           facility_phone_number: medication['cmopDivisionPhone'],
-          prescription_source: medication['prescriptionSource']
+          prescription_source: medication['prescriptionSource'],
+          remarks: medication['remarks']
         }
       end
 

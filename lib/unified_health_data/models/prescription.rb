@@ -28,6 +28,8 @@ module UnifiedHealthData
     attribute :prescription_source, String
     attribute :category, Array, default: []
     attribute :dispenses, Array, default: []
+    attribute :remarks, String
+    attribute :cmop_ndc_number, String
 
     # Method aliases to match serializer expectations
     def prescription_id

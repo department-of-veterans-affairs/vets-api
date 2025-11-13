@@ -18,7 +18,8 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       'prescriptionNumber' => 'RX123',
       'stationNumber' => '660',
       'sig' => 'Take as directed',
-      'cmopDivisionPhone' => '555-1234'
+      'cmopDivisionPhone' => '555-1234',
+      'cmopNdcNumber' => nil
     }
   end
 
@@ -126,6 +127,23 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
 
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:error).with('Error parsing VistA prescription: Test error')
+      end
+    end
+
+    context 'with cmopNdcNumber field' do
+      it 'sets cmop_ndc_number to nil when not present in Vista data' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to be_nil
+      end
+
+      it 'maps cmopNdcNumber from Vista data when present' do
+        medication_with_ndc = base_vista_medication.merge('cmopNdcNumber' => '00093721410')
+        result = subject.parse(medication_with_ndc)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to eq('00093721410')
       end
     end
   end
@@ -253,6 +271,37 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       it 'returns empty array when trackingInfo is not an array' do
         result = subject.send(:build_tracking_information, medication_invalid_tracking)
         expect(result).to eq([])
+      end
+    end
+
+    context 'with isTrackable field' do
+      it 'uses isTrackable field from Vista data when true' do
+        medication_trackable_no_data = base_vista_medication.merge('isTrackable' => true)
+        result = subject.parse(medication_trackable_no_data)
+        expect(result.is_trackable).to be(true)
+        expect(result.tracking).to eq([])
+      end
+
+      it 'uses isTrackable field from Vista data when false' do
+        medication_not_trackable_with_data = base_vista_medication.merge(
+          'isTrackable' => false,
+          'trackingInfo' => [
+            {
+              'trackingNumber' => '1Z999AA1012345675',
+              'shippedDate' => 'Wed, 07 Sep 2016 00:00:00 EDT',
+              'deliveryService' => 'UPS'
+            }
+          ]
+        )
+        result = subject.parse(medication_not_trackable_with_data)
+        expect(result.is_trackable).to be(false)
+        expect(result.tracking.length).to eq(1)
+      end
+
+      it 'defaults to false when isTrackable is nil' do
+        medication_nil_trackable = base_vista_medication.except('isTrackable')
+        result = subject.parse(medication_nil_trackable)
+        expect(result.is_trackable).to be(false)
       end
     end
   end
