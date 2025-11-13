@@ -85,10 +85,36 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result.prescription_name).to eq('Test Medication')
       end
 
+      it 'maps cmopDivisionPhone to cmop_division_phone' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.cmop_division_phone).to eq('555-1234')
+      end
+
       it 'maps dialCmopDivisionPhone field correctly' do
         result = subject.parse(base_vista_medication)
 
         expect(result.dial_cmop_division_phone).to eq('555-DIAL-TEST')
+      end
+    end
+
+    context 'with disclaimer field' do
+      let(:medication_with_disclaimer) do
+        base_vista_medication.merge('disclaimer' => 'Test disclaimer text')
+      end
+
+      it 'extracts the disclaimer field' do
+        result = subject.parse(medication_with_disclaimer)
+
+        expect(result.disclaimer).to eq('Test disclaimer text')
+      end
+    end
+
+    context 'without disclaimer field' do
+      it 'sets disclaimer to nil' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.disclaimer).to be_nil
       end
     end
 
