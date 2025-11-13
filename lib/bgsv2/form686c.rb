@@ -36,7 +36,7 @@ module BGSV2
     # rubocop:disable Metrics/MethodLength
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
-      @proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
+      @proc_id = create_proc_id_and_form(vnp_proc_state_type_cd) if @proc_id.nil?
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130DPNEBNADJ').create
 
       process_relationships(@proc_id, veteran, payload)
@@ -100,10 +100,8 @@ module BGSV2
     end
 
     def create_proc_id_and_form(vnp_proc_state_type_cd)
-      if @proc_id.nil?
-        vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
-        @proc_id = vnp_response[:vnp_proc_id]
-      end
+      vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
+      @proc_id = vnp_response[:vnp_proc_id]
 
       bgs_service.create_proc_form(
         @proc_id,

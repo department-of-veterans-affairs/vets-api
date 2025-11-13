@@ -60,9 +60,9 @@ module DependentsBenefits
         monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
                                  claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid)
 
-        proc_id = create_proc_id
-        # Enqueue all submission jobs for the created claims
-        DependentsBenefits::ClaimProcessor.enqueue_submissions(claim.id, proc_id)
+        # Enqueue all proc jobs for the created claim.
+        # Success triggers further submission jobs.
+        DependentsBenefits::ClaimProcessor.create_proc_forms(claim.id)
 
         render json: SavedClaimSerializer.new(claim)
       end
@@ -108,11 +108,6 @@ module DependentsBenefits
 
       def monitor
         DependentsBenefits::Monitor.new
-      end
-
-      def create_proc_id
-        vnp_response = BGSV2::Service.new(current_user).create_proc(proc_state: 'Started')
-        vnp_response[:vnp_proc_id]
       end
     end
   end

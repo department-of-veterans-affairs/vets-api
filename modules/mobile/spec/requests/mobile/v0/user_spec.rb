@@ -15,6 +15,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                               instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                              instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user' do
@@ -207,6 +209,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             directDepositBenefitsUpdate
             disabilityRating
             genderIdentity
+            labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
             militaryServiceHistory
@@ -271,21 +274,60 @@ RSpec.describe 'Mobile::V0::User', type: :request do
                                                   instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                                   instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                  instance_of(User)).and_return(true)
+      end
 
+      it 'includes only some OH services when flags are enabled and app version matches' do
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('mobile/va_profile/demographics/demographics') do
             VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
               VCR.use_cassette(
                 'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
               ) do
-                get '/mobile/v0/user', headers: sis_headers
+                get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '2.99.99' })
               end
             end
           end
         end
+
+        expect(attributes['authorizedServices']).to eq(
+          %w[
+            appeals
+            appointments
+            claims
+            decisionLetters
+            directDepositBenefits
+            directDepositBenefitsUpdate
+            disabilityRating
+            genderIdentity
+            lettersAndDocuments
+            medicationsOracleHealthEnabled
+            militaryServiceHistory
+            paymentHistory
+            preferredName
+            scheduleAppointments
+            secureMessagingOracleHealthEnabled
+            userProfileUpdate
+          ]
+        )
       end
 
-      it 'includes the OH services when flags are enabled' do
+      it 'includes all OH services when flags are enabled and app version is high enough' do
+        VCR.use_cassette('mobile/payment_information/payment_information') do
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
+              VCR.use_cassette(
+                'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
+              ) do
+                get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '3.0.0' })
+              end
+            end
+          end
+        end
+
         expect(attributes['authorizedServices']).to eq(
           %w[
             allergiesOracleHealthEnabled
@@ -297,8 +339,43 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             directDepositBenefitsUpdate
             disabilityRating
             genderIdentity
+            labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
+            militaryServiceHistory
+            paymentHistory
+            preferredName
+            scheduleAppointments
+            secureMessagingOracleHealthEnabled
+            userProfileUpdate
+          ]
+        )
+      end
+
+      it 'includes no OH services when flags are enabled but app version is not high enough' do
+        VCR.use_cassette('mobile/payment_information/payment_information') do
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
+              VCR.use_cassette(
+                'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
+              ) do
+                get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '1.0.0' })
+              end
+            end
+          end
+        end
+
+        expect(attributes['authorizedServices']).to eq(
+          %w[
+            appeals
+            appointments
+            claims
+            decisionLetters
+            directDepositBenefits
+            directDepositBenefitsUpdate
+            disabilityRating
+            genderIdentity
+            lettersAndDocuments
             militaryServiceHistory
             paymentHistory
             preferredName

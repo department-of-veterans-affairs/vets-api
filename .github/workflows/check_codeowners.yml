@@ -3,11 +3,12 @@ name: Check CODEOWNERS Entries
 on:
   pull_request:
     branches:
-      - '*'
+      - master
     types:
       - opened
       - synchronize
       - reopened
+      - edited
 permissions:
   id-token: write
   contents: read

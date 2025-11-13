@@ -101,14 +101,19 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
     before do
       sign_in_as(current_user)
 
+      # The "accelerated delivery" flippers now control whether UHD is used,
+      # so we need to disable them to test the Lighthouse OH data path.
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled,
-                                                instance_of(User)).and_return(true)
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vital_signs_enabled,
+                                                instance_of(User)).and_return(false)
+
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     end
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mr_client/get_a_list_of_vitals_oh_data_path') do
-        get '/my_health/v1/medical_records/vitals?from=2019-11&to=2019-11&use_oh_data_path=1'
+      VCR.use_cassette('mr_client/get_a_list_of_vitals_oh_data_path', match_requests_on: %i[method]) do
+        get '/my_health/v1/medical_records/vitals?use_oh_data_path=1'
       end
 
       expect(response).to be_successful

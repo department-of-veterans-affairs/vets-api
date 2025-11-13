@@ -213,21 +213,6 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
                                                   an_instance_of(User)).and_return(true)
       end
-
-      it 'returns validation errors without calling processor' do
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?) do |attachment|
-          attachment.errors.add(:file, 'is invalid')
-          false
-        end
-
-        expect(SimpleFormsApi::ScannedFormProcessor).not_to receive(:new)
-
-        params = { form_id: form_number, file: valid_pdf_file }
-
-        post('/simple_forms_api/v1/supporting_documents_upload', params:)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
     end
 
     context 'when feature toggle is disabled' do
@@ -240,6 +225,84 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         params = { form_id: '123', file: valid_pdf_file }
         post('/simple_forms_api/v1/supporting_documents_upload', params:)
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'with encrypted PDF and password' do
+      let(:encrypted_pdf_file) { fixture_file_upload('test_encryption.pdf', 'application/pdf') }
+      let(:correct_password) { 'test' }
+      let(:wrong_password) { 'wrongpassword' }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'passes password to processor and processes successfully' do
+        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment, password:|
+          expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
+          expect(password).to eq(correct_password)
+          processor = double('ScannedFormProcessor')
+          allow(processor).to receive(:process!) do
+            attachment.save!
+            attachment
+          end
+          processor
+        end
+
+        params = { form_id: form_number, file: encrypted_pdf_file, password: correct_password }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'successfully processes encrypted PDF end-to-end with real decryption' do
+        params = { form_id: form_number, file: encrypted_pdf_file, password: correct_password }
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+
+        resp = JSON.parse(response.body)
+        expect(resp['data']).to be_present
+        expect(resp['data']['attributes']).to have_key('confirmation_code')
+
+        attachment = PersistentAttachment.last
+        expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
+        expect(attachment.file.content_type).to eq('application/pdf')
+
+        pdf_content = attachment.file.read
+        expect(pdf_content).to start_with('%PDF-')
+      end
+
+      it 'returns error when wrong password provided' do
+        params = { form_id: form_number, file: encrypted_pdf_file, password: wrong_password }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'].first).to have_key('title')
+        expect(resp['errors'].first).to have_key('detail')
+        expect(resp['errors'].first['title']).to eq('Invalid password')
+      end
+
+      it 'returns error when encrypted PDF uploaded without password' do
+        params = { form_id: form_number, file: encrypted_pdf_file }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'].first['detail']).to match(/password|locked|encrypted/i)
       end
     end
   end

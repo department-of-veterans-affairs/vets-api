@@ -304,25 +304,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
-      context 'when :cst_show_document_upload_status is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(
-            :cst_show_document_upload_status,
-            instance_of(User)
-          ).and_return(false)
-        end
-
-        it 'does not return hasFailedUploads field' do
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
-            get(:index)
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body['data']
-          .select { |claim| claim['attributes']['hasFailedUploads'] }).to eq []
-        end
-      end
-
       context 'when :cst_show_document_upload_status is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
@@ -330,44 +311,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             :cst_show_document_upload_status,
             instance_of(User)
           ).and_return(true)
-        end
-
-        context 'when record has a SUCCESS upload status' do
-          before do
-            create(:bd_lh_evidence_submission_success, claim_id:)
-          end
-
-          it 'returns hasFailedUploads false' do
-            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
-              get(:index)
-            end
-
-            parsed_body = JSON.parse(response.body)
-            expect(parsed_body['data'].select do |claim|
-              claim['id'] == claim_id.to_s
-            end[0]['attributes']['hasFailedUploads'])
-              .to be false
-            expect_metric('index', 'SUCCESS')
-          end
-        end
-
-        context 'when record has a FAILED upload status' do
-          before do
-            create(:bd_lh_evidence_submission_failed_type1_error, claim_id:)
-          end
-
-          it 'returns hasFailedUploads false' do
-            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
-              get(:index)
-            end
-
-            parsed_body = JSON.parse(response.body)
-            expect(parsed_body['data'].select do |claim|
-              claim['id'] == claim_id.to_s
-            end[0]['attributes']['hasFailedUploads'])
-              .to be true
-            expect_metric('index', 'FAILED')
-          end
         end
 
         context 'when multiple records with different upload statuses are returned' do

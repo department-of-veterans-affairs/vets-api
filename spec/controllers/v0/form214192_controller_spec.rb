@@ -3,26 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
-  let(:valid_payload) do
-    {
-      veteranInformation: {
-        fullName: { first: 'John', last: 'Doe' },
-        dateOfBirth: '1980-01-01'
-      },
-      employmentInformation: {
-        employerName: 'Acme Corp',
-        employerAddress: {
-          street: '123 Main St',
-          city: 'Springfield',
-          state: 'IL',
-          postalCode: '62701',
-          country: 'US'
-        },
-        typeOfWorkPerformed: 'Machinist',
-        beginningDateOfEmployment: '2020-01-01'
-      }
-    }
+  before do
+    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
   end
+
+  let(:valid_payload) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
 
   let(:form_data) do
     JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4192', 'simple.json').read)
@@ -70,6 +55,17 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     it 'does not require authentication' do
       post(:create, body: valid_payload.to_json, as: :json)
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:create, body: valid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 
@@ -167,6 +163,17 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       post(:download_pdf, body: form_data.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:download_pdf, body: form_data.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
     end
 
     context 'error handling' do

@@ -46,4 +46,24 @@ class ClaimsEvidenceApi::SubmissionAttempt < SubmissionAttempt
   def tracking_attributes
     { id:, status:, submission_id: submission.id, saved_claim_id: saved_claim&.id, form_id: saved_claim&.form_id }
   end
+
+  # Marks the submission attempt as failed and tracks the event
+  # @param error [StandardError, nil] the error that caused the failure
+  def fail!(error:)
+    update(error_message: error&.message)
+    failed!
+    monitor.track_event(:fail, **tracking_attributes)
+  end
+
+  # Marks the submission attempt as pending and tracks the event
+  def pending!
+    update(status: :pending)
+    monitor.track_event(:pending, **tracking_attributes)
+  end
+
+  # Marks the submission attempt as successful and tracks the event
+  def success!
+    accepted!
+    monitor.track_event(:success, **tracking_attributes)
+  end
 end

@@ -11,7 +11,7 @@ module Mobile
       private
 
       def user_accessible_services
-        @user_accessible_services ||= Mobile::V0::UserAccessibleServices.new(current_user)
+        @user_accessible_services ||= Mobile::V0::UserAccessibleServices.new(current_user, request)
       end
     end
   end

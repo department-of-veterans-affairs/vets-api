@@ -307,18 +307,6 @@ module V1
                         cookie_action: value.nil? ? :not_found : :found)
     end
 
-    def user_logout(saml_response)
-      logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
-      if logout_request.present?
-        logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id " \
-                          "'#{originating_request_id}'")
-      else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id ' \
-                          "'#{originating_request_id}'")
-      end
-    end
-
     def new_stats(type, client_id, operation)
       tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
 

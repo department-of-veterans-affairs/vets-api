@@ -32,11 +32,6 @@ module V0
 
       claims['data'].each do |claim|
         update_claim_type_language(claim)
-
-        # Add has_failed_uploads field for document uploads that were added
-        if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-          claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
-        end
       end
 
       tap_claims(claims['data'])
@@ -168,14 +163,6 @@ module V0
           claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
         end
       end
-    end
-
-    def add_has_failed_uploads(claim)
-      failed_evidence_submissions = EvidenceSubmission.where(
-        claim_id: claim['id'],
-        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
-      )
-      failed_evidence_submissions.count.positive?
     end
 
     def add_evidence_submissions(claim, evidence_submissions)
