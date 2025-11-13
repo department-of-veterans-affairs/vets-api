@@ -28,6 +28,8 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'stationNumber' => '991',
       'cmopDivisionPhone' => '555-1234',
       'dialCmopDivisionPhone' => '555-DIAL',
+      'dataSourceSystem' => 'VISTA',
+      'remarks' => 'TEST REMARKS FOR VISTA'
       'cmopNdcNumber' => '00093721410',
       'dataSourceSystem' => 'VISTA'
     }
@@ -53,6 +55,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
           'unit' => 'EA'
         }
       },
+      'note' => [
+        { 'text' => 'Take with food.' },
+        { 'text' => 'May cause dizziness.' }
+      ],
       'contained' => [
         {
           'resourceType' => 'MedicationDispense',
@@ -622,6 +628,160 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
         expect(oracle_prescription.dial_cmop_division_phone).to be_nil
+      end
+    end
+
+    context 'with remarks field' do
+      context 'VistA prescriptions' do
+        it 'includes remarks from VistA data' do
+          prescriptions = subject.parse(unified_response)
+          vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+
+          expect(vista_prescription.remarks).to eq('TEST REMARKS FOR VISTA')
+        end
+
+        it 'returns nil when remarks is not present' do
+          vista_data_without_remarks = vista_medication_data.merge('remarks' => nil)
+          response = {
+            'vista' => { 'medicationList' => { 'medication' => [vista_data_without_remarks] } },
+            'oracle-health' => nil
+          }
+
+          prescriptions = subject.parse(response)
+          expect(prescriptions.first.remarks).to be_nil
+        end
+      end
+
+      context 'Oracle Health prescriptions' do
+        it 'concatenates all note.text fields' do
+          prescriptions = subject.parse(unified_response)
+          oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+          expect(oracle_prescription.remarks).to eq('Take with food. May cause dizziness.')
+        end
+
+        it 'returns nil when note array is empty' do
+          oracle_data_without_notes = oracle_health_medication_data.merge('note' => [])
+          response = {
+            'vista' => nil,
+            'oracle-health' => {
+              'entry' => [
+                {
+                  'resource' => oracle_data_without_notes
+                }
+              ]
+            }
+          }
+
+          prescriptions = subject.parse(response)
+          expect(prescriptions.first.remarks).to be_nil
+        end
+
+        it 'returns nil when note is not present' do
+          oracle_data_without_notes = oracle_health_medication_data.dup
+          oracle_data_without_notes.delete('note')
+          response = {
+            'vista' => nil,
+            'oracle-health' => {
+              'entry' => [
+                {
+                  'resource' => oracle_data_without_notes
+                }
+              ]
+            }
+          }
+
+          prescriptions = subject.parse(response)
+          expect(prescriptions.first.remarks).to be_nil
+        end
+
+        it 'handles single note' do
+          oracle_data_with_single_note = oracle_health_medication_data.merge(
+            'note' => [{ 'text' => 'Single note text' }]
+          )
+          response = {
+            'vista' => nil,
+            'oracle-health' => {
+              'entry' => [
+                {
+                  'resource' => oracle_data_with_single_note
+                }
+              ]
+            }
+          }
+
+          prescriptions = subject.parse(response)
+          expect(prescriptions.first.remarks).to eq('Single note text')
+        end
+
+        it 'handles multiple notes' do
+          oracle_data_with_multiple_notes = oracle_health_medication_data.merge(
+            'note' => [
+              { 'text' => 'First note' },
+              { 'text' => 'Second note' },
+              { 'text' => 'Third note' }
+            ]
+          )
+          response = {
+            'vista' => nil,
+            'oracle-health' => {
+              'entry' => [
+                {
+                  'resource' => oracle_data_with_multiple_notes
+                }
+              ]
+            }
+          }
+
+          prescriptions = subject.parse(response)
+          expect(prescriptions.first.remarks).to eq('First note Second note Third note')
+        end
+
+        it 'filters out notes without text field' do
+          oracle_data_with_mixed_notes = oracle_health_medication_data.merge(
+            'note' => [
+              { 'text' => 'Valid note' },
+              { 'authorReference' => 'Practitioner/123' },
+              { 'text' => 'Another valid note' }
+            ]
+          )
+          response = {
+            'vista' => nil,
+            'oracle-health' => {
+              'entry' => [
+                {
+                  'resource' => oracle_data_with_mixed_notes
+                }
+              ]
+            }
+          }
+
+          prescriptions = subject.parse(response)
+          expect(prescriptions.first.remarks).to eq('Valid note Another valid note')
+        end
+
+        it 'filters out notes with empty text' do
+          oracle_data_with_empty_text = oracle_health_medication_data.merge(
+            'note' => [
+              { 'text' => 'Valid note' },
+              { 'text' => '' },
+              { 'text' => 'Another valid note' }
+            ]
+          )
+          response = {
+            'vista' => nil,
+            'oracle-health' => {
+              'entry' => [
+                {
+                  'resource' => oracle_data_with_empty_text
+                }
+              ]
+            }
+          }
+
+          prescriptions = subject.parse(response)
+          expect(prescriptions.first.remarks).to eq('Valid note Another valid note')
+        end
       end
     end
   end
