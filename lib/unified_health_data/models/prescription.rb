@@ -26,6 +26,7 @@ module UnifiedHealthData
     attribute :instructions, String
     attribute :facility_phone_number, String
     attribute :cmop_division_phone, String
+    attribute :dial_cmop_division_phone, String
     attribute :prescription_source, String
     attribute :category, Array, default: []
     attribute :remarks, String
