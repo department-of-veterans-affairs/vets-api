@@ -17,4 +17,3 @@ RSpec.describe DependentsBenefits::PrimaryDependencyClaim do
     end
   end
 end
-
