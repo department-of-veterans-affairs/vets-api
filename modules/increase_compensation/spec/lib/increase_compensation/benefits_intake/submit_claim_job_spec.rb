@@ -40,7 +40,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
     context 'with increase_compensation_form_enabled flipper' do
       before do
-        allow(UserAccount).to receive(:find).and_return(double('user_account'))
+        allow(UserAccount).to receive(:find).and_return(instance_double(user_account))
       end
 
       it 'processes claim when flipper is enabled' do
@@ -119,7 +119,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
   end
 
   describe '#process_document' do
-    let(:service) { double('service') }
+    let(:service) { instance_double(service) }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
@@ -161,7 +161,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
   describe '#send_submitted_email' do
     let(:monitor_error) { create(:monitor_error) }
-    let(:notification) { double('notification') }
+    let(:notification) { instance_double(notification) }
 
     before do
       job.instance_variable_set(:@claim, claim)

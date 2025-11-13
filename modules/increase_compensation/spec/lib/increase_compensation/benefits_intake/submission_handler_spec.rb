@@ -7,9 +7,9 @@ require 'increase_compensation/notification_email'
 
 RSpec.describe IncreaseCompensation::BenefitsIntake::SubmissionHandler do
   let(:handler) { IncreaseCompensation::BenefitsIntake::SubmissionHandler }
-  let(:claim) { double(form_id: 'TEST', id: 23) }
-  let(:monitor) { double(IncreaseCompensation::Monitor) }
-  let(:notification) { double(IncreaseCompensation::NotificationEmail) }
+  let(:claim) { instance_double(IncreaseCompensation::SavedClaim, form_id: 'TEST', id: 23) }
+  let(:monitor) { instance_double(IncreaseCompensation::Monitor) }
+  let(:notification) { instance_double(IncreaseCompensation::NotificationEmail) }
   let(:instance) { handler.new('fake-claim-id') }
 
   before do
@@ -19,8 +19,8 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmissionHandler do
   end
 
   describe '.pending_attempts' do
-    let(:submission_attempt) { double('Lighthouse::SubmissionAttempt') }
-    let(:submission) { double('Lighthouse::Submission', form_id: '21-8940V1') }
+    let(:submission_attempt) { instance_double(Lighthouse::SubmissionAttempt) }
+    let(:submission) { instance_double(Lighthouse::Submission, form_id: '21-8940V1') }
 
     before do
       allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
