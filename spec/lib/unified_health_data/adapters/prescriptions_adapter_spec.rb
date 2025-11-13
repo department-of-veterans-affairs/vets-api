@@ -30,8 +30,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'providerLastName' => 'SMITH',
       'providerFirstName' => 'JOHN',
       'dialCmopDivisionPhone' => '555-DIAL',
-      'dataSourceSystem' => 'VISTA',
-      'remarks' => 'TEST REMARKS FOR VISTA'
+      'remarks' => 'TEST REMARKS FOR VISTA',
       'cmopNdcNumber' => '00093721410',
       'dataSourceSystem' => 'VISTA'
     }
