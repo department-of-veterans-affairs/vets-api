@@ -63,10 +63,7 @@ module BGSV2
         log_message_to_sentry('SSN is redacted!', *sentry_params)
       elsif ssn.present? && ssn.length != 9
         log_message_to_sentry("SSN has #{ssn.length} digits!", *sentry_params)
-
         log_message_to_rails('SSN is redacted!', *sentry_params)
-      elsif ssn.present? && ssn.length != 9
-        log_message_to_sentry("SSN has #{ssn.length} digits!")
       end
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)

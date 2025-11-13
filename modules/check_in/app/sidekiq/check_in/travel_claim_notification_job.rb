@@ -110,7 +110,7 @@ module CheckIn
     # Helper to enable logging in class method contexts
     # Vets::SharedLogging requires instance methods, so we create a temporary object
     def self.logging_helper
-      @logging_helper ||= Class.new { include Vets::SharedLogging }.new
+      @logging_helper ||= Class.new { include Vets::SharedLogging }.new # rubocop:disable ThreadSafety/ClassInstanceVariable
     end
 
     ##
