@@ -330,7 +330,7 @@ RSpec.describe RepresentationManagement::AccreditationDataIngestionLog, type: :m
 
       expect(statuses).to be_a(Hash)
       expect(statuses.keys).to contain_exactly('agents', 'attorneys', 'representatives',
-                                                 'veteran_service_organizations')
+                                               'veteran_service_organizations')
       expect(statuses['agents']).to eq('success')
     end
   end
@@ -378,7 +378,7 @@ RSpec.describe RepresentationManagement::AccreditationDataIngestionLog, type: :m
       expect(log.any_entity_failed?).to be false
       expect(log.metrics['agents']['count']).to eq(100)
       expect(log.metrics['total_records']).to eq(650)
-      expect(log.duration).to be > 0
+      expect(log.duration).to be.positive?
     end
 
     it 'tracks a partially failed ingestion' do
