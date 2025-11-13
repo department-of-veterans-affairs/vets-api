@@ -169,7 +169,7 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
     # job — it is only triggered if VA Notify responds with a temporary failure.
     # Previously, a high retry count caused letter ready email jobs to clog up staging environments and raised
     # performance concerns in production.
-    it 'Sets Sidekiq retry count to 3.' do
+    it "Sets Sidekiq retry count to #{EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_RETRY_EMAIL}." do
       expect(described_class.sidekiq_options['retry']).to eq(3)
     end
   end
