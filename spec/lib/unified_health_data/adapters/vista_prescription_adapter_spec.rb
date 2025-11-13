@@ -20,6 +20,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       'sig' => 'Take as directed',
       'cmopDivisionPhone' => '555-1234',
       'dialCmopDivisionPhone' => '555-DIAL-TEST'
+      'cmopNdcNumber' => nil
     }
   end
 
@@ -133,6 +134,23 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
 
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:error).with('Error parsing VistA prescription: Test error')
+      end
+    end
+
+    context 'with cmopNdcNumber field' do
+      it 'sets cmop_ndc_number to nil when not present in Vista data' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to be_nil
+      end
+
+      it 'maps cmopNdcNumber from Vista data when present' do
+        medication_with_ndc = base_vista_medication.merge('cmopNdcNumber' => '00093721410')
+        result = subject.parse(medication_with_ndc)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to eq('00093721410')
       end
     end
   end
