@@ -1332,4 +1332,155 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
   end
+
+  describe '#extract_indication_for_use' do
+    context 'with reasonCode field containing text' do
+      let(:resource_with_reason_code) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'K21.9',
+                  'display' => 'Gastro-esophageal reflux disease without esophagitis',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Acid reflux'
+            }
+          ]
+        )
+      end
+
+      it 'returns the text from the first reasonCode' do
+        result = subject.send(:extract_indication_for_use, resource_with_reason_code)
+        expect(result).to eq('Acid reflux')
+      end
+    end
+
+    context 'with multiple reasonCode entries' do
+      let(:resource_with_multiple_reason_codes) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'L70.0',
+                  'display' => 'Acne vulgaris',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Acne'
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'Z12.11',
+                  'display' => 'Encounter for screening for malignant neoplasm of colon',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Encounter for screening fecal occult blood testing'
+            }
+          ]
+        )
+      end
+
+      it 'concatenates text from all reasonCode entries' do
+        result = subject.send(:extract_indication_for_use, resource_with_multiple_reason_codes)
+        expect(result).to eq('Acne; Encounter for screening fecal occult blood testing')
+      end
+    end
+
+    context 'with no reasonCode field' do
+      it 'returns nil' do
+        result = subject.send(:extract_indication_for_use, base_resource)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with empty reasonCode array' do
+      let(:resource_with_empty_reason_code) do
+        base_resource.merge('reasonCode' => [])
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_indication_for_use, resource_with_empty_reason_code)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with reasonCode but no text field' do
+      let(:resource_with_reason_code_no_text) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'K21.9',
+                  'display' => 'Gastro-esophageal reflux disease without esophagitis',
+                  'userSelected' => true
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_indication_for_use, resource_with_reason_code_no_text)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with multiple reasonCode entries where some have no text' do
+      let(:resource_with_mixed_reason_codes) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'L70.0',
+                  'display' => 'Acne vulgaris',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Acne'
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'K21.9',
+                  'display' => 'Gastro-esophageal reflux disease without esophagitis',
+                  'userSelected' => true
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'Z12.11',
+                  'display' => 'Encounter for screening for malignant neoplasm of colon',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Screening'
+            }
+          ]
+        )
+      end
+
+      it 'concatenates only the text fields that are present' do
+        result = subject.send(:extract_indication_for_use, resource_with_mixed_reason_codes)
+        expect(result).to eq('Acne; Screening')
+      end
+    end
+  end
 end
