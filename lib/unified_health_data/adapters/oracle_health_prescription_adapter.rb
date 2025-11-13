@@ -63,6 +63,7 @@ module UnifiedHealthData
           prescription_source: extract_prescription_source(resource),
           category: extract_category(resource),
           provider_name: extract_provider_name(resource)
+          remarks: extract_remarks(resource)
         }
       end
 
@@ -247,7 +248,7 @@ module UnifiedHealthData
       end
 
       def extract_prescription_source(resource)
-        non_va_med?(resource) ? 'NV' : ''
+        non_va_med?(resource) ? 'NV' : 'VA'
       end
 
       def extract_category(resource)
@@ -272,6 +273,17 @@ module UnifiedHealthData
 
       def extract_provider_name(resource)
         resource.dig('requester', 'display')
+      end
+
+      def extract_remarks(resource)
+        # Concatenate all MedicationRequest.note.text fields
+        notes = resource['note'] || []
+        return nil if notes.empty?
+
+        note_texts = notes.filter_map { |note| note['text'].presence }
+        return nil if note_texts.empty?
+
+        note_texts.join(' ')
       end
 
       def non_va_med?(resource)

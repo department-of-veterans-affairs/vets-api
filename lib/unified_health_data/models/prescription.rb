@@ -28,6 +28,7 @@ module UnifiedHealthData
     attribute :prescription_source, String
     attribute :category, Array, default: []
     attribute :provider_name, String
+    attribute :remarks, String
     attribute :cmop_ndc_number, String
 
     # Method aliases to match serializer expectations
