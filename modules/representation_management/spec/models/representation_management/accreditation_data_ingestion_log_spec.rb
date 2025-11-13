@@ -378,7 +378,7 @@ RSpec.describe RepresentationManagement::AccreditationDataIngestionLog, type: :m
       expect(log.any_entity_failed?).to be false
       expect(log.metrics['agents']['count']).to eq(100)
       expect(log.metrics['total_records']).to eq(650)
-      expect(log.duration).to be.positive?
+      expect(log.duration).to be_positive
     end
 
     it 'tracks a partially failed ingestion' do
