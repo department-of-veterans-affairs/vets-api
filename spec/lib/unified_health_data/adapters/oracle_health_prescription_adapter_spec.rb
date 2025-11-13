@@ -102,6 +102,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
+    context 'with disclaimer field' do
+      it 'sets disclaimer to nil for Oracle Health prescriptions' do
+        result = subject.parse(base_resource)
+
+        expect(result.disclaimer).to be_nil
+      end
+    end
+
     context 'with cmop_ndc_number field' do
       it 'sets cmop_ndc_number to nil for Oracle Health prescriptions' do
         result = subject.parse(base_resource)

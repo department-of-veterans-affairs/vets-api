@@ -98,6 +98,26 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       end
     end
 
+    context 'with disclaimer field' do
+      let(:medication_with_disclaimer) do
+        base_vista_medication.merge('disclaimer' => 'Test disclaimer text')
+      end
+
+      it 'extracts the disclaimer field' do
+        result = subject.parse(medication_with_disclaimer)
+
+        expect(result.disclaimer).to eq('Test disclaimer text')
+      end
+    end
+
+    context 'without disclaimer field' do
+      it 'sets disclaimer to nil' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.disclaimer).to be_nil
+      end
+    end
+
     context 'with indication for use' do
       let(:vista_medication_with_indication) do
         base_vista_medication.merge('indicationForUse' => 'For blood pressure management')

@@ -64,6 +64,7 @@ module UnifiedHealthData
           dial_cmop_division_phone: nil,
           prescription_source: extract_prescription_source(resource),
           category: extract_category(resource),
+          disclaimer: nil,
           provider_name: extract_provider_name(resource),
           indication_for_use: extract_indication_for_use(resource),
           remarks: extract_remarks(resource)
