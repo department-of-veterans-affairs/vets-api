@@ -46,8 +46,6 @@ module Veteran
 
       log_message_to_rails("OGC connection failed: #{e.message}", :warn)
       log_to_slack('VSO Reloader failed to connect to OGC')
-    rescue Common::Client::Errors::ClientError)
-      log_to_slack('VSO Reloader job has failed!')
     end
 
     # Reloads attorney data from OGC

@@ -119,10 +119,10 @@ module Organizations
       rescue => e
         # Since the deprecated SentryLogging was designed for instance methods, not class methods,
         # and we need to invoke these methods within a class method context, we instantiate a dummy_logger.
-        # This dummy object previously included SentryLogging (now uses Vets::SharedLogging), allowing us to use its logging capabilities without altering
-        # the original module's design. This approach enables class-level logging by leveraging the module's
-        # instance methods, ensuring we can log messages to Sentry from static (class) contexts while maintaining
-        # the module's intended usage patterns.
+        # This dummy object previously included SentryLogging (now uses Vets::SharedLogging), allowing us to
+        # use its logging capabilities without altering the original module's design. This approach enables
+        # class-level logging by leveraging the module's instance methods, ensuring we can log messages to
+        # Sentry from static (class) contexts while maintaining the module's intended usage patterns.
         dummy_logger = Class.new { include Vets::SharedLogging }.new
         dummy_logger.log_message_to_sentry("Failed to serialize POA in Organizations::Names: #{e.message}. POA: '#{org[:poa]}', Org Name: '#{org[:name]}'.", 'error') # rubocop:disable Layout/LineLength
         next
