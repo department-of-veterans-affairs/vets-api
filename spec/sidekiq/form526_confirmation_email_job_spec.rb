@@ -42,6 +42,11 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         }
       end
 
+      before do
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
+      end
+
       it 'the service is initialized with the correct parameters' do
         test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
         with_settings(
@@ -70,8 +75,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
             'first_name' => 'firstname'
           }
         }
-        allow(Notifications::Client).to receive(:new).and_return(notification_client)
-        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
         allow(notification_client).to receive(:send_email).and_return(email_response)
 
         expect(notification_client).to receive(:send_email).with(requirements)
@@ -79,9 +82,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       end
 
       it 'handles 4xx errors when sending an email' do
-        allow(Notifications::Client).to receive(:new).and_return(notification_client)
-        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
-
         error = Common::Exceptions::BackendServiceException.new(
           'VANOTIFY_400',
           { source: VaNotify::Service.to_s },
@@ -96,9 +96,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       end
 
       it 'handles 5xx errors when sending an email' do
-        allow(Notifications::Client).to receive(:new).and_return(notification_client)
-        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
-
         error = Common::Exceptions::BackendServiceException.new(
           'VANOTIFY_500',
           { source: VaNotify::Service.to_s },
@@ -114,8 +111,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       end
 
       it 'returns one job triggered' do
-        allow(Notifications::Client).to receive(:new).and_return(notification_client)
-        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
         allow(notification_client).to receive(:send_email).and_return(email_response)
 
         expect do
