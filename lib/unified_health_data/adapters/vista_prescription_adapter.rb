@@ -22,7 +22,7 @@ module UnifiedHealthData
         tracking_data = build_tracking_information(medication)
 
         build_core_attributes(medication)
-          .merge(build_tracking_attributes(tracking_data))
+          .merge(build_tracking_attributes(tracking_data, medication))
           .merge(build_contact_and_source_attributes(medication))
       end
 
@@ -47,9 +47,9 @@ module UnifiedHealthData
         }
       end
 
-      def build_tracking_attributes(tracking_data)
+      def build_tracking_attributes(tracking_data, medication)
         {
-          is_trackable: tracking_data.any?,
+          is_trackable: medication['isTrackable'] || false,
           tracking: tracking_data
         }
       end
@@ -60,6 +60,8 @@ module UnifiedHealthData
           facility_phone_number: medication['cmopDivisionPhone'],
           cmop_division_phone: medication['cmopDivisionPhone'],
           prescription_source: medication['prescriptionSource']
+          prescription_source: medication['prescriptionSource'],
+          remarks: medication['remarks']
         }
       end
 
