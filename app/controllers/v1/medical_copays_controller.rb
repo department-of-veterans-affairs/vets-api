@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module V1
   class MedicalCopaysController < ApplicationController
     service_tag 'debt-resolution'
