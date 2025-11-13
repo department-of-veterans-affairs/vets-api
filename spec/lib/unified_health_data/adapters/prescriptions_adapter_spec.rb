@@ -27,7 +27,9 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'dispensedDate' => nil,
       'stationNumber' => '991',
       'cmopDivisionPhone' => '555-1234',
-      'remarks' => 'TEST REMARKS FOR VISTA',
+      'dialCmopDivisionPhone' => '555-DIAL',
+      'dataSourceSystem' => 'VISTA',
+      'remarks' => 'TEST REMARKS FOR VISTA'
       'cmopNdcNumber' => '00093721410',
       'dataSourceSystem' => 'VISTA'
     }
@@ -610,6 +612,22 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       it 'excludes prescriptions if any category is inpatient' do
         prescriptions = subject.parse(response_with_inpatient_and_community)
         expect(prescriptions).to be_empty
+      end
+    end
+
+    context 'dial_cmop_division_phone field' do
+      it 'maps dialCmopDivisionPhone from Vista prescriptions' do
+        prescriptions = subject.parse(unified_response)
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+
+        expect(vista_prescription.dial_cmop_division_phone).to eq('555-DIAL')
+      end
+
+      it 'sets dial_cmop_division_phone to null for Oracle Health prescriptions' do
+        prescriptions = subject.parse(unified_response)
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        expect(oracle_prescription.dial_cmop_division_phone).to be_nil
       end
     end
 
