@@ -16,6 +16,12 @@ module VaNotify
     configuration VaNotify::Configuration
 
     STATSD_KEY_PREFIX = 'api.vanotify'
+    # Expected API key format: 'test-key-{service_id}-{secret_token}'
+    # The service_id and secret_token are UUIDs (36 chars each), separated by a dash.
+    # Example: 'test-key-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+    SERVICE_ID_LENGTH = 36
+    SECRET_TOKEN_LENGTH = 36
+    SERVICE_ID_OFFSET = SERVICE_ID_LENGTH + SECRET_TOKEN_LENGTH + 1
 
     attr_reader :api_key, :service_id, :secret_token, :callback_options, :template_id
 
@@ -24,9 +30,9 @@ module VaNotify
       @api_key = api_key
       @callback_options = callback_options || {}
 
-      # Extract service_id and secret_token from API key (similar to Notifications::Client::Speaker)
-      @service_id = api_key[(api_key.length - 73)..(api_key.length - 38)]
-      @secret_token = api_key[(api_key.length - 36)..api_key.length]
+      # Offsets are based on the format: 'test-key-' (9 chars) + service_id (36) + '-' (1) + secret_token (36)
+      @service_id = api_key[(api_key.length - SERVICE_ID_OFFSET)..(api_key.length - SECRET_TOKEN_LENGTH - 1)]
+      @secret_token = api_key[(api_key.length - SECRET_TOKEN_LENGTH)..api_key.length]
 
       validate_tokens!
     end

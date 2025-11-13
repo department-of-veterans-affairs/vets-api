@@ -6,8 +6,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
   subject { described_class }
 
   let!(:form526_submission) { create(:form526_submission) }
-  let(:notification_client) { double('Notifications::Client') }
-  let(:va_notify_client) { double('VaNotify::Client') }
+  let(:notification_client) { instance_double(Notifications::Client) }
+  let(:va_notify_client) { instance_double(VaNotify::Client) }
   let(:formatted_submit_date) do
     # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
     form526_submission.created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')

@@ -39,8 +39,8 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
   end
 
   describe '#perform' do
-    let(:notification_client) { double('Notifications::Client') }
-    let(:va_notify_client) { double('VaNotify::Client') }
+    let(:notification_client) { instance_double(Notifications::Client) }
+    let(:va_notify_client) { instance_double(VaNotify::Client) }
 
     context 'with default email template' do
       it 'sends a confirmation email using the direct_deposit template' do

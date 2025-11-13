@@ -9,8 +9,8 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
   end
 
   describe '#perform' do
-    let(:notification_client) { double('Notifications::Client') }
-    let(:va_notify_client) { double('VaNotify::Client') }
+    let(:notification_client) { instance_double(Notifications::Client) }
+    let(:va_notify_client) { instance_double(VaNotify::Client) }
 
     context 'with default attributes' do
       let(:email_address) { 'foo@example.com' }

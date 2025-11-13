@@ -24,8 +24,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
     sea
   end
 
-  let(:notification_client) { double('Notifications::Client') }
-  let(:va_notify_client) { double('VaNotify::Client') }
+  let(:notification_client) { instance_double(Notifications::Client) }
+  let(:va_notify_client) { instance_double(VaNotify::Client) }
 
   before do
     Sidekiq::Job.clear_all

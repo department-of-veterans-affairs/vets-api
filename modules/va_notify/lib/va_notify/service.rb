@@ -18,14 +18,12 @@ module VaNotify
 
     configuration VaNotify::Configuration
 
-    attr_reader :notify_client, :push_client, :callback_options, :template_id
+    attr_reader :notify_client, :callback_options, :template_id
 
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
+      @api_key = api_key
       @notify_client ||= Notifications::Client.new(api_key, client_url)
-      if Flipper.enabled?(:va_notify_push_notifications)
-        @push_client ||= VaNotify::Client.new(api_key, callback_options)
-      end
       @callback_options = callback_options || {}
     rescue => e
       handle_error(e)
@@ -81,11 +79,13 @@ module VaNotify
         return nil
       end
 
-      raise StandardError, 'Push client not initialized' if push_client.nil?
-
       push_client.send_push(args)
     rescue => e
       handle_error(e)
+    end
+
+    def push_client
+      @push_client ||= VaNotify::Client.new(@api_key, @callback_options)
     end
 
     private
