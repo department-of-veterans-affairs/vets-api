@@ -3,7 +3,6 @@
 require 'faraday'
 require 'common/client/errors'
 require 'common/models/collection'
-require 'sentry_logging'
 require 'vets/shared_logging'
 
 module Common

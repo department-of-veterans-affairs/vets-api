@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'string_helpers'
-require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
 require 'vets/model'
