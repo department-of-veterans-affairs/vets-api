@@ -225,7 +225,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
       exception = StandardError.new('Service failed')
 
       expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
-        .with(parent_claim.id, exception)
+        .with(parent_claim.id, exception).and_call_original
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end
