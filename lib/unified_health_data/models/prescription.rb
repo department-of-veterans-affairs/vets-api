@@ -29,6 +29,7 @@ module UnifiedHealthData
     attribute :prescription_source, String
     attribute :category, Array, default: []
     attribute :dispenses, Array, default: []
+    attribute :indication_for_use, String
     attribute :remarks, String
     attribute :cmop_ndc_number, String
 
