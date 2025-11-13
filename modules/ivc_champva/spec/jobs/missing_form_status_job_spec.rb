@@ -67,7 +67,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be true
   end
 
-  it 'identifies forms missing a pega status for enough hours and attempts to notify PEGA' do
+  it 'identifies forms missing a Pega status for enough hours and attempts to notify PEGA' do
     allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
 
     threshold_hours = 2
