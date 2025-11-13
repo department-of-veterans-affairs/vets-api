@@ -83,6 +83,30 @@ module Mobile
       end
       # rubocop:enable Metrics/MethodLength
 
+      def download_document
+        document_id = CGI.unescape(params[:document_id])
+
+        documents_service = TravelPay::DocumentsService.new(auth_manager)
+        document_data = documents_service.download_document(params[:claim_id], document_id)
+
+        send_data(
+          document_data[:body],
+          type: document_data[:type],
+          disposition: document_data[:disposition]
+        )
+      rescue ArgumentError => e
+        Rails.logger.error("Invalid travel pay document ID: #{e.message}")
+        head :bad_request
+      rescue Faraday::ResourceNotFound
+        Rails.logger.error(
+          "Travel pay document not found: claim_id=#{params[:claim_id]}, document_id=#{params[:document_id]}"
+        )
+        head :not_found
+      rescue => e
+        Rails.logger.error("Error downloading travel pay document: #{e.class}, #{e.message}")
+        head :internal_server_error
+      end
+
       private
 
       def normalize_claim_summary(claim)

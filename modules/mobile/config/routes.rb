@@ -91,6 +91,7 @@ Mobile::Engine.routes.draw do
     post '/travel-pay/claims', to: 'travel_pay_claims#create'
     get '/travel-pay/claims', to: 'travel_pay_claims#index'
     get '/travel-pay/claims/:id', to: 'travel_pay_claims#show'
+    get '/travel-pay/claims/:claim_id/documents/:document_id', to: 'travel_pay_claims#download_document'
     get '/user', to: 'users#show'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'
