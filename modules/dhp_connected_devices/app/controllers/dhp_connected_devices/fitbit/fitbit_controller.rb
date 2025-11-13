@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'fitbit/client'
+require 'vets/shared_logging'
 
 module DhpConnectedDevices
   module Fitbit
     class FitbitController < ApplicationController
-      include SentryLogging
+      include Vets::SharedLogging
       service_tag 'connected-devices'
       before_action :feature_enabled
       before_action :user_verified
@@ -76,6 +77,10 @@ module DhpConnectedDevices
           detail: 'User with an invalid ICN value attempted to connect their Fitbit',
           source: 'FitbitController'
         )
+
+        log_message_to_rails('User with an invalid ICN value attempted to connect their Fitbit', 'warn')
+        raise Common::Exceptions::Forbidden.new(
+          detail: 'User with an invalid ICN value attempted to connect their Fitbit')
       end
 
       def redirect_with_status(status)
@@ -89,6 +94,8 @@ module DhpConnectedDevices
             icn: @current_user&.icn
           }
         )
+
+        log_exception_to_rails(e)
       end
     end
   end
