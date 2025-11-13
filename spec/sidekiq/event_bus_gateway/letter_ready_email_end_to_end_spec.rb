@@ -100,9 +100,6 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
       allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_retry_emails).and_return(true)
     end
 
-    # This test exists because the previous max attempts was 16, which caused
-    # production performance concerns due to database strain and job congestion
-    # on staging when failures occurred. Limiting to 5 attempts prevents excessive retries.
     it "Allow up to #{EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS} attempts." do
       initial_response = instance_double(Notifications::Client::ResponseNotification, id: initial_va_notify_id)
       retry_responses = Array.new(EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS - 2) do |i|
@@ -110,7 +107,7 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
       end
 
       expect(va_notify_service).to receive(:send_email)
-        .exactly(4).times
+        .exactly(EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS - 1).times
         .and_return(initial_response, *retry_responses)
 
       # Step 1: Initial email job
@@ -135,7 +132,7 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
         EventBusGateway::VANotifyEmailStatusCallback.call(temp_failure)
       end
 
-      expect(notification.attempts).to eq(4)
+      expect(notification.attempts).to eq(EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS - 1)
 
       expect(EventBusGateway::LetterReadyRetryEmailJob.jobs.length).to eq(1)
       expect(StatsD).not_to have_received(:increment)
@@ -144,7 +141,7 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
       expect(Rails.logger).not_to have_received(:error)
         .with('EventBusGateway email retries exhausted',
               { ebg_notification_id: notification.id,
-                max_attempts: 5 })
+                max_attempts: EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS })
     end
 
     it 'retries twice after multiple temporary failures, then succeeds' do
