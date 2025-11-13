@@ -8,58 +8,60 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
   let(:claim) { create(:fake_saved_claim) }
 
   describe '#perform' do
-    let(:service) { double('service') }
-    let(:response) { double('response') }
-    let(:pdf_path) { 'random/path/to/pdf' }
-    let(:location) { 'test_location' }
-    let(:notification) { double('notification') }
+    context 'with SavedClaim::Test and lots of stubs' do
+      let(:service) { double('service') }
+      let(:response) { double('response') }
+      let(:pdf_path) { 'random/path/to/pdf' }
+      let(:location) { 'test_location' }
+      let(:notification) { double('notification') }
 
-    before do
-      stub_const('SavedClaim::Test::FORM', '10-10EZ')
-      job.instance_variable_set(:@claim, claim)
-      allow(SavedClaim).to receive(:find).and_return(claim)
+      before do
+        stub_const('SavedClaim::Test::FORM', '10-10EZ')
+        job.instance_variable_set(:@claim, claim)
+        allow(SavedClaim).to receive(:find).and_return(claim)
 
-      allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
-      allow(service).to receive(:uuid)
-      allow(service).to receive_messages(location:, upload_doc: response)
-    end
+        allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
+        allow(service).to receive(:uuid)
+        allow(service).to receive_messages(location:, upload_doc: response)
+      end
 
-    it 'submits the saved claim successfully' do
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      allow(response).to receive(:success?).and_return(true)
+      it 'submits the saved claim successfully' do
+        allow(service).to receive(:valid_document?).and_return(pdf_path)
+        allow(response).to receive(:success?).and_return(true)
 
-      expect(job).to receive(:create_form_submission_attempt)
-      expect(job).to receive(:generate_metadata).once.and_call_original
-      expect(job).to receive(:send_confirmation_email).once
-      expect(service).to receive(:upload_doc)
+        expect(job).to receive(:create_form_submission_attempt)
+        expect(job).to receive(:generate_metadata).once.and_call_original
+        expect(job).to receive(:send_confirmation_email).once
+        expect(service).to receive(:upload_doc)
 
-      expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
 
-      job.perform(claim.id)
+        job.perform(claim.id)
 
-      expect(response.success?).to be(true)
-      expect(claim.form_submissions).not_to be_nil
-      expect(claim.business_line).not_to be_nil
-    end
+        expect(response.success?).to be(true)
+        expect(claim.form_submissions).not_to be_nil
+        expect(claim.business_line).not_to be_nil
+      end
 
-    it 'submits and gets a response error' do
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      allow(response).to receive_messages(success?: false, body: 'There was an error submitting the claim')
-      expect(job).to receive(:create_form_submission_attempt)
-      expect(job).to receive(:generate_metadata).once
-      expect(service).to receive(:upload_doc)
-      expect(Rails.logger).to receive(:warn)
-      expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
-      expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
-      expect(response.success?).to be(false)
-    end
+      it 'submits and gets a response error' do
+        allow(service).to receive(:valid_document?).and_return(pdf_path)
+        allow(response).to receive_messages(success?: false, body: 'There was an error submitting the claim')
+        expect(job).to receive(:create_form_submission_attempt)
+        expect(job).to receive(:generate_metadata).once
+        expect(service).to receive(:upload_doc)
+        expect(Rails.logger).to receive(:warn)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
+        expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
+        expect(response.success?).to be(false)
+      end
 
-    it 'handles an invalid document' do
-      allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
-      expect(Rails.logger).to receive(:warn)
-      expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.document_upload_error')
-      expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
-      expect { job.perform(claim.id) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
+      it 'handles an invalid document' do
+        allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
+        expect(Rails.logger).to receive(:warn)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.document_upload_error')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
+        expect { job.perform(claim.id) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
+      end
     end
     # perform
   end
