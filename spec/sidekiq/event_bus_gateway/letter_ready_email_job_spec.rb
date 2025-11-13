@@ -185,24 +185,24 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
   describe 'Retry count limit.' do
     # We test that the retry count is set to 5 because previously it was 16,
     # which caused performance impacts on staging and production environments.
-    it 'Sets Sidekiq retry count to 5.' do
+    it "Sets Sidekiq retry count to #{EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_EMAIL}." do
       expect(described_class.sidekiq_options['retry']).to eq(5)
     end
   end
 
-  describe 'Sidekiq retry interval configuration and jitter' do
+  describe 'Sidekiq retry interval configuration and jitter.' do
     # Ensure the retry interval is always greater than one hour between retries.
     # This helps avoid excessive retry frequency and gives external services time to recover.
-    it 'ensures each retry interval is greater than one hour' do
+    it 'Ensures each retry interval is greater than one hour.' do
       retry_in_proc = EventBusGateway::LetterReadyEmailJob.sidekiq_retry_in_block
-      (1..5).each do |count|
+      (1..EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_EMAIL).each do |count|
         interval = retry_in_proc.call(count, StandardError.new)
         expect(interval).to be > 1.hour.to_i
       end
     end
 
     # Ensure jitter is present in the retry intervals.
-    it 'adds jitter to the retry interval' do
+    it 'Adds jitter to the retry interval.' do
       retry_in_proc = EventBusGateway::LetterReadyEmailJob.sidekiq_retry_in_block
       intervals = Array.new(10) { retry_in_proc.call(2, StandardError.new) }
       expect(intervals.uniq.size).to be > 1
