@@ -28,15 +28,10 @@ module DependentsBenefits
     ALLOWLIST = %w[
       tags
       submission_id
+      parent_claim_id
       form_type
       from_state
       to_state
-      message
-      parent_claim_id
-      child_claims_count
-      jobs_count
-      detail
-      original_error
     ].freeze
 
     def initialize
