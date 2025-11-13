@@ -312,4 +312,79 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       end
     end
   end
+
+  describe 'POST /accredited_representative_portal/v0/form21a/:details_slug' do
+    subject(:make_post_request) do
+      post(path, params: { file: }, headers:)
+    end
+
+    let(:file) do
+      fixture_file_upload(
+        Rails.root.join('modules',
+                        'accredited_representative_portal',
+                        'spec',
+                        'fixtures',
+                        'files',
+                        '21_686c_empty_form.pdf'),
+        'application/pdf'
+      )
+    end
+
+    let(:slug) { 'conviction-details' }
+    let(:path) { "/accredited_representative_portal/v0/form21a/#{slug}" }
+
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:accredited_representative_portal_form_21a)
+        .and_return(true)
+      login_as(representative_user)
+    end
+
+    context 'with a valid slug and file' do
+      it 'returns confirmation data and logs receipt' do
+        expect(Rails.logger).to receive(:info).with(
+          a_string_including("Received Form21a details submission for: #{slug}")
+        )
+
+        make_post_request
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response.dig('data', 'attributes', 'confirmationCode')).to be_present
+        expect(parsed_response.dig('data', 'attributes', 'name')).to eq('21_686c_empty_form.pdf')
+        expect(parsed_response.dig('data', 'attributes', 'fileType')).to eq('application/pdf')
+      end
+    end
+
+    context 'when file is missing' do
+      subject(:make_post_request) { post(path, params: {}, headers:) }
+
+      it 'returns a bad request' do
+        make_post_request
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'with an invalid slug' do
+      let(:slug) { 'not-a-real-slug' }
+      let(:path) { "/accredited_representative_portal/v0/form21a/#{slug}" }
+
+      it 'returns 404 due to routing constraint' do
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when the feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(false)
+      end
+
+      it 'returns 404' do
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end

@@ -312,7 +312,7 @@ jobs:
         run: exit 0
 
       - name: Fail if draft or failures
-        if: steps.verify_approval.outputs.approval_status == 'required'
+        if: steps.verify_approval.outputs.exempt_be_review == 'false' && steps.verify_approval.outputs.approval_status == 'required'
         run: exit 1
 
       - name: Add ready-for-backend-review label
