@@ -275,9 +275,9 @@ module UnifiedHealthData
         return nil if reason_codes.empty?
 
         # reasonCode is an array of CodeableConcept objects
-        # Use the text field from the first reasonCode entry
-        first_reason = reason_codes.first
-        first_reason['text']
+        # Concatenate text from all reasonCode entries
+        texts = reason_codes.filter_map { |reason_code| reason_code['text'] }
+        texts.join('; ') if texts.any?
       end
 
       def non_va_med?(resource)

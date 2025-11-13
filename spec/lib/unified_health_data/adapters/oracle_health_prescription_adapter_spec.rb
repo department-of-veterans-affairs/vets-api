@@ -1368,9 +1368,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'returns the text from the first reasonCode only' do
+      it 'concatenates text from all reasonCode entries' do
         result = subject.send(:extract_indication_for_use, resource_with_multiple_reason_codes)
-        expect(result).to eq('Acne')
+        expect(result).to eq('Acne; Encounter for screening fecal occult blood testing')
       end
     end
 
@@ -1413,6 +1413,52 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns nil' do
         result = subject.send(:extract_indication_for_use, resource_with_reason_code_no_text)
         expect(result).to be_nil
+      end
+    end
+
+    context 'with multiple reasonCode entries where some have no text' do
+      let(:resource_with_mixed_reason_codes) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'L70.0',
+                  'display' => 'Acne vulgaris',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Acne'
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'K21.9',
+                  'display' => 'Gastro-esophageal reflux disease without esophagitis',
+                  'userSelected' => true
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'Z12.11',
+                  'display' => 'Encounter for screening for malignant neoplasm of colon',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Screening'
+            }
+          ]
+        )
+      end
+
+      it 'concatenates only the text fields that are present' do
+        result = subject.send(:extract_indication_for_use, resource_with_mixed_reason_codes)
+        expect(result).to eq('Acne; Screening')
       end
     end
   end
