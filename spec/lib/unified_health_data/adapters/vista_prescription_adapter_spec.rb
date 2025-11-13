@@ -85,6 +85,12 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result.prescription_name).to eq('Test Medication')
       end
 
+      it 'maps cmopDivisionPhone to cmop_division_phone' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.cmop_division_phone).to eq('555-1234')
+      end
+
       it 'maps dialCmopDivisionPhone field correctly' do
         result = subject.parse(base_vista_medication)
 
@@ -109,6 +115,26 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         result = subject.parse(base_vista_medication)
 
         expect(result.disclaimer).to be_nil
+      end
+    end
+
+    context 'with indication for use' do
+      let(:vista_medication_with_indication) do
+        base_vista_medication.merge('indicationForUse' => 'For blood pressure management')
+      end
+
+      it 'extracts the indication for use field' do
+        result = subject.parse(vista_medication_with_indication)
+
+        expect(result.indication_for_use).to eq('For blood pressure management')
+      end
+    end
+
+    context 'without indication for use' do
+      it 'sets indication_for_use to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.indication_for_use).to be_nil
       end
     end
 
