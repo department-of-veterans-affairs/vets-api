@@ -39,7 +39,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       instructions: 'Take twice daily with meals',
       facility_phone_number: '555-123-4567',
       prescription_source: 'VA',
-      remarks: 'Patient should monitor blood sugar levels'
+      remarks: 'Patient should monitor blood sugar levels',
       cmop_ndc_number: '00093721410'
     )
   end

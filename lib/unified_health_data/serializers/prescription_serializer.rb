@@ -29,7 +29,7 @@ module UnifiedHealthData
                  :facility_phone_number,
                  :cmop_division_phone,
                  :remarks
-                 :cmop_ndc_number
+      :cmop_ndc_number
     end
   end
 end

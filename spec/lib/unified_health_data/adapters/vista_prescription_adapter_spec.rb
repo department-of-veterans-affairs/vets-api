@@ -19,7 +19,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       'stationNumber' => '660',
       'sig' => 'Take as directed',
       'cmopDivisionPhone' => '555-1234',
-      'dialCmopDivisionPhone' => '555-DIAL-TEST'
+      'dialCmopDivisionPhone' => '555-DIAL-TEST',
       'cmopNdcNumber' => nil
     }
   end
