@@ -257,11 +257,11 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
         end
       end
 
-      context 'Max email attempts set to 5.' do
+      context "Max email attempts set to #{EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS}." do
         # This test exists because the previous max attempts was 16, which caused
         # production and staging performance issues due to database strain and job congestion.
         # Limiting to 5 attempts prevents excessive retries.
-        it 'Enforces max email attempts of 5.' do
+        it "Enforces max email attempts of #{EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS}." do
           expect(EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS).to eq(5)
         end
       end
