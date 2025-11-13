@@ -39,6 +39,7 @@ module Mobile
           totalCostRequested: claim['totalCostRequested'],
           reimbursementAmount: claim['reimbursementAmount'],
           rejectionReason: claim['rejectionReason'],
+          decisionLetterReason: claim['decision_letter_reason'],
           appointment: claim['appointment'],
           expenses: claim['expenses'],
           documents: claim['documents'],
