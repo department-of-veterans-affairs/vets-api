@@ -44,7 +44,8 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource)
+          is_refillable: extract_is_refillable(resource),
+          cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
 
@@ -246,7 +247,7 @@ module UnifiedHealthData
       end
 
       def extract_prescription_source(resource)
-        non_va_med?(resource) ? 'NV' : ''
+        non_va_med?(resource) ? 'NV' : 'VA'
       end
 
       def extract_category(resource)

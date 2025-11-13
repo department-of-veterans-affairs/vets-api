@@ -26,7 +26,8 @@ module UnifiedHealthData
                  :tracking,
                  :prescription_source,
                  :instructions,
-                 :facility_phone_number
+                 :facility_phone_number,
+                 :cmop_ndc_number
     end
   end
 end
