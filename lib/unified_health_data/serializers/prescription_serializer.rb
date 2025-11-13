@@ -28,7 +28,7 @@ module UnifiedHealthData
                  :instructions,
                  :facility_phone_number,
                  :remarks
-                 :cmop_ndc_number
+      :cmop_ndc_number
     end
   end
 end
