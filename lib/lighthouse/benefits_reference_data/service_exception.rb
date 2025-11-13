@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/backend_service_exception'
+require 'vets/shared_logging'
 
 module BenefitsReferenceData
   # Custom exception that maps Decision Review errors to error details defined in config/locales/exceptions.en.yml
   #
   class ServiceException
-    include SentryLogging
+    include Vets::SharedLogging
 
     def initialize(e)
       raise e unless e.respond_to?(:status)

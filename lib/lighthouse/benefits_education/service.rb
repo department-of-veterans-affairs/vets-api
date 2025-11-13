@@ -5,10 +5,11 @@ require 'common/client/concerns/monitoring'
 require 'lighthouse/benefits_education/configuration'
 require 'lighthouse/service_exception'
 require 'lighthouse/benefits_education/response'
+require 'vets/shared_logging'
 
 module BenefitsEducation
   class Service < Common::Client::Base
-    include SentryLogging
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
 
     configuration BenefitsEducation::Configuration

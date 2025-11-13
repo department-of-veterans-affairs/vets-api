@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module DebtManagementCenter
   class VANotifyEmailJob
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 14
     STATS_KEY = 'api.dmc.va_notify_email'
     VA_NOTIFY_CALLBACK_OPTIONS = {
@@ -56,6 +58,8 @@ module DebtManagementCenter
         },
         { error: :dmc_va_notify_email_job }
       )
+
+      log_exception_to_rails(e)
 
       raise e
     end

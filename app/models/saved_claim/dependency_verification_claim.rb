@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 class SavedClaim::DependencyVerificationClaim < CentralMailClaim
-  include SentryLogging
+  include Vets::SharedLogging
   FORM = '21-0538'
 
   def regional_office
@@ -18,6 +20,9 @@ class SavedClaim::DependencyVerificationClaim < CentralMailClaim
     update(form: form_copy.to_json)
 
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
+
+
+    log_message_to_rails(guid, :warn)
     process_attachments!
   end
 

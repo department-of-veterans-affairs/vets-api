@@ -5,11 +5,12 @@ require 'common/client/concerns/monitoring'
 require_relative 'configuration'
 require_relative 'responses/response'
 require 'erb'
+require 'vets/shared_logging'
 
 module Apps
   # Proxy Service for Apps API.
   class Client < Common::Client::Base
-    include SentryLogging
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
 
     configuration Apps::Configuration
