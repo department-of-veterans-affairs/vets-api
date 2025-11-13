@@ -28,7 +28,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
   describe '#perform' do
     it 'calls super perform method' do
       expect(bgs_service).to receive(:create_proc).and_return({ vnp_proc_id: proc_id })
-      expect(bgs_service).to receive(:create_proc_form).with(proc_id, '21-686C')
+      expect(bgs_service).to receive(:create_proc_form).with(proc_id, '21-686c')
       expect(bgs_service).to receive(:create_proc_form).with(proc_id, '21-674')
       expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions).with(parent_claim.id, proc_id)
       expect { job.perform(parent_claim.id) }.not_to raise_error
@@ -57,7 +57,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
       it 'creates proc forms for each child claim' do
         job.submit_to_service
 
-        expect(bgs_service).to have_received(:create_proc_form).with(proc_id, '21-686C')
+        expect(bgs_service).to have_received(:create_proc_form).with(proc_id, '21-686c')
       end
 
       it 'sets the proc_id instance variable' do

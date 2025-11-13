@@ -4,6 +4,7 @@ require 'dependents_benefits/sidekiq/bgs_proc_job'
 require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'dependents_benefits/sidekiq/bgs_686c_job'
 require 'dependents_benefits/sidekiq/claims_686c_job'
+require 'dependents_benefits/sidekiq/claims_674_job'
 require 'dependents_benefits/monitor'
 
 module DependentsBenefits
@@ -95,6 +96,9 @@ module DependentsBenefits
 
       # Enqueue primary 674 submission job
       Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
+      jobs_count += 1
+
+      Sidekiq::Claims674Job.perform_async(claim.id, proc_id)
       jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',
