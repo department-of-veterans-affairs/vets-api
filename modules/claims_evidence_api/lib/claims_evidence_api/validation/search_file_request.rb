@@ -4,7 +4,7 @@ require 'claims_evidence_api/json_schema'
 
 module ClaimsEvidenceApi
   module Validation
-    # validation and transfomation specific to the available filters and sort for files:search
+    # validation and transformation specific to the available filters and sort for files:search
     module SearchFileRequest
       class << self
         # assemble the list of valid filter fields to be used in #transform
@@ -88,9 +88,9 @@ module ClaimsEvidenceApi
 
         # validate the Sort
         #
-        # @param sorts [Hash] list of search sort; @see schema/filters
+        # @param sorts [Array<Hash>] list of search sort; @see schema/filters
         #
-        # @return [Hash] valid filter list
+        # @return [Array<Hash>] valid sort list
         # @raise JSON::Schema::ValidationError
         def validate(sorts)
           JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::SEARCH_FILE_SORT, sorts)
@@ -111,7 +111,7 @@ module ClaimsEvidenceApi
         #
         # @param sorts [Hash] key-value pairs to transform
         #
-        # @return [Hash] valid json schema hash for use in search
+        # @return [Array<Hash>] valid json schema array for use in search
         # @raise JSON::Schema::ValidationError
         def transform(sorts)
           transformed = sorts.each_with_object([]) do |(property, direction), xformed|

@@ -54,7 +54,7 @@ module ClaimsEvidenceApi
       end
 
       # assemble and validate the file:search (POST) payload
-      # @see ClaimsEvidenceApi::Validation::SearchFilters
+      # @see ClaimsEvidenceApi::Validation::SearchFileRequest
       # @see modules/claims_evidence_api/lib/claims_evidence_api/schema/searchFileRequest.json
       #
       # @param results_per_page [Integer] number of results per page; default = 10

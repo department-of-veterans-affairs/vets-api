@@ -117,7 +117,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
     end
 
     it 'raises an exception if schema is not valid' do
-      expect { service.create(file_path, provider_data: {}) }.to raise_error JSON::Schema::ValidationError
+      expect { service.overwrite(uuid, file_path, provider_data: {}) }.to raise_error JSON::Schema::ValidationError
     end
   end
 end

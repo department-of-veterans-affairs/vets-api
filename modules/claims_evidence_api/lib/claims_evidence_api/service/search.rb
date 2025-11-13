@@ -7,9 +7,9 @@ module ClaimsEvidenceApi
     # Search API
     # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Folder/searchFiles
     class Search < Base
-      # POST find a list of documents matching filter criteria in a folder_indentifier
+      # POST find a list of documents matching filter criteria in a folder_identifier
       # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Folder/searchFiles
-      # @see ClaimsEvidenceApi::Validation::SearchFilters
+      # @see ClaimsEvidenceApi::Validation::SearchFileRequest
       #
       # @param results_per_page [Integer] number of results per page; default = 10
       # @param page [Integer] page to begin returning results; default = 1
@@ -38,7 +38,7 @@ module ClaimsEvidenceApi
         'search'
       end
 
-      # end Files
+      # end Search
     end
 
     # end Service

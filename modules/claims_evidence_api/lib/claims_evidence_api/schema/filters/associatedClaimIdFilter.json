@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema",
-  "$id": "https://claims_evidence_api.va.gov/schema/filters/associatedClaimId.json",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/associatedClaimIdFilter.json",
   "description" : "Filter based on the claims associated to the documents.",
   "properties" : {
     "evaluationType" : {

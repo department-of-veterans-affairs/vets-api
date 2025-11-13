@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema",
   "$id": "https://claims_evidence_api.va.gov/schema/filters/claimantSsnFilter.json",
-  "description" : "Filter based on the claims associated to the documents.",
+  "description" : "Filter based on the claimant SSN.",
   "properties" : {
     "evaluationType" : {
       "enum" : [ "EQUALS" ],
@@ -13,6 +13,6 @@
       "type" : "string"
     }
   },
-  "title" : "Associated Claim ID Request",
+  "title" : "Claimant SSN Request",
   "type" : "object"
 }
