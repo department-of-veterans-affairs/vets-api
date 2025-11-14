@@ -21,14 +21,10 @@ module MyHealth
       end
 
       # UHD uses 'instructions' field, alias as 'sig'
-      attribute :sig do |object|
-        object.instructions
-      end
+      attribute :sig, &:instructions
 
       # UHD uses 'facility_phone_number' field, alias as 'cmop_division_phone'
-      attribute :cmop_division_phone do |object|
-        object.facility_phone_number
-      end
+      attribute :cmop_division_phone, &:facility_phone_number
 
       attribute :user_id do |object|
         object.user_id if object.respond_to?(:user_id)
@@ -101,9 +97,7 @@ module MyHealth
       attribute :category
 
       # UHD has 'tracking' array field, alias as 'tracking_list'
-      attribute :tracking_list do |object|
-        object.tracking
-      end
+      attribute :tracking_list, &:tracking
 
       attribute :rx_rf_records do |object|
         object.rx_rf_records if object.respond_to?(:rx_rf_records)

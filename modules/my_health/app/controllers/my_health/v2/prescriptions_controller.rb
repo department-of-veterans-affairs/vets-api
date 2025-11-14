@@ -32,39 +32,12 @@ module MyHealth
         prescriptions = resource_data_modifications(prescriptions).compact
 
         filter_count = set_filter_metadata(prescriptions, raw_data)
-        prescriptions = apply_filters_to_list(prescriptions) if params[:filter].present?
-        prescriptions = apply_sorting_to_list(prescriptions, params[:sort])
-        prescriptions = sort_prescriptions_with_pd_at_top(prescriptions)
-        is_using_pagination = params[:page].present? || params[:per_page].present?
-        prescriptions = params[:include_image].present? ? fetch_and_include_images(prescriptions) : prescriptions
-        
-        # Build response based on pagination
-        if is_using_pagination
-          collection = Vets::Collection.new(prescriptions)
-          paginated = collection.paginate(
-            page: pagination_params[:page],
-            per_page: pagination_params[:per_page]
-          )
-          
-          options = { 
-            meta: filter_count.merge(
-              recently_requested: recently_requested,
-              pagination: paginated.metadata[:pagination]
-            )
-          }
-          options[:links] = pagination_links(paginated)
-          records = paginated.data
-        else
-          options = { meta: filter_count.merge(recently_requested: recently_requested) }
-          records = Array(prescriptions)
-        end
+        prescriptions = apply_filters_and_sorting(prescriptions)
+        prescriptions = fetch_and_include_images(prescriptions) if params[:include_image].present?
 
-        # Log unique user event for prescriptions accessed
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
-        )
+        records, options = build_response_data(prescriptions, filter_count, recently_requested)
 
+        log_prescriptions_access
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
       end
 
@@ -101,10 +74,51 @@ module MyHealth
         false
       end
 
-      def get_recently_requested_prescriptions(data)
-        data.select do |item|
-          item.respond_to?(:disp_status) && ['Active: Refill in Process', 'Active: Submitted'].include?(item.disp_status)
-        end.compact
+      def apply_filters_and_sorting(prescriptions)
+        prescriptions = apply_filters_to_list(prescriptions) if params[:filter].present?
+        prescriptions = apply_sorting_to_list(prescriptions, params[:sort])
+        sort_prescriptions_with_pd_at_top(prescriptions)
+      end
+
+      def build_response_data(prescriptions, filter_count, recently_requested)
+        is_using_pagination = params[:page].present? || params[:per_page].present?
+
+        if is_using_pagination
+          build_paginated_response(prescriptions, filter_count, recently_requested)
+        else
+          [Array(prescriptions), { meta: filter_count.merge(recently_requested:) }]
+        end
+      end
+
+      def build_paginated_response(prescriptions, filter_count, recently_requested)
+        collection = Vets::Collection.new(prescriptions)
+        paginated = collection.paginate(
+          page: pagination_params[:page],
+          per_page: pagination_params[:per_page]
+        )
+
+        options = {
+          meta: filter_count.merge(
+            recently_requested:,
+            pagination: paginated.metadata[:pagination]
+          ),
+          links: pagination_links(paginated)
+        }
+        [paginated.data, options]
+      end
+
+      def log_prescriptions_access
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        )
+      end
+
+      def get_recently_requested_prescriptions(prescriptions)
+        prescriptions.select do |item|
+          item.respond_to?(:disp_status) && ['Active: Refill in Process',
+                                             'Active: Submitted'].include?(item.disp_status)
+        end
       end
 
       # rubocop:disable ThreadSafety/NewThread
@@ -116,9 +130,7 @@ module MyHealth
           if cmop_ndc_number.present?
             image_uri = get_image_uri(cmop_ndc_number)
             threads << Thread.new(item) do |thread_item|
-              if thread_item.respond_to?(:prescription_image=)
-                thread_item.prescription_image = fetch_image(image_uri)
-              end
+              thread_item.prescription_image = fetch_image(image_uri) if thread_item.respond_to?(:prescription_image=)
             rescue => e
               Rails.logger.debug { "Error fetching image for NDC #{cmop_ndc_number}: #{e.message}" }
             end
@@ -160,7 +172,9 @@ module MyHealth
             filter_renewals(prescriptions)
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-            prescriptions.select { |item| item.respond_to?(:disp_status) && filters.include?(item.disp_status.downcase) }
+            prescriptions.select do |item|
+              item.respond_to?(:disp_status) && filters.include?(item.disp_status.downcase)
+            end
           end
         else
           prescriptions
@@ -212,15 +226,19 @@ module MyHealth
         filled_meds = filled_meds.sort_by do |med|
           date = med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : Date.new(0)
           name = med.respond_to?(:prescription_name) ? med.prescription_name.to_s.downcase : ''
-          [-(date&.to_time&.to_i || 0), name]
+          [-date&.to_time.to_i, name]
         end
 
-        non_va_meds = empty_dispense_date_meds.select { |med| med.respond_to?(:prescription_source) && med.prescription_source == 'NV' }
-        va_meds = empty_dispense_date_meds.reject { |med| med.respond_to?(:prescription_source) && med.prescription_source == 'NV' }
-        
+        non_va_meds = empty_dispense_date_meds.select do |med|
+          med.respond_to?(:prescription_source) && med.prescription_source == 'NV'
+        end
+        va_meds = empty_dispense_date_meds.reject do |med|
+          med.respond_to?(:prescription_source) && med.prescription_source == 'NV'
+        end
+
         non_va_meds.sort_by! { |med| med.respond_to?(:prescription_name) ? med.prescription_name.to_s.downcase : '' }
         va_meds.sort_by! { |med| med.respond_to?(:prescription_name) ? med.prescription_name.to_s.downcase : '' }
-        
+
         filled_meds + va_meds + non_va_meds
       end
 
@@ -228,8 +246,10 @@ module MyHealth
         sorted_records = prescriptions.sort_by { |med| get_medication_name(med) }
 
         sorted_records.group_by { |med| get_medication_name(med) }.flat_map do |_name, meds|
-          empty_dates, with_dates = meds.partition { |med| empty_field?(med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : nil) }
-          sorted_with_dates = with_dates.sort_by { |med| -(med.sorted_dispensed_date&.to_time&.to_i || 0) }
+          empty_dates, with_dates = meds.partition do |med|
+            empty_field?(med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : nil)
+          end
+          sorted_with_dates = with_dates.sort_by { |med| -med.sorted_dispensed_date&.to_time.to_i }
           empty_dates + sorted_with_dates
         end
       end
@@ -251,7 +271,7 @@ module MyHealth
       end
 
       def get_medication_name(med)
-        if med.respond_to?(:disp_status) && med.disp_status == 'Active: Non-VA' && 
+        if med.respond_to?(:disp_status) && med.disp_status == 'Active: Non-VA' &&
            (!med.respond_to?(:prescription_name) || med.prescription_name.nil?)
           med.respond_to?(:orderable_item) ? (med.orderable_item || '') : ''
         else
@@ -265,16 +285,17 @@ module MyHealth
 
       def resource_data_modifications(prescriptions)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, @current_user)
-        
-        prescriptions = if params[:filter].blank? && display_pending_meds
-                          prescriptions.reject { |item| item.respond_to?(:prescription_source) && item.prescription_source == 'PF' }
-                        else
-                          remove_pf_pd(prescriptions)
-                        end
-        
+
+        if params[:filter].blank? && display_pending_meds
+          prescriptions.reject do |item|
+            item.respond_to?(:prescription_source) && item.prescription_source == 'PF'
+          end
+        else
+          remove_pf_pd(prescriptions)
+        end
+
         # Skip grouping for now to avoid performance issues with UHD prescriptions
         # TODO: Implement efficient grouping for UHD prescriptions
-        prescriptions
       end
 
       def set_filter_metadata(list, non_modified_collection)
@@ -304,12 +325,18 @@ module MyHealth
 
       def remove_pf_pd(data)
         sources_to_remove_from_data = %w[PF PD]
-        data.reject { |item| item.respond_to?(:prescription_source) && sources_to_remove_from_data.include?(item.prescription_source) }
+        data.reject do |item|
+          item.respond_to?(:prescription_source) && sources_to_remove_from_data.include?(item.prescription_source)
+        end
       end
 
       def sort_prescriptions_with_pd_at_top(prescriptions)
-        pd_prescriptions = prescriptions.select { |med| med.respond_to?(:prescription_source) && med.prescription_source == 'PD' }
-        other_prescriptions = prescriptions.reject { |med| med.respond_to?(:prescription_source) && med.prescription_source == 'PD' }
+        pd_prescriptions = prescriptions.select do |med|
+          med.respond_to?(:prescription_source) && med.prescription_source == 'PD'
+        end
+        other_prescriptions = prescriptions.reject do |med|
+          med.respond_to?(:prescription_source) && med.prescription_source == 'PD'
+        end
 
         pd_prescriptions + other_prescriptions
       end

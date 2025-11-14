@@ -16,7 +16,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       it 'returns forbidden' do
         allow(Flipper).to receive(:enabled?).and_return(false)
 
-        get '/my_health/v2/prescriptions', headers: headers
+        get('/my_health/v2/prescriptions', headers:)
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -29,7 +29,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'returns a successful response' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
@@ -39,7 +39,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'returns prescription data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(json_response['data']).to be_an(Array)
@@ -49,7 +49,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'includes expected attributes' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           prescription = json_response['data'].first
@@ -66,12 +66,12 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'includes metadata' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(json_response['meta']).to have_key('filter_count')
           expect(json_response['meta']).to have_key('recently_requested')
-          
+
           # Verify filter_count includes all expected fields
           filter_count = json_response['meta']['filter_count']
           expect(filter_count).to include(
@@ -87,7 +87,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'includes Oracle/UHD data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(json_response['data']).to be_an(Array)
@@ -107,7 +107,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           expect(attributes).to have_key('is_refillable')
           expect(attributes).to have_key('is_trackable')
           expect(attributes).to have_key('prescription_source')
-          
+
           # Verify the prescription_source indicates this is from Oracle
           expect(attributes['prescription_source']).to eq('RX')
         end
@@ -115,7 +115,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'groups prescription renewals together' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           prescriptions = json_response['data']
@@ -125,17 +125,17 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             rx['attributes']['prescription_number'] == '2721391' &&
               rx['attributes']['prescription_source'] == 'RX'
           end
-          
-          expect(base_prescription).not_to be_nil, 
-            'Expected to find prescription 2721391 with RX source as base'
+
+          expect(base_prescription).not_to be_nil,
+                                           'Expected to find prescription 2721391 with RX source as base'
 
           # Verify it has grouped_medications
           grouped_meds = base_prescription['attributes']['grouped_medications']
-          expect(grouped_meds).to be_present, 
-            'Expected prescription 2721391 (RX) to have grouped_medications'
+          expect(grouped_meds).to be_present,
+                                  'Expected prescription 2721391 (RX) to have grouped_medications'
           expect(grouped_meds).to be_an(Array)
-          expect(grouped_meds.length).to eq(1), 
-            'Expected prescription 2721391 to have 1 renewal (RF1)'
+          expect(grouped_meds.length).to eq(1),
+                                         'Expected prescription 2721391 to have 1 renewal (RF1)'
 
           # Verify the grouped medication details
           renewal = grouped_meds.first
@@ -148,7 +148,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
               rx['attributes']['prescription_source'] == 'RF'
           end
           expect(rf_in_main_list).to be_nil,
-            'RF renewal should not appear separately in the main list'
+                                     'RF renewal should not appear separately in the main list'
         end
       end
 
@@ -158,7 +158,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           get '/my_health/v2/prescriptions', headers: camel_headers
 
           json_response = JSON.parse(response.body)
-          
+
           # Verify meta keys are camelCase
           expect(json_response['meta']).to have_key('filterCount')
           expect(json_response['meta']).to have_key('recentlyRequested')
@@ -181,7 +181,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # UHD prescriptions don't have cmop_ndc_value so images won't be fetched,
           # but the parameter should be accepted and not cause errors
-          get '/my_health/v2/prescriptions', params: { include_image: true }, headers: headers
+          get('/my_health/v2/prescriptions', params: { include_image: true }, headers:)
 
           expect(response).to have_http_status(:success)
           json_response = JSON.parse(response.body)
@@ -200,15 +200,15 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'includes PD (pending) prescriptions in the response' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get '/my_health/v2/prescriptions', headers: headers
+            get('/my_health/v2/prescriptions', headers:)
 
             json_response = JSON.parse(response.body)
-            
+
             # Find PD prescriptions
             pd_prescriptions = json_response['data'].select do |rx|
               rx['attributes']['prescription_source'] == 'PD'
             end
-            
+
             expect(pd_prescriptions).not_to be_empty, 'Expected to find PD prescriptions when flipper is enabled'
           end
         end
@@ -224,15 +224,15 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'excludes PD (pending) prescriptions from the response' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get '/my_health/v2/prescriptions', headers: headers
+            get('/my_health/v2/prescriptions', headers:)
 
             json_response = JSON.parse(response.body)
-            
+
             # Verify no PD prescriptions are present
             pd_prescriptions = json_response['data'].select do |rx|
               rx['attributes']['prescription_source'] == 'PD'
             end
-            
+
             expect(pd_prescriptions).to be_empty, 'Expected no PD prescriptions when flipper is disabled'
           end
         end
@@ -240,11 +240,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'includes pagination metadata' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', params: { page: 1, per_page: 5 }, headers: headers
+          get('/my_health/v2/prescriptions', params: { page: 1, per_page: 5 }, headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
-          
+
           # Verify pagination metadata
           expect(json_response['meta']).to have_key('pagination')
           pagination = json_response['meta']['pagination']
@@ -252,14 +252,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           expect(pagination['per_page']).to eq(5)
           expect(pagination).to have_key('total_pages')
           expect(pagination).to have_key('total_entries')
-          
+
           # Verify pagination links (all five standard pagination links)
           expect(json_response['links']).to have_key('self')
           expect(json_response['links']).to have_key('first')
           expect(json_response['links']).to have_key('last')
           expect(json_response['links']).to have_key('prev')
           expect(json_response['links']).to have_key('next')
-          
+
           # Verify data length respects per_page limit
           expect(json_response['data'].length).to be <= 5
         end
@@ -267,43 +267,43 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'sorts prescriptions alphabetically by name' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', params: { sort: 'alphabetical-rx-name' }, headers: headers
+          get('/my_health/v2/prescriptions', params: { sort: 'alphabetical-rx-name' }, headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
-          
+
           # Get non-PD prescription data
           prescriptions = json_response['data']
-                            .reject { |rx| rx['attributes']['prescription_source'] == 'PD' }
-          
+                          .reject { |rx| rx['attributes']['prescription_source'] == 'PD' }
+
           prescription_names = prescriptions.map { |rx| rx['attributes']['prescription_name'] }
-          
+
           # Verify they are sorted alphabetically (case-insensitive)
           expect(prescription_names).to eq(prescription_names.sort)
-          
+
           # If prescriptions have the same name, verify secondary sort by dispensed_date (newest first)
           prescriptions.group_by { |rx| rx['attributes']['prescription_name'] }.each_value do |meds|
             next if meds.length < 2
-            
-            dispensed_dates = meds.map { |m| m['attributes']['sorted_dispensed_date'] || m['attributes']['dispensed_date'] }.compact
-            
+
+            dispensed_dates = meds.map do |m|
+              m['attributes']['sorted_dispensed_date'] || m['attributes']['dispensed_date']
+            end.compact
+
             # Verify dates are in descending order (newest first)
-            if dispensed_dates.length > 1
-              expect(dispensed_dates).to eq(dispensed_dates.sort.reverse)
-            end
+            expect(dispensed_dates).to eq(dispensed_dates.sort.reverse) if dispensed_dates.length > 1
           end
         end
       end
 
       it 'accepts last-fill-date sort parameter' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', params: { sort: 'last-fill-date' }, headers: headers
+          get('/my_health/v2/prescriptions', params: { sort: 'last-fill-date' }, headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
           expect(json_response['data']).to be_an(Array)
           expect(json_response['data']).not_to be_empty
-          
+
           # Verify prescriptions have dispensed_date field
           prescription_with_date = json_response['data'].find { |rx| rx['attributes']['dispensed_date'].present? }
           expect(prescription_with_date).not_to be_nil
@@ -312,29 +312,29 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'uses default sort order when no sort parameter provided' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
-          
+
           # Default sort is by disp_status ASC, then prescription_name ASC
           # Skip PD prescriptions in verification
           prescriptions = json_response['data'].reject { |rx| rx['attributes']['prescription_source'] == 'PD' }
-          
+
           # Verify that prescriptions are grouped by disp_status and within each group sorted by name
           prev_status = nil
           prev_name = nil
-          
+
           prescriptions.each do |rx|
             attrs = rx['attributes']
             status = attrs['disp_status'] || ''
             name = attrs['prescription_name'] || ''
-            
-            if prev_status && prev_status == status
+
+            if prev_status && prev_status == status && prev_name
               # Within same status, names should be ascending
-              expect(name).to be >= prev_name if prev_name
+              expect(name).to be >= prev_name
             end
-            
+
             prev_status = status
             prev_name = name
           end
@@ -344,55 +344,51 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       it 'accepts disp_status filter parameter' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # Test with Active filter - use query string format
-          get '/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active', headers: headers
+          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
           expect(json_response['data']).to be_an(Array)
-          
+
           # Verify filter_count metadata exists and contains expected fields
           expect(json_response['meta']).to have_key('filter_count')
           expect(json_response['meta']['filter_count']).to include(
             'all_medications', 'active', 'recently_requested', 'renewal', 'non_active'
           )
-          
+
           # Verify all returned prescriptions match the filter (Active)
           disp_statuses = json_response['data'].map { |rx| rx['attributes']['disp_status'] }.compact
-          if disp_statuses.any?
-            expect(disp_statuses).to all(eq('Active'))
-          end
+          expect(disp_statuses).to all(eq('Active')) if disp_statuses.any?
         end
       end
 
       it 'filters and paginates prescriptions' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active&page=1&per_page=2', headers: headers
+          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active&page=1&per_page=2', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
           expect(json_response['data'].length).to be <= 2
-          
+
           # Verify pagination metadata is present when using both filter and pagination
           expect(json_response['meta']).to have_key('pagination')
           expect(json_response['meta']['pagination']['per_page']).to eq(2)
         end
       end
-      
+
       it 'filters prescriptions with multiple disp_status values' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers: headers
+          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
-          
+
           # Verify filter_count metadata
           expect(json_response['meta']).to have_key('filter_count')
-          
+
           # Verify all returned prescriptions have disp_status of Active or Expired
           disp_statuses = json_response['data'].map { |rx| rx['attributes']['disp_status'] }.compact
-          if disp_statuses.any?
-            expect(disp_statuses).to all(be_in(%w[Active Expired]))
-          end
+          expect(disp_statuses).to all(be_in(%w[Active Expired])) if disp_statuses.any?
         end
       end
 
@@ -401,10 +397,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Mock UniqueUserEvents to verify log_event is called
           allow(UniqueUserEvents).to receive(:log_event)
 
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           expect(response).to have_http_status(:success)
-          
+
           # Verify event logging was called
           expect(UniqueUserEvents).to have_received(:log_event).with(
             user: anything,
@@ -415,19 +411,19 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'includes recently_requested prescriptions in metadata' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(json_response['meta']).to have_key('recently_requested')
-          
+
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
-          
+
           # Verify recently_requested contains prescriptions with specific disp_status values
           # These should be prescriptions with 'Active: Refill in Process' or 'Active: Submitted'
           recently_requested.each do |rx|
             status = rx['disp_status']
-            expect(['Active: Refill in Process', 'Active: Submitted']).to include(status) if status.present?
+            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
           end
         end
       end
@@ -439,15 +435,15 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(true)
 
-          get '/my_health/v2/prescriptions', headers: headers
+          get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
-          
+
           # Find indices of PD and non-PD prescriptions
           pd_indices = []
           non_pd_indices = []
-          
+
           json_response['data'].each_with_index do |rx, index|
             if rx['attributes']['prescription_source'] == 'PD'
               pd_indices << index
@@ -455,11 +451,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
               non_pd_indices << index
             end
           end
-          
+
           # All PD prescriptions should come before all non-PD prescriptions
           if pd_indices.any? && non_pd_indices.any?
-            expect(pd_indices.max).to be < non_pd_indices.min, 
-                   'PD prescriptions should appear before non-PD prescriptions'
+            expect(pd_indices.max).to be < non_pd_indices.min,
+                                      'PD prescriptions should appear before non-PD prescriptions'
           end
         end
       end
@@ -480,9 +476,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             { stationNumber: '989', id: '3636691' }
           ]
 
-          post '/my_health/v2/prescriptions/refill',
+          post('/my_health/v2/prescriptions/refill',
                params: orders.to_json,
-               headers: headers
+               headers:)
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
@@ -500,12 +496,12 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         # Missing required fields
         invalid_orders = [
-          { stationNumber: '989' }  # missing id
+          { stationNumber: '989' } # missing id
         ]
 
-        post '/my_health/v2/prescriptions/refill',
+        post('/my_health/v2/prescriptions/refill',
              params: invalid_orders.to_json,
-             headers: headers
+             headers:)
 
         expect(response).to have_http_status(:bad_request)
       end
@@ -516,9 +512,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         # Not an array
         invalid_params = { stationNumber: '989', id: '3636691' }
 
-        post '/my_health/v2/prescriptions/refill',
+        post('/my_health/v2/prescriptions/refill',
              params: invalid_params.to_json,
-             headers: headers
+             headers:)
 
         expect(response).to have_http_status(:bad_request)
       end
@@ -529,9 +525,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         # Empty array
         empty_orders = []
 
-        post '/my_health/v2/prescriptions/refill',
+        post('/my_health/v2/prescriptions/refill',
              params: empty_orders.to_json,
-             headers: headers
+             headers:)
 
         expect(response).to have_http_status(:bad_request)
       end
@@ -545,9 +541,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           { stationNumber: '989', id: '3636691' }
         ]
 
-        post '/my_health/v2/prescriptions/refill',
+        post('/my_health/v2/prescriptions/refill',
              params: orders.to_json,
-             headers: headers
+             headers:)
 
         expect(response).to have_http_status(:forbidden)
       end

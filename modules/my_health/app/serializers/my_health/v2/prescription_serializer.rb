@@ -19,7 +19,7 @@ module MyHealth
       attribute :prescription_id
       attribute :prescription_number
       attribute :prescription_name
-      
+
       attribute :prescription_image do |object|
         object.prescription_image if object.respond_to?(:prescription_image)
       end
@@ -30,7 +30,11 @@ module MyHealth
       attribute :refill_remaining
 
       attribute :facility_name do |object|
-        object.respond_to?(:facility_api_name) && object.facility_api_name.present? ? object.facility_api_name : object.facility_name
+        if object.respond_to?(:facility_api_name) && object.facility_api_name.present?
+          object.facility_api_name
+        else
+          object.facility_name
+        end
       end
 
       attribute :ordered_date

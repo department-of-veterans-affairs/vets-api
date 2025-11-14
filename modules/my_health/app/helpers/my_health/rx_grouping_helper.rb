@@ -20,18 +20,7 @@ module MyHealth
 
         base_prescription, related_prescriptions = find_base_prescription(related_prescriptions, prescription)
         related_prescriptions = sort_related_prescriptions(related_prescriptions)
-        
-        # Defensively handle grouped_medications - only set if the object supports it
-        if base_prescription.respond_to?(:grouped_medications=)
-          base_prescription.grouped_medications ||= []
-        elsif base_prescription.respond_to?(:grouped_medications)
-          # If it's read-only but exists, try to use it
-          base_prescription.grouped_medications ||= []
-        else
-          # Create an instance variable if the attribute doesn't exist
-          base_prescription.instance_variable_set(:@grouped_medications, [])
-        end
-        
+        initialize_grouped_medications(base_prescription)
         add_group_meds_and_delete(related_prescriptions, base_prescription, prescriptions)
 
         grouped_prescriptions << base_prescription
@@ -72,6 +61,16 @@ module MyHealth
     end
 
     private
+
+    def initialize_grouped_medications(prescription)
+      # Defensively handle grouped_medications - only set if the object supports it
+      if prescription.respond_to?(:grouped_medications=) || prescription.respond_to?(:grouped_medications)
+        prescription.grouped_medications ||= []
+      else
+        # Create an instance variable if the attribute doesn't exist
+        prescription.instance_variable_set(:@grouped_medications, [])
+      end
+    end
 
     def add_solo_med_and_delete(grouped_prescriptions, prescriptions, prescription)
       grouped_prescriptions << prescription
