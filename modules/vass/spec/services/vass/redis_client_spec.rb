@@ -300,6 +300,26 @@ describe Vass::RedisClient do
         end
       end
     end
+
+    context 'when session data is corrupted' do
+      before do
+        # Write invalid JSON to cache
+        Rails.cache.write(
+          "session_#{session_token}",
+          'invalid json {corrupt data',
+          namespace: 'vass-session-cache'
+        )
+      end
+
+      it 'returns nil' do
+        expect(redis_client.session(session_token:)).to be_nil
+      end
+
+      it 'logs the parse error without PHI' do
+        expect(Rails.logger).to receive(:error).with('VASS RedisClient failed to parse session data from cache')
+        redis_client.session(session_token:)
+      end
+    end
   end
 
   describe '#edipi' do

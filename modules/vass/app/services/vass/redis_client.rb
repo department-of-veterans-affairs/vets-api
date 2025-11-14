@@ -143,7 +143,12 @@ module Vass
 
       return nil if cached.nil?
 
-      Oj.load(cached).with_indifferent_access
+      begin
+        Oj.load(cached).with_indifferent_access
+      rescue Oj::ParseError
+        Rails.logger.error('VASS RedisClient failed to parse session data from cache')
+        nil
+      end
     end
 
     ##
