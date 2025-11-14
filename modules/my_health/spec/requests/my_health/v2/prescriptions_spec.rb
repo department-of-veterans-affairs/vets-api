@@ -113,6 +113,45 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
+      it 'groups prescription renewals together' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get '/my_health/v2/prescriptions', headers: headers
+
+          json_response = JSON.parse(response.body)
+          prescriptions = json_response['data']
+
+          # Find prescription 2721391 which should have grouped renewals (RX base + RF1)
+          base_prescription = prescriptions.find do |rx|
+            rx['attributes']['prescription_number'] == '2721391' &&
+              rx['attributes']['prescription_source'] == 'RX'
+          end
+          
+          expect(base_prescription).not_to be_nil, 
+            'Expected to find prescription 2721391 with RX source as base'
+
+          # Verify it has grouped_medications
+          grouped_meds = base_prescription['attributes']['grouped_medications']
+          expect(grouped_meds).to be_present, 
+            'Expected prescription 2721391 (RX) to have grouped_medications'
+          expect(grouped_meds).to be_an(Array)
+          expect(grouped_meds.length).to eq(1), 
+            'Expected prescription 2721391 to have 1 renewal (RF1)'
+
+          # Verify the grouped medication details
+          renewal = grouped_meds.first
+          expect(renewal['prescription_number']).to eq('2721391')
+          expect(renewal['prescription_source']).to eq('RF')
+
+          # Verify that the RF1 renewal is NOT in the main list as a separate entry
+          rf_in_main_list = prescriptions.find do |rx|
+            rx['attributes']['prescription_number'] == '2721391' &&
+              rx['attributes']['prescription_source'] == 'RF'
+          end
+          expect(rf_in_main_list).to be_nil,
+            'RF renewal should not appear separately in the main list'
+        end
+      end
+
       it 'returns camelCase when X-Key-Inflection: camel header is provided' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           camel_headers = headers.merge('X-Key-Inflection' => 'camel')

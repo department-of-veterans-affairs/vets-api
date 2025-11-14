@@ -20,10 +20,12 @@ module UnifiedHealthData
 
       def build_prescription_attributes(medication)
         tracking_data = build_tracking_information(medication)
+        grouped_meds = parse_rf_records(medication)
 
         build_core_attributes(medication)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(medication))
+          .merge(grouped_medications: grouped_meds)
       end
 
       def build_core_attributes(medication)
@@ -94,6 +96,14 @@ module UnifiedHealthData
             station_number: prescription['stationNumber']
           }
         end
+      end
+
+      def parse_rf_records(medication)
+        rf_records = medication.dig('rxRFRecords', 'rfRecord')
+        return [] unless rf_records.is_a?(Array)
+
+        # Parse each RF record as a full prescription object
+        rf_records.map { |rf| parse(rf) }.compact
       end
 
       def convert_to_iso8601(date_string, field_name:)
