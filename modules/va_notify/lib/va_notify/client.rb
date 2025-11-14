@@ -31,7 +31,7 @@ module VaNotify
       @callback_options = callback_options || {}
 
       # Offsets are based on the format: 'test-key-' (9 chars) + service_id (36) + '-' (1) + secret_token (36)
-      @service_id = api_key[(api_key.length - SERVICE_ID_OFFSET)..(api_key.length - SECRET_TOKEN_LENGTH - 1)]
+      @service_id = api_key[(api_key.length - SERVICE_ID_OFFSET)..(api_key.length - SECRET_TOKEN_LENGTH - 2)]
       @secret_token = api_key[(api_key.length - SECRET_TOKEN_LENGTH)..api_key.length]
 
       validate_tokens!
