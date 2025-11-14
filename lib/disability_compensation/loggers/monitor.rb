@@ -20,7 +20,7 @@ module DisabilityCompensation
       SUBMISSION_STATS_KEY = 'api.disability_compensation.submission'
 
       def initialize
-        super(SERVICE_NAME)
+        super(SERVICE_NAME, allowlist: %w[completely_removed removed_keys submission_id tags])
       end
 
       # Logs SavedClaim ActiveRecord save errors
