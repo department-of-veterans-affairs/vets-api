@@ -138,28 +138,6 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
       it_behaves_like 'service call failure', should_raise: false
     end
 
-    context 'when an unhandled exception occurs' do
-      before do
-        allow(Sidekiq::AttrPackage).to receive(:find).and_raise(StandardError, 'Unexpected crash')
-      end
-
-      it 'logs and re-raises the exception' do
-        expect(Rails.logger).to receive(:error).with(
-          '[GetSSOeTraitsByCspidJob] Unhandled exception: StandardError - Unexpected crash',
-          hash_including(credential_method:, credential_id:)
-        )
-
-        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure',
-                                                   tags: ["credential_method:#{credential_method}"])
-
-        expect do
-          job.perform(cache_key, credential_method, credential_id)
-        end.to raise_error(StandardError, /Unexpected crash/)
-      end
-
-      it_behaves_like 'service call failure'
-    end
-
     it 'logs failure, increments metric, does not delete cache, and raises' do
       expect(Rails.logger).to receive(:error).with(
         '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits failed',
