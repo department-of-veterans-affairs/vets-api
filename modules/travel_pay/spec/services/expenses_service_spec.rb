@@ -51,13 +51,7 @@ describe TravelPay::ExpensesService do
           'dateIncurred' => '2024-10-02',
           'description' => 'Hotel stay',
           'costRequested' => 125.50,
-          'expenseType' => 'lodging',
-          'expenseReceipt' => {
-            'contentType' => 'image/bmp',
-            'length' => 58,
-            'fileName' => 'placeholder.bmp',
-            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-          }
+          'expenseType' => 'lodging'
         }
 
         allow_any_instance_of(TravelPay::ExpensesClient)
@@ -83,13 +77,7 @@ describe TravelPay::ExpensesService do
           'dateIncurred' => '2024-10-02',
           'description' => 'Lunch during appointment',
           'costRequested' => 15.75,
-          'expenseType' => 'meal',
-          'expenseReceipt' => {
-            'contentType' => 'image/bmp',
-            'length' => 58,
-            'fileName' => 'placeholder.bmp',
-            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-          }
+          'expenseType' => 'meal'
         }
 
         allow_any_instance_of(TravelPay::ExpensesClient)
@@ -115,13 +103,7 @@ describe TravelPay::ExpensesService do
           'dateIncurred' => '2024-10-02',
           'description' => 'Parking fee',
           'costRequested' => 10.00,
-          'expenseType' => 'other',
-          'expenseReceipt' => {
-            'contentType' => 'image/bmp',
-            'length' => 58,
-            'fileName' => 'placeholder.bmp',
-            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-          }
+          'expenseType' => 'other'
         }
 
         allow_any_instance_of(TravelPay::ExpensesClient)
@@ -203,13 +185,7 @@ describe TravelPay::ExpensesService do
             'dateIncurred' => '2024-10-02',
             'description' => 'Parking fee',
             'costRequested' => 10.00,
-            'expenseType' => 'other',
-            'expenseReceipt' => {
-              'contentType' => 'image/bmp',
-              'length' => 58,
-              'fileName' => 'placeholder.bmp',
-              'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-            }
+            'expenseType' => 'other'
           }
 
           allow_any_instance_of(TravelPay::ExpensesClient)
@@ -370,13 +346,7 @@ describe TravelPay::ExpensesService do
           'dateIncurred' => '2024-10-02',
           'description' => 'Hotel stay',
           'costRequested' => 125.50,
-          'expenseType' => 'lodging',
-          'expenseReceipt' => {
-            'contentType' => 'image/bmp',
-            'length' => 58,
-            'fileName' => 'placeholder.bmp',
-            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-          }
+          'expenseType' => 'lodging'
         }
       end
 
@@ -391,16 +361,7 @@ describe TravelPay::ExpensesService do
       it 'handles partial update payload' do
         partial_params = { 'description' => 'Updated hotel stay' }
         partial_request_body = {
-          'dateIncurred' => nil,
-          'description' => 'Updated hotel stay',
-          'costRequested' => nil,
-          'expenseType' => nil,
-          'expenseReceipt' => {
-            'contentType' => 'image/bmp',
-            'length' => 58,
-            'fileName' => 'placeholder.bmp',
-            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-          }
+          'description' => 'Updated hotel stay'
         }
 
         result = service.update_expense(expense_id, expense_type, partial_params)
@@ -453,10 +414,7 @@ describe TravelPay::ExpensesService do
       it 'handles partial update payload' do
         partial_params = { 'description' => 'Updated hotel stay' }
         partial_request_body = {
-          'dateIncurred' => nil,
-          'description' => 'Updated hotel stay',
-          'costRequested' => nil,
-          'expenseType' => nil
+          'description' => 'Updated hotel stay'
         }
 
         result = service.update_expense(expense_id, expense_type, partial_params)
@@ -496,6 +454,276 @@ describe TravelPay::ExpensesService do
     it 'raises ArgumentError if expense_type is missing' do
       expect { service.delete_expense(expense_id:, expense_type: nil) }
         .to raise_error(ArgumentError, /You must provide an expense type/)
+    end
+  end
+
+  describe '#build_expense_request_body (private method)' do
+    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }) }
+    let(:service) { described_class.new(auth_manager) }
+
+    # Access private method for testing
+    def build_request_body(params)
+      service.send(:build_expense_request_body, params)
+    end
+
+    context 'snake_case to camelCase conversion' do
+      it 'converts standard fields to camelCase' do
+        params = {
+          'expense_type' => 'lodging',
+          'claim_id' => 'claim-123',
+          'description' => 'Test description',
+          'cost_requested' => 100.0
+        }
+
+        result = build_request_body(params)
+
+        expect(result['expenseType']).to eq('lodging')
+        expect(result['claimId']).to eq('claim-123')
+        expect(result['description']).to eq('Test description')
+        expect(result['costRequested']).to eq(100.0)
+      end
+
+      it 'handles special mappings for purchase_date' do
+        params = { 'purchase_date' => '2024-11-01' }
+
+        result = build_request_body(params)
+
+        expect(result['dateIncurred']).to eq('2024-11-01')
+        expect(result['purchaseDate']).to be_nil
+      end
+
+      it 'handles special mappings for receipt' do
+        params = { 'receipt' => 'base64encodeddata' }
+
+        result = build_request_body(params)
+
+        expect(result['expenseReceipt']).to eq('base64encodeddata')
+        expect(result['receipt']).to be_nil
+      end
+
+      it 'skips nil values' do
+        params = {
+          'expense_type' => 'lodging',
+          'description' => nil,
+          'cost_requested' => 100.0
+        }
+
+        result = build_request_body(params)
+
+        expect(result['expenseType']).to eq('lodging')
+        expect(result['costRequested']).to eq(100.0)
+        expect(result).not_to have_key('description')
+      end
+    end
+
+    context 'mileage expense specific fields' do
+      it 'converts mileage-specific fields correctly' do
+        params = {
+          'expense_type' => 'mileage',
+          'purchase_date' => '2024-11-01',
+          'trip_type' => 'RoundTrip',
+          'requested_mileage' => 50.5,
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result).to eq({
+                               'expenseType' => 'mileage',
+                               'dateIncurred' => '2024-11-01',
+                               'tripType' => 'RoundTrip',
+                               'requestedMileage' => 50.5,
+                               'claimId' => 'claim-123'
+                             })
+      end
+
+      it 'does not include description or cost_requested for mileage' do
+        params = {
+          'expense_type' => 'mileage',
+          'purchase_date' => '2024-11-01',
+          'trip_type' => 'RoundTrip',
+          'requested_mileage' => 50.5
+        }
+
+        result = build_request_body(params)
+
+        expect(result).not_to have_key('description')
+        expect(result).not_to have_key('costRequested')
+      end
+    end
+
+    context 'lodging expense specific fields' do
+      it 'converts lodging-specific fields correctly' do
+        params = {
+          'expense_type' => 'lodging',
+          'purchase_date' => '2024-11-01',
+          'description' => 'Hotel stay',
+          'cost_requested' => 150.00,
+          'vendor' => 'Hilton',
+          'check_in_date' => '2024-11-01',
+          'check_out_date' => '2024-11-02',
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result).to eq({
+                               'expenseType' => 'lodging',
+                               'dateIncurred' => '2024-11-01',
+                               'description' => 'Hotel stay',
+                               'costRequested' => 150.00,
+                               'vendor' => 'Hilton',
+                               'checkInDate' => '2024-11-01',
+                               'checkOutDate' => '2024-11-02',
+                               'claimId' => 'claim-123'
+                             })
+      end
+    end
+
+    context 'meal expense specific fields' do
+      it 'converts meal-specific fields correctly' do
+        params = {
+          'expense_type' => 'meal',
+          'purchase_date' => '2024-11-01',
+          'description' => 'Lunch',
+          'cost_requested' => 25.00,
+          'vendor_name' => 'Restaurant ABC',
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result).to eq({
+                               'expenseType' => 'meal',
+                               'dateIncurred' => '2024-11-01',
+                               'description' => 'Lunch',
+                               'costRequested' => 25.00,
+                               'vendorName' => 'Restaurant ABC',
+                               'claimId' => 'claim-123'
+                             })
+      end
+    end
+
+    context 'flight expense specific fields' do
+      it 'converts flight-specific fields correctly' do
+        params = {
+          'expense_type' => 'airtravel',
+          'purchase_date' => '2024-11-01',
+          'description' => 'Flight to appointment',
+          'cost_requested' => 350.00,
+          'vendor' => 'Delta',
+          'trip_type' => 'RoundTrip',
+          'departure_location' => 'LAX',
+          'arrival_location' => 'JFK',
+          'departure_date' => '2024-11-01T08:00:00',
+          'arrival_date' => '2024-11-01T16:00:00',
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result).to eq({
+                               'expenseType' => 'airtravel',
+                               'dateIncurred' => '2024-11-01',
+                               'description' => 'Flight to appointment',
+                               'costRequested' => 350.00,
+                               'vendor' => 'Delta',
+                               'tripType' => 'RoundTrip',
+                               'departureLocation' => 'LAX',
+                               'arrivalLocation' => 'JFK',
+                               'departureDate' => '2024-11-01T08:00:00',
+                               'arrivalDate' => '2024-11-01T16:00:00',
+                               'claimId' => 'claim-123'
+                             })
+      end
+    end
+
+    context 'common carrier expense specific fields' do
+      it 'converts common carrier-specific fields correctly' do
+        params = {
+          'expense_type' => 'common_carrier',
+          'purchase_date' => '2024-11-01',
+          'description' => 'Bus fare',
+          'cost_requested' => 15.00,
+          'reason_not_using_pov' => 'NoVehicle',
+          'carrier_type' => 'Bus',
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result).to eq({
+                               'expenseType' => 'common_carrier',
+                               'dateIncurred' => '2024-11-01',
+                               'description' => 'Bus fare',
+                               'costRequested' => 15.00,
+                               'reasonNotUsingPov' => 'NoVehicle',
+                               'carrierType' => 'Bus',
+                               'claimId' => 'claim-123'
+                             })
+      end
+    end
+
+    context 'parking expense (base expense fields only)' do
+      it 'converts parking expense fields correctly' do
+        params = {
+          'expense_type' => 'parking',
+          'purchase_date' => '2024-11-01',
+          'description' => 'Parking fee',
+          'cost_requested' => 10.00,
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result).to eq({
+                               'expenseType' => 'parking',
+                               'dateIncurred' => '2024-11-01',
+                               'description' => 'Parking fee',
+                               'costRequested' => 10.00,
+                               'claimId' => 'claim-123'
+                             })
+      end
+    end
+
+    context 'toll expense (base expense fields only)' do
+      it 'converts toll expense fields correctly' do
+        params = {
+          'expense_type' => 'toll',
+          'purchase_date' => '2024-11-01',
+          'description' => 'Highway toll',
+          'cost_requested' => 5.00,
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result).to eq({
+                               'expenseType' => 'toll',
+                               'dateIncurred' => '2024-11-01',
+                               'description' => 'Highway toll',
+                               'costRequested' => 5.00,
+                               'claimId' => 'claim-123'
+                             })
+      end
+    end
+
+    context 'with receipts' do
+      it 'converts receipt field to expenseReceipt' do
+        params = {
+          'expense_type' => 'lodging',
+          'purchase_date' => '2024-11-01',
+          'description' => 'Hotel stay',
+          'cost_requested' => 150.00,
+          'receipt' => 'base64encodeddata',
+          'claim_id' => 'claim-123'
+        }
+
+        result = build_request_body(params)
+
+        expect(result['expenseReceipt']).to eq('base64encodeddata')
+        expect(result).not_to have_key('receipt')
+      end
     end
   end
 end
