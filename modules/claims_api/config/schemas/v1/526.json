@@ -1049,7 +1049,7 @@
             "example": "2018-03-02"
           },
           "endDate": {
-            "description": "Date Veteran ended treatment.",
+            "description": "Date Veteran ended treatment. End date must be after the start date.",
             "type": ["null", "string"],
             "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
             "example": "2018-03-02"
