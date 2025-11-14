@@ -17,11 +17,20 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
 
+  # Update HigherLevelReviews with upstream processing error statuses with their Central Mail status
+  mgr.register('42 */6 * * *', 'AppealsApi::HigherLevelReviewUploadErrorStatusBatch')
+
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('10 * * * *', 'AppealsApi::NoticeOfDisagreementUploadStatusBatch')
 
+  # Update NoticeOfDisagreements with upstream processing error statuses with their Central Mail status
+  mgr.register('24 */6 * * *', 'AppealsApi::NoticeOfDisagreementUploadErrorStatusBatch')
+
   # Update SupplementalClaim statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
+
+  # Update SupplementalClaims with upstream processing error statuses with their Central Mail status
+  mgr.register('36 */6 * * *', 'AppealsApi::SupplementalClaimUploadErrorStatusBatch')
 
   # Remove PII from appeal records after they have been successfully processed by the VA
   mgr.register('45 0 * * *', 'AppealsApi::CleanUpPii')
