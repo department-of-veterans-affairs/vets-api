@@ -32,13 +32,14 @@ module IncreaseCompensation
 
     # the VBMS document type for _this_ claim type
     def document_type
-      1292
+      'L149'
     end
 
     # Utility function to retrieve claimant email from form
     #
     # @return [String] the claimant email
     def email
+      # TODO: format parsed_form['emailAddress'] for this method
       parsed_form['email']
     end
 
@@ -74,6 +75,8 @@ module IncreaseCompensation
       refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
       files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
+
+      # Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
     end
 
     ##
@@ -85,6 +88,16 @@ module IncreaseCompensation
     #
     def to_pdf(file_name = nil, fill_options = {})
       ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+
+      # Quick solution to the highschool education bug where the pdf form is missing the option for 9th grade
+      # need to save to the right file
+      # pdf = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+      # if JSON.parse(form)['education']['highSchool'] == 12
+      #   pdf = CombinePDF.load(pdf)
+      #   pdf.pages[2].textbox('x', { width: 5, height: 5, x: 190, y: 310 })
+      #   pdf.save(file_name || '21-8940V1')
+      # end
+      # pdf
     end
 
     ##
