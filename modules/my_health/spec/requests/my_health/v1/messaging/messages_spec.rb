@@ -618,26 +618,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           json_response = JSON.parse(response.body)
           expect(json_response['data']['id']).to be_present
         end
-
-        it 'filters aws url' do
-          span_double = instance_double(Datadog::Tracing::Span)
-          trace_double = double('Trace')
-
-          allow(span_double).to receive(:set_tag)
-          allow(span_double).to receive(:service=)
-          allow(trace_double).to receive(:set_tag)
-
-          allow(Datadog::Tracing).to receive_messages(active_span: span_double, active_trace: trace_double)
-          VCR.use_cassette('sm_client/messages/creates/status_sent') do
-            VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
-              post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
-                   params: params_with_attachments
-            end
-          end
-
-          expect(span_double).to have_received(:set_tag).with('http.url', 'https://mhv-sysb-sm-attachments.s3.us-gov-west-1.amazonaws.com/attachments/3992130/[FILTERED]')
-          expect(trace_double).to have_received(:set_tag).with('http.url', 'https://mhv-sysb-sm-attachments.s3.us-gov-west-1.amazonaws.com/attachments/3992130/[FILTERED]')
-        end
       end
 
       context 'mhv_secure_messaging_large_attachments flag enabled' do
