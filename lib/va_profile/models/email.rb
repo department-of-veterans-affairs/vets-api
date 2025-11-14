@@ -21,6 +21,7 @@ module VAProfile
       attribute :source_system_user, String
       attribute :transaction_id, String
       attribute :updated_at, Vets::Type::ISO8601Time
+      attribute :verification_date, Vets::Type::ISO8601Time
       attribute :vet360_id, String
       attribute :va_profile_id, String
 
@@ -44,7 +45,8 @@ module VAProfile
             sourceDate: source_date,
             effectiveStartDate: effective_start_date,
             effectiveEndDate: effective_end_date,
-            confirmationDate: confirmation_date
+            confirmationDate: confirmation_date,
+            verificationDate: verification_date
           }
         }.to_json
       end
@@ -63,6 +65,7 @@ module VAProfile
           source_date: body['source_date'],
           transaction_id: body['tx_audit_id'],
           updated_at: body['update_date'],
+          verification_date: body['verification_date'],
           vet360_id: body['vet360_id'] || body['va_profile_id'],
           va_profile_id: body['va_profile_id'] || body['vet360_id']
         )
