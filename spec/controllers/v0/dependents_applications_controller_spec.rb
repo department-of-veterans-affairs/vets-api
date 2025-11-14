@@ -49,7 +49,6 @@ RSpec.describe V0::DependentsApplicationsController do
   describe 'POST create' do
     context 'with valid params v1' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
@@ -80,13 +79,13 @@ RSpec.describe V0::DependentsApplicationsController do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post(:create, params: test_form)
         end
+
         expect(response).to have_http_status(:ok)
       end
     end
 
     context 'with valid params v2' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
@@ -111,7 +110,6 @@ RSpec.describe V0::DependentsApplicationsController do
 
     context 'with v1 submitting with a v2 user' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)

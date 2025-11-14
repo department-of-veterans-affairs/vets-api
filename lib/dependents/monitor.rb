@@ -65,7 +65,7 @@ module Dependents
     end
 
     def claim(claim_id)
-      SavedClaim::DependencyClaim.find(claim_id)
+      SavedClaim::DependencyClaim.find(claim_id) unless claim_id.nil?
     rescue => e
       Rails.logger.warn('Unable to find claim for Dependents::Monitor', { claim_id:, e: })
       nil
@@ -180,6 +180,10 @@ module Dependents
     rescue => e
       Rails.logger.error('Dependents::Monitor#track_event error',
                          level:, message:, stats_key:, payload:, error: e.message)
+    end
+
+    def claim_stats_key
+      CLAIM_STATS_KEY
     end
   end
 end
