@@ -40,16 +40,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     allow(Auth::ClientCredentials::Service).to receive(:new).and_return(client_credentials_service)
     allow(client_credentials_service).to receive(:get_token).and_return('<TOKEN>')
 
-    allow(Flipper).to receive(:enabled?)
-      .with(:accredited_representative_portal_pilot,
-            instance_of(AccreditedRepresentativePortal::RepresentativeUser))
-      .and_return(true)
-
     poa_request.claimant.update!(icn: '1012666183V089914')
     login_as(test_user)
   end
-
-  after { Flipper.disable(:accredited_representative_portal_pilot) }
 
   def stub_ar_monitoring(controller: 'power_of_attorney_request_decisions', action: 'create')
     span_double = double('span', set_tag: true)

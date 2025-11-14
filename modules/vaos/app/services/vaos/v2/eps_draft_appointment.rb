@@ -69,6 +69,35 @@ module VAOS
         build_appointment_draft(referral_id, referral_consult_id)
       end
 
+      ##
+      # Returns the controller name from RequestStore for logging context
+      #
+      # @return [String, nil] The controller name or nil if not set
+      #
+      def controller_name
+        RequestStore.store['controller_name']
+      end
+
+      ##
+      # Returns the user's primary station number (first treatment facility ID) for logging context
+      #
+      # @param user [User] The user object (optional, will try to use @current_user if not provided)
+      # @return [String, nil] The station number or nil if not available
+      #
+      def station_number(user = nil)
+        user_obj = user || @current_user
+        user_obj&.va_treatment_facility_ids&.first
+      end
+
+      ##
+      # Returns the EPS trace ID from RequestStore
+      #
+      # @return [String, nil] The trace ID or nil if not set
+      #
+      def eps_trace_id
+        RequestStore.store['eps_trace_id']
+      end
+
       private
 
       ##
@@ -170,8 +199,7 @@ module VAOS
       rescue Redis::BaseError => e
         error_data = {
           error_class: e.class.name,
-          error_message: e.message,
-          user_uuid: @current_user&.uuid
+          **common_logging_context
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
         set_error('Redis connection error', :bad_gateway)
@@ -297,23 +325,42 @@ module VAOS
         appointment_type_id = get_provider_appointment_type_id(provider)
         slots = eps_provider_service.get_provider_slots(
           provider.id,
-          {
-            appointmentTypeId: appointment_type_id,
-            startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
-            appointmentId: draft_appointment_id
-          }
+          build_slot_params(referral, appointment_type_id, draft_appointment_id)
         )
         log_provider_slots_info(slots)
         slots
       rescue ArgumentError => e
+        log_slot_fetch_error(e)
+        nil
+      end
+
+      ##
+      # Build parameters for provider slot request
+      #
+      # @param referral [OpenStruct] The referral containing date constraints
+      # @param appointment_type_id [String] The appointment type ID
+      # @param draft_appointment_id [String] The draft appointment ID
+      # @return [Hash] Parameters for slot request
+      def build_slot_params(referral, appointment_type_id, draft_appointment_id)
+        {
+          appointmentTypeId: appointment_type_id,
+          startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
+          startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
+          appointmentId: draft_appointment_id
+        }
+      end
+
+      ##
+      # Log error when fetching provider slots fails
+      #
+      # @param error [Exception] The error that occurred
+      # @return [void]
+      def log_slot_fetch_error(error)
         error_data = {
-          error_class: e.class.name,
-          error_message: e.message,
-          user_uuid: @current_user&.uuid
+          error_class: error.class.name,
+          **common_logging_context
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
-        nil
       end
 
       ##
@@ -365,7 +412,7 @@ module VAOS
       def handle_missing_appointment_types_error
         error_data = {
           error_message: 'Provider appointment types data is not available',
-          user_uuid: @current_user&.uuid
+          **common_logging_context
         }
         message = "#{CC_APPOINTMENTS}: Provider appointment types data is not available"
         Rails.logger.error(message, error_data)
@@ -389,7 +436,7 @@ module VAOS
       def handle_missing_self_schedulable_types_error
         error_data = {
           error_message: 'No self-schedulable appointment types available for this provider',
-          user_uuid: @current_user&.uuid
+          **common_logging_context
         }
         message = "#{CC_APPOINTMENTS}: No self-schedulable appointment types available for this provider"
         Rails.logger.error(message, error_data)
@@ -440,13 +487,11 @@ module VAOS
         return if referral.nil?
 
         referring_facility_code = sanitize_log_value(referral.referring_facility_code)
-        provider_npi = sanitize_log_value(referral.provider_npi)
         station_id = sanitize_log_value(referral.station_id)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
                            COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "provider_npi:#{provider_npi}",
                            "station_id:#{station_id}"
                          ])
       end
@@ -476,13 +521,10 @@ module VAOS
       #
       # @param referral [OpenStruct] The referral containing failed search criteria
       # @return [void] Logs error details to Rails logger
-      def log_provider_not_found_error(referral)
+      def log_provider_not_found_error(_referral)
         error_data = {
           error_message: 'Provider not found while creating draft appointment',
-          provider_address: referral.treating_facility_address,
-          provider_npi: referral.provider_npi,
-          provider_specialty: referral.provider_specialty,
-          user_uuid: @current_user&.uuid
+          **common_logging_context
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment", error_data)
       end
@@ -561,6 +603,15 @@ module VAOS
       # @return [VAOS::V2::AppointmentsService] The memoized VAOS appointments service instance
       def appointments_service
         @appointments_service ||= VAOS::V2::AppointmentsService.new(@current_user)
+      end
+
+      def common_logging_context
+        {
+          user_uuid: @current_user&.uuid,
+          controller: controller_name,
+          station_number: station_number(@current_user),
+          eps_trace_id:
+        }
       end
     end
   end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unified_health_data/service'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
@@ -354,9 +355,22 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         let(:start_date) { Time.zone.parse('2023-10-13T14:25:00Z') }
         let(:end_date) { Time.zone.parse('2023-10-13T17:45:00Z') }
         let(:params) { { start: start_date, end: end_date } }
-        let(:avs_error_message) { 'Error retrieving AVS link' }
+        let(:avs_error_message) { 'Error retrieving AVS info' }
         let(:avs_path) do
           '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
+        end
+        let(:avs_pdf) do
+          [
+            {
+              'apptId' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loincCodes' => %w[4189669 96345-4],
+              'noteType' => 'ambulatory_patient_summary',
+              'contentType' => 'application/pdf',
+              'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+            }
+          ]
         end
 
         context 'using VAOS' do
@@ -384,6 +398,25 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response.body).to be_a(String)
 
               expect(data[0]['attributes']['avsPath']).to eq(avs_path)
+
+              expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            end
+          end
+
+          it 'fetches appointment list and includes OH avs on past booked appointments' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner_avs',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
+              get '/vaos/v2/appointments' \
+                  '?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&_include=avs',
+                  params:, headers: inflection_header
+
+              data = JSON.parse(response.body)['data']
+
+              expect(response).to have_http_status(:ok)
+              expect(response.body).to be_a(String)
+
+              expect(data[0]['attributes']['avsPdf']).to eq(avs_pdf)
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -761,6 +794,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
         end
 
+        let(:avs_pdf) do
+          [
+            {
+              'apptId' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loincCodes' => %w[4189669 96345-4],
+              'noteType' => 'ambulatory_patient_summary',
+              'contentType' => 'application/pdf',
+              'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+            }
+          ]
+        end
+
         it 'has access and returns appointment - va proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                            match_requests_on: %i[method path query]) do
@@ -808,9 +855,30 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
+        it 'has access and returns appointment with OH avs' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs_cerner',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
+            get '/vaos/v2/appointments/70060?_include=avs', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            data = JSON.parse(response.body)['data']
+
+            expect(data['id']).to eq('70060')
+            expect(data['attributes']['kind']).to eq('clinic')
+            expect(data['attributes']['status']).to eq('booked')
+            expect(data['attributes']['avsPdf']).to eq(avs_pdf)
+            expect(Rails.logger).to have_received(:info).with(
+              'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
+              { created: '2021-12-13T14:03:02Z' }.to_json
+            )
+          end
+        end
+
         context 'with judy morrison test appointment' do
           let(:current_user) { build(:user, :vaos) }
-          let(:avs_error_message) { 'Error retrieving AVS link' }
+          let(:avs_error_message) { 'Error retrieving AVS info' }
 
           it 'includes an avs error message in response when appointment has no available avs' do
             stub_clinics
@@ -1464,7 +1532,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                   tags: [
                                     'service:community_care_appointments',
                                     'referring_facility_code:528A6',
-                                    'provider_npi:7894563210',
                                     'station_id:528A6'
                                   ])
                             .once
@@ -1589,9 +1656,56 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns correct error status for provider not found' do
+          allow(Rails.logger).to receive(:error)
           VCR.use_cassette('vaos/ccra/post_get_referral_ref_123', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
               VCR.use_cassette 'vaos/eps/search_provider_services/empty_200', match_requests_on: %i[method path] do
+                VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
+                  VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                   match_requests_on: %i[method path]) do
+                    expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
+                      post '/vaos/v2/appointments/draft', params: draft_params
+                    end
+
+                    # Verify the log was called with controller name set by BaseController's before_action
+                    # The controller name and station_number prove the RequestStore mechanism works correctly
+                    # Verify controller name comes from RequestStore (set by controller's before_action)
+                    expected_controller_name = 'VAOS::V2::AppointmentsController'
+                    # Verify station_number comes from user object
+                    expected_station_number = current_user.va_treatment_facility_ids&.first
+
+                    expect(Rails.logger).to have_received(:error).with(
+                      'Community Care Appointments: Provider not found while creating draft appointment',
+                      {
+                        error_message: 'Provider not found while creating draft appointment',
+                        user_uuid: current_user.uuid,
+                        controller: expected_controller_name,
+                        station_number: expected_station_number,
+                        eps_trace_id: 'c9182a0e90280e7cc9ea83a192c1b787'
+                      }
+                    )
+
+                    expect(response).to have_http_status(:not_found)
+                    response_obj = JSON.parse(response.body)
+                    expect(response_obj).to have_key('errors')
+                    expect(response_obj['errors']).to be_an(Array)
+                    error = response_obj['errors'].first
+                    expect(error['title']).to eq('Appointment creation failed')
+                    expect(error['detail']).to eq('Provider not found')
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        it 'returns correct error status when providers are returned but none are self-schedulable' do
+          captured = []
+          allow(Rails.logger).to receive(:error) { |msg, ctx| captured << [msg, ctx] }
+          VCR.use_cassette('vaos/ccra/post_get_referral_ref_123', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette 'vaos/eps/search_provider_services/no_self_schedulable_200',
+                               match_requests_on: %i[method path] do
                 VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
                   VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
                                    match_requests_on: %i[method path]) do
@@ -1606,6 +1720,21 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                     error = response_obj['errors'].first
                     expect(error['title']).to eq('Appointment creation failed')
                     expect(error['detail']).to eq('Provider not found')
+
+                    # Verify controller name comes from RequestStore (set by controller's before_action)
+                    expected_controller_name = 'VAOS::V2::AppointmentsController'
+                    # Verify station_number comes from user object
+                    expected_station_number = current_user.va_treatment_facility_ids&.first
+
+                    expect(Rails.logger).to have_received(:error).with(
+                      'Community Care Appointments: No self-schedulable providers found for NPI',
+                      {
+                        controller: expected_controller_name,
+                        station_number: expected_station_number,
+                        eps_trace_id: 'c9182a0e90280e7cc9ea83a192c1b787',
+                        user_uuid: current_user.uuid
+                      }
+                    )
                   end
                 end
               end
@@ -1643,16 +1772,25 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                         )
 
                         # Assert EXACTLY what our EPS logging emitted
+                        # Verify controller name comes from RequestStore (set by controller's before_action)
+                        expected_controller_name = 'VAOS::V2::AppointmentsController'
+                        # Verify station_number comes from user object
+                        expected_station_number = current_user.va_treatment_facility_ids&.first
+
                         expect(Rails.logger).to have_received(:error).with(
                           'Community Care Appointments: EPS service error',
-                          hash_including(
+                          {
                             service: 'EPS',
                             method: 'create_draft_appointment',
                             error_class: 'Eps::ServiceException',
+                            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+                            controller: expected_controller_name,
+                            station_number: expected_station_number,
+                            eps_trace_id: 'f2febe1c93219db9e208a8f1422d1d04',
                             code: 'VAOS_400',
                             upstream_status: 400,
                             upstream_body: a_string_including('invalid patientId')
-                          )
+                          }
                         )
                       end
                     end

@@ -913,6 +913,32 @@
         :uid_location: query
         :uid_locator: patient
 
+# Lighthouse Healthcare Cost and Coverage API
+- :name: "Lighthouse Healthcare Costs and Coverage API"
+  :base_uri: <%= "#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).host}:#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/ChargeItem"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/charge_item/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Encounter"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/encounter/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Invoice"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/invoice/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/MedicationDispense"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/medication_dispense/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Organization"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/organization/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Patient"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/patient/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/PaymentReconciliation"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/payment_reconciliation/default"
+
 # EPS (Enhanced Patient Services) API
 - :name: "EPS API"
   :base_uri: <%= "#{URI(Settings.vaos.eps.api_url).host}:#{URI(Settings.vaos.eps.api_url).port}" %>
@@ -1077,6 +1103,12 @@
     - :method: :get
       :path: "/v1/medicalrecords/notes"
       :file_path: "mhv/uhd/notes"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"
+    - :method: :get
+      :path: "/v1/medicalrecords/vitals"
+      :file_path: "mhv/uhd/vitals"
       :cache_multiple_responses:
         :uid_location: "query"
         :uid_locator: "patient-id"
