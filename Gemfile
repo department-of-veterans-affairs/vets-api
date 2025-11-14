@@ -41,6 +41,7 @@ path 'modules' do
   gem 'travel_pay'
   gem 'va_notify'
   gem 'vaos'
+  gem 'vass'
   gem 'vba_documents'
   gem 'veteran'
   gem 'vre'
