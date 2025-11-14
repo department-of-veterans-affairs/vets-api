@@ -81,7 +81,7 @@ module Common
       # Not providing detail will render a detail the same as title, 'Operation failed'
       # NOTE: in the future, detail will only work via i18n, not the value from response_values
       def detail
-        i18n_data&.[](:detail).presence || response_values[:detail]
+        i18n_data&.[](:detail).presence || response_values&.[](:detail)
       end
 
       # OPTIONAL - This should usually be a developer message of some sort from the backend service
