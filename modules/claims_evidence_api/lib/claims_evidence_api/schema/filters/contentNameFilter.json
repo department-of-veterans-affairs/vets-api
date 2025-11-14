@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/contentNameFilter.json",
+  "description" : "Filters results on ContentName.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "testFileName0.12713919732752.pdf",
+      "type" : "string"
+    }
+  },
+  "title" : "Content Name Filter Request",
+  "type" : "object"
+}

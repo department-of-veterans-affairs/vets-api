@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/searchFileFilters.json",
+  "properties" : {
+    "providerData.documentTypeId" : {
+      "$ref" : "filters/documentTypeIdFilter.json"
+    },
+    "providerData.documentCategoryId" : {
+      "$ref" : "filters/documentCategoryIdFilter.json"
+    },
+    "providerData.subject" : {
+      "$ref" : "filters/subjectFilter.json"
+    },
+    "systemData.contentName" : {
+      "$ref" : "filters/contentNameFilter.json"
+    },
+    "providerData.contentSource" : {
+      "$ref" : "filters/contentSourceFilter.json"
+    },
+    "providerData.dateVaReceivedDocument" : {
+      "$ref" : "filters/dateVaReceivedDocumentFilter.json"
+    },
+    "providerData.endProductCode" : {
+      "$ref" : "filters/endProductCodeFilter.json"
+    },
+    "providerData.associatedClaimId" : {
+      "$ref" : "filters/associatedClaimIdFilter.json"
+    },
+    "providerData.associationDateTime" : {
+      "$ref" : "filters/associationDateTimeFilter.json"
+    },
+    "systemData.uploadedDateTime" : {
+      "$ref" : "filters/associationDateTimeFilter.json"
+    },
+    "systemData.mimeType" : {
+      "$ref" : "filters/mimeTypeFilter.json"
+    },
+    "systemData.uploadSource" : {
+      "$ref" : "filters/uploadSourceFilter.json"
+    },
+    "providerData.claimantFirstName" : {
+      "$ref" : "filters/claimantFirstNameFilter.json"
+    },
+    "providerData.claimantLastName" : {
+      "$ref" : "filters/claimantLastNameFilter.json"
+    },
+    "providerData.claimantMiddleInitial" : {
+      "$ref" : "filters/claimantMiddleInitialFilter.json"
+    },
+    "providerData.claimantSsn" : {
+      "$ref" : "filters/claimantSsnFilter.json"
+    },
+    "providerData.claimantDateOfBirth" : {
+      "$ref" : "filters/claimantDateOfBirthFilter.json"
+    },
+    "providerData.benefitTypeId" : {
+      "$ref" : "filters/benefitTypeIdFilter.json"
+    },
+    "rawTextData.ocrPerspective" : {
+      "$ref" : "filters/ocrPerspectiveFilter.json"
+    },
+    "providerData.payeeCode" : {
+      "$ref" : "filters/payeeCodeFilter.json"
+    },
+    "providerData.regionalProcessingOffice" : {
+      "$ref" : "filters/regionalProcessingOfficeFilter.json"
+    },
+    "providerData.facilityCode" : {
+      "$ref" : "filters/facilityCodeFilter.json"
+    },
+    "providerData.claimantParticipantId" : {
+      "$ref" : "filters/claimantParticipantIdFilter.json"
+    },
+    "providerData.lineOfBusinessId" : {
+      "$ref" : "filters/lineOfBusinessIdFilter.json"
+    },
+    "providerData.duplicateInformation.groupId" : {
+      "$ref" : "filters/duplicateGroupIdFilter.json"
+    },
+    "providerData.textSearchable" : {
+      "$ref" : "filters/textSearchableFilter.json"
+    },
+    "providerData.hasAnnotations" : {
+      "$ref" : "filters/hasAnnotationsFilter.json"
+    },
+    "providerData.annotationType" : {
+      "$ref" : "filters/annotationTypeFilter.json"
+    },
+    "providerData.annotationKeyword" : {
+      "$ref" : "filters/annotationKeywordFilter.json"
+    },
+    "providerData.hasNotes" : {
+      "$ref" : "filters/hasNotesFilter.json"
+    },
+    "providerData.ocrStatus" : {
+      "$ref" : "filters/ocrStatusFilter.json"
+    },
+    "textContent" : {
+      "$ref" : "filters/textContentFilter.json"
+    }
+  }
+}

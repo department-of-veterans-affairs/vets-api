@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/benefitTypeIdFilter.json",
+  "description" : "Filters results on Benefit Type Id. This filter only accepts string numbers 0-9",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "\"12\"",
+      "type" : "string"
+    }
+  },
+  "title" : "Benefit Type Id Filter Request",
+  "type" : "object"
+}
