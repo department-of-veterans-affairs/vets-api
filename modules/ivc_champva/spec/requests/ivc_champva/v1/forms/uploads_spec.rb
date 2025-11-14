@@ -276,6 +276,26 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       expect(response).to have_http_status(:internal_server_error)
     end
+
+    it 'tracks the delegate form' do
+      # Create a mock form instance that will be returned by generate_ohi_form
+      mock_form = instance_double(IvcChampva::VHA107959cRev2025)
+      allow(mock_form).to receive(:track_delegate_form)
+      allow(mock_form).to receive(:respond_to?).with(:track_delegate_form).and_return(true)
+
+      # Stub the controller methods to bypass the complex PDF generation flow
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:generate_ohi_form).and_return([mock_form])
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:fill_ohi_and_return_path)
+                                                              .and_return('/tmp/test.pdf')
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:create_custom_attachment).and_return({})
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:add_supporting_doc)
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:submit).and_return(nil)
+
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data
+
+      # Verify the method was called with the correct parent form ID
+      expect(mock_form).to have_received(:track_delegate_form).with('vha_10_10d')
+    end
   end
 
   describe 'stored ves data is encrypted' do
