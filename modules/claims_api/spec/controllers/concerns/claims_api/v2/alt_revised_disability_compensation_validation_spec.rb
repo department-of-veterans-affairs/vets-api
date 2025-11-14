@@ -4,10 +4,11 @@ require 'rails_helper'
 require 'claims_api/v2/disability_compensation_validation'
 
 # Calling private methods so needed to wrap it in a class
-class TestDisabilityCompensationValidationClass
+class AltTestDisabilityCompensationValidationClass
   include ClaimsApi::V2::AltRevisedDisabilityCompensationValidation
 
   attr_accessor :request, :params
+  attr_reader :auth_headers
 
   def form_attributes
     @form_attributes ||= JSON.parse(
@@ -25,13 +26,64 @@ class TestDisabilityCompensationValidationClass
   end
 end
 
-describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
+describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   subject(:test_526_validation_instance) { described_class.new }
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
 
   def current_error_array
     test_526_validation_instance.instance_variable_get('@errors')
+  end
+
+  describe '#alt_rev_validate_service_after_13th_birthday!' do
+    context 'when the service periods are after the 13th birthday' do
+      let(:auth_headers) do
+        {
+          'va_eauth_birthdate' => 35.years.ago.to_date.iso8601
+        }
+      end
+
+      it 'does not raise an error' do
+        allow_any_instance_of(described_class).to receive(:auth_headers).and_return(auth_headers)
+
+        expect { subject.send(:alt_rev_validate_service_after_13th_birthday!) }.not_to raise_error
+      end
+    end
+
+    context 'when there are service period dates before the 13th birthday' do
+      let(:birthdate) { 12.years.ago.to_date.iso8601 }
+      let(:auth_headers) do
+        {
+          'va_eauth_birthdate' => birthdate
+        }
+      end
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => 15.years.ago.to_date.iso8601,
+                'activeDutyEndDate' => 5.years.ago.to_date.iso8601
+              }
+            ]
+          }
+        }
+      end
+
+      it 'raises an error' do
+        allow_any_instance_of(described_class).to receive(:auth_headers).and_return(auth_headers)
+
+        subject.send(:alt_rev_validate_service_after_13th_birthday!)
+
+        expect(current_error_array.count).to eq(1)
+        expect(current_error_array[0][:detail]).to eq(
+          "Active Duty Begin Date (0) cannot be before Veteran's thirteenth birthday."
+        )
+        expect(current_error_array[0][:source]).to eq(
+          'serviceInformation/servicePeriods/0/activeDutyBeginDate'
+        )
+      end
+    end
   end
 
   describe '#remove_chars' do
