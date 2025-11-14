@@ -71,24 +71,38 @@ module VAProfile
       # Override the confirmation_date setter to correct it if it's after source_date.
       # This prevents issues where client-provided dates may be ahead due to time differences.
       # @param value [Time, String, nil] the confirmation date to set
-      # @return [Time, String, nil] the corrected confirmation date
+      # @return [Time] the corrected confirmation date
       def confirmation_date=(value)
-        @confirmation_date = value
+        @confirmation_date = parse_iso8601_time(value)
         correct_confirmation_date_if_needed
       end
 
       # Override the source_date setter to correct confirmation_date when source_date is set.
       # This handles the case where confirmation_date is set before source_date during initialization.
       # @param value [Time, String, nil] the source date to set
-      # @return [Time, String, nil] the source date
+      # @return [Time] the source date
       def source_date=(value)
-        @source_date = value
+        @source_date = parse_iso8601_time(value)
         correct_confirmation_date_if_needed
       end
 
       private
 
+      # Parses an ISO8601 time value, handling both String and Time inputs.
+      # This ensures type consistency before comparisons.
+      # @param value [Time, String, nil] the value to parse
+      # @return [Time, nil] parsed Time object or nil
+      def parse_iso8601_time(value)
+        return nil if value.nil?
+
+        value = value.iso8601 if value.is_a?(Time)
+        Time.iso8601(value)
+      rescue ArgumentError
+        value
+      end
+
       # Corrects confirmation_date if it's after source_date.
+      # Both values are guaranteed to be Time objects (or nil) at this point.
       # @return [void]
       def correct_confirmation_date_if_needed
         return if @confirmation_date.blank? || @source_date.blank?

@@ -105,32 +105,35 @@ RSpec.describe VAProfile::Models::Email do
                     source_date:)
     end
 
-    let(:source_date) { Time.utc(2024, 1, 1, 12, 0, 0) }
+    let(:source_date_string) { '2024-01-01T12:00:00Z' }
+    let(:source_date) { source_date_string }
 
     context 'when confirmation_date is after source_date' do
-      let(:confirmation_date) { Time.utc(2024, 1, 1, 13, 0, 0) }
+      let(:confirmation_date_string) { '2024-01-01T13:00:00Z' }
+      let(:confirmation_date) { confirmation_date_string }
 
       it 'corrects confirmation_date to match source_date' do
         expect(email.valid?).to be(true)
-        expect(email.confirmation_date).to eq(source_date)
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
       end
     end
 
     context 'when confirmation_date is before source_date' do
-      let(:confirmation_date) { Time.utc(2024, 1, 1, 11, 0, 0) }
+      let(:confirmation_date_string) { '2024-01-01T11:00:00Z' }
+      let(:confirmation_date) { confirmation_date_string }
 
       it 'leaves confirmation_date unchanged' do
         expect(email.valid?).to be(true)
-        expect(email.confirmation_date).to eq(Time.utc(2024, 1, 1, 11, 0, 0))
+        expect(email.confirmation_date).to eq(Time.iso8601(confirmation_date_string))
       end
     end
 
     context 'when confirmation_date equals source_date' do
-      let(:confirmation_date) { Time.utc(2024, 1, 1, 12, 0, 0) }
+      let(:confirmation_date) { source_date_string }
 
       it 'leaves confirmation_date unchanged' do
         expect(email.valid?).to be(true)
-        expect(email.confirmation_date).to eq(source_date)
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
       end
     end
 
@@ -145,11 +148,11 @@ RSpec.describe VAProfile::Models::Email do
 
     context 'when source_date is nil' do
       let(:source_date) { nil }
-      let(:confirmation_date) { Time.utc(2024, 1, 1, 12, 0, 0) }
+      let(:confirmation_date) { source_date_string }
 
       it 'leaves confirmation_date unchanged' do
         expect(email.valid?).to be(true)
-        expect(email.confirmation_date).to eq(Time.utc(2024, 1, 1, 12, 0, 0))
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
       end
     end
 
@@ -165,14 +168,16 @@ RSpec.describe VAProfile::Models::Email do
     end
 
     context 'when source_date is set after confirmation_date (timing issue)' do
+      let(:later_confirmation_date_string) { '2024-01-01T14:00:00Z' }
+
       it 'corrects confirmation_date when source_date is set later' do
         email = build(:email, email_address: 'test@example.com')
-        # Simulate controller flow: confirmation_date is set first during initialization
-        email.confirmation_date = Time.utc(2024, 1, 1, 14, 0, 0)
-        # Then source_date is set by set_defaults
-        email.source_date = Time.utc(2024, 1, 1, 12, 0, 0)
+        # Simulate controller flow: confirmation_date string is set first during initialization
+        email.confirmation_date = later_confirmation_date_string
+        # Then source_date string is set by set_defaults (Time.zone.now.iso8601 returns a string)
+        email.source_date = source_date_string
 
-        expect(email.confirmation_date).to eq(Time.utc(2024, 1, 1, 12, 0, 0))
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
       end
     end
   end
