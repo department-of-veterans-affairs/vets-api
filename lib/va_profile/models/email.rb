@@ -74,7 +74,6 @@ module VAProfile
       # @return [Time, String, nil] the corrected confirmation date
       def confirmation_date=(value)
         @confirmation_date = value
-        binding.pry
         correct_confirmation_date_if_needed
       end
 
@@ -84,7 +83,6 @@ module VAProfile
       # @return [Time, String, nil] the source date
       def source_date=(value)
         @source_date = value
-        binding.pry
         correct_confirmation_date_if_needed
       end
 
