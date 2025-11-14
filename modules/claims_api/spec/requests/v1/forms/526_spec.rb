@@ -2490,6 +2490,26 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     end
 
     describe "'disabilities.secondaryDisabilities' validations" do
+      context 'when disabilityActionType is NONE without secondaryDisabilities' do
+        it 'raises an exception' do
+          mock_acg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/brd/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)'
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response).to have_http_status(:bad_request)
+            end
+          end
+        end
+      end
+
       context 'when secondaryDisability disabilityActionType is something other than SECONDARY' do
         it 'raises an exception' do
           mock_acg(scopes) do |auth_header|
@@ -2498,7 +2518,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               params = json_data
               disabilities = [
                 {
-                  disabilityActionType: 'NEW',
+                  disabilityActionType: 'NONE',
                   name: 'PTSD (post traumatic stress disorder)',
                   diagnosticCode: 9999,
                   secondaryDisabilities: [
@@ -2542,7 +2562,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   disabilities = [
                     {
-                      disabilityActionType: 'NEW',
+                      disabilityActionType: 'NONE',
                       name: 'PTSD (post traumatic stress disorder)',
                       diagnosticCode: 9999,
                       secondaryDisabilities: [
@@ -2589,7 +2609,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   disabilities = [
                     {
-                      disabilityActionType: 'NEW',
+                      disabilityActionType: 'NONE',
                       name: 'PTSD (post traumatic stress disorder)',
                       diagnosticCode: 9999,
                       secondaryDisabilities: [
@@ -2620,7 +2640,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               params = json_data
               disabilities = [
                 {
-                  disabilityActionType: 'NEW',
+                  disabilityActionType: 'NONE',
                   name: 'PTSD (post traumatic stress disorder)',
                   diagnosticCode: 9999,
                   secondaryDisabilities: [
@@ -2647,7 +2667,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               params = json_data
               disabilities = [
                 {
-                  disabilityActionType: 'NEW',
+                  disabilityActionType: 'NONE',
                   name: 'PTSD (post traumatic stress disorder)',
                   diagnosticCode: 9999,
                   secondaryDisabilities: [
@@ -2676,7 +2696,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               params = json_data
               disabilities = [
                 {
-                  disabilityActionType: 'NEW', # Is this valid with secondary?
+                  disabilityActionType: 'NONE',
                   name: 'PTSD (post traumatic stress disorder)',
                   diagnosticCode: 9999,
                   secondaryDisabilities: [
@@ -2703,7 +2723,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 disabilities = [
                   {
-                    disabilityActionType: 'NEW',
+                    disabilityActionType: 'NONE',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
                     secondaryDisabilities: [
@@ -2853,6 +2873,40 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params['data']['attributes']['disabilities'] = disabilities
                     post path, params: params.to_json, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'disabilities.disabilityActionType' equals 'NONE'" do
+          context "and 'disabilities.secondaryDisabilities' is defined" do
+            context "and 'disabilities.diagnosticCode is not provided" do
+              it 'returns an unprocessable entity status' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      disabilities = [
+                        {
+                          disabilityActionType: 'NONE',
+                          name: 'PTSD (post traumatic stress disorder)',
+                          secondaryDisabilities: [
+                            {
+                              name: 'PTSD personal trauma',
+                              disabilityActionType: 'SECONDARY',
+                              serviceRelevance: 'Caused by a service-connected disability\\nLengthy description',
+                              specialIssues: ['Radiation', 'Emergency Care – CH17 Determination']
+                            }
+                          ]
+                        }
+                      ]
+                      params['data']['attributes']['disabilities'] = disabilities
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
                   end
                 end
               end
