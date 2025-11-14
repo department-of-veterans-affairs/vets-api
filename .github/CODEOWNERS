@@ -49,6 +49,7 @@ app/controllers/v0/csrf_token_controller.rb @department-of-veterans-affairs/back
 app/controllers/v0/datadog_action_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/debt_letters_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/debts_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+app/controllers/v0/medical_copays_history_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/dependents_applications_controller.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/dependents_verifications_controller.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/disability_compensation_forms_controller.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -1790,6 +1791,7 @@ spec/requests/v0/test_account_user_emails_spec.rb @department-of-veterans-affair
 spec/requests/v0/tsa_letter_spec.rb @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/upload_supporting_evidence_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/user_spec.rb @department-of-veterans-affairs/octo-identity
+spec/requests/v0/medical_copays_history_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/requests/v1/apidoc @department-of-veterans-affairs/backend-review-group
 spec/requests/v1/gi/lcpe/exams_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/requests/v1/gi/lcpe/lacs_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
@@ -2292,6 +2294,7 @@ spec/support/vcr_cassettes/vetext @department-of-veterans-affairs/mobile-api-tea
 spec/support/vcr_cassettes/vha/sharepoint/update_list_item_fields_400.yml @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/vha/sharepoint/upload_pdf_400_response.yml @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/vre @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/hccc/ @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_multipart_matcher_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/support/vcr.rb @department-of-veterans-affairs/backend-review-group
 spec/swagger_helper.rb @department-of-veterans-affairs/backend-review-group
