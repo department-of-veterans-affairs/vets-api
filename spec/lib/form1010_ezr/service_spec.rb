@@ -348,7 +348,7 @@ RSpec.describe Form1010Ezr::Service do
             end
           end
 
-          it 'logs the error to Rails', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+          it 'logs the error', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit',
               { match_requests_on: %i[method uri body], erb: true }
@@ -387,7 +387,7 @@ RSpec.describe Form1010Ezr::Service do
           )
         end
 
-        it 'logs the message to Rails' do
+        it 'logs the error' do
           expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
             '[10-10EZR] failure',
             :error,
