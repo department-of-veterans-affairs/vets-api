@@ -67,6 +67,17 @@ module VAProfile
           va_profile_id: body['va_profile_id'] || body['vet360_id']
         )
       end
+
+      # Override the confirmation_date setter to correct it if it's after source_date.
+      # This prevents issues where client-provided dates may be ahead due to time differences.
+      # @param value [Time, String, nil] the confirmation date to set
+      # @return [Time, String, nil] the corrected confirmation date
+      def confirmation_date=(value)
+        @confirmation_date = value
+        return if @confirmation_date.blank? || source_date.blank?
+
+        @confirmation_date = source_date if @confirmation_date > source_date
+      end
     end
   end
 end

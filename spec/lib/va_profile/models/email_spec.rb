@@ -72,10 +72,10 @@ RSpec.describe VAProfile::Models::Email do
 
     let(:id) { 42 }
     let(:source_system_user)   { 'some-system-user' }
-    let(:source_date)          { Time.utc(2024, 1, 2, 3, 4, 5).iso8601(3) }
+    let(:source_date)          { Time.utc(2024, 3, 4, 5, 6, 7).iso8601(3) }
     let(:effective_start_date) { Time.utc(2024, 2, 3, 4, 5, 6).iso8601(3) }
     let(:effective_end_date)   { nil }
-    let(:confirmation_date)    { Time.utc(2024, 3, 4, 5, 6, 7).iso8601(3) }
+    let(:confirmation_date)    { Time.utc(2024, 1, 2, 3, 4, 5).iso8601(3) }
     let(:source_system)        { VAProfile::Models::Email::SOURCE_SYSTEM }
 
     let(:expected_json) do
@@ -95,6 +95,73 @@ RSpec.describe VAProfile::Models::Email do
 
     it 'serializes to the VAProfile request shape' do
       expect(email.in_json).to eq(expected_json)
+    end
+  end
+
+  describe 'confirmation_date correction' do
+    subject(:email) do
+      build(:email, email_address: 'test@example.com',
+                    confirmation_date:,
+                    source_date:)
+    end
+
+    let(:source_date) { Time.utc(2024, 1, 1, 12, 0, 0) }
+
+    context 'when confirmation_date is after source_date' do
+      let(:confirmation_date) { Time.utc(2024, 1, 1, 13, 0, 0) }
+
+      it 'corrects confirmation_date to match source_date' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(source_date)
+      end
+    end
+
+    context 'when confirmation_date is before source_date' do
+      let(:confirmation_date) { Time.utc(2024, 1, 1, 11, 0, 0) }
+
+      it 'leaves confirmation_date unchanged' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(Time.utc(2024, 1, 1, 11, 0, 0))
+      end
+    end
+
+    context 'when confirmation_date equals source_date' do
+      let(:confirmation_date) { Time.utc(2024, 1, 1, 12, 0, 0) }
+
+      it 'leaves confirmation_date unchanged' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(source_date)
+      end
+    end
+
+    context 'when confirmation_date is nil' do
+      let(:confirmation_date) { nil }
+
+      it 'leaves confirmation_date as nil' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to be_nil
+      end
+    end
+
+    context 'when source_date is nil' do
+      let(:source_date) { nil }
+      let(:confirmation_date) { Time.utc(2024, 1, 1, 12, 0, 0) }
+
+      it 'leaves confirmation_date unchanged' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(Time.utc(2024, 1, 1, 12, 0, 0))
+      end
+    end
+
+    context 'when both confirmation_date and source_date are nil' do
+      let(:confirmation_date) { nil }
+      let(:source_date) { nil }
+
+      it 'leaves both as nil' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to be_nil
+        expect(email.source_date).to be_nil
+      end
     end
   end
 
