@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows: ["Code Checks"]
-    branches: ["*"]
+    branches: [master]
     types: [completed]
 permissions:
   id-token: write
