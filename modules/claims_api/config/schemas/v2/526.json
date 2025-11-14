@@ -573,9 +573,9 @@
             "nullable": true
           },
           "disabilityActionType": {
-            "description": "Action type requested for the disability. If 'INCREASE' then 'ratedDisabilityId' and 'diagnosticCode' should be included.",
+            "description": "Action type requested for the disability. If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' should be included. 'NONE' should be used when including a secondary disability.",
             "type": "string",
-            "enum": ["NEW", "INCREASE"],
+            "enum": ["NONE", "NEW", "INCREASE"],
             "example": "NEW"
           },
           "classificationCode": {
@@ -591,7 +591,7 @@
             "nullable": true
           },
           "diagnosticCode": {
-            "description": "If the disabilityActionType 'INCREASE', the diagnosticCode should correspond to an existing rated disability.",
+            "description": "If the disabilityActionType is 'NONE' or 'INCREASE', the diagnosticCode should correspond to an existing rated disability.",
             "type": ["integer", "null"],
             "example": 9999,
             "nullable": true
