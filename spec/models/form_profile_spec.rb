@@ -2150,6 +2150,34 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'with an accrued benefits form' do
+      it 'returns the va profile mapped to the accrued benefits form' do
+        expect_prefilled('21P-601')
+      end
+
+      context 'without address' do
+        let(:v21_p_601_expected) do
+          {
+            'claimantFullName' => {
+              'first' => user.first_name&.capitalize,
+              'middle' => user.middle_name&.capitalize,
+              'last' => user.last_name&.capitalize,
+              'suffix' => user.suffix
+            }
+          }
+        end
+
+        before do
+          allow_any_instance_of(FormProfiles::VA21p601)
+            .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
+        end
+
+        it "doesn't throw an exception" do
+          expect_prefilled('21P-601')
+        end
+      end
+    end
+
     context 'with a higher level review form' do
       let(:schema_name) { '20-0996' }
       let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
