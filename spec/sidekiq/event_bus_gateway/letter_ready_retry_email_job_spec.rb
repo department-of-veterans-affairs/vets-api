@@ -163,4 +163,10 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
       retries_exhausted_callback.call(msg, exception)
     end
   end
+
+  describe 'Retry count limit.' do
+    it "Sets Sidekiq retry count to #{EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_RETRY_EMAIL}." do
+      expect(described_class.sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_RETRY_EMAIL)
+    end
+  end
 end
