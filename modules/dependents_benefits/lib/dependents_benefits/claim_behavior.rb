@@ -41,7 +41,7 @@ module DependentsBenefits
 
       schema_errors = validate_schema(schema)
       unless schema_errors.empty?
-        monitor.track_error_event('SavedClaim schema failed validation.', "#{stats_key}.schema_error",
+        monitor.track_error_event('Dependents Benefits schema failed validation.', "#{stats_key}.schema_error",
                                   form_id:, errors: schema_errors)
       end
 
@@ -52,7 +52,7 @@ module DependentsBenefits
       end
 
       unless validation_errors.empty?
-        monitor.track_error_event('SavedClaim form did not pass validation', "#{stats_key}.validation_error",
+        monitor.track_error_event('Dependents Benefits form did not pass validation.', "#{stats_key}.validation_error",
                                   form_id:, guid:, errors: validation_errors)
       end
 

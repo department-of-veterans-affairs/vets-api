@@ -57,7 +57,7 @@ module DependentsBenefits
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#claim_class
     def claim_class
-      DependentsBenefits::SavedClaim
+      DependentsBenefits::PrimaryDependencyClaim
     end
 
     # retrieve the email from the _claim_ or _user_

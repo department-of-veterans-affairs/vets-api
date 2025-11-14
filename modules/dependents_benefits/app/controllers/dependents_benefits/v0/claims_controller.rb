@@ -30,7 +30,7 @@ module DependentsBenefits
       end
 
       def create
-        claim = DependentsBenefits::SavedClaim.new(form: dependent_params.to_json)
+        claim = DependentsBenefits::PrimaryDependencyClaim.new(form: dependent_params.to_json)
 
         # Populate the form_start_date from the IPF if available
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil

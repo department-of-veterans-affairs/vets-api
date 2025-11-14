@@ -46,7 +46,7 @@ claim = generator.generate
 
 ## Implementation Notes
 
-- Each generator creates a separate `DependentsBenefits::SavedClaim` record
+- Each generator creates a separate `DependentsBenefits::PrimaryDependencyClaim` record
 - Form data is stored as JSON in the `form` field
 - Claims are validated before saving
 

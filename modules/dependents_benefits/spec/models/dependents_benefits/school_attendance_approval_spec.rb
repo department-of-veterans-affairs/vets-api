@@ -15,4 +15,11 @@ RSpec.describe DependentsBenefits::SchoolAttendanceApproval do
       expect { saved_claim.to_pdf }.not_to raise_error
     end
   end
+
+  describe '#form_id' do
+    it 'returns the correct form id' do
+      claim = DependentsBenefits::SchoolAttendanceApproval.new(form: saved_claim.form)
+      expect(claim.form_id).to eq('21-674')
+    end
+  end
 end
