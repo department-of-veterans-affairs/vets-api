@@ -16,6 +16,8 @@ set -euo pipefail
         if curl --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -o unclass-certificates_pkcs7_ECA.zip https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
             echo "✓ DoD ECA downloaded via HTTPS"
         # Fallback 1: HTTP with timeout and retries
+        ## Uncomment in case the https call fails again
+        ## Last time we got this error: Failed to connect to dl.dod.cyber.mil port 443
         #elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
         #    echo "✓ DoD ECA downloaded via HTTP fallback"
         else
