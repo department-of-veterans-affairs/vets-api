@@ -24,8 +24,8 @@ module DependentsBenefits::Sidekiq
       lighthouse_submission.cleanup_file_paths
     end
 
-    def handle_permanent_failure(msg, error)
-      @claim_id = msg['args'].first
+    def handle_permanent_failure(claim_id, error)
+      @claim_id = claim_id
       send_failure_notification
       monitor.log_silent_failure_avoided({ claim_id:, error: })
     rescue => e

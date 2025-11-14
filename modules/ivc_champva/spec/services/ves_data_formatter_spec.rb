@@ -38,7 +38,7 @@ describe IvcChampva::VesDataFormatter do
           enrolledInMedicare: true,
           hasOtherInsurance: true,
           relationshipToSponsor: 'CHILD',
-          childtype: 'ADOPTED',
+          childtype: 'NATURAL',
           dateOfBirth: '2000-01-01',
           address: {
             streetAddress: '456 Circle Street ',
@@ -106,7 +106,12 @@ describe IvcChampva::VesDataFormatter do
           'applicant_has_ohi' => { 'has_ohi' => 'yes' },
           'ssn_or_tin' => '345345345',
           'vet_relationship' => 'CHILD',
-          'childtype' => { 'relationship_to_veteran' => 'ADOPTED' },
+          'applicant_relationship_to_sponsor' => {
+            'relationship_to_veteran' => 'child'
+          },
+          'applicant_relationship_origin' => {
+            'relationship_to_veteran' => 'blood'
+          },
           'applicant_supporting_documents' => []
         }
       ],
@@ -390,7 +395,7 @@ describe IvcChampva::VesDataFormatter do
   describe 'beneficiary childtype not in accepted values' do
     it 'raises an exception' do
       possible_values = IvcChampva::VesDataFormatter::CHILDTYPES.join(', ')
-      @parsed_form_data_copy['applicants'][0]['childtype']['relationship_to_veteran'] = 'INVALID'
+      @parsed_form_data_copy['applicants'][0]['applicant_relationship_origin']['relationship_to_veteran'] = 'INVALID'
 
       expect do
         IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)

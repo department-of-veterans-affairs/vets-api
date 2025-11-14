@@ -4,16 +4,21 @@ require 'rails_helper'
 
 describe Eps::ProviderService do
   let(:service) { described_class.new(user) }
-  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123') }
+  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123', va_treatment_facility_ids: ['123']) }
 
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)
     allow(Rails.logger).to receive(:public_send)
+    allow(Rails.logger).to receive(:warn)
     allow(StatsD).to receive(:increment)
     # Bypass token authentication which is tested in another spec
     allow(Settings.vaos.eps).to receive(:mock).and_return(true)
+    # Set up RequestStore for controller name logging
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
+    # Clear eps_trace_id to ensure test isolation
+    RequestStore.store['eps_trace_id'] = nil
   end
 
   describe '#get_provider_service' do
@@ -887,16 +892,23 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'returns nil, logs error with npi, and increments metric' do
+        it 'returns nil, logs error, and increments metric' do
           expect(StatsD).to receive(:increment).with(
             'api.vaos.provider_service.no_self_schedulable',
             tags: ['service:community_care_appointments']
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end
@@ -961,9 +973,16 @@ describe Eps::ProviderService do
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end
@@ -1002,9 +1021,16 @@ describe Eps::ProviderService do
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end
@@ -1043,9 +1069,16 @@ describe Eps::ProviderService do
           )
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
           expect(Rails.logger).to have_received(:error).with(
             'Community Care Appointments: No self-schedulable providers found for NPI',
-            { npi: }
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
           )
         end
       end

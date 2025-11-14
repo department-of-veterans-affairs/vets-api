@@ -31,14 +31,25 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
     let(:auto_uplevel) { false }
 
-    before { allow(IdentitySettings.sign_in).to receive(:auto_uplevel).and_return(auto_uplevel) }
+    before do
+      allow(IdentitySettings.sign_in).to receive(:auto_uplevel).and_return(auto_uplevel)
+      allow(Rails.logger).to receive(:info)
+    end
 
     shared_examples 'invalid credential level error' do
       let(:expected_error) { SignIn::Errors::InvalidCredentialLevelError }
       let(:expected_error_message) { 'Unsupported credential authorization levels' }
+      let(:expected_error_log) { "[SignIn][CredentialLevelCreator] error: #{validation_error_message}" }
 
       it 'raises an invalid credential level error' do
         expect { subject }.to raise_error(expected_error, expected_error_message)
+        expect(Rails.logger).to have_received(:info).with(expected_error_log,
+                                                          credential_type: type,
+                                                          requested_acr:,
+                                                          current_ial: expected_current_ial,
+                                                          max_ial: expected_max_ial,
+                                                          auto_uplevel:,
+                                                          credential_uuid: sub)
       end
     end
 
@@ -59,12 +70,18 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
     context 'when requested_acr is arbitrary' do
       let(:requested_acr) { 'some-requested-acr' }
+      let(:validation_error_message) { 'Validation failed: Requested acr is not included in the list' }
+      let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
+      let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
       it_behaves_like 'invalid credential level error'
     end
 
     context 'when type is arbitrary' do
       let(:type) { 'some-type' }
+      let(:validation_error_message) { 'Validation failed: Credential type is not included in the list' }
+      let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
+      let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
       it_behaves_like 'invalid credential level error'
     end
@@ -155,6 +172,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
         context 'and logingov acr is defined as IAL 2' do
           let(:logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
           let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
+          let(:validation_error_message) { 'Validation failed: Max ial cannot be less than Current ial' }
 
           it_behaves_like 'invalid credential level error'
         end
@@ -385,6 +403,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
       context 'and user info level of assurance does not equal idme classic loa3' do
         let(:level_of_assurance) { 'some-level-of-assurance' }
         let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
+        let(:validation_error_message) { 'Validation failed: Max ial cannot be less than Current ial' }
 
         context 'and user info credential ial equals idme classic loa3' do
           let(:credential_ial) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }

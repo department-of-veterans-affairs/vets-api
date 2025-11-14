@@ -146,7 +146,6 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
   end
 
   describe '#handle_permanent_failure' do
-    let(:msg) { { 'args' => [parent_claim.id] } }
     let(:test_error) { StandardError.new('Permanent failure error') }
 
     before do
@@ -158,7 +157,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
       expect(job).to receive(:send_failure_notification)
       expect(monitor_instance).to receive(:log_silent_failure_avoided)
         .with({ claim_id: parent_claim.id, error: test_error })
-      job.handle_permanent_failure(msg, test_error)
+      job.handle_permanent_failure(parent_claim.id, test_error)
     end
 
     context 'when notification sending fails' do
@@ -171,7 +170,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
       it 'logs silent failure as last resort' do
         expect(monitor_instance).to receive(:log_silent_failure)
           .with({ claim_id: parent_claim.id, error: notification_error })
-        job.handle_permanent_failure(msg, test_error)
+        job.handle_permanent_failure(parent_claim.id, notification_error)
       end
     end
   end
@@ -226,7 +225,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
       exception = StandardError.new('Service failed')
 
       expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
-        .with(parent_claim.id, exception)
+        .with(parent_claim.id, exception).and_call_original
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end

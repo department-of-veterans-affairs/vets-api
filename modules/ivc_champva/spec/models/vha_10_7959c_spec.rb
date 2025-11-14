@@ -108,6 +108,19 @@ RSpec.describe IvcChampva::VHA107959c do
     end
   end
 
+  describe '#track_delegate_form' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_7959c' }
+    let(:vha_10_7959c) { described_class.new(data) }
+
+    it 'increments the StatsD for delegate form and logs the info' do
+      expect(StatsD).to receive(:increment).with("#{statsd_key}.delegate_form.vha_10_10d")
+      expect(Rails.logger)
+        .to receive(:info)
+        .with('IVC ChampVA Forms - 10-7959C Delegate Form', parent_form_id: 'vha_10_10d')
+      vha_10_7959c.track_delegate_form('vha_10_10d')
+    end
+  end
+
   it 'is not past OMB expiration date' do
     # Update this date string to match the current PDF OMB expiration date:
     omb_expiration_date = Date.strptime('12312027', '%m%d%Y')

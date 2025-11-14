@@ -11,11 +11,14 @@ RSpec.describe EmailVerificationJob, type: :job do
   let(:template_type) { 'initial_verification' }
   let(:email_address) { 'veteran@example.com' }
   let(:personalisation) { { 'verification_link' => 'https://va.gov/verify/123', 'first_name' => 'John', 'email_address' => email_address } }
+  let(:notify_client) { instance_double(VaNotify::Service) }
 
   before do
     allow(StatsD).to receive(:increment)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
+    allow(VaNotify::Service).to receive(:new).and_return(notify_client)
+    allow(notify_client).to receive(:send_email)
   end
 
   describe '#perform' do
@@ -34,7 +37,6 @@ RSpec.describe EmailVerificationJob, type: :job do
         expect(StatsD).to have_received(:increment).with('api.vanotify.email_verification.success')
       end
 
-      # Test all template types in one spec
       %w[initial_verification annual_verification email_change_verification verification_success].each do |type|
         it "handles #{type} template type" do
           expect { subject.new.perform(type, email_address, personalisation) }.not_to raise_error
@@ -80,7 +82,8 @@ RSpec.describe EmailVerificationJob, type: :job do
     end
 
     it 'handles general errors with failure metrics and logging' do
-      allow_any_instance_of(described_class).to receive(:get_template_id).and_raise(StandardError, 'Service error')
+      allow_any_instance_of(described_class).to receive(:validate_personalisation!).and_raise(StandardError,
+                                                                                              'Service error')
 
       expect do
         subject.new.perform(template_type, email_address, personalisation)
@@ -128,6 +131,34 @@ RSpec.describe EmailVerificationJob, type: :job do
         )
       )
       expect(StatsD).to have_received(:increment).with('api.vanotify.email_verification.retries_exhausted')
+    end
+  end
+
+  describe '#callback_options' do
+    let(:job_instance) { subject.new }
+
+    it 'returns properly structured callback options for each template type' do
+      %w[initial_verification annual_verification email_change_verification verification_success].each do |type|
+        options = job_instance.send(:callback_options, type)
+
+        expect(options).to eq({
+                                callback_klass: 'EmailVerificationCallback',
+                                callback_metadata: {
+                                  statsd_tags: {
+                                    service: 'vagov-profile-email-verification',
+                                    function: "#{type}_email"
+                                  }
+                                }
+                              })
+      end
+    end
+
+    it 'references a valid callback class' do
+      options = job_instance.send(:callback_options, 'initial_verification')
+      callback_klass = options[:callback_klass]
+
+      expect { callback_klass.constantize }.not_to raise_error
+      expect(callback_klass.constantize).to respond_to(:call)
     end
   end
 

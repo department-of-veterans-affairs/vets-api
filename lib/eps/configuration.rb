@@ -38,7 +38,7 @@ module Eps
         conn.response :betamocks if mock_enabled?
         conn.response :snakecase
         conn.response :json_parser
-        conn.response :vaos_errors
+        conn.response :eps_errors
         conn.adapter Faraday.default_adapter
       end
     end

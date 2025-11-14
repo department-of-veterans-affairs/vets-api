@@ -8,6 +8,8 @@ require 'claims_evidence_api/uploader'
 module DependentsBenefits
   module Sidekiq
     class Claims686cJob < DependentSubmissionJob
+      class Invalid686cClaim < StandardError; end
+
       FORM_ID = DependentsBenefits::ADD_REMOVE_DEPENDENT.freeze
       ##
       # Service-specific submission logic - BGS vs Lighthouse vs Fax

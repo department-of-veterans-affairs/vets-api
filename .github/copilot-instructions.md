@@ -1,5 +1,16 @@
 # Copilot Instructions for `vets-api`
 
+## 📚 Additional Resources
+
+### Path-Specific Instructions
+**Path-specific custom instructions automatically apply when working on specific modules:**
+
+- **[instructions/my-health-messaging.instructions.md](./instructions/my-health-messaging.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/sm/` - Secure Messaging specific patterns, models, and API client usage
+- **[instructions/my-health-medical-records.instructions.md](./instructions/my-health-medical-records.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/medical_records/` - Medical Records specific patterns, FHIR integration, and multi-client architecture
+- **[instructions/my-health-prescriptions.instructions.md](./instructions/my-health-prescriptions.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/rx/` - Prescriptions specific patterns, refill workflows, and pharmacy API client usage
+
+These path-specific instructions are automatically loaded by GitHub Copilot when you work on files matching their `applyTo` patterns. You can create additional path-specific instruction files in `.github/instructions/` for other modules or features.
+
 ## Repository Context
 `vets-api` is a Ruby on Rails API serving veterans via VA.gov. Large codebase (400K+ lines) with modules for appeals, claims, healthcare, and benefits processing.
 
@@ -29,7 +40,7 @@
 - Controllers in `modules/[name]/app/controllers` or `app/controllers`
 - Background jobs in `app/sidekiq/` - use for operations >2 seconds
 - External service clients in `lib/` with Faraday configuration
-- Feature flags via Flipper for gradual rollouts and A/B testing
+- Feature flags via Flipper for gradual rollouts and A/B testing `config/features.yml`
 - Strong parameters required - never use `params` directly
 - Error responses use envelope: `{ error: { code, message } }`
 - Service objects return `{ data: result, error: nil }` pattern

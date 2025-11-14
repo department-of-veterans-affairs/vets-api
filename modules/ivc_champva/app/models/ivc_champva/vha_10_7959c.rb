@@ -55,6 +55,11 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959C Email Used', email_used:)
     end
 
+    def track_delegate_form(parent_form_id)
+      StatsD.increment("#{STATS_KEY}.delegate_form.#{parent_form_id}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C Delegate Form', parent_form_id:)
+    end
+
     # rubocop:disable Naming/BlockForwarding
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)

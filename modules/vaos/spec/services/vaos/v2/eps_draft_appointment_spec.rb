@@ -44,6 +44,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     allow(Eps::AppointmentService).to receive(:new).and_return(eps_appointment_service)
     allow(Eps::ProviderService).to receive(:new).and_return(eps_provider_service)
     allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+    # Set up RequestStore for controller name logging
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
     setup_successful_services
   end
 
@@ -65,9 +67,11 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
                                                        config: OpenStruct.new(mock_enabled?: false))
     allow(eps_provider_service).to receive_messages(search_provider_services: provider_data,
                                                     get_provider_slots: slots_data, get_drive_times: drive_time_data)
-    allow(current_user).to receive(:vet360_contact_info).and_return(
-      OpenStruct.new(residential_address: OpenStruct.new(latitude: 39.7392, longitude: -104.9903))
-    )
+    if current_user
+      allow(current_user).to receive(:vet360_contact_info).and_return(
+        OpenStruct.new(residential_address: OpenStruct.new(latitude: 39.7392, longitude: -104.9903))
+      )
+    end
   end
 
   describe '#initialize' do
@@ -397,7 +401,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           tags: [
             'service:community_care_appointments',
             'referring_facility_code:FAC123',
-            'provider_npi:1234567890',
             'station_id:no_value'
           ]
         )
@@ -414,14 +417,18 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
       it 'logs provider not found error when provider is nil' do
         allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
+        expected_station_number = current_user.va_treatment_facility_ids&.first
+
         expect(Rails.logger).to receive(:error).with(
           'Community Care Appointments: Provider not found while creating draft appointment',
-          hash_including(
+          {
             error_message: 'Provider not found while creating draft appointment',
-            provider_npi: '1234567890',
-            provider_specialty: 'Cardiology',
-            user_uuid: current_user.uuid
-          )
+            user_uuid: current_user.uuid,
+            controller: expected_controller_name,
+            station_number: expected_station_number,
+            eps_trace_id: nil
+          }
         )
         expect(subject.error).to be_present
         expect(subject.error[:message]).to eq('Provider not found')
@@ -526,13 +533,18 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           invalid_date_referral = referral_data.dup
           invalid_date_referral.referral_date = 'invalid-date'
 
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = current_user.va_treatment_facility_ids&.first
+
           expect(Rails.logger).to receive(:error).with(
             'Community Care Appointments: Error fetching provider slots',
-            hash_including(
+            {
               error_class: 'Date::Error',
-              error_message: 'invalid date',
-              user_uuid: current_user.uuid
-            )
+              user_uuid: current_user.uuid,
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil
+            }
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
           expect(result).to be_nil

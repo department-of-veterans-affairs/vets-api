@@ -72,7 +72,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
             expect(record.last_name).to eq('Surname')
             expect(record.form_uuid).to be_present
 
-            expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
+            expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).at_least(:once)
             expect(ves_client).to have_received(:submit_1010d)
               .with(anything, 'fake-user', ves_request)
             expect(mock_form).to have_received(:update)
@@ -151,6 +151,9 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
           before do
             allow(Flipper).to receive(:enabled?)
               .with(:champva_send_to_ves, anything)
+              .and_return(false)
+            allow(Flipper).to receive(:enabled?)
+              .with(:champva_send_ves_to_pega, anything)
               .and_return(false)
           end
 

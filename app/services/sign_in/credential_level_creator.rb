@@ -54,7 +54,13 @@ module SignIn
                           current_ial:,
                           max_ial:,
                           auto_uplevel:)
-    rescue ActiveModel::ValidationError
+    rescue ActiveModel::ValidationError => e
+      Rails.logger.info("[SignIn][CredentialLevelCreator] error: #{e.message}", credential_type: type,
+                                                                                requested_acr:,
+                                                                                current_ial:,
+                                                                                max_ial:,
+                                                                                auto_uplevel:,
+                                                                                credential_uuid:)
       raise Errors::InvalidCredentialLevelError.new message: 'Unsupported credential authorization levels'
     end
 

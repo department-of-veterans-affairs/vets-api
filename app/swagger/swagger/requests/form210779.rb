@@ -10,7 +10,6 @@ module Swagger
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
           extend Swagger::Responses::UnprocessableEntityError
-          extend Swagger::Responses::BadRequestError
 
           key :description,
               'Submit a 21-0779 form (Request for Nursing Home Information in Connection with Claim for ' \
@@ -32,11 +31,11 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/form210779/download_pdf' do
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
+      swagger_path '/v0/form210779/download_pdf/{guid}' do
+        operation :get do
+          extend Swagger::Responses::RecordNotFoundError
 
-          key :description, 'Download a pre-filled 21-0779 PDF form'
+          key :description, 'Download the submitted 21-0779 PDF form'
           key :operationId, 'downloadForm210779Pdf'
           key :tags, %w[benefits_forms]
           key :produces, ['application/pdf', 'application/json']
@@ -44,15 +43,11 @@ module Swagger
           parameter :optional_authorization
 
           parameter do
-            key :name, :form
-            key :in, :body
-            key :description, 'Form data for PDF generation'
+            key :name, 'guid'
+            key :in, :path
+            key :description, 'the guid from the form submission response'
             key :required, true
-
-            schema do
-              key :type, :string
-              key :description, 'JSON string of form data'
-            end
+            key :type, :string
           end
 
           response 200 do

@@ -60,6 +60,17 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
       end
     end
 
+    context 'with invalid claim' do
+      it 'raises error for invalid claim' do
+        allow_any_instance_of(DependentsBenefits::AddRemoveDependent)
+          .to receive(:valid?)
+          .with(:run_686_form_jobs)
+          .and_return(false)
+        expect { job.perform(saved_claim.id, proc_id) }
+          .to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError)
+      end
+    end
+
     context 'with claims evidence service error' do
       it 'triggers backup job when permanent claims evidence failure occurs' do
         permanent_error = ClaimsEvidenceApi::Exceptions::VefsError.new('error')

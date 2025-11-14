@@ -25,29 +25,18 @@ class EmailVerificationJob
   def perform(template_type, _email_address, personalisation = {})
     return unless Flipper.enabled?(:auth_exp_email_verification_enabled)
 
-    get_template_id(template_type)
     validate_personalisation!(template_type, personalisation)
-
-    # TODO: Set up custom callback class
-    # callback_options = {
-    #   callback_klass: 'EmailVerificationCallback',
-    #   callback_metadata: {
-    #     statsd_tags: {
-    #       service: 'vagov-profile-email-verification',
-    #       function: "#{template_type}_email"
-    #     }
-    #   }
-    # }
 
     Rails.logger.info('Email verification sent (logging only - not actually sent)', { template_type: })
     # TODO: Replace above log with actual VA Notify call:
-    # notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options)
+    # notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options(template_type))
     # notify_client.send_email(
     #   {
-    #     email_address: email_address,
-    #     template_id: template_id,
-    #     personalisation: personalisation
+    #     email_address:,
+    #     template_id: get_template_id(template_type),
+    #     personalisation:
     #   }.compact
+    # )
 
     StatsD.increment("#{STATS_KEY}.success")
   rescue ArgumentError => e
@@ -63,6 +52,18 @@ class EmailVerificationJob
   end
 
   private
+
+  def callback_options(template_type)
+    {
+      callback_klass: 'EmailVerificationCallback',
+      callback_metadata: {
+        statsd_tags: {
+          service: 'vagov-profile-email-verification',
+          function: "#{template_type}_email"
+        }
+      }
+    }
+  end
 
   def get_template_id(template_type)
     case template_type

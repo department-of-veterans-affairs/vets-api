@@ -50,6 +50,7 @@
             "trackedItems"
           ],
           "properties": {
+            "claimTypeBase": { "type": ["string", "null"] },
             "claimTypeCode": { "type": "string" },
             "claimType": { "type": "string" },
             "contentions": {
@@ -90,6 +91,7 @@
               }
             },
             "closeDate": { "type": ["string", "null"] },
+            "displayTitle": { "type": ["string", "null"] },
             "decisionLetterSent": { "type": "boolean" },
             "developmentLetterSent": { "type": "boolean" },
             "documentsNeeded": { "type": "boolean" },
