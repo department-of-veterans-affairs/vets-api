@@ -177,73 +177,86 @@ RSpec.describe IvcChampva::VHA1010d2027 do
     end
   end
 
-  describe '#add_applicant_properties' do
-    context 'when applicants array is present' do
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => [
-            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
-              'applicant_dob' => '1980-01-01' },
-            { 'applicant_ssn' => '987654321', 'applicant_name' => { 'first' => 'Jane', 'last' => 'Doe' },
-              'applicant_dob' => '1981-02-02' }
-          ]
-        )
+  [{
+    flipper_enabled: false,
+    applicant_key: 'applicant'
+  }, {
+    flipper_enabled: true,
+    applicant_key: 'beneficiary'
+  }].each do |test_case|
+    describe '#add_applicant_properties' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(test_case[:flipper_enabled])
       end
 
-      let(:vha1010d2027_applicants) { described_class.new(applicant_data) }
+      context 'when applicants array is present' do
+        let(:applicant_data) do
+          data.merge(
+            'applicants' => [
+              { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+                'applicant_dob' => '1980-01-01' },
+              { 'applicant_ssn' => '987654321', 'applicant_name' => { 'first' => 'Jane', 'last' => 'Doe' },
+                'applicant_dob' => '1981-02-02' }
+            ]
+          )
+        end
 
-      it 'returns valid stringified JSON' do
-        res = vha1010d2027_applicants.add_applicant_properties
-        expect(res['applicant_0']).to be_a(String)
-        expect(JSON.parse(res['applicant_0'])).to be_a(Hash)
+        let(:vha1010d2027_applicants) { described_class.new(applicant_data) }
+
+        it 'returns valid stringified JSON' do
+          res = vha1010d2027_applicants.add_applicant_properties
+          expect(res["#{test_case[:applicant_key]}_0"]).to be_a(String)
+          expect(JSON.parse(res["#{test_case[:applicant_key]}_0"])).to be_a(Hash)
+        end
+
+        it 'includes a key for each applicant' do
+          res = vha1010d2027_applicants.add_applicant_properties
+          expect(res.keys.include?("#{test_case[:applicant_key]}_0")).to be(true)
+          expect(res.keys.include?("#{test_case[:applicant_key]}_1")).to be(true)
+        end
+
+        it 'contains applicant data' do
+          res = vha1010d2027_applicants.add_applicant_properties
+          first_name = JSON.parse(res["#{test_case[:applicant_key]}_0"])["#{test_case[:applicant_key]}_name"]['first']
+          expect(first_name).to eq('John')
+        end
       end
 
-      it 'includes a key for each applicant' do
-        res = vha1010d2027_applicants.add_applicant_properties
-        expect(res.keys.include?('applicant_0')).to be(true)
-        expect(res.keys.include?('applicant_1')).to be(true)
+      context 'when applicants array is empty' do
+        let(:applicant_data) do
+          data.merge(
+            'applicants' => []
+          )
+        end
+
+        let(:vha1010d2027_applicants) { described_class.new(applicant_data) }
+
+        it 'returns an empty object' do
+          json_result = vha1010d2027.add_applicant_properties
+          expect(json_result.empty?).to be(true)
+        end
       end
 
-      it 'contains applicant data' do
-        res = vha1010d2027_applicants.add_applicant_properties
-        expect(JSON.parse(res['applicant_0'])['applicant_name']['first']).to eq('John')
-      end
-    end
+      context 'when applicants have wrong properties' do
+        let(:applicant_data) do
+          data.merge(
+            'applicants' => [
+              { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+                'applicant_dob' => '1980-01-01' }
+            ]
+          )
+        end
 
-    context 'when applicants array is empty' do
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => []
-        )
-      end
+        let(:vha1010d2027_applicants) { described_class.new(applicant_data) }
 
-      let(:vha1010d2027_applicants) { described_class.new(applicant_data) }
+        it 'returns an empty object' do
+          json_result = vha1010d2027.add_applicant_properties
+          expect(json_result.empty?).to be(true)
+        end
 
-      it 'returns an empty object' do
-        json_result = vha1010d2027.add_applicant_properties
-        expect(json_result.empty?).to be(true)
-      end
-    end
-
-    context 'when applicants have wrong properties' do
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => [
-            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
-              'applicant_dob' => '1980-01-01' }
-          ]
-        )
-      end
-
-      let(:vha1010d2027_applicants) { described_class.new(applicant_data) }
-
-      it 'returns an empty object' do
-        json_result = vha1010d2027.add_applicant_properties
-        expect(json_result.empty?).to be(true)
-      end
-
-      it 'does not interfere with metadata creation' do
-        expect(vha1010d2027.metadata.keys.include?('veteranFirstName')).to be(true)
+        it 'does not interfere with metadata creation' do
+          expect(vha1010d2027.metadata.keys.include?('veteranFirstName')).to be(true)
+        end
       end
     end
   end

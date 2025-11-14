@@ -35,6 +35,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                                            application_uuid: 'test-uuid')
     allow(ves_request).to receive(:transaction_uuid=)
     allow(ves_request).to receive(:to_json).and_return('{}')
+    allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
   end
 
   after do
