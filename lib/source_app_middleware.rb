@@ -149,6 +149,7 @@ class SourceAppMiddleware
     'travel-claim',
     'travel-pay',
     'vaos',
+    'vass',
     'verify',
     'verify-your-enrollment',
     'veteran-id-card',

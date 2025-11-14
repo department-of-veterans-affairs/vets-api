@@ -12989,6 +12989,18 @@
                   "claimTypeCode": {
                     "type": "string",
                     "example": "020NEW"
+                  },
+                  "claimTypeBase": {
+                    "type": "string",
+                    "description": "Base type of claim",
+                    "example": "compensation claim",
+                    "nullable": true
+                  },
+                  "displayTitle": {
+                    "type": "string",
+                    "description": "Formatted title for display",
+                    "example": "Claim for compensation",
+                    "nullable": true
                   }
                 }
               }
@@ -14512,7 +14524,8 @@
               "displayTitle": {
                 "type": "string",
                 "description": "Formatted title for display in mobile overview list",
-                "example": "disability compensation appeal"
+                "example": "disability compensation appeal",
+                "nullable": true
               },
               "decisionLetterSent": {
                 "type": "boolean",
@@ -14542,6 +14555,12 @@
                 "description": "Type of claim",
                 "nullable": true,
                 "example": "020NEW"
+              },
+              "claimTypeBase": {
+                "type": "string",
+                "description": "Base type of claim",
+                "example": "compensation claim",
+                "nullable": true
               }
             }
           }
@@ -14699,7 +14718,8 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal"
+                      "example": "disability compensation appeal",
+                      "nullable": true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14730,6 +14750,12 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": null
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "example": "compensation claim",
+                      "nullable": true
                     }
                   }
                 }
@@ -14898,6 +14924,11 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": "020NEW"
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "nullable": true
                     }
                   }
                 }
