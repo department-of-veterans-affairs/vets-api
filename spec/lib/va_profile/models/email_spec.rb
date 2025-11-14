@@ -163,6 +163,18 @@ RSpec.describe VAProfile::Models::Email do
         expect(email.source_date).to be_nil
       end
     end
+
+    context 'when source_date is set after confirmation_date (timing issue)' do
+      it 'corrects confirmation_date when source_date is set later' do
+        email = build(:email, email_address: 'test@example.com')
+        # Simulate controller flow: confirmation_date is set first during initialization
+        email.confirmation_date = Time.utc(2024, 1, 1, 14, 0, 0)
+        # Then source_date is set by set_defaults
+        email.source_date = Time.utc(2024, 1, 1, 12, 0, 0)
+
+        expect(email.confirmation_date).to eq(Time.utc(2024, 1, 1, 12, 0, 0))
+      end
+    end
   end
 
   describe '.build_from' do

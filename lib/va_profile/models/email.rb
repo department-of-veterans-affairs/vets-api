@@ -74,9 +74,28 @@ module VAProfile
       # @return [Time, String, nil] the corrected confirmation date
       def confirmation_date=(value)
         @confirmation_date = value
-        return if @confirmation_date.blank? || source_date.blank?
+        binding.pry
+        correct_confirmation_date_if_needed
+      end
 
-        @confirmation_date = source_date if @confirmation_date > source_date
+      # Override the source_date setter to correct confirmation_date when source_date is set.
+      # This handles the case where confirmation_date is set before source_date during initialization.
+      # @param value [Time, String, nil] the source date to set
+      # @return [Time, String, nil] the source date
+      def source_date=(value)
+        @source_date = value
+        binding.pry
+        correct_confirmation_date_if_needed
+      end
+
+      private
+
+      # Corrects confirmation_date if it's after source_date.
+      # @return [void]
+      def correct_confirmation_date_if_needed
+        return if @confirmation_date.blank? || @source_date.blank?
+
+        @confirmation_date = @source_date if @confirmation_date > @source_date
       end
     end
   end
