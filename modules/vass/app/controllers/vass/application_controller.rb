@@ -101,7 +101,7 @@ module Vass
         errors: [{
           title:,
           detail:,
-          code: status_code.to_s,
+          code: status_code.to_s
         }]
       }, status:
     end
