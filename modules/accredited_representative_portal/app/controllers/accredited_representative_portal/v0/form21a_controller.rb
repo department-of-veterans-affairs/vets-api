@@ -72,7 +72,7 @@ module AccreditedRepresentativePortal
       end
 
       def loa3_user?
-        routing_error unless current_user.loa[:current] == 3
+        routing_error unless current_user.loa3?
       end
 
       # Parses the raw request body as JSON and assigns it to an instance variable.
