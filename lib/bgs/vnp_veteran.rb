@@ -96,7 +96,8 @@ module BGS
       # retrieve the list of all regional offices
       # match the regional number to find the corresponding location id
       regional_offices = bgs_service.find_regional_offices
-      return '347' if regional_offices.nil? # return default value 347 if regional office is not found
+      # return default value 347 if regional office is not found
+      return '347' if regional_offices.nil? || !regional_offices.respond_to?(:find)
 
       regional_office = regional_offices.find { |ro| ro[:station_number] == regional_office_number }
       return '347' if regional_office.nil? # return default value 347 if regional office is not found
