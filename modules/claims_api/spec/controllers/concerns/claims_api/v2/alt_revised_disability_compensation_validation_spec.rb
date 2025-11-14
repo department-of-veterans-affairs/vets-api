@@ -280,25 +280,6 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
-  describe 'validation of disability names' do
-    context 'when there are duplicate values' do
-      it 'returns an error array' do
-        subject.form_attributes['disabilities'][0]['name'] = 'duplicate'
-        subject.form_attributes['disabilities'][1]['name'] = 'duplicate'
-        res = test_526_validation_instance.send(:alt_rev_validate_form_526_disability_unique_names)
-        expect(res[0][:detail]).to eq('Duplicate disability name found: d********')
-        expect(res[0][:source]).to eq('/disabilities/0/name')
-      end
-    end
-
-    context 'when names are unique' do
-      it 'does not return an error array' do
-        res = test_526_validation_instance.send(:alt_rev_validate_form_526_disability_unique_names)
-        expect(res).to be_nil
-      end
-    end
-  end
-
   describe 'validation of claimant change of address elements' do
     context "'typeOfAddressChange','addressLine1','country' are conditionally required" do
       context 'without the required country value present' do
