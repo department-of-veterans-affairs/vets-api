@@ -92,13 +92,12 @@ module VAProfile
       # This ensures type consistency before comparisons.
       # @param value [Time, String, nil] the value to parse
       # @return [Time, nil] parsed Time object or nil
+      # @raise [ArgumentError] if value is not a valid ISO8601 string
       def parse_iso8601_time(value)
         return nil if value.nil?
 
         value = value.iso8601 if value.is_a?(Time)
         Time.iso8601(value)
-      rescue ArgumentError
-        value
       end
 
       # Corrects confirmation_date if it's after source_date.
