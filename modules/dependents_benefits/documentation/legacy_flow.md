@@ -28,7 +28,7 @@ It is here for legacy reference only.
    - Set @file\_number  
    - Generate hash with veteran details  
 5. Submit PDF job  
-   - Call VBMS::SubmitDependentsPdfJob.perform\_sync  
+   - ~Call VBMS::SubmitDependentsPdfJob.perform\_sync~
    - If fails, submit to central service (Lighthouse)  
 6. Determine form type (686 or 674\)  
 7. Submit to standard service  
