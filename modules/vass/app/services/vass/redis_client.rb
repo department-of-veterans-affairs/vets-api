@@ -47,7 +47,7 @@ module Vass
     # Saves the OAuth access token to cache with expiration.
     #
     # @param token [String, nil] OAuth token to cache (nil clears the cache)
-    # @return [void]
+    # @return [Boolean] true if write succeeds
     #
     def save_token(token:)
       Rails.cache.write(
