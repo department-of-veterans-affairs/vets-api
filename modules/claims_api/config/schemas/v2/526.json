@@ -4,7 +4,6 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "claimantCertification",
     "claimProcessType",
     "disabilities",
     "serviceInformation",
