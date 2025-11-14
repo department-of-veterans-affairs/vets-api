@@ -54,7 +54,11 @@ http_interactions:
         {
           "data": {
             "icn": "1012667122V019349",
-            "mecPeriods": [{"startDate": "2024-03-05", "endDate": "2024-03-05"}]
+            "mecPeriods": [
+              {"startDate": "2024-03-05", "endDate": "2024-03-05"},
+              {"startDate": "2019-03-05", "endDate": "2022-03-05"},
+              {"startDate": "2010-03-05", "endDate": "2015-03-05"}
+            ]
           },
           "messages": []
         }
