@@ -27,7 +27,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(render_overides)))
+        Array(SerializableError.new((i18n_data || {}).merge(render_overides)))
       end
 
       # VA900 is characterized as a generic type of exception. See exceptions.en.yml for what JSON will render
@@ -74,14 +74,14 @@ module Common
       # was provided by the backend service, because the backend service response
       # might not always be relevant
       def status
-        i18n_data[:status].presence || 400
+        i18n_data&.[](:status).presence || 400
       end
 
       # OPTIONAL - This is the detail or message that is rendered in JSON response
       # Not providing detail will render a detail the same as title, 'Operation failed'
       # NOTE: in the future, detail will only work via i18n, not the value from response_values
       def detail
-        i18n_data[:detail].presence || response_values[:detail]
+        i18n_data&.[](:detail).presence || response_values[:detail]
       end
 
       # OPTIONAL - This should usually be a developer message of some sort from the backend service

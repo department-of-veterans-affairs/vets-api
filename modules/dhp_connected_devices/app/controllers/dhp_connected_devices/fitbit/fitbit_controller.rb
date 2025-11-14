@@ -92,7 +92,7 @@ module DhpConnectedDevices
           }
         )
 
-        log_exception_to_rails(e)
+        log_exception_to_rails(error)
       end
     end
   end
