@@ -66,7 +66,7 @@ module BGS
     end
 
     def monitor
-      @monitor ||= BGS::Monitor.new(%w[feature_enabled backtrace])
+      @monitor ||= BGS::Monitor.new(allowlist: %w[feature_enabled backtrace])
     end
   end
 end

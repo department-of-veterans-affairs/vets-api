@@ -120,7 +120,7 @@ module BGS
     end
 
     def monitor
-      @monitor ||= BGS::Monitor.new(%w[timestamp form526_submission_id pre_exhaustion_failure])
+      @monitor ||= BGS::Monitor.new(allowlist: %w[timestamp form526_submission_id pre_exhaustion_failure])
     end
   end
 end

@@ -9,7 +9,8 @@ RSpec.describe BGS::Monitor do
   describe '#info' do
     it 'logs info level event' do
       expect(StatsD).to receive(:increment).with('bgs', tags: ['service:bgs', 'function:log_event', 'action:test'])
-      expect(Rails.logger).to receive(:info).with('test message', hash_including(context: { tags: ['action:test'] }))
+      expect(Rails.logger).to receive(:info).with('test message',
+                                                  hash_including(context: { tags: ['action:test'], action: 'test' }))
       monitor.info('test message', 'test')
     end
   end
@@ -19,7 +20,8 @@ RSpec.describe BGS::Monitor do
       expect(StatsD).to receive(:increment).with('bgs',
                                                  tags: ['service:bgs', 'function:log_event', 'action:error_test'])
       expect(Rails.logger).to receive(:error).with('error message',
-                                                   hash_including(context: { tags: ['action:error_test'] }))
+                                                   hash_including(context: { tags: ['action:error_test'],
+                                                                             action: 'error_test' }))
       monitor.error('error message', 'error_test')
     end
   end
@@ -28,7 +30,8 @@ RSpec.describe BGS::Monitor do
     it 'logs warning level event' do
       expect(StatsD).to receive(:increment).with('bgs', tags: ['service:bgs', 'function:log_event', 'action:warn_test'])
       expect(Rails.logger).to receive(:warn).with('warning message',
-                                                  hash_including(context: { tags: ['action:warn_test'] }))
+                                                  hash_including(context: { tags: ['action:warn_test'],
+                                                                            action: 'warn_test' }))
       monitor.warn('warning message', 'warn_test')
     end
   end
