@@ -21,11 +21,34 @@ module TravelPay
     validate :departure_and_arrival_locations_must_be_different
     validate :departure_date_must_be_before_arrival_date
 
+    # Returns the list of permitted parameters for flight expenses
+    # Extends base params with flight-specific fields
+    #
+    # @return [Array<Symbol>] list of permitted parameter names
+    def self.permitted_params
+      super + %i[vendor trip_type departure_location arrival_location departure_date arrival_date]
+    end
+
     # Returns the expense type for flight expenses
     #
     # @return [String] the expense type
     def expense_type
       TravelPay::Constants::EXPENSE_TYPES[:airtravel]
+    end
+
+    # Returns a hash of parameters formatted for the service layer
+    # Extends base params with flight-specific fields
+    #
+    # @return [Hash] parameters formatted for the service
+    def to_service_params
+      super.merge(
+        'vendor' => vendor,
+        'trip_type' => trip_type,
+        'departure_location' => departure_location,
+        'arrival_location' => arrival_location,
+        'departure_date' => format_date(departure_date),
+        'arrival_date' => format_date(arrival_date)
+      )
     end
 
     private

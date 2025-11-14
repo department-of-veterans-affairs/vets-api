@@ -66,4 +66,27 @@ RSpec.describe TravelPay::TollExpense, type: :model do
       expect(hash['expense_type']).to eq(TravelPay::Constants::EXPENSE_TYPES[:toll])
     end
   end
+
+  describe '.permitted_params' do
+    it 'inherits base expense permitted parameters' do
+      params = described_class.permitted_params
+      expect(params).to eq(TravelPay::BaseExpense.permitted_params)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        description: 'Highway toll',
+        cost_requested: 5.50,
+        claim_id: 'claim-uuid-toll'
+      )
+    end
+
+    it 'returns correct expense_type' do
+      params = subject.to_service_params
+      expect(params['expense_type']).to eq('toll')
+    end
+  end
 end
