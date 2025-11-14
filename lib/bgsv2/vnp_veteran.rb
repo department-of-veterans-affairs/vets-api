@@ -54,6 +54,7 @@ module BGSV2
 
     def create_person(participant)
       sentry_params = [:error, {}, { team: 'vfs-ebenefits' }]
+      rails_params = [:error, {}]
       if @veteran_info['ssn']&.length != 9
         Rails.logger.info('Malformed SSN! Reassigning to User#ssn.')
         @veteran_info['ssn'] = @user.ssn
@@ -63,7 +64,7 @@ module BGSV2
         log_message_to_sentry('SSN is redacted!', *sentry_params)
       elsif ssn.present? && ssn.length != 9
         log_message_to_sentry("SSN has #{ssn.length} digits!", *sentry_params)
-        log_message_to_rails('SSN is redacted!', *sentry_params)
+        log_message_to_rails('SSN is redacted!', *rails_params)
       end
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)

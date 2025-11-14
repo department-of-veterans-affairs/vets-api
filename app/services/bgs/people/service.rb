@@ -26,9 +26,10 @@ module BGS
       def find_person_by_participant_id
         raw_response = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
         if raw_response.blank?
-          log_exception_to_sentry(VAFileNumberNotFound.new, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
+          exception = VAFileNumberNotFound.new
+          log_exception_to_sentry(exception, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
-          log_exception_to_rails(e)
+          log_exception_to_rails(exception)
         end
         BGS::People::Response.new(raw_response, status: :ok)
       rescue => e
