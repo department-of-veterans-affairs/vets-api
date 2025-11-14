@@ -22,10 +22,12 @@ module UnifiedHealthData
 
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
+        dispenses_data = build_dispenses_information(resource)
 
         build_core_attributes(resource)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(resource))
+          .merge(dispenses: dispenses_data)
       end
 
       def build_core_attributes(resource)
@@ -44,7 +46,8 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource)
+          is_refillable: extract_is_refillable(resource),
+          cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
 
@@ -59,8 +62,14 @@ module UnifiedHealthData
         {
           instructions: extract_instructions(resource),
           facility_phone_number: extract_facility_phone_number(resource),
+          cmop_division_phone: nil,
+          dial_cmop_division_phone: nil,
           prescription_source: extract_prescription_source(resource),
-          category: extract_category(resource)
+          category: extract_category(resource),
+          disclaimer: nil,
+          provider_name: extract_provider_name(resource),
+          indication_for_use: extract_indication_for_use(resource),
+          remarks: extract_remarks(resource)
         }
       end
 
@@ -93,6 +102,48 @@ module UnifiedHealthData
           carrier:,
           other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
         }
+      end
+
+      def build_dispenses_information(resource)
+        contained_resources = resource['contained'] || []
+        dispenses = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'MedicationDispense' }
+
+        dispenses.map do |dispense|
+          {
+            status: dispense['status'],
+            refill_date: dispense['whenHandedOver'],
+            facility_name: extract_facility_name_from_dispense(resource, dispense),
+            instructions: extract_sig_from_dispense(dispense),
+            quantity: dispense.dig('quantity', 'value'),
+            medication_name: dispense.dig('medicationCodeableConcept', 'text'),
+            id: dispense['id'],
+            refill_submit_date: nil,
+            prescription_number: nil,
+            cmop_division_phone: nil,
+            cmop_ndc_number: nil,
+            remarks: nil,
+            dial_cmop_division_phone: nil,
+            disclaimer: nil
+          }
+        end
+      end
+
+      def extract_facility_name_from_dispense(_resource, dispense)
+        # Create a temporary resource with just this dispense to use existing extract_facility_name
+        temp_resource = { 'contained' => [dispense] }
+        extract_facility_name(temp_resource)
+      end
+
+      def extract_sig_from_dispense(dispense)
+        dosage_instructions = dispense['dosageInstruction'] || []
+        return nil if dosage_instructions.empty?
+
+        # Concatenate all dosage instruction texts
+        texts = dosage_instructions.filter_map do |instruction|
+          instruction['text'] if instruction.is_a?(Hash)
+        end
+
+        texts.empty? ? nil : texts.join(' ')
       end
 
       def find_identifier_value(identifiers, type_text)
@@ -245,7 +296,7 @@ module UnifiedHealthData
       end
 
       def extract_prescription_source(resource)
-        non_va_med?(resource) ? 'NV' : ''
+        non_va_med?(resource) ? 'NV' : 'VA'
       end
 
       def extract_category(resource)
@@ -266,6 +317,32 @@ module UnifiedHealthData
         end
 
         codes
+      end
+
+      def extract_provider_name(resource)
+        resource.dig('requester', 'display')
+      end
+
+      def extract_indication_for_use(resource)
+        # Extract indication from FHIR MedicationRequest.reasonCode
+        reason_codes = resource['reasonCode'] || []
+        return nil if reason_codes.empty?
+
+        # reasonCode is an array of CodeableConcept objects
+        # Concatenate text from all reasonCode entries
+        texts = reason_codes.filter_map { |reason_code| reason_code['text'] }
+        texts.join('; ') if texts.any?
+      end
+
+      def extract_remarks(resource)
+        # Concatenate all MedicationRequest.note.text fields
+        notes = resource['note'] || []
+        return nil if notes.empty?
+
+        note_texts = notes.filter_map { |note| note['text'].presence }
+        return nil if note_texts.empty?
+
+        note_texts.join(' ')
       end
 
       def non_va_med?(resource)
