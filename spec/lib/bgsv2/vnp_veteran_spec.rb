@@ -208,17 +208,17 @@ RSpec.describe BGSV2::VnpVeteran do
             user: user_object,
             claim_type: '130DPNEBNADJ'
           )
-          expect(vnp_veteran).not_to receive(:log_message_to_sentry)
+          expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
+                                                      include(service: 'bgs'))
           expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                       anything).at_least(:once)
-          expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
           expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '123456789'))
           vnp_veteran.create
         end
       end
 
       context 'User#ssn returns the same invalid ssn' do
-        it 'logs an error to Sentry' do
+        it 'logs an error' do
           VCR.use_cassette('bgs/vnp_veteran/create') do
             allow_any_instance_of(User).to receive(:ssn).and_return('12345678')
             vnp_veteran = BGSV2::VnpVeteran.new(
@@ -227,15 +227,11 @@ RSpec.describe BGSV2::VnpVeteran do
               user: user_object,
               claim_type: '130DPNEBNADJ'
             )
+
+            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
+                                                        include(service: 'bgs'))
             expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                         anything).at_least(:once)
-            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
-            expect(vnp_veteran).to receive(:log_message_to_sentry).with(
-              'SSN has 8 digits!',
-              :error,
-              {},
-              { team: 'vfs-ebenefits' }
-            )
             expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
             vnp_veteran.create
           end
@@ -254,13 +250,9 @@ RSpec.describe BGSV2::VnpVeteran do
             )
             expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                         anything).at_least(:once)
-            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
-            expect(vnp_veteran).to receive(:log_message_to_sentry).with(
-              'SSN is redacted!',
-              :error,
-              {},
-              { team: 'vfs-ebenefits' }
-            )
+            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
+                                                        include(service: 'bgs'))
+            expect(Rails.logger).to receive(:error).with('SSN is redacted!', include(service: 'bgs'))
             expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
             vnp_veteran.create
           end

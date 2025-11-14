@@ -45,8 +45,8 @@ module BGS
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
         log_claim_status(benefit_claim_record, proc_id)
-      rescue
-        log_submit_failure(error)
+      rescue => e
+        log_submit_failure(e)
       end
     end
 
