@@ -208,7 +208,7 @@ module IncreaseCompensation
         end
         form_data['electronicCorrespondance'] = form_data['electronicCorrespondance'] ? 1 : 0
         # overflow text to next line if under total limit, otherwise save to one line for overflow page
-        form_data['emailAddress'] = if form_data['email'].length > 34
+        form_data['emailAddress'] = if form_data['email'].present? && form_data['email'].length > 34
                                       { 'email1' => form_data['email'] }
                                     else
                                       two_line_overflow(form_data['email'], 'email', 17)
