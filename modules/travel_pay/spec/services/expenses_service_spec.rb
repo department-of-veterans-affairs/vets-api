@@ -26,8 +26,6 @@ describe TravelPay::ExpensesService do
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
       @expenses_client = instance_double(TravelPay::ExpensesClient)
       @service = TravelPay::ExpensesService.new(auth_manager)
-      # By default, feature flag is disabled (includes receipt)
-      allow(Flipper).to receive(:enabled?).with(:travel_pay_exclude_expense_placeholder_receipt).and_return(false)
     end
 
     context 'with non-mileage expense types' do
@@ -138,64 +136,6 @@ describe TravelPay::ExpensesService do
                                                                       )
 
         expect { @service.create_expense(params) }.to raise_error(Common::Exceptions::BadRequest)
-      end
-
-      context 'with feature flag travel_pay_exclude_expense_placeholder_receipt' do
-        it 'excludes placeholder receipt when feature flag is enabled' do
-          allow(Flipper).to receive(:enabled?).with(:travel_pay_exclude_expense_placeholder_receipt).and_return(true)
-
-          params = {
-            'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
-            'expense_type' => 'other',
-            'purchase_date' => '2024-10-02',
-            'description' => 'Parking fee',
-            'cost_requested' => 10.00
-          }
-
-          expected_request_body_without_receipt = {
-            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
-            'dateIncurred' => '2024-10-02',
-            'description' => 'Parking fee',
-            'costRequested' => 10.00,
-            'expenseType' => 'other'
-          }
-
-          allow_any_instance_of(TravelPay::ExpensesClient)
-            .to receive(:add_expense)
-            .with(tokens[:veis_token], tokens[:btsss_token], 'other', expected_request_body_without_receipt)
-            .and_return(general_expense_response)
-
-          result = @service.create_expense(params)
-          expect(result).to eq({ 'id' => 'expense-456' })
-        end
-
-        it 'includes placeholder receipt when feature flag is disabled (default)' do
-          allow(Flipper).to receive(:enabled?).with(:travel_pay_exclude_expense_placeholder_receipt).and_return(false)
-
-          params = {
-            'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
-            'expense_type' => 'other',
-            'purchase_date' => '2024-10-02',
-            'description' => 'Parking fee',
-            'cost_requested' => 10.00
-          }
-
-          expected_request_body_with_receipt = {
-            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
-            'dateIncurred' => '2024-10-02',
-            'description' => 'Parking fee',
-            'costRequested' => 10.00,
-            'expenseType' => 'other'
-          }
-
-          allow_any_instance_of(TravelPay::ExpensesClient)
-            .to receive(:add_expense)
-            .with(tokens[:veis_token], tokens[:btsss_token], 'other', expected_request_body_with_receipt)
-            .and_return(general_expense_response)
-
-          result = @service.create_expense(params)
-          expect(result).to eq({ 'id' => 'expense-456' })
-        end
       end
     end
 
@@ -328,100 +268,56 @@ describe TravelPay::ExpensesService do
       allow(client_double).to receive(:update_expense).and_return(update_response)
     end
 
-    context 'when travel_pay_exclude_expense_placeholder_receipt is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_exclude_expense_placeholder_receipt).and_return(false)
-      end
-
-      let(:params) do
-        {
-          'expense_type' => 'lodging',
-          'purchase_date' => '2024-10-02',
-          'description' => 'Hotel stay',
-          'cost_requested' => 125.50
-        }
-      end
-      let(:expected_request_body) do
-        {
-          'dateIncurred' => '2024-10-02',
-          'description' => 'Hotel stay',
-          'costRequested' => 125.50,
-          'expenseType' => 'lodging'
-        }
-      end
-
-      it 'calls the client with correct arguments' do
-        result = service.update_expense(expense_id, expense_type, params)
-
-        expect(client_double).to have_received(:update_expense)
-          .with('veis_token', 'btsss_token', expense_id, expense_type, expected_request_body)
-        expect(result).to eq({ 'id' => expense_id })
-      end
-
-      it 'handles partial update payload' do
-        partial_params = { 'description' => 'Updated hotel stay' }
-        partial_request_body = {
-          'description' => 'Updated hotel stay'
-        }
-
-        result = service.update_expense(expense_id, expense_type, partial_params)
-        expect(client_double).to have_received(:update_expense)
-          .with('veis_token', 'btsss_token', expense_id, expense_type, partial_request_body)
-        expect(result).to eq({ 'id' => expense_id })
-      end
-
-      it 'raises ArgumentError if expense_id is missing' do
-        expect { service.update_expense(nil, expense_type, params) }
-          .to raise_error(ArgumentError, /You must provide an expense ID/)
-      end
-
-      it 'raises ArgumentError if expense_type is missing' do
-        expect { service.update_expense(expense_id, nil, params) }
-          .to raise_error(ArgumentError, /You must provide an expense type/)
-      end
-
-      it 'raises ArgumentError if params is missing' do
-        expect { service.update_expense(expense_id, expense_type, nil) }
-          .to raise_error(ArgumentError, /You must provide at least one field/)
-      end
+    let(:params) do
+      {
+        'expense_type' => 'lodging',
+        'purchase_date' => '2024-10-02',
+        'description' => 'Hotel stay',
+        'cost_requested' => 125.50
+      }
+    end
+    let(:expected_request_body) do
+      {
+        'dateIncurred' => '2024-10-02',
+        'description' => 'Hotel stay',
+        'costRequested' => 125.50,
+        'expenseType' => 'lodging'
+      }
     end
 
-    context 'when travel_pay_exclude_expense_placeholder_receipt is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_exclude_expense_placeholder_receipt).and_return(true)
-      end
+    it 'calls the client with correct arguments' do
+      result = service.update_expense(expense_id, expense_type, params)
 
-      it 'calls the client with correct arguments' do
-        params = {
-          'expense_type' => 'lodging',
-          'purchase_date' => '2024-10-02',
-          'description' => 'Hotel stay',
-          'cost_requested' => 125.50
-        }
-        expected_request_body = {
-          'dateIncurred' => '2024-10-02',
-          'description' => 'Hotel stay',
-          'costRequested' => 125.50,
-          'expenseType' => 'lodging'
-        }
-        result = service.update_expense(expense_id, expense_type, params)
+      expect(client_double).to have_received(:update_expense)
+        .with('veis_token', 'btsss_token', expense_id, expense_type, expected_request_body)
+      expect(result).to eq({ 'id' => expense_id })
+    end
 
-        expect(client_double).to have_received(:update_expense)
-          .with('veis_token', 'btsss_token', expense_id, expense_type, expected_request_body)
-        expect(result).to eq({ 'id' => expense_id })
-      end
+    it 'handles partial update payload' do
+      partial_params = { 'description' => 'Updated hotel stay' }
+      partial_request_body = {
+        'description' => 'Updated hotel stay'
+      }
 
-      it 'handles partial update payload' do
-        partial_params = { 'description' => 'Updated hotel stay' }
-        partial_request_body = {
-          'description' => 'Updated hotel stay'
-        }
+      result = service.update_expense(expense_id, expense_type, partial_params)
+      expect(client_double).to have_received(:update_expense)
+        .with('veis_token', 'btsss_token', expense_id, expense_type, partial_request_body)
+      expect(result).to eq({ 'id' => expense_id })
+    end
 
-        result = service.update_expense(expense_id, expense_type, partial_params)
-        expect(client_double).to have_received(:update_expense)
-          .with('veis_token', 'btsss_token', expense_id, expense_type, partial_request_body)
-        expect(result).to eq({ 'id' => expense_id })
-      end
+    it 'raises ArgumentError if expense_id is missing' do
+      expect { service.update_expense(nil, expense_type, params) }
+        .to raise_error(ArgumentError, /You must provide an expense ID/)
+    end
+
+    it 'raises ArgumentError if expense_type is missing' do
+      expect { service.update_expense(expense_id, nil, params) }
+        .to raise_error(ArgumentError, /You must provide an expense type/)
+    end
+
+    it 'raises ArgumentError if params is missing' do
+      expect { service.update_expense(expense_id, expense_type, nil) }
+        .to raise_error(ArgumentError, /You must provide at least one field/)
     end
   end
 
