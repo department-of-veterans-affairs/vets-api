@@ -979,8 +979,6 @@
               "description": "Amount being received.",
               "type": ["integer", "null"],
               "nullable": true,
-              "minimum": 1,
-              "maximum": 999999,
               "example": 100
             }
           }
@@ -1032,8 +1030,6 @@
               "description": "Amount being received.",
               "type": ["integer", "null"],
               "nullable": true,
-              "minimum": 1,
-              "maximum": 999999,
               "example": 100
             }
           }
