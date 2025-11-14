@@ -18,7 +18,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
     # Mock PDF validation to avoid actual PDF validation during tests
     validator = instance_double(PDFUtilities::PDFValidator::Validator)
-    result    = instance_double(ValidatorResult, valid_pdf?: true, errors: [])
+    result    = instance_double(PDFUtilities::PDFValidator::ValidationResult, valid_pdf?: true, errors: [])
     allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(validator)
     allow(validator).to receive(:validate).and_return(result)
 
