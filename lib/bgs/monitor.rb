@@ -9,11 +9,22 @@ module BGS
   class Monitor < ::Logging::Monitor
     DEFAULT_STATS_KEY = 'bgs'
     ALLOWLIST = %w[
+      action
+      error
+      error_class
+      from_state
+      job_id
+      message
+      source
+      stats_key
+      submission_id
       tags
+      to_state
+      user_uuid
     ].freeze
 
-    def initialize
-      super('bgs', allowlist: ALLOWLIST)
+    def initialize(allowlist: [])
+      super('bgs', allowlist: ALLOWLIST + allowlist)
     end
 
     # Logs an info-level event with action and context
@@ -48,7 +59,7 @@ module BGS
     def log_event(level, message, action, **context)
       append_tags(context, action:)
       stats_key = context[:stats_key] || DEFAULT_STATS_KEY
-      track_request(level, message, stats_key, **context)
+      track_request(level, message, stats_key, action:, **context)
     end
 
     # Appends tags to the context being logged
@@ -61,13 +72,6 @@ module BGS
       tags.each { |k, v| context[:tags] += ["#{k}:#{v}"] }
       context[:tags].uniq!
       context
-    end
-
-    # Service name used for logging
-    #
-    # @return [String] Service identifier
-    def service_name
-      'bgs'
     end
   end
 end

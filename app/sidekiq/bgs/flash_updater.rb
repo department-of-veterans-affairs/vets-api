@@ -54,14 +54,14 @@ module BGS
       monitor.warn(
         'Flash Updater Retries exhausted', 'exhausted',
         stats_key: "#{STATSD_KEY_PREFIX}.exhausted",
-        job_id:, error_class:, error_message:, timestamp:, form526_submission_id:
+        job_id:, error_class:, error: error_message, timestamp:, form526_submission_id:
       )
     rescue => e
       monitor.error(
         'Failure in FlashUpdater#sidekiq_retries_exhausted', 'exhaustion_failure',
         stats_key: STATSD_KEY_PREFIX,
-        messaged_content: e.message, job_id:, submission_id: form526_submission_id,
-        pre_exhaustion_failure: { error_class:, error_message: }
+        error: e.message, job_id:, submission_id: form526_submission_id,
+        pre_exhaustion_failure: { error_class:, error: error_message }
       )
       raise e
     end
@@ -120,7 +120,7 @@ module BGS
     end
 
     def monitor
-      @monitor ||= BGS::Monitor.new
+      @monitor ||= BGS::Monitor.new(%w[timestamp form526_submission_id pre_exhaustion_failure])
     end
   end
 end

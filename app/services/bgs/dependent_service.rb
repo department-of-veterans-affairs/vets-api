@@ -66,7 +66,7 @@ module BGS
       submit_to_central_service(claim:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { error: e.message, uuid: })
+                           "#{STATS_KEY}.failure", { error: e.message, user_uuid: uuid })
       raise e
     end
 
