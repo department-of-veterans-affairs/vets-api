@@ -715,7 +715,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lumberjack (1.2.10)
-    mail (2.8.1)
+    mail (2.9.0)
+      logger
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
@@ -748,7 +749,7 @@ GEM
     nenv (0.3.0)
     net-http (0.6.0)
       uri
-    net-imap (0.5.9)
+    net-imap (0.5.12)
       date
       net-protocol
     net-pop (0.1.2)
@@ -1153,7 +1154,7 @@ GEM
     thread_safe (0.3.6-java)
     tilt (2.3.0)
     timecop (0.9.10)
-    timeout (0.4.3)
+    timeout (0.4.4)
     trailblazer-option (0.1.2)
     tsort (0.2.0)
     ttfunk (1.7.0)
