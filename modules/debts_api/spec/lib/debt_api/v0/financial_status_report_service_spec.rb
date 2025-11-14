@@ -11,8 +11,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     mock_pdf_fill
   end
 
-  it 'inherits SentryLogging' do
-    expect(described_class.ancestors).to include(SentryLogging)
+  it 'inherits Vets::SharedLogging' do
+    expect(described_class.ancestors).to include(Vets::SharedLogging)
   end
 
   def mock_sharepoint_upload

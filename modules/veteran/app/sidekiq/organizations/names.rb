@@ -117,9 +117,9 @@ module Organizations
         serialized_poa = serialize_poa(org[:poa])
         { poa: serialized_poa, name: org[:name] }
       rescue => e
-        # Since the deprecated SentryLogging was designed for instance methods, not class methods,
+        # Since the deprecated Vets::SharedLogging was designed for instance methods, not class methods,
         # and we need to invoke these methods within a class method context, we instantiate a dummy_logger.
-        # This dummy object previously included SentryLogging (now uses Vets::SharedLogging), allowing us to
+        # This dummy object previously included Vets::SharedLogging (now uses Vets::SharedLogging), allowing us to
         # use its logging capabilities without altering the original module's design. This approach enables
         # class-level logging by leveraging the module's instance methods, ensuring we can log messages to
         # Sentry from static (class) contexts while maintaining the module's intended usage patterns.
