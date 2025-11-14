@@ -334,15 +334,13 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_special_issues # rubocop:disable Metrics/MethodLength
+      def alt_rev_validate_special_issues
         form_attributes['disabilities'].each_with_index do |disability, idx|
           next if disability['specialIssues'].blank?
 
           confinements = form_attributes['serviceInformation']&.dig('confinements')
           disability_action_type = disability&.dig('disabilityActionType')
-          special_issues = disability['specialIssues']
-
-          if special_issues.include? 'POW'
+          if disability['specialIssues'].include? 'POW'
             if confinements.blank?
               collect_error_messages(source: "disabilities/#{idx}/specialIssues",
                                      detail: "serviceInformation.confinements (#{idx}) is required if " \
@@ -353,17 +351,7 @@ module ClaimsApi
                                              'specialIssues includes POW.')
             end
           end
-
-          if alt_rev_invalid_hepatitis_c_special_issue?(special_issues:, disability:)
-            collect_error_messages(source: "disabilities/#{idx}/specialIssues",
-                                   detail: "Claim must include a disability with the name 'hepatitis'")
-          end
         end
-      end
-
-      def alt_rev_invalid_hepatitis_c_special_issue?(special_issues:, disability:)
-        # if 'specialIssues' includes 'HEPC', then the disability 'name' must equal 'hepatitis'
-        special_issues.include?('HEPC') && !disability['name'].casecmp?('hepatitis')
       end
 
       def alt_rev_validate_form_526_disability_secondary_disabilities
