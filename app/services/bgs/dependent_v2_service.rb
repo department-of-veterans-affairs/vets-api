@@ -5,8 +5,6 @@ require 'dependents/monitor'
 
 module BGS
   class DependentV2Service
-    include SentryLogging
-
     attr_reader :first_name,
                 :middle_name,
                 :last_name,
