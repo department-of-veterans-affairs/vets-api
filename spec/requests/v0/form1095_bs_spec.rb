@@ -84,17 +84,17 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       it 'returns http success' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
                          { match_requests_on: %i[method uri] }) do
-                           get '/v0/form1095_bs/download_txt/2024'
-                           expect(response).to have_http_status(:success)
-                         end
+          get '/v0/form1095_bs/download_txt/2024'
+          expect(response).to have_http_status(:success)
+        end
       end
 
       it 'returns a txt form' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
                          { match_requests_on: %i[method uri] }) do
-                           get '/v0/form1095_bs/download_txt/2024'
-                           expect(response.content_type).to eq('text/plain')
-                         end
+          get '/v0/form1095_bs/download_txt/2024'
+          expect(response.content_type).to eq('text/plain')
+        end
       end
 
       # this will change to 404 with ticket: https://github.com/department-of-veterans-affairs/va-iir/issues/2133
