@@ -30,7 +30,6 @@ module UnifiedHealthData
                  :cmop_division_phone,
                  :cmop_ndc_number,
                  :remarks
-      :cmop_ndc_number
     end
   end
 end
