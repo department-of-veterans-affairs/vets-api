@@ -300,8 +300,10 @@ dgi:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
   sob:
-    mock: ~
-    url: ~
+    jwt:
+      private_key_path: ~
+      public_ica11_rca2_key_path: ~
+      public_key_path: ~
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -1603,7 +1605,6 @@ vanotify:
         notice_of_disagreement_received_claimant: ~
         supplemental_claim_received: ~
         supplemental_claim_received_claimant: ~
-    medical_expense_reports: *vanotify_services_medical_expense_reports
     oracle_health:
       sms_sender_id: fake_secret
       template_id:
@@ -1775,6 +1776,11 @@ vba_documents:
       - vetsgov-arn
       - vagov-arn
   updater_enabled: ~
+  v2_enabled: false
+  v2_upload_endpoint_enabled: false
+  webhooks:
+    registration_max_retries: 3
+    registration_next_run_in_minutes: 15
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
@@ -1960,6 +1966,8 @@ vye:
     salt: development-vye-scrypt-salt
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://host.docker.internal,null
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\z"
+webhooks:
+  require_https: true
 websockets:
   require_https: ~
   websocket_settings: false
