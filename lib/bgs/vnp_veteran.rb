@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require_relative 'service'
 
 module BGS
   class VnpVeteran
-    include SentryLogging
+    include Vets::SharedLogging
 
     def initialize(proc_id:, payload:, user:, claim_type:)
       @user = user
@@ -25,6 +27,8 @@ module BGS
       # consider removing :warn logs like this from Sentry.
       unless Rails.env.test?
         log_message_to_sentry("#{@proc_id}-#{claim_type_end_product}", :warn, '', { team: 'vfs-ebenefits' })
+
+        log_message_to_rails("#{@proc_id}-#{claim_type_end_product}", :warn)
       end
 
       address = create_address(participant)
@@ -50,6 +54,7 @@ module BGS
 
     def create_person(participant)
       sentry_params = [:error, {}, { team: 'vfs-ebenefits' }]
+      rails_params = [:error, {}]
       if @veteran_info['ssn']&.length != 9
         Rails.logger.info('Malformed SSN! Reassigning to User#ssn.')
         @veteran_info['ssn'] = @user.ssn
@@ -59,6 +64,7 @@ module BGS
         log_message_to_sentry('SSN is redacted!', *sentry_params)
       elsif ssn.present? && ssn.length != 9
         log_message_to_sentry("SSN has #{ssn.length} digits!", *sentry_params)
+        log_message_to_rails('SSN is redacted!', *rails_params)
       end
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
@@ -90,7 +96,8 @@ module BGS
       # retrieve the list of all regional offices
       # match the regional number to find the corresponding location id
       regional_offices = bgs_service.find_regional_offices
-      return '347' if regional_offices.nil? # return default value 347 if regional office is not found
+      # return default value 347 if regional office is not found
+      return '347' if regional_offices.nil? || !regional_offices.respond_to?(:find)
 
       regional_office = regional_offices.find { |ro| ro[:station_number] == regional_office_number }
       return '347' if regional_office.nil? # return default value 347 if regional office is not found

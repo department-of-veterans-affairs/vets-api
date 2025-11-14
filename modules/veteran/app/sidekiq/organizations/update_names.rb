@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
+require 'vets/shared_logging'
 require_relative 'names'
 
 module Organizations
   class UpdateNames
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     def perform
       Organizations::Names.all.each do |org| # rubocop:disable Rails/FindEach
@@ -17,6 +17,7 @@ module Organizations
         record.update(name: org[:name])
       rescue => e
         log_message_to_sentry("Error updating organization name for POA in Organizations::UpdateNames: #{e.message}. POA: '#{org[:poa]}', Org Name: '#{org[:name]}'.") # rubocop:disable Layout/LineLength
+        log_message_to_rails("Error updating organization name for POA in Organizations::UpdateNames: #{e.message}. POA: '#{org[:poa]}', Org Name: '#{org[:name]}'.") # rubocop:disable Layout/LineLength
         next
       end
     end

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'faraday'
 require 'net/http'
 

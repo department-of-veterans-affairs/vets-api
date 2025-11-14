@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 class DeleteOldTransactionsJob
   include Sidekiq::Job
-  include SentryLogging
+  include Vets::SharedLogging
 
   # :nocov:
   def perform
@@ -17,6 +19,10 @@ class DeleteOldTransactionsJob
         model: self.class.to_s,
         transaction_id: tx.id,
         exception: e.message
+      )
+
+      log_message_to_rails(
+        'DeleteOldTransactionsJob raised an exception', :info
       )
       end
   end

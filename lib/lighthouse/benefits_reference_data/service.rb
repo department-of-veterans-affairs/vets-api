@@ -8,13 +8,14 @@ require 'common/exceptions/schema_validation_errors'
 require 'lighthouse/benefits_reference_data/configuration'
 require 'lighthouse/benefits_reference_data/service_exception'
 require 'lighthouse/service_exception'
+require 'vets/shared_logging'
 
 module BenefitsReferenceData
   ##
   # Proxy Service for the Lighthouse Benefits Reference Data API.
   #
   class Service < Common::Client::Base
-    include SentryLogging
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
 
     configuration BenefitsReferenceData::Configuration

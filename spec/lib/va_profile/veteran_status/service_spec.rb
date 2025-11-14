@@ -42,7 +42,7 @@ describe VAProfile::VeteranStatus::Service do
     context 'throws an error' do
       it 'gives me a 400 response' do
         VCR.use_cassette('va_profile/veteran_status/veteran_status_400') do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '1005127153' },
             { va_profile: :client_error_related_to_title38 },
@@ -54,7 +54,7 @@ describe VAProfile::VeteranStatus::Service do
 
       it 'gives me a 401 response' do
         VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: [:method]) do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '1005127153' },
             { va_profile: :client_error_related_to_title38 },
@@ -66,7 +66,7 @@ describe VAProfile::VeteranStatus::Service do
 
       it 'gives me a 404 response' do
         VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank', match_requests_on: [:method]) do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '1005127153' },
             { va_profile: :veteran_status_title_not_found },

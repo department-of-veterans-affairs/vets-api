@@ -2,6 +2,7 @@
 
 require 'common/client/concerns/monitoring'
 require 'caseflow/responses/caseflow'
+require 'vets/shared_logging'
 
 module Caseflow
   ##
@@ -11,7 +12,7 @@ module Caseflow
   #   caseflow_response = Caseflow::Service.new.get_appeals(user)
   #
   class Service < Common::Client::Base
-    include SentryLogging
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
 
     configuration Caseflow::Configuration

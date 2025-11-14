@@ -2,9 +2,12 @@
 
 require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class DependentV2Service
+    include Vets::SharedLogging
+
     attr_reader :first_name,
                 :middle_name,
                 :last_name,

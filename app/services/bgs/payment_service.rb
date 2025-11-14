@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module BGS
   class PaymentService
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :common_name, :email, :icn
 
@@ -28,6 +30,8 @@ module BGS
       response
     rescue => e
       log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
+
+      log_exception_to_rails(e)
       empty_response if e.message.include?('No Data Found')
     end
 

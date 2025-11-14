@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 module Form1095
   class New1095BsJob
     include Sidekiq::Job

@@ -68,7 +68,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
       it 'logs exception to sentry' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404') do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '384759483' },
             { va_profile: :service_history_not_found },

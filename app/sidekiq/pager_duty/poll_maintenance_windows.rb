@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'pagerduty/maintenance_client'
+require 'vets/shared_logging'
 
 module PagerDuty
   class PollMaintenanceWindows
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 1, queue: 'critical'
 
     MESSAGE_INDICATOR = 'USER_MESSAGE:'
@@ -34,6 +35,8 @@ module PagerDuty
       end
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
+
+      log_exception_to_rails(e)
     end
   end
 end

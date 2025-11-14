@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'mpi/service'
+require 'vets/shared_logging'
 
 module DebtManagementCenter
   class StatementIdentifierService
-    include SentryLogging
+    include Vets::SharedLogging
     STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
     RETRYABLE_ERRORS = [
       Common::Exceptions::GatewayTimeout,

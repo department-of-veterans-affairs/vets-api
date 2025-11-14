@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'logging/third_party_transaction'
+require 'vets/shared_logging'
 
 module BGS
   class FlashUpdater
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
@@ -88,6 +89,7 @@ module BGS
       rescue BGS::ShareError, BGS::PublicError => e
         Sentry.set_tags(source: '526EZ-all-claims', submission_id:)
         log_exception_to_sentry(e)
+        log_exception_to_rails(e)
       end
     end
 
@@ -99,6 +101,7 @@ module BGS
           Sentry.set_tags(source: '526EZ-all-claims', submission_id:)
           e = StandardError.new("Failed to assign '#{flash_name}' to Veteran")
           log_exception_to_sentry(e)
+          log_exception_to_rails(e)
         end
       end
     end

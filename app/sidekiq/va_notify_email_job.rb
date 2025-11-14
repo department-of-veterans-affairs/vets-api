@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 ###########################################################################################
 # This class is deprecated in favor of modules/va_notify/app/sidekiq/va_notify/email_job.rb
 # Use that one instead.
@@ -7,12 +9,12 @@
 # TODO: Remove this class
 class VANotifyEmailJob
   include Sidekiq::Job
-  include SentryLogging
+  include Vets::SharedLogging
   # retry for  2d 1h 47m 12s
   # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
   sidekiq_options retry: 16
 
-  def perform(email, template_id, personalisation = nil)
+  def perform(email, template_id, personalisation = nil) # rubocop:disable Metrics/MethodLength
     notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
 
     notify_client.send_email(
@@ -31,6 +33,7 @@ class VANotifyEmailJob
         },
         { error: :va_notify_email_job }
       )
+      log_exception_to_rails(e)
     else
       raise e
     end

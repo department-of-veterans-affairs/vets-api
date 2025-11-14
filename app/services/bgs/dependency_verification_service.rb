@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module BGS
   class DependencyVerificationService
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :participant_id, :ssn, :common_name, :email, :icn, :user_uuid
 
@@ -37,6 +39,8 @@ module BGS
       standard_response(diaries)
     rescue => e
       log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
+
+      log_exception_to_rails(e)
     end
 
     private

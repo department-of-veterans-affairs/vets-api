@@ -95,14 +95,22 @@ module CheckIn
       sentry_context = { template_id:, phone_last_four: }
       sentry_context[:claim_number] = claim_number if claim_number
 
-      SentryLogging.log_exception_to_sentry(
+      # Use logging helper for class method context
+      logging_helper.log_exception_to_sentry(
         ex,
         sentry_context,
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
+      Rails.logger.error("Travel Claim Notification retries exhausted: #{ex.message} - Context: #{sentry_context}")
 
       facility_type = determine_facility_type_from_template(template_id)
       log_failure_no_retry('Retries exhausted', { uuid:, phone_number:, template_id:, facility_type: })
+    end
+
+    # Helper to enable logging in class method contexts
+    # Vets::SharedLogging requires instance methods, so we create a temporary object
+    def self.logging_helper
+      @logging_helper ||= Class.new { include Vets::SharedLogging }.new # rubocop:disable ThreadSafety/ClassInstanceVariable
     end
 
     ##

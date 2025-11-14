@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module VAProfileRedis
   module V2
     class Cache
-      include SentryLogging
+      include Vets::SharedLogging
 
       # Invalidates the cache set in VAProfileRedis::V2::ContactInformation through
       # our Common::RedisStore#destroy method.

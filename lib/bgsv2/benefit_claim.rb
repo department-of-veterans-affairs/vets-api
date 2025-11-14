@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'bgsv2/utilities/helpers'
+require 'vets/shared_logging'
 require_relative 'service'
 module BGSV2
   class BenefitClaim
+    include Vets::SharedLogging
     include BGSV2::Utilities::Helpers
 
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
