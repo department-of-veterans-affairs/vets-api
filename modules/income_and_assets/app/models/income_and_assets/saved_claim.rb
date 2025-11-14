@@ -42,6 +42,13 @@ module IncomeAndAssets
       parsed_form['email'] || 'test@example.com' # TODO: update this when we have a real email field
     end
 
+    # Utility function to retrieve veteran filenumber/ssn
+    #
+    # @return [String]
+    def veteran_filenumber
+      parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber']
+    end
+
     # Utility function to retrieve veteran first name from form
     #
     # @return [String]
