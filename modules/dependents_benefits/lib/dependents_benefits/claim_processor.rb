@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/sidekiq/bgs_proc_job'
 require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'dependents_benefits/sidekiq/bgs_686c_job'
+require 'dependents_benefits/sidekiq/claims_686c_job'
+require 'dependents_benefits/sidekiq/claims_674_job'
 require 'dependents_benefits/monitor'
 
 module DependentsBenefits
@@ -13,6 +16,15 @@ module DependentsBenefits
       @proc_id = proc_id
     end
 
+    def self.create_proc_forms(parent_claim_id)
+      processor = new(parent_claim_id, nil)
+      processor.create_proc_forms
+    end
+
+    def create_proc_forms
+      DependentsBenefits::Sidekiq::BGSProcJob.perform_async(parent_claim_id)
+    end
+
     # Synchronously enqueue all (async) submission jobs for 686c and 674 claims
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
     # @param proc_id [String] Processing ID for job tracking
@@ -21,6 +33,7 @@ module DependentsBenefits
     def self.enqueue_submissions(parent_claim_id, proc_id)
       processor = new(parent_claim_id, proc_id)
       processor.enqueue_submissions
+      # TODO: Set claim group gets set as accepted
     end
 
     def enqueue_submissions
@@ -67,6 +80,9 @@ module DependentsBenefits
       Sidekiq::BGS686cJob.perform_async(claim.id, proc_id)
       jobs_count += 1
 
+      Sidekiq::Claims686cJob.perform_async(claim.id, proc_id)
+      jobs_count += 1
+
       # TODO: Add calls to submission jobs here as they are implemented
 
       monitor.track_processor_info('Enqueued 686c submission jobs', 'enqueue_686c',
@@ -80,6 +96,9 @@ module DependentsBenefits
 
       # Enqueue primary 674 submission job
       Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
+      jobs_count += 1
+
+      Sidekiq::Claims674Job.perform_async(claim.id, proc_id)
       jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',
@@ -96,7 +115,7 @@ module DependentsBenefits
       parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     rescue => e
       monitor.track_processor_error('Failed to update ClaimGroup status', 'status_update',
-                                    parent_claim_id:, error: e.message, original_error: error.message)
+                                    parent_claim_id:, error: e.message)
     end
 
     def record_enqueue_completion(claim_id)

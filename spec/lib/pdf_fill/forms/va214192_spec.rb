@@ -102,4 +102,113 @@ RSpec.describe PdfFill::Forms::Va214192 do
       FileUtils.rm_f(file_path)
     end
   end
+
+  describe '.stamp_signature' do
+    let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_path) { '/tmp/test_form_stamped.pdf' }
+    let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
+
+    before do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).with(pdf_path).and_return(datestamp_instance)
+    end
+
+    context 'when signature is present' do
+      let(:form_data_with_sig) do
+        {
+          'certification' => {
+            'signature' => 'John H. Doe'
+          }
+        }
+      end
+
+      it 'stamps the signature onto the PDF' do
+        expect(datestamp_instance).to receive(:run).with(
+          text: 'John H. Doe',
+          x: PdfFill::Forms::Va214192::SIGNATURE_X,
+          y: PdfFill::Forms::Va214192::SIGNATURE_Y,
+          page_number: PdfFill::Forms::Va214192::SIGNATURE_PAGE,
+          size: PdfFill::Forms::Va214192::SIGNATURE_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        ).and_return(stamped_path)
+
+        result = described_class.stamp_signature(pdf_path, form_data_with_sig)
+        expect(result).to eq(stamped_path)
+      end
+    end
+
+    context 'when signature is blank' do
+      let(:form_data_no_sig) do
+        {
+          'certification' => {
+            'signature' => ''
+          }
+        }
+      end
+
+      it 'returns original path without stamping' do
+        expect(datestamp_instance).not_to receive(:run)
+
+        result = described_class.stamp_signature(pdf_path, form_data_no_sig)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when signature is nil' do
+      let(:form_data_nil_sig) do
+        {
+          'certification' => {}
+        }
+      end
+
+      it 'returns original path without stamping' do
+        expect(datestamp_instance).not_to receive(:run)
+
+        result = described_class.stamp_signature(pdf_path, form_data_nil_sig)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when signature is whitespace only' do
+      let(:form_data_whitespace_sig) do
+        {
+          'certification' => {
+            'signature' => '   '
+          }
+        }
+      end
+
+      it 'returns original path without stamping' do
+        expect(datestamp_instance).not_to receive(:run)
+
+        result = described_class.stamp_signature(pdf_path, form_data_whitespace_sig)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when stamping fails' do
+      let(:form_data_with_sig) do
+        {
+          'certification' => {
+            'signature' => 'John Doe'
+          }
+        }
+      end
+
+      it 'logs error and returns original path' do
+        allow(datestamp_instance).to receive(:run).and_raise(StandardError, 'PDF stamping failed')
+        allow(Rails.logger).to receive(:error)
+
+        result = described_class.stamp_signature(pdf_path, form_data_with_sig)
+
+        expect(result).to eq(pdf_path)
+        expect(Rails.logger).to have_received(:error).with(
+          'Form214192: Error stamping signature',
+          hash_including(error: 'PDF stamping failed')
+        )
+      end
+    end
+  end
 end

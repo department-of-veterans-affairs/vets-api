@@ -419,7 +419,7 @@ RSpec.describe Form1010Ezr::Service do
         expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
       end
 
-      it 'logs error to Rails' do
+      it 'logs error' do
         expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
           '[10-10EZR] failure',
           :error,

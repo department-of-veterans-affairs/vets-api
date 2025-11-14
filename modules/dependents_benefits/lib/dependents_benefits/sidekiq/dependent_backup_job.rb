@@ -8,8 +8,6 @@ require 'simple_forms_api_submission/metadata_validator'
 
 module DependentsBenefits::Sidekiq
   class DependentBackupJob < DependentSubmissionJob
-    include Sidekiq::Job
-
     ##
     # Service-specific submission logic for Lighthouse upload
     # @return [ServiceResponse] Must respond to success? and error methods
@@ -26,8 +24,8 @@ module DependentsBenefits::Sidekiq
       lighthouse_submission.cleanup_file_paths
     end
 
-    def handle_permanent_failure(msg, error)
-      @claim_id = msg['args'].first
+    def handle_permanent_failure(claim_id, error)
+      @claim_id = claim_id
       send_failure_notification
       monitor.log_silent_failure_avoided({ claim_id:, error: })
     rescue => e
@@ -54,7 +52,7 @@ module DependentsBenefits::Sidekiq
 
     private
 
-    def saved_claim = @saved_claim ||= DependentsBenefits::SavedClaim.find(claim_id)
+    def saved_claim = @saved_claim ||= ::SavedClaim.find(claim_id)
 
     def uuid = @uuid || nil
 
