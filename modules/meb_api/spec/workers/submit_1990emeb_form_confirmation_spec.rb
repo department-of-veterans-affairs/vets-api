@@ -75,4 +75,18 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
       )
     end
   end
+
+  context 'when a raised error occurs during VANotify::EmailJob' do
+    let(:error) { VANotify::Error.new(500, 'Server error') }
+
+    before do
+      allow(VANotify::EmailJob).to receive(:perform_async).and_raise(error)
+    end
+
+    it 'logs the error via Vets::SharedLogging' do
+      expect_any_instance_of(described_class).to receive(:log_exception_to_rails).with(error)
+
+      described_class.new.perform('PENDING', email, first_name)
+    end
+  end
 end
