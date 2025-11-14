@@ -52,16 +52,8 @@ module ClaimsApi
 
       private
 
-      def benefits_doc_api
-        ClaimsApi::BD.new
-      end
-
       def benefits_doc_upload(poa:, pdf_path:, doc_type:, action:)
-        if Flipper.enabled?(:claims_api_poa_uploads_bd_refactor)
-          PoaDocumentService.new.create_upload(poa:, pdf_path:, doc_type:, action:)
-        else
-          benefits_doc_api.upload(claim: poa, pdf_path:, doc_type:)
-        end
+        PoaDocumentService.new.create_upload(poa:, pdf_path:, doc_type:, action:)
       end
 
       def pdf_constructor(form_number)
