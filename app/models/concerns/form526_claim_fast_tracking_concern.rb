@@ -216,7 +216,7 @@ module Form526ClaimFastTrackingConcern
                             "has_max_rated:#{max_rated_diagnostic_codes_from_ipf.any?}"])
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
-    log_exception_to_sentry(e)
+    log_error(e)
   end
 
   def send_post_evss_notifications!
@@ -242,6 +242,18 @@ module Form526ClaimFastTrackingConcern
   end
 
   private
+
+  def log_error(error)
+    Rails.logger.error(
+      "Form526ClaimsFastTrackingConcern #{id} encountered an error",
+      submission_id: id,
+      error_message: error.message
+    )
+  rescue
+    # We need this to not ever fail or it blocks submission
+    # So no variables or methods called in this block, to reduce chance of further errors
+    Rails.logger.error('Form526ClaimsFastTrackingConcern Failed to log error')
+  end
 
   def in_progress_form
     @in_progress_form ||= InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
@@ -361,7 +373,7 @@ module Form526ClaimFastTrackingConcern
                       private_medical_docs_by_type:)
   rescue => e
     # Log the exception but do not fail
-    log_exception_to_sentry(e)
+    log_error(e)
   end
 
   def get_group_docs(form_data, group_key)
@@ -404,7 +416,7 @@ module Form526ClaimFastTrackingConcern
                       disabilities: extract_disability_summary)
   rescue => e
     # Log the exception but do not fail
-    log_exception_to_sentry(e)
+    log_error(e)
   end
 
   def extract_disability_summary
