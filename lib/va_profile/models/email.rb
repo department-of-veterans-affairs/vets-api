@@ -67,6 +67,37 @@ module VAProfile
           va_profile_id: body['va_profile_id'] || body['vet360_id']
         )
       end
+
+      # Override the confirmation_date setter to correct it if it's after source_date.
+      # This prevents issues where client-provided dates may be ahead due to time differences.
+      # Uses the framework's type casting to ensure consistency with Vets::Type::ISO8601Time.
+      # @param value [Time, String, nil] the confirmation date to set
+      # @return [Time] the corrected confirmation date
+      def confirmation_date=(value)
+        @confirmation_date = Vets::Attributes::Value.cast(:confirmation_date, Vets::Type::ISO8601Time, value)
+        correct_confirmation_date_if_needed
+      end
+
+      # Override the source_date setter to correct confirmation_date when source_date is set.
+      # This handles the case where confirmation_date is set before source_date during initialization.
+      # Uses the framework's type casting to ensure consistency with Vets::Type::ISO8601Time.
+      # @param value [Time, String, nil] the source date to set
+      # @return [Time] the source date
+      def source_date=(value)
+        @source_date = Vets::Attributes::Value.cast(:source_date, Vets::Type::ISO8601Time, value)
+        correct_confirmation_date_if_needed
+      end
+
+      private
+
+      # Corrects confirmation_date if it's after source_date.
+      # Both values are guaranteed to be Time objects (or nil) at this point.
+      # @return [void]
+      def correct_confirmation_date_if_needed
+        return if @confirmation_date.blank? || @source_date.blank?
+
+        @confirmation_date = @source_date if @confirmation_date > @source_date
+      end
     end
   end
 end
