@@ -41,4 +41,4 @@ The Form Upload tool launched with support for four forms: `21-0779`, `21-509`, 
   **Why?**
   The front end needs a few pieces of data to be able to accurately render the tool for additional forms.
 
-- Add a pdf to fixtures for testing. modules/simple_forms_api/spec/fixtures/pdfs/vba_22_10278-completed.pdf
+- Add the pdf to fixtures for testing. modules/simple_forms_api/spec/fixtures/pdfs/vba_22_10278-completed.pdf
