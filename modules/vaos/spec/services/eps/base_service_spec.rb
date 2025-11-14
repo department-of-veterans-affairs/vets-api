@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Eps::BaseService do
   user_icn = '123456789V123456'
 
-  let(:user) { double('User', account_uuid: '1234', icn: user_icn) }
+  let(:user) { double('User', account_uuid: '1234', icn: user_icn, va_treatment_facility_ids: ['123']) }
   let(:service) { described_class.new(user) }
   let(:config) { instance_double(Eps::Configuration, api_url: 'https://api.wellhive.com', base_path: 'api/v1') }
   let(:request_id) { '123456-abcdef' }
@@ -14,6 +14,7 @@ describe Eps::BaseService do
   before do
     allow(service).to receive(:config).and_return(config)
     RequestStore.store['request_id'] = request_id
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
   end

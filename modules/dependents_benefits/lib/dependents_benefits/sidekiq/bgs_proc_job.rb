@@ -21,7 +21,7 @@ module DependentsBenefits
         vnp_response = bgs_service.create_proc(proc_state: 'Started')
         @proc_id = vnp_response[:vnp_proc_id]
 
-        bgs_service.create_proc_form(@proc_id, ADD_REMOVE_DEPENDENT) if saved_claim.submittable_686?
+        bgs_service.create_proc_form(@proc_id, ADD_REMOVE_DEPENDENT.downcase) if saved_claim.submittable_686?
         bgs_service.create_proc_form(@proc_id, SCHOOL_ATTENDANCE_APPROVAL) if saved_claim.submittable_674?
 
         DependentsBenefits::ServiceResponse.new(status: true, data: { proc_id: @proc_id })
