@@ -102,7 +102,6 @@ module Vass
           title:,
           detail:,
           code: status_code.to_s,
-          status: status_code.to_s
         }]
       }, status:
     end
