@@ -22,9 +22,11 @@ module IvcChampva
     end
 
     def metadata
+      name_prefix = Flipper.enabled?(:champva_update_metadata_keys) ? 'sponsor' : 'veteran'
+
       {
-        "#{name_key_prefix}FirstName" => @data.dig('applicant_name', 'first'),
-        "#{name_key_prefix}LastName" => @data.dig('applicant_name', 'last'),
+        "#{name_prefix}FirstName" => @data.dig('applicant_name', 'first'),
+        "#{name_prefix}LastName" => @data.dig('applicant_name', 'last'),
         'zipCode' => @data.dig('applicant_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
@@ -133,12 +135,6 @@ module IvcChampva
         'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
         'claim_number' => pdi_or_claim == 'Control number' ? identifying_number : ''
       }.compact_blank
-    end
-
-    def name_key_prefix
-      return 'sponsor' if Flipper.enabled?(:champva_update_metadata_keys)
-
-      'veteran'
     end
   end
 end
