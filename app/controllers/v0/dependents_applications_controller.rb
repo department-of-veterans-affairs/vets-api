@@ -83,8 +83,8 @@ module V0
     def log_validation_error_to_metadata(in_progress_form, claim)
       return if in_progress_form.blank?
 
-      metadata = in_progress_form.metadata
-      metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
+      metadata = in_progress_form.metadata || {}
+      metadata.dig['submission']['error_message'] = claim&.errors&.errors&.to_s
       in_progress_form.update(metadata:)
     end
 
