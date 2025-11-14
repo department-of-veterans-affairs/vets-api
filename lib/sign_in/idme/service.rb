@@ -107,8 +107,7 @@ module SignIn
           csp_email: user_info.email,
           all_csp_emails: user_info.emails_confirmed,
           multifactor: user_info.multifactor,
-          authn_context: get_authn_context(credential_level.current_ial),
-          auto_uplevel: credential_level.auto_uplevel
+          authn_context: get_authn_context(credential_level.current_ial)
         }
       end
 

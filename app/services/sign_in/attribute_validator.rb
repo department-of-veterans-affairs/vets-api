@@ -62,8 +62,6 @@ module SignIn
     end
 
     def update_mpi_correlation_record
-      return if auto_uplevel
-
       user_attribute_mismatch_checks
 
       return unless credential_attributes_digest_changed?
@@ -94,10 +92,8 @@ module SignIn
       if mhv_auth?
         credential_attribute_check(:icn, mhv_icn)
         credential_attribute_check(:mhv_uuid, mhv_credential_uuid)
-      else
-        credential_attribute_check(:dslogon_uuid, edipi) if dslogon_auth?
-        credential_attribute_check(:last_name, last_name) unless auto_uplevel
-        credential_attribute_check(:birth_date, birth_date) unless auto_uplevel
+      elsif dslogon_auth?
+        credential_attribute_check(:dslogon_uuid, edipi)
       end
       credential_attribute_check(:uuid, logingov_uuid || idme_uuid)
       credential_attribute_check(:email, credential_email)
@@ -221,7 +217,6 @@ module SignIn
 
     def idme_uuid                    = user_attributes[:idme_uuid]
     def logingov_uuid                = user_attributes[:logingov_uuid]
-    def auto_uplevel                 = user_attributes[:auto_uplevel]
     def current_ial                  = user_attributes[:current_ial]
     def service_name                 = user_attributes[:service_name]
     def first_name                   = user_attributes[:first_name]

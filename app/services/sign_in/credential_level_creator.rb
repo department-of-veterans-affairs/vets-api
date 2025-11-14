@@ -52,14 +52,12 @@ module SignIn
       CredentialLevel.new(requested_acr:,
                           credential_type: type,
                           current_ial:,
-                          max_ial:,
-                          auto_uplevel:)
+                          max_ial:)
     rescue ActiveModel::ValidationError => e
       Rails.logger.info("[SignIn][CredentialLevelCreator] error: #{e.message}", credential_type: type,
                                                                                 requested_acr:,
                                                                                 current_ial:,
                                                                                 max_ial:,
-                                                                                auto_uplevel:,
                                                                                 credential_uuid:)
       raise Errors::InvalidCredentialLevelError.new message: 'Unsupported credential authorization levels'
     end
@@ -110,17 +108,6 @@ module SignIn
 
       user_verification = UserVerification.find_by(identifier_type => credential_uuid)
       user_verification&.verified?
-    end
-
-    def auto_uplevel
-      case type
-      when Constants::Auth::LOGINGOV
-        logingov_acr != Constants::Auth::LOGIN_GOV_IAL2 && previously_verified?(:logingov_uuid)
-      when Constants::Auth::IDME
-        credential_ial != Constants::Auth::IDME_CLASSIC_LOA3 && previously_verified?(:idme_uuid)
-      else
-        false
-      end
     end
   end
 end

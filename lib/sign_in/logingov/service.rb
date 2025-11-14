@@ -85,8 +85,7 @@ module SignIn
           all_csp_emails: user_info.all_emails,
           multifactor: true,
           service_name: config.service_name,
-          authn_context: get_authn_context(credential_level.current_ial),
-          auto_uplevel: credential_level.auto_uplevel
+          authn_context: get_authn_context(credential_level.current_ial)
         }.tap do |attrs|
           attrs[:digest] = digest_credential_attributes(attrs)
         end
