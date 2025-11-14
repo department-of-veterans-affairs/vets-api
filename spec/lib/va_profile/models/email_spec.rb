@@ -182,22 +182,22 @@ RSpec.describe VAProfile::Models::Email do
     end
 
     context 'when confirmation_date is not a valid ISO8601 string' do
-      it 'raises an ArgumentError' do
+      it 'raises a TypeError' do
         email = build(:email, email_address: 'test@example.com')
 
         expect do
           email.confirmation_date = 'invalid-date'
-        end.to raise_error(ArgumentError)
+        end.to raise_error(TypeError, 'confirmation_date is not iso8601')
       end
     end
 
     context 'when source_date is not a valid ISO8601 string' do
-      it 'raises an ArgumentError' do
+      it 'raises a TypeError' do
         email = build(:email, email_address: 'test@example.com')
 
         expect do
           email.source_date = 'invalid-date'
-        end.to raise_error(ArgumentError)
+        end.to raise_error(TypeError, 'source_date is not iso8601')
       end
     end
   end
