@@ -80,6 +80,11 @@ module VaNotify
         return nil
       end
 
+      if @va_client_api_key.nil?
+        Rails.logger.error('Push notifications API key is not configured')
+        return nil
+      end
+
       push_client.send_push(args)
     rescue => e
       handle_error(e)

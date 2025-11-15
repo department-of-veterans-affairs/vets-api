@@ -40,6 +40,7 @@ describe VaNotify::Service do
 
     it 'api key based on service and client is called with expected parameters' do
       test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
+      test_service_push_api_key = 'bb80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_service_base_url = 'https://fakishapi.com'
       parameters = test_service_api_key, test_service_base_url
       with_settings(Settings.vanotify,
@@ -50,8 +51,8 @@ describe VaNotify::Service do
                     },
                     client_url: test_service_base_url) do
         allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-        allow(VaNotify::Client).to receive(:new).with(test_service_api_key, {}).and_return(va_notify_client)
-        service = VaNotify::Service.new(test_service_api_key)
+        allow(VaNotify::Client).to receive(:new).with(test_service_push_api_key, {}).and_return(va_notify_client)
+        service = VaNotify::Service.new(test_service_api_key, {}, test_service_push_api_key)
         expect(Notifications::Client).to have_received(:new).with(*parameters)
 
         # Push client is lazily initialized, so it's not called during construction
@@ -59,7 +60,31 @@ describe VaNotify::Service do
 
         # Trigger lazy initialization
         service.push_client
-        expect(VaNotify::Client).to have_received(:new).with(test_service_api_key, {})
+        expect(VaNotify::Client).to have_received(:new).with(test_service_push_api_key, {})
+      end
+    end
+
+    it 'email client works when only email api key is provided (no push api key)' do
+      test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
+      test_service_base_url = 'https://fakishapi.com'
+      parameters = test_service_api_key, test_service_base_url
+      with_settings(Settings.vanotify,
+                    services: {
+                      test_service: {
+                        api_key: test_service_api_key
+                      }
+                    },
+                    client_url: test_service_base_url) do
+        allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
+        service = VaNotify::Service.new(test_service_api_key)
+
+        # Email client should be initialized properly
+        expect(Notifications::Client).to have_received(:new).with(*parameters)
+        expect(service.notify_client).to eq(notification_client)
+
+        # Push client should not be initialized during construction
+        expect(VaNotify::Client).not_to have_received(:new)
       end
     end
 
@@ -81,6 +106,17 @@ describe VaNotify::Service do
         result = service.push_client
         expect(VaNotify::Client).to have_received(:new).with(test_push_api_key, {})
         expect(result).to eq(va_notify_client)
+      end
+
+      it 'logs error and returns nil when push api key is not provided' do
+        test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
+        service = VaNotify::Service.new(test_service_api_key)
+        allow(Rails.logger).to receive(:error)
+
+        result = service.send_push({ template_id: 'test' })
+
+        expect(Rails.logger).to have_received(:error).with('Push notifications API key is not configured')
+        expect(result).to be_nil
       end
     end
 
@@ -111,6 +147,7 @@ describe VaNotify::Service do
 
     it 'correct api key passed to initialize when multiple services are defined' do
       test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
+      test_service1_push_api_key = 'aa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_base_url = 'https://fakishapi.com'
       parameters = test_service1_api_key, test_base_url
       with_settings(Settings.vanotify,
@@ -125,13 +162,13 @@ describe VaNotify::Service do
                     client_url: test_base_url) do
         allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
         allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-        allow(VaNotify::Client).to receive(:new).with(test_service1_api_key, {}).and_return(va_notify_client)
-        service = VaNotify::Service.new(test_service1_api_key)
+        allow(VaNotify::Client).to receive(:new).with(test_service1_push_api_key, {}).and_return(va_notify_client)
+        service = VaNotify::Service.new(test_service1_api_key, {}, test_service1_push_api_key)
         expect(Notifications::Client).to have_received(:new).with(*parameters)
 
         # Trigger lazy initialization
         service.push_client
-        expect(VaNotify::Client).to have_received(:new).with(test_service1_api_key, {})
+        expect(VaNotify::Client).to have_received(:new).with(test_service1_push_api_key, {})
       end
     end
 
