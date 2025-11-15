@@ -82,7 +82,6 @@ module EventBusGateway
       ::Rails.logger.error(
         "LetterReadyNotificationJob #{notification_type} failed",
         {
-          participant_id:,
           template_id:,
           error: error.message
         }
@@ -99,7 +98,6 @@ module EventBusGateway
       ::Rails.logger.info(
         'LetterReadyNotificationJob completed',
         {
-          participant_id:,
           notifications_sent: successful_notifications.join(', '),
           notifications_failed: failed_messages,
           email_template_id:,

@@ -36,6 +36,7 @@ describe VaNotify::Service do
   describe 'service initialization', :test_service do
     let(:notification_client) { instance_double(Notifications::Client) }
     let(:va_notify_client) { instance_double(VaNotify::Client) }
+    let(:test_push_api_key) { 'test-key-cccccccc-cccc-cccc-cccc-cccccccccccc-dddddddd-dddd-dddd-dddd-dddddddddddd' }
 
     it 'api key based on service and client is called with expected parameters' do
       test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
@@ -67,18 +68,18 @@ describe VaNotify::Service do
         allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
       end
 
-      it 'lazily initializes push client on first access' do
+      it 'lazily initializes push client on first access with separate push API key' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
-        allow(VaNotify::Client).to receive(:new).with(test_api_key, {}).and_return(va_notify_client)
+        allow(VaNotify::Client).to receive(:new).with(test_push_api_key, {}).and_return(va_notify_client)
 
-        service = VaNotify::Service.new(test_api_key)
+        service = VaNotify::Service.new(test_api_key, {}, test_push_api_key)
 
         # Client should not be initialized during construction
         expect(VaNotify::Client).not_to have_received(:new)
 
-        # Client should be initialized on first access
+        # Client should be initialized on first access with the push API key
         result = service.push_client
-        expect(VaNotify::Client).to have_received(:new).with(test_api_key, {})
+        expect(VaNotify::Client).to have_received(:new).with(test_push_api_key, {})
         expect(result).to eq(va_notify_client)
       end
     end
@@ -147,6 +148,27 @@ describe VaNotify::Service do
                                                            test_base_url).and_return(notification_client)
         service_object = VaNotify::Service.new(test_api_key, callback_options)
         expect(service_object.callback_options).to eq(callback_options)
+      end
+    end
+
+    it 'can receive va_client_api_key parameter' do
+      test_base_url = 'https://fakishapi.com'
+      with_settings(Settings.vanotify,
+                    client_url: test_base_url) do
+        allow(Notifications::Client).to receive(:new).with(test_api_key,
+                                                           test_base_url).and_return(notification_client)
+        allow(VaNotify::Client).to receive(:new).with(test_push_api_key, {}).and_return(va_notify_client)
+
+        service = VaNotify::Service.new(test_api_key, {}, test_push_api_key)
+
+        expect(Notifications::Client).to have_received(:new).with(test_api_key, test_base_url)
+
+        # Push client is lazily initialized
+        expect(VaNotify::Client).not_to have_received(:new)
+
+        # Trigger lazy initialization
+        service.push_client
+        expect(VaNotify::Client).to have_received(:new).with(test_push_api_key, {})
       end
     end
   end
@@ -471,6 +493,7 @@ describe VaNotify::Service do
 
   describe '#send_push' do
     let(:push_client) { instance_double(VaNotify::Client) }
+    let(:test_push_api_key) { 'test-key-cccccccc-cccc-cccc-cccc-cccccccccccc-dddddddd-dddd-dddd-dddd-dddddddddddd' }
     let(:send_push_parameters) do
       {
         mobile_app: 'VA_FLAGSHIP_APP',
@@ -491,7 +514,7 @@ describe VaNotify::Service do
     end
 
     context 'when va_notify_push_notifications feature flag is enabled' do
-      subject { VaNotify::Service.new(test_api_key) }
+      subject { VaNotify::Service.new(test_api_key, {}, test_push_api_key) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
@@ -500,7 +523,7 @@ describe VaNotify::Service do
       end
 
       it 'initializes push client with correct parameters' do
-        expect(VaNotify::Client).to receive(:new).with(test_api_key, {})
+        expect(VaNotify::Client).to receive(:new).with(test_push_api_key, {})
         subject.send_push(send_push_parameters)
       end
 
@@ -537,7 +560,7 @@ describe VaNotify::Service do
     end
 
     context 'when va_notify_push_notifications feature flag is disabled' do
-      subject { VaNotify::Service.new(test_api_key) }
+      subject { VaNotify::Service.new(test_api_key, {}, test_push_api_key) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(false)
@@ -569,7 +592,7 @@ describe VaNotify::Service do
     end
 
     context 'when VaNotify::Client.new returns nil' do
-      subject { VaNotify::Service.new(test_api_key) }
+      subject { VaNotify::Service.new(test_api_key, {}, test_push_api_key) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)

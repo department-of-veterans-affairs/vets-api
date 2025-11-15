@@ -54,8 +54,11 @@ module EventBusGateway
     end
 
     def notify_client
-      # TODO: Determine if this api key is different
-      @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.api_key)
+      @notify_client ||= VaNotify::Service.new(
+        Constants::NOTIFY_SETTINGS.api_key,
+        {},
+        Constants::NOTIFY_SETTINGS.push_api_key
+      )
     end
   end
 end
