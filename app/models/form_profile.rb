@@ -131,7 +131,7 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
@@ -153,6 +153,7 @@ class FormProfile
     '21P-8416' => MedicalExpenseReports::FormProfiles::VA21p8416,
     '21P-527EZ' => Pensions::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '21P-601' => FormProfiles::VA21p601,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
