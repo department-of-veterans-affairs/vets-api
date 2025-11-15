@@ -20,9 +20,10 @@ module VaNotify
 
     attr_reader :notify_client, :callback_options, :template_id
 
-    def initialize(api_key, callback_options = {})
+    def initialize(api_key, callback_options = {}, va_client_api_key = nil)
       overwrite_client_networking
       @api_key = api_key
+      @va_client_api_key = va_client_api_key
       @notify_client ||= Notifications::Client.new(api_key, client_url)
       @callback_options = callback_options || {}
     rescue => e
@@ -79,13 +80,18 @@ module VaNotify
         return nil
       end
 
+      if @va_client_api_key.nil?
+        Rails.logger.error('Push notifications API key is not configured')
+        return nil
+      end
+
       push_client.send_push(args)
     rescue => e
       handle_error(e)
     end
 
     def push_client
-      @push_client ||= VaNotify::Client.new(@api_key, @callback_options)
+      @push_client ||= VaNotify::Client.new(@va_client_api_key, @callback_options)
     end
 
     private

@@ -46,7 +46,7 @@ module EventBusGateway
 
       errors.compact!
 
-      log_completion(participant_id, email_template_id, push_template_id, errors)
+      log_completion(email_template_id, push_template_id, errors)
       handle_errors(errors)
 
       errors
@@ -66,7 +66,7 @@ module EventBusGateway
       LetterReadyEmailJob.perform_async(participant_id, email_template_id, first_name, icn)
       nil
     rescue => e
-      log_notification_failure('email', participant_id, email_template_id, e)
+      log_notification_failure('email', email_template_id, e)
       { type: 'email', error: e.message }
     end
 
@@ -74,22 +74,21 @@ module EventBusGateway
       LetterReadyPushJob.perform_async(participant_id, push_template_id, icn)
       nil
     rescue => e
-      log_notification_failure('push', participant_id, push_template_id, e)
+      log_notification_failure('push', push_template_id, e)
       { type: 'push', error: e.message }
     end
 
-    def log_notification_failure(notification_type, participant_id, template_id, error)
+    def log_notification_failure(notification_type, template_id, error)
       ::Rails.logger.error(
         "LetterReadyNotificationJob #{notification_type} failed",
         {
-          participant_id:,
           template_id:,
           error: error.message
         }
       )
     end
 
-    def log_completion(participant_id, email_template_id, push_template_id, errors)
+    def log_completion(email_template_id, push_template_id, errors)
       successful_notifications = []
       successful_notifications << 'email' if email_template_id.present? && errors.none? { |e| e[:type] == 'email' }
       successful_notifications << 'push' if push_template_id.present? && errors.none? { |e| e[:type] == 'push' }
@@ -99,7 +98,6 @@ module EventBusGateway
       ::Rails.logger.info(
         'LetterReadyNotificationJob completed',
         {
-          participant_id:,
           notifications_sent: successful_notifications.join(', '),
           notifications_failed: failed_messages,
           email_template_id:,

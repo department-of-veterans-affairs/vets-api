@@ -44,7 +44,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
   # Shared setup for most test scenarios
   before do
     allow(VaNotify::Service).to receive(:new)
-      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
+      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key, {}, EventBusGateway::Constants::NOTIFY_SETTINGS.push_api_key)
       .and_return(va_notify_service)
     allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
       .and_return(mpi_profile_response)
@@ -79,9 +79,9 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       subject.new.perform(participant_id, template_id)
     end
 
-    it 'configures VaNotify::Service with correct API key' do
+    it 'configures VaNotify::Service with correct API keys' do
       expect(VaNotify::Service).to receive(:new)
-        .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
+        .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key, {}, EventBusGateway::Constants::NOTIFY_SETTINGS.push_api_key)
         .and_return(va_notify_service)
       subject.new.perform(participant_id, template_id)
     end
@@ -159,7 +159,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
     context 'when VA Notify service initialization fails' do
       before do
         allow(VaNotify::Service).to receive(:new)
-          .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
+          .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key, {}, EventBusGateway::Constants::NOTIFY_SETTINGS.push_api_key)
           .and_raise(StandardError, 'Service initialization failed')
       end
 
