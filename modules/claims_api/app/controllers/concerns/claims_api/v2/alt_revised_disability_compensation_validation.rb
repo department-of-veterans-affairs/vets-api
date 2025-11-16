@@ -579,12 +579,35 @@ module ClaimsApi
 
         return if service_information.nil? || service_information.blank?
 
+        alt_rev_validate_service_after_13th_birthday!
         alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
         alt_rev_validate_service_periods(service_information, target_veteran)
         alt_rev_validate_service_branch_names(service_information)
         alt_rev_validate_confinements(service_information)
         alt_rev_validate_reserves_required_values(service_information)
         alt_rev_validate_form_526_location_codes(service_information)
+      end
+
+      def alt_rev_validate_service_after_13th_birthday!
+        service_periods = form_attributes&.dig('serviceInformation', 'servicePeriods')
+        age_thirteen = auth_headers['va_eauth_birthdate'].to_datetime.next_year(13).to_date
+
+        return if age_thirteen.nil? || service_periods.nil?
+
+        service_periods.each_with_index do |sp, idx|
+          next unless date_is_valid?(sp['activeDutyBeginDate'],
+                                     "serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate", true)
+
+          age_exception(idx) if Date.parse(sp['activeDutyBeginDate']) < age_thirteen
+        end
+      end
+
+      def age_exception(idx)
+        Rails.logger.debug 'in the alt file?'
+        collect_error_messages(
+          source: "serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate",
+          detail: "Active Duty Begin Date (#{idx}) cannot be before Veteran's thirteenth birthday."
+        )
       end
 
       def alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
