@@ -37,6 +37,18 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('12345')
       end
+
+      it 'sets cmop_division_phone to nil for Oracle Health prescriptions' do
+        result = subject.parse(base_resource)
+
+        expect(result.cmop_division_phone).to be_nil
+      end
+
+      it 'sets dial_cmop_division_phone to nil' do
+        result = subject.parse(base_resource)
+
+        expect(result.dial_cmop_division_phone).to be_nil
+      end
     end
 
     context 'with reportedBoolean true' do
@@ -51,9 +63,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'with reportedBoolean false' do
       let(:not_reported_resource) { base_resource.merge('reportedBoolean' => false) }
 
-      it 'returns prescription object for non-reported medications' do
+      it 'returns prescription source VA for VA medications' do
         result = subject.parse(not_reported_resource)
-        expect(result.prescription_source).to eq('')
+        expect(result.prescription_source).to eq('VA')
       end
     end
 
@@ -89,13 +101,30 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
       end
     end
+
+    context 'with disclaimer field' do
+      it 'sets disclaimer to nil for Oracle Health prescriptions' do
+        result = subject.parse(base_resource)
+
+        expect(result.disclaimer).to be_nil
+      end
+    end
+
+    context 'with cmop_ndc_number field' do
+      it 'sets cmop_ndc_number to nil for Oracle Health prescriptions' do
+        result = subject.parse(base_resource)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to be_nil
+      end
+    end
   end
 
   describe '#extract_prescription_source' do
     context 'with reportedBoolean nil' do
-      it 'returns empty string for default VA medications' do
+      it 'returns VA for default VA medications' do
         result = subject.send(:extract_prescription_source, base_resource)
-        expect(result).to eq('')
+        expect(result).to eq('VA')
       end
     end
   end
@@ -1179,6 +1208,320 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
+  describe '#build_dispenses_information' do
+    context 'with MedicationDispense resources in contained' do
+      let(:resource_with_dispenses) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z',
+              'quantity' => { 'value' => 30 },
+              'location' => { 'display' => '648-PHARMACY-MAIN' },
+              'dosageInstruction' => [
+                {
+                  'text' => 'Take one tablet by mouth daily'
+                }
+              ],
+              'medicationCodeableConcept' => {
+                'text' => 'amLODIPine 5 mg tablet'
+              }
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T14:30:00Z',
+              'quantity' => { 'value' => 30 },
+              'location' => { 'display' => '648-PHARMACY-MAIN' },
+              'dosageInstruction' => [
+                {
+                  'text' => 'Take one tablet by mouth daily'
+                }
+              ],
+              'medicationCodeableConcept' => {
+                'text' => 'amLODIPine 5 mg tablet'
+              }
+            }
+          ]
+        )
+      end
+
+      before do
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
+      end
+
+      it 'returns dispenses information with all fields' do
+        result = subject.send(:build_dispenses_information, resource_with_dispenses)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+
+        first_dispense = result.first
+        expect(first_dispense).to include(
+          status: 'completed',
+          refill_date: '2025-01-15T10:00:00Z',
+          facility_name: 'Portland VA Medical Center',
+          instructions: 'Take one tablet by mouth daily',
+          quantity: 30,
+          medication_name: 'amLODIPine 5 mg tablet',
+          id: 'dispense-1'
+        )
+        # Verify new Vista-only fields are nil for Oracle Health
+        expect(first_dispense[:refill_submit_date]).to be_nil
+        expect(first_dispense[:prescription_number]).to be_nil
+        expect(first_dispense[:cmop_division_phone]).to be_nil
+        expect(first_dispense[:cmop_ndc_number]).to be_nil
+        expect(first_dispense[:remarks]).to be_nil
+        expect(first_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(first_dispense[:disclaimer]).to be_nil
+
+        second_dispense = result.second
+        expect(second_dispense).to include(
+          status: 'completed',
+          refill_date: '2025-01-29T14:30:00Z',
+          facility_name: 'Portland VA Medical Center',
+          instructions: 'Take one tablet by mouth daily',
+          quantity: 30,
+          medication_name: 'amLODIPine 5 mg tablet',
+          id: 'dispense-2'
+        )
+        # Verify new Vista-only fields are nil for Oracle Health
+        expect(second_dispense[:refill_submit_date]).to be_nil
+        expect(second_dispense[:prescription_number]).to be_nil
+        expect(second_dispense[:cmop_division_phone]).to be_nil
+        expect(second_dispense[:cmop_ndc_number]).to be_nil
+        expect(second_dispense[:remarks]).to be_nil
+        expect(second_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(second_dispense[:disclaimer]).to be_nil
+      end
+
+      it 'includes dispenses in parsed prescription' do
+        result = subject.parse(resource_with_dispenses)
+        expect(result.dispenses.length).to eq(2)
+        expect(result.dispenses.first[:status]).to eq('completed')
+      end
+    end
+
+    context 'with no MedicationDispense resources' do
+      it 'returns empty array when no contained resources' do
+        result = subject.send(:build_dispenses_information, base_resource)
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when contained has no MedicationDispense' do
+        resource_no_dispenses = base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'Encounter',
+              'id' => 'encounter-1'
+            }
+          ]
+        )
+        result = subject.send(:build_dispenses_information, resource_no_dispenses)
+        expect(result).to eq([])
+      end
+
+      it 'includes empty dispenses array in parsed prescription' do
+        result = subject.parse(base_resource)
+        expect(result.dispenses).to eq([])
+      end
+    end
+
+    context 'with MedicationDispense missing optional fields' do
+      let(:resource_with_minimal_dispense) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-minimal',
+              'status' => 'completed'
+            }
+          ]
+        )
+      end
+
+      it 'returns dispense with nil values for missing fields' do
+        result = subject.send(:build_dispenses_information, resource_with_minimal_dispense)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(1)
+
+        dispense = result.first
+        expect(dispense[:status]).to eq('completed')
+        expect(dispense[:refill_date]).to be_nil
+        expect(dispense[:facility_name]).to be_nil
+        expect(dispense[:sig]).to be_nil
+        expect(dispense[:quantity]).to be_nil
+        expect(dispense[:medication_name]).to be_nil
+        expect(dispense[:id]).to eq('dispense-minimal')
+      end
+    end
+
+    context 'with non-hash elements in contained resources' do
+      let(:resource_with_invalid_elements) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'valid-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            },
+            'invalid-string-element',
+            nil,
+            123,
+            {
+              'resourceType' => 'Encounter',
+              'id' => 'encounter-1'
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'valid-2',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-20T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'filters out non-hash elements and non-MedicationDispense resources' do
+        result = subject.send(:build_dispenses_information, resource_with_invalid_elements)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+        expect(result.first[:id]).to eq('valid-1')
+        expect(result.second[:id]).to eq('valid-2')
+      end
+    end
+  end
+
+  describe '#extract_sig_from_dispense' do
+    context 'with dosageInstruction text' do
+      let(:dispense_with_sig) do
+        {
+          'dosageInstruction' => [
+            {
+              'text' => 'Take one tablet by mouth daily'
+            }
+          ]
+        }
+      end
+
+      it 'returns the dosage instruction text' do
+        result = subject.send(:extract_sig_from_dispense, dispense_with_sig)
+        expect(result).to eq('Take one tablet by mouth daily')
+      end
+    end
+
+    context 'without dosageInstruction' do
+      let(:dispense_without_sig) do
+        {}
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_sig_from_dispense, dispense_without_sig)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with empty dosageInstruction array' do
+      let(:dispense_empty_sig) do
+        {
+          'dosageInstruction' => []
+        }
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_sig_from_dispense, dispense_empty_sig)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with non-hash element as first dosageInstruction' do
+      let(:dispense_invalid_instruction) do
+        {
+          'dosageInstruction' => ['invalid-string-element']
+        }
+      end
+
+      it 'returns nil when first instruction is not a hash' do
+        result = subject.send(:extract_sig_from_dispense, dispense_invalid_instruction)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with multiple dosageInstruction elements' do
+      let(:dispense_multiple_instructions) do
+        {
+          'dosageInstruction' => [
+            {
+              'text' => 'Take one tablet by mouth daily'
+            },
+            {
+              'text' => 'with food'
+            },
+            {
+              'text' => 'in the morning'
+            }
+          ]
+        }
+      end
+
+      it 'concatenates all dosage instruction texts' do
+        result = subject.send(:extract_sig_from_dispense, dispense_multiple_instructions)
+        expect(result).to eq('Take one tablet by mouth daily with food in the morning')
+      end
+    end
+
+    context 'with multiple dosageInstruction elements including non-hash' do
+      let(:dispense_mixed_instructions) do
+        {
+          'dosageInstruction' => [
+            {
+              'text' => 'Take one tablet'
+            },
+            'invalid-string-element',
+            {
+              'text' => 'with food'
+            },
+            nil
+          ]
+        }
+      end
+
+      it 'concatenates only valid hash elements with text' do
+        result = subject.send(:extract_sig_from_dispense, dispense_mixed_instructions)
+        expect(result).to eq('Take one tablet with food')
+      end
+    end
+  end
+
+  describe '#extract_facility_name_from_dispense' do
+    let(:dispense_with_location) do
+      {
+        'resourceType' => 'MedicationDispense',
+        'id' => 'dispense-1',
+        'location' => { 'display' => '556-RX-MAIN-OP' }
+      }
+    end
+
+    let(:resource_for_facility) { base_resource }
+
+    before do
+      allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Bay Pines VA Healthcare System')
+      allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
+    end
+
+    it 'extracts facility name using existing extract_facility_name method' do
+      result = subject.send(:extract_facility_name_from_dispense, resource_for_facility, dispense_with_location)
+      expect(result).to eq('Bay Pines VA Healthcare System')
+    end
+  end
+
   describe '#extract_category' do
     context 'with category field containing inpatient code' do
       let(:resource_with_inpatient_category) do
@@ -1308,6 +1651,157 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns empty array' do
         result = subject.send(:extract_category, resource_with_category_no_coding)
         expect(result).to eq([])
+      end
+    end
+  end
+
+  describe '#extract_indication_for_use' do
+    context 'with reasonCode field containing text' do
+      let(:resource_with_reason_code) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'K21.9',
+                  'display' => 'Gastro-esophageal reflux disease without esophagitis',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Acid reflux'
+            }
+          ]
+        )
+      end
+
+      it 'returns the text from the first reasonCode' do
+        result = subject.send(:extract_indication_for_use, resource_with_reason_code)
+        expect(result).to eq('Acid reflux')
+      end
+    end
+
+    context 'with multiple reasonCode entries' do
+      let(:resource_with_multiple_reason_codes) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'L70.0',
+                  'display' => 'Acne vulgaris',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Acne'
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'Z12.11',
+                  'display' => 'Encounter for screening for malignant neoplasm of colon',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Encounter for screening fecal occult blood testing'
+            }
+          ]
+        )
+      end
+
+      it 'concatenates text from all reasonCode entries' do
+        result = subject.send(:extract_indication_for_use, resource_with_multiple_reason_codes)
+        expect(result).to eq('Acne; Encounter for screening fecal occult blood testing')
+      end
+    end
+
+    context 'with no reasonCode field' do
+      it 'returns nil' do
+        result = subject.send(:extract_indication_for_use, base_resource)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with empty reasonCode array' do
+      let(:resource_with_empty_reason_code) do
+        base_resource.merge('reasonCode' => [])
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_indication_for_use, resource_with_empty_reason_code)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with reasonCode but no text field' do
+      let(:resource_with_reason_code_no_text) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'K21.9',
+                  'display' => 'Gastro-esophageal reflux disease without esophagitis',
+                  'userSelected' => true
+                }
+              ]
+            }
+          ]
+        )
+      end
+
+      it 'returns nil' do
+        result = subject.send(:extract_indication_for_use, resource_with_reason_code_no_text)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with multiple reasonCode entries where some have no text' do
+      let(:resource_with_mixed_reason_codes) do
+        base_resource.merge(
+          'reasonCode' => [
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'L70.0',
+                  'display' => 'Acne vulgaris',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Acne'
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'K21.9',
+                  'display' => 'Gastro-esophageal reflux disease without esophagitis',
+                  'userSelected' => true
+                }
+              ]
+            },
+            {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                  'code' => 'Z12.11',
+                  'display' => 'Encounter for screening for malignant neoplasm of colon',
+                  'userSelected' => true
+                }
+              ],
+              'text' => 'Screening'
+            }
+          ]
+        )
+      end
+
+      it 'concatenates only the text fields that are present' do
+        result = subject.send(:extract_indication_for_use, resource_with_mixed_reason_codes)
+        expect(result).to eq('Acne; Screening')
       end
     end
   end
