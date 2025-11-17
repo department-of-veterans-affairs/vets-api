@@ -49,6 +49,21 @@ module DependentsBenefits
         attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
       end
 
+      def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+        template = template_for_form(form_id)
+        stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: 'VA.GOV', x: 5, y: 5, timestamp:, template:
+        )
+        stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
+          text: 'FDC Reviewed - va.gov Submission', x: 400, y: 770, text_only: true, template:
+        )
+        if form_id.present?
+          stamped_pdf_with_form(form_id, stamped_path2, timestamp)
+        else
+          stamped_path2
+        end
+      end
+
       private
 
       def get_files_from_claim
@@ -56,6 +71,8 @@ module DependentsBenefits
         form_674_paths = []
         form_686c_path = nil
         DependentsBenefits::ClaimProcessor.new(saved_claim.id, proc_id).collect_child_claims.each do |claim|
+          # NOTE: potentially move to initialization of claims
+          claim.add_veteran_info(user_data)
           pdf_path = process_pdf(claim.to_pdf, claim.created_at, claim.form_id)
 
           if claim.form_id == DependentsBenefits::ADD_REMOVE_DEPENDENT
@@ -73,21 +90,6 @@ module DependentsBenefits
         # prepend any 674s to attachments
         @attachment_paths = form_674_paths + saved_claim.persistent_attachments.map do |pa|
           process_pdf(pa.to_pdf, saved_claim.created_at)
-        end
-      end
-
-      def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-        template = template_for_form(form_id)
-        stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(
-          text: 'VA.GOV', x: 5, y: 5, timestamp:, template:
-        )
-        stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
-          text: 'FDC Reviewed - va.gov Submission', x: 400, y: 770, text_only: true, template:
-        )
-        if form_id.present?
-          stamped_pdf_with_form(form_id, stamped_path2, timestamp)
-        else
-          stamped_path2
         end
       end
 

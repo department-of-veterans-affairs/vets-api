@@ -57,7 +57,7 @@ Rails.application.routes.draw do
 
     resources :form210779, only: [:create] do
       collection do
-        post :download_pdf
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -66,8 +66,13 @@ Rails.application.routes.draw do
         post :download_pdf
       end
     end
-
     resources :form21p530a, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
+    resources :form212680, only: [] do
       collection do
         post :download_pdf
       end
@@ -420,6 +425,7 @@ Rails.application.routes.draw do
   mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
+  mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IncreaseCompensation::Engine, at: '/increase_compensation'
