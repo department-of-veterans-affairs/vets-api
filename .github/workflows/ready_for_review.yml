@@ -6,7 +6,7 @@ on:
   pull_request_review:
     types: [submitted, dismissed]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Service Tags", "CodeQL"]
+    workflows: ["Code Checks"]
     types: [completed]
     branches-ignore:
       - master
