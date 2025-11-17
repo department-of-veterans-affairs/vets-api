@@ -100,7 +100,7 @@ describe AppealsApi::EvidenceSubmissionSerializer, type: :serializer do
   end
 
   context 'when :decision_reviews_evidence_final_status_field flag is disabled' do
-    before { Flipper.disable(:decision_reviews_evidence_final_status_field) }
+    before { allow(Flipper).to receive(:enabled?).with(:decision_reviews_evidence_final_status_field).and_return(false) }
 
     it 'excludes :finalStatus' do
       expect(attributes).not_to have_key('finalStatus')
