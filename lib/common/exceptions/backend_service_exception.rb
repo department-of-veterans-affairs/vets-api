@@ -23,7 +23,7 @@ module Common
       # The message will be the actual backend service response from middleware,
       # not the I18n version.
       def message
-        "BackendServiceException: #{response_values.merge(code:)}"
+        "BackendServiceException: #{(response_values || {}).merge(code:)}"
       end
 
       def errors
@@ -87,7 +87,7 @@ module Common
       # OPTIONAL - This should usually be a developer message of some sort from the backend service
       # if one is not provided by the backend this can be nil and the key will not be rendered
       def source
-        response_values[:source]
+        response_values&.[](:source)
       end
 
       def validate_arguments!
