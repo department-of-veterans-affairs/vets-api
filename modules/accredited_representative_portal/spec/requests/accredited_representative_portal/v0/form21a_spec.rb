@@ -49,6 +49,30 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   end
 
   describe 'POST /accredited_representative_portal/v0/form21a' do
+    context 'when the user is not LOA3' do
+      let(:non_loa3_user) { create(:representative_user) }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+
+        allow_any_instance_of(AccreditedRepresentativePortal::V0::Form21aController)
+          .to receive(:current_user)
+          .and_return(non_loa3_user)
+
+        allow(non_loa3_user).to receive(:loa).and_return({ current: 1, highest: 1 })
+
+        login_as(non_loa3_user)
+      end
+
+      it 'returns 404 and does not call the service' do
+        expect(AccreditationService).not_to receive(:submit_form21a)
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     context 'with valid JSON' do
       let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
 
@@ -335,6 +359,53 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         .with(:accredited_representative_portal_form_21a)
         .and_return(true)
       login_as(representative_user)
+    end
+
+    context 'when the user is not LOA3' do
+      let(:non_loa3_user) { create(:representative_user) }
+      let(:slug) { 'conviction-details' }
+      let(:path) { "/accredited_representative_portal/v0/form21a/#{slug}" }
+      let(:file) do
+        fixture_file_upload(
+          Rails.root.join('modules',
+                          'accredited_representative_portal',
+                          'spec',
+                          'fixtures',
+                          'files',
+                          '21_686c_empty_form.pdf'),
+          'application/pdf'
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+
+        allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+          .to receive(:loa)
+          .and_return({ current: 1, highest: 1 })
+
+        login_as(non_loa3_user)
+      end
+
+      it 'returns 404 and does not process the file' do
+        expect(Rails.logger).not_to receive(:info).with(
+          a_string_including('Received Form21a details submission')
+        )
+
+        post(path, params: { file: }, headers:)
+
+        expect(response).to have_http_status(:not_found)
+        expect(parsed_response).to match(
+          'errors' => [
+            hash_including(
+              'title' => 'Not found',
+              'status' => '404'
+            )
+          ]
+        )
+      end
     end
 
     context 'with a valid slug and file' do
