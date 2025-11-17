@@ -132,13 +132,7 @@ module MyHealth
         object.front_imprint if object.respond_to?(:front_imprint)
       end
 
-      attribute :grouped_medications do |object|
-        if object.respond_to?(:grouped_medications)
-          object.grouped_medications
-        elsif object.instance_variable_defined?(:@grouped_medications)
-          object.instance_variable_get(:@grouped_medications)
-        end
-      end
+      attribute :grouped_medications, &:grouped_medications
     end
   end
 end

@@ -63,13 +63,7 @@ module MyHealth
     private
 
     def initialize_grouped_medications(prescription)
-      # Defensively handle grouped_medications - only set if the object supports it
-      if prescription.respond_to?(:grouped_medications=) || prescription.respond_to?(:grouped_medications)
-        prescription.grouped_medications ||= []
-      else
-        # Create an instance variable if the attribute doesn't exist
-        prescription.instance_variable_set(:@grouped_medications, [])
-      end
+      prescription.grouped_medications ||= []
     end
 
     def add_solo_med_and_delete(grouped_prescriptions, prescriptions, prescription)
@@ -79,12 +73,7 @@ module MyHealth
 
     def add_group_meds_and_delete(related_prescriptions, base_prescription, prescriptions)
       related_prescriptions.each do |renewal|
-        grouped_meds = if base_prescription.respond_to?(:grouped_medications)
-                         base_prescription.grouped_medications
-                       else
-                         base_prescription.instance_variable_get(:@grouped_medications)
-                       end
-        grouped_meds << renewal if grouped_meds
+        base_prescription.grouped_medications << renewal
         prescriptions.delete(renewal)
       end
     end
