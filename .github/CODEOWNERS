@@ -904,7 +904,6 @@ lib/hca @department-of-veterans-affairs/health-apps-backend @department-of-veter
 lib/http_method_not_allowed.rb @department-of-veterans-affairs/backend-review-group
 lib/iam_ssoe_oauth @department-of-veterans-affairs/octo-identity
 lib/identity @department-of-veterans-affairs/octo-identity
-lib/ihub @department-of-veterans-affairs/backend-review-group
 lib/json_marshal @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
 lib/json_schema @department-of-veterans-affairs/backend-review-group
 lib/kafka @department-of-veterans-affairs/ves-submission-traceability @department-of-veterans-affairs/backend-review-group
@@ -1262,7 +1261,6 @@ spec/factories/health_facilities.rb @department-of-veterans-affairs/health-apps-
 spec/factories/iam_introspection_responses.rb @department-of-veterans-affairs/octo-identity
 spec/factories/iam_user_identities.rb @department-of-veterans-affairs/octo-identity
 spec/factories/iam_users.rb @department-of-veterans-affairs/octo-identity
-spec/factories/ihub/models/appointments.rb @department-of-veterans-affairs/backend-review-group
 spec/factories/in_progress_forms @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/ivc_champva_forms.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/lighthouse @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
@@ -1475,7 +1473,6 @@ spec/lib/github_authentication @department-of-veterans-affairs/octo-identity
 spec/lib/hca @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/lib/iam_ssoe_oauth @department-of-veterans-affairs/octo-identity
 spec/lib/identity @department-of-veterans-affairs/octo-identity
-spec/lib/ihub @department-of-veterans-affairs/backend-review-group
 spec/lib/json_marshal @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
 spec/lib/json_schema @department-of-veterans-affairs/backend-review-group
 spec/lib/kafka @department-of-veterans-affairs/ves-submission-traceability @department-of-veterans-affairs/backend-review-group
@@ -2198,7 +2195,6 @@ spec/support/vcr_cassettes/govdelivery_emails.yml @department-of-veterans-affair
 spec/support/vcr_cassettes/hca @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/iam_ssoe_oauth @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/identity @department-of-veterans-affairs/octo-identity
-spec/support/vcr_cassettes/ihub @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/kafka @department-of-veterans-affairs/ves-submission-traceability @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/lgy @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/lighthouse/auth/client_credentials/invalid_assertion_401.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities
