@@ -54,7 +54,7 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
     <<~DETAILS
       **Institution name:** #{institution['institutionName']}
       **Facility code:** #{institution['facilityCode']}
-      **Institution address:**#{'  '}
+      **Institution address:**
       #{format_address(institution['institutionAddress'])}
     DETAILS
   end
@@ -89,13 +89,13 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
     <<~POE
       ### Principles of Excellence agreement
 
-      **Principle 1:** Institution agrees#{'  '}
-      **Principle 2:** Institution agrees#{'  '}
-      **Principle 3:** Institution agrees#{'  '}
-      **Principle 4:** Institution agrees#{'  '}
-      **Principle 5:** Institution agrees#{'  '}
-      **Principle 6:** Institution agrees#{'  '}
-      **Principle 7:** Institution agrees#{'  '}
+      **Principle 1:** Institution agrees
+      **Principle 2:** Institution agrees
+      **Principle 3:** Institution agrees
+      **Principle 4:** Institution agrees
+      **Principle 5:** Institution agrees
+      **Principle 6:** Institution agrees
+      **Principle 7:** Institution agrees
       **Principle 8:** Institution agrees
     POE
   end
@@ -110,9 +110,9 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
 
   def format_location(location_hash)
     <<~LOCATION
-      **#{location_hash['institutionName']}**#{'  '}
+      **#{location_hash['institutionName']}**
       **Facility code:** #{location_hash['facilityCode']}
-      **Address:**#{'  '}
+      **Address:**
       #{format_address(location_hash['institutionAddress']).chomp}
       **Point of contact:** #{format_name(location_hash['pointOfContact']['fullName'])}
       **Email:**  #{location_hash['pointOfContact']['email']}
