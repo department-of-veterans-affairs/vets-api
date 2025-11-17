@@ -2,7 +2,7 @@
 name: Pull Request Ready for Review
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+    types: [ready_for_review, converted_to_draft]
   pull_request_review:
     types: [submitted, dismissed]
   workflow_run:
@@ -24,34 +24,20 @@ jobs:
     name: Update Ready for Review Label
     runs-on: ubuntu-latest
     steps:
-      - name: Get PR number
-        id: pr_number
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get PR data
+        id: pr_data
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "pull_request_review" ]; then
-            PR_NUMBER="${{ github.event.pull_request.number }}"
-          elif [ "${{ github.event_name }}" = "workflow_run" ]; then
-            # Check if workflow_run has associated PRs
-            if [ "${{ toJSON(github.event.workflow_run.pull_requests) }}" = "[]" ]; then
-              echo "No PR associated with this workflow run, exiting"
-              exit 0
-            fi
-            PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
-          else
-            echo "Unexpected event type: ${{ github.event_name }}"
-            exit 1
-          fi
-
+          PR_NUMBER="${{ github.event.pull_request.number }}"
           echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
-          echo "Processing PR #${PR_NUMBER}"
 
-      - name: Get PR details
-        id: pr_details
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr_number.outputs.pr_number }}
-        run: |
           # Fetch PR details
           PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
             draft: .draft,
