@@ -45,11 +45,8 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json' } }
 
   before do
-    Flipper.enable(:accredited_representative_portal_pilot)
     login_as(representative_user)
   end
-
-  after { Flipper.disable(:accredited_representative_portal_pilot) }
 
   describe 'POST /accredited_representative_portal/v0/form21a' do
     context 'with valid JSON' do
