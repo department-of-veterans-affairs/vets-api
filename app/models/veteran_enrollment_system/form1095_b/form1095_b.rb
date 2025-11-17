@@ -92,8 +92,9 @@ module VeteranEnrollmentSystem
         end
 
         def available_years_range
-          current_year = Date.current.year
-          [current_year - 4, current_year - 1]
+          current_tax_year = Date.current.year - 1
+          # using a range of years because more years of form data will be available in the future
+          [current_tax_year, current_tax_year]
         end
 
         def pdf_template_path(year)
