@@ -57,7 +57,8 @@ module BGSV2
       # these errors separately because the original error message is so long that it obscures its only relevant
       # information and actually breaks Sentry's UI.
       def log_oracle_errors!(error:)
-        monitor.error(oracle_error_match_data(error:)[0], 'oracle_error')
+        match_data = oracle_error_match_data(error:)
+        monitor.error(match_data[0], 'oracle_error') if match_data
       end
 
       # Checks if an error contains an Oracle database error signature.
