@@ -1826,6 +1826,8 @@ veteran_enrollment_system:
     api_key: ~
   form1095b:
     api_key: ~
+  enrollment_periods:
+    api_key: ~
   host: https://localhost
   open_timeout: 10
   port: 4430
