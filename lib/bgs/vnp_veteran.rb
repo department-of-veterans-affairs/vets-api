@@ -65,10 +65,9 @@ module BGS
     def log_ssn_issues
       ssn = @veteran_info['ssn']
 
-      case ssn
-      when '********'
+      if ssn == '********'
         monitor.error('SSN is redacted!', 'vnp_veteran_ssn_redacted', user_uuid: @user.uuid)
-      when ->(s) { s.present? && !ssn_format?(s) }
+      elsif ssn.present? && !ssn_format?(ssn)
         monitor.error("SSN has #{ssn.length} characters!", 'vnp_veteran_ssn_invalid', user_uuid: @user.uuid)
       end
     end

@@ -33,7 +33,7 @@ module BGSV2
         if oracle_error?(error:)
           log_oracle_errors!(error:)
         else
-          monitor.error(error, 'service_exception')
+          monitor.error(error.message, 'service_exception')
         end
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
       end

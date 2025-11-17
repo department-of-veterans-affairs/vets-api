@@ -27,7 +27,7 @@ module BGS
 
       response
     rescue => e
-      monitor.error(e, 'payment_history_error')
+      monitor.error(e.message, 'payment_history_error')
       empty_response if e.message.include?('No Data Found')
     end
 

@@ -80,7 +80,7 @@ module BGS
         # NOTE: Assumption that duplicate flashes are ignored when submitted
         service.add_flash(file_number: ssn, flash_name:)
       rescue BGS::ShareError, BGS::PublicError => e
-        monitor.error(e, 'add_flashes', source: '526EZ-all-claims', submission_id:)
+        monitor.error(e.message, 'add_flashes', source: '526EZ-all-claims', submission_id:)
       end
     end
 
@@ -89,8 +89,8 @@ module BGS
       flashes.each do |flash_name|
         assigned_flash = assigned_flashes.find { |af| af[:flash_name].strip == flash_name }
         if assigned_flash.blank?
-          e = StandardError.new("Failed to assign '#{flash_name}' to Veteran")
-          monitor.error(e, 'add_flashes', source: '526EZ-all-claims', submission_id:)
+          monitor.error("Failed to assign '#{flash_name}' to Veteran", 'add_flashes',
+                        source: '526EZ-all-claims', submission_id:)
         end
       end
     end

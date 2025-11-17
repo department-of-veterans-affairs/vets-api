@@ -36,7 +36,7 @@ module BGS
 
       standard_response(diaries)
     rescue => e
-      monitor.error(e, 'read_diaries_error', user_uuid:)
+      monitor.error(e.message, 'read_diaries_error', user_uuid:)
     end
 
     private
