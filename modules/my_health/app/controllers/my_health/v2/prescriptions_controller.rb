@@ -170,8 +170,8 @@ module MyHealth
           # 3rd sort by fill date - newest to oldest
           a_date = a.respond_to?(:sorted_dispensed_date) ? a.sorted_dispensed_date : nil
           b_date = b.respond_to?(:sorted_dispensed_date) ? b.sorted_dispensed_date : nil
-          a_date ||= Date.new(0, 1, 1)
-          b_date ||= Date.new(0, 1, 1)
+          a_date ||= Date.new(1900, 1, 1)
+          b_date ||= Date.new(1900, 1, 1)
 
           b_date <=> a_date
         end
@@ -181,7 +181,7 @@ module MyHealth
         empty_dispense_date_meds, filled_meds = partition_meds_by_date(prescriptions)
 
         filled_meds = filled_meds.sort_by do |med|
-          date = med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : Date.new(0)
+          date = med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : Date.new(1900, 1, 1)
           name = med.respond_to?(:prescription_name) ? med.prescription_name.to_s.downcase : ''
           [-date&.to_time.to_i, name]
         end
