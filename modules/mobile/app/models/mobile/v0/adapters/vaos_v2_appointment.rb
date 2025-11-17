@@ -459,7 +459,9 @@ module Mobile
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
             appointment[:kind] != PHONE_KIND &&
             appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
-            appointment.start < Time.now.utc # verify it's a past appointment
+            appointment.start < Time.now.utc && # verify it's a past appointment
+            ## TODO: reduce duplication by address this on the app frontend with claim metadata
+            TravelPay::DateUtils.valid_datetime?(appointment[:local_start_time].to_s)
         end
       end
     end

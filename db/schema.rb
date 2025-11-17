@@ -40,6 +40,23 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "accreditation_data_ingestion_logs", force: :cascade do |t|
+    t.integer "dataset", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "agents_status", default: 0, null: false
+    t.integer "attorneys_status", default: 0, null: false
+    t.integer "representatives_status", default: 0, null: false
+    t.integer "veteran_service_organizations_status", default: 0, null: false
+    t.datetime "started_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "finished_at"
+    t.jsonb "metrics", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dataset", "started_at"], name: "index_accr_data_ing_logs_on_dataset_started_at"
+    t.index ["dataset", "status", "finished_at"], name: "index_accr_data_ing_logs_on_dataset_status_finished_at"
+    t.index ["status", "finished_at"], name: "index_accr_data_ing_logs_on_status_and_finished_at"
+  end
+
   create_table "accreditations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "accredited_individual_id", null: false
     t.uuid "accredited_organization_id", null: false
@@ -2113,47 +2130,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.index ["created_at"], name: "index_vye_verifications_on_created_at"
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
     t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
-  end
-
-  create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
-    t.bigint "webhooks_notification_id", null: false
-    t.bigint "webhooks_notification_attempt_id", null: false
-    t.index ["webhooks_notification_attempt_id"], name: "index_wh_assoc_attempt_id"
-    t.index ["webhooks_notification_id"], name: "index_wh_assoc_notification_id"
-  end
-
-  create_table "webhooks_notification_attempts", force: :cascade do |t|
-    t.boolean "success", default: false
-    t.jsonb "response", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "webhooks_notifications", force: :cascade do |t|
-    t.string "api_name", null: false
-    t.string "consumer_name", null: false
-    t.uuid "consumer_id", null: false
-    t.uuid "api_guid", null: false
-    t.string "event", null: false
-    t.string "callback_url", null: false
-    t.jsonb "msg", null: false
-    t.integer "final_attempt_id"
-    t.integer "processing"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["api_name", "consumer_id", "api_guid", "event", "final_attempt_id"], name: "index_wh_notify"
-    t.index ["final_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
-  end
-
-  create_table "webhooks_subscriptions", force: :cascade do |t|
-    t.string "api_name", null: false
-    t.string "consumer_name", null: false
-    t.uuid "consumer_id", null: false
-    t.uuid "api_guid"
-    t.jsonb "events", default: {"subscriptions"=>[]}
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhooks_subscription", unique: true
   end
 
   add_foreign_key "accreditations", "accredited_individuals"

@@ -85,10 +85,7 @@ module Common
         end
 
         def get_session_tagged
-          Sentry.set_tags(error: 'mhv_session')
-          env = perform(:post, '/v1/security/login', auth_body, auth_headers)
-          Sentry.get_current_scope.tags.delete(:error)
-          env
+          perform(:post, '/v1/security/login', auth_body, auth_headers)
         end
 
         def jwt_bearer_token
