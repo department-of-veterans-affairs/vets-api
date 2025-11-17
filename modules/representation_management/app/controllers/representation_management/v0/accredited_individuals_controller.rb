@@ -44,6 +44,7 @@ module RepresentationManagement
         if use_veteran_model?
           # Veteran::Service::Representative query
           model_class
+            .includes(:organizations)
             .select(select_query_string_for_veteran)
             .where(where_clause_for_veteran_type)
             .order(sort_query_string_for_veteran)
