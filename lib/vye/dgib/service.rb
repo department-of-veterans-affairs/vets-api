@@ -35,9 +35,11 @@ module Vye
         with_monitoring do
           headers = request_headers
           options = { timeout: 60 }
-          response = perform(:post, claimant_lookup_end_point, camelize_keys_for_java_service(params).to_json, headers,
-                             options)
-          ClaimantLookupResponse.new(response.status, response)
+          raw_response = perform(:post, claimant_lookup_end_point, camelize_keys_for_java_service(params).to_json,
+                                 headers, options)
+          response = ClaimantLookupResponse.new(raw_response.status, raw_response)
+          track_claimant_id_zero if response&.claimant_id&.zero?
+          response
         end
       rescue => e
         log_error(e, __method__)
@@ -130,6 +132,10 @@ module Vye
       def log_error(error, context)
         Rails.logger.error("VYE/DGIB #{context} failed: #{error.message}",
                            backtrace: error.backtrace)
+      end
+
+      def track_claimant_id_zero
+        StatsD.increment("#{STATSD_KEY_PREFIX}.claimant_lookup_id_zero")
       end
     end
   end

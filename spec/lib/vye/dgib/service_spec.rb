@@ -24,6 +24,44 @@ RSpec.describe Vye::DGIB::Service do
           expect(response.ok?).to be(true)
         end
       end
+
+      context 'when claimant ID zero' do
+        let(:zero_id_metric) { "#{described_class::STATSD_KEY_PREFIX}.claimant_lookup_id_zero" }
+        let(:raw_response) { double('response', status: 200, body: { 'claimant_id' => '0' }) }
+
+        before do
+          allow(service).to receive(:perform).and_return(raw_response)
+          allow(StatsD).to receive(:increment)
+        end
+
+        it 'increments custom metric' do
+          travel_to Time.zone.local(2022, 2, 9, 12) do
+            service.claimant_lookup(ssn)
+            expect(StatsD).to have_received(:increment).with(zero_id_metric)
+          end
+        end
+      end
+    end
+
+    context 'when unsuccessful' do
+      let(:error_message) { 'FAILED' }
+      let(:backend_error) { StandardError.new(error_message) }
+      let(:context) { 'claimant_lookup' }
+
+      before do
+        allow(service).to receive(:perform).and_raise(backend_error)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs error message' do
+        travel_to Time.zone.local(2022, 2, 9, 12) do
+          expect(Rails.logger).to receive(:error).with(
+            "VYE/DGIB #{context} failed: #{backend_error.message}",
+            hash_including(:backtrace)
+          )
+          expect { service.claimant_lookup(ssn) }.to raise_error(StandardError)
+        end
+      end
     end
   end
 
@@ -54,6 +92,27 @@ RSpec.describe Vye::DGIB::Service do
           end
         end
       end
+
+      context 'when unsuccessful' do
+        let(:error_message) { 'FAILED' }
+        let(:backend_error) { StandardError.new(error_message) }
+        let(:context) { 'get_claimant_status' }
+
+        before do
+          allow(service).to receive(:perform).and_raise(backend_error)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'logs error message' do
+          travel_to Time.zone.local(2022, 2, 9, 12) do
+            expect(Rails.logger).to receive(:error).with(
+              "VYE/DGIB #{context} failed: #{backend_error.message}",
+              hash_including(:backtrace)
+            )
+            expect { service.get_claimant_status(claimant_id) }.to raise_error(StandardError)
+          end
+        end
+      end
     end
 
     describe '#get_verification_record' do
@@ -73,6 +132,27 @@ RSpec.describe Vye::DGIB::Service do
             response = service.get_verification_record(claimant_id)
             expect(response.status).to eq(200)
             expect(response.ok?).to be(true)
+          end
+        end
+      end
+
+      context 'when unsuccessful' do
+        let(:error_message) { 'FAILED' }
+        let(:backend_error) { StandardError.new(error_message) }
+        let(:context) { 'get_verification_record' }
+
+        before do
+          allow(service).to receive(:perform).and_raise(backend_error)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'logs error message' do
+          travel_to Time.zone.local(2022, 2, 9, 12) do
+            expect(Rails.logger).to receive(:error).with(
+              "VYE/DGIB #{context} failed: #{backend_error.message}",
+              hash_including(:backtrace)
+            )
+            expect { service.get_verification_record(claimant_id) }.to raise_error(StandardError)
           end
         end
       end
@@ -127,6 +207,34 @@ RSpec.describe Vye::DGIB::Service do
 
             expect(response.status).to eq(200)
             expect(response.ok?).to be(true)
+          end
+        end
+      end
+
+      context 'when unsuccessful' do
+        let(:error_message) { 'FAILED' }
+        let(:backend_error) { StandardError.new(error_message) }
+        let(:context) { 'verify_claimant' }
+
+        before do
+          allow(service).to receive(:perform).and_raise(backend_error)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'logs error message' do
+          travel_to Time.zone.local(2022, 2, 9, 12) do
+            expect(Rails.logger).to receive(:error).with(
+              "VYE/DGIB #{context} failed: #{backend_error.message}",
+              hash_including(:backtrace)
+            )
+            expect do
+              service.verify_claimant(claimant_id,
+                                      verified_period_begin_date,
+                                      verified_period_end_date,
+                                      verified_through_date,
+                                      verification_method,
+                                      response_type)
+            end.to raise_error(StandardError)
           end
         end
       end
