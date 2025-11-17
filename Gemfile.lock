@@ -878,7 +878,7 @@ GEM
     racc (1.8.1)
     racc (1.8.1-java)
     rack (2.2.20)
-    rack-attack (6.7.0)
+    rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
