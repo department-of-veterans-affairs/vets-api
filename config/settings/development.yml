@@ -870,7 +870,6 @@ maintenance:
     travel_pay: ~
     vaos: ~
     vaosWarning: ~
-    vaoswarning: ~
     vapro_contact_info: ~
     vapro_health_care_contacts: ~
     vapro_military_info: ~
@@ -1555,7 +1554,7 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
-    dependents_benefits: *vanotify_services_dependents_benefits     
+    dependents_benefits: *vanotify_services_dependents_benefits
     dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret
