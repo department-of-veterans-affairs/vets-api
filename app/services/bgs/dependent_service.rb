@@ -56,7 +56,7 @@ module BGS
       InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
 
       encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
-      submit_pdf_job(claim:, encrypted_vet_info:)
+      submit_pdf_job(claim:)
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
@@ -96,20 +96,12 @@ module BGS
       @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
     end
 
-    def submit_pdf_job(claim:, encrypted_vet_info:)
+    def submit_pdf_job(claim:)
       @monitor = init_monitor(claim&.id)
-      if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        form_id = submit_claim_via_claims_evidence(claim)
-        submit_attachments_via_claims_evidence(form_id, claim)
-      else
-        @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
-        VBMS::SubmitDependentsPdfJob.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
-                                                  claim.submittable_674?)
-      end
+      @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+                           "#{STATS_KEY}.submit_pdf.begin")
+      form_id = submit_claim_via_claims_evidence(claim)
+      submit_attachments_via_claims_evidence(form_id, claim)
 
       @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
