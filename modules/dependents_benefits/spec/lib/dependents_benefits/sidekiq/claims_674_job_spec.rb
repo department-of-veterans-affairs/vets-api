@@ -4,14 +4,14 @@ require 'rails_helper'
 require 'claims_evidence_api/uploader'
 require 'dependents_benefits/user_data'
 
-RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::Claims674Job, type: :job do
   before do
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 
   let(:user) { create(:evss_user) }
   let(:parent_claim) { create(:dependents_claim) }
-  let(:saved_claim) { create(:add_remove_dependents_claim) }
+  let(:saved_claim) { create(:student_claim) }
   let(:user_data) { DependentsBenefits::UserData.new(user, saved_claim.parsed_form).get_user_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
@@ -35,19 +35,19 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
 
       it 'calls lighthouse and claims evidence service' do
         # Ensure the to_pdf mock is called on the specific instance used in the job
-        allow_any_instance_of(DependentsBenefits::AddRemoveDependent).to receive(:to_pdf)
-          .with(form_id: DependentsBenefits::ADD_REMOVE_DEPENDENT)
+        allow_any_instance_of(DependentsBenefits::SchoolAttendanceApproval).to receive(:to_pdf)
+          .with(form_id: DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL)
           .and_return('tmp/pdfs/mock_form_final.pdf')
 
         expect(lighthouse_submission).to receive(:process_pdf).with(
           'tmp/pdfs/mock_form_final.pdf',
           saved_claim.created_at,
-          DependentsBenefits::ADD_REMOVE_DEPENDENT
+          DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL
         )
         expect(claims_evidence_uploader).to receive(:upload_evidence).with(
           saved_claim.id,
           file_path: 'file_path',
-          form_id: DependentsBenefits::ADD_REMOVE_DEPENDENT,
+          form_id: DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL,
           doctype: saved_claim.document_type
         )
         job.perform(saved_claim.id, proc_id)
@@ -62,7 +62,7 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
 
     context 'with invalid claim' do
       it 'raises error for invalid claim' do
-        allow_any_instance_of(DependentsBenefits::AddRemoveDependent)
+        allow_any_instance_of(DependentsBenefits::SchoolAttendanceApproval)
           .to receive(:valid?)
           .with(:run_686_form_jobs)
           .and_return(false)
