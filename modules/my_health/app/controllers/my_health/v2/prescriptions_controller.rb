@@ -251,8 +251,10 @@ module MyHealth
           remove_pf_pd(prescriptions)
         end
 
-        # Skip grouping for now to avoid performance issues with UHD prescriptions
-        # TODO: Implement efficient grouping for UHD prescriptions
+        # NOTE: Grouping is handled at the adapter level for VistA prescriptions
+        # (see vista_prescription_adapter.rb which parses RF records into grouped_medications).
+        # UHD prescriptions cannot be grouped here because they lack prescription numbers,
+        # which are required for matching related prescriptions and renewals.
       end
 
       def set_filter_metadata(list, non_modified_collection)
