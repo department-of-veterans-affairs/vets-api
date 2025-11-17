@@ -115,7 +115,7 @@ module DependentsBenefits
       parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     rescue => e
       monitor.track_processor_error('Failed to update ClaimGroup status', 'status_update',
-                                    parent_claim_id:, error: e.message, original_error: error.message)
+                                    parent_claim_id:, error: e.message)
     end
 
     def record_enqueue_completion(claim_id)
