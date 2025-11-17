@@ -20,6 +20,8 @@ module BenefitsDocuments
     DOCUMENTS_STATUS_PATH = "#{BASE_PATH}/uploads/status".freeze
     CLAIMS_LETTERS_SEARCH_PATH = "#{BASE_PATH}/claim-letters/search".freeze
     CLAIMS_LETTER_DOWNLOAD_PATH = "#{BASE_PATH}/claim-letters/download".freeze
+    PARTICIPANT_DOCUMENTS_SEARCH_PATH = "#{BASE_PATH}/participant/documents/search".freeze
+    PARTICIPANT_DOCUMENTS_DOWNLOAD_PATH = "#{BASE_PATH}/participant/documents/download".freeze
     DOCUMENT_VALIDATE_CLAIMANT_PATH = "#{DOCUMENTS_PATH}/validate/claimant".freeze
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
     QA_TESTING_DOMAIN = Settings.lighthouse.benefits_documents.host
@@ -203,6 +205,66 @@ module BenefitsDocuments
         }
       }
       connection.post(DOCUMENT_VALIDATE_CLAIMANT_PATH, body, headers)
+    end
+
+    # Returns a list of all VBMS document names related to participantId.
+    # @param participant_id: string A unique identifier assigned to each patient entry
+    # in the Master Patient Index linking patients to their records across VA systems.
+    # Example: 999012105
+    # @ param page_number: integer 1-based page number to retrieve. Defaults to 1.
+    # Example: 1
+    # @ param page_size: integer Number of results per page (1–100). Defaults to 100. Maximum 100.
+    # Example: 100
+    def participant_documents_search(participant_id:, page_number: 1, page_size: 100)
+      headers = { 'Authorization' => "Bearer #{
+        access_token(
+          nil,
+          nil,
+          {}
+        )
+      }" }
+
+      body = {
+        'data' => {
+          'participantId' => participant_id
+        },
+        'pagination' => {
+          pageNumber: page_number,
+          pageSize: page_size
+        }
+      }
+      connection.post(PARTICIPANT_DOCUMENTS_SEARCH_PATH, body, headers)
+    end
+
+    # Download the full content of a document (such as a PDF).
+    # The document must be identified by its unique ID, and associated with either a Participant ID or File Number.
+    # @param document_uuid: string The document's unique identifier in VBMS,
+    # obtained by making a Document Service API request to search for documents
+    # that are available to download for the Veteran.
+    # Note that this differs from the document's current version UUID.
+    # @param participant_id: string A unique identifier assigned to each patient entry
+    # in the Master Patient Index linking patients to their records across VA systems.
+    # Example: 999012105
+    # @param file_number: The Veteran's VBMS fileNumber used when uploading the document to VBMS.
+    # It indicates the eFolder in which the document resides.
+    # Example: 999012105
+    def participant_documents_download(document_uuid: nil, participant_id: nil, file_number: nil)
+      headers = { 'Authorization' => "Bearer #{
+        access_token(
+          nil,
+          nil,
+          {}
+        )
+      }", 'Accept' => 'application/octet-stream, application/json' }
+
+      body = {
+        'data' => {
+          'fileNumber' => file_number,
+          'participantId' => participant_id,
+          'documentUuid' => document_uuid
+        }
+      }
+      connection.post(PARTICIPANT_DOCUMENTS_DOWNLOAD_PATH, body, headers)
     end
 
     ##
