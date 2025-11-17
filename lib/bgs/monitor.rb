@@ -69,7 +69,7 @@ module BGS
     # @return [Hash] Updated context with appended tags
     def append_tags(context, **tags)
       context[:tags] ||= []
-      tags.each { |k, v| context[:tags] += ["#{k}:#{v}"] }
+      tags.each { |k, v| context[:tags] << "#{k}:#{v}" }
       context[:tags].uniq!
       context
     end
