@@ -12,7 +12,7 @@ module BGS
       @common_name = user.common_name
       @email = user.email
       @icn = user.icn
-    end
+    end 
 
     def payment_history(person)
       response = service.payment_information.retrieve_payment_summary_with_bdn(
@@ -29,7 +29,6 @@ module BGS
 
       response
     rescue => e
-      log_message_to_rails('BGS::PaymentService payment_history failed', :error, { icn: })
       log_exception_to_rails(e)
       empty_response if e.message.include?('No Data Found')
     end
