@@ -75,7 +75,7 @@ module Vets
       end
     end
 
-    def log_exception_to_rails(exception, level = 'error')
+    def log_exception_to_rails(exception, level = 'error') # rubocop:disable Metrics/MethodLength
       level = level.to_s.downcase
       level = normalize_shared_level(level, exception)
       level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
