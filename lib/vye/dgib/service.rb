@@ -39,6 +39,9 @@ module Vye
                              options)
           ClaimantLookupResponse.new(response.status, response)
         end
+      rescue => e
+        log_error(e, __method__)
+        raise e
       end
 
       def get_claimant_status(claimant_id)
@@ -48,6 +51,9 @@ module Vye
           raw_response = perform(:get, claimant_status_end_point(claimant_id), {}, headers, options)
           ClaimantStatusResponse.new(raw_response.status, raw_response)
         end
+      rescue => e
+        log_error(e, __method__)
+        raise e
       end
 
       # rubocop:disable Metrics/ParameterLists
@@ -76,6 +82,9 @@ module Vye
                              options)
           VerifyClaimantResponse.new(response.status, response)
         end
+      rescue => e
+        log_error(e, __method__)
+        raise e
       end
 
       def get_verification_record(claimant_id)
@@ -85,6 +94,9 @@ module Vye
           raw_response = perform(:get, verification_record_end_point(claimant_id), {}, headers, options)
           VerificationRecordResponse.new(raw_response.status, raw_response)
         end
+      rescue => e
+        log_error(e, __method__)
+        raise e
       end
 
       private
@@ -113,6 +125,11 @@ module Vye
         {
           Authorization: "Bearer #{AuthenticationTokenService.call}"
         }
+      end
+
+      def log_error(error, context)
+        Rails.logger.error("VYE/DGIB #{context} failed: #{error.message}",
+                           backtrace: error.backtrace)
       end
     end
   end
