@@ -8,11 +8,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
   let(:headers) { { 'Content-Type' => 'application/json' } }
 
   before do
-    Flipper.enable(:accredited_representative_portal_pilot)
     login_as(representative_user)
   end
-
-  after { Flipper.disable(:accredited_representative_portal_pilot) }
 
   describe 'requests' do
     context 'can make requests to InProgressForms controller' do

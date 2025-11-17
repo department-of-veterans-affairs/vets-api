@@ -8,7 +8,6 @@ module BGS
     class Invalid674Claim < StandardError; end
     FORM_ID = '686C-674'
     include Sidekiq::Job
-    include SentryLogging
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 

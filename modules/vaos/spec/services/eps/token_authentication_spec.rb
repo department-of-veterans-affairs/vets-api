@@ -82,6 +82,7 @@ RSpec.describe Eps::TokenAuthentication do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
     RequestStore.store['request_id'] = request_id
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
   end
 
   describe '#headers_with_correlation_id' do

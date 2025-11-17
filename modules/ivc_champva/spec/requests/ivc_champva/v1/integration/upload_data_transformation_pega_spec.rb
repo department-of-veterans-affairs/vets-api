@@ -46,6 +46,12 @@ RSpec.describe 'Transformation Pega', type: :request do
         fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json')
         data = JSON.parse(fixture_path.read)
 
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_send_ves_to_pega, @current_user)
+            .and_return(false)
+        end
+
         it 'submits the form and verifies the transformed data going to Pega/S3' do
           post '/ivc_champva/v1/forms', params: data
           expect(response).to have_http_status(:ok)

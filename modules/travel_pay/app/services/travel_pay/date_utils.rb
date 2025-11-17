@@ -30,5 +30,16 @@ module TravelPay
 
       { start_date: try_parse_date(start_date), end_date: try_parse_date(end_date) }
     end
+
+    # Similar to try_parse_datetime, but does not return
+    # a parsed time if valid.
+    # Arguments: datetime - expected to be a valid date time, but could be something invalid
+    # Returns:   true if parsing succeeds (implying valid date time) | false if parsing fails
+    def self.valid_datetime?(datetime)
+      DateTime.parse(datetime.to_s)
+      true
+    rescue ArgumentError, TypeError
+      false
+    end
   end
 end
