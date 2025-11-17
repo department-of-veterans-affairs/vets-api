@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module EmailVerification
-  # JWT generator for email verification tokens
   class JwtGenerator
-    VALIDITY_LENGTH = 30.minutes
+    TOKEN_VALIDITY_DURATION = 30.minutes
     ALGORITHM = 'HS256'
     ISSUER = 'vets-api-email-verification'
 
@@ -25,7 +24,7 @@ module EmailVerification
       {
         jti: SecureRandom.uuid,
         iat: Time.zone.now.to_i,
-        exp: (Time.zone.now + VALIDITY_LENGTH).to_i,
+        exp: (Time.zone.now + TOKEN_VALIDITY_DURATION).to_i,
         iss: ISSUER,
         uuid: @user.uuid,
         email: @user.email

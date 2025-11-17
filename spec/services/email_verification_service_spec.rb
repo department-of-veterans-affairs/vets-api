@@ -32,7 +32,7 @@ RSpec.describe EmailVerificationService do
       expect(header['typ']).to eq('JWT')
     end
 
-    it 'stores token in Redis with 24-hour expiration' do
+    it 'stores token in Redis with expiration' do
       initiate
       expect($redis.get(key)).not_to be_nil
     end
@@ -89,7 +89,11 @@ RSpec.describe EmailVerificationService do
       it 'logs a warning for invalid token' do
         expect(Rails.logger)
           .to receive(:warn)
-          .with(/Email verification failed: invalid token/)
+          .with("Email verification failed: invalid token for user #{user.uuid}", hash_including(
+                                                                                    user_uuid: user.uuid,
+                                                                                    token_provided: true,
+                                                                                    stored_token_exists: 1
+                                                                                  ))
         verify
       end
     end
@@ -105,7 +109,8 @@ RSpec.describe EmailVerificationService do
   describe 'error handling' do
     context 'when Redis fails' do
       it 'raises BackendServiceException when Redis fails' do
-        allow($redis).to receive(:set).and_raise(Redis::CannotConnectError)
+        redis_namespace = service.instance_variable_get(:@redis)
+        allow(redis_namespace).to receive(:set).and_raise(Redis::CannotConnectError)
         expect { service.initiate_verification }.to raise_error(Common::Exceptions::BackendServiceException)
       end
     end

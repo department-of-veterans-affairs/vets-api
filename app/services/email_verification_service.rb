@@ -3,7 +3,8 @@
 require 'email_verification/jwt_generator'
 
 class EmailVerificationService
-  REDIS_EXPIRATION = 30.minutes.to_i
+  TOKEN_VALIDITY_DURATION = EmailVerification::JwtGenerator::TOKEN_VALIDITY_DURATION
+  REDIS_EXPIRATION = (TOKEN_VALIDITY_DURATION + 10.minutes).to_i # revocation + cleanup + time skew buffer
 
   REDIS_NAMESPACE = 'email_verification'
 
@@ -28,13 +29,12 @@ class EmailVerificationService
 
     token
   rescue Redis::BaseError, Redis::CannotConnectError => e
+    log_redis_error('Redis error during email verification initiation', e)
     raise Common::Exceptions::BackendServiceException.new(
       'VA900',
       {
         detail: "Redis error during email verification: #{e.class} - #{e.message}",
-        operation: 'initiate_verification',
-        user_uuid: @user&.uuid,
-        backtrace: e.backtrace&.take(10)
+        source: 'EmailVerificationService#initiate_verification'
       }
     )
   end
@@ -46,7 +46,7 @@ class EmailVerificationService
       send_verification_success_email
       true
     else
-      Rails.logger.warn("Email verification failed: invalid token for user #{@user.uuid}")
+      log_invalid_token_attempt(token)
       false
     end
   rescue Redis::BaseError, Redis::CannotConnectError => e
@@ -55,9 +55,7 @@ class EmailVerificationService
       'VA900',
       {
         detail: "Redis error during email verification: #{e.class} - #{e.message}",
-        operation: 'verify_email',
-        user_uuid: @user&.uuid,
-        backtrace: e.backtrace&.take(10)
+        source: 'EmailVerificationService#verify_email!'
       }
     )
   end
@@ -90,6 +88,14 @@ class EmailVerificationService
       user_uuid: @user&.uuid
     }
     Rails.logger.error(message, error_data)
+  end
+
+  def log_invalid_token_attempt(attempted_token)
+    Rails.logger.warn("Email verification failed: invalid token for user #{@user.uuid}", {
+                        user_uuid: @user.uuid,
+                        token_provided: attempted_token.present?,
+                        stored_token_exists: @redis.exists(redis_key)
+                      })
   end
 
   def send_verification_success_email
