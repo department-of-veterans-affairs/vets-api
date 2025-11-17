@@ -15,6 +15,17 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
     Flipper.disable(:disability_compensation_production_tester)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
+
+    # Mock PDF validation to avoid actual PDF validation during tests
+    validator = instance_double(PDFUtilities::PDFValidator::Validator)
+    result    = instance_double(PDFUtilities::PDFValidator::ValidationResult, valid_pdf?: true, errors: [])
+    allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(validator)
+    allow(validator).to receive(:validate).and_return(result)
+
+    # Mock remote Benefits Intake validate_document to always succeed
+    success_resp = double('response', success?: true, body: '{}', status: 200)
+    allow_any_instance_of(BenefitsIntakeService::Service)
+      .to receive(:validate_document).and_return(success_resp)
   end
 
   context 'with an exhausted callback message' do
