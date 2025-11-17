@@ -1,5 +1,5 @@
 # Runs when PR reviews are submitted or PR is updated
-name: Require backend-review-group approval
+name: Backend Approval
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]

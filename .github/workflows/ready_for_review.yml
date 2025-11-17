@@ -1,5 +1,5 @@
 # Add/remove ready-for-review label based on CI status and approval status
-name: Pull Request Ready for Review
+name: Ready for Review
 on:
   pull_request:
     types: [ready_for_review, converted_to_draft]
@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get PR data
-        id: pr_data
+        id: pr_details
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
