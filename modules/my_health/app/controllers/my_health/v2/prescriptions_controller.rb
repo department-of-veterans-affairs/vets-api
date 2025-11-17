@@ -255,18 +255,15 @@ module MyHealth
       def resource_data_modifications(prescriptions)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, @current_user)
 
-        if params[:filter].blank? && display_pending_meds
-          prescriptions.reject do |item|
-            item.respond_to?(:prescription_source) && item.prescription_source == 'PF'
-          end
-        else
-          remove_pf_pd(prescriptions)
-        end
+        prescriptions = if params[:filter].blank? && display_pending_meds
+                          prescriptions.reject do |item|
+                            item.respond_to?(:prescription_source) && item.prescription_source == 'PF'
+                          end
+                        else
+                          remove_pf_pd(prescriptions)
+                        end
 
-        # NOTE: Grouping is handled at the adapter level for VistA prescriptions
-        # (see vista_prescription_adapter.rb which parses RF records into grouped_medications).
-        # UHD prescriptions cannot be grouped here because they lack prescription numbers,
-        # which are required for matching related prescriptions and renewals.
+        group_prescriptions(prescriptions)
       end
 
       def set_filter_metadata(list, non_modified_collection)

@@ -6,28 +6,34 @@ module MyHealth
       prescriptions ||= []
       grouped_prescriptions = []
 
-      prescriptions.sort_by!(&:prescription_number)
+      # Separate prescriptions with missing prescription numbers
+      prescriptions_with_numbers, prescriptions_without_numbers = prescriptions.partition do |rx|
+        rx.respond_to?(:prescription_number) && !rx.prescription_number.nil? && !rx.prescription_number.to_s.strip.empty?
+      end
 
-      while prescriptions.any?
-        prescription = prescriptions[0]
+      prescriptions_with_numbers.sort_by!(&:prescription_number)
 
-        related_prescriptions = select_related_rxs(prescriptions, prescription)
+      while prescriptions_with_numbers.any?
+        prescription = prescriptions_with_numbers[0]
+
+        related_prescriptions = select_related_rxs(prescriptions_with_numbers, prescription)
 
         if related_prescriptions.length <= 1
-          add_solo_med_and_delete(grouped_prescriptions, prescriptions, prescription)
+          add_solo_med_and_delete(grouped_prescriptions, prescriptions_with_numbers, prescription)
           next
         end
 
         base_prescription, related_prescriptions = find_base_prescription(related_prescriptions, prescription)
         related_prescriptions = sort_related_prescriptions(related_prescriptions)
         initialize_grouped_medications(base_prescription)
-        add_group_meds_and_delete(related_prescriptions, base_prescription, prescriptions)
+        add_group_meds_and_delete(related_prescriptions, base_prescription, prescriptions_with_numbers)
 
         grouped_prescriptions << base_prescription
-        prescriptions.delete(base_prescription)
+        prescriptions_with_numbers.delete(base_prescription)
       end
 
-      grouped_prescriptions
+      # Add prescriptions without prescription numbers at the end
+      grouped_prescriptions + prescriptions_without_numbers
     end
 
     def get_single_rx_from_grouped_list(prescriptions, id)
@@ -41,23 +47,29 @@ module MyHealth
       prescriptions = prescriptions.dup
       count = 0
 
-      prescriptions.sort_by!(&:prescription_number)
+      # Separate prescriptions with missing prescription numbers
+      prescriptions_with_numbers, prescriptions_without_numbers = prescriptions.partition do |rx|
+        rx.respond_to?(:prescription_number) && !rx.prescription_number.nil? && !rx.prescription_number.to_s.strip.empty?
+      end
 
-      while prescriptions.any?
-        prescription = prescriptions[0]
-        related = select_related_rxs(prescriptions, prescription)
+      prescriptions_with_numbers.sort_by!(&:prescription_number)
+
+      while prescriptions_with_numbers.any?
+        prescription = prescriptions_with_numbers[0]
+        related = select_related_rxs(prescriptions_with_numbers, prescription)
 
         if related.length <= 1
           count += 1
-          prescriptions.delete(prescription)
+          prescriptions_with_numbers.delete(prescription)
           next
         end
 
         count += 1
-        related.each { |rx| prescriptions.delete(rx) }
+        related.each { |rx| prescriptions_with_numbers.delete(rx) }
       end
 
-      count
+      # Add count for prescriptions without prescription numbers
+      count + prescriptions_without_numbers.length
     end
 
     private
@@ -79,7 +91,11 @@ module MyHealth
     end
 
     def select_related_rxs(prescriptions, prescription)
+      return [] unless prescription.respond_to?(:prescription_number) && prescription.prescription_number
+
       prescriptions.select do |p|
+        next false unless p.respond_to?(:prescription_number) && p.prescription_number
+
         base_prescription = prescription.prescription_number.sub(/[A-Z]$/, '')
         current_prescription_number = p.prescription_number.sub(/[A-Z]$/, '')
         current_prescription_number == base_prescription && p.station_number == prescription.station_number

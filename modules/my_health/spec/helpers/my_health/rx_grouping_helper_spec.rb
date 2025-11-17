@@ -387,4 +387,307 @@ RSpec.describe MyHealth::RxGroupingHelper do
       expect(result.first.grouped_medications.length).to eq(2)
     end
   end
+
+  describe 'handling prescriptions with missing prescription_number' do
+    let(:prescription_no_number) do
+      build(:prescription_details,
+            prescription_id: 100,
+            prescription_number: nil,
+            prescription_name: 'Non-VA Med',
+            station_number: '989')
+    end
+
+    let(:prescription_empty_number) do
+      build(:prescription_details,
+            prescription_id: 101,
+            prescription_number: '',
+            prescription_name: 'Non-VA Med 2',
+            station_number: '989')
+    end
+
+    let(:prescription_whitespace_number) do
+      build(:prescription_details,
+            prescription_id: 102,
+            prescription_number: '   ',
+            prescription_name: 'Non-VA Med 3',
+            station_number: '989')
+    end
+
+    context 'with nil prescription_number' do
+      it 'includes prescription at the end without grouping' do
+        prescriptions = [prescription1, prescription_no_number, prescription4]
+        result = helper.group_prescriptions(prescriptions)
+
+        expect(result.length).to eq(3)
+        expect(result.last.prescription_id).to eq(100)
+        expect(result.last.grouped_medications).to be_nil
+      end
+    end
+
+    context 'with empty string prescription_number' do
+      it 'includes prescription at the end without grouping' do
+        prescriptions = [prescription1, prescription_empty_number, prescription4]
+        result = helper.group_prescriptions(prescriptions)
+
+        expect(result.length).to eq(3)
+        expect(result.last.prescription_id).to eq(101)
+      end
+    end
+
+    context 'with whitespace-only prescription_number' do
+      it 'includes prescription at the end without grouping' do
+        prescriptions = [prescription1, prescription_whitespace_number]
+        result = helper.group_prescriptions(prescriptions)
+
+        expect(result.length).to eq(2)
+        expect(result.last.prescription_id).to eq(102)
+      end
+    end
+
+    context 'with multiple prescriptions without numbers' do
+      it 'includes all at the end in original order' do
+        prescriptions = [prescription1, prescription_no_number, prescription4, prescription_empty_number]
+        result = helper.group_prescriptions(prescriptions)
+
+        expect(result.length).to eq(4)
+        # Last two should be the ones without numbers
+        expect(result[-2].prescription_id).to eq(100)
+        expect(result[-1].prescription_id).to eq(101)
+      end
+    end
+
+    context 'with only prescriptions without numbers' do
+      it 'returns all prescriptions ungrouped' do
+        prescriptions = [prescription_no_number, prescription_empty_number, prescription_whitespace_number]
+        result = helper.group_prescriptions(prescriptions)
+
+        expect(result.length).to eq(3)
+        expect(result.map(&:prescription_id)).to contain_exactly(100, 101, 102)
+      end
+    end
+
+    context 'when counting prescriptions with missing numbers' do
+      it 'counts each missing number prescription individually' do
+        prescriptions = [prescription1, prescription2, prescription_no_number, prescription_empty_number]
+        result = helper.count_grouped_prescriptions(prescriptions)
+
+        # prescription1 + prescription2 would group = 1
+        # prescription_no_number = 1
+        # prescription_empty_number = 1
+        expect(result).to eq(3)
+      end
+    end
+
+    context 'when mixed with grouped prescriptions' do
+      it 'places prescriptions without numbers at the end' do
+        prescriptions = [prescription_no_number, prescription1, prescription2, prescription3, prescription_empty_number]
+        result = helper.group_prescriptions(prescriptions)
+
+        expect(result.length).to eq(3)
+        # First should be the grouped prescription (1, 2, 3)
+        expect(result.first.prescription_id).to eq(3)
+        expect(result.first.grouped_medications.length).to eq(2)
+        # Last two should be the ones without numbers
+        expect(result[-2].prescription_id).to eq(100)
+        expect(result[-1].prescription_id).to eq(101)
+      end
+    end
+  end
+
+  describe 'handling prescriptions without respond_to?(:prescription_number)' do
+    let(:prescription_no_method) do
+      double('Prescription',
+             prescription_id: 200,
+             prescription_name: 'Legacy Med',
+             station_number: '989')
+    end
+
+    it 'handles prescriptions that do not respond to prescription_number' do
+      prescriptions = [prescription1, prescription_no_method]
+      result = helper.group_prescriptions(prescriptions)
+
+      expect(result.length).to eq(2)
+      expect(result.last).to eq(prescription_no_method)
+    end
+  end
+
+  describe 'complex suffix patterns' do
+    context 'with multiple letter suffixes' do
+      let(:prescription_aa) do
+        build(:prescription_details,
+              prescription_id: 300,
+              prescription_number: '5555555AA',
+              station_number: '989')
+      end
+
+      let(:prescription_ab) do
+        build(:prescription_details,
+              prescription_id: 301,
+              prescription_number: '5555555AB',
+              station_number: '989')
+      end
+
+      let(:prescription_base) do
+        build(:prescription_details,
+              prescription_id: 302,
+              prescription_number: '5555555',
+              station_number: '989')
+      end
+
+      it 'does not group multi-letter suffixes as they use single-letter pattern' do
+        # Note: The helper uses /[A-Z]$/ which only matches single trailing letter
+        # So '5555555AA' and '5555555AB' are NOT grouped with '5555555'
+        # because the base extraction removes only the last 'A' or 'B', leaving '5555555A'
+        prescriptions = [prescription_base, prescription_aa, prescription_ab]
+        result = helper.group_prescriptions(prescriptions)
+
+        # These will not group because:
+        # - '5555555AA'.sub(/[A-Z]$/, '') = '5555555A'
+        # - '5555555AB'.sub(/[A-Z]$/, '') = '5555555A'
+        # - '5555555'.sub(/[A-Z]$/, '') = '5555555'
+        # The base '5555555' doesn't match '5555555A'
+        expect(result.length).to eq(2) # AA and AB will group together, base stays separate
+        
+        # Find the group with AA/AB
+        aa_ab_group = result.find { |rx| rx.prescription_id == 301 }
+        expect(aa_ab_group).not_to be_nil
+        expect(aa_ab_group.grouped_medications.length).to eq(1)
+        expect(aa_ab_group.grouped_medications.first.prescription_id).to eq(300)
+      end
+    end
+
+    context 'with same suffix but different base numbers' do
+      let(:prescription_1a) do
+        build(:prescription_details,
+              prescription_id: 400,
+              prescription_number: '1111111A',
+              station_number: '989')
+      end
+
+      let(:prescription_2a) do
+        build(:prescription_details,
+              prescription_id: 401,
+              prescription_number: '2222222A',
+              station_number: '989')
+      end
+
+      it 'does not group prescriptions with different base numbers' do
+        prescriptions = [prescription_1a, prescription_2a]
+        result = helper.group_prescriptions(prescriptions)
+
+        expect(result.length).to eq(2)
+        result.each do |rx|
+          expect(rx.grouped_medications).to be_nil
+        end
+      end
+    end
+  end
+
+  describe 'station number filtering' do
+    let(:prescription_station_a) do
+      build(:prescription_details,
+            prescription_id: 500,
+            prescription_number: '7777777',
+            station_number: '989')
+    end
+
+    let(:prescription_station_a_refill) do
+      build(:prescription_details,
+            prescription_id: 501,
+            prescription_number: '7777777A',
+            station_number: '989')
+    end
+
+    let(:prescription_station_b) do
+      build(:prescription_details,
+            prescription_id: 502,
+            prescription_number: '7777777',
+            station_number: '123')
+    end
+
+    let(:prescription_station_b_refill) do
+      build(:prescription_details,
+            prescription_id: 503,
+            prescription_number: '7777777A',
+            station_number: '123')
+    end
+
+    it 'groups prescriptions only within the same station' do
+      prescriptions = [prescription_station_a, prescription_station_a_refill,
+                       prescription_station_b, prescription_station_b_refill]
+      result = helper.group_prescriptions(prescriptions)
+
+      expect(result.length).to eq(2)
+
+      # Each station should have its own group
+      station_a_group = result.find { |rx| rx.prescription_id == 501 }
+      expect(station_a_group).not_to be_nil
+      expect(station_a_group.grouped_medications.length).to eq(1)
+      expect(station_a_group.grouped_medications.first.prescription_id).to eq(500)
+
+      station_b_group = result.find { |rx| rx.prescription_id == 503 }
+      expect(station_b_group).not_to be_nil
+      expect(station_b_group.grouped_medications.length).to eq(1)
+      expect(station_b_group.grouped_medications.first.prescription_id).to eq(502)
+    end
+  end
+
+  describe 'sorting within grouped medications' do
+    let(:prescription_c) do
+      build(:prescription_details,
+            prescription_id: 600,
+            prescription_number: '8888888C',
+            station_number: '989')
+    end
+
+    let(:prescription_b) do
+      build(:prescription_details,
+            prescription_id: 601,
+            prescription_number: '8888888B',
+            station_number: '989')
+    end
+
+    let(:prescription_a) do
+      build(:prescription_details,
+            prescription_id: 602,
+            prescription_number: '8888888A',
+            station_number: '989')
+    end
+
+    let(:prescription_base) do
+      build(:prescription_details,
+            prescription_id: 603,
+            prescription_number: '8888888',
+            station_number: '989')
+    end
+
+    it 'sorts grouped_medications in descending suffix order (B, A, base)' do
+      prescriptions = [prescription_base, prescription_a, prescription_b, prescription_c]
+      result = helper.group_prescriptions(prescriptions)
+
+      expect(result.length).to eq(1)
+      grouped_meds = result.first.grouped_medications
+
+      expect(grouped_meds[0].prescription_number).to eq('8888888B')
+      expect(grouped_meds[1].prescription_number).to eq('8888888A')
+      expect(grouped_meds[2].prescription_number).to eq('8888888')
+    end
+  end
+
+  describe 'get_single_rx_from_grouped_list with missing numbers' do
+    let(:prescription_no_number) do
+      build(:prescription_details,
+            prescription_id: 700,
+            prescription_number: nil,
+            prescription_name: 'Non-VA Med')
+    end
+
+    it 'can find prescriptions without prescription numbers' do
+      prescriptions = [prescription1, prescription_no_number]
+      result = helper.get_single_rx_from_grouped_list(prescriptions, 700)
+
+      expect(result).not_to be_nil
+      expect(result.prescription_id).to eq(700)
+    end
+  end
 end
