@@ -92,12 +92,6 @@ jobs:
           while IFS= read -r file || [ -n "$file" ]; do
             if [ -z "$file" ]; then continue; fi
 
-            # Skip files under .github/
-            if [[ "$file" == .github/* ]]; then
-              echo "Skipping file under .github/: $file"
-              continue
-            fi
-
             echo "Checking: $file"
 
             # Directly parse CODEOWNERS
