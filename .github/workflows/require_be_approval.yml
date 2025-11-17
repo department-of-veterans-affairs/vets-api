@@ -238,6 +238,8 @@ jobs:
           if [[ "${EXEMPT}" == "true" ]]; then
             gh pr edit ${PR_NUMBER} --add-label "exempt-be-review" || true
             gh pr edit ${PR_NUMBER} --remove-label "require-backend-approval" || true
+          else 
+            gh pr edit ${PR_NUMBER} --remove-label "exempt-be-review" || true
           fi
 
           # Add/remove require-backend-approval label
