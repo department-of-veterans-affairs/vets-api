@@ -869,7 +869,6 @@ maintenance:
     travel_pay: ~
     vaos: ~
     vaosWarning: ~
-    vaoswarning: ~
     vapro_contact_info: ~
     vapro_health_care_contacts: ~
     vapro_military_info: ~
@@ -880,6 +879,7 @@ maintenance:
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
     vre: ~
+    vre_ch31_eligibility: ~
 mcp:
   notifications:
     batch_size: 100
