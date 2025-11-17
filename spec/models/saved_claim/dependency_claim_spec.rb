@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents/error_classes'
 
 RSpec.describe SavedClaim::DependencyClaim do
   subject { create(:dependency_claim) }
@@ -53,81 +54,14 @@ RSpec.describe SavedClaim::DependencyClaim do
     allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
   end
 
-  describe '#upload_pdf' do
-    context 'when :va_dependents_v2 is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+  context 'when there is an error with PdfFill::Filler' do
+    let(:error) { StandardError.new('PDF Fill Error') }
 
-        datestamp_pdf_double = instance_double(PDFUtilities::DatestampPdf)
-        allow(PDFUtilities::DatestampPdf).to receive(:new)
-          .with(file_path)
-          .and_return(datestamp_pdf_double)
+    before { allow(PdfFill::Filler).to receive(:fill_form).and_raise(error) }
 
-        allow(datestamp_pdf_double).to receive(:run).and_return(datestamp_pdf_double)
-        allow(File).to receive(:rename).and_return(file_path)
-      end
-
-      it 'uploads to vbms' do
-        uploader = double(ClaimsApi::VBMSUploader)
-        expect(ClaimsApi::VBMSUploader).to receive(:new).with(
-          filepath: file_path,
-          file_number: va_file_number,
-          doc_type:
-        ).and_return(uploader)
-        expect(uploader).to receive(:upload!)
-        subject.upload_pdf('686C-674')
-      end
-
-      context 'when uploading to vbms fails' do
-        before { allow(ClaimsApi::VBMSUploader).to receive(:new).and_raise(StandardError) }
-
-        it 'raises a StandardError and tracks the error when VBMS upload fails' do
-          expect(subject.monitor).to receive(:track_pdf_upload_error)
-          expect { subject.upload_pdf('686C-674') }.to raise_error(StandardError, 'VBMS Upload Error')
-        end
-      end
-
-      context 'when there is an error with PdfFill::Filler' do
-        let(:error) { StandardError.new('PDF Fill Error') }
-
-        before { allow(PdfFill::Filler).to receive(:fill_form).and_raise(error) }
-
-        it 'raises a StandardError and tracks the error when PdfFill::Filler fails' do
-          expect(subject.monitor).to receive(:track_to_pdf_failure).with(error, '686C-674')
-          expect { subject.upload_pdf('686C-674') }.to raise_error(error)
-        end
-      end
-    end
-
-    context 'uploader v2' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-        allow(subject_v2).to receive(:process_pdf).and_return(file_path_v2)
-      end
-
-      it 'when :va_dependents_v2 is enabled' do
-        uploader = double(ClaimsApi::VBMSUploader)
-        expect(ClaimsApi::VBMSUploader).to receive(:new).with(
-          filepath: file_path_v2,
-          file_number: va_file_number_v2,
-          doc_type:
-        ).and_return(uploader)
-        expect(uploader).to receive(:upload!)
-
-        subject_v2.upload_pdf('686C-674-V2')
-      end
-
-      it 'when :va_dependents_v2 is enabled upload 674' do
-        uploader = double(ClaimsApi::VBMSUploader)
-        expect(ClaimsApi::VBMSUploader).to receive(:new).with(
-          filepath: file_path_v2,
-          file_number: va_file_number_v2,
-          doc_type:
-        ).and_return(uploader)
-        expect(uploader).to receive(:upload!)
-
-        subject_v2.upload_pdf('21-674-V2')
-      end
+    it 'raises a StandardError and tracks the error when PdfFill::Filler fails' do
+      expect(subject.monitor).to receive(:track_to_pdf_failure).with(error, '686C-674')
+      expect { subject.to_pdf(form_id: '686C-674') }.to raise_error(error)
     end
   end
 
@@ -713,6 +647,21 @@ RSpec.describe SavedClaim::DependencyClaim do
       it 'tracks the error' do
         expect(subject.monitor).to receive(:track_send_received_email_failure).with(standard_error, nil)
         subject.send_received_email(nil)
+      end
+    end
+
+    context 'when veteran_information is missing' do
+      let(:no_veteran_claim) { create(:dependency_claim_no_vet_information) }
+
+      before do
+        allow(PdfFill::Filler).to receive(:fill_form).and_call_original
+
+        subject_v2.parsed_form.delete('veteran_information')
+        subject_v2.parsed_form['dependents_application'].delete('veteran_information')
+      end
+
+      it 'raises an error in the PDF filler' do
+        expect { no_veteran_claim.to_pdf(form_id: '686C-674-V2') }.to raise_error(Dependents::ErrorClasses::MissingVeteranInfoError)
       end
     end
   end

@@ -72,10 +72,10 @@ RSpec.describe VAProfile::Models::Email do
 
     let(:id) { 42 }
     let(:source_system_user)   { 'some-system-user' }
-    let(:source_date)          { Time.utc(2024, 1, 2, 3, 4, 5).iso8601(3) }
+    let(:source_date)          { Time.utc(2024, 3, 4, 5, 6, 7).iso8601(3) }
     let(:effective_start_date) { Time.utc(2024, 2, 3, 4, 5, 6).iso8601(3) }
     let(:effective_end_date)   { nil }
-    let(:confirmation_date)    { Time.utc(2024, 3, 4, 5, 6, 7).iso8601(3) }
+    let(:confirmation_date)    { Time.utc(2024, 1, 2, 3, 4, 5).iso8601(3) }
     let(:source_system)        { VAProfile::Models::Email::SOURCE_SYSTEM }
 
     let(:expected_json) do
@@ -95,6 +95,110 @@ RSpec.describe VAProfile::Models::Email do
 
     it 'serializes to the VAProfile request shape' do
       expect(email.in_json).to eq(expected_json)
+    end
+  end
+
+  describe 'confirmation_date correction' do
+    subject(:email) do
+      build(:email, email_address: 'test@example.com',
+                    confirmation_date:,
+                    source_date:)
+    end
+
+    let(:source_date_string) { '2024-01-01T12:00:00Z' }
+    let(:source_date) { source_date_string }
+
+    context 'when confirmation_date is after source_date' do
+      let(:confirmation_date_string) { '2024-01-01T13:00:00Z' }
+      let(:confirmation_date) { confirmation_date_string }
+
+      it 'corrects confirmation_date to match source_date' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
+      end
+    end
+
+    context 'when confirmation_date is before source_date' do
+      let(:confirmation_date_string) { '2024-01-01T11:00:00Z' }
+      let(:confirmation_date) { confirmation_date_string }
+
+      it 'leaves confirmation_date unchanged' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(Time.iso8601(confirmation_date_string))
+      end
+    end
+
+    context 'when confirmation_date equals source_date' do
+      let(:confirmation_date) { source_date_string }
+
+      it 'leaves confirmation_date unchanged' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
+      end
+    end
+
+    context 'when confirmation_date is nil' do
+      let(:confirmation_date) { nil }
+
+      it 'leaves confirmation_date as nil' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to be_nil
+      end
+    end
+
+    context 'when source_date is nil' do
+      let(:source_date) { nil }
+      let(:confirmation_date) { source_date_string }
+
+      it 'leaves confirmation_date unchanged' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
+      end
+    end
+
+    context 'when both confirmation_date and source_date are nil' do
+      let(:confirmation_date) { nil }
+      let(:source_date) { nil }
+
+      it 'leaves both as nil' do
+        expect(email.valid?).to be(true)
+        expect(email.confirmation_date).to be_nil
+        expect(email.source_date).to be_nil
+      end
+    end
+
+    context 'when source_date is set after confirmation_date (timing issue)' do
+      let(:later_confirmation_date_string) { '2024-01-01T14:00:00Z' }
+
+      it 'corrects confirmation_date when source_date is set later' do
+        email = build(:email, email_address: 'test@example.com')
+        # Simulate controller flow: confirmation_date string is set first during initialization
+        email.confirmation_date = later_confirmation_date_string
+        # Then source_date string is set by set_defaults (Time.zone.now.iso8601 returns a string)
+        email.source_date = source_date_string
+
+        expect(email.confirmation_date).to eq(Time.iso8601(source_date_string))
+      end
+    end
+
+    context 'when confirmation_date is not a valid ISO8601 string' do
+      it 'raises a TypeError' do
+        email = build(:email, email_address: 'test@example.com')
+
+        expect do
+          email.confirmation_date = 'invalid-date'
+        end.to raise_error(TypeError, 'confirmation_date is not iso8601')
+      end
+    end
+
+    context 'when source_date is not a valid ISO8601 string' do
+      it 'raises a TypeError' do
+        email = build(:email, email_address: 'test@example.com')
+
+        expect do
+          email.source_date = 'invalid-date'
+        end.to raise_error(TypeError, 'source_date is not iso8601')
+      end
     end
   end
 

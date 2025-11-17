@@ -5383,24 +5383,6 @@
             }
           },
           {
-            "description": "The page number requested",
-            "example": 1,
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "The number of records to return per page. Defaults to 100",
-            "example": 10,
-            "in": "query",
-            "name": "perPage",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
             "description": "Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.",
             "example": true,
             "in": "query",
@@ -13005,6 +12987,18 @@
                   "claimTypeCode": {
                     "type": "string",
                     "example": "020NEW"
+                  },
+                  "claimTypeBase": {
+                    "type": "string",
+                    "description": "Base type of claim",
+                    "example": "compensation claim",
+                    "nullable": true
+                  },
+                  "displayTitle": {
+                    "type": "string",
+                    "description": "Formatted title for display",
+                    "example": "Claim for compensation",
+                    "nullable": true
                   }
                 }
               }
@@ -14528,7 +14522,8 @@
               "displayTitle": {
                 "type": "string",
                 "description": "Formatted title for display in mobile overview list",
-                "example": "disability compensation appeal"
+                "example": "disability compensation appeal",
+                "nullable": true
               },
               "decisionLetterSent": {
                 "type": "boolean",
@@ -14558,6 +14553,12 @@
                 "description": "Type of claim",
                 "nullable": true,
                 "example": "020NEW"
+              },
+              "claimTypeBase": {
+                "type": "string",
+                "description": "Base type of claim",
+                "example": "compensation claim",
+                "nullable": true
               }
             }
           }
@@ -14715,7 +14716,8 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal"
+                      "example": "disability compensation appeal",
+                      "nullable": true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14746,6 +14748,12 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": null
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "example": "compensation claim",
+                      "nullable": true
                     }
                   }
                 }
@@ -14914,6 +14922,11 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": "020NEW"
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "nullable": true
                     }
                   }
                 }
@@ -22612,24 +22625,9 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "currentPage",
-                  "perPage",
-                  "totalPages",
                   "totalEntries"
                 ],
                 "properties": {
-                  "currentPage": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "perPage": {
-                    "type": "integer",
-                    "example": 10
-                  },
-                  "totalPages": {
-                    "type": "integer",
-                    "example": 2
-                  },
                   "totalEntries": {
                     "type": "integer",
                     "example": 15
