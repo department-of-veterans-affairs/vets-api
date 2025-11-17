@@ -4,7 +4,6 @@ require 'bgsv2/utilities/helpers'
 require_relative 'service'
 module BGSV2
   class BenefitClaim
-    include SentryLogging
     include BGSV2::Utilities::Helpers
 
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
