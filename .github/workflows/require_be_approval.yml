@@ -74,7 +74,7 @@ jobs:
       - name: Check file ownership
         id: file_ownership
         run: |
-          set +e  # Don't exit on errors, we'll handle them
+          set +e
           all_files_exempt=true
           CODEOWNERS_FILE=".github/CODEOWNERS"
 
@@ -90,61 +90,39 @@ jobs:
           echo "=== Analyzing file ownership ==="
 
           while IFS= read -r file || [ -n "$file" ]; do
-            # Skip empty lines
-            if [ -z "$file" ]; then
-              continue
-            fi
+            if [ -z "$file" ]; then continue; fi
 
             echo "Checking: $file"
 
-            # Build list of paths to check (file, then parent directories)
-            # We'll check from most specific to least specific
-            matching_line=""
-            current_path="$file"
+            # GitHub uses gitignore-style matching for CODEOWNERS
+            # git check-ignore -v prints:
+            # <source> <pattern> <file>
+            check_output=$(git check-ignore -v "$file" 2>/dev/null)
 
-            # Check up to 20 parent levels to prevent infinite loops
-            for i in {0..20}; do
-              # Escape special regex characters for grep
-              escaped_path=$(echo "$current_path" | sed 's/[.[\*^$]/\\&/g')
-
-              # Try to find a match in CODEOWNERS
-              match=$(grep -E "^${escaped_path}\s+" "$CODEOWNERS_FILE" 2>/dev/null | head -n 1 || true)
-
-              if [ -n "$match" ]; then
-                matching_line="$match"
-                echo "  Matched pattern: $current_path"
-                break
-              fi
-
-              # No match yet, try parent directory
-              if [[ "$current_path" == *"/"* ]]; then
-                # Remove last component and keep trailing slash
-                current_path="${current_path%/*}/"
-              else
-                # No more parents to check
-                break
-              fi
-            done
-
-            if [ -z "$matching_line" ]; then
+            if [ -z "$check_output" ]; then
               echo "  ❌ No CODEOWNERS entry found (requires backend approval)"
               all_files_exempt=false
               continue
             fi
 
-            echo "  Owner(s): $matching_line"
+            pattern=$(echo "$check_output" | awk '{print $2}')
+            echo "  Matched CODEOWNERS pattern: $pattern"
 
-            # Check if backend-review-group is an owner
-            if echo "$matching_line" | grep -q "@department-of-veterans-affairs/backend-review-group"; then
+            # Extract the actual owners from the matching pattern
+            owners=$(grep -E "^${pattern}[[:space:]]+" "$CODEOWNERS_FILE" | awk '{for (i=2;i<=NF;i++) print $i}')
+            echo "  Owners: $owners"
+
+            # If backend-review-group owns it → requires approval
+            if echo "$owners" | grep -q "@department-of-veterans-affairs/backend-review-group"; then
               echo "  ❌ Owned by backend-review-group (requires approval)"
               all_files_exempt=false
               continue
             fi
 
-            # Check if owned ONLY by exempt teams
+            # Check whether the file is owned *only* by exempt teams
             file_is_exempt=false
             for team in "${EXEMPT_TEAMS[@]}"; do
-              if echo "$matching_line" | grep -q "@department-of-veterans-affairs/${team}"; then
+              if echo "$owners" | grep -q "@department-of-veterans-affairs/${team}"; then
                 echo "  ✓ Owned by exempt team: ${team}"
                 file_is_exempt=true
                 break
@@ -163,7 +141,7 @@ jobs:
           if [[ "$all_files_exempt" == "true" ]]; then
             echo "✓ All changed files are owned exclusively by exempt teams"
           else
-            echo "✗ Some files require backend approval based on CODEOWNERS"
+            echo "✗ Some files require backend approval"
           fi
 
           echo "all_files_exempt=${all_files_exempt}" >> "$GITHUB_OUTPUT"
