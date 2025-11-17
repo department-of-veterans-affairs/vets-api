@@ -11,7 +11,7 @@ RSpec.describe 'V0::MedicalCopays', type: :request do
 
   describe 'index' do
     it 'returns a formatted hash response' do
-      VCR.use_cassette('lighthouse/hccc/invoice_list_success') do
+      VCR.use_cassette('lighthouse/hcc/invoice_list_success') do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
         get '/v1/medical_copays'
 
@@ -23,7 +23,7 @@ RSpec.describe 'V0::MedicalCopays', type: :request do
             url
             facility
             externalId
-            billingRef
+            latestBillingRef
             currentBalance
             previousBalance
             previousUnpaidBalance
@@ -33,7 +33,7 @@ RSpec.describe 'V0::MedicalCopays', type: :request do
     end
 
     it 'handles auth error' do
-      VCR.use_cassette('lighthouse/hccc/auth_error') do
+      VCR.use_cassette('lighthouse/hcc/auth_error') do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
         get '/v1/medical_copays'
 
@@ -45,7 +45,7 @@ RSpec.describe 'V0::MedicalCopays', type: :request do
     end
 
     it 'handles no records returned' do
-      VCR.use_cassette('lighthouse/hccc/no_records') do
+      VCR.use_cassette('lighthouse/hcc/no_records') do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
         get '/v1/medical_copays'
 
