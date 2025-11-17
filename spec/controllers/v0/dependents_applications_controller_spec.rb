@@ -49,7 +49,6 @@ RSpec.describe V0::DependentsApplicationsController do
   describe 'POST create' do
     context 'with valid params v1' do
       before do
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:confirmation_number).and_return('')
@@ -86,7 +85,6 @@ RSpec.describe V0::DependentsApplicationsController do
 
     context 'with valid params v2' do
       before do
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
@@ -110,7 +108,6 @@ RSpec.describe V0::DependentsApplicationsController do
 
     context 'with v1 submitting with a v2 user' do
       before do
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)

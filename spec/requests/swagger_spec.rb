@@ -2439,22 +2439,28 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe '1095-B' do
-      let(:user) { build(:user, :loa3, icn: '3456787654324567') }
+      let(:user) { build(:user, :loa3, icn: '1012667145V762142') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
       let(:bad_headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
       before do
-        create(:form1095_b, tax_year: Form1095B.current_tax_year)
+        allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
+        Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z'))
       end
+
+      after { Timecop.return }
 
       context 'available forms' do
         it 'supports getting available forms' do
-          expect(subject).to validate(
-            :get,
-            '/v0/form1095_bs/available_forms',
-            200,
-            headers
-          )
+          VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
+                           { match_requests_on: %i[method uri] }) do
+            expect(subject).to validate(
+              :get,
+              '/v0/form1095_bs/available_forms',
+              200,
+              headers
+            )
+          end
         end
 
         it 'requires authorization' do

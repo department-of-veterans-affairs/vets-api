@@ -649,6 +649,10 @@ features:
     actor_type: user
     description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
     enable_in_development: true
+  decision_review_delete_secondary_appeal_forms_enabled:
+    actor_type: user
+    description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
+    enable_in_development: true
   decision_review_failure_notification_email_job_enabled:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
@@ -1535,10 +1539,6 @@ features:
     actor_type: user
     description: Enables/disables allergies and reactions data
     enable_in_development: true
-  mhv_medications_display_filter:
-    actor_type: user
-    description: Enables/disables filter feature for medications list
-    enable_in_development: true
   mhv_medications_cerner_pilot:
     actor_type: user
     description: Enables/disables Medications Cerner Transition Pilot environment on VA.gov and VHAB
@@ -2361,6 +2361,28 @@ features:
     actor_type: user
     description: Enable the new overflow design
     enable_in_development: true
+  employment_questionnaires_form_enabled:
+    enable_in_development: true
+    actor_type: user
+    description: Enable form 21-4140 EMPLOYMENT QUESTIONNAIRE
+  employment_questionnaires_browser_monitoring_enabled:
+    actor_type: user
+    description: Employment Questionnaire form Datadog RUM monitoring
+  employment_questionnaires_content_updates:
+    actor_type: user
+    description: Implement plain language and content updates
+  employment_questionnaires_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  employment_questionnaires_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  employment_questionnaires_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  employment_questionnaires_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
