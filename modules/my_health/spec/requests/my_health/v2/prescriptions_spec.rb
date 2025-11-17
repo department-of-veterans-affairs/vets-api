@@ -682,26 +682,24 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       end
 
       it 'returns empty array when no refillable prescriptions exist' do
-        VCR.use_cassette('unified_health_data/get_prescriptions_no_refillable', match_requests_on: %i[method path]) do
-          # Mock the service to return prescriptions that aren't refillable
-          service_double = instance_double(UnifiedHealthData::Service)
-          allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+        # Mock the service to return prescriptions that aren't refillable
+        service_double = instance_double(UnifiedHealthData::Service)
+        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
 
-          # Return prescriptions that don't meet refillable criteria
-          non_refillable_rx = double(
-            'Prescription',
-            is_refillable: false,
-            respond_to?: false
-          )
-          allow(service_double).to receive(:get_prescriptions).and_return([non_refillable_rx])
+        # Return prescriptions that don't meet refillable criteria
+        non_refillable_rx = double(
+          'Prescription',
+          is_refillable: false,
+          respond_to?: false
+        )
+        allow(service_double).to receive(:get_prescriptions).and_return([non_refillable_rx])
 
-          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+        get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
-          json_response = JSON.parse(response.body)
-          expect(response).to have_http_status(:success)
-          expect(json_response['data']).to eq([])
-          expect(json_response['meta']).to have_key('recently_requested')
-        end
+        json_response = JSON.parse(response.body)
+        expect(response).to have_http_status(:success)
+        expect(json_response['data']).to eq([])
+        expect(json_response['meta']).to have_key('recently_requested')
       end
 
       it 'includes expected prescription attributes' do
