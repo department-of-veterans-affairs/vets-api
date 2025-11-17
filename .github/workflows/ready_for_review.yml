@@ -2,14 +2,9 @@
 name: Ready for Review
 on:
   pull_request:
-    types: [ready_for_review, converted_to_draft]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
   pull_request_review:
     types: [submitted, dismissed]
-  workflow_run:
-    workflows: ["Code Checks"]
-    types: [completed]
-    branches-ignore:
-      - master
 
 permissions:
   contents: read
