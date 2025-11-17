@@ -15,14 +15,15 @@ module RepresentationManagement
         search = RepresentationManagement::AccreditedIndividualSearch.new(search_params)
 
         if search.valid?
-          model_class = determine_model_class
-          data = individual_query
-
           # Wrap Veteran::Service::Representative records in adapter if needed
           if use_veteran_model?
-            data = data.map do |record|
+            data = individual_query.map do |record|
               RepresentationManagement::VeteranRepresentativeAdapter.new(record)
             end
+            model_class = RepresentationManagement::VeteranRepresentativeAdapter
+          else
+            data = individual_query
+            model_class = AccreditedIndividual
           end
 
           collection = Common::Collection.new(model_class, data:)

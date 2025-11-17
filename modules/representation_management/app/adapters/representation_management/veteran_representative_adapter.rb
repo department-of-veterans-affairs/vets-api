@@ -73,6 +73,11 @@ module RepresentationManagement
     def self.model_name
       AccreditedIndividual.model_name
     end
+
+    # Support pagination in Common::Collection
+    def self.max_per_page
+      AccreditedRepresentation::Constants::MAX_PER_PAGE
+    end
   end
 
   # Adapter for Veteran::Service::Organization to make it compatible with AccreditedOrganization serializer
