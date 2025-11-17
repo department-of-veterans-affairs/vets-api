@@ -43,7 +43,7 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
   def construct_agreement_type
     case parsed_form['agreementType']
     when 'newCommitment' then 'New commitment'
-    when 'withdrawal' then 'Withdrawl'
+    when 'withdrawal' then 'Withdrawal'
     else
       'Unknown'
     end
