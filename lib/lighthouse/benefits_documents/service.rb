@@ -77,9 +77,9 @@ module BenefitsDocuments
     # @param participant_id: string A unique identifier assigned to each patient entry
     # in the Master Patient Index linking patients to their records across VA systems.
     # Example: 999012105
-    # @ param page_number: integer 1-based page number to retrieve. Defaults to 1.
+    # @param page_number: integer 1-based page number to retrieve. Defaults to 1.
     # Example: 1
-    # @ param page_size: integer Number of results per page (1–100). Defaults to 100. Maximum 100.
+    # @param page_size: integer Number of results per page (1–100). Defaults to 100. Maximum 100.
     # Example: 100
     def participant_documents_search(participant_id:, page_number: 1, page_size: 100)
       config.participant_documents_search(participant_id:, page_number:, page_size:)
