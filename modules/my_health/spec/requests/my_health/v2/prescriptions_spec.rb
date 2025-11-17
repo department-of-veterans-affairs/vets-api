@@ -121,7 +121,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           expect(prescriptions).not_to be_empty
 
-          # Note: Currently, RF records are nested in rxRFRecords and not flattened into the main list,
+          # NOTE: Currently, RF records are nested in rxRFRecords and not flattened into the main list,
           # so the grouping helper doesn't find them to group. This will be addressed in future work
           # when the UHD service flattens refills or the controller pre-processes the data.
           # For now, verify the attribute exists even if empty.
@@ -182,10 +182,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
             json_response = JSON.parse(response.body)
 
-            # Note: The VCR cassette may not have PD prescriptions, but the logic should allow them
+            # NOTE: The VCR cassette may not have PD prescriptions, but the logic should allow them
             # Check that PD source prescriptions aren't filtered out if present
             # If no PD prescriptions exist in test data, that's acceptable - the code allows them
-            pd_prescriptions = json_response['data'].select do |rx|
+            json_response['data'].select do |rx|
               rx['attributes']['prescription_source'] == 'PD'
             end
 
@@ -290,7 +290,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # After grouping, verify that the sort parameter is accepted and prescriptions are returned
           # The sorting logic should handle grouped prescriptions correctly
           # Verify prescriptions are present (actual sort order verified by other tests)
-          expect(json_response['data'].length).to be > 0
+          expect(json_response['data'].length).to be.positive?
         end
       end
 

@@ -12,7 +12,7 @@ RSpec.describe MyHealth::RxGroupingHelper do
   let(:test_class) do
     Class.new do
       include MyHealth::RxGroupingHelper
-      
+
       # Make group_prescriptions public for testing
       public :group_prescriptions
     end
@@ -535,7 +535,7 @@ RSpec.describe MyHealth::RxGroupingHelper do
       end
 
       it 'does not group multi-letter suffixes as they use single-letter pattern' do
-        # Note: The helper uses /[A-Z]$/ which only matches single trailing letter
+        # NOTE: The helper uses /[A-Z]$/ which only matches single trailing letter
         # So '5555555AA' and '5555555AB' are NOT grouped with '5555555'
         # because the base extraction removes only the last 'A' or 'B', leaving '5555555A'
         prescriptions = [prescription_base, prescription_aa, prescription_ab]
@@ -547,7 +547,7 @@ RSpec.describe MyHealth::RxGroupingHelper do
         # - '5555555'.sub(/[A-Z]$/, '') = '5555555'
         # The base '5555555' doesn't match '5555555A'
         expect(result.length).to eq(2) # AA and AB will group together, base stays separate
-        
+
         # Find the group with AA/AB
         aa_ab_group = result.find { |rx| rx.prescription_id == 301 }
         expect(aa_ab_group).not_to be_nil
