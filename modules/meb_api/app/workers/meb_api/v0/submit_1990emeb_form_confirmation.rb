@@ -21,6 +21,8 @@ module MebApi
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
           }
         )
+      rescue => e
+        log_exception_to_rails(e)
       end
 
       private

@@ -862,7 +862,6 @@ maintenance:
     travel_pay: <%= ENV['maintenance__services__travel_pay'] %>
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
-    vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vapro_contact_info: <%= ENV['maintenance__services__vapro_contact_info'] %>
     vapro_health_care_contacts: <%= ENV['maintenance__services__vapro_health_care_contacts'] %>
     vapro_military_info: <%= ENV['maintenance__services__vapro_military_info'] %>
@@ -873,6 +872,7 @@ maintenance:
     vetext_vaccine: <%= ENV['maintenance__services__vetext_vaccine'] %>
     vic: <%= ENV['maintenance__services__vic'] %>
     vre: <%= ENV['maintenance__services__vre'] %>
+    vre_ch31_eligibility: <%= ENV['maintenance__services__vre_ch31_eligibility'] %>
 mcp:
   notifications:
     batch_size: 10

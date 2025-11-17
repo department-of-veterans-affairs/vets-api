@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_07_143043) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -38,6 +38,23 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_07_143043) do
     t.integer "veteran_service_organizations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "accreditation_data_ingestion_logs", force: :cascade do |t|
+    t.integer "dataset", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "agents_status", default: 0, null: false
+    t.integer "attorneys_status", default: 0, null: false
+    t.integer "representatives_status", default: 0, null: false
+    t.integer "veteran_service_organizations_status", default: 0, null: false
+    t.datetime "started_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "finished_at"
+    t.jsonb "metrics", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dataset", "started_at"], name: "index_accr_data_ing_logs_on_dataset_started_at"
+    t.index ["dataset", "status", "finished_at"], name: "index_accr_data_ing_logs_on_dataset_status_finished_at"
+    t.index ["status", "finished_at"], name: "index_accr_data_ing_logs_on_status_and_finished_at"
   end
 
   create_table "accreditations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
