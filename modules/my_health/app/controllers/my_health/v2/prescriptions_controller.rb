@@ -54,6 +54,17 @@ module MyHealth
         render json: response.serializable_hash
       end
 
+      def list_refillable_prescriptions
+        return unless validate_feature_flag
+
+        prescriptions = service.get_prescriptions(current_only: false).compact
+        recently_requested = get_recently_requested_prescriptions(prescriptions)
+        refillable_prescriptions = filter_data_by_refill_and_renew(prescriptions)
+
+        options = { meta: { recently_requested: } }
+        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(refillable_prescriptions, options)
+      end
+
       private
 
       def service

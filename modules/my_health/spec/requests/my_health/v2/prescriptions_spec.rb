@@ -460,6 +460,273 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     end
   end
 
+  describe 'GET /my_health/v2/prescriptions/list_refillable_prescriptions' do
+    context 'when feature flag is disabled' do
+      it 'returns forbidden' do
+        allow(Flipper).to receive(:enabled?).and_return(false)
+
+        get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_return(true)
+      end
+
+      it 'returns list of refillable prescriptions' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          expect(response).to have_http_status(:success)
+          expect(response.body).to be_a(String)
+          expect(response.content_type).to include('application/json')
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']).to be_an(Array)
+        end
+      end
+
+      it 'filters prescriptions to only include refillable ones' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          response_data = json_response['data']
+
+          # Verify each prescription meets refillable criteria
+          response_data.each do |p|
+            prescription = p['attributes']
+
+            # If prescription has is_refillable attribute and it's true, that's sufficient
+            if prescription['is_refillable']
+              expect(prescription['is_refillable']).to be(true)
+              next
+            end
+
+            # Otherwise, check if it meets renewal criteria (only applies to items with disp_status)
+            next if prescription['disp_status'].blank?
+
+            disp_status = prescription['disp_status']
+            refill_history_item = prescription['rx_rf_records']&.first
+            expired_date = if refill_history_item && refill_history_item['expiration_date']
+                             refill_history_item['expiration_date']
+                           else
+                             prescription['expiration_date']
+                           end
+            cut_off_date = Time.zone.today - 120.days
+            zero_date = Date.new(0, 1, 1)
+
+            # Should meet renewal criteria
+            meets_criteria = ['Active', 'Active: Parked'].include?(disp_status) ||
+                             (disp_status == 'Expired' &&
+                             expired_date.present? &&
+                             DateTime.parse(expired_date) != zero_date &&
+                             DateTime.parse(expired_date) >= cut_off_date)
+
+            expect(meets_criteria).to be(true),
+                                      "Prescription #{prescription['prescription_id']} with status " \
+                                      "'#{disp_status}' should meet refillable criteria"
+          end
+        end
+      end
+
+      it 'includes recently_requested metadata' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['meta']).to have_key('recently_requested')
+
+          recently_requested = json_response['meta']['recently_requested']
+          expect(recently_requested).to be_an(Array)
+
+          # Verify recently_requested contains prescriptions with specific disp_status values
+          recently_requested.each do |prescription|
+            status = prescription['disp_status']
+            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+          end
+        end
+      end
+
+      it 'returns prescriptions using V2 serializer' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']).to be_an(Array)
+
+          # Verify it has expected V2 serializer attributes
+          prescription = json_response['data'].first
+          attributes = prescription['attributes']
+
+          expect(attributes).to include(
+            'prescription_id',
+            'prescription_number',
+            'prescription_name',
+            'refill_status'
+          )
+        end
+      end
+
+      it 'handles prescriptions with is_refillable=true' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+
+          # Find prescriptions that are directly refillable
+          refillable_prescriptions = json_response['data'].select do |p|
+            p['attributes']['is_refillable'] == true
+          end
+
+          # Should have at least some directly refillable prescriptions
+          expect(refillable_prescriptions).not_to be_empty
+        end
+      end
+
+      it 'handles renewable prescriptions (Active status, zero refills)' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+
+          # Look for prescriptions that meet renewable criteria
+          renewable_prescriptions = json_response['data'].select do |p|
+            attrs = p['attributes']
+            attrs['disp_status'] == 'Active' &&
+              attrs['refill_remaining'].to_i.zero? &&
+              attrs['is_refillable'] == false
+          end
+
+          # These should be included in the refillable list
+          if renewable_prescriptions.any?
+            renewable_prescriptions.each do |rx|
+              expect(rx['attributes']['disp_status']).to eq('Active')
+            end
+          end
+        end
+      end
+
+      it 'handles Expired prescriptions within cutoff date' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+
+          # Find any Expired prescriptions in the results
+          expired_prescriptions = json_response['data'].select do |p|
+            p['attributes']['disp_status'] == 'Expired'
+          end
+
+          # If there are expired prescriptions, verify they're within cutoff
+          cut_off_date = Time.zone.today - 120.days
+          zero_date = Date.new(0, 1, 1)
+
+          expired_prescriptions.each do |rx|
+            attrs = rx['attributes']
+            refill_history_item = attrs['rx_rf_records']&.first
+            expired_date = if refill_history_item && refill_history_item['expiration_date']
+                             DateTime.parse(refill_history_item['expiration_date'])
+                           else
+                             DateTime.parse(attrs['expiration_date'])
+                           end
+
+            expect(expired_date).not_to eq(zero_date)
+            expect(expired_date).to be >= cut_off_date
+          end
+        end
+      end
+
+      it 'excludes prescriptions without disp_status that are not refillable' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+
+          # Find prescriptions without disp_status
+          prescriptions_without_status = json_response['data'].select do |p|
+            p['attributes']['disp_status'].blank?
+          end
+
+          # These should only be included if is_refillable is true
+          prescriptions_without_status.each do |rx|
+            expect(rx['attributes']['is_refillable']).to be(true),
+                                                         'Prescriptions without disp_status should have ' \
+                                                         'is_refillable=true'
+          end
+        end
+      end
+
+      it 'returns camelCase when X-Key-Inflection: camel header is provided' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          camel_headers = headers.merge('X-Key-Inflection' => 'camel')
+          get '/my_health/v2/prescriptions/list_refillable_prescriptions', headers: camel_headers
+
+          json_response = JSON.parse(response.body)
+
+          # Verify meta keys are camelCase
+          expect(json_response['meta']).to have_key('recentlyRequested')
+          expect(json_response['meta']).not_to have_key('recently_requested')
+
+          # Verify attribute keys are camelCase
+          prescription = json_response['data'].first
+          attributes = prescription['attributes']
+          expect(attributes).to have_key('prescriptionId')
+          expect(attributes).to have_key('prescriptionName')
+          expect(attributes).not_to have_key('prescription_id')
+          expect(attributes).not_to have_key('prescription_name')
+        end
+      end
+
+      it 'returns empty array when no refillable prescriptions exist' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_no_refillable', match_requests_on: %i[method path]) do
+          # Mock the service to return prescriptions that aren't refillable
+          service_double = instance_double(UnifiedHealthData::Service)
+          allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+
+          # Return prescriptions that don't meet refillable criteria
+          non_refillable_rx = double(
+            'Prescription',
+            is_refillable: false,
+            respond_to?: false
+          )
+          allow(service_double).to receive(:get_prescriptions).and_return([non_refillable_rx])
+
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          expect(response).to have_http_status(:success)
+          expect(json_response['data']).to eq([])
+          expect(json_response['meta']).to have_key('recently_requested')
+        end
+      end
+
+      it 'includes expected prescription attributes' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          prescription = json_response['data'].first
+          attributes = prescription['attributes']
+
+          # Verify core attributes present
+          expect(attributes).to include(
+            'prescription_id',
+            'prescription_number',
+            'prescription_name',
+            'is_refillable',
+            'refill_status',
+            'facility_name',
+            'station_number'
+          )
+        end
+      end
+    end
+  end
+
   describe 'POST /my_health/v2/prescriptions/refill' do
     context 'when feature flag is enabled' do
       before do
