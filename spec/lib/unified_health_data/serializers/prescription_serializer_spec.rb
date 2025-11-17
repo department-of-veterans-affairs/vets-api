@@ -38,7 +38,9 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       ],
       instructions: 'Take twice daily with meals',
       facility_phone_number: '555-123-4567',
-      prescription_source: 'VA'
+      prescription_source: 'VA',
+      remarks: 'Patient should monitor blood sugar levels',
+      cmop_ndc_number: '00093721410'
     )
   end
 
@@ -65,6 +67,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       # aliased attributes
       expect(attributes[:instructions]).to eq('Take twice daily with meals')
       expect(attributes[:facility_phone_number]).to eq('555-123-4567')
+      expect(attributes[:remarks]).to eq('Patient should monitor blood sugar levels')
 
       # tracking
       expect(attributes[:tracking]).to be_an(Array)
@@ -73,6 +76,9 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
         tracking_number: '1Z999AA1234567890',
         carrier: 'UPS'
       )
+
+      # cmop_ndc_number
+      expect(attributes[:cmop_ndc_number]).to eq('00093721410')
     end
   end
 end

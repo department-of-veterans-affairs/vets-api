@@ -107,6 +107,7 @@ PATH
     dependents_benefits (0.1.0)
     dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
+    employment_questionnaires (0.1.0)
     facilities_api (0.1.0)
     income_and_assets (0.1.0)
     income_limits (0.1.0)
@@ -348,7 +349,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (6.1.5)
+    coverband (6.1.6)
       base64
       redis (>= 3.0)
     crack (1.0.1)
@@ -668,20 +669,20 @@ GEM
     karafka-core (2.5.7)
       karafka-rdkafka (>= 0.20.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.22.2)
-      ffi (~> 1.15)
+    karafka-rdkafka (0.23.1)
+      ffi (~> 1.17.1)
       json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.22.2-aarch64-linux-gnu)
-      ffi (~> 1.15)
+    karafka-rdkafka (0.23.1-aarch64-linux-gnu)
+      ffi (~> 1.17.1)
       json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.22.2-x86_64-linux-gnu)
-      ffi (~> 1.15)
+    karafka-rdkafka (0.23.1-x86_64-linux-gnu)
+      ffi (~> 1.17.1)
       json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
@@ -952,7 +953,7 @@ GEM
       tsort
     redis (5.4.1)
       redis-client (>= 0.22.0)
-    redis-client (0.25.1)
+    redis-client (0.26.1)
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
@@ -1194,9 +1195,9 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.12)
+    waterdrop (2.8.14)
       karafka-core (>= 2.4.9, < 3.0.0)
-      karafka-rdkafka (>= 0.20.0)
+      karafka-rdkafka (>= 0.23.1)
       zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)
@@ -1294,6 +1295,7 @@ DEPENDENCIES
   dogstatsd-ruby
   dry-struct
   dry-types
+  employment_questionnaires!
   ethon (>= 0.13.0)
   facilities_api!
   factory_bot_rails
