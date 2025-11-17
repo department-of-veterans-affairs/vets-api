@@ -68,7 +68,7 @@ module IvcChampva
         return unless Settings.vsp_environment != 'production'
 
         parsed_form_data = JSON.parse(params.to_json)
-        form_id = get_form_id(parsed_form_data)
+        form_id = get_form_id
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
         apps.each do |app|
@@ -131,7 +131,9 @@ module IvcChampva
       # @param [String] form_id The ID of the current form
       # @return [Boolean] true if VES JSON should be generated
       def should_generate_ves_json?(form_id)
-        Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && form_id == 'vha_10_10d'
+        # Get the legacy form ID to handle versioned forms (e.g., vha_10_10d_2027 -> vha_10_10d)
+        legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(form_id)
+        Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && legacy_form_id == 'vha_10_10d'
       end
 
       ##
