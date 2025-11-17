@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Lighthouse::HealthcareCostAndCoverage::InvoiceSerializer
+class Lighthouse::HCC::InvoiceSerializer
   include JSONAPI::Serializer
 
   set_type :invoice
