@@ -24,7 +24,7 @@ graph TD
     
     EnqueueSubs --> SubmitAll[Submit to Services<br/>Parallel execution]
     SubmitAll --> DB4[(DB: BGSFormSubmission<br/>LighthouseFormSubmission<br/>FormSubmissionAttempts)]
-    DB4 --> Services[Services: BGSV2 Form686c/Form674<br/>Lighthouse Benefits Intake API]
+    DB4 --> Services[Services: BGSV2 Form686c/Form674<br/>Claims Evidence API]
     Services -->|Any Permanent Failure| SubFail[Mark Failed]
     Services --> Coordinate[Coordinate Success<br/>Check all siblings completed]
     
@@ -76,7 +76,7 @@ Each step in the simplified diagram above has a detailed flow diagram:
    - 0-1 BGS686cJob + 0-1 Claims686cJob (if 686c child claim exists)
    - 0-n BGS674Job + 0-n Claims674Job (one pair per 674 child claim)
    - Database: BGSFormSubmission, LighthouseFormSubmission, FormSubmissionAttempts
-   - Services: BGSV2 Form686c/Form674, Lighthouse Benefits Intake API
+   - Services: BGSV2 Form686c/Form674, Claims Evidence
    - Coordination patterns for success and failure
    - Pessimistic locking for sibling coordination
 
