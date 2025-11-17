@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   backend-approval-check:
-    name: Backend Approval Required
+    name: Succeed if backend approval is confirmed
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
