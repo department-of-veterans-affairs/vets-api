@@ -20,8 +20,8 @@ module MyHealth
       attribute :prescription_number
       attribute :prescription_name
 
-      attribute :prescription_image do |object|
-        object.prescription_image if object.respond_to?(:prescription_image)
+      attribute :prescription_image do |_object|
+        nil
       end
 
       attribute :refill_status

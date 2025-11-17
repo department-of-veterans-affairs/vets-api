@@ -177,16 +177,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
-      it 'accepts include_image parameter without error' do
+      it 'returns nil for prescription_image' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          # UHD prescriptions don't have cmop_ndc_value so images won't be fetched,
-          # but the parameter should be accepted and not cause errors
-          get('/my_health/v2/prescriptions', params: { include_image: true }, headers:)
+          get('/my_health/v2/prescriptions', headers:)
 
           expect(response).to have_http_status(:success)
           json_response = JSON.parse(response.body)
-          expect(json_response['data']).to be_an(Array)
-          expect(json_response['data']).not_to be_empty
+          prescription = json_response['data'].first
+          expect(prescription['attributes']['prescription_image']).to be_nil
         end
       end
 

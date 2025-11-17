@@ -33,7 +33,6 @@ module MyHealth
 
         filter_count = set_filter_metadata(prescriptions, raw_data)
         prescriptions = apply_filters_and_sorting(prescriptions)
-        prescriptions = fetch_and_include_images(prescriptions) if params[:include_image].present?
 
         records, options = build_response_data(prescriptions, filter_count, recently_requested)
 
@@ -119,48 +118,6 @@ module MyHealth
           item.respond_to?(:disp_status) && ['Active: Refill in Process',
                                              'Active: Submitted'].include?(item.disp_status)
         end
-      end
-
-      # rubocop:disable ThreadSafety/NewThread
-      # New threads are joined at the end
-      def fetch_and_include_images(data)
-        threads = []
-        data.each do |item|
-          cmop_ndc_number = item.respond_to?(:cmop_ndc_value) ? item.cmop_ndc_value : nil
-          if cmop_ndc_number.present?
-            image_uri = get_image_uri(cmop_ndc_number)
-            threads << Thread.new(item) do |thread_item|
-              thread_item.prescription_image = fetch_image(image_uri) if thread_item.respond_to?(:prescription_image=)
-            rescue => e
-              Rails.logger.debug { "Error fetching image for NDC #{cmop_ndc_number}: #{e.message}" }
-            end
-          end
-        end
-        threads.each(&:join)
-        data
-      end
-      # rubocop:enable ThreadSafety/NewThread
-
-      def fetch_image(image_url)
-        uri = URI.parse(image_url)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = (uri.scheme == 'https')
-        request = Net::HTTP::Get.new(uri.request_uri)
-        response = http.request(request)
-        if response.is_a?(Net::HTTPSuccess)
-          image_data = response.body
-          base64_image = Base64.strict_encode64(image_data)
-          "data:#{response['content-type']};base64,#{base64_image}"
-        end
-      end
-
-      def get_image_uri(cmop_ndc_number)
-        folder_names = %w[1 2 3 4 5 6 7 8 9]
-        folder_name = cmop_ndc_number ? cmop_ndc_number.gsub(/^0+(?!$)/, '')[0] : ''
-        file_name = "NDC#{cmop_ndc_number}.jpg"
-        folder_name = 'other' unless folder_names.include?(folder_name)
-        image_root_uri = 'https://www.myhealth.va.gov/static/MILDrugImages/'
-        "#{image_root_uri + folder_name}/#{file_name}"
       end
 
       def apply_filters_to_list(prescriptions)
