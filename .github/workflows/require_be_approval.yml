@@ -70,11 +70,14 @@ jobs:
 
           FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
           echo "file_count=${FILE_COUNT}" >> "$GITHUB_OUTPUT"
+      
       - name: Check file ownership
         id: file_ownership
         run: |
+          set +e  # Don't exit on errors, we'll handle them
           all_files_exempt=true
           CODEOWNERS_FILE=".github/CODEOWNERS"
+
           EXEMPT_TEAMS=(
             "octo-identity"
             "lighthouse-dash"
@@ -86,43 +89,44 @@ jobs:
 
           echo "=== Analyzing file ownership ==="
 
-          while IFS= read -r file; do
-            [[ -z "$file" ]] && continue
+          while IFS= read -r file || [ -n "$file" ]; do
+            # Skip empty lines
+            if [ -z "$file" ]; then
+              continue
+            fi
 
             echo "Checking: $file"
 
-            # Find matching CODEOWNERS entry (most specific match wins)
-            # Build array of paths to check: file, then each parent directory
-            paths_to_check=("$file")
-
-            # Split path into components and build parent paths
-            # e.g., "app/controllers/v0/users.rb" -> ["app/controllers/v0/", "app/controllers/", "app/"]
-            remaining_path="$file"
-            max_depth=20  # Safety limit to prevent infinite loops
-            depth=0
-
-            while [[ "$remaining_path" == *"/"* ]] && (( depth < max_depth )); do
-              # Remove last component and add trailing slash
-              parent_dir="${remaining_path%/*}/"
-              paths_to_check+=("$parent_dir")
-              remaining_path="${parent_dir%/}"  # Remove trailing slash for next iteration
-              ((depth++))
-            done
-
-            # Try to find a match, checking most specific (file) to least specific (root dir)
+            # Build list of paths to check (file, then parent directories)
+            # We'll check from most specific to least specific
             matching_line=""
-            for path in "${paths_to_check[@]}"; do
-              # Escape special regex characters in path
-              escaped_path=$(printf '%s\n' "$path" | sed 's/[.[\*^$]/\\&/g')
-              matching_line=$(grep -E "^${escaped_path}\s+" "$CODEOWNERS_FILE" 2>/dev/null || true)
+            current_path="$file"
 
-              if [[ -n "$matching_line" ]]; then
-                echo "  Matched pattern: $path"
+            # Check up to 20 parent levels to prevent infinite loops
+            for i in {0..20}; do
+              # Escape special regex characters for grep
+              escaped_path=$(echo "$current_path" | sed 's/[.[\*^$]/\\&/g')
+
+              # Try to find a match in CODEOWNERS
+              match=$(grep -E "^${escaped_path}\s+" "$CODEOWNERS_FILE" 2>/dev/null | head -n 1 || true)
+
+              if [ -n "$match" ]; then
+                matching_line="$match"
+                echo "  Matched pattern: $current_path"
+                break
+              fi
+
+              # No match yet, try parent directory
+              if [[ "$current_path" == *"/"* ]]; then
+                # Remove last component and keep trailing slash
+                current_path="${current_path%/*}/"
+              else
+                # No more parents to check
                 break
               fi
             done
 
-            if [[ -z "$matching_line" ]]; then
+            if [ -z "$matching_line" ]; then
               echo "  ❌ No CODEOWNERS entry found (requires backend approval)"
               all_files_exempt=false
               continue
@@ -147,7 +151,7 @@ jobs:
               fi
             done
 
-            if [[ "$file_is_exempt" == "false" ]]; then
+            if [ "$file_is_exempt" = "false" ]; then
               echo "  ❌ Not owned by exempt team (requires backend approval)"
               all_files_exempt=false
             fi
@@ -163,7 +167,6 @@ jobs:
           fi
 
           echo "all_files_exempt=${all_files_exempt}" >> "$GITHUB_OUTPUT"
-
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
