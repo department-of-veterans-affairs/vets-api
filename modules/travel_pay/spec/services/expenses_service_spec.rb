@@ -257,17 +257,6 @@ describe TravelPay::ExpensesService do
 
   describe '#update_expense' do
     let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }) }
-    let(:service) { described_class.new(auth_manager) }
-    let(:client_double) { instance_double(TravelPay::ExpensesClient) }
-    let(:expense_id) { '123e4567-e89b-12d3-a456-426614174000' }
-    let(:expense_type) { 'other' }
-    let(:update_response) { double(body: { 'data' => { 'id' => expense_id } }) }
-
-    before do
-      allow(TravelPay::ExpensesClient).to receive(:new).and_return(client_double)
-      allow(client_double).to receive(:update_expense).and_return(update_response)
-    end
-
     let(:params) do
       {
         'expense_type' => 'lodging',
@@ -283,6 +272,16 @@ describe TravelPay::ExpensesService do
         'costRequested' => 125.50,
         'expenseType' => 'lodging'
       }
+    end
+    let(:service) { described_class.new(auth_manager) }
+    let(:client_double) { instance_double(TravelPay::ExpensesClient) }
+    let(:expense_id) { '123e4567-e89b-12d3-a456-426614174000' }
+    let(:expense_type) { 'other' }
+    let(:update_response) { double(body: { 'data' => { 'id' => expense_id } }) }
+
+    before do
+      allow(TravelPay::ExpensesClient).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:update_expense).and_return(update_response)
     end
 
     it 'calls the client with correct arguments' do
