@@ -22,7 +22,6 @@ path 'modules' do
   gem 'dependents_benefits'
   gem 'dependents_verification'
   gem 'dhp_connected_devices'
-  gem 'employment_questionnaires'
   gem 'facilities_api'
   gem 'income_and_assets'
   gem 'income_limits'
@@ -48,7 +47,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.2.3'
+gem 'rails', '~> 7.2.2'
 
 gem 'aasm'
 gem 'activerecord-import'
