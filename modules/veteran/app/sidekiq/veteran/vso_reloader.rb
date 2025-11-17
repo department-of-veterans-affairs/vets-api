@@ -272,7 +272,7 @@ module Veteran
       end.compact.uniq
 
       # Extract current POA codes from incoming data
-      current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact.uniq
+      current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact_blank.uniq
 
       # Always import organizations when processing VSO data to maintain referential integrity
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
