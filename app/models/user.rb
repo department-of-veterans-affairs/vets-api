@@ -14,8 +14,6 @@ class User < Common::RedisStore
   include Authorization
   extend Gem::Deprecate
 
-  # comment for a test
-
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
