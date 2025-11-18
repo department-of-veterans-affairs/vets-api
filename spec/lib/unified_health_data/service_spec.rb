@@ -1041,7 +1041,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(vista_prescription.refill_status).to eq('activeParked')
           expect(vista_prescription.refill_remaining).to eq(2)
-          expect(vista_prescription.facility_name).to eq('DAYT29')
+          expect(vista_prescription.facility_name).to eq('Dayton Medical Center')
           expect(vista_prescription.prescription_name).to eq('BACITRACIN 500 UNIT/GM OINT 30GM')
           expect(vista_prescription.instructions).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
           expect(vista_prescription.is_refillable).to be true
@@ -1070,7 +1070,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.is_refillable).to be true
           expect(oracle_prescription.is_trackable).to be false
           expect(oracle_prescription.tracking).to eq([])
-          expect(oracle_prescription.prescription_source).to eq('')
+          expect(oracle_prescription.prescription_source).to eq('VA')
           expect(oracle_prescription.instructions).to eq(
             '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.'
           )
