@@ -10,7 +10,8 @@ module MyHealth
   module V2
     class PrescriptionsController < ApplicationController
       include Filterable
-      include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::PrescriptionHelperV2::Filtering
+      include MyHealth::PrescriptionHelperV2::Sorting
       include MyHealth::RxGroupingHelperV2
       include JsonApiPaginationLinks
 
@@ -133,7 +134,7 @@ module MyHealth
       end
 
       def apply_filters_to_list(prescriptions)
-        filter_params = params.require(:filter).permit(:disp_status)
+        filter_params = params.require(:filter).permit(disp_status: [:eq])
         disp_status = filter_params[:disp_status]
 
         if disp_status.present?
@@ -142,7 +143,7 @@ module MyHealth
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
             prescriptions.select do |item|
-              item.respond_to?(:disp_status) && filters.include?(item.disp_status.downcase)
+              item.respond_to?(:disp_status) && item.disp_status && filters.include?(item.disp_status.downcase)
             end
           end
         else
@@ -155,101 +156,17 @@ module MyHealth
       end
 
       def apply_sorting_to_list(prescriptions, sort_param)
+        # Create a mock resource object for the helper methods
+        resource = Struct.new(:records, :metadata).new(prescriptions, {})
+        
         case sort_param
         when 'last-fill-date'
-          last_fill_date_sort(prescriptions)
+          last_fill_date_sort(resource).records
         when 'alphabetical-rx-name'
-          alphabetical_sort(prescriptions)
+          alphabetical_sort(resource).records
         else
-          default_sort(prescriptions)
+          default_sort(resource).records
         end
-      end
-
-      def default_sort(prescriptions)
-        prescriptions.sort do |a, b|
-          # 1st sort by status
-          a_status = a.respond_to?(:disp_status) ? (a.disp_status || '') : ''
-          b_status = b.respond_to?(:disp_status) ? (b.disp_status || '') : ''
-          status_comparison = a_status <=> b_status
-          next status_comparison if status_comparison != 0
-
-          # 2nd sort by medication name
-          a_name = a.respond_to?(:prescription_name) ? (a.prescription_name || '') : ''
-          b_name = b.respond_to?(:prescription_name) ? (b.prescription_name || '') : ''
-          name_comparison = a_name <=> b_name
-          next name_comparison if name_comparison != 0
-
-          # 3rd sort by fill date - newest to oldest
-          a_date = a.respond_to?(:sorted_dispensed_date) ? a.sorted_dispensed_date : nil
-          b_date = b.respond_to?(:sorted_dispensed_date) ? b.sorted_dispensed_date : nil
-          a_date ||= Date.new(1900, 1, 1)
-          b_date ||= Date.new(1900, 1, 1)
-
-          b_date <=> a_date
-        end
-      end
-
-      def last_fill_date_sort(prescriptions)
-        empty_dispense_date_meds, filled_meds = partition_meds_by_date(prescriptions)
-
-        filled_meds = filled_meds.sort_by do |med|
-          date = med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : Date.new(1900, 1, 1)
-          name = med.respond_to?(:prescription_name) ? med.prescription_name.to_s.downcase : ''
-          [-date&.to_time.to_i, name]
-        end
-
-        non_va_meds = empty_dispense_date_meds.select do |med|
-          med.respond_to?(:prescription_source) && med.prescription_source == 'NV'
-        end
-        va_meds = empty_dispense_date_meds.reject do |med|
-          med.respond_to?(:prescription_source) && med.prescription_source == 'NV'
-        end
-
-        non_va_meds.sort_by! { |med| med.respond_to?(:prescription_name) ? med.prescription_name.to_s.downcase : '' }
-        va_meds.sort_by! { |med| med.respond_to?(:prescription_name) ? med.prescription_name.to_s.downcase : '' }
-
-        filled_meds + va_meds + non_va_meds
-      end
-
-      def alphabetical_sort(prescriptions)
-        sorted_records = prescriptions.sort_by { |med| get_medication_name(med) }
-
-        sorted_records.group_by { |med| get_medication_name(med) }.flat_map do |_name, meds|
-          empty_dates, with_dates = meds.partition do |med|
-            empty_field?(med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : nil)
-          end
-          sorted_with_dates = with_dates.sort_by { |med| -med.sorted_dispensed_date&.to_time.to_i }
-          empty_dates + sorted_with_dates
-        end
-      end
-
-      def partition_meds_by_date(prescriptions)
-        empty_dispense_date_meds = []
-        filled_meds = []
-
-        prescriptions.each do |med|
-          date = med.respond_to?(:sorted_dispensed_date) ? med.sorted_dispensed_date : nil
-          if empty_field?(date)
-            empty_dispense_date_meds << med
-          else
-            filled_meds << med
-          end
-        end
-
-        [empty_dispense_date_meds, filled_meds]
-      end
-
-      def get_medication_name(med)
-        if med.respond_to?(:disp_status) && med.disp_status == 'Active: Non-VA' &&
-           (!med.respond_to?(:prescription_name) || med.prescription_name.nil?)
-          med.respond_to?(:orderable_item) ? (med.orderable_item || '') : ''
-        else
-          med.respond_to?(:prescription_name) ? (med.prescription_name || '') : ''
-        end
-      end
-
-      def empty_field?(value)
-        value.nil? || value.to_s.strip.empty?
       end
 
       def resource_data_modifications(prescriptions)
