@@ -17,41 +17,40 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_LOA1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
       context 'and acr is loa3' do
         let(:acr) { 'loa3' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA3_FORCE } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_LOA3_FORCE }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
       context 'and acr is min' do
         let(:acr) { 'min' }
-        let(:acr_comparison) { SignIn::Constants::Auth::IDME_COMPARISON_MINIMUM }
 
         context 'and uplevel is false' do
           let(:uplevel) { false }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA1, acr_comparison: } }
+          let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_LOA1 }
 
           it 'returns expected translated acr value' do
-            expect(subject).to eq(expected_translated_acr)
+            expect(subject).to be(expected_translated_acr)
           end
         end
 
         context 'and uplevel is true' do
           let(:uplevel) { true }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA3, acr_comparison: } }
+          let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_LOA3 }
 
           it 'returns expected translated acr value' do
-            expect(subject).to eq(expected_translated_acr)
+            expect(subject).to be(expected_translated_acr)
           end
         end
       end
@@ -72,19 +71,19 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is ial1' do
         let(:acr) { 'ial1' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
       context 'and acr is ial2' do
         let(:acr) { 'ial2' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
@@ -93,19 +92,19 @@ RSpec.describe SignIn::AcrTranslator do
 
         context 'and uplevel is false' do
           let(:uplevel) { false }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL0 } }
+          let(:expected_translated_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL1 }
 
           it 'returns expected translated acr value' do
-            expect(subject).to eq(expected_translated_acr)
+            expect(subject).to be(expected_translated_acr)
           end
         end
 
         context 'and uplevel is true' do
           let(:uplevel) { true }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL0 } }
+          let(:expected_translated_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
 
           it 'returns expected translated acr value' do
-            expect(subject).to eq(expected_translated_acr)
+            expect(subject).to be(expected_translated_acr)
           end
         end
       end
@@ -126,29 +125,29 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_DSLOGON_LOA1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_DSLOGON_LOA1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
       context 'and acr is loa3' do
         let(:acr) { 'loa3' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_DSLOGON_LOA1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_DSLOGON_LOA1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
       context 'and acr is min' do
         let(:acr) { 'min' }
 
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_DSLOGON_LOA1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_DSLOGON_LOA1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
@@ -168,28 +167,28 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_MHV_LOA1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_MHV_LOA1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
       context 'and acr is loa3' do
         let(:acr) { 'loa3' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_MHV_LOA1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_MHV_LOA1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
       context 'and acr is min' do
         let(:acr) { 'min' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_MHV_LOA1 } }
+        let(:expected_translated_acr) { SignIn::Constants::Auth::IDME_MHV_LOA1 }
 
         it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
