@@ -3,6 +3,8 @@
 module MyHealth
   module V2
     class PrescriptionSerializer
+      # TODO: add V2 serializer specs
+
       include JSONAPI::Serializer
 
       set_id :prescription_id

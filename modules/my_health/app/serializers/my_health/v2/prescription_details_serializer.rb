@@ -30,12 +30,12 @@ module MyHealth
         object.user_id if object.respond_to?(:user_id)
       end
 
-      attribute :provider_first_name do |object|
-        object.provider_first_name if object.respond_to?(:provider_first_name)
+      attribute :provider_first_name do |_object|
+        nil
       end
 
       attribute :provider_last_name do |object|
-        object.provider_last_name if object.respond_to?(:provider_last_name)
+        object.provider_name if object.respond_to?(:provider_name)
       end
 
       attribute :remarks do |object|
