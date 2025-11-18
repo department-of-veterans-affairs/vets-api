@@ -1948,4 +1948,18 @@ RSpec.describe Form526Submission do
       end
     end
   end
+
+  describe '#log_error' do
+    let(:error) { StandardError.new('Test error message') }
+
+    it 'logs an error message with submission ID and error details' do
+      expect(Rails.logger).to receive(:error).with(
+        "Form526ClaimsFastTrackingConcern #{subject.id} encountered an error",
+        submission_id: subject.id,
+        error_message: 'Test error message'
+      )
+
+      subject.send(:log_error, error)
+    end
+  end
 end

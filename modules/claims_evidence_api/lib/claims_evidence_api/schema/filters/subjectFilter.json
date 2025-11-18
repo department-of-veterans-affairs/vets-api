@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/subjectFilter.json",
+  "description" : "Filters results on Subject.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "CONTAINS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "description" : "This is a stringified json array of strings.",
+      "example" : "\"[\\\"subject\\\", \\\"subject1\\\"]\"",
+      "type" : "string"
+    }
+  },
+  "title" : "Subject Filter Request",
+  "type" : "object"
+}
