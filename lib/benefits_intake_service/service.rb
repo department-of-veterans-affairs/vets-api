@@ -9,7 +9,6 @@ require 'benefits_intake_service/configuration'
 require 'benefits_intake_service/utilities/convert_to_pdf'
 require 'lighthouse/benefits_intake/metadata'
 require 'pdf_utilities/pdf_validator'
-require 'vets/shared_logging'
 
 module BenefitsIntakeService
   ##
@@ -18,7 +17,6 @@ module BenefitsIntakeService
   # via paper submission (electronic PDF submission to CMP)
   #
   class Service < Common::Client::Base
-    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
 
     configuration BenefitsIntakeService::Configuration

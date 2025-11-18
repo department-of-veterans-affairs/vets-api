@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'vets/shared_logging'
-
 require 'central_mail/service'
 require 'benefits_intake_service/service'
 require 'pdf_utilities/datestamp_pdf'
@@ -13,7 +11,6 @@ module Lighthouse
   module BenefitsIntake
     class SubmitCentralForm686cJob
       include Sidekiq::Job
-      include Vets::SharedLogging
 
       FOREIGN_POSTALCODE = '00000'
       FORM_ID = '686C-674'
@@ -273,11 +270,6 @@ module Lighthouse
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )
-      end
-
-      def log_cmp_response(response)
-        log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
-        log_message_to_rails("vre-central-mail-response: #{response}", :info)
       end
 
       def valid_claim_data(saved_claim_id, vet_info)
