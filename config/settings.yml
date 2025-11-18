@@ -601,6 +601,7 @@ ihub:
   appointments:
     mock: <%= ENV['ihub__appointments__mock'] %>
     timeout: 30
+    enabled: true
   in_production: <%= ENV['ihub__in_production'] %>
   url: <%= ENV['ihub__url'] %>
 intent_to_file:
@@ -1618,7 +1619,7 @@ vanotify:
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
-        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %> 
+        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %>
         form10297_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form10297_confirmation_email'] %>
         form1880_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1880_reminder_email'] %>
         form1900_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
