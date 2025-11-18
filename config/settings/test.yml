@@ -600,7 +600,6 @@ ihub:
   in_production: false
   url: https://qacrmdac.np.crm.vrm.vba.va.gov
 intent_to_file:
-  enabled: true
   prefill: true
 ivc_champva:
   pega_api:
