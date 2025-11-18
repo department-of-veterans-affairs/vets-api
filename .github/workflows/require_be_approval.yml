@@ -1,11 +1,15 @@
-# Runs when PR reviews are submitted or PR is updated
+# Validates backend approval requirements for PRs
+# Runs on PR updates and review submissions to ensure proper approval from backend-review-group
+# or exemption through team-based file ownership
 name: Backend Approval
+
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
     branches: [master]
   pull_request_review:
     types: [submitted, dismissed]
+
 permissions:
   id-token: write
   contents: read
@@ -15,182 +19,182 @@ concurrency:
   group: backend-approval-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+env:
+  # Teams exempt from backend approval when they exclusively own changed files
+  EXEMPT_TEAMS: '["octo-identity", "lighthouse-dash", "lighthouse-pivot", "lighthouse-banana-peels", "mobile-api-team", "fed-eng-admin"]'
+  AWS_REGION: us-gov-west-1
+  SSM_BOT_TOKEN_PATH: /devops/VA_VSP_BOT_GITHUB_TOKEN
+
 jobs:
   backend-approval-check:
     name: Succeed if backend approval is confirmed
     runs-on: ubuntu-latest
     permissions: write-all
+    
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-      - name: Get PR data
-        id: pr_data
+
+      - name: Fetch PR data and changed files
+        id: pr_info
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
           echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
-          # Fetch PR details
-          PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
+          # Fetch PR metadata
+          PR_DATA=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
             author: .user.login,
             draft: .draft,
             labels: [.labels[].name]
           }')
 
-          PR_AUTHOR=$(echo "$PR_INFO" | jq -r '.author')
-          PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
-          PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
+          echo "pr_author=$(echo "$PR_DATA" | jq -r '.author')" >> "$GITHUB_OUTPUT"
+          echo "pr_draft=$(echo "$PR_DATA" | jq -r '.draft')" >> "$GITHUB_OUTPUT"
+          echo "pr_labels=$(echo "$PR_DATA" | jq -c '.labels')" >> "$GITHUB_OUTPUT"
 
-          echo "pr_author=${PR_AUTHOR}" >> "$GITHUB_OUTPUT"
-          echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
-          echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
-
-          echo "PR #${PR_NUMBER} - Author: ${PR_AUTHOR}, Draft: ${PR_DRAFT}"
-
-      - name: Get changed files
-        id: changed_files
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PR_NUMBER="${{ steps.pr_data.outputs.pr_number }}"
-
-          # Get all changed files in the PR
+          # Fetch changed files (handles pagination automatically)
           CHANGED_FILES=$(gh api "/repos/${{ github.repository }}/pulls/${PR_NUMBER}/files" \
             --paginate --jq '.[].filename')
 
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-
-          # Save to file for easier processing
           echo "$CHANGED_FILES" > /tmp/changed_files.txt
-
           FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+          
           echo "file_count=${FILE_COUNT}" >> "$GITHUB_OUTPUT"
-      
-      - name: Check file ownership
+          
+          echo "PR #${PR_NUMBER} Analysis"
+          echo "  Author: $(echo "$PR_DATA" | jq -r '.author')"
+          echo "  Draft: $(echo "$PR_DATA" | jq -r '.draft')"
+          echo "  Changed files: ${FILE_COUNT}"
+
+      - name: Analyze file ownership against CODEOWNERS
         id: file_ownership
+        env:
+          EXEMPT_TEAMS: ${{ env.EXEMPT_TEAMS }}
         run: |
-          set +e
           all_files_exempt=true
           CODEOWNERS_FILE=".github/CODEOWNERS"
 
-          EXEMPT_TEAMS=(
-            "octo-identity"
-            "lighthouse-dash"
-            "lighthouse-pivot"
-            "lighthouse-banana-peels"
-            "mobile-api-team"
-            "fed-eng-admin"
-          )
+          # Validate CODEOWNERS exists
+          if [[ ! -f "$CODEOWNERS_FILE" ]]; then
+            echo "[ERROR] CODEOWNERS file not found at $CODEOWNERS_FILE"
+            echo "all_files_exempt=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-          echo "=== Analyzing file ownership ==="
+          # Parse exempt teams from JSON array
+          readarray -t EXEMPT_TEAM_ARRAY < <(echo "$EXEMPT_TEAMS" | jq -r '.[]')
 
-          while IFS= read -r file || [ -n "$file" ]; do
-            if [ -z "$file" ]; then continue; fi
+          echo "Analyzing file ownership"
+          echo "----------------------------------------"
 
-            echo "Checking: $file"
+          while IFS= read -r file || [[ -n "$file" ]]; do
+            [[ -z "$file" ]] && continue
 
-            # Directly parse CODEOWNERS
+            echo "File: $file"
+
+            # Find CODEOWNERS entry for this file
+            # Note: Needs to be tested with glob pattern
             owners=$(grep -E "^[[:space:]]*${file}[[:space:]]+" "$CODEOWNERS_FILE" | awk '{for(i=2;i<=NF;i++) print $i}')
 
-            if [ -z "$owners" ]; then
-              echo "  ❌ No CODEOWNERS entry found (requires backend approval)"
+            if [[ -z "$owners" ]]; then
+              echo "   No CODEOWNERS entry (requires backend approval)"
               all_files_exempt=false
               continue
             fi
 
             echo "  Owners: $owners"
 
-            # If backend-review-group owns it → requires approval
+            # Check if backend-review-group owns this file
             if echo "$owners" | grep -q "@department-of-veterans-affairs/backend-review-group"; then
-              echo "  ❌ Owned by backend-review-group (requires approval)"
+              echo "   Owned by backend-review-group (requires approval)"
               all_files_exempt=false
               continue
             fi
 
-            # Check whether the file is owned *only* by exempt teams
+            # Check if file is owned exclusively by exempt teams
             file_is_exempt=false
-            for team in "${EXEMPT_TEAMS[@]}"; do
+            for team in "${EXEMPT_TEAM_ARRAY[@]}"; do
               if echo "$owners" | grep -q "@department-of-veterans-affairs/${team}"; then
-                echo "  ✓ Owned by exempt team: ${team}"
+                echo "  Owned by exempt team: ${team}"
                 file_is_exempt=true
                 break
               fi
             done
 
-            if [ "$file_is_exempt" = "false" ]; then
-              echo "  ❌ Not owned by exempt team (requires backend approval)"
+            if [[ "$file_is_exempt" == "false" ]]; then
+              echo "   Not owned by exempt team (requires backend approval)"
               all_files_exempt=false
             fi
 
           done < /tmp/changed_files.txt
 
-          echo ""
-          echo "=== Result ==="
+          echo "----------------------------------------"
           if [[ "$all_files_exempt" == "true" ]]; then
-            echo "✓ All changed files are owned exclusively by exempt teams"
+            echo "[PASS] All files owned exclusively by exempt teams"
           else
-            echo "✗ Some files require backend approval"
+            echo "[WARN] Some files require backend approval"
           fi
 
           echo "all_files_exempt=${all_files_exempt}" >> "$GITHUB_OUTPUT"
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: "us-gov-west-1"
-      - name: Get bot token
+          aws-region: ${{ env.AWS_REGION }}
+
+      # VA_VSP_BOT_GITHUB_TOKEN is required to access organization team membership
+      - name: Retrieve bot token from AWS SSM
         uses: marvinpinto/action-inject-ssm-secrets@latest
         with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          ssm_parameter: ${{ env.SSM_BOT_TOKEN_PATH }}
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-      - name: Check exemption and approval status
-        id: check_status
+
+      - name: Determine approval status
+        id: approval_status
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr_data.outputs.pr_number }}
-          PR_AUTHOR: ${{ steps.pr_data.outputs.pr_author }}
-          PR_LABELS: ${{ steps.pr_data.outputs.pr_labels }}
+          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
           ALL_FILES_EXEMPT: ${{ steps.file_ownership.outputs.all_files_exempt }}
         run: |
-          # Initialize status
           exempt=false
           exempt_reason=""
           backend_approved=false
           requires_approval=true
 
-          # Define exempt teams
-          EXEMPT_TEAMS=(
-            octo-identity
-            lighthouse-dash
-            lighthouse-pivot
-            lighthouse-banana-peels
-            mobile-api-team
-            fed-eng-admin
-          )
+          echo "Determining approval requirements"
+          echo "----------------------------------------"
 
-          # Check: Are all files owned by exempt teams? (NEW)
-          if [[ "${exempt}" == "false" && "${ALL_FILES_EXEMPT}" == "true" ]]; then
-            echo "✓ All changed files owned exclusively by exempt teams (CODEOWNERS)"
+          # Check: Are all files owned by exempt teams?
+          if [[ "${ALL_FILES_EXEMPT}" == "true" ]]; then
+            echo "[PASS] Exempt: All files owned by exempt teams"
             exempt=true
             exempt_reason="file ownership"
             requires_approval=false
           fi
 
-          # Check: If not exempt, verify backend approval
+          # If not exempt, verify backend approval
           if [[ "${requires_approval}" == "true" ]]; then
-            # Get backend-review-group members
-            BACKEND_REVIEWERS=$(gh api \
-              /orgs/department-of-veterans-affairs/teams/backend-review-group/members \
-              --jq '.[].login' | tr '\n' '|' | sed 's/|$//')
+            echo "Checking for backend-review-group approval..."
 
-            echo "Backend reviewers: ${BACKEND_REVIEWERS}"
-            # Get current approvals (most recent per user)
+            # Fetch backend-review-group members
+            if ! BACKEND_REVIEWERS=$(gh api \
+              /orgs/department-of-veterans-affairs/teams/backend-review-group/members \
+              --jq '.[].login' 2>/dev/null); then
+              echo "[ERROR] Failed to fetch backend-review-group members"
+              echo "requires_approval=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
+            echo "  Backend reviewers: ${BACKEND_REVIEWERS}"
+
+            # Get most recent review state per user
             readarray -t APPROVALS < <(
               gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews --jq '
                 [.[] | select(.state == "APPROVED")]
@@ -198,72 +202,106 @@ jobs:
                 | reverse
                 | unique_by(.user.login)
                 | .[].user.login
-              ' || true
+              ' 2>/dev/null || true
             )
 
             # Check if any approver is from backend-review-group
             for approver in "${APPROVALS[@]}"; do
               if echo "$approver" | grep -iqE "^(${BACKEND_REVIEWERS})$"; then
-                echo "✓ Backend approval confirmed by '${approver}'"
+                echo "[PASS] Backend approval confirmed by: ${approver}"
                 backend_approved=true
                 requires_approval=false
                 break
               fi
             done
+
+            if [[ "${backend_approved}" == "false" ]]; then
+              echo "No approval from backend-review-group"
+            fi
           fi
 
-          # Output results
+          echo "----------------------------------------"
+          echo "Final Status:"
+          echo "  Exempt: ${exempt}"
+          [[ "${exempt}" == "true" ]] && echo "  Exempt Reason: ${exempt_reason}"
+          echo "  Backend Approved: ${backend_approved}"
+          echo "  Requires Approval: ${requires_approval}"
+
+          # Output results for subsequent steps
           echo "exempt=${exempt}" >> "$GITHUB_OUTPUT"
           echo "exempt_reason=${exempt_reason}" >> "$GITHUB_OUTPUT"
           echo "backend_approved=${backend_approved}" >> "$GITHUB_OUTPUT"
           echo "requires_approval=${requires_approval}" >> "$GITHUB_OUTPUT"
 
-          # Summary
-          echo "=== Summary ==="
-          echo "Exempt: ${exempt}"
-          if [[ "${exempt}" == "true" ]]; then
-            echo "Exempt Reason: ${exempt_reason}"
-          fi
-          echo "Backend Approved: ${backend_approved}"
-          echo "Requires Approval: ${requires_approval}"
-      - name: Update labels
+      - name: Update PR labels
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr_data.outputs.pr_number }}
-          EXEMPT: ${{ steps.check_status.outputs.exempt }}
-          REQUIRES_APPROVAL: ${{ steps.check_status.outputs.requires_approval }}
-
+          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
+          EXEMPT: ${{ steps.approval_status.outputs.exempt }}
+          REQUIRES_APPROVAL: ${{ steps.approval_status.outputs.requires_approval }}
         run: |
-          # Add/remove exempt-be-review label
+          echo "Updating PR labels..."
+
+          # Determine which labels to add/remove based on status
+          LABELS_TO_ADD=()
+          LABELS_TO_REMOVE=()
+
           if [[ "${EXEMPT}" == "true" ]]; then
-            gh pr edit ${PR_NUMBER} --add-label "exempt-be-review" || true
-            gh pr edit ${PR_NUMBER} --remove-label "require-backend-approval" || true
-          else 
-            gh pr edit ${PR_NUMBER} --remove-label "exempt-be-review" || true
-          fi
-
-          # Add/remove require-backend-approval label
-          if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
-            gh pr edit ${PR_NUMBER} --add-label "require-backend-approval" || true
+            LABELS_TO_ADD+=("exempt-be-review")
+            LABELS_TO_REMOVE+=("require-backend-approval")
           else
-            gh pr edit ${PR_NUMBER} --remove-label "require-backend-approval" || true
+            LABELS_TO_REMOVE+=("exempt-be-review")
           fi
 
-      - name: Check result
-        if: steps.check_status.outputs.requires_approval == 'true'
+          if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
+            LABELS_TO_ADD+=("require-backend-approval")
+          else
+            LABELS_TO_REMOVE+=("require-backend-approval")
+          fi
+
+          # Apply label changes
+          for label in "${LABELS_TO_ADD[@]}"; do
+            echo "  Adding: ${label}"
+            gh pr edit "${PR_NUMBER}" --add-label "${label}" 2>/dev/null || echo "  [WARN] Could not add ${label}"
+          done
+
+          for label in "${LABELS_TO_REMOVE[@]}"; do
+            echo "  Removing: ${label}"
+            gh pr edit "${PR_NUMBER}" --remove-label "${label}" 2>/dev/null || echo "  [WARN] Could not remove ${label}"
+          done
+
+      - name: Fail if backend approval required
+        if: steps.approval_status.outputs.requires_approval == 'true'
         run: |
-          echo "error  This PR requires approval from the backend-review-group before it can be merged."
-          echo "error  If this PR should be exempt ensure:"
-          echo "error    all changed files are owned exclusively by exempt teams in CODEOWNERS"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "[FAIL] BACKEND APPROVAL REQUIRED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "This PR requires approval from the backend-review-group before merging."
+          echo ""
+          echo "To get your PR exempt from this requirement, ensure:"
+          echo "  • All changed files are owned exclusively by exempt teams in CODEOWNERS"
+          echo "  • Exempt teams: octo-identity, lighthouse-dash, lighthouse-pivot,"
+          echo "    lighthouse-banana-peels, mobile-api-team, fed-eng-admin"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 1
 
-      - name: Approval confirmed
-        if: steps.check_status.outputs.requires_approval == 'false'
+      - name: Confirm approval success
+        if: steps.approval_status.outputs.requires_approval == 'false'
         run: |
-          if [[ "${{ steps.check_status.outputs.exempt }}" == "true" ]]; then
-            echo "✓ PR is exempt from backend approval requirement"
-            echo "  Reason: ${{ steps.check_status.outputs.exempt_reason }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "[PASS] APPROVAL CHECK PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          if [[ "${{ steps.approval_status.outputs.exempt }}" == "true" ]]; then
+            echo ""
+            echo "PR is exempt from backend approval requirement"
+            echo "Reason: ${{ steps.approval_status.outputs.exempt_reason }}"
           else
-            echo "✓ Backend approval confirmed"
+            echo ""
+            echo "Backend approval has been confirmed"
           fi
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 0
