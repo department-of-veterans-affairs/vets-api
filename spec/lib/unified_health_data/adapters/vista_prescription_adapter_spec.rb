@@ -530,33 +530,35 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
     context 'with rxRFRecords present' do
       let(:medication_with_dispenses) do
         base_vista_medication.merge(
-          'rxRFRecords' => [
-            {
-              'id' => 'dispense-1',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-              'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Salt Lake City VAMC',
-              'sig' => 'Take one tablet by mouth twice daily',
-              'quantity' => 60,
-              'prescriptionName' => 'METFORMIN HCL 500MG TAB',
-              'prescriptionNumber' => 'RX123456',
-              'cmopDivisionPhone' => '555-1234',
-              'cmopNdcNumber' => '00093-1058-01',
-              'remarks' => 'Test remarks',
-              'dialCmopDivisionPhone' => '5551234',
-              'disclaimer' => 'Test disclaimer'
-            },
-            {
-              'id' => 'dispense-2',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Salt Lake City VAMC',
-              'sig' => 'Take one tablet by mouth twice daily',
-              'quantity' => 60,
-              'prescriptionName' => 'METFORMIN HCL 500MG TAB'
-            }
-          ]
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'dispense-1',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Salt Lake City VAMC',
+                'sig' => 'Take one tablet by mouth twice daily',
+                'quantity' => 60,
+                'prescriptionName' => 'METFORMIN HCL 500MG TAB',
+                'prescriptionNumber' => 'RX123456',
+                'cmopDivisionPhone' => '555-1234',
+                'cmopNdcNumber' => '00093-1058-01',
+                'remarks' => 'Test remarks',
+                'dialCmopDivisionPhone' => '5551234',
+                'disclaimer' => 'Test disclaimer'
+              },
+              {
+                'id' => 'dispense-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Salt Lake City VAMC',
+                'sig' => 'Take one tablet by mouth twice daily',
+                'quantity' => 60,
+                'prescriptionName' => 'METFORMIN HCL 500MG TAB'
+              }
+            ]
+          }
         )
       end
 
@@ -617,8 +619,8 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to eq([])
       end
 
-      it 'returns empty array when rxRFRecords is empty array' do
-        medication_empty_dispenses = base_vista_medication.merge('rxRFRecords' => [])
+      it 'returns empty array when rxRFRecords.rfRecord is empty array' do
+        medication_empty_dispenses = base_vista_medication.merge('rxRFRecords' => { 'rfRecord' => [] })
         result = subject.send(:build_dispenses_information, medication_empty_dispenses)
         expect(result).to eq([])
       end
@@ -631,41 +633,43 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
 
     context 'with invalid rxRFRecords format' do
       let(:medication_invalid_dispenses) do
-        base_vista_medication.merge('rxRFRecords' => 'not-an-array')
+        base_vista_medication.merge('rxRFRecords' => { 'rfRecord' => 'not-an-array' })
       end
 
-      it 'returns empty array when rxRFRecords is not an array' do
+      it 'returns empty array when rfRecord is not an array' do
         result = subject.send(:build_dispenses_information, medication_invalid_dispenses)
         expect(result).to eq([])
       end
     end
 
-    context 'with non-hash elements in rxRFRecords' do
+    context 'with non-hash elements in rfRecord' do
       let(:medication_with_invalid_records) do
         base_vista_medication.merge(
-          'rxRFRecords' => [
-            {
-              'id' => 'valid-1',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Test Facility',
-              'sig' => 'Take as directed',
-              'quantity' => 30,
-              'prescriptionName' => 'Test Med'
-            },
-            'invalid-string-element',
-            nil,
-            123,
-            {
-              'id' => 'valid-2',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Test Facility',
-              'sig' => 'Take as directed',
-              'quantity' => 30,
-              'prescriptionName' => 'Test Med'
-            }
-          ]
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'valid-1',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Test Facility',
+                'sig' => 'Take as directed',
+                'quantity' => 30,
+                'prescriptionName' => 'Test Med'
+              },
+              'invalid-string-element',
+              nil,
+              123,
+              {
+                'id' => 'valid-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Test Facility',
+                'sig' => 'Take as directed',
+                'quantity' => 30,
+                'prescriptionName' => 'Test Med'
+              }
+            ]
+          }
         )
       end
 
