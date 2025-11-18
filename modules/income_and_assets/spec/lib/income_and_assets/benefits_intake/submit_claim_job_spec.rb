@@ -13,6 +13,17 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
   let(:service) { double('service') }
   let(:monitor) { IncomeAndAssets::Monitor.new }
   let(:user_account_uuid) { 123 }
+  let(:generated_metadata) do
+    {
+      'veteranFirstName' => claim.veteran_first_name,
+      'veteranLastName' => claim.veteran_last_name,
+      'fileNumber' => claim.veteran_filenumber,
+      'zipCode' => '00000',
+      'source' => job.class.to_s,
+      'docType' => claim.form_id,
+      'businessLine' => claim.business_line
+    }
+  end
 
   describe '#perform' do
     let(:response) { double('response') }
@@ -47,7 +58,7 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
       expect(UserAccount).to receive(:find)
 
       expect(service).to receive(:perform_upload).with(
-        upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
+        upload_url: 'test_location', document: pdf_path, metadata: generated_metadata.to_json, attachments: []
       )
       expect(job).to receive(:cleanup_file_paths)
 
