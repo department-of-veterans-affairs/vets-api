@@ -261,9 +261,9 @@ module PdfFill
         }
         if form_data['graduatedClasses'].present? && form_data['graduatedClasses'].size >= 2
           form_data['medicalData']['graduation1Date'] = form_data['graduatedClasses'][0]['graduationDate']
-          form_data['medicalData']['graduation1NumStudents'] = form_data['graduatedClasses'][0]['graduationCount']
+          form_data['medicalData']['graduation1NumStudents'] = form_data['graduatedClasses'][0]['graduatesCount']
           form_data['medicalData']['graduation2Date'] = form_data['graduatedClasses'][1]['graduationDate']
-          form_data['medicalData']['graduation2NumStudents'] = form_data['graduatedClasses'][1]['graduationCount']
+          form_data['medicalData']['graduation2NumStudents'] = form_data['graduatedClasses'][1]['graduatesCount']
         end
       end
 
