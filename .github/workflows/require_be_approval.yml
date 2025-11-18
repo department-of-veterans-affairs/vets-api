@@ -109,14 +109,7 @@ jobs:
 
             echo "  Owners: $owners"
 
-            # Check if backend-review-group owns this file
-            if echo "$owners" | grep -q "@department-of-veterans-affairs/backend-review-group"; then
-              echo "   Owned by backend-review-group (requires approval)"
-              all_files_exempt=false
-              continue
-            fi
-
-            # Check if file is owned exclusively by exempt teams
+            # Check if file is owned by exempt teams
             file_is_exempt=false
             for team in "${EXEMPT_TEAM_ARRAY[@]}"; do
               if echo "$owners" | grep -q "@department-of-veterans-affairs/${team}"; then
