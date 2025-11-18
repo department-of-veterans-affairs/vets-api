@@ -44,10 +44,6 @@ module BGS
     end
 
     def create_proc_form(vnp_proc_id, form_type_code)
-      # Temporary log proc_id to sentry
-      log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
-
-      log_message_to_rails(vnp_proc_id, :warn)
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
           { vnp_proc_id:, form_type_cd: form_type_code }.merge(bgs_auth)
