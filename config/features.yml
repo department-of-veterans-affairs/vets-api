@@ -22,10 +22,6 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_api:
-    actor_type: user
-    description: Enables the endpoints of the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_intent_to_file_api:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
@@ -143,7 +139,6 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
-    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -200,9 +195,6 @@ features:
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
-  hca_disable_sentry_logging:
-    actor_type: user
-    description: Disables Sentry logging in the 10-10EZ and 10-10EZR
   hca_health_facilities_update_job:
     actor_type: user
     description: Enables the health facilities import job - should only run daily by default in prod, staging, and sandbox.
@@ -609,6 +601,9 @@ features:
   decision_review_nod_status_updater_enabled:
     actor_type: user
     description: Enables the Notice of Disagreement status update batch job
+  decision_review_nod_feb2025_pdf_enabled:
+    actor_type: user
+    description: Enables utilizing  Feb 2025 Notice of Disagreement pdf VA form  
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
@@ -654,6 +649,10 @@ features:
     actor_type: user
     description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
     enable_in_development: true
+  decision_review_delete_secondary_appeal_forms_enabled:
+    actor_type: user
+    description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
+    enable_in_development: true
   decision_review_failure_notification_email_job_enabled:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
@@ -678,6 +677,9 @@ features:
   decision_review_stuck_records_monitoring:
     actor_type: user
     description: Enables monitoring for stuck records in decision review applications
+  decision_review_sc_redesign_nov2025:
+    actor_type: user
+    description: Enables the Nov 2025 Supplemental Claims redesign
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1453,10 +1455,6 @@ features:
     actor_type: user
     description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
-  mhv_medical_records_redact_fhir_client_logs:
-    actor_type: user
-    description: Replaces IDs in fhir_client INFO-level logs with X's when enabled
-    enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medical Records on VA.gov (intial transition from MHV to VA.gov)
@@ -1540,10 +1538,6 @@ features:
   mhv_medications_display_allergies:
     actor_type: user
     description: Enables/disables allergies and reactions data
-    enable_in_development: true
-  mhv_medications_display_filter:
-    actor_type: user
-    description: Enables/disables filter feature for medications list
     enable_in_development: true
   mhv_medications_cerner_pilot:
     actor_type: user
@@ -1934,6 +1928,10 @@ features:
     actor_type: user
     description: Enables the ability to hide the My HealtheVet sign in button (Identity)
     enable_in_development: true
+  portal_notice_interstitial_enabled:
+    actor_type: user
+    description: Enables the MHV portal notice interstital page
+    enable_in_development: true
   sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
@@ -2002,6 +2000,9 @@ features:
   va_notify_custom_bearer_tokens:
     actor_type: user
     description: Iterates through Settings.vanotify.service_callback_tokens for token matching
+  va_notify_push_notifications:
+    actor_type: user
+    description: Enables initialization of push notification client in VA Notify
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -2363,6 +2364,28 @@ features:
     actor_type: user
     description: Enable the new overflow design
     enable_in_development: true
+  employment_questionnaires_form_enabled:
+    enable_in_development: true
+    actor_type: user
+    description: Enable form 21-4140 EMPLOYMENT QUESTIONNAIRE
+  employment_questionnaires_browser_monitoring_enabled:
+    actor_type: user
+    description: Employment Questionnaire form Datadog RUM monitoring
+  employment_questionnaires_content_updates:
+    actor_type: user
+    description: Implement plain language and content updates
+  employment_questionnaires_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  employment_questionnaires_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  employment_questionnaires_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  employment_questionnaires_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2486,10 +2509,6 @@ features:
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
-  accredited_representative_portal_pilot:
-    actor_type: user
-    description: Enable the Accredited Representative Portal for the pilot
-    enable_in_development: true
   toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
