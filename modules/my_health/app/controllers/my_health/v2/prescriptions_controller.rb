@@ -11,7 +11,7 @@ module MyHealth
     class PrescriptionsController < ApplicationController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
-      include MyHealth::RxGroupingHelper
+      include MyHealth::RxGroupingHelperV2
       include JsonApiPaginationLinks
 
       service_tag 'mhv-prescriptions'
