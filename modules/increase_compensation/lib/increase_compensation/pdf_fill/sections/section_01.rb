@@ -197,18 +197,18 @@ module IncreaseCompensation
 
       def expand(form_data = {})
         form_data['veteranFullName'] = extract_middle_i(form_data, 'veteranFullName')
-        if form_data['veteranPhone'].present? && form_data['veteranPhone'].length >= 10
-          form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone'])
-        end
+        form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone']) if form_data['veteranPhone'].present?
         form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranSocialSecurityNumber1'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranSocialSecurityNumber2'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranSocialSecurityNumber3'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranDateOfBirth'] = split_date(form_data['dateOfBirth'])
-        form_data['veteranAddress']['postalCode'] = split_postal_code(form_data['veteranAddress'])
+        if form_data['veteranAddress'].present?
+          form_data['veteranAddress']['postalCode'] = split_postal_code(form_data['veteranAddress'])
+        end
         form_data['electronicCorrespondance'] = form_data['electronicCorrespondance'] ? 1 : 0
         # overflow text to next line if under total limit, otherwise save to one line for overflow page
-        form_data['emailAddress'] = if form_data['email'].length > 34
+        form_data['emailAddress'] = if form_data['email'].present? && form_data['email'].length > 34
                                       { 'email1' => form_data['email'] }
                                     else
                                       two_line_overflow(form_data['email'], 'email', 17)
