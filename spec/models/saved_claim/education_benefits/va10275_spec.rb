@@ -14,22 +14,21 @@ RSpec.describe SavedClaim::EducationBenefits::VA10275 do
     let(:user) { create(:user) }
 
     describe 'confirmation email for 10275' do
+      subject { create(:va10275) }
+
       it 'is skipped when feature flag is turned off' do
         allow(Flipper).to receive(:enabled?).with(:form22_10275_submission_email).and_return(false)
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = create(:va10275)
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
-        Flipper.enable(:form0994_confirmation_email)
       end
 
       it 'sends the email when feature flag is on' do
         allow(Flipper).to receive(:enabled?).with(:form22_10275_submission_email).and_return(true)
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = create(:va10275)
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
