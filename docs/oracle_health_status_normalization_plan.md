@@ -41,8 +41,8 @@ Based on the provided status mapping document, Oracle Health statuses should be 
 | `active` | > 0 | Not expired | Other | `active` |
 | `on-hold` | Any | Any | Any | `providerHold` |
 | `cancelled` | Any | Any | Any | `discontinued` |
-| `completed` | Any | > 6 months ago | Any | `expired` |
-| `completed` | Any | ≤ 6 months ago | Any | `discontinued` |
+| `completed` | Any | ≤ 6 months ago | Any | `expired` |
+| `completed` | Any | > 6 months ago | Any | `discontinued` |
 | `entered-in-error` | Any | Any | Any | `discontinued` |
 | `stopped` | Any | Any | Any | `discontinued` |
 | `draft` | Any | Any | Any | `pending` |
