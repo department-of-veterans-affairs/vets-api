@@ -3,7 +3,7 @@
 class Lighthouse::HCC::InvoiceSerializer
   include JSONAPI::Serializer
 
-  set_type :invoice
+  set_type :medical_copays
   set_key_transform :camel_lower
   set_id :external_id
 
