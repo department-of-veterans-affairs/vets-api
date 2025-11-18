@@ -81,7 +81,6 @@ module Mobile
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
       end
-      # rubocop:enable Metrics/MethodLength
 
       def download_document
         document_id = CGI.unescape(params[:document_id])
@@ -94,18 +93,23 @@ module Mobile
           type: document_data[:type],
           disposition: document_data[:disposition]
         )
-      rescue ArgumentError => e
-        Rails.logger.error("Invalid travel pay document request: claim_id=#{params[:claim_id]&.first(8)}, document_id=#{params[:document_id]&.first(8)}")
+      rescue ArgumentError
+        Rails.logger.error(
+          "Invalid travel pay document request: claim_id=#{params[:claim_id]&.first(8)}, " \
+          "document_id=#{params[:document_id]&.first(8)}"
+        )
         head :bad_request
       rescue Faraday::ResourceNotFound
         Rails.logger.error(
-          "Travel pay document not found: claim_id=#{params[:claim_id]&.first(8)}, document_id=#{params[:document_id]&.first(8)}"
+          "Travel pay document not found: claim_id=#{params[:claim_id]&.first(8)}, " \
+          "document_id=#{params[:document_id]&.first(8)}"
         )
         head :not_found
       rescue => e
         Rails.logger.error("Error downloading travel pay document: #{e.class}, #{e.message}")
         head :internal_server_error
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
