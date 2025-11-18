@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lib/pdf_fill/fill_form_examples'
-require 'increase_compensation/pdf_fill/va218940v1'
-require 'fileutils'
-require 'tmpdir'
 
 describe IncreaseCompensation::PdfFill::Section2 do
   describe 'doctorsCareInLastYTD boolean field' do
