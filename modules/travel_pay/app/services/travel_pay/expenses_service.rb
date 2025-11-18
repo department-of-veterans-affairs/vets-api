@@ -110,7 +110,8 @@ module TravelPay
         next if value.nil?
 
         # Use special mapping if it exists, otherwise convert to camelCase
-        api_key = special_mappings[key] || key.camelize(:lower)
+        key_str = key.to_s
+        api_key = special_mappings[key_str] || key_str.camelize(:lower)
         request_body[api_key] = value
       end
 
