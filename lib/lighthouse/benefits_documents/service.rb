@@ -74,7 +74,7 @@ module BenefitsDocuments
     end
 
     # Returns a list of all VBMS document names related to participantId.
-    # @param participant_id: string A unique identifier assigned to each patient entry
+    # @param participant_id: integer A unique identifier assigned to each patient entry
     # in the Master Patient Index linking patients to their records across VA systems.
     # Example: 999012105
     # @ param page_number: integer 1-based page number to retrieve. Defaults to 1.
@@ -93,12 +93,12 @@ module BenefitsDocuments
     # obtained by making a Document Service API request to search for documents
     # that are available to download for the Veteran.
     # Note that this differs from the document's current version UUID.
-    # @param participant_id: string A unique identifier assigned to each patient entry
+    # @param participant_id: integer A unique identifier assigned to each patient entry
     # in the Master Patient Index linking patients to their records across VA systems.
     # Example: 999012105
-    # @param file_number: The Veteran's VBMS fileNumber used when uploading the document to VBMS.
+    # @param file_number: string The Veteran's VBMS fileNumber used when uploading the document to VBMS.
     # It indicates the eFolder in which the document resides.
-    # Example: 999012105
+    # Example: "999012105"
     def participant_documents_download(document_uuid:, participant_id: nil, file_number: nil)
       config.participant_documents_download(document_uuid:, participant_id:, file_number:)
     rescue Faraday::ClientError, Faraday::ServerError => e

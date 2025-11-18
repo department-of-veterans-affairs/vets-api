@@ -208,7 +208,7 @@ module BenefitsDocuments
     end
 
     # Returns a list of all VBMS document names related to participantId.
-    # @param participant_id: string A unique identifier assigned to each patient entry
+    # @param participant_id: integer A unique identifier assigned to each patient entry
     # in the Master Patient Index linking patients to their records across VA systems.
     # Example: 999012105
     # @ param page_number: integer 1-based page number to retrieve. Defaults to 1.
@@ -216,13 +216,8 @@ module BenefitsDocuments
     # @ param page_size: integer Number of results per page (1–100). Defaults to 100. Maximum 100.
     # Example: 100
     def participant_documents_search(participant_id:, page_number: 1, page_size: 100)
-      headers = { 'Authorization' => "Bearer #{
-        access_token(
-          nil,
-          nil,
-          {}
-        )
-      }" }
+      token = access_token(nil, nil, {} )
+      headers = { 'Authorization' => "Bearer #{token}" }
 
       body = {
         'data' => {
@@ -242,20 +237,21 @@ module BenefitsDocuments
     # obtained by making a Document Service API request to search for documents
     # that are available to download for the Veteran.
     # Note that this differs from the document's current version UUID.
-    # @param participant_id: string A unique identifier assigned to each patient entry
+    # @param participant_id: integer A unique identifier assigned to each patient entry
     # in the Master Patient Index linking patients to their records across VA systems.
     # Example: 999012105
-    # @param file_number: The Veteran's VBMS fileNumber used when uploading the document to VBMS.
+    # @param file_number: string The Veteran's VBMS fileNumber used when uploading the document to VBMS.
     # It indicates the eFolder in which the document resides.
-    # Example: 999012105
-    def participant_documents_download(document_uuid: nil, participant_id: nil, file_number: nil)
-      headers = { 'Authorization' => "Bearer #{
-        access_token(
-          nil,
-          nil,
-          {}
-        )
-      }", 'Accept' => 'application/octet-stream, application/json' }
+    # Example: "999012105"
+    def participant_documents_download(document_uuid:, participant_id: nil, file_number: nil)
+      raise ArgumentError, 'document_uuid required' if document_uuid.blank?
+      raise ArgumentError, 'participant_id or file_number required' if participant_id.blank? && file_number.blank?
+
+      token = access_token(nil, nil, {} )
+      headers = {
+        'Authorization' => "Bearer #{token}",
+        'Accept' => 'application/octet-stream, application/json'
+      }
 
       body = {
         'data' => {
