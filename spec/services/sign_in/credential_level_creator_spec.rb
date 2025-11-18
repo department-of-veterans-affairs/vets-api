@@ -346,7 +346,14 @@ RSpec.describe SignIn::CredentialLevelCreator do
           it_behaves_like 'a created credential level'
         end
 
-        context 'and user info credential ial does not equal idme classic loa3' do
+        context 'and user info credential ial equals ial2' do
+          let(:credential_ial) { SignIn::Constants::Auth::IAL_TWO }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
+
+          it_behaves_like 'a created credential level'
+        end
+
+        context 'and user info credential ial does not equal idme classic loa3 nor ial2' do
           let(:credential_ial) { 'some-credential-ial' }
 
           shared_examples 'an auto-uplevel capable credential' do

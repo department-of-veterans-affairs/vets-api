@@ -80,21 +80,44 @@ module SignIn
     end
 
     def current_ial
-      case type
-      when Constants::Auth::LOGINGOV
-        verified_ial_level(logingov_acr == Constants::Auth::LOGIN_GOV_IAL2 || previously_verified?(:logingov_uuid))
-      when Constants::Auth::MHV
-        verified_ial_level(requested_verified_account? && Constants::Auth::MHV_PREMIUM_VERIFIED.include?(mhv_assurance))
-      when Constants::Auth::DSLOGON
-        verified_ial_level(requested_verified_account? &&
-                           Constants::Auth::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance))
-      else
-        verified_ial_level(credential_ial == Constants::Auth::IDME_CLASSIC_LOA3 || previously_verified?(:idme_uuid))
-      end
+      verified_ial_level(verified_for_current_type?)
     end
 
     def verified_ial_level(verified)
       verified ? Constants::Auth::IAL_TWO : Constants::Auth::IAL_ONE
+    end
+
+    def verified_for_current_type?
+      case type
+      when Constants::Auth::LOGINGOV
+        logingov_verified?
+      when Constants::Auth::MHV
+        mhv_verified?
+      when Constants::Auth::DSLOGON
+        dslogon_verified?
+      else
+        idme_verified?
+      end
+    end
+
+    def logingov_verified?
+      logingov_acr == Constants::Auth::LOGIN_GOV_IAL2 ||
+        previously_verified?(:logingov_uuid)
+    end
+
+    def mhv_verified?
+      requested_verified_account? &&
+        Constants::Auth::MHV_PREMIUM_VERIFIED.include?(mhv_assurance)
+    end
+
+    def dslogon_verified?
+      requested_verified_account? &&
+        Constants::Auth::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance)
+    end
+
+    def idme_verified?
+      [Constants::Auth::IDME_CLASSIC_LOA3, Constants::Auth::IAL_TWO].include?(credential_ial) ||
+        previously_verified?(:idme_uuid)
     end
 
     def requested_verified_account?
