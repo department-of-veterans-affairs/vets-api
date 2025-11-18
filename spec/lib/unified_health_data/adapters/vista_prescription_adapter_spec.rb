@@ -138,6 +138,26 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       end
     end
 
+    context 'with disp_status field' do
+      let(:vista_medication_with_disp_status) do
+        base_vista_medication.merge('dispStatus' => 'Active: Refill in Process')
+      end
+
+      it 'extracts the disp_status field' do
+        result = subject.parse(vista_medication_with_disp_status)
+
+        expect(result.disp_status).to eq('Active: Refill in Process')
+      end
+    end
+
+    context 'without disp_status field' do
+      it 'sets disp_status to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.disp_status).to be_nil
+      end
+    end
+
     context 'when medication includes RFC1123 date fields' do
       it 'converts them to ISO 8601 strings' do
         result = subject.parse(vista_medication_with_tracking)
