@@ -307,6 +307,30 @@ jobs:
           number: ${{ env.pr_number }}
           labels: exempt-be-review
 
+      - name: Check if backend-review-group is still pending in GitHub settings
+        id: check_pending_reviews
+        if: steps.verify_approval.outputs.backend_approval_required == 'false' || steps.verify_approval.outputs.exempt_be_review == 'true'
+        run: |
+          # Query the PR's requested reviewers to see if backend-review-group is still pending
+          REQUESTED_TEAMS=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }} \
+            --jq '.requested_teams[].slug' || echo "")
+
+          echo "Requested teams: $REQUESTED_TEAMS"
+
+          # Check if backend-review-group is in the list of requested teams
+          if echo "$REQUESTED_TEAMS" | grep -q "backend-review-group"; then
+            echo "ERROR: backend-review-group is still listed as a pending required reviewer"
+            echo "Even though this PR is from an exempt team, GitHub branch protection settings"
+            echo "are blocking the merge because backend-review-group approval is still required."
+            echo "backend_review_group_pending=true" >> "$GITHUB_OUTPUT"
+            exit 1
+          else
+            echo "backend-review-group is not pending"
+            echo "backend_review_group_pending=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
       - name: Exit for non backend approvals
         if: steps.verify_approval.outputs.backend_approval_required == 'false' || steps.verify_approval.outputs.exempt_be_review == 'true'
         run: exit 0
