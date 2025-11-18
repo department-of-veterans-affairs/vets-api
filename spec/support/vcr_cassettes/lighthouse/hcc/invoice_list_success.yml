@@ -1,0 +1,328 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_HCC_HOST>/oauth2/health-care-costs-coverage/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=<CLIENT_ASSERTION>&scope=system%2FChargeItem.read+system%2FInvoice.read+system%2FPaymentReconciliation.read+system%2FMedicationDispense.read+system%2FEncounter.read+system%2FAccount.read+system%2FMedication.read+launch&launch=<LAUNCH>%3D%3D
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 Nov 2025 00:28:17 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Reset:
+      - '44'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"<ETAG>"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-140059199"
+      X-Envoy-Upstream-Service-Time:
+      - '469'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"fake_client_id","token_type":"Bearer","scope":"launch
+        system/PaymentReconciliation.read system/Account.read system/ChargeItem.read
+        system/Encounter.read system/Medication.read system/Invoice.read system/MedicationDispense.read","expires_in":300,"state":null,"patient":"123"}'
+  recorded_at: Wed, 05 Nov 2025 00:28:17 GMT
+- request:
+    method: get
+    uri: "https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&page=1&patient=123"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 Nov 2025 00:28:17 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '30549'
+      Connection:
+      - keep-alive
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Reset:
+      - '43'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1628437930", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '142'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 92ecfef1-b402-4f67-96e3-ffd9362e08ca#1268150
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":10,"link":[{"relation":"first","url":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=123&page=1"},{"relation":"self","url":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=123&page=1"},{"relation":"last","url":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=123&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIvIw6","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xIvIw6","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FE4D1"}],"status":"cancelled","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"39","display":"CANCELLATION"}],"text":"CANCELLATION"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123PATIENT_ID>","display":"Jaskolski867,
+        Janessa317"},"date":"2024-04-30T08:51:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XK44ejMS","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5VawK","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":65.71}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjlIGfQ","display":"DG
+        OPT COPAY CANCEL"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":-65.71}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm6cp0D","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.78}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.78}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":2.56}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjlITSD","display":"EXEMPT
+        INT/ADM. COST"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest
+        Charged"},"amount":{"value":-1.78}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":-0.78}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":-2.56}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":65.71}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xIv1t4","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FD983"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2024-11-30T17:10:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5AKcS3F","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkA9CC","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":76.19}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5UhWz","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.99}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.59}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.58}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkALyz","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.99}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.59}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.58}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5Uya1","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.99}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.59}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.58}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkAd21","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.99}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.59}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.58}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5VFd3","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.99}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.59}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.58}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkAu53","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.99}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.59}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.58}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":76.19}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":76.19}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":5.94}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":3.54}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xIukq2","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FEF1C"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2024-09-30T14:26:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XK3dOgmC","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4MeK0","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":49.63}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj2EVl","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.43}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4Mr6n","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.43}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj2VYn","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.43}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4N89p","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.43}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjk9nsv","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.43}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5UQTx","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.43}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":49.63}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":49.63}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":8.58}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":2.58}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIuTn0","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xIuTn0","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FE103"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2025-05-30T20:31:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5AlwLJx","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj21iy","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":21.98}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":21.98}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":21.98}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIuCjy","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xIuCjy","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FB380"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2025-03-30T17:41:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5B42GrZ","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4MNGy","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":42.88}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":42.88}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":42.88}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xItvgw","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xItvgw","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FE788"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2025-05-30T11:55:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5BMI6AL","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj1kfw","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":67.34}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":67.34}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":67.34}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGfc5i","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xGfc5i","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FEC9E"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2025-03-01T16:28:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5B46fe5","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj1Tcu","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":49.61}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4M1xh","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.41}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.41}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.82}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":49.61}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":49.61}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":1.41}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.41}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGfL2g","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xGfL2g","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FE860"}],"status":"issued","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"16","display":"ACTIVE"}],"text":"ACTIVE"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2025-06-01T20:29:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XKf8jCQm","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3Ento","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":284.59}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":284.59}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":284.59}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xGf3ze","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FEA05"}],"status":"issued","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"16","display":"ACTIVE"}],"text":"ACTIVE"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2024-12-30T21:49:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XKfZzF12","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3Dhhg","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":72.34}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhtHtR","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.74}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.88}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3DuUT","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.74}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.88}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhtYwT","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.74}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.88}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3EBXV","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.74}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.88}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhtpzV","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.74}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.88}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3ESaX","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.74}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.88}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhu72X","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.74}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.88}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":72.34}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":21.94}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":1.14}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.74}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":50.4}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":6.84}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":4.44}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGemwc","resource":{"resourceType":"Invoice","id":"4-1abZUKu7xGemwc","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"675-K3FE348"}],"status":"issued","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"16","display":"ACTIVE"}],"text":"ACTIVE"}},"subject":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Patient/123","display":"Jaskolski867,
+        Janessa317"},"date":"2025-03-30T21:49:47Z","issuer":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XKfMN2s0","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4Vwsulhk8"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjglVjU","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":52.21}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm2644H","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.21}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.22}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjgliWH","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.21}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.22}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm26L7J","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.21}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.22}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjht0qP","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.21}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.22}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":52.21}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":28.6}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.21}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":23.61}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":3.03}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.63}}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:17 GMT
+recorded_with: VCR 6.3.1

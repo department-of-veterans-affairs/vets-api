@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/lineOfBusinessIdFilter.json",
+  "description" : "Filters results based on documents that are associated with the provided line of business through their type or content source",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "VRE",
+      "type" : "string"
+    }
+  },
+  "title" : "Line of Business Id Filter Request",
+  "type" : "object"
+}

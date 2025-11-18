@@ -25,6 +25,8 @@ module Mobile
       attribute :events_timeline, Types::Array.of(ClaimEventTimeline)
       attribute :updated_at, Types::Date
       attribute :claim_type_code, Types::String
+      attribute :claim_type_base, Types::String
+      attribute :display_title, Types::String
     end
   end
 end
