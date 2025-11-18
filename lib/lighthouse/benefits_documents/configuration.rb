@@ -216,7 +216,7 @@ module BenefitsDocuments
     # @param page_size: integer Number of results per page (1–100). Defaults to 100. Maximum 100.
     # Example: 100
     def participant_documents_search(participant_id:, page_number: 1, page_size: 100)
-      token = access_token(nil, nil, {} )
+      token = access_token(nil, nil, {})
       headers = { 'Authorization' => "Bearer #{token}" }
 
       body = {
@@ -247,7 +247,7 @@ module BenefitsDocuments
       raise ArgumentError, 'document_uuid required' if document_uuid.blank?
       raise ArgumentError, 'participant_id or file_number required' if participant_id.blank? && file_number.blank?
 
-      token = access_token(nil, nil, {} )
+      token = access_token(nil, nil, {})
       headers = {
         'Authorization' => "Bearer #{token}",
         'Accept' => 'application/octet-stream, application/json'
