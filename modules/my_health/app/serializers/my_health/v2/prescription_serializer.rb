@@ -16,7 +16,7 @@ module MyHealth
       #   object.is_trackable ? MyHealth::UrlHelper.new.v2_prescription_trackings_url(object.prescription_id) : ''
       # end
 
-      attribute :prescription_id
+      attribute :prescription_id, &:prescription_id
       attribute :prescription_number
       attribute :prescription_name
 
