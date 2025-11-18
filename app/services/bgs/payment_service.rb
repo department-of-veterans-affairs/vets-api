@@ -12,7 +12,7 @@ module BGS
       @common_name = user.common_name
       @email = user.email
       @icn = user.icn
-    end 
+    end
 
     def payment_history(person)
       response = service.payment_information.retrieve_payment_summary_with_bdn(
