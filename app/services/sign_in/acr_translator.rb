@@ -32,7 +32,7 @@ module SignIn
     end
 
     def translate_acr_comparison
-      type == Constants::Auth::IDME && acr == 'min' ? Constants::Auth::IDME_COMPARISON_MINIMUM : nil
+      type == Constants::Auth::IDME && acr == 'min' && !uplevel ? Constants::Auth::IDME_COMPARISON_MINIMUM : nil
     end
 
     def translate_idme_values
