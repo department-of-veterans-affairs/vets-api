@@ -409,6 +409,7 @@ app/serializers/supporting_evidence_attachment_serializer.rb @department-of-vete
 app/serializers/tsa_letter_serializer.rb @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 app/serializers/user_action_event_serializer.rb @department-of-veterans-affairs/octo-identity
 app/serializers/user_action_serializer.rb @department-of-veterans-affairs/octo-identity
+app/serializers/user_info_serializer.rb @department-of-veterans-affairs/octo-identity
 app/serializers/user_serializer.rb @department-of-veterans-affairs/octo-identity
 app/serializers/user_verification_serializer.rb @department-of-veterans-affairs/octo-identity
 app/serializers/valid_va_file_number_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
