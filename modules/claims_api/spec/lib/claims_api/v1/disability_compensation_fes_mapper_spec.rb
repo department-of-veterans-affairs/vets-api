@@ -177,6 +177,34 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
               expect(change[:addressType]).to eq('DOMESTIC')
             end
           end
+
+          context 'change of address for international address' do
+            let(:auto_claim) do
+              attrs = form_data['data']['attributes'].deep_dup
+              attrs['veteran']['changeOfAddress'] = {
+                'typeOfAddressChange' => 'TEMPORARY',
+                'numberAndStreet' => '10 Peach St',
+                'apartmentOrUnitNumber' => 'Unit 4',
+                'city' => 'Schenectady',
+                'country' => 'Canada',
+                'beginningDate' => '2023-06-04',
+                'endingDate' => '2023-12-04',
+                'internationalPostalCode' => '12345',
+                'type' => 'INTERNATIONAL'
+              }
+              create(:auto_established_claim, form_data: attrs, auth_headers:)
+            end
+
+            it 'maps fields and dates correctly' do
+              change = veteran[:changeOfAddress]
+              expect(change[:addressChangeType]).to eq('TEMPORARY')
+              expect(change[:addressLine1]).to eq('10 Peach St Unit 4')
+              expect(change[:beginningDate]).to eq('2023-06-04')
+              expect(change[:endingDate]).to eq('2023-12-04')
+              expect(change[:addressType]).to eq('INTERNATIONAL')
+              expect(change[:city]).to eq('Schenectady')
+            end
+          end
         end
       end
 
