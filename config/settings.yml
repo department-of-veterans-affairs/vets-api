@@ -414,6 +414,7 @@ evss:
     url: http://fake.evss-reference-data-service.dev/v1
   cert_path: "/etc/pki/tls/certs/vetsgov-evss-cert.pem"
   disability_compensation_form:
+    enabled: true
     submit_timeout: 355
     timeout: 55
   dvp:
@@ -1618,7 +1619,7 @@ vanotify:
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
-        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %> 
+        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %>
         form10297_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form10297_confirmation_email'] %>
         form1880_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1880_reminder_email'] %>
         form1900_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
