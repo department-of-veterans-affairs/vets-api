@@ -255,6 +255,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
 
+          # Verify sort metadata is included
+          expect(json_response['meta']).to have_key('sort')
+          expect(json_response['meta']['sort']).to be_a(Hash)
+          expect(json_response['meta']['sort']).to include('prescription_name' => 'ASC')
+
           # Get non-PD prescription data
           prescriptions = json_response['data']
                           .reject { |rx| rx['attributes']['prescription_source'] == 'PD' }
@@ -300,6 +305,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
+
+          # Verify sort metadata is included with default value
+          expect(json_response['meta']).to have_key('sort')
+          expect(json_response['meta']['sort']).to be_a(Hash)
+          expect(json_response['meta']['sort']).to include('disp_status' => 'ASC', 'prescription_name' => 'ASC')
 
           # Default sort is by disp_status ASC, then prescription_name ASC
           # Skip PD prescriptions in verification

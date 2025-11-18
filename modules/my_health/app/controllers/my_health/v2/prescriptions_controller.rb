@@ -32,9 +32,9 @@ module MyHealth
         prescriptions = resource_data_modifications(prescriptions).compact
 
         filter_count = set_filter_metadata(prescriptions, raw_data)
-        prescriptions = apply_filters_and_sorting(prescriptions)
+        prescriptions, sort_metadata = apply_filters_and_sorting(prescriptions)
 
-        records, options = build_response_data(prescriptions, filter_count, recently_requested)
+        records, options = build_response_data(prescriptions, filter_count, recently_requested, sort_metadata)
 
         log_prescriptions_access
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
@@ -88,21 +88,25 @@ module MyHealth
 
       def apply_filters_and_sorting(prescriptions)
         prescriptions = apply_filters_to_list(prescriptions) if params[:filter].present?
-        prescriptions = apply_sorting_to_list(prescriptions, params[:sort])
-        sort_prescriptions_with_pd_at_top(prescriptions)
+        prescriptions, sort_metadata = apply_sorting_to_list(prescriptions, params[:sort])
+        [sort_prescriptions_with_pd_at_top(prescriptions), sort_metadata]
       end
 
-      def build_response_data(prescriptions, filter_count, recently_requested)
+      def build_response_data(prescriptions, filter_count, recently_requested, sort_metadata = {})
         is_using_pagination = params[:page].present? || params[:per_page].present?
 
+        base_meta = filter_count.merge(recently_requested:)
+        # sort_metadata is the entire metadata hash from the resource, access the :sort key
+        base_meta[:sort] = sort_metadata[:sort] if sort_metadata.is_a?(Hash) && sort_metadata[:sort].present?
+
         if is_using_pagination
-          build_paginated_response(prescriptions, filter_count, recently_requested)
+          build_paginated_response(prescriptions, base_meta)
         else
-          [Array(prescriptions), { meta: filter_count.merge(recently_requested:) }]
+          [Array(prescriptions), { meta: base_meta }]
         end
       end
 
-      def build_paginated_response(prescriptions, filter_count, recently_requested)
+      def build_paginated_response(prescriptions, base_meta)
         collection = Vets::Collection.new(prescriptions)
         paginated = collection.paginate(
           page: pagination_params[:page],
@@ -110,10 +114,7 @@ module MyHealth
         )
 
         options = {
-          meta: filter_count.merge(
-            recently_requested:,
-            pagination: paginated.metadata[:pagination]
-          ),
+          meta: base_meta.merge(pagination: paginated.metadata[:pagination]),
           links: pagination_links(paginated)
         }
         [paginated.data, options]
@@ -159,14 +160,10 @@ module MyHealth
         # Create a mock resource object for the helper methods
         resource = Struct.new(:records, :metadata).new(prescriptions, {})
         
-        case sort_param
-        when 'last-fill-date'
-          last_fill_date_sort(resource).records
-        when 'alphabetical-rx-name'
-          alphabetical_sort(resource).records
-        else
-          default_sort(resource).records
-        end
+        # Use the helper's apply_sorting method which sets the metadata
+        sorted_resource = apply_sorting(resource, sort_param)
+        
+        [sorted_resource.records, sorted_resource.metadata]
       end
 
       def resource_data_modifications(prescriptions)
