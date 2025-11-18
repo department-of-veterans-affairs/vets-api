@@ -409,6 +409,40 @@ describe TravelPay::ExpensesService do
         expect(result['costRequested']).to eq(100.0)
         expect(result).not_to have_key('description')
       end
+
+      it 'handles Symbol keys correctly' do
+        params = {
+          expense_type: 'lodging',
+          claim_id: 'claim-123',
+          description: 'Test description',
+          cost_requested: 100.0,
+          purchase_date: '2024-11-01'
+        }
+
+        result = build_request_body(params)
+
+        expect(result['expenseType']).to eq('lodging')
+        expect(result['claimId']).to eq('claim-123')
+        expect(result['description']).to eq('Test description')
+        expect(result['costRequested']).to eq(100.0)
+        expect(result['dateIncurred']).to eq('2024-11-01')
+      end
+
+      it 'handles mixed String and Symbol keys' do
+        params = {
+          'expense_type' => 'meal',
+          claim_id: 'claim-456',
+          'description' => 'Lunch',
+          cost_requested: 25.0
+        }
+
+        result = build_request_body(params)
+
+        expect(result['expenseType']).to eq('meal')
+        expect(result['claimId']).to eq('claim-456')
+        expect(result['description']).to eq('Lunch')
+        expect(result['costRequested']).to eq(25.0)
+      end
     end
 
     context 'mileage expense specific fields' do
