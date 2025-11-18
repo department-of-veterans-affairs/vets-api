@@ -8,8 +8,19 @@ FactoryBot.define do
       {
         'form_id' => '21-686C',
         'submission_type' => 'bgs',
-        'submitted_at' => Time.current.iso8601
+        'submitted_at' => Time.current.iso8601,
+        'claim_type_end_product' => '134'
       }
+    end
+
+    trait :without_ep do
+      metadata do
+        {
+          'form_id' => '21-686C',
+          'submission_type' => 'bgs',
+          'submitted_at' => Time.current.iso8601
+        }
+      end
     end
 
     trait :pending do

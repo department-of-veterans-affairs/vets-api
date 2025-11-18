@@ -10,6 +10,17 @@
       :path: "/VDC/ManageRepresentativeService"
       :file_path: "/bgs/manage_representative_service/read_poa_request/default"
 
+# BID Awards  
+- :name: "BID Awards"
+  :base_uri: "bid-api-test.dev.bip.va.gov:443"
+  :endpoints:
+    - :method: :get
+      :path: "/api/v1/awards/pension/*"
+      :file_path: "bid/awards/pension/"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/api\/v1\/awards\/pension\/(.+)'
+
 #CRM API GET endpoint
 - :name: "CRM API GET endpoint"
   :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.base_url).host}:#{URI(Settings.ask_va_api.crm_api.base_url).port}" %>
