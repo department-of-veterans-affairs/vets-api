@@ -34,13 +34,13 @@ module Mobile
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)
-
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
-        user_triage_teams = client.get_triage_teams(@current_user.uuid, use_cache?)
-        user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
+        user_triage_teams = client.get_all_triage_teams(@current_user.uuid, use_cache?)
+        user_triage_teams.records = user_triage_teams.records.reject(&:blocked_status)
+        user_in_triage_team = user_triage_teams.data.any? { |team| team.triage_team_id == response.recipient_id }
 
-        meta = response.metadata.merge(user_in_triage_team?: user_in_triage_team)
+        meta = response.metadata.merge(user_in_triage_team:)
         options = { meta: }
         options[:include] = [:attachments] if response.attachment
         render json: Mobile::V0::MessageSerializer.new(response, options)

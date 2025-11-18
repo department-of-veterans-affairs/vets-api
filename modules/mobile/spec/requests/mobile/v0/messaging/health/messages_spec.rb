@@ -55,17 +55,15 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         expect(response).to match_camelized_response_schema('category')
       end
 
-      it 'responds to GET #show' do
+      it 'responds to GET #show with inactive triage group' do
         VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
-          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
         end
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        response_hash = JSON.parse(response.body)
-        response_hash.delete('meta')
-        response.body = response_hash.to_json
+        expect(response.parsed_body['meta']['userInTriageTeam']).to be(false)
         expect(response).to match_camelized_response_schema('message', strict: false)
         link = response.parsed_body.dig('data', 'links', 'self')
         expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/573059')
@@ -79,16 +77,16 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                             '/health/messages/573059/attachments/674847' } })
       end
 
-      it 'generates mobile-specific metadata links' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+      it 'responds to GET #show with active triage group' do
+        VCR.use_cassette('mobile/messages/gets_a_message_active_triage_team') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
         end
-
-        result = JSON.parse(response.body)
-        expect(result['data']['links']['self']).to match(%r{/mobile/v0})
-        expect(result['meta']['userInTriageTeam?']).to be(false)
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['meta']['userInTriageTeam']).to be(true)
+        expect(response).to match_camelized_response_schema('message', strict: false)
       end
 
       it 'returns message signature preferences' do
