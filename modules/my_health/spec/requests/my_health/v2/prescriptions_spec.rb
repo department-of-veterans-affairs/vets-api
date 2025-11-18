@@ -295,7 +295,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # After grouping, verify that the sort parameter is accepted and prescriptions are returned
           # The sorting logic should handle grouped prescriptions correctly
           # Verify prescriptions are present (actual sort order verified by other tests)
-          expect(json_response['data'].length).to be > 0
+          expect(json_response['data'].length).to be_positive
         end
       end
 

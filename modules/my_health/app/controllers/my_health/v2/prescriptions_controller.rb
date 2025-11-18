@@ -159,10 +159,10 @@ module MyHealth
       def apply_sorting_to_list(prescriptions, sort_param)
         # Create a mock resource object for the helper methods
         resource = Struct.new(:records, :metadata).new(prescriptions, {})
-        
+
         # Use the helper's apply_sorting method which sets the metadata
         sorted_resource = apply_sorting(resource, sort_param)
-        
+
         [sorted_resource.records, sorted_resource.metadata]
       end
 
