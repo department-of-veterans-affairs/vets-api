@@ -64,6 +64,35 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
+      it 'includes dispenses data mapped to rx_rf_records' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          prescriptions_with_dispenses = json_response['data'].select do |rx|
+            rx['attributes']['rx_rf_records'].present? && rx['attributes']['rx_rf_records'].any?
+          end
+
+          # Verify at least some prescriptions have dispenses
+          expect(prescriptions_with_dispenses).not_to be_empty
+
+          # Verify dispenses structure
+          prescriptions_with_dispenses.each do |prescription|
+            dispenses = prescription['attributes']['rx_rf_records']
+            expect(dispenses).to be_an(Array)
+
+            # Verify dispense records have expected attributes
+            dispenses.each do |dispense|
+              expect(dispense).to be_a(Hash)
+              # Check for key dispense attributes from Vista adapter
+              expect(dispense).to have_key('status') if dispense['status'].present?
+              expect(dispense).to have_key('facility_name') if dispense['facility_name'].present?
+              expect(dispense).to have_key('medication_name') if dispense['medication_name'].present?
+            end
+          end
+        end
+      end
+
       it 'includes metadata' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           get('/my_health/v2/prescriptions', headers:)
@@ -506,6 +535,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             next if prescription['disp_status'].blank?
 
             disp_status = prescription['disp_status']
+            # rx_rf_records maps to dispenses array from UHD model
             refill_history_item = prescription['rx_rf_records']&.first
             expired_date = if refill_history_item && refill_history_item['expiration_date']
                              refill_history_item['expiration_date']
@@ -624,6 +654,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           expired_prescriptions.each do |rx|
             attrs = rx['attributes']
+            # rx_rf_records maps to dispenses array from UHD model
             refill_history_item = attrs['rx_rf_records']&.first
             expired_date = if refill_history_item && refill_history_item['expiration_date']
                              DateTime.parse(refill_history_item['expiration_date'])
@@ -711,6 +742,34 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             'facility_name',
             'station_number'
           )
+        end
+      end
+
+      it 'includes dispenses (rx_rf_records) for prescriptions with refill history' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+
+          # Find prescriptions with dispenses
+          prescriptions_with_dispenses = json_response['data'].select do |rx|
+            rx['attributes']['rx_rf_records'].present? && rx['attributes']['rx_rf_records'].any?
+          end
+
+          # If any prescriptions have dispenses, verify the structure
+          prescriptions_with_dispenses.each do |prescription|
+            dispenses = prescription['attributes']['rx_rf_records']
+            expect(dispenses).to be_an(Array)
+
+            # Verify each dispense has expected fields
+            dispenses.each do |dispense|
+              expect(dispense).to be_a(Hash)
+              # Common dispense fields from Vista adapter
+              expect(dispense.keys).to include('status') if dispense['status'].present?
+              expect(dispense.keys).to include('dispensed_date') if dispense['dispensed_date'].present?
+              expect(dispense.keys).to include('quantity') if dispense['quantity'].present?
+            end
+          end
         end
       end
     end

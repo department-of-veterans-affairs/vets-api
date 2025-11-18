@@ -99,8 +99,13 @@ module MyHealth
       # UHD has 'tracking' array field, alias as 'tracking_list'
       attribute :tracking_list, &:tracking
 
+      # UHD has 'dispenses' array field, alias as 'rx_rf_records'
       attribute :rx_rf_records do |object|
-        object.rx_rf_records if object.respond_to?(:rx_rf_records)
+        if object.respond_to?(:dispenses) && object.dispenses.present?
+          object.dispenses
+        else
+          []
+        end
       end
 
       # UHD has 'tracking' as Array, convert to boolean for this attribute
