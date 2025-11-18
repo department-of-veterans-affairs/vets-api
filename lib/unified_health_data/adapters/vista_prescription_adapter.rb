@@ -66,7 +66,8 @@ module UnifiedHealthData
           provider_name: build_provider_name(medication),
           dial_cmop_division_phone: medication['dialCmopDivisionPhone'],
           indication_for_use: medication['indicationForUse'],
-          remarks: medication['remarks']
+          remarks: medication['remarks'],
+          disp_status: medication['dispStatus']
         }
       end
 
