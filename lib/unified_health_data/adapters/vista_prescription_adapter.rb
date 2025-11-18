@@ -36,7 +36,7 @@ module UnifiedHealthData
           refill_submit_date: convert_to_iso8601(medication['refillSubmitDate'], field_name: 'refill_submit_date'),
           refill_date: convert_to_iso8601(medication['refillDate'], field_name: 'refill_date'),
           refill_remaining: medication['refillRemaining'],
-          facility_name: medication['facilityName'],
+          facility_name: medication['facilityApiName'].presence || medication['facilityName'],
           ordered_date: convert_to_iso8601(medication['orderedDate'], field_name: 'ordered_date'),
           quantity: medication['quantity'],
           expiration_date: convert_to_iso8601(medication['expirationDate'], field_name: 'expiration_date'),
