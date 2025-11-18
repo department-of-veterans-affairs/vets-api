@@ -152,7 +152,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -208,7 +208,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -357,7 +357,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'Unknown error' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do

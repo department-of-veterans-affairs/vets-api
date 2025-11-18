@@ -23,7 +23,7 @@ module Common
       # The message will be the actual backend service response from middleware,
       # not the I18n version.
       def message
-        "BackendServiceException: #{(response_values || {}).merge(code:)}"
+        "BackendServiceException: #{response_values.merge(code:)}"
       end
 
       def errors
@@ -91,6 +91,7 @@ module Common
       end
 
       def validate_arguments!
+        raise ArgumentError, 'response_values cannot be nil' if @response_values.nil?
         raise ArgumentError, "i18n key (#{@key}) is invalid" unless I18n.exists?(i18n_key)
         raise ArgumentError, "status (#{status}) is not in range" unless status.between?(400, 599)
       end

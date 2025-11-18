@@ -15,14 +15,14 @@ class DeleteOldTransactionsJob
     rescue ActiveRecord::RecordNotDestroyed => e
       log_message_to_sentry(
         'DeleteOldTransactionsJob raised an exception',
-        :info,
-        model: self.class.to_s,
-        transaction_id: tx.id,
-        exception: e.message
+        :error,
+        { model: self.class.to_s, transaction_id: tx.id, exception: e.message }
       )
 
       log_message_to_rails(
-        'DeleteOldTransactionsJob raised an exception', :info
+        'DeleteOldTransactionsJob raised an exception',
+        :error,
+        { model: self.class.to_s, transaction_id: tx.id, exception: e.message }
       )
       end
   end
