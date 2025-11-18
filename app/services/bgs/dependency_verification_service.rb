@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require 'vets/shared_logging'
+require 'bgs/monitor'
 
 module BGS
   class DependencyVerificationService
-    include Vets::SharedLogging
-
     attr_reader :participant_id, :ssn, :common_name, :email, :icn, :user_uuid
 
     def initialize(user)
@@ -19,7 +17,7 @@ module BGS
 
     def read_diaries
       if participant_id.blank?
-        Rails.logger.warn('read_diaries: participant_id is blank', { icn:, user_uuid: })
+        monitor.warn('read_diaries: participant_id is blank', 'read_diaries', user_uuid:)
         return { dependency_decs: nil, diaries: [] }
       end
 
@@ -38,9 +36,7 @@ module BGS
 
       standard_response(diaries)
     rescue => e
-      log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
-
-      log_exception_to_rails(e)
+      monitor.error(e.message, 'read_diaries_error', user_uuid:)
     end
 
     private
@@ -92,6 +88,10 @@ module BGS
       !dependency_decision.is_a?(Hash) ||
         !dependency_decision.key?(:award_effective_date) ||
         dependency_decision[:award_effective_date].future?
+    end
+
+    def monitor
+      @monitor ||= BGS::Monitor.new
     end
   end
 end
