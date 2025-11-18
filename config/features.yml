@@ -601,6 +601,9 @@ features:
   decision_review_nod_status_updater_enabled:
     actor_type: user
     description: Enables the Notice of Disagreement status update batch job
+  decision_review_nod_feb2025_pdf_enabled:
+    actor_type: user
+    description: Enables utilizing  Feb 2025 Notice of Disagreement pdf VA form  
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
@@ -645,6 +648,10 @@ features:
   decision_review_delete_saved_claims_job_enabled:
     actor_type: user
     description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
+    enable_in_development: true
+  decision_review_delete_secondary_appeal_forms_enabled:
+    actor_type: user
+    description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
     enable_in_development: true
   decision_review_failure_notification_email_job_enabled:
     actor_type: user
@@ -1044,6 +1051,10 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
+  form22_10275_submission_email:
+    actor_type: user
+    description: Enables form 22-10275 email submission to POE team (VaNotify)
+    enable_in_development: true
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
@@ -1532,10 +1543,6 @@ features:
     actor_type: user
     description: Enables/disables allergies and reactions data
     enable_in_development: true
-  mhv_medications_display_filter:
-    actor_type: user
-    description: Enables/disables filter feature for medications list
-    enable_in_development: true
   mhv_medications_cerner_pilot:
     actor_type: user
     description: Enables/disables Medications Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1925,6 +1932,10 @@ features:
     actor_type: user
     description: Enables the ability to hide the My HealtheVet sign in button (Identity)
     enable_in_development: true
+  portal_notice_interstitial_enabled:
+    actor_type: user
+    description: Enables the MHV portal notice interstital page
+    enable_in_development: true
   sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
@@ -1993,6 +2004,9 @@ features:
   va_notify_custom_bearer_tokens:
     actor_type: user
     description: Iterates through Settings.vanotify.service_callback_tokens for token matching
+  va_notify_push_notifications:
+    actor_type: user
+    description: Enables initialization of push notification client in VA Notify
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -2043,6 +2057,9 @@ features:
   va_dependents_browser_monitoring_enabled:
     actor_type: user
     description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
+  va_dependents_fully_digital_form_project:
+    actor_type: user
+    description: Allows us to toggle the fully digital form project for 686C-674
   va_dependents_net_worth_and_pension:
     actor_type: user
     description: Allows us to toggle the net worth and pension questions on the 686C-674
@@ -2354,6 +2371,28 @@ features:
     actor_type: user
     description: Enable the new overflow design
     enable_in_development: true
+  employment_questionnaires_form_enabled:
+    enable_in_development: true
+    actor_type: user
+    description: Enable form 21-4140 EMPLOYMENT QUESTIONNAIRE
+  employment_questionnaires_browser_monitoring_enabled:
+    actor_type: user
+    description: Employment Questionnaire form Datadog RUM monitoring
+  employment_questionnaires_content_updates:
+    actor_type: user
+    description: Implement plain language and content updates
+  employment_questionnaires_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  employment_questionnaires_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  employment_questionnaires_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  employment_questionnaires_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2433,13 +2472,6 @@ features:
       A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
       Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
-  travel_pay_exclude_expense_placeholder_receipt:
-    actor_type: user
-    enable_in_development: false
-    description: >-
-      A switch for a workaround for the API's requirement of receipts with expenses.
-      Enabled - Excludes the placeholder expenseReceipt object on Travel Pay expense create
-      Disabled - Placeholder receipt is included
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2477,10 +2509,6 @@ features:
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
-  accredited_representative_portal_pilot:
-    actor_type: user
-    description: Enable the Accredited Representative Portal for the pilot
-    enable_in_development: true
   toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE

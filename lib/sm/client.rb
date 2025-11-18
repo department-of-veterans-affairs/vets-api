@@ -676,13 +676,6 @@ module SM
       uri = URI.parse(presigned_url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = (uri.scheme == 'https')
-      # Sanitize the presigned URL before adding it to a trace to avoid leaking
-      # time-limited signatures or object names. We keep host + attachment id only.
-      filtered_url = sanitize_presigned_url_for_tracing(presigned_url)
-      span = Datadog::Tracing.active_span
-      trace = Datadog::Tracing.active_trace
-      span&.set_tag('http.url', filtered_url)
-      trace&.set_tag('http.url', filtered_url)
 
       request = Net::HTTP::Put.new(uri)
       request['Content-Type'] = file.content_type
@@ -699,26 +692,6 @@ module SM
 
     def extract_uploaded_file_name(url)
       URI.parse(url).path.split('/').last
-    end
-
-    # Produce a sanitized representation of a presigned S3 URL for tracing.
-    # Example:
-    #   https://example.com/attachments/123/filename.pdf?X-Amz-Signature=ABC
-    # => https://example.com/attachments/123/[FILTERED]
-    # Falls back to [FILTERED] on parse errors.
-    def sanitize_presigned_url_for_tracing(url)
-      uri = URI.parse(url)
-      path = uri.path
-      if (match = path.match(%r{/(attachments|attachment)/(\d+)/}))
-        attachment_type = match[1]
-        attachment_id = match[2]
-        filtered_path = "/#{attachment_type}/#{attachment_id}/[FILTERED]"
-        return "#{uri.scheme}://#{uri.host}#{filtered_path}"
-      end
-      # If it doesn't match the expected pattern, return host + path without query.
-      "#{uri.scheme}://#{uri.host}#{path}"
-    rescue URI::InvalidURIError
-      '[FILTERED]'
     end
 
     def build_lg_attachment(file)

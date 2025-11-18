@@ -141,4 +141,54 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
                                                       'Combat - Mental Disorders (New)'])
     end
   end
+
+  describe 'claim_type_base and display_title fields' do
+    let(:test_claim) do
+      subject.parse(claim_data[0])
+    end
+
+    context 'when title generator feature flag is enabled' do
+      before do
+        allow(Flipper).to(receive(:enabled?)
+                            .with(Mobile::V0::Adapters::ClaimsOverview::FEATURE_USE_TITLE_GENERATOR_MOBILE)
+                            .and_return(true))
+      end
+
+      it 'includes both claim_type_base and display_title in the response' do
+        expect(test_claim[:claim_type_base]).not_to be_nil
+        expect(test_claim[:display_title]).not_to be_nil
+      end
+
+      it 'populates claim_type_base with expected value' do
+        expect(test_claim[:claim_type_base]).to be_a(String)
+        expect(test_claim[:claim_type_base]).not_to be_empty
+      end
+
+      it 'populates display_title with expected value' do
+        expect(test_claim[:display_title]).to be_a(String)
+        expect(test_claim[:display_title]).not_to be_empty
+      end
+    end
+
+    context 'when title generator feature flag is disabled' do
+      before do
+        allow(Flipper).to(receive(:enabled?)
+                            .with(Mobile::V0::Adapters::ClaimsOverview::FEATURE_USE_TITLE_GENERATOR_MOBILE)
+                            .and_return(false))
+      end
+
+      it 'includes claim_type_base in the response' do
+        expect(test_claim[:claim_type_base]).not_to be_nil
+      end
+
+      it 'populates claim_type_base with expected value' do
+        expect(test_claim[:claim_type_base]).to be_a(String)
+        expect(test_claim[:claim_type_base]).not_to be_empty
+      end
+
+      it 'does not include display_title in the response' do
+        expect(test_claim[:display_title]).to be_nil
+      end
+    end
+  end
 end

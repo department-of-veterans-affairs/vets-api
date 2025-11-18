@@ -17,7 +17,7 @@ module AccreditedRepresentativePortal
       FORM_ID = '21a'
 
       # NOTE: The order of before_action calls is important here.
-      before_action :feature_enabled
+      before_action :feature_enabled, :loa3_user?
       before_action :parse_request_body, :validate_form, only: [:submit]
 
       def details
@@ -69,6 +69,10 @@ module AccreditedRepresentativePortal
       # Checks if the feature flag accredited_representative_portal_form_21a is enabled or not
       def feature_enabled
         routing_error unless Flipper.enabled?(:accredited_representative_portal_form_21a)
+      end
+
+      def loa3_user?
+        routing_error unless current_user.loa3?
       end
 
       # Parses the raw request body as JSON and assigns it to an instance variable.
