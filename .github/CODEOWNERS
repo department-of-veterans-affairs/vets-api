@@ -121,6 +121,7 @@ app/controllers/v1/gids @department-of-veterans-affairs/govcio-vfep-codereviewer
 app/controllers/v1/post911_gi_bill_statuses_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 app/controllers/v1/profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/sessions_controller.rb @department-of-veterans-affairs/octo-identity
+app/controllers/v1/medical_copays_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/helpers/parameter_filter_helper.rb @department-of-veterans-affairs/backend-review-group
 app/mailers/application_mailer.rb @department-of-veterans-affairs/backend-review-group
 app/mailers/create_daily_spool_files_mailer.rb @department-of-veterans-affairs/backend-review-group
@@ -617,6 +618,7 @@ app/swagger/swagger/v1/schemas/appeals @department-of-veterans-affairs/backend-r
 app/swagger/swagger/v1/schemas/appeals/decision_review_evidence.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-decision-reviews-be
 app/swagger/swagger/v1/schemas/gibct/version_public_exports.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/v1/schemas/income_limits.rb @department-of-veterans-affairs/vfs-public-websites-frontend @department-of-veterans-affairs/backend-review-group
+app/swagger/swagger/v1/requests/medical_copays.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/uploaders/async_processing.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/uploaders/claim_documentation @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 app/uploaders/claim_documentation/uploader.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
@@ -1203,6 +1205,7 @@ spec/controllers/v1/gids @department-of-veterans-affairs/govcio-vfep-codereviewe
 spec/controllers/v1/post911_gi_bill_statuses_controller_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/controllers/v1/profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/controllers/v1/sessions_controller_spec.rb @department-of-veterans-affairs/octo-identity
+spec/requests/v1/medical_copays_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/factories/686c/ @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/factories/accreditations.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 spec/factories/accredited_individuals.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
