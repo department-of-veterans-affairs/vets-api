@@ -19,8 +19,6 @@ class Swagger::V1::Requests::MedicalCopays
         key :type, :integer
         key :format, :int32
         key :default, 10
-        key :minimum, 1
-        key :maximum, 50
       end
 
       parameter do

@@ -18,7 +18,7 @@ module Lighthouse
           super()
         end
 
-        def list(count:, page: 1, id: nil, **extra)
+        def list(count: 10, page: 1, id: nil, **extra)
           endpoint = 'r4/Invoice'
           params = { patient: @icn, _count: count, page: }.merge(extra)
           params[:_id] = id if id
