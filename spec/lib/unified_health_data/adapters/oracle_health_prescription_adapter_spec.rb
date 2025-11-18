@@ -1805,4 +1805,346 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
   end
+
+  describe '#normalize_to_vahb_status' do
+    let(:status_test_resource) do
+      {
+        'id' => 'test-123',
+        'status' => 'active',
+        'dispenseRequest' => {
+          'numberOfRepeatsAllowed' => 3,
+          'validityPeriod' => { 'end' => 1.year.from_now.utc.iso8601 }
+        },
+        'contained' => []
+      }
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:warn)
+    end
+
+    context 'when MedicationRequest status is active' do
+      it 'returns "discontinued" when expired more than 6 months ago' do
+        resource = status_test_resource.merge(
+          'dispenseRequest' => {
+            'validityPeriod' => { 'end' => 7.months.ago.utc.iso8601 }
+          }
+        )
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('discontinued')
+      end
+
+      it 'returns "expired" when no refills remaining' do
+        resource = status_test_resource.merge(
+          'dispenseRequest' => { 'numberOfRepeatsAllowed' => 0 },
+          'contained' => []
+        )
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('expired')
+      end
+
+      it 'returns "refillinprocess" when any dispense is preparation' do
+        resource = status_test_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'preparation'
+            }
+          ]
+        )
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('refillinprocess')
+      end
+
+      it 'returns "refillinprocess" when any dispense is in-progress' do
+        resource = status_test_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed'
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'in-progress'
+            }
+          ]
+        )
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('refillinprocess')
+      end
+
+      it 'returns "refillinprocess" when any dispense is on-hold' do
+        resource = status_test_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'on-hold'
+            }
+          ]
+        )
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('refillinprocess')
+      end
+
+      it 'returns "active" when no special conditions apply' do
+        result = subject.send(:normalize_to_vahb_status, status_test_resource)
+        expect(result).to eq('active')
+      end
+    end
+
+    context 'when MedicationRequest status is on-hold' do
+      it 'returns "providerHold"' do
+        resource = status_test_resource.merge('status' => 'on-hold')
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('providerHold')
+      end
+    end
+
+    context 'when MedicationRequest status is cancelled' do
+      it 'returns "discontinued"' do
+        resource = status_test_resource.merge('status' => 'cancelled')
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('discontinued')
+      end
+    end
+
+    context 'when MedicationRequest status is completed' do
+      it 'returns "expired" when expired more than 6 months ago' do
+        resource = status_test_resource.merge(
+          'status' => 'completed',
+          'dispenseRequest' => {
+            'validityPeriod' => { 'end' => 7.months.ago.utc.iso8601 }
+          }
+        )
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('expired')
+      end
+
+      it 'returns "discontinued" when expired less than 6 months ago' do
+        resource = status_test_resource.merge(
+          'status' => 'completed',
+          'dispenseRequest' => {
+            'validityPeriod' => { 'end' => 3.months.ago.utc.iso8601 }
+          }
+        )
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('discontinued')
+      end
+    end
+
+    context 'when MedicationRequest status is entered-in-error' do
+      it 'returns "discontinued"' do
+        resource = status_test_resource.merge('status' => 'entered-in-error')
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('discontinued')
+      end
+    end
+
+    context 'when MedicationRequest status is stopped' do
+      it 'returns "discontinued"' do
+        resource = status_test_resource.merge('status' => 'stopped')
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('discontinued')
+      end
+    end
+
+    context 'when MedicationRequest status is draft' do
+      it 'returns "pending"' do
+        resource = status_test_resource.merge('status' => 'draft')
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('pending')
+      end
+    end
+
+    context 'when MedicationRequest status is unknown' do
+      it 'returns "unknown"' do
+        resource = status_test_resource.merge('status' => 'unknown')
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('unknown')
+      end
+    end
+
+    context 'when MedicationRequest status is unexpected' do
+      it 'returns "active" and logs a warning' do
+        resource = status_test_resource.merge('status' => 'unexpected-status')
+
+        expect(Rails.logger).to receive(:warn).with('Unexpected MedicationRequest status: unexpected-status')
+
+        result = subject.send(:normalize_to_vahb_status, resource)
+        expect(result).to eq('active')
+      end
+    end
+
+    it 'logs normalization details' do
+      expect(Rails.logger).to receive(:info).with(hash_including(
+                                                     message: 'Oracle Health status normalized',
+                                                     prescription_id: 'test-123',
+                                                     original_status: 'active',
+                                                     normalized_status: 'active',
+                                                     service: 'unified_health_data'
+                                                   ))
+
+      subject.send(:normalize_to_vahb_status, status_test_resource)
+    end
+  end
+
+  describe '#any_dispense_in_progress?' do
+    it 'returns true when a dispense has preparation status' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'status' => 'preparation' }
+        ]
+      }
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+    end
+
+    it 'returns true when a dispense has in-progress status' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'status' => 'in-progress' }
+        ]
+      }
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+    end
+
+    it 'returns true when a dispense has on-hold status' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'status' => 'on-hold' }
+        ]
+      }
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+    end
+
+    it 'returns false when all dispenses are completed' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'status' => 'completed' },
+          { 'resourceType' => 'MedicationDispense', 'status' => 'completed' }
+        ]
+      }
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+    end
+
+    it 'returns false when no dispenses exist' do
+      resource = { 'contained' => [] }
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+    end
+
+    it 'returns false when contained is nil' do
+      resource = {}
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+    end
+  end
+
+  describe '#parse_expiration_date_utc' do
+    it 'parses valid ISO8601 date to UTC time' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => '2025-12-31T23:59:59Z' }
+        }
+      }
+
+      result = subject.send(:parse_expiration_date_utc, resource)
+      expect(result).to be_a(Time)
+      expect(result.zone).to eq('UTC')
+    end
+
+    it 'returns nil when expiration date is missing' do
+      resource = { 'dispenseRequest' => {} }
+
+      result = subject.send(:parse_expiration_date_utc, resource)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when dispenseRequest is missing' do
+      resource = {}
+
+      result = subject.send(:parse_expiration_date_utc, resource)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil and logs warning for invalid date' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 'invalid-date' }
+        }
+      }
+
+      expect(Rails.logger).to receive(:warn).with(/Failed to parse expiration date/)
+
+      result = subject.send(:parse_expiration_date_utc, resource)
+      expect(result).to be_nil
+    end
+  end
+
+  describe '#normalize_active_status' do
+    it 'returns "discontinued" when expired more than 6 months ago' do
+      expiration_date = 7.months.ago.utc
+      result = subject.send(:normalize_active_status, 3, expiration_date, false)
+      expect(result).to eq('discontinued')
+    end
+
+    it 'returns "expired" when no refills remaining' do
+      expiration_date = 1.month.from_now.utc
+      result = subject.send(:normalize_active_status, 0, expiration_date, false)
+      expect(result).to eq('expired')
+    end
+
+    it 'returns "refillinprocess" when has in-progress dispense' do
+      expiration_date = 1.month.from_now.utc
+      result = subject.send(:normalize_active_status, 3, expiration_date, true)
+      expect(result).to eq('refillinprocess')
+    end
+
+    it 'returns "active" when no special conditions apply' do
+      expiration_date = 1.month.from_now.utc
+      result = subject.send(:normalize_active_status, 3, expiration_date, false)
+      expect(result).to eq('active')
+    end
+
+    it 'returns "active" when expiration date is nil' do
+      result = subject.send(:normalize_active_status, 3, nil, false)
+      expect(result).to eq('active')
+    end
+  end
+
+  describe '#normalize_completed_status' do
+    it 'returns "expired" when expired more than 6 months ago' do
+      expiration_date = 7.months.ago.utc
+      result = subject.send(:normalize_completed_status, expiration_date)
+      expect(result).to eq('expired')
+    end
+
+    it 'returns "discontinued" when expired less than 6 months ago' do
+      expiration_date = 3.months.ago.utc
+      result = subject.send(:normalize_completed_status, expiration_date)
+      expect(result).to eq('discontinued')
+    end
+
+    it 'returns "discontinued" when expiration date is nil' do
+      result = subject.send(:normalize_completed_status, nil)
+      expect(result).to eq('discontinued')
+    end
+  end
 end

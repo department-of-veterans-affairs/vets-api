@@ -34,7 +34,7 @@ module UnifiedHealthData
         {
           id: resource['id'],
           type: 'Prescription',
-          refill_status: resource['status'],
+          refill_status: extract_refill_status(resource),
           refill_submit_date: nil, # Not available in FHIR
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
@@ -179,6 +179,133 @@ module UnifiedHealthData
                               end
         remaining = repeats_allowed - [dispenses_completed - 1, 0].max
         remaining.positive? ? remaining : 0
+      end
+
+      # Extracts and normalizes MedicationRequest status to VistA-compatible values
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [String] VistA-compatible status value
+      def extract_refill_status(resource)
+        normalize_to_vahb_status(resource)
+      end
+
+      # Maps Oracle Health FHIR MedicationRequest status to VistA-equivalent status
+      # Based on VAHB status mapping requirements
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [String] VistA-compatible status value
+      def normalize_to_vahb_status(resource)
+        mr_status = resource['status']
+        refills_remaining = extract_refill_remaining(resource)
+        expiration_date = parse_expiration_date_utc(resource)
+        has_in_progress_dispense = any_dispense_in_progress?(resource)
+
+        # Log transformation for monitoring and validation
+        normalized_status = case mr_status
+                            when 'active'
+                              normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense)
+                            when 'on-hold'
+                              'providerHold'
+                            when 'cancelled', 'entered-in-error', 'stopped'
+                              'discontinued'
+                            when 'completed'
+                              normalize_completed_status(expiration_date)
+                            when 'draft'
+                              'pending'
+                            when 'unknown'
+                              'unknown'
+                            else
+                              # Fallback for unexpected statuses
+                              Rails.logger.warn("Unexpected MedicationRequest status: #{mr_status}")
+                              'active'
+                            end
+
+        Rails.logger.info(
+          message: 'Oracle Health status normalized',
+          prescription_id: resource['id'],
+          original_status: mr_status,
+          normalized_status:,
+          refills_remaining:,
+          has_in_progress_dispense:,
+          service: 'unified_health_data'
+        )
+
+        normalized_status
+      end
+
+      # Determines VistA status for 'active' MedicationRequest based on business rules
+      #
+      # @param refills_remaining [Integer] Number of refills remaining
+      # @param expiration_date [Time, nil] Parsed UTC expiration date
+      # @param has_in_progress_dispense [Boolean] Whether any dispense is in-progress
+      # @return [String] VistA status value
+      def normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense)
+        # Rule: Expired more than 6 months ago → discontinued
+        if expiration_date && expiration_date < 6.months.ago.utc
+          return 'discontinued'
+        end
+
+        # Rule: No refills remaining → expired
+        if refills_remaining.zero?
+          return 'expired'
+        end
+
+        # Rule: Has in-progress dispense → refillinprocess
+        if has_in_progress_dispense
+          return 'refillinprocess'
+        end
+
+        # Default: active
+        'active'
+      end
+
+      # Determines VistA status for 'completed' MedicationRequest
+      #
+      # @param expiration_date [Time, nil] Parsed UTC expiration date
+      # @return [String] VistA status value ('expired' or 'discontinued')
+      def normalize_completed_status(expiration_date)
+        if expiration_date && expiration_date < 6.months.ago.utc
+          'expired'
+        else
+          'discontinued'
+        end
+      end
+
+      # Checks if any MedicationDispense has an in-progress status
+      # In-progress statuses: preparation, in-progress, on-hold
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] True if any dispense is in-progress
+      def any_dispense_in_progress?(resource)
+        contained = resource['contained'] || []
+        dispenses = contained.select { |c| c['resourceType'] == 'MedicationDispense' }
+
+        in_progress_statuses = %w[preparation in-progress on-hold]
+
+        dispenses.any? do |dispense|
+          in_progress_statuses.include?(dispense['status'])
+        end
+      end
+
+      # Parses validityPeriod.end to UTC Time object for comparison
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Time, nil] Parsed UTC time or nil if not available/invalid
+      def parse_expiration_date_utc(resource)
+        expiration_string = resource.dig('dispenseRequest', 'validityPeriod', 'end')
+        return nil if expiration_string.blank?
+
+        # Oracle Health dates are in Zulu time (UTC)
+        parsed_time = Time.zone.parse(expiration_string)
+        if parsed_time.nil?
+          Rails.logger.warn("Failed to parse expiration date '#{expiration_string}': invalid date format")
+          return nil
+        end
+
+        parsed_time.utc
+      rescue ArgumentError => e
+        Rails.logger.warn("Failed to parse expiration date '#{expiration_string}': #{e.message}")
+        nil
       end
 
       def extract_facility_name(resource)
