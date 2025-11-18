@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require 'claims_evidence_api/service/contentsources'
 
-require_relative '../../../support/claims_evidence_api/shared_examples/service'
+require_relative 'shared/service'
 
 RSpec.describe ClaimsEvidenceApi::Service::ContentSources do
   let(:service) { described_class.new }
