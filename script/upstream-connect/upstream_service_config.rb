@@ -53,25 +53,6 @@ class UpstreamServiceConfig
         - Check the Lighthouse documentation for available endpoints
       TEXT
     }
-    # TODO: Add more services as needed
-    # 'health_records' => {
-    #   name: 'Health Records (FHIR)',
-    #   description: 'Connect to FHIR health records API',
-    #   settings_keys: ['lighthouse.fhir', 'mhv.medical_records'],
-    #   ports: [4433, 4434],
-    #   tunnel_setting: [],
-    #   skipped_settings: [[], []],
-    #   instructions: 'Instructions for health records connection...'
-    # },
-    # 'benefits' => {
-    #   name: 'Benefits (BGS)',
-    #   description: 'Connect to Benefits Gateway Service',
-    #   settings_keys: ['bgs'],
-    #   ports: [4435],
-    #   tunnel_setting: [],
-    #   skipped_settings: [[]],
-    #   instructions: 'Instructions for BGS connection...'
-    # }
   }.freeze
 
   def initialize

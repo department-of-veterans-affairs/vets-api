@@ -778,12 +778,31 @@ show_status() {
   
   echo ""
   
-  # Check port forwarding (look for common processes)
+  # Check port forwarding (look for configured service ports)
   echo -e "${BLUE}Port Forwarding Status:${NC}"
   local found_tunnels=false
   
-  # Check common ports used by services
-  for port in 4437 4492; do
+  # Get all ports used by configured services
+  local all_ports=()
+  local services
+  services=$(ruby "$CONFIG_SCRIPT" --list | awk '{print $1}')
+  
+  for service in $services; do
+    local service_config
+    service_config=$(ruby "$CONFIG_SCRIPT" --config "$service" 2>/dev/null)
+    if [[ -n "$service_config" ]]; then
+      local ports
+      ports=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["ports"].join(" ")' 2>/dev/null)
+      for port in $ports; do
+        if [[ " ${all_ports[@]} " != *" $port "* ]]; then
+          all_ports+=("$port")
+        fi
+      done
+    fi
+  done
+  
+  # Check each configured port
+  for port in "${all_ports[@]}"; do
     if lsof -i :$port > /dev/null 2>&1; then
       local process_info
       process_info=$(lsof -i :$port | tail -n +2 | awk '{print $1, $2}' | head -1)
@@ -826,8 +845,27 @@ cleanup_port_forwarding() {
   
   local cleaned_count=0
   
-  # Find and kill active session-manager processes on our common ports
-  for port in 4437 4492; do
+  # Get all ports used by configured services
+  local all_ports=()
+  local services
+  services=$(ruby "$CONFIG_SCRIPT" --list | awk '{print $1}')
+  
+  for service in $services; do
+    local service_config
+    service_config=$(ruby "$CONFIG_SCRIPT" --config "$service" 2>/dev/null)
+    if [[ -n "$service_config" ]]; then
+      local ports
+      ports=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["ports"].join(" ")' 2>/dev/null)
+      for port in $ports; do
+        if [[ " ${all_ports[@]} " != *" $port "* ]]; then
+          all_ports+=("$port")
+        fi
+      done
+    fi
+  done
+  
+  # Find and kill active session-manager processes on service ports
+  for port in "${all_ports[@]}"; do
     if lsof -i :$port > /dev/null 2>&1; then
       local pid
       pid=$(lsof -i :$port | tail -n +2 | awk '{print $2}' | head -1)
@@ -853,7 +891,7 @@ cleanup_port_forwarding() {
       if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
         # Only kill if it's not already handled above
         local already_handled=false
-        for port in 4437 4492; do
+        for port in "${all_ports[@]}"; do
           if lsof -i :$port -p "$pid" > /dev/null 2>&1; then
             already_handled=true
             break
