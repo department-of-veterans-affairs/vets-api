@@ -2,7 +2,7 @@
 
 # Interface for a BenefitsClaimsProvider
 #
-# @abstract Include this module in a new ClaimsProvider class to define a standardized interface
+# Include this module in a new ClaimsProvider class to define a standardized interface
 #   for fetching benefits claims data from various sources.
 
 # The new class MUST implement these methods to be a valid BenefitsClaimsProvider:
