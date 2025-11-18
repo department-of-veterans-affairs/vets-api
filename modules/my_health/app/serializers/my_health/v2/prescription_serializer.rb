@@ -28,15 +28,7 @@ module MyHealth
       attribute :refill_submit_date
       attribute :refill_date
       attribute :refill_remaining
-
-      attribute :facility_name do |object|
-        if object.respond_to?(:facility_api_name) && object.facility_api_name.present?
-          object.facility_api_name
-        else
-          object.facility_name
-        end
-      end
-
+      attribute :facility_name
       attribute :ordered_date
       attribute :quantity
       attribute :expiration_date
