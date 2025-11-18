@@ -16,15 +16,9 @@ describe IvcChampva::MetadataValidator do
   end
 
   def first_name_error_label
-    return 'veteran first name' if Flipper.enabled?(:champva_update_metadata_keys)
+    return 'sponsor first name' if Flipper.enabled?(:champva_update_metadata_keys)
 
-    'sponsor first name'
-  end
-
-  def last_name_error_label
-    return 'veteran last name' if Flipper.enabled?(:champva_update_metadata_keys)
-
-    'sponsor last name'
+    'veteran first name'
   end
 
   def set_flipper(enabled)
