@@ -535,17 +535,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           json_response = JSON.parse(response.body)
           expect(json_response['meta']).to have_key('recently_requested')
-          expect(json_response['meta']).to have_key('filter_count')
-
-          # Verify filter_count metadata structure
-          filter_count = json_response['meta']['filter_count']
-          expect(filter_count).to include(
-            'all_medications',
-            'active',
-            'recently_requested',
-            'renewal',
-            'non_active'
-          )
+          expect(json_response['meta']).not_to have_key('filter_count')
 
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
@@ -677,7 +667,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify meta keys are camelCase
           expect(json_response['meta']).to have_key('recentlyRequested')
           expect(json_response['meta']).not_to have_key('recently_requested')
-          expect(json_response['meta']).to have_key('filterCount')
+          expect(json_response['meta']).not_to have_key('filterCount')
           expect(json_response['meta']).not_to have_key('filter_count')
 
           # Verify attribute keys are camelCase
@@ -690,21 +680,16 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
-      it 'includes filter_count metadata structure' do
+      it 'does not include filter_count metadata' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
-          expect(json_response['meta']).to have_key('filter_count')
+          expect(json_response['meta']).not_to have_key('filter_count')
 
-          # Verify filter_count has all expected keys
-          filter_count = json_response['meta']['filter_count']
-          expect(filter_count).to have_key('all_medications')
-          expect(filter_count).to have_key('active')
-          expect(filter_count).to have_key('recently_requested')
-          expect(filter_count).to have_key('renewal')
-          expect(filter_count).to have_key('non_active')
+          # Should only have recently_requested in metadata
+          expect(json_response['meta'].keys).to eq(['recently_requested'])
         end
       end
 

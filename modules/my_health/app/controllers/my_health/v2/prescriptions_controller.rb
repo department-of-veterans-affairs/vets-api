@@ -60,11 +60,9 @@ module MyHealth
 
         prescriptions = service.get_prescriptions(current_only: false).compact
         recently_requested = get_recently_requested_prescriptions(prescriptions)
-        raw_data = prescriptions.dup
         refillable_prescriptions = filter_data_by_refill_and_renew(prescriptions)
 
-        filter_metadata = set_filter_metadata(refillable_prescriptions, raw_data)
-        options = { meta: filter_metadata.merge(recently_requested:) }
+        options = { meta: { recently_requested: } }
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(refillable_prescriptions, options)
       end
 
