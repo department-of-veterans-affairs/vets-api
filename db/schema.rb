@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_18_183341) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -478,6 +478,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
     t.datetime "submitted_at", comment: "timestamp when submitted to BGS"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "claim_type_end_product"
     t.index ["bgs_submission_id"], name: "index_bgs_submission_attempts_on_bgs_submission_id"
   end
 
@@ -491,6 +492,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "proc_id"
     t.index ["saved_claim_id"], name: "index_bgs_submissions_on_saved_claim_id"
   end
 
@@ -557,8 +559,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
     t.text "auth_headers_ciphertext"
     t.text "file_data_ciphertext"
     t.text "evss_response_ciphertext"
-    t.text "bgs_flash_responses_ciphertext"
-    t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
     t.string "transaction_id"
