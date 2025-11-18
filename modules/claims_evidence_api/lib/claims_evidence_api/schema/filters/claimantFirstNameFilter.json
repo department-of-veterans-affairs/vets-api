@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/claimantFirstNameFilter.json",
+  "description" : "Filters results on claimant's first name.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "John",
+      "type" : "string"
+    }
+  },
+  "title" : "Claimant First Name Filter Request",
+  "type" : "object"
+}
