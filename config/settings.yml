@@ -604,7 +604,6 @@ ihub:
 intent_to_file:
   enabled: true
   prefill: true
-  timeout: 20
 ivc_champva:
   pega_api:
     api_key: <%= ENV['ivc_champva__pega_api__api_key'] %>
