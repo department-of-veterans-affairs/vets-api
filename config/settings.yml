@@ -599,6 +599,7 @@ ihub:
   appointments:
     mock: <%= ENV['ihub__appointments__mock'] %>
     timeout: 30
+    enabled: true
   in_production: <%= ENV['ihub__in_production'] %>
   url: <%= ENV['ihub__url'] %>
 intent_to_file:
