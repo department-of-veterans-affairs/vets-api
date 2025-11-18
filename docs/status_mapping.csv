@@ -1,0 +1,21 @@
+﻿MedicationRequest.status,MedicationRequest.dispenseRequest.numberOfRepeatsAllowed,"Count of MedicationDispenses, including first fill (non-canceled)",MedicationRequest.dispenseRequest.validityPeriod.end,MedicationDispense.status,VAHB status
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than 6 months ago>,"<any value excpt preparation, in-progress or on-hold>",ACTIVE
+"active	",<greater than 0>,<more than RepeatsAllowed + 1>,<less than 6 months ago>,<any value>,EXPIRED
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<more than 6 months ago>,<any value>,DISCONTINUED
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"preparation	",REFILL_IN_PROCESS
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"in-progress	",REFILL_IN_PROCESS
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"on-hold	",REFILL_IN_PROCESS
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"cancelled	",ACTIVE
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"completed	",ACTIVE
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"entered-in-error	",ACTIVE
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"stopped	",ACTIVE
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"declined	",ACTIVE
+"active	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,"unknown	",ACTIVE
+"on-hold	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,<any value>,PROVIDER_HOLD
+"cancelled	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,<any value>,DISCONTINUED
+"completed	",<greater than 0>,<less than RepeatsAllowed + 1>,<more than 6 months ago>,<any value>,EXPIRED
+"completed	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,<any value>,DISCONTINUED
+"entered-in-error	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,<any value>,DISCONTINUED
+"stopped	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,<any value>,DISCONTINUED
+"draft	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,<any value>,PENDING
+"unknown	",<greater than 0>,<less than RepeatsAllowed + 1>,<less than today>,<any value>,UNKNOWN
