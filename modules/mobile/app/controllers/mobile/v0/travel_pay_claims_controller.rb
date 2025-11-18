@@ -95,11 +95,11 @@ module Mobile
           disposition: document_data[:disposition]
         )
       rescue ArgumentError => e
-        Rails.logger.error("Invalid travel pay document ID: #{e.message}")
+        Rails.logger.error("Invalid travel pay document request: claim_id=#{params[:claim_id]&.first(8)}, document_id=#{params[:document_id]&.first(8)}")
         head :bad_request
       rescue Faraday::ResourceNotFound
         Rails.logger.error(
-          "Travel pay document not found: claim_id=#{params[:claim_id]}, document_id=#{params[:document_id]}"
+          "Travel pay document not found: claim_id=#{params[:claim_id]&.first(8)}, document_id=#{params[:document_id]&.first(8)}"
         )
         head :not_found
       rescue => e
