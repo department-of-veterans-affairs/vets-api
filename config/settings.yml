@@ -479,6 +479,8 @@ form526_export:
     bucket: <%= ENV['form526_export__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['form526_export__aws__secret_access_key'] %>
+form_10275:
+  submission_email: <%= ENV['form_10275__submission_email'] %>
 form_10282:
   sftp:
     host: <%= ENV['form_10282__sftp__host'] %>
@@ -1616,6 +1618,7 @@ vanotify:
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
+        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %> 
         form10297_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form10297_confirmation_email'] %>
         form1880_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1880_reminder_email'] %>
         form1900_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
