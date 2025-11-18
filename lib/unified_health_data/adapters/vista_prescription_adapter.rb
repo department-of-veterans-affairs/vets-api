@@ -120,6 +120,7 @@ module UnifiedHealthData
       def build_dispense_attributes(record)
         {
           status: record['refillStatus'],
+          dispensed_date: convert_to_iso8601(record['dispensedDate'], field_name: 'dispensed_date'),
           refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
           facility_name: record['facilityApiName'].presence || record['facilityName'],
           instructions: record['sig'],
