@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'benefits_claims/providers/benefits_claims/benefits_claims_provider'
+require 'benefits_claims/providers/benefits_claims/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaimsProvider do
   let(:test_class) do
