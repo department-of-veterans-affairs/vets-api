@@ -602,9 +602,9 @@ ihub:
   in_production: <%= ENV['ihub__in_production'] %>
   url: <%= ENV['ihub__url'] %>
 intent_to_file:
+  enabled: true
   prefill: true
   timeout: 20
-  enabled: true
 ivc_champva:
   pega_api:
     api_key: <%= ENV['ivc_champva__pega_api__api_key'] %>
