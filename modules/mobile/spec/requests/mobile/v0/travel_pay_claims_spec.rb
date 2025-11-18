@@ -187,7 +187,8 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           'totalCostRequested' => 250.0,
           'reimbursementAmount' => 175.0,
           'rejectionReason' => nil,
-          'decision_letter_reason' => 'Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable.',
+          'decision_letter_reason' => 'Mileage approved but parking not eligible per policy. ' \
+                                      'Only travel expenses over 30 miles are reimbursable.',
           'appointment' => { 'id' => 'test-appointment-id', 'facilityId' => 'test-facility-id' },
           'expenses' => [],
           'documents' => [],
@@ -207,7 +208,9 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
         claim_data = json['data']['attributes']
 
         expect(claim_data).to have_key('decisionLetterReason')
-        expect(claim_data['decisionLetterReason']).to eq('Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable.')
+        expect(claim_data['decisionLetterReason']).to eq(
+          'Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable.'
+        )
         expect(claim_data['rejectionReason']).to be_nil
         expect(claim_data['claimStatus']).to eq('Claim paid')
       end
