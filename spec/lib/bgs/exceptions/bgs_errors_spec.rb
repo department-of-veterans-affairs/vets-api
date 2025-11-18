@@ -17,11 +17,9 @@ RSpec.describe BGS::Exceptions::BGSErrors do
       it 'logs the oracle error message to Sentry, but not the stacktrace or PII' do
         error_message = File.read('spec/fixtures/bgs/bgs_oracle_error.txt')
         dummy_error = StandardError.new(error_message)
-        expect(dummy_instance).to receive(:log_message_to_sentry).with(
+        expect(Rails.logger).to receive(:error).with(
           'ORA-12899: value too large for column "CORPPROD"."VNP_PERSON"."MIDDLE_NM" (actual: 52, maximum: 30)',
-          :error,
-          {},
-          { team: 'vfs-ebenefits' }
+          include(statsd: 'bgs', service: 'bgs')
         )
         expect do
           dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method')
@@ -32,7 +30,10 @@ RSpec.describe BGS::Exceptions::BGSErrors do
     context 'error not related to oracle' do
       it "raises a BGS::ServiceException with BGS's raw error message" do
         dummy_error = StandardError.new('(ns0:Server) insertBenefitClaim: City is null')
-        expect(dummy_instance).not_to receive(:log_message_to_sentry)
+        expect(Rails.logger).to receive(:error).with(
+          '(ns0:Server) insertBenefitClaim: City is null',
+          include(statsd: 'bgs', service: 'bgs')
+        )
         expect do
           dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method')
         end.to raise_error(BGS::ServiceException)
@@ -54,7 +55,10 @@ RSpec.describe BGS::Exceptions::BGSErrors do
     context 'no error message' do
       it 'raises a BGS::ServiceException' do
         dummy_error = StandardError.new
-        expect(dummy_instance).not_to receive(:log_message_to_sentry)
+        expect(Rails.logger).to receive(:error).with(
+          'StandardError',
+          include(statsd: 'bgs', service: 'bgs')
+        )
         expect do
           dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method')
         end.to raise_error(BGS::ServiceException)
