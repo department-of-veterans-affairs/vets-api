@@ -232,17 +232,16 @@ module Eps
     # @param npi [String] Provider NPI
     # @return [Array, nil] Self-schedulable providers or nil if none found
     #
-    def check_self_schedulable_results(all_providers, npi)
+    def check_self_schedulable_results(all_providers, _npi)
       if all_providers.blank?
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI")
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI", **common_logging_context)
         return nil
       end
 
       self_schedulable_providers = filter_self_schedulable(all_providers)
       if self_schedulable_providers.empty?
         StatsD.increment(PROVIDER_SERVICE_NO_SELF_SCHEDULABLE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
-        Rails.logger.error("#{CC_APPOINTMENTS}: No self-schedulable providers found for NPI",
-                           { npi: })
+        Rails.logger.error("#{CC_APPOINTMENTS}: No self-schedulable providers found for NPI", **common_logging_context)
         return nil
       end
 
@@ -259,7 +258,7 @@ module Eps
     def check_specialty_matches(self_schedulable_providers, specialty)
       specialty_matches = filter_by_specialty(self_schedulable_providers, specialty)
       if specialty_matches.empty?
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.")
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.", **common_logging_context)
         return nil
       end
 
@@ -341,9 +340,8 @@ module Eps
 
       if address_match.nil?
         warn_data = {
-          specialty_matches_count: specialty_matches.size,
-          user_uuid: @current_user&.uuid
-        }
+          specialty_matches_count: specialty_matches.size
+        }.merge(common_logging_context)
         message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI"
         Rails.logger.warn(message, warn_data)
       end
@@ -364,9 +362,8 @@ module Eps
 
       error_data = {
         provider_id:,
-        timeout_seconds:,
-        user_uuid: @current_user&.uuid
-      }
+        timeout_seconds:
+      }.merge(common_logging_context)
       Rails.logger.error("#{CC_APPOINTMENTS}: Provider slots pagination timeout", error_data)
       raise Common::Exceptions::BackendServiceException.new(
         'PROVIDER_SLOTS_TIMEOUT',
@@ -435,9 +432,8 @@ module Eps
           street_matches:,
           zip_matches:,
           provider_address:,
-          referral_address: "#{address[:street1]}, #{address[:zip]}",
-          user_uuid: @current_user&.uuid
-        }
+          referral_address: "#{address[:street1]}, #{address[:zip]}"
+        }.merge(common_logging_context)
         Rails.logger.warn("#{CC_APPOINTMENTS}: Provider address partial match", warn_data)
       end
 
@@ -532,6 +528,19 @@ module Eps
         isSelfSchedulable: params[:is_self_schedulable],
         nextToken: params[:next_token]
       }.compact
+    end
+
+    ##
+    # Returns common logging context used throughout provider service logging
+    #
+    # @return [Hash] Common logging context with controller, station_number, eps_trace_id, and user_uuid
+    def common_logging_context
+      {
+        controller: controller_name,
+        station_number:,
+        eps_trace_id:,
+        user_uuid: user&.uuid
+      }
     end
   end
 

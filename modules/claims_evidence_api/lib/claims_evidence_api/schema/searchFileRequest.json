@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/searchFileRequest.json",
+  "description" : "Request containing search filters, sorting information, and paging information. The filter block is required, but the individual filters are optional.",
+  "properties" : {
+    "pageRequest" : {
+      "$ref" : "pageRequest.json"
+    },
+    "filters" : {
+      "$ref" : "searchFileFilters.json"
+    },
+    "sort": {
+      "$ref" : "searchFileSort.json"
+    }
+  },
+  "required" : [ "filters", "pageRequest" ],
+  "title" : "Search Files Request",
+  "type" : "object"
+}
