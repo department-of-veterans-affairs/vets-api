@@ -2057,6 +2057,9 @@ features:
   va_dependents_browser_monitoring_enabled:
     actor_type: user
     description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
+  va_dependents_fully_digital_form_project:
+    actor_type: user
+    description: Allows us to toggle the fully digital form project for 686C-674
   va_dependents_net_worth_and_pension:
     actor_type: user
     description: Allows us to toggle the net worth and pension questions on the 686C-674
