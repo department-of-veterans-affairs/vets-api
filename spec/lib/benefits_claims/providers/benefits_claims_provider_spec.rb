@@ -23,4 +23,3 @@ RSpec.describe BenefitsClaimsProvider do
     end
   end
 end
-
