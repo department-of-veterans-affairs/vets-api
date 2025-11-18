@@ -97,9 +97,17 @@ jobs:
 
             echo "File: $file"
 
-            # Find CODEOWNERS entry for this file
-            # Note: Needs to be tested with glob pattern
-            owners=$(grep -E "^[[:space:]]*${file}[[:space:]]+" "$CODEOWNERS_FILE" | awk '{for(i=2;i<=NF;i++) print $i}')
+            # Parse CODEOWNERS content for this specific file
+            owners=$(echo "$CODEOWNERS_CONTENT" | awk -v file="$file" '
+              $0 !~ /^#/ && $0 !~ /^[[:space:]]*$/ {
+                pattern = $1
+                gsub(/\*/, ".*", pattern)
+                if (file ~ "^" pattern) {
+                  for (i=2; i<=NF; i++) print $i
+                  exit
+                }
+              }
+            ')
 
             if [[ -z "$owners" ]]; then
               echo "   No CODEOWNERS entry (requires backend approval)"
