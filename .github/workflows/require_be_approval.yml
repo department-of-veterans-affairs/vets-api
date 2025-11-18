@@ -98,16 +98,33 @@ jobs:
             echo "File: $file"
 
             # Parse CODEOWNERS content for this specific file
-            owners=$(echo "$CODEOWNERS_CONTENT" | awk -v file="$file" '
+            owners=$(awk -v file="$file" '
               $0 !~ /^#/ && $0 !~ /^[[:space:]]*$/ {
                 pattern = $1
-                gsub(/\*/, ".*", pattern)
+                
+                # Handle trailing slash (directory pattern)
+                if (pattern ~ /\/$/) {
+                  gsub(/\/$/, "/", pattern)
+                  pattern = pattern ".*"
+                } else if (pattern !~ /\*/ && pattern !~ /\./) {
+                  # Pattern without wildcard or extension - match as directory
+                  pattern = "(" pattern "$|" pattern "/.*)"
+                }
+                
+                # Escape dots for regex
+                gsub(/\./, "\\.", pattern)
+                
+                # Convert glob patterns to regex
+                gsub(/\*\*\//, ".*", pattern)
+                gsub(/\*/, "[^/]*", pattern)
+                
+                # Check if file matches pattern
                 if (file ~ "^" pattern) {
                   for (i=2; i<=NF; i++) print $i
                   exit
                 }
               }
-            ')
+            ' "$CODEOWNERS_FILE")
 
             if [[ -z "$owners" ]]; then
               echo "   No CODEOWNERS entry (requires backend approval)"
