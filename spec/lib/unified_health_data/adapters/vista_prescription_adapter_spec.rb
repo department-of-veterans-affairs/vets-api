@@ -535,6 +535,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
               {
                 'id' => 'dispense-1',
                 'refillStatus' => 'dispensed',
+                'dispensedDate' => 'Sat, 12 Jul 2025 00:00:00 EDT',
                 'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
                 'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
                 'facilityName' => 'Salt Lake City VAMC',
@@ -571,6 +572,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         first_dispense = result.first
         expect(first_dispense).to include(
           status: 'dispensed',
+          dispensed_date: '2025-07-12T04:00:00.000Z',
           refill_date: '2025-07-14T04:00:00.000Z',
           refill_submit_date: '2025-07-13T04:00:00.000Z',
           facility_name: 'Salt Lake City VAMC',
@@ -597,6 +599,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           id: 'dispense-2'
         )
         # Verify new fields default to nil when not present
+        expect(second_dispense[:dispensed_date]).to be_nil
         expect(second_dispense[:refill_submit_date]).to be_nil
         expect(second_dispense[:prescription_number]).to be_nil
         expect(second_dispense[:cmop_division_phone]).to be_nil
