@@ -16,16 +16,20 @@
   "security" : [ {
     "bearer-key" : [ ]
   } ],
-  "tags" : [ {
-    "description" : "BIP",
-    "name" : "PRODUCT_SCOPE"
-  }, {
-    "description" : "C&P",
-    "name" : "PRODUCT_LINE_SCOPE"
-  }, {
-    "description" : "BAM",
-    "name" : "PORTFOLIO_SCOPE"
-  } ],
+  "tags" : [
+    {
+      "description" : "BIP",
+      "name" : "PRODUCT_SCOPE"
+    },
+    {
+      "description" : "C&P",
+      "name" : "PRODUCT_LINE_SCOPE"
+    },
+    {
+      "description" : "BAM",
+      "name" : "PORTFOLIO_SCOPE"
+    }
+  ],
   "paths" : {
     "/folders/files:search" : {
       "post" : {

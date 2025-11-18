@@ -14,10 +14,12 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
           response = subject.get_enrollment_periods(icn:)
 
           expect(response).to eq([
-                                   {
-                                     'startDate' => '2024-03-05',
-                                     'endDate' => '2024-03-05'
-                                   }
+                                   { 'startDate' => '2024-03-05',
+                                     'endDate' => '2024-03-05' },
+                                   { 'startDate' => '2019-03-05',
+                                     'endDate' => '2022-03-05' },
+                                   { 'startDate' => '2010-03-05',
+                                     'endDate' => '2015-03-05' }
                                  ])
         end
       end
