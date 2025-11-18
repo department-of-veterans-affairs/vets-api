@@ -7,7 +7,9 @@
 
 # The new class MUST implement these methods to be a valid BenefitsClaimsProvider:
 #
-# TODO:Create a standardized claim response structure that represents what VA.gov expects (i.e. `lib/benefits_claims/responses/claim_response.rb`)
+# TODO:Create a standardized claim response structure that represents what VA.gov expects
+# (i.e. `lib/benefits_claims/responses/claim_response.rb`).
+
 # @see lib/benefits_claims/responses/claim_response.rb for the expected response structure (not yet created)
 # @see lib/claim_letters/providers/claim_letters/claim_letters_provider.rb for reference implementation
 #
