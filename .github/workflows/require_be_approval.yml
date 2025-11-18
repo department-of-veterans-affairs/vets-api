@@ -260,14 +260,14 @@ jobs:
           fi
 
           # Apply label changes
-          for label in "${LABELS_TO_ADD[@]}"; do
-            echo "  Adding: ${label}"
-            gh pr edit "${PR_NUMBER}" --add-label "${label}" 2>/dev/null || echo "  [WARN] Could not add ${label}"
-          done
-
           for label in "${LABELS_TO_REMOVE[@]}"; do
             echo "  Removing: ${label}"
             gh pr edit "${PR_NUMBER}" --remove-label "${label}" 2>/dev/null || echo "  [WARN] Could not remove ${label}"
+          done
+
+          for label in "${LABELS_TO_ADD[@]}"; do
+            echo "  Adding: ${label}"
+            gh pr edit "${PR_NUMBER}" --add-label "${label}" 2>/dev/null || echo "  [WARN] Could not add ${label}"
           done
 
       - name: Fail if backend approval required
