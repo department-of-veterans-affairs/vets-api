@@ -28,9 +28,6 @@ module MyHealth
       end
 
       def renewable(item)
-        # UHD prescriptions don't have disp_status, return false for them
-        return false unless item.respond_to?(:disp_status)
-
         disp_status = item.disp_status
         refill_history_expired_date = item.rx_rf_records&.dig(0, :expiration_date)&.to_date
         expired_date = refill_history_expired_date || item.expiration_date&.to_date
