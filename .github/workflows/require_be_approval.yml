@@ -101,30 +101,33 @@ jobs:
             owners=$(awk -v file="$file" '
               $0 !~ /^#/ && $0 !~ /^[[:space:]]*$/ {
                 pattern = $1
-                
-                # Handle trailing slash (directory pattern)
+
+                # Handle trailing slash (directory rule)
                 if (pattern ~ /\/$/) {
                   gsub(/\/$/, "/", pattern)
                   pattern = pattern ".*"
                 } else if (pattern !~ /\*/ && pattern !~ /\./) {
-                  # Pattern without wildcard or extension - match as directory
+                  # directory without slash → treat as dir
                   pattern = "(" pattern "$|" pattern "/.*)"
                 }
-                
-                # Escape dots for regex
+
+                # Escape dots
                 gsub(/\./, "\\.", pattern)
-                
-                # Convert glob patterns to regex
+
+                # Convert glob syntax
                 gsub(/\*\*\//, ".*", pattern)
                 gsub(/\*/, "[^/]*", pattern)
-                
-                # Check if file matches pattern
+
+                # If file matches, store owners (last match wins)
                 if (file ~ "^" pattern) {
-                  for (i=2; i<=NF; i++) print $i
-                  exit
+                  for (i=2; i<=NF; i++) last[i] = $i
                 }
               }
+              END {
+                for (i in last) print last[i]
+              }
             ' "$CODEOWNERS_FILE")
+
 
             if [[ -z "$owners" ]]; then
               echo "   No CODEOWNERS entry (requires backend approval)"
