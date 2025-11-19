@@ -122,29 +122,20 @@ module VAOS
       # @raise [StandardError] For any unexpected errors during submission
       #
       def submit_referral_appointment
-        submit_args = { referral_number: submit_params[:referral_number],
-                        network_id: submit_params[:network_id],
-                        provider_service_id: submit_params[:provider_service_id],
-                        slot_ids: [submit_params[:slot_id]] }
-
-        if patient_attributes(submit_params).present?
-          submit_args[:additional_patient_attributes] = patient_attributes(submit_params)
-        end
-
+        type_of_care = get_type_of_care_for_metrics(submit_params[:referral_number])
+        submit_args = build_submit_args
         appointment = eps_appointment_service.submit_appointment(submit_params[:id], submit_args)
 
         if appointment[:error]
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC,
-                           tags: [COMMUNITY_CARE_SERVICE_TAG])
+          record_appt_metric(APPT_CREATION_FAILURE_METRIC, type_of_care)
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
         log_referral_booking_duration(submit_params[:referral_number])
-
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
+        record_appt_metric(APPT_CREATION_SUCCESS_METRIC, type_of_care)
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
+        record_appt_metric(APPT_CREATION_FAILURE_METRIC, type_of_care)
         handle_appointment_creation_error(e)
       end
 
@@ -597,6 +588,57 @@ module VAOS
 
         duration = (Time.current.to_f - start_time) * 1000
         StatsD.histogram(APPT_CREATION_DURATION_METRIC, duration, tags: [COMMUNITY_CARE_SERVICE_TAG])
+      end
+
+      ##
+      # Builds the arguments hash for submitting an appointment
+      #
+      # @return [Hash] The arguments for the EPS appointment submission
+      def build_submit_args
+        args = { referral_number: submit_params[:referral_number],
+                 network_id: submit_params[:network_id],
+                 provider_service_id: submit_params[:provider_service_id],
+                 slot_ids: [submit_params[:slot_id]] }
+
+        patient_attrs = patient_attributes(submit_params)
+        args[:additional_patient_attributes] = patient_attrs if patient_attrs.present?
+        args
+      end
+
+      ##
+      # Records an appointment metric with type of care tag
+      #
+      # @param metric [String] The metric name to record
+      # @param type_of_care [String] The type of care value
+      def record_appt_metric(metric, type_of_care)
+        StatsD.increment(metric, tags: [COMMUNITY_CARE_SERVICE_TAG, "type_of_care:#{type_of_care}"])
+      end
+
+      ##
+      # Retrieves the type of care for metrics, defaulting to 'no_value' if unavailable
+      #
+      # @param referral_number [String] The referral number to lookup
+      # @return [String] The sanitized type of care, or 'no_value' if not found
+      def get_type_of_care_for_metrics(referral_number)
+        return 'no_value' if referral_number.blank?
+
+        cached_referral = ccra_referral_service.get_cached_referral_data(referral_number, current_user.icn)
+        sanitize_log_value(cached_referral&.category_of_care)
+      rescue => e
+        Rails.logger.warn("Could not retrieve type of care for metrics: #{e.message}")
+        'no_value'
+      end
+
+      ##
+      # Sanitizes values for safe logging and metrics
+      # Replaces blank values with 'no_value' and removes whitespace
+      #
+      # @param value [String, nil] The value to sanitize
+      # @return [String] The sanitized value safe for logging
+      def sanitize_log_value(value)
+        return 'no_value' if value.blank?
+
+        value.to_s.gsub(/\s+/, '_')
       end
     end
   end

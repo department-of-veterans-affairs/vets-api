@@ -1209,9 +1209,15 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
                              match_requests_on: %i[method path body]) do
-              expect_metric_increment(described_class::APPT_CREATION_SUCCESS_METRIC) do
-                post '/vaos/v2/appointments/submit', params:, headers: inflection_header
-              end
+              allow(StatsD).to receive(:increment).with(any_args)
+              allow(StatsD).to receive(:histogram).with(any_args)
+
+              expect(StatsD).to receive(:increment).with(
+                described_class::APPT_CREATION_SUCCESS_METRIC,
+                tags: ['service:community_care_appointments', 'type_of_care:no_value']
+              )
+
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
 
               response_obj = JSON.parse(response.body)
               expect(response).to have_http_status(:created)
@@ -1273,12 +1279,16 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                 Timecop.travel(5.seconds.from_now)
 
+                allow(StatsD).to receive(:increment).with(any_args)
                 allow(StatsD).to receive(:histogram).with(any_args)
-                expect_metric_increment(described_class::APPT_CREATION_SUCCESS_METRIC) do
-                  post '/vaos/v2/appointments/submit', params:, headers: inflection_header
-                  expect(response).to have_http_status(:created)
-                end
 
+                post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+                expect(response).to have_http_status(:created)
+
+                expect(StatsD).to have_received(:increment).with(
+                  described_class::APPT_CREATION_SUCCESS_METRIC,
+                  tags: ['service:community_care_appointments', 'type_of_care:CARDIOLOGY']
+                )
                 expect(StatsD).to have_received(:histogram).with(described_class::APPT_CREATION_DURATION_METRIC,
                                                                  kind_of(Numeric),
                                                                  tags: ['service:community_care_appointments'])
@@ -1315,9 +1325,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/eps/post_submit_appointment_500',
                              match_requests_on: %i[method path]) do
-              expect_metric_increment(described_class::APPT_CREATION_FAILURE_METRIC) do
-                post '/vaos/v2/appointments/submit', params:, headers: inflection_header
-              end
+              allow(StatsD).to receive(:increment).with(any_args)
+
+              expect(StatsD).to receive(:increment).with(
+                described_class::APPT_CREATION_FAILURE_METRIC,
+                tags: ['service:community_care_appointments', 'type_of_care:no_value']
+              )
+
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
 
               expect(response).to have_http_status(:bad_gateway)
               response_obj = JSON.parse(response.body)
