@@ -17,6 +17,21 @@ module MyHealth
 
       service_tag 'mhv-prescriptions'
 
+      def refill
+        return unless validate_feature_flag
+
+        result = service.refill_prescription(orders)
+        response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
+
+        # Log unique user event for prescription refill requested
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+
+        render json: response.serializable_hash
+      end
+
       # This index action supports various parameters described below, all are optional
       # @param refill_status - one refill status to filter on
       # @param page - the paginated page to fetch
@@ -38,21 +53,6 @@ module MyHealth
 
         log_prescriptions_access
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
-      end
-
-      def refill
-        return unless validate_feature_flag
-
-        result = service.refill_prescription(orders)
-        response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
-
-        # Log unique user event for prescription refill requested
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
-        )
-
-        render json: response.serializable_hash
       end
 
       def list_refillable_prescriptions
