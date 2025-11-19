@@ -1896,6 +1896,31 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         result = subject.send(:normalize_to_legacy_vista_status, status_test_resource)
         expect(result).to eq('active')
       end
+
+      it 'returns "active" when there is no validityPeriod.end date' do
+        resource = status_test_resource.merge(
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {}
+          }
+        )
+
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
+        expect(result).to eq('active')
+      end
+
+      it 'returns "expired" when no refills remaining even without validityPeriod.end' do
+        resource = status_test_resource.merge(
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 0,
+            'validityPeriod' => {}
+          },
+          'contained' => []
+        )
+
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
+        expect(result).to eq('expired')
+      end
     end
 
     context 'when MedicationRequest status is on-hold' do
@@ -1939,6 +1964,19 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('expired')
+      end
+
+      it 'returns "discontinued" when there is no validityPeriod.end date' do
+        resource = status_test_resource.merge(
+          'status' => 'completed',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {}
+          }
+        )
+
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
+        expect(result).to eq('discontinued')
       end
     end
 
@@ -2142,9 +2180,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       expect(result).to eq('expired')
     end
 
-    it 'returns "expired" when expiration date is nil' do
+    it 'returns "discontinued" when expiration date is nil' do
       result = subject.send(:normalize_completed_status, nil)
-      expect(result).to eq('expired')
+      expect(result).to eq('discontinued')
     end
   end
 end

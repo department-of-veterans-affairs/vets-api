@@ -267,7 +267,11 @@ module UnifiedHealthData
       # @param expiration_date [Time, nil] Parsed UTC expiration date
       # @return [String] VistA status value ('expired' or 'discontinued')
       def normalize_completed_status(expiration_date)
-        if expiration_date && expiration_date < 6.months.ago.utc
+        # If no expiration date, we can't determine if it's expired based on date
+        # A completed med without an expiration date should be discontinued
+        return 'discontinued' if expiration_date.nil?
+
+        if expiration_date < 6.months.ago.utc
           'discontinued'
         else
           'expired'
