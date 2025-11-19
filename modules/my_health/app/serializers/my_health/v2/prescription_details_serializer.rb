@@ -111,21 +111,10 @@ module MyHealth
         object.sorted_dispensed_date if object.respond_to?(:sorted_dispensed_date)
       end
 
-      attribute :shape do |object|
-        object.shape if object.respond_to?(:shape)
-      end
-
-      attribute :color do |object|
-        object.color if object.respond_to?(:color)
-      end
-
-      attribute :back_imprint do |object|
-        object.back_imprint if object.respond_to?(:back_imprint)
-      end
-
-      attribute :front_imprint do |object|
-        object.front_imprint if object.respond_to?(:front_imprint)
-      end
+      attribute(:shape) { nil }
+      attribute(:color) { nil }
+      attribute(:back_imprint) { nil }
+      attribute(:front_imprint) { nil }
 
       attribute :grouped_medications, &:grouped_medications
     end
