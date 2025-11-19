@@ -126,7 +126,7 @@ module VeteranEnrollmentSystem
       end
 
       def birthdate_unless_ssn
-        last_4_ssn.present? ? '' : birth_date
+        last_4_ssn.present? ? '' : birth_date.strftime('%m/%d/%Y')
       end
 
       def txt_form_data
