@@ -477,6 +477,8 @@ form526_export:
     bucket: ~
     region: ~
     secret_access_key: ~
+form_10275:
+  submission_email: form_10275@example.com
 form_10282:
   sftp:
     host: ~
@@ -1634,6 +1636,7 @@ vanotify:
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
+        form10275_submission_email: form10275_submission_email_template_id
         form10297_confirmation_email: form10297_confirmation_email_template_id
         form1880_reminder_email: form1880_reminder_email_template_id
         form1900_action_needed_email: form1900_action_needed_email_template_id

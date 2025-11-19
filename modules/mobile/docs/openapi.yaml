@@ -4321,6 +4321,64 @@ paths:
       security:
         - Bearer: []
       summary: /v0/travel-pay/claims/{id}
+  /v0/travel-pay/claims/{claim_id}/documents/{document_id}:
+    get:
+      description: Download a specific document associated with a travel pay claim.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The unique identifier for the travel pay claim
+          example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          in: path
+          name: claim_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: The unique identifier for the document to download
+          example: 'doc1-decision-letter'
+          in: path
+          name: document_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: Document downloaded successfully
+          headers:
+            Content-Disposition:
+              description: Indicates the file should be downloaded with the specified filename
+              schema:
+                type: string
+                example: 'attachment; filename="DecisionLetter.pdf"'
+            Content-Type:
+              description: The MIME type of the document
+              schema:
+                type: string
+                example: 'application/pdf'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/travel-pay/claims/{claim_id}/documents/{document_id}
   /v0/user:
     get:
       description: |
