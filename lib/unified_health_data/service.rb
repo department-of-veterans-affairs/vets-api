@@ -34,7 +34,7 @@ module UnifiedHealthData
         # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        parsed_records
+        sort_records_by_date(parsed_records, date_field: :date_completed)
       end
     end
 
@@ -47,7 +47,8 @@ module UnifiedHealthData
         body = response.body
 
         combined_records = fetch_combined_records(body)
-        conditions_adapter.parse(combined_records)
+        parsed_conditions = conditions_adapter.parse(combined_records)
+        sort_records_by_date(parsed_conditions)
       end
     end
 
@@ -126,7 +127,7 @@ module UnifiedHealthData
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
 
-        parsed_notes
+        sort_records_by_date(parsed_notes)
       end
     end
 
@@ -160,7 +161,8 @@ module UnifiedHealthData
         remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
 
-        allergy_adapter.parse(combined_records)
+        parsed_allergies = allergy_adapter.parse(combined_records)
+        sort_records_by_date(parsed_allergies)
       end
     end
 
@@ -248,6 +250,34 @@ module UnifiedHealthData
       vista_records = body.dig('vista', 'entry') || []
       oracle_health_records = body.dig('oracle-health', 'entry') || []
       vista_records + oracle_health_records
+    end
+
+    def sort_records_by_date(records, date_field: :date)
+      return records if records.blank?
+
+      records.sort_by do |record|
+        date_value = record.respond_to?(date_field) ? record.send(date_field) : nil
+        # Parse string dates to Time objects for proper sorting
+        parsed_date = parse_date_for_sorting(date_value)
+        parsed_date || Time.zone.at(0)
+      end.reverse
+    end
+
+    # Helper to parse date strings or pass through Time objects
+    def parse_date_for_sorting(date_value)
+      return nil if date_value.nil?
+      return date_value if date_value.is_a?(Time) || date_value.is_a?(DateTime)
+
+      # Convert to string if it's not already
+      date_string = date_value.to_s
+
+      # Handle year-only dates (e.g., "2024", "2002")
+      # Convert them to January 1st of that year for sorting purposes
+      return Time.zone.parse("#{date_string}-01-01") if date_string.match?(/^\d{4}$/)
+
+      Time.zone.parse(date_string)
+    rescue ArgumentError, TypeError
+      nil
     end
 
     # Prescription refill helper methods

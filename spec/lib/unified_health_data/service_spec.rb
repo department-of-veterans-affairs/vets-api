@@ -26,6 +26,27 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      it 'returns labs sorted by date_completed in descending order' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+
+          # Get labs with non-nil dates
+          labs_with_dates = labs.select { |lab| lab.date_completed.present? }
+
+          # Verify sorted in descending order (most recent first)
+          dates = labs_with_dates.map { |lab| Time.zone.parse(lab.date_completed) }
+          expect(dates).to eq(dates.sort.reverse)
+
+          # Verify nil dates are at the end
+          last_labs = labs.last(5)
+          if last_labs.any? { |lab| lab.date_completed.nil? }
+            expect(labs.select { |lab| lab.date_completed.nil? }).to eq(last_labs.select { |lab|
+              lab.date_completed.nil?
+            })
+          end
+        end
+      end
+
       it 'logs test code distribution from parsed records' do
         allow(Rails.logger).to receive(:info)
 
@@ -137,7 +158,9 @@ describe UnifiedHealthData::Service, type: :service do
             ['food'],
             ['food']
           )
-          expect(allergies[0]).to have_attributes(
+          # Verify specific allergy exists (not checking position due to sorting)
+          trazodone_allergy = allergies.find { |a| a.id == '2678' }
+          expect(trazodone_allergy).to have_attributes(
             {
               'id' => '2678',
               'name' => 'TRAZODONE',
@@ -163,6 +186,36 @@ describe UnifiedHealthData::Service, type: :service do
                                        'provider' => be_a(String).or(be_nil)
                                      }
                                    ))
+        end
+
+        it 'returns allergies sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(sample_client_response)
+
+          allergies = service.get_allergies
+
+          # Get allergies with non-nil dates
+          allergies_with_dates = allergies.select { |allergy| allergy.date.present? }
+
+          # Verify sorted in descending order (most recent first)
+          # Use the same parsing logic as the service
+          dates = allergies_with_dates.map do |allergy|
+            date_str = allergy.date
+            # Handle year-only dates (e.g., "2019")
+            if date_str.match?(/^\d{4}$/)
+              Time.zone.parse("#{date_str}-01-01")
+            else
+              Time.zone.parse(date_str)
+            end
+          end
+          expect(dates).to eq(dates.sort.reverse)
+
+          # Verify nil dates are at the end
+          allergies_without_dates = allergies.select { |allergy| allergy.date.nil? }
+          if allergies_without_dates.any?
+            expect(allergies.last(allergies_without_dates.size)).to eq(allergies_without_dates)
+          end
         end
       end
 
@@ -382,7 +435,9 @@ describe UnifiedHealthData::Service, type: :service do
             'discharge_summary',
             'other'
           )
-          expect(notes[0]).to have_attributes(
+          # Verify specific note exists (not checking position due to sorting)
+          telehealth_note = notes.find { |n| n.id == 'F253-7227761-1834074' }
+          expect(telehealth_note).to have_attributes(
             {
               'id' => 'F253-7227761-1834074',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
@@ -414,6 +469,19 @@ describe UnifiedHealthData::Service, type: :service do
                                    'note' => be_a(String)
                                  }
                                ))
+        end
+
+        it 'returns clinical notes sorted by date in descending order' do
+          notes = service.get_care_summaries_and_notes
+
+          # All notes should have dates
+          dates = notes.map { |note| Time.zone.parse(note.date) }
+
+          # Verify sorted in descending order (most recent first)
+          expect(dates).to eq(dates.sort.reverse)
+
+          # Verify first note is the most recent
+          expect(notes.first.date).to eq(notes.map(&:date).max)
         end
       end
 
@@ -1404,6 +1472,23 @@ describe UnifiedHealthData::Service, type: :service do
       expect(conditions).to all(have_attributes(condition_attributes))
     end
 
+    it 'returns conditions sorted by date in descending order' do
+      conditions = service.get_conditions
+
+      # Get conditions with non-nil dates
+      conditions_with_dates = conditions.select { |condition| condition.date.present? }
+
+      # Verify sorted in descending order (most recent first)
+      dates = conditions_with_dates.map { |condition| Time.zone.parse(condition.date) }
+      expect(dates).to eq(dates.sort.reverse)
+
+      # Verify nil dates are at the end
+      conditions_without_dates = conditions.select { |condition| condition.date.nil? }
+      if conditions_without_dates.any?
+        expect(conditions.last(conditions_without_dates.size)).to eq(conditions_without_dates)
+      end
+    end
+
     it 'returns conditions from both VistA and Oracle Health with real sample data' do
       conditions = service.get_conditions
       expect(conditions.size).to eq(18)
@@ -1622,6 +1707,193 @@ describe UnifiedHealthData::Service, type: :service do
       it 'returns nil when no CCD document exists' do
         result = service.get_ccd_binary(format: 'xml')
         expect(result).to be_nil
+      end
+    end
+  end
+
+  # Sorting methods
+  describe '#sort_records_by_date' do
+    let(:mock_record_class) do
+      Struct.new(:id, :date, :name, keyword_init: true)
+    end
+
+    context 'with valid date values' do
+      it 'sorts records in descending order by date (most recent first)' do
+        records = [
+          mock_record_class.new(id: '1', date: '2024-01-01', name: 'Old'),
+          mock_record_class.new(id: '2', date: '2025-01-01', name: 'Recent'),
+          mock_record_class.new(id: '3', date: '2023-01-01', name: 'Older')
+        ]
+
+        sorted = service.send(:sort_records_by_date, records)
+
+        expect(sorted.map(&:id)).to eq(%w[2 1 3])
+        expect(sorted.first.name).to eq('Recent')
+        expect(sorted.last.name).to eq('Older')
+      end
+
+      it 'handles Time objects correctly' do
+        records = [
+          mock_record_class.new(id: '1', date: Time.zone.parse('2024-01-01'), name: 'Old'),
+          mock_record_class.new(id: '2', date: Time.zone.parse('2025-01-01'), name: 'Recent')
+        ]
+
+        sorted = service.send(:sort_records_by_date, records)
+
+        expect(sorted.map(&:id)).to eq(%w[2 1])
+      end
+
+      it 'sorts using custom date field' do
+        custom_record_class = Struct.new(:id, :date_completed, :name, keyword_init: true)
+        records = [
+          custom_record_class.new(id: '1', date_completed: '2024-01-01', name: 'Old'),
+          custom_record_class.new(id: '2', date_completed: '2025-01-01', name: 'Recent')
+        ]
+
+        sorted = service.send(:sort_records_by_date, records, date_field: :date_completed)
+
+        expect(sorted.map(&:id)).to eq(%w[2 1])
+      end
+    end
+
+    context 'with nil dates' do
+      it 'places records with nil dates at the end' do
+        records = [
+          mock_record_class.new(id: '1', date: '2024-01-01', name: 'Has date'),
+          mock_record_class.new(id: '2', date: nil, name: 'No date 1'),
+          mock_record_class.new(id: '3', date: '2025-01-01', name: 'Recent'),
+          mock_record_class.new(id: '4', date: nil, name: 'No date 2')
+        ]
+
+        sorted = service.send(:sort_records_by_date, records)
+
+        # Verify dated records are first in correct order
+        expect(sorted.map(&:id).first(2)).to eq(%w[3 1])
+        # Verify nil dates are at the end (order between nils is not guaranteed)
+        expect(sorted.last(2).map(&:id)).to contain_exactly('2', '4')
+        expect(sorted.last(2).all? { |r| r.date.nil? }).to be true
+      end
+
+      it 'handles all nil dates' do
+        records = [
+          mock_record_class.new(id: '1', date: nil, name: 'Record 1'),
+          mock_record_class.new(id: '2', date: nil, name: 'Record 2')
+        ]
+
+        sorted = service.send(:sort_records_by_date, records)
+
+        expect(sorted.size).to eq(2)
+        expect(sorted.all? { |r| r.date.nil? }).to be true
+      end
+    end
+
+    context 'with edge cases' do
+      it 'returns empty array for empty input' do
+        sorted = service.send(:sort_records_by_date, [])
+        expect(sorted).to eq([])
+      end
+
+      it 'returns nil input as-is' do
+        sorted = service.send(:sort_records_by_date, nil)
+        expect(sorted).to be_nil
+      end
+
+      it 'handles single record' do
+        records = [mock_record_class.new(id: '1', date: '2024-01-01', name: 'Only')]
+        sorted = service.send(:sort_records_by_date, records)
+        expect(sorted.size).to eq(1)
+        expect(sorted.first.id).to eq('1')
+      end
+
+      it 'handles records with same date' do
+        records = [
+          mock_record_class.new(id: '1', date: '2024-01-01', name: 'Same 1'),
+          mock_record_class.new(id: '2', date: '2024-01-01', name: 'Same 2'),
+          mock_record_class.new(id: '3', date: '2025-01-01', name: 'Different')
+        ]
+
+        sorted = service.send(:sort_records_by_date, records)
+
+        expect(sorted.first.id).to eq('3')
+        expect(sorted.last(2).map(&:id)).to contain_exactly('1', '2')
+      end
+    end
+  end
+
+  describe '#parse_date_for_sorting' do
+    context 'with valid date strings' do
+      it 'parses ISO 8601 date strings' do
+        result = service.send(:parse_date_for_sorting, '2024-01-15T10:30:00Z')
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2024)
+        expect(result.month).to eq(1)
+        expect(result.day).to eq(15)
+      end
+
+      it 'parses simple date strings' do
+        result = service.send(:parse_date_for_sorting, '2024-01-15')
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2024)
+        expect(result.month).to eq(1)
+        expect(result.day).to eq(15)
+      end
+
+      it 'parses year-only dates to January 1st' do
+        result = service.send(:parse_date_for_sorting, '2024')
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2024)
+        expect(result.month).to eq(1)
+        expect(result.day).to eq(1)
+      end
+    end
+
+    context 'with Time/DateTime objects' do
+      it 'returns Time objects as-is' do
+        time_obj = Time.zone.parse('2024-01-15')
+        result = service.send(:parse_date_for_sorting, time_obj)
+        expect(result).to eq(time_obj)
+      end
+
+      it 'returns DateTime objects as-is' do
+        datetime_obj = DateTime.parse('2024-01-15')
+        result = service.send(:parse_date_for_sorting, datetime_obj)
+        expect(result).to eq(datetime_obj)
+      end
+    end
+
+    context 'with invalid or nil values' do
+      it 'returns nil for nil input' do
+        result = service.send(:parse_date_for_sorting, nil)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil for unparseable strings' do
+        result = service.send(:parse_date_for_sorting, 'invalid date')
+        expect(result).to be_nil
+      end
+
+      it 'returns nil for empty strings' do
+        result = service.send(:parse_date_for_sorting, '')
+        expect(result).to be_nil
+      end
+
+      it 'handles invalid date formats gracefully' do
+        result = service.send(:parse_date_for_sorting, '99/99/9999')
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with edge cases' do
+      it 'handles numeric year values' do
+        result = service.send(:parse_date_for_sorting, 2024)
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2024)
+      end
+
+      it 'parses dates with timezone offsets' do
+        result = service.send(:parse_date_for_sorting, '2024-01-15T10:30:00+05:00')
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2024)
       end
     end
   end
