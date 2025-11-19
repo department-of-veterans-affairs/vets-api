@@ -62,7 +62,7 @@ RSpec.describe EventBusGateway::LetterReadyJobConcern, type: :job do
 
       it 'raises the correct error message' do
         expect { test_instance.send(:get_bgs_person, participant_id) }
-          .to raise_error('Participant ID cannot be found in BGS')
+          .to raise_error(EventBusGateway::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
       end
     end
   end
@@ -93,7 +93,7 @@ RSpec.describe EventBusGateway::LetterReadyJobConcern, type: :job do
 
       it 'raises the correct error message' do
         expect { test_instance.send(:get_mpi_profile, participant_id) }
-          .to raise_error('Failed to fetch MPI profile')
+          .to raise_error(EventBusGateway::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
       end
     end
 
@@ -102,7 +102,7 @@ RSpec.describe EventBusGateway::LetterReadyJobConcern, type: :job do
 
       it 'raises the correct error message' do
         expect { test_instance.send(:get_mpi_profile, participant_id) }
-          .to raise_error('Failed to fetch MPI profile')
+          .to raise_error(EventBusGateway::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
       end
     end
   end
@@ -231,7 +231,7 @@ RSpec.describe EventBusGateway::LetterReadyJobConcern, type: :job do
       it 'raises error from get_bgs_person' do
         expect do
           test_instance.send(:get_first_name_from_participant_id, participant_id)
-        end.to raise_error('Participant ID cannot be found in BGS')
+        end.to raise_error(EventBusGateway::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
       end
     end
 
@@ -270,7 +270,7 @@ RSpec.describe EventBusGateway::LetterReadyJobConcern, type: :job do
       it 'raises error from get_mpi_profile' do
         expect do
           test_instance.send(:get_icn, participant_id)
-        end.to raise_error(RuntimeError, error_message)
+        end.to raise_error(EventBusGateway::MpiProfileNotFoundError, error_message)
       end
     end
 
@@ -296,7 +296,7 @@ RSpec.describe EventBusGateway::LetterReadyJobConcern, type: :job do
       it 'raises BGS error before attempting MPI lookup' do
         expect do
           test_instance.send(:get_icn, participant_id)
-        end.to raise_error(StandardError, 'Participant ID cannot be found in BGS')
+        end.to raise_error(EventBusGateway::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
       end
     end
 

@@ -26,7 +26,7 @@ RSpec.shared_examples 'letter ready job bgs error handling' do |job_type|
     expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
     expect do
       described_class.new.perform(participant_id, template_id)
-    end.to raise_error(StandardError, message_detail)
+    end.to raise_error(EventBusGateway::BgsPersonNotFoundError, message_detail)
   end
 end
 
@@ -62,7 +62,7 @@ RSpec.shared_examples 'letter ready job mpi error handling' do |job_type|
     expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
     expect do
       described_class.new.perform(participant_id, template_id)
-    end.to raise_error(RuntimeError, message_detail)
+    end.to raise_error(EventBusGateway::MpiProfileNotFoundError, message_detail)
   end
 end
 

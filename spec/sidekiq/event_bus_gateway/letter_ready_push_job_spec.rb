@@ -115,7 +115,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
 
         expect do
           subject.new.perform(participant_id, template_id)
-        end.to raise_error(StandardError, message_detail)
+        end.to raise_error(EventBusGateway::IcnNotFoundError, message_detail)
       end
     end
 
@@ -197,7 +197,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
 
         expect do
           subject.new.perform(participant_id, template_id)
-        end.to raise_error(StandardError, 'Participant ID cannot be found in BGS')
+        end.to raise_error(EventBusGateway::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
           .and not_change(EventBusGatewayNotification, :count)
       end
     end
@@ -210,7 +210,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
 
         expect do
           subject.new.perform(participant_id, template_id)
-        end.to raise_error(RuntimeError, 'Failed to fetch MPI profile')
+        end.to raise_error(EventBusGateway::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
           .and not_change(EventBusGatewayNotification, :count)
       end
     end
@@ -225,7 +225,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
         expect(va_notify_service).not_to receive(:send_push)
 
         expect { subject.new.perform(participant_id, template_id) }
-          .to raise_error('Failed to fetch MPI profile')
+          .to raise_error(EventBusGateway::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
       end
     end
 

@@ -168,6 +168,42 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
           result = subject.new.perform(participant_id, email_template_id, push_template_id)
           expect(result).to eq([])
         end
+
+        it 'logs skipped notifications for both email and push' do
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob email skipped',
+            {
+              notification_type: 'email',
+              reason: 'ICN or template not available',
+              template_id: email_template_id
+            }
+          )
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob push skipped',
+            {
+              notification_type: 'push',
+              reason: 'ICN or template not available',
+              template_id: push_template_id
+            }
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'increments skipped metrics for both email and push' do
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email',
+                                                         'reason:icn_or_template_not_available']
+          )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:push',
+                                                         'reason:icn_or_template_not_available']
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
       end
 
       context 'when BGS person name is missing' do
@@ -192,6 +228,28 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
           end.to not_change(EventBusGatewayNotification, :count)
             .and change(EventBusGatewayPushNotification, :count).by(1)
         end
+
+        it 'logs skipped email notification due to missing first_name' do
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob email skipped',
+            {
+              notification_type: 'email',
+              reason: 'first_name not present',
+              template_id: email_template_id
+            }
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'increments skipped metric for email' do
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email', 'reason:first_name_not_present']
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
       end
     end
 
@@ -211,6 +269,23 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
         it 'returns false when icn is missing' do
           result = job_instance.send(:should_send_push?, 'template_123', nil)
+          expect(result).to be false
+        end
+      end
+
+      describe '#should_send_email?' do
+        it 'returns true when all requirements are met' do
+          result = job_instance.send(:should_send_email?, 'template_123', 'icn_456')
+          expect(result).to be true
+        end
+
+        it 'returns false when email_template_id is missing' do
+          result = job_instance.send(:should_send_email?, nil, 'icn_456')
+          expect(result).to be false
+        end
+
+        it 'returns false when icn is missing' do
+          result = job_instance.send(:should_send_email?, 'template_123', nil)
           expect(result).to be false
         end
       end
@@ -293,7 +368,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
         it 'raises error with combined failure message' do
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(StandardError, /All notifications failed/)
+          end.to raise_error(EventBusGateway::NotificationEnqueueError, /All notifications failed/)
             .and not_change(EventBusGatewayNotification, :count)
             .and not_change(EventBusGatewayPushNotification, :count)
         end
@@ -311,7 +386,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(StandardError, 'Participant ID cannot be found in BGS')
+          end.to raise_error(EventBusGateway::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
         end
       end
 
@@ -325,7 +400,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(RuntimeError, 'Failed to fetch MPI profile')
+          end.to raise_error(EventBusGateway::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
         end
       end
     end

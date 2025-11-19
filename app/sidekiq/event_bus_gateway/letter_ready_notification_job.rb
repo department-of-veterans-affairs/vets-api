@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require_relative 'constants'
+require_relative 'errors'
 require_relative 'letter_ready_job_concern'
 require_relative 'letter_ready_email_job'
 require_relative 'letter_ready_push_job'
@@ -33,20 +34,11 @@ module EventBusGateway
       icn = get_icn(participant_id)
 
       errors = []
-
-      # Send email notification if template provided and ICN available
-      if email_template_id.present? && icn.present?
-        first_name = get_first_name_from_participant_id(participant_id)
-
-        errors << send_email_async(participant_id, email_template_id, first_name, icn) if first_name.present?
-      end
-
-      # Send push notification if template provided and ICN available
-      errors << send_push_async(participant_id, push_template_id, icn) if should_send_push?(push_template_id, icn)
-
+      errors << handle_email_notification(participant_id, email_template_id, icn)
+      errors << handle_push_notification(participant_id, push_template_id, icn)
       errors.compact!
 
-      log_completion(participant_id, email_template_id, push_template_id, errors)
+      log_completion(email_template_id, push_template_id, errors)
       handle_errors(errors)
 
       errors
@@ -58,15 +50,44 @@ module EventBusGateway
 
     private
 
+    def should_send_email?(email_template_id, icn)
+      email_template_id.present? && icn.present?
+    end
+
     def should_send_push?(push_template_id, icn)
       push_template_id.present? && icn.present?
+    end
+
+    def handle_email_notification(participant_id, email_template_id, icn)
+      if should_send_email?(email_template_id, icn)
+        first_name = get_first_name_from_participant_id(participant_id)
+
+        if first_name.present?
+          send_email_async(participant_id, email_template_id, first_name, icn)
+        else
+          log_notification_skipped('email', 'first_name not present', email_template_id)
+          nil
+        end
+      else
+        log_notification_skipped('email', 'ICN or template not available', email_template_id)
+        nil
+      end
+    end
+
+    def handle_push_notification(participant_id, push_template_id, icn)
+      if should_send_push?(push_template_id, icn)
+        send_push_async(participant_id, push_template_id, icn)
+      elsif push_template_id.present?
+        log_notification_skipped('push', 'ICN or template not available', push_template_id)
+        nil
+      end
     end
 
     def send_email_async(participant_id, email_template_id, first_name, icn)
       LetterReadyEmailJob.perform_async(participant_id, email_template_id, first_name, icn)
       nil
     rescue => e
-      log_notification_failure('email', participant_id, email_template_id, e)
+      log_notification_failure('email', email_template_id, e)
       { type: 'email', error: e.message }
     end
 
@@ -74,22 +95,47 @@ module EventBusGateway
       LetterReadyPushJob.perform_async(participant_id, push_template_id, icn)
       nil
     rescue => e
-      log_notification_failure('push', participant_id, push_template_id, e)
+      log_notification_failure('push', push_template_id, e)
       { type: 'push', error: e.message }
     end
 
-    def log_notification_failure(notification_type, participant_id, template_id, error)
+    def log_notification_failure(notification_type, template_id, error)
       ::Rails.logger.error(
-        "LetterReadyNotificationJob #{notification_type} failed",
+        "LetterReadyNotificationJob #{notification_type} enqueue failed",
         {
-          participant_id:,
+          notification_type:,
           template_id:,
-          error: error.message
+          error_class: error.class.name,
+          error_message: error.message
         }
       )
+
+      # Track enqueuing failures (different from send failures tracked in child jobs)
+      tags = Constants::DD_TAGS + [
+        "notification_type:#{notification_type}",
+        "error:#{error.class.name}"
+      ]
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.enqueue_failure", tags:)
     end
 
-    def log_completion(participant_id, email_template_id, push_template_id, errors)
+    def log_notification_skipped(notification_type, reason, template_id)
+      ::Rails.logger.error(
+        "LetterReadyNotificationJob #{notification_type} skipped",
+        {
+          notification_type:,
+          reason:,
+          template_id:
+        }
+      )
+
+      tags = Constants::DD_TAGS + [
+        "notification_type:#{notification_type}",
+        "reason:#{reason.parameterize.underscore}"
+      ]
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.skipped", tags:)
+    end
+
+    def log_completion(email_template_id, push_template_id, errors)
       successful_notifications = []
       successful_notifications << 'email' if email_template_id.present? && errors.none? { |e| e[:type] == 'email' }
       successful_notifications << 'push' if push_template_id.present? && errors.none? { |e| e[:type] == 'push' }
@@ -99,7 +145,6 @@ module EventBusGateway
       ::Rails.logger.info(
         'LetterReadyNotificationJob completed',
         {
-          participant_id:,
           notifications_sent: successful_notifications.join(', '),
           notifications_failed: failed_messages,
           email_template_id:,
@@ -112,8 +157,9 @@ module EventBusGateway
       return if errors.empty?
 
       if errors.length == 2
-        # Both notifications failed
-        raise StandardError, "All notifications failed: #{errors.map { |e| e[:error] }.join('; ')}"
+        # Both notifications failed to enqueue
+        error_details = errors.map { |e| "#{e[:type]}: #{e[:error]}" }.join('; ')
+        raise NotificationEnqueueError, "All notifications failed to enqueue: #{error_details}"
       else
         # Partial failure - determine which notification succeeded
         successful = errors[0][:type] == 'email' ? 'push' : 'email'

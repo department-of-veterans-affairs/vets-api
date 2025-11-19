@@ -30,7 +30,19 @@ module EventBusGateway
       first_name ||= get_first_name_from_participant_id(participant_id)
       icn ||= get_icn(participant_id)
 
-      return if icn.blank?
+      if icn.blank?
+        ::Rails.logger.error(
+          'LetterReadyEmailJob email skipped',
+          {
+            notification_type: 'email',
+            reason: 'ICN not available',
+            template_id:
+          }
+        )
+        tags = Constants::DD_TAGS + ['notification_type:email', 'reason:icn_not_available']
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.skipped", tags:)
+        return
+      end
 
       send_email_notification(participant_id, template_id, first_name, icn)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
