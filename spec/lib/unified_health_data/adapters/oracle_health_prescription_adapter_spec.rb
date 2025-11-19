@@ -1825,10 +1825,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
 
     context 'when MedicationRequest status is active' do
-      it 'returns "discontinued" when expired more than 6 months ago' do
+      it 'returns "discontinued" when expired more than 120 days ago' do
         resource = status_test_resource.merge(
           'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 7.months.ago.utc.iso8601 }
+            'validityPeriod' => { 'end' => 121.days.ago.utc.iso8601 }
           }
         )
 
@@ -1942,11 +1942,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
 
     context 'when MedicationRequest status is completed' do
-      it 'returns "discontinued" when expired more than 6 months ago' do
+      it 'returns "discontinued" when expired more than 120 days ago' do
         resource = status_test_resource.merge(
           'status' => 'completed',
           'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 7.months.ago.utc.iso8601 }
+            'validityPeriod' => { 'end' => 121.days.ago.utc.iso8601 }
           }
         )
 
@@ -1954,11 +1954,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to eq('discontinued')
       end
 
-      it 'returns "expired" when expired less than 6 months ago' do
+      it 'returns "expired" when expired less than 120 days ago' do
         resource = status_test_resource.merge(
           'status' => 'completed',
           'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 3.months.ago.utc.iso8601 }
+            'validityPeriod' => { 'end' => 60.days.ago.utc.iso8601 }
           }
         )
 
@@ -2137,8 +2137,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#normalize_active_status' do
-    it 'returns "discontinued" when expired more than 6 months ago' do
-      expiration_date = 7.months.ago.utc
+    it 'returns "discontinued" when expired more than 120 days ago' do
+      expiration_date = 121.days.ago.utc
       result = subject.send(:normalize_active_status, 3, expiration_date, false)
       expect(result).to eq('discontinued')
     end
@@ -2168,14 +2168,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#normalize_completed_status' do
-    it 'returns "discontinued" when expired more than 6 months ago' do
-      expiration_date = 7.months.ago.utc
+    it 'returns "discontinued" when expired more than 120 days ago' do
+      expiration_date = 121.days.ago.utc
       result = subject.send(:normalize_completed_status, expiration_date)
       expect(result).to eq('discontinued')
     end
 
-    it 'returns "expired" when expired less than 6 months ago' do
-      expiration_date = 3.months.ago.utc
+    it 'returns "expired" when expired less than 120 days ago' do
+      expiration_date = 60.days.ago.utc
       result = subject.send(:normalize_completed_status, expiration_date)
       expect(result).to eq('expired')
     end

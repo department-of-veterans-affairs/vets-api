@@ -268,8 +268,8 @@ module UnifiedHealthData
       # @param has_in_progress_dispense [Boolean] Whether any dispense is in-progress
       # @return [String] VistA status value
       def normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense)
-        # Rule: Expired more than 6 months ago → discontinued
-        return 'discontinued' if expiration_date && expiration_date < 6.months.ago.utc
+        # Rule: Expired more than 120 days ago → discontinued
+        return 'discontinued' if expiration_date && expiration_date < 120.days.ago.utc
 
         # Rule: No refills remaining → expired
         return 'expired' if refills_remaining.zero?
@@ -290,7 +290,7 @@ module UnifiedHealthData
         # A completed med without an expiration date should be discontinued
         return 'discontinued' if expiration_date.nil?
 
-        if expiration_date < 6.months.ago.utc
+        if expiration_date < 120.days.ago.utc
           'discontinued'
         else
           'expired'
