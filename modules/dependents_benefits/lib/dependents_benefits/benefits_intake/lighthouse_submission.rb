@@ -71,6 +71,8 @@ module DependentsBenefits
         form_674_paths = []
         form_686c_path = nil
         DependentsBenefits::ClaimProcessor.new(saved_claim.id, proc_id).collect_child_claims.each do |claim|
+          # NOTE: potentially move to initialization of claims
+          claim.add_veteran_info(user_data)
           pdf_path = process_pdf(claim.to_pdf, claim.created_at, claim.form_id)
 
           if claim.form_id == DependentsBenefits::ADD_REMOVE_DEPENDENT

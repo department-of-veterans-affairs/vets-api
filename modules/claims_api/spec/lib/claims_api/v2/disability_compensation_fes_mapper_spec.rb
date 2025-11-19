@@ -136,6 +136,7 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
               expect(address[:internationalPostalCode]).to eq('SW1A 1AA')
               expect(address[:addressType]).to eq('INTERNATIONAL')
               expect(address[:country]).to eq('GBR')
+              expect(address[:city]).to eq('London')
             end
           end
         end
@@ -165,6 +166,35 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
             expect(change[:beginningDate]).to eq('2023-06-04')
             expect(change[:endingDate]).to eq('2023-12-04')
             expect(change[:addressType]).to eq('DOMESTIC')
+            expect(change[:city]).to eq('Schenectady')
+          end
+        end
+
+        context 'change of address for international address' do
+          it 'maps change of address when address is international' do
+            form_data['data']['attributes']['changeOfAddress'] = {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'numberAndStreet' => '10 Peach St',
+              'city' => 'London',
+              'country' => 'GBR',
+              'internationalPostalCode' => 'SW1A 1AA',
+              'beginningDate' => '2023-06-04',
+              'endingDate' => '2023-12-04'
+            }
+
+            auto_claim = create(:auto_established_claim,
+                                form_data: form_data['data']['attributes'],
+                                auth_headers: { 'va_eauth_pid' => '600061742' })
+            fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+            change = fes_data[:data][:form526][:veteran][:changeOfAddress]
+
+            expect(change[:addressLine1]).to eq('10 Peach St')
+            expect(change[:internationalPostalCode]).to eq('SW1A 1AA')
+            expect(change[:beginningDate]).to eq('2023-06-04')
+            expect(change[:endingDate]).to eq('2023-12-04')
+            expect(change[:addressType]).to eq('INTERNATIONAL')
+            expect(change[:country]).to eq('GBR')
+            expect(change[:city]).to eq('London')
           end
         end
       end
@@ -197,14 +227,61 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
           expect(confinements.first[:confinementEndDate]).to eq('2018-07-04')
         end
 
-        it 'maps separation location code when present' do
-          form_data['data']['attributes']['serviceInformation']['separationLocationCode'] = '98282'
-          auto_claim = create(:auto_established_claim,
-                              form_data: form_data['data']['attributes'],
-                              auth_headers: { 'va_eauth_pid' => '600061742' })
-          fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+        context 'separationLocationCode' do
+          let(:service_periods) do
+            [
+              {
+                'serviceBranch' => 'Public Health Service',
+                'serviceComponent' => 'Active',
+                'activeDutyBeginDate' => '2021-11-14',
+                'activeDutyEndDate' => '2023-10-30',
+                'separationLocationCode' => '98765'
+              }, {
+                'serviceBranch' => 'Army',
+                'activeDutyBeginDate' => '2018-11-14',
+                'activeDutyEndDate' => '2020-10-30'
+              }, {
+                'serviceBranch' => 'Navy',
+                'activeDutyBeginDate' => '2008-11-14',
+                'activeDutyEndDate' => '2023-10-30',
+                'separationLocationCode' => '12345'
+              }
+            ]
+          end
 
-          expect(fes_data[:data][:form526][:serviceInformation][:separationLocationCode]).to eq('98282')
+          it 'maps separation location correctly when present' do
+            auto_claim = create(:auto_established_claim,
+                                form_data: form_data['data']['attributes'],
+                                auth_headers: { 'va_eauth_pid' => '600061742' })
+
+            fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+
+            expect(fes_data[:data][:form526][:serviceInformation][:separationLocationCode]).to eq('98282')
+          end
+
+          it 'maps separation location correctly when there are multiple present' do
+            form_data['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+            auto_claim = create(:auto_established_claim,
+                                form_data: form_data['data']['attributes'],
+                                auth_headers: { 'va_eauth_pid' => '600061742' })
+
+            fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+
+            expect(fes_data[:data][:form526][:serviceInformation][:separationLocationCode]).to eq('98765')
+          end
+
+          it 'handles separation code when it is not present in most recent service period' do
+            modified_periods = service_periods.deep_dup
+            modified_periods[0].delete('separationLocationCode')
+            form_data['data']['attributes']['serviceInformation']['servicePeriods'] = modified_periods
+            auto_claim = create(:auto_established_claim,
+                                form_data: form_data['data']['attributes'],
+                                auth_headers: { 'va_eauth_pid' => '600061742' })
+
+            fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+
+            expect(fes_data[:data][:form526][:serviceInformation]).not_to have_key(:separationLocationCode)
+          end
         end
       end
 
@@ -238,7 +315,7 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
           expect(date[:day]).to eq(15)
         end
 
-        it "removes disabilities with a disabilityActionType of none'" do
+        it "removes disabilities with a disabilityActionType of 'none'" do
           form_data['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NONE'
 
           fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
@@ -446,12 +523,11 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
           auto_claim = create(:auto_established_claim,
                               form_data: form_data['data']['attributes'],
                               auth_headers: {
-                                'va_eauth_pid' => '600061742',
-                                'dependent' => { 'participant_id' => '600061743' }
+                                'va_eauth_pid' => '600061742'
                               })
 
           fes_data = ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
-          expect(fes_data[:data][:claimantParticipantId]).to eq('600061743')
+          expect(fes_data[:data][:claimantParticipantId]).to eq('600061742')
           expect(fes_data[:data][:veteranParticipantId]).to eq('600061742')
         end
       end
