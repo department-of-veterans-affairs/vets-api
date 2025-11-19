@@ -9,7 +9,6 @@ module VAOS
 
       REFERRAL_DETAIL_VIEW_METRIC = "#{STATSD_PREFIX}.referral_detail.access".freeze
       REFERRAL_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_station_id.access".freeze
-      REFERRAL_TYPE_OF_CARE_METRIC = "#{STATSD_PREFIX}.referral_type_of_care.access".freeze
       REFERRING_FACILITY_CODE_FIELD = 'referring_facility_code'
       REFERRAL_PROVIDER_NPI_FIELD = 'referral_provider_npi'
 
@@ -157,11 +156,7 @@ module VAOS
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
                            COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "station_id:#{station_id}"
-                         ])
-
-        StatsD.increment(REFERRAL_TYPE_OF_CARE_METRIC, tags: [
-                           COMMUNITY_CARE_SERVICE_TAG,
+                           "station_id:#{station_id}",
                            "type_of_care:#{type_of_care}"
                          ])
 

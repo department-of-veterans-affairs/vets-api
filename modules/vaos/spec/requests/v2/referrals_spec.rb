@@ -190,14 +190,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
                 tags: [
                   'service:community_care_appointments',
                   'referring_facility_code:552',
-                  'station_id:528A6'
-                ])
-          .once
-
-        expect(StatsD).to receive(:increment)
-          .with(VAOS::V2::ReferralsController::REFERRAL_TYPE_OF_CARE_METRIC,
-                tags: [
-                  'service:community_care_appointments',
+                  'station_id:528A6',
                   'type_of_care:CARDIOLOGY'
                 ])
           .once
