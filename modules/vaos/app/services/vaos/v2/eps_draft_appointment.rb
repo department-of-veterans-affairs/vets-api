@@ -30,6 +30,8 @@ module VAOS
 
       REFERRAL_DRAFT_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_draft_station_id.access".freeze
       PROVIDER_DRAFT_NETWORK_ID_METRIC = "#{STATSD_PREFIX}.provider_draft_network_id.access".freeze
+      APPT_DRAFT_CREATION_SUCCESS_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.success".freeze
+      APPT_DRAFT_CREATION_FAILURE_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.failure".freeze
 
       # @!attribute [r] id
       #   @return [String, nil] The ID of the created draft appointment, or nil if creation failed
@@ -42,7 +44,7 @@ module VAOS
       #   @return [Hash, nil] Drive time information from user's address to provider, or nil if unavailable
       # @!attribute [r] error
       #   @return [Hash, nil] Error information with :message and :status keys, or nil if successful
-      attr_reader :id, :provider, :slots, :drive_time, :error
+      attr_reader :id, :provider, :slots, :drive_time, :error, :type_of_care
 
       ##
       # Initialize and execute the draft appointment creation process
@@ -58,11 +60,13 @@ module VAOS
       # @return [EpsDraftAppointment] A new instance with populated attributes or error
       def initialize(current_user, referral_id, referral_consult_id)
         @current_user = current_user
+        @referral_id = referral_id
         @id = nil
         @provider = nil
         @slots = nil
         @drive_time = nil
         @error = nil
+        @type_of_care = nil
 
         return unless validate_params(referral_id, referral_consult_id)
 
@@ -127,6 +131,9 @@ module VAOS
         @slots = fetch_provider_slots(referral, provider, draft.id)
         @id = draft.id
         @provider = provider
+
+        # Log success metric with type_of_care
+        log_draft_creation_metric(APPT_DRAFT_CREATION_SUCCESS_METRIC)
       end
 
       ##
@@ -193,6 +200,9 @@ module VAOS
             :unprocessable_entity
           )
         end
+
+        # Store type_of_care for metrics
+        @type_of_care = sanitize_log_value(referral&.category_of_care)
 
         log_referral_metrics(referral)
         referral
@@ -516,6 +526,34 @@ module VAOS
       end
 
       ##
+      # Log draft creation success or failure metric with type_of_care
+      #
+      # Attempts to use the stored type_of_care from the referral fetch.
+      # If not available (e.g., error occurred before referral was fetched),
+      # tries to fetch from cache as a fallback.
+      #
+      # @param metric [String] The metric name to log
+      # @return [void]
+      def log_draft_creation_metric(metric)
+        type_of_care = @type_of_care || fetch_type_of_care_from_cache || 'no_value'
+        StatsD.increment(metric, tags: [COMMUNITY_CARE_SERVICE_TAG, "type_of_care:#{type_of_care}"])
+      end
+
+      ##
+      # Attempt to fetch type_of_care from cache
+      #
+      # @return [String, nil] The sanitized type of care, or nil if not found
+      def fetch_type_of_care_from_cache
+        return nil if @referral_id.blank? || @current_user.nil?
+
+        cached_referral = ccra_referral_service.get_cached_referral_data(@referral_id, @current_user.icn)
+        sanitize_log_value(cached_referral&.category_of_care)
+      rescue
+        # If we can't fetch from cache (Redis down, etc.), return nil to use 'no_value'
+        nil
+      end
+
+      ##
       # Log detailed error information when provider is not found
       #
       # Records comprehensive error details including provider search criteria
@@ -560,6 +598,7 @@ module VAOS
       # @return [nil] Always returns nil to support early return pattern
       def set_error(message, status)
         @error = { message:, status: }
+        log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
         nil
       end
 

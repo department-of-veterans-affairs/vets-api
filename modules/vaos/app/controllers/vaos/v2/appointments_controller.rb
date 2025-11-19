@@ -85,11 +85,9 @@ module VAOS
         draft_appt = VAOS::V2::EpsDraftAppointment.new(current_user, referral_id, referral_consult_id)
 
         if draft_appt.error
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
           render json: { errors: [{ title: 'Appointment creation failed', detail: draft_appt.error[:message] }] },
                  status: draft_appt.error[:status]
         else
-          StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
           ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
           render json: Eps::DraftAppointmentSerializer.new(draft_appt), status: :created
         end

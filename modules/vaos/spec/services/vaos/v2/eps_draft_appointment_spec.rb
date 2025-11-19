@@ -62,7 +62,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
   # Shared setup for successful scenarios
   def setup_successful_services
-    allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
+    allow(ccra_referral_service).to receive_messages(get_referral: referral_data, get_cached_referral_data: nil)
     allow(appointments_service).to receive(:referral_appointment_already_exists?)
       .and_return({ error: false, exists: false })
     allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
@@ -398,6 +398,10 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
     context 'metrics and logging validation' do
       it 'logs referral metrics with correct tags' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.appointment_draft_creation.success',
+          tags: ['service:community_care_appointments', 'type_of_care:CARDIOLOGY']
+        )
         expect(StatsD).to receive(:increment).with(
           'api.vaos.referral_draft_station_id.access',
           tags: [
