@@ -47,7 +47,7 @@ module MedicalExpenseReports
             question_suffix: 'C',
             key: 'form1[0].#subform[9].Enter_V_A_File_Number[0]'
           }
-        },
+        }
       }.freeze
 
       # expand veteran name

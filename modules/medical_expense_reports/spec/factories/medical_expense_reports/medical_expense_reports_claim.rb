@@ -16,7 +16,7 @@ FactoryBot.define do
           last: 'Stewart'
         },
         veteranSocialSecurityNumber: {
-          ssn: '333224444',
+          ssn: '333224444'
         },
         statementOfTruthCertified: true,
         statementOfTruthSignature: 'John Edmund Doe'
