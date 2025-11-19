@@ -76,89 +76,102 @@ jobs:
         env:
           EXEMPT_TEAMS: ${{ env.EXEMPT_TEAMS }}
         run: |
-          all_files_exempt=true
-          CODEOWNERS_FILE=".github/CODEOWNERS"
+          if [[ ! -s /tmp/changed_files.txt ]]; then
+            echo "all_files_exempt=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-          # Validate CODEOWNERS exists
+          CODEOWNERS_FILE=".github/CODEOWNERS"
           if [[ ! -f "$CODEOWNERS_FILE" ]]; then
-            echo "[ERROR] CODEOWNERS file not found at $CODEOWNERS_FILE"
+            echo "[ERROR] CODEOWNERS file not found"
             echo "all_files_exempt=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Parse exempt teams from JSON array
-          readarray -t EXEMPT_TEAM_ARRAY < <(echo "$EXEMPT_TEAMS" | jq -r '.[]')
+          EXEMPT_TEAM_ARRAY=(
+            "octo-identity"
+            "lighthouse-dash"
+            "lighthouse-pivot"
+            "lighthouse-banana-peels"
+            "mobile-api-team"
+            "fed-eng-admin"
+          )
 
-          echo "Analyzing file ownership"
-          echo "----------------------------------------"
+          all_files_exempt=true
+          
+          echo "Analyzing Code Owners"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
 
           while IFS= read -r file || [[ -n "$file" ]]; do
             [[ -z "$file" ]] && continue
 
             echo "File: $file"
 
-            # Parse CODEOWNERS content for this specific file
-            owners=$(awk -v file="$file" '
-              $0 !~ /^#/ && $0 !~ /^[[:space:]]*$/ {
-                pattern = $1
-
-                # Handle trailing slash (directory rule)
-                if (pattern ~ /\/$/) {
-                  gsub(/\/$/, "/", pattern)
-                  pattern = pattern ".*"
-                } else if (pattern !~ /\*/ && pattern !~ /\./) {
-                  # directory without slash → treat as dir
-                  pattern = "(" pattern "$|" pattern "/.*)"
-                }
-
-                # Escape dots
-                gsub(/\./, "\\.", pattern)
-
-                # Convert glob syntax
-                gsub(/\*\*\//, ".*", pattern)
-                gsub(/\*/, "[^/]*", pattern)
-
-                # If file matches, store owners (last match wins)
-                if (file ~ "^" pattern) {
-                  for (i=2; i<=NF; i++) last[i] = $i
+            result=$(awk -v f="$file" '
+              $0 !~ /^#/ && NF > 0 {
+                p = $1
+                orig = p
+                gsub(/\*\*\//, "<!DS!>", p)
+                gsub(/\*/, "<!S!>", p)
+                if (p ~ /\/$/) sub(/\/$/, "/<!S!>", p)
+                else if (p !~ /<!S!>/ && p !~ /<!DS!>/ && p !~ /\./) p = "(" p "$|" p "/<!S!>)"
+                gsub(/\./, "\\.", p)
+                gsub(/<!DS!>/, ".*", p)
+                gsub(/<!S!>/, ".*", p)
+                if (f ~ "^" p) {
+                  pattern = orig
+                  owners = ""
+                  for (i=2; i<=NF; i++) owners = owners $i " "
                 }
               }
               END {
-                for (i in last) print last[i]
+                if (pattern && owners) {
+                  print pattern
+                  print owners
+                  exit 0
+                }
+                exit 1
               }
             ' "$CODEOWNERS_FILE")
 
-
-            if [[ -z "$owners" ]]; then
-              echo "   No CODEOWNERS entry (requires backend approval)"
+            if [[ $? -ne 0 || -z "$result" ]]; then
+              echo "  Pattern matched: (none)"
+              echo "  Code owners: (none)"
+              echo "  Status: [X] REQUIRES APPROVAL"
+              echo ""
               all_files_exempt=false
               continue
             fi
 
-            echo "  Owners: $owners"
+            pattern=$(echo "$result" | head -1)
+            owners=$(echo "$result" | tail -1)
 
-            # Check if file is owned by exempt teams
+            echo "  Pattern matched: \"$pattern\""
+            echo "  Code owners: $owners"
+
             file_is_exempt=false
             for team in "${EXEMPT_TEAM_ARRAY[@]}"; do
               if echo "$owners" | grep -q "@department-of-veterans-affairs/${team}"; then
-                echo "  Owned by exempt team: ${team}"
+                echo "  Status: [OK] EXEMPT (via team: $team)"
                 file_is_exempt=true
                 break
               fi
             done
 
             if [[ "$file_is_exempt" == "false" ]]; then
-              echo "   Not owned by exempt team (requires backend approval)"
+              echo "  Status: [X] REQUIRES APPROVAL"
               all_files_exempt=false
             fi
 
+            echo ""
           done < /tmp/changed_files.txt
 
-          echo "----------------------------------------"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           if [[ "$all_files_exempt" == "true" ]]; then
-            echo "[PASS] All files owned exclusively by exempt teams"
+            echo "[PASS] All files are exempt"
           else
-            echo "[WARN] Some files require backend approval"
+            echo "[FAIL] Some files require backend approval"
           fi
 
           echo "all_files_exempt=${all_files_exempt}" >> "$GITHUB_OUTPUT"
