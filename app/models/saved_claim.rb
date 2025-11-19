@@ -176,6 +176,17 @@ class SavedClaim < ApplicationRecord
     []
   end
 
+  # Required for Lighthouse Benefits Intake API submission
+  # Subclasses can override to provide alternate metadata if needed
+  def metadata_for_benefits_intake
+    address = parsed_form['claimantAddress'] || parsed_form['veteranAddress'] || {}
+    { veteranFirstName: parsed_form.dig('veteranFullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranFullName', 'last'),
+      fileNumber: parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber'],
+      zipCode: address['postalCode'],
+      businessLine: business_line }
+  end
+
   private
 
   def validate_schema(schema)
@@ -230,17 +241,6 @@ class SavedClaim < ApplicationRecord
   def after_destroy_metrics
     tags = ["form_id:#{form_id}", "doctype:#{document_type}"]
     StatsD.increment('saved_claim.destroy', tags:)
-  end
-
-  # Required for Lighthouse Benefits Intake API submission
-  # Subclasses can override to provide alternate metadata if needed
-  def metadata_for_benefits_intake
-    address = parsed_form['claimantAddress'] || parsed_form['veteranAddress'] || {}
-    { veteranFirstName: parsed_form.dig('veteranFullName', 'first'),
-      veteranLastName: parsed_form.dig('veteranFullName', 'last'),
-      fileNumber: parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber'],
-      zipCode: address['postalCode'],
-      businessLine: business_line }
   end
 
   def pdf_overflow_tracking
