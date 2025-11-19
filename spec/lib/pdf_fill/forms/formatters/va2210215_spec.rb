@@ -247,4 +247,90 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       expect(result).to eq('N/A')
     end
   end
+
+  describe '#sort_programs_by_name' do
+    it 'sorts programs alphabetically by programName' do
+      programs = [
+        { 'programName' => 'Zebra Program', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple Program', 'studentsEnrolled' => 50 },
+        { 'programName' => 'Banana Program', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.map { |p| p['programName'] }).to eq(['Apple Program', 'Banana Program', 'Zebra Program'])
+    end
+
+    it 'sorts case-insensitively' do
+      programs = [
+        { 'programName' => 'zebra', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 50 },
+        { 'programName' => 'banana', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.map { |p| p['programName'] }).to eq(%w[Apple banana zebra])
+    end
+
+    it 'handles empty array' do
+      programs = []
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted).to eq([])
+    end
+
+    it 'handles nil programs' do
+      sorted = described_class.sort_programs_by_name(nil)
+      expect(sorted).to eq([])
+    end
+
+    it 'handles programs with missing programName' do
+      programs = [
+        { 'programName' => 'Zebra', 'studentsEnrolled' => 100 },
+        { 'studentsEnrolled' => 50 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      # Programs with nil/missing programName sort first (empty string)
+      expect(sorted.first['programName']).to be_nil
+      expect(sorted[1]['programName']).to eq('Apple')
+      expect(sorted.last['programName']).to eq('Zebra')
+    end
+
+    it 'handles nil programName values' do
+      programs = [
+        { 'programName' => 'Zebra', 'studentsEnrolled' => 100 },
+        { 'programName' => nil, 'studentsEnrolled' => 50 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      # Programs with nil programName sort first (empty string)
+      expect(sorted.first['programName']).to be_nil
+      expect(sorted[1]['programName']).to eq('Apple')
+      expect(sorted.last['programName']).to eq('Zebra')
+    end
+
+    it 'maintains stable sort for programs with same name' do
+      programs = [
+        { 'programName' => 'Apple', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Banana', 'studentsEnrolled' => 50 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.map { |p| p['programName'] }).to eq(%w[Apple Apple Banana])
+      # Verify original order is maintained for duplicates
+      expect(sorted[0]['studentsEnrolled']).to eq(100)
+      expect(sorted[1]['studentsEnrolled']).to eq(75)
+    end
+
+    it 'preserves all program data after sorting' do
+      programs = [
+        { 'programName' => 'Zebra', 'studentsEnrolled' => 100, 'supportedStudents' => 20 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 50, 'supportedStudents' => 10 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.first['programName']).to eq('Apple')
+      expect(sorted.first['studentsEnrolled']).to eq(50)
+      expect(sorted.first['supportedStudents']).to eq(10)
+      expect(sorted.last['programName']).to eq('Zebra')
+      expect(sorted.last['studentsEnrolled']).to eq(100)
+      expect(sorted.last['supportedStudents']).to eq(20)
+    end
+  end
 end
