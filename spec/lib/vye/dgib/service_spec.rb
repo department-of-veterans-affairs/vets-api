@@ -46,20 +46,27 @@ RSpec.describe Vye::DGIB::Service do
     context 'when unsuccessful' do
       let(:error_message) { 'FAILED' }
       let(:backend_error) { StandardError.new(error_message) }
-      let(:context) { 'claimant_lookup' }
+      let(:method_name) { :claimant_lookup }
 
       before do
         allow(service).to receive(:perform).and_raise(backend_error)
         allow(Rails.logger).to receive(:error)
       end
 
-      it 'logs error message' do
+      it 'logs error message with context' do
         travel_to Time.zone.local(2022, 2, 9, 12) do
-          expect(Rails.logger).to receive(:error).with(
-            "VYE/DGIB #{context} failed: #{backend_error.message}",
+          expect { service.claimant_lookup(ssn) }.to raise_error(StandardError)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'DGI/VYE service error',
+            hash_including(
+              service: 'DGI/VYE',
+              method: method_name,
+              error_class: backend_error.class.name,
+              timestamp: Time.current.iso8601
+            ),
             hash_including(:backtrace)
           )
-          expect { service.claimant_lookup(ssn) }.to raise_error(StandardError)
         end
       end
     end
@@ -96,20 +103,27 @@ RSpec.describe Vye::DGIB::Service do
       context 'when unsuccessful' do
         let(:error_message) { 'FAILED' }
         let(:backend_error) { StandardError.new(error_message) }
-        let(:context) { 'get_claimant_status' }
+        let(:method_name) { :get_claimant_status }
 
         before do
           allow(service).to receive(:perform).and_raise(backend_error)
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'logs error message' do
+        it 'logs error message with context' do
           travel_to Time.zone.local(2022, 2, 9, 12) do
-            expect(Rails.logger).to receive(:error).with(
-              "VYE/DGIB #{context} failed: #{backend_error.message}",
+            expect { service.get_claimant_status(claimant_id) }.to raise_error(StandardError)
+
+            expect(Rails.logger).to have_received(:error).with(
+              'DGI/VYE service error',
+              hash_including(
+                service: 'DGI/VYE',
+                method: method_name,
+                error_class: backend_error.class.name,
+                timestamp: Time.current.iso8601
+              ),
               hash_including(:backtrace)
             )
-            expect { service.get_claimant_status(claimant_id) }.to raise_error(StandardError)
           end
         end
       end
@@ -139,20 +153,27 @@ RSpec.describe Vye::DGIB::Service do
       context 'when unsuccessful' do
         let(:error_message) { 'FAILED' }
         let(:backend_error) { StandardError.new(error_message) }
-        let(:context) { 'get_verification_record' }
+        let(:method_name) { :get_verification_record }
 
         before do
           allow(service).to receive(:perform).and_raise(backend_error)
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'logs error message' do
+        it 'logs error message with context' do
           travel_to Time.zone.local(2022, 2, 9, 12) do
-            expect(Rails.logger).to receive(:error).with(
-              "VYE/DGIB #{context} failed: #{backend_error.message}",
+            expect { service.get_verification_record(claimant_id) }.to raise_error(StandardError)
+
+            expect(Rails.logger).to have_received(:error).with(
+              'DGI/VYE service error',
+              hash_including(
+                service: 'DGI/VYE',
+                method: method_name,
+                error_class: backend_error.class.name,
+                timestamp: Time.current.iso8601
+              ),
               hash_including(:backtrace)
             )
-            expect { service.get_verification_record(claimant_id) }.to raise_error(StandardError)
           end
         end
       end
@@ -214,19 +235,15 @@ RSpec.describe Vye::DGIB::Service do
       context 'when unsuccessful' do
         let(:error_message) { 'FAILED' }
         let(:backend_error) { StandardError.new(error_message) }
-        let(:context) { 'verify_claimant' }
+        let(:method_name) { :verify_claimant }
 
         before do
           allow(service).to receive(:perform).and_raise(backend_error)
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'logs error message' do
+        it 'logs error message with context' do
           travel_to Time.zone.local(2022, 2, 9, 12) do
-            expect(Rails.logger).to receive(:error).with(
-              "VYE/DGIB #{context} failed: #{backend_error.message}",
-              hash_including(:backtrace)
-            )
             expect do
               service.verify_claimant(claimant_id,
                                       verified_period_begin_date,
@@ -235,6 +252,17 @@ RSpec.describe Vye::DGIB::Service do
                                       verification_method,
                                       response_type)
             end.to raise_error(StandardError)
+
+            expect(Rails.logger).to have_received(:error).with(
+              'DGI/VYE service error',
+              hash_including(
+                service: 'DGI/VYE',
+                method: method_name,
+                error_class: backend_error.class.name,
+                timestamp: Time.current.iso8601
+              ),
+              hash_including(:backtrace)
+            )
           end
         end
       end

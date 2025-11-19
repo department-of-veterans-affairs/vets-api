@@ -129,8 +129,16 @@ module Vye
         }
       end
 
-      def log_error(error, context)
-        Rails.logger.error("VYE/DGIB #{context} failed: #{error.message}",
+      def log_error(error, method_name)
+        error_context = {
+          service: 'DGI/VYE',
+          method: method_name,
+          error_class: error.class.name,
+          timestamp: Time.current.iso8601
+        }
+
+        Rails.logger.error('DGI/VYE service error',
+                           error_context,
                            backtrace: error.backtrace)
       end
 
