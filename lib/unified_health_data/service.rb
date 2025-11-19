@@ -252,6 +252,12 @@ module UnifiedHealthData
       vista_records + oracle_health_records
     end
 
+    # Sorts records by date in descending order
+    # Records with nil dates are placed at the end
+    #
+    # @param records [Array] Array of record objects to sort
+    # @param date_field [Symbol] The attribute name containing the date (default: :date)
+    # @return [Array] Sorted array of records
     def sort_records_by_date(records, date_field: :date)
       return records if records.blank?
 
@@ -263,7 +269,11 @@ module UnifiedHealthData
       end.reverse
     end
 
-    # Helper to parse date strings or pass through Time objects
+    # Parses a date string into a Time object, handling year-only formats.
+    # Returns nil if the date_string is nil, already a Time object, or cannot be parsed.
+    #
+    # @param date_value [String, Time, DateTime, nil] The date value to parse
+    # @return [Time, nil] Parsed Time object or nil
     def parse_date_for_sorting(date_value)
       return nil if date_value.nil?
       return date_value if date_value.is_a?(Time) || date_value.is_a?(DateTime)

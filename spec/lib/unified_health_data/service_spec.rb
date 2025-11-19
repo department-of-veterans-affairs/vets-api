@@ -201,13 +201,7 @@ describe UnifiedHealthData::Service, type: :service do
           # Verify sorted in descending order (most recent first)
           # Use the same parsing logic as the service
           dates = allergies_with_dates.map do |allergy|
-            date_str = allergy.date
-            # Handle year-only dates (e.g., "2019")
-            if date_str.match?(/^\d{4}$/)
-              Time.zone.parse("#{date_str}-01-01")
-            else
-              Time.zone.parse(date_str)
-            end
+            service.send(:parse_date_for_sorting, allergy.date)
           end
           expect(dates).to eq(dates.sort.reverse)
 
