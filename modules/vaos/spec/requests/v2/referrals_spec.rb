@@ -190,7 +190,6 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
                 tags: [
                   'service:community_care_appointments',
                   'referring_facility_code:552',
-                  'referral_provider_npi:1234567890',
                   'station_id:528A6'
                 ])
           .once

@@ -155,7 +155,6 @@ module VAOS
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
                            COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "referral_provider_npi:#{provider_npi}",
                            "station_id:#{station_id}"
                          ])
 
