@@ -55,7 +55,7 @@ module VSPDanger
       *.csv *.json *.tsv *.txt *.md Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
       modules/mobile/spec/support/vcr_cassettes/ db/seeds modules/vaos/app/docs modules/meb_api/app/docs
       modules/appeals_api/app/swagger/ *.bru *.pdf modules/*/spec/fixtures/* modules/*/spec/factories/*
-      modules/*/spec/**/*.rb spec/**/*.rb modules/*/docs/*.yaml modules/*/docs/*.yml modules/*/app/docs/**/*.yaml
+      modules/*/spec/**/*.rb spec/**/*.rb modules/*/docs/**/*.yaml modules/*/docs/**/*.yml modules/*/app/docs/**/*.yaml
       modules/*/app/docs/**/*.yml
     ].freeze
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
