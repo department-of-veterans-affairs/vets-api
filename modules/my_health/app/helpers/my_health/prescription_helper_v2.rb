@@ -7,15 +7,11 @@ module MyHealth
     module Filtering
       def collection_resource
         case params[:refill_status]
-        when nil
-          client.get_all_rxs
         when 'active'
           client.get_active_rxs_with_details
+        else
+          client.get_all_rxs
         end
-      end
-
-      def filter_non_va_meds(data)
-        data.reject { |item| item.prescription_source == 'NV' && item.disp_status != 'Active: Non-VA' }
       end
 
       def filter_data_by_refill_and_renew(data)
@@ -66,7 +62,6 @@ module MyHealth
 
       module_function :collection_resource,
                       :filter_data_by_refill_and_renew,
-                      :filter_non_va_meds,
                       :renewable
     end
 
