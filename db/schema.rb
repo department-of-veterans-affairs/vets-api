@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_19_204609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -745,7 +745,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.datetime "updated_at", null: false
     t.index ["debt_identifiers"], name: "index_debt_transaction_logs_on_debt_identifiers", using: :gin
     t.index ["transaction_started_at"], name: "index_debt_transaction_logs_on_transaction_started_at"
-    t.index ["transactionable_type", "transactionable_id"], name: "idx_on_transactionable_type_transactionable_id_52a8eee11c"
     t.index ["transactionable_type", "transactionable_id"], name: "index_debt_transaction_logs_on_transactionable"
     t.index ["user_uuid", "transaction_type"], name: "index_debt_transaction_logs_on_user_uuid_and_transaction_type"
   end
@@ -781,7 +780,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
-  create_table "digital_dispute_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "digital_dispute_submissions", force: :cascade do |t|
     t.uuid "user_uuid", null: false
     t.uuid "user_account_id"
     t.jsonb "debt_identifiers", default: [], null: false
@@ -795,7 +794,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
+    t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_digital_dispute_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_digital_dispute_submissions_on_user_uuid"
@@ -1306,6 +1307,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
@@ -1313,7 +1315,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
@@ -1322,11 +1323,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_14_032623) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
