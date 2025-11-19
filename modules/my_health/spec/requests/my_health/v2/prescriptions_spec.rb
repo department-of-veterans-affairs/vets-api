@@ -150,12 +150,8 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           expect(prescriptions).not_to be_empty
 
-          # NOTE: Currently, RF records are nested in rxRFRecords and not flattened into the main list,
-          # so the grouping helper doesn't find them to group. This will be addressed in future work
-          # when the UHD service flattens refills or the controller pre-processes the data.
-          # For now, verify the attribute exists even if empty.
           prescriptions.each do |prescription|
-            # Verify grouped_medications attribute exists
+            # Verify grouped_medications attribute exists (populated by RxGroupingHelperV2)
             expect(prescription['attributes']).to have_key('grouped_medications')
           end
         end
