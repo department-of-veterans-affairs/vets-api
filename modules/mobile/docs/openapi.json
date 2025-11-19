@@ -24854,6 +24854,12 @@
               }
             }
           },
+          "decisionLetterReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decision letter reason extracted from decision letter document for denied or partial payment claims",
+            "example": "Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable."
+          },
           "appointment": {
             "type": "object",
             "nullable": false,

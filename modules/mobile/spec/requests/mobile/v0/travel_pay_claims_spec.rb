@@ -169,6 +169,91 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           expect(claim_data['documents']).to be_an(Array)
         end
       end
+
+      it 'includes decision letter reason when available' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        # Mock a claim with decision_letter_reason
+        mock_claim_with_decision_reason = {
+          'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          'claimNumber' => 'TC1234123412341234',
+          'claimName' => 'Claim created for TEST USER',
+          'claimantFirstName' => 'Test',
+          'claimantLastName' => 'User',
+          'claimStatus' => 'Claim paid',
+          'appointmentDate' => '2024-01-01T16:45:34.465Z',
+          'facilityName' => 'Test VA Medical Center',
+          'totalCostRequested' => 250.0,
+          'reimbursementAmount' => 175.0,
+          'rejectionReason' => nil,
+          'decision_letter_reason' => 'Mileage approved but parking not eligible per policy. ' \
+                                      'Only travel expenses over 30 miles are reimbursable.',
+          'appointment' => { 'id' => 'test-appointment-id', 'facilityId' => 'test-facility-id' },
+          'expenses' => [],
+          'documents' => [],
+          'createdOn' => '2024-01-01T16:45:34.465Z',
+          'modifiedOn' => '2024-01-01T16:45:34.465Z'
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+          .and_return(mock_claim_with_decision_reason)
+
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:ok)
+
+        json = response.parsed_body
+        claim_data = json['data']['attributes']
+
+        expect(claim_data).to have_key('decisionLetterReason')
+        expect(claim_data['decisionLetterReason']).to eq(
+          'Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable.'
+        )
+        expect(claim_data['rejectionReason']).to be_nil
+        expect(claim_data['claimStatus']).to eq('Claim paid')
+      end
+
+      it 'includes null decision letter reason when not available' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        # Mock a claim without decision_letter_reason
+        mock_claim_without_decision_reason = {
+          'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          'claimNumber' => 'TC1234123412341234',
+          'claimName' => 'Claim created for TEST USER',
+          'claimantFirstName' => 'Test',
+          'claimantLastName' => 'User',
+          'claimStatus' => 'In manual review',
+          'appointmentDate' => '2024-01-01T16:45:34.465Z',
+          'facilityName' => 'Test VA Medical Center',
+          'totalCostRequested' => 250.0,
+          'reimbursementAmount' => 0.0,
+          'rejectionReason' => nil,
+          'decision_letter_reason' => nil,
+          'appointment' => { 'id' => 'test-appointment-id', 'facilityId' => 'test-facility-id' },
+          'expenses' => [],
+          'documents' => [],
+          'createdOn' => '2024-01-01T16:45:34.465Z',
+          'modifiedOn' => '2024-01-01T16:45:34.465Z'
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+          .and_return(mock_claim_without_decision_reason)
+
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:ok)
+
+        json = response.parsed_body
+        claim_data = json['data']['attributes']
+
+        expect(claim_data).to have_key('decisionLetterReason')
+        expect(claim_data['decisionLetterReason']).to be_nil
+      end
     end
 
     context 'failure paths' do
