@@ -1539,7 +1539,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                           expect(StatsD).to receive(:increment)
                             .with('api.vaos.appointment_draft_creation.success',
-                                  tags: ['service:community_care_appointments'])
+                                  tags: ['service:community_care_appointments', 'type_of_care:UROLOGY'])
                             .once
 
                           expect(StatsD).to receive(:increment)
