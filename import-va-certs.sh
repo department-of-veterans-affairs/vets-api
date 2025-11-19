@@ -19,7 +19,7 @@ set -euo pipefail
         ## Uncomment in case the https call fails again
         ## Last time we got this error: Failed to connect to dl.dod.cyber.mil port 443
         elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
-        #    echo "✓ DoD ECA downloaded via HTTP fallback"
+            echo "✓ DoD ECA downloaded via HTTP fallback"
         else
             echo "✗ All DoD ECA download attempts failed"
         fi
