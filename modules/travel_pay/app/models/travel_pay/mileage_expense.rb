@@ -4,14 +4,9 @@ require_relative '../../../lib/travel_pay/constants'
 
 module TravelPay
   class MileageExpense < BaseExpense
-    # Clear all inherited validations from BaseExpense since the Mileage expense won't
-    # have description or cost_requested
-    clear_validators!
-
     attribute :trip_type, :string
     attribute :requested_mileage, :float
 
-    validates :purchase_date, presence: true
     validates :trip_type, presence: true, inclusion: { in: TravelPay::Constants::TRIP_TYPES.values }
     validates :requested_mileage, numericality: { greater_than: 0.0 }, allow_nil: true
 
