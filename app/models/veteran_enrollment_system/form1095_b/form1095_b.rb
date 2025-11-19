@@ -206,7 +206,7 @@ module VeteranEnrollmentSystem
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_06[0]': address,
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_07[0]': city,
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_08[0]': state || province,
-          'topmostSubform[0].Page1[0].Part1Contents[0].f1_09[0]': country_and_zip,
+          'topmostSubform[0].Page1[0].Part1Contents[0].f1_09[0]': country_and_zip
         }
       end
 
@@ -220,7 +220,7 @@ module VeteranEnrollmentSystem
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_6[0]': address,
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_7[0]': city,
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_8[0]': state || province,
-          'topmostSubform[0].Page1[0].Part1Contents[0].f1_9[0]': country_and_zip,
+          'topmostSubform[0].Page1[0].Part1Contents[0].f1_9[0]': country_and_zip
         }
       end
     end
