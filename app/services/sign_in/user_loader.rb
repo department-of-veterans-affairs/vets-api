@@ -66,7 +66,7 @@ module SignIn
 
     def loa
       current_loa = user_is_verified? ? Constants::Auth::LOA_THREE : Constants::Auth::LOA_ONE
-      { current: current_loa, highest: Constants::Auth::LOA_THREE }
+      { current: current_loa, highest: current_loa }
     end
 
     def sign_in
