@@ -6,7 +6,7 @@ require 'claims_evidence_api/service/files'
 require 'common/file_helpers'
 require 'common/virus_scan'
 
-require_relative '../../../support/claims_evidence_api/shared_examples/service'
+require_relative 'shared/service'
 
 RSpec.describe ClaimsEvidenceApi::Service::Files do
   let(:service) { described_class.new }
@@ -54,18 +54,22 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
       service.create(file_path, provider_data:)
     end
 
-    it 'raises an exception if folder_identifier/x_folder_uri is not defined' do
+    it 'raises an exception if folder_identifier is not defined' do
       service.instance_variable_set(:@folder_identifier, nil)
       expect { service.create(file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::UndefinedXFolderURI
     end
 
-    it 'raises an error on missing file' do
+    it 'raises an exception on missing file' do
       expect { service.create('BAD_FILE', provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::FileNotFound
     end
 
-    it 'raises an error if virus found' do
+    it 'raises an exception if virus found' do
       allow(Common::VirusScan).to receive(:scan).and_return false
       expect { service.create(file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::VirusFound
+    end
+
+    it 'raises an exception if schema is not valid' do
+      expect { service.create(file_path, provider_data: {}) }.to raise_error JSON::Schema::ValidationError
     end
   end
 
@@ -98,18 +102,22 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
       service.overwrite(uuid, file_path, provider_data:)
     end
 
-    it 'raises an exception if folder_identifier/x_folder_uri is not defined' do
+    it 'raises an exception if folder_identifier is not defined' do
       service.instance_variable_set(:@folder_identifier, nil)
       expect { service.overwrite(uuid, file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::UndefinedXFolderURI
     end
 
-    it 'raises an error on missing file' do
+    it 'raises an exception on missing file' do
       expect { service.overwrite(uuid, 'BAD_FILE', provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::FileNotFound
     end
 
-    it 'raises an error if virus found' do
+    it 'raises an exception if virus found' do
       allow(Common::VirusScan).to receive(:scan).and_return false
       expect { service.overwrite(uuid, file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::VirusFound
+    end
+
+    it 'raises an exception if schema is not valid' do
+      expect { service.overwrite(uuid, file_path, provider_data: {}) }.to raise_error JSON::Schema::ValidationError
     end
   end
 end
