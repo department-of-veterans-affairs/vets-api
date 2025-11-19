@@ -186,15 +186,15 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [String] VistA-compatible status value
       def extract_refill_status(resource)
-        normalize_to_vahb_status(resource)
+        normalize_to_legacy_vista_status(resource)
       end
 
       # Maps Oracle Health FHIR MedicationRequest status to VistA-equivalent status
-      # Based on VAHB status mapping requirements
+      # Based on legacy VistA status mapping requirements
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [String] VistA-compatible status value
-      def normalize_to_vahb_status(resource)
+      def normalize_to_legacy_vista_status(resource)
         mr_status = resource['status']
         refills_remaining = extract_refill_remaining(resource)
         expiration_date = parse_expiration_date_utc(resource)

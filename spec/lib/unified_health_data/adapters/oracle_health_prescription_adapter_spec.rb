@@ -1806,7 +1806,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#normalize_to_vahb_status' do
+  describe '#normalize_to_legacy_vista_status' do
     let(:status_test_resource) do
       {
         'id' => 'test-123',
@@ -1832,7 +1832,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         )
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('discontinued')
       end
 
@@ -1842,7 +1842,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           'contained' => []
         )
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('expired')
       end
 
@@ -1856,7 +1856,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('refillinprocess')
       end
 
@@ -1874,7 +1874,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('refillinprocess')
       end
 
@@ -1888,12 +1888,12 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('refillinprocess')
       end
 
       it 'returns "active" when no special conditions apply' do
-        result = subject.send(:normalize_to_vahb_status, status_test_resource)
+        result = subject.send(:normalize_to_legacy_vista_status, status_test_resource)
         expect(result).to eq('active')
       end
     end
@@ -1902,7 +1902,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns "providerHold"' do
         resource = status_test_resource.merge('status' => 'on-hold')
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('providerHold')
       end
     end
@@ -1911,7 +1911,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns "discontinued"' do
         resource = status_test_resource.merge('status' => 'cancelled')
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('discontinued')
       end
     end
@@ -1925,7 +1925,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         )
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('discontinued')
       end
 
@@ -1937,7 +1937,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         )
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('expired')
       end
     end
@@ -1946,7 +1946,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns "discontinued"' do
         resource = status_test_resource.merge('status' => 'entered-in-error')
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('discontinued')
       end
     end
@@ -1955,7 +1955,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns "discontinued"' do
         resource = status_test_resource.merge('status' => 'stopped')
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('discontinued')
       end
     end
@@ -1964,7 +1964,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns "pending"' do
         resource = status_test_resource.merge('status' => 'draft')
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('pending')
       end
     end
@@ -1973,7 +1973,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns "unknown"' do
         resource = status_test_resource.merge('status' => 'unknown')
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('unknown')
       end
     end
@@ -1984,7 +1984,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         expect(Rails.logger).to receive(:warn).with('Unexpected MedicationRequest status: unexpected-status')
 
-        result = subject.send(:normalize_to_vahb_status, resource)
+        result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('active')
       end
     end
@@ -1998,7 +1998,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
                                                      service: 'unified_health_data'
                                                    ))
 
-      subject.send(:normalize_to_vahb_status, status_test_resource)
+      subject.send(:normalize_to_legacy_vista_status, status_test_resource)
     end
   end
 
