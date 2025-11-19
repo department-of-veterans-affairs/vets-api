@@ -24,7 +24,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
         birth_date: '1809-02-12'
       )
     end
-    let(:mpi_resp)    { OpenStruct.new(profile: mpi_profile) }
+    let(:mpi_resp) { OpenStruct.new(profile: mpi_profile) }
 
     before do
       stub_const('MPI::Constants::ICN', 'ICN')

@@ -15,27 +15,25 @@ module DebtsApi
       private
 
       def create_via_dmc!
-        begin
-          submission = initialize_submission
-          send_submission_email(submission) if email_notifications_enabled?
-          DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
+        submission = initialize_submission
+        send_submission_email(submission) if email_notifications_enabled?
+        DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
 
-          render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
-        rescue ActiveRecord::RecordInvalid => e
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
-          errors_hash = e.record.errors.to_hash
-          Rails.logger.error(
-            "DigitalDisputeController#create validation error: #{errors_hash.values.flatten.to_sentence}"
-          )
-          render json: { errors: errors_hash }, status: :unprocessable_entity
-        rescue => e
-          submission.clean_up_failure
+        render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
+      rescue ActiveRecord::RecordInvalid => e
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+        errors_hash = e.record.errors.to_hash
+        Rails.logger.error(
+          "DigitalDisputeController#create validation error: #{errors_hash.values.flatten.to_sentence}"
+        )
+        render json: { errors: errors_hash }, status: :unprocessable_entity
+      rescue => e
+        submission.clean_up_failure
 
-          Rails.logger.error("DigitalDisputeController#create error: #{e.message} #{e.backtrace&.take(12)&.join("\n")}")
+        Rails.logger.error("DigitalDisputeController#create error: #{e.message} #{e.backtrace&.take(12)&.join("\n")}")
 
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
-          render json: { errors: { base: [e.message] } }, status: :unprocessable_entity
-        end
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+        render json: { errors: { base: [e.message] } }, status: :unprocessable_entity
       end
 
       def create_legacy!
