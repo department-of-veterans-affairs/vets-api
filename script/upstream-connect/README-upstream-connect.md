@@ -21,7 +21,6 @@ Shows a menu of available services to connect to.
 ### Direct Service Connection
 ```bash
 ./script/upstream-connect/upstream-connect.sh appeals
-./script/upstream-connect/upstream-connect.sh letters
 ```
 
 ### List Available Services
@@ -56,22 +55,25 @@ Shows a menu of available services to connect to.
 - **Settings**: `caseflow`
 - **Port**: `4437`
 - **Description**: Connect to Caseflow appeals system
-- **Test URL**: http://localhost:4437/health-check
 
-### Letters (Lighthouse Benefits Claims)
-- **Service Key**: `letters`
+### Benefits Claims API (Lighthouse)
+- **Service Key**: `claims`
 - **Settings**: `lighthouse.benefits_claims`
 - **Port**: `4492`
-- **Description**: Connect to Lighthouse Benefits Claims API for letters
-- **Test URL**: http://localhost:4492/health
+- **Description**: Connect to VA Benefits Claims API for claims data
+
+### Letter Generator API (Lighthouse)
+- **Service Key**: `letters`
+- **Settings**: `lighthouse.letters_generator`
+- **Port**: `4492`
+- **Description**: Connect to VA Letter Generator API for official VA letters
 
 ## Requirements
 
 1. **devops repository**: Must be cloned as a sibling to vets-api (only needed for MFA script)
    ```bash
-   cd /path/to/projects
-   git clone [devops-repo-url] devops
-   git clone [vets-api-repo-url] vets-api
+   cd /path/to/vets-api
+   git clone https://github.com/department-of-veterans-affairs/devops
    ```
 
 2. **AWS CLI**: Installed and configured with appropriate credentials
@@ -107,11 +109,10 @@ To add a new service, edit `script/upstream_service_config.rb` and add an entry 
   description: 'Brief description of the service',
   ports: [4438, 4439],                          # Ports to forward
   settings_keys: ['namespace1', 'namespace2'],  # Parameter Store namespaces
-  skipped_settings: [['namespace1_key1', 'namespace1_key2'], ['namespace2_key1']],     # Settings to skip (array per namespace)
+  skipped_settings: [['namespace1_key1', 'namespace1_key2'], ['namespace2_key1']],     # Settings/namespaces to skip (array per namespace)
   tunnel_setting: ['url', 'host'],          # Settings to map to localhost (one per port)
   instructions: <<~TEXT
-    Service-specific instructions for testing
-    and using the connected service.
+    Service-specific instructions connecting to service and a user + endpoint to test connection
   TEXT
 }
 ```
@@ -144,7 +145,7 @@ To add a new service, edit `script/upstream_service_config.rb` and add an entry 
 
 - **`instructions`**: Multi-line text with service-specific setup and testing instructions
   - Displayed after successful connection setup
-  - Should include test URLs and console commands
+  - Should include test user and endpoint for which user has data
 
 ## Implementation Notes
 
@@ -159,7 +160,7 @@ Features:
 - Session credentials stored in `~/.aws/session_credentials.sh`
 
 ### Settings Synchronization
-Uses the existing `sync-settings` script to pull configuration from AWS Parameter Store. Each service can specify multiple settings namespaces.
+Based on the existing `sync-settings` script to pull configuration from AWS Parameter Store with some modifications. Each service can specify multiple settings namespaces.
 
 Enhanced features:
 - **Tunnel Settings**: Automatically maps specified settings to localhost URLs using the configured ports
@@ -197,24 +198,10 @@ The script will automatically prompt for your AWS username and MFA token. If you
 source ../devops/utilities/issue_mfa.sh YOUR_USERNAME MFA_TOKEN
 ```
 
-### Session Management
-Check your current AWS session status:
-```bash
-./script/upstream-connect.sh --status
-```
-
-Sessions are automatically managed and will be reused if still valid.
-
 ### "Port already in use"
 Check if another process is using the required port:
 ```bash
 lsof -i :4437
-```
-
-### Settings not updating
-Try forcing the settings sync:
-```bash
-./script/sync-settings caseflow staging --force
 ```
 
 ### Port forwarding sessions not stopping
@@ -228,15 +215,12 @@ The script tracks background processes in `/tmp/upstream-connect-pids.txt` and l
 
 ## Future Enhancements
 
-1. **Service Dependencies**: Some services may depend on others being connected first
-2. **Health Checks**: Automated testing of connections after setup
-3. **Connection Cleanup**: Script to disconnect/cleanup connections
-4. **Multiple Environments**: Support for dev/staging/prod connections
-5. **Service Groups**: Connect to related services together (e.g., "all health services")
+1. **Additional Services**: Mobile endpionts depend on roughly 20 upstream services. Vets API has even more that could be used for use those devs.
+2. **Service Dependencies**: Some services may depend on others being connected first
 
 ## Security Considerations
 
 - All secrets are pulled from AWS Parameter Store (encrypted)
 - Port forwarding uses secure tunnels through approved forward proxy
-- Instructions emphasize using test data only
+- Instructions emphasize using test data only (Staging)
 - No secrets are stored in the local codebase
