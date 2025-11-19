@@ -138,7 +138,8 @@ module MyHealth
 
         if disp_status.present?
           if disp_status[:eq]&.downcase == 'active,expired'.downcase
-            filter_renewals(prescriptions)
+            # filter renewals
+            prescriptions.select(&method(:renewable))
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
             prescriptions.select do |item|
@@ -148,10 +149,6 @@ module MyHealth
         else
           prescriptions
         end
-      end
-
-      def filter_renewals(prescriptions)
-        prescriptions.select(&method(:renewable))
       end
 
       def apply_sorting_to_list(prescriptions, sort_param)
