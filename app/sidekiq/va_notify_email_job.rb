@@ -28,9 +28,7 @@ class VANotifyEmailJob
     if e.status_code == 400
       log_exception_to_sentry(
         e,
-        {
-          args: { template_id:, personalisation: }
-        },
+        { args: { template_id:, personalisation: } },
         { error: :va_notify_email_job }
       )
       log_exception_to_rails(e)

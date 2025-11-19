@@ -53,9 +53,7 @@ module DebtManagementCenter
       Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{e.message}")
       log_exception_to_sentry(
         e,
-        {
-          args: { template_id: }
-        },
+        { args: { template_id: } },
         { error: :dmc_va_notify_email_job }
       )
 
