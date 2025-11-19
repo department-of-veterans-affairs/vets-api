@@ -159,24 +159,25 @@ module TravelPay
 
       def expense_class_for_type(expense_type)
         return TravelPay::BaseExpense if expense_type.nil?
+
         case expense_type.to_sym
-          when :airtravel
-            TravelPay::FlightExpense
-          when :common_carrier
-            TravelPay::CommonCarrierExpense
-          when :lodging
-            TravelPay::LodgingExpense
-          when :meal
-            TravelPay::MealExpense
-          when :mileage
-            TravelPay::MileageExpense
-          when :parking
-            TravelPay::ParkingExpense
-          when :toll
-            TravelPay::TollExpense
-          else
-            # :other or any unknown type defaults to BaseExpense
-            TravelPay::BaseExpense
+        when :airtravel
+          TravelPay::FlightExpense
+        when :common_carrier
+          TravelPay::CommonCarrierExpense
+        when :lodging
+          TravelPay::LodgingExpense
+        when :meal
+          TravelPay::MealExpense
+        when :mileage
+          TravelPay::MileageExpense
+        when :parking
+          TravelPay::ParkingExpense
+        when :toll
+          TravelPay::TollExpense
+        else
+          # :other or any unknown type defaults to BaseExpense
+          TravelPay::BaseExpense
         end
       end
 
