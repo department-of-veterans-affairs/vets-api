@@ -74,7 +74,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 91a72f474e4943cec25e556ee510c7be2d372281
+  revision: 76d6a4972b0e59631ab6cea208947fe981d85743
   branch: master
   specs:
     vets_json_schema (25.2.23)
@@ -107,6 +107,7 @@ PATH
     dependents_benefits (0.1.0)
     dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
+    employment_questionnaires (0.1.0)
     facilities_api (0.1.0)
     income_and_assets (0.1.0)
     income_limits (0.1.0)
@@ -331,11 +332,11 @@ GEM
     combine_pdf (1.0.31)
       matrix
       ruby-rc4 (>= 0.1.5)
-    committee (5.4.0)
+    committee (5.6.1)
       json_schema (~> 0.14, >= 0.14.3)
       openapi_parser (~> 2.0)
-      rack (>= 1.5, < 3.1)
-    committee-rails (0.8.0)
+      rack (>= 1.5)
+    committee-rails (0.9.0)
       actionpack (>= 6.0)
       activesupport (>= 6.0)
       committee (>= 5.1.0)
@@ -348,7 +349,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (6.1.5)
+    coverband (6.1.6)
       base64
       redis (>= 3.0)
     crack (1.0.1)
@@ -668,20 +669,20 @@ GEM
     karafka-core (2.5.7)
       karafka-rdkafka (>= 0.20.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.22.2)
-      ffi (~> 1.15)
+    karafka-rdkafka (0.23.1)
+      ffi (~> 1.17.1)
       json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.22.2-aarch64-linux-gnu)
-      ffi (~> 1.15)
+    karafka-rdkafka (0.23.1-aarch64-linux-gnu)
+      ffi (~> 1.17.1)
       json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.22.2-x86_64-linux-gnu)
-      ffi (~> 1.15)
+    karafka-rdkafka (0.23.1-x86_64-linux-gnu)
+      ffi (~> 1.17.1)
       json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
@@ -739,7 +740,7 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.1)
+    minitest (5.26.2)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -802,7 +803,7 @@ GEM
       multi_json
       rails (>= 4.0)
     open4 (1.3.4)
-    openapi_parser (2.1.0)
+    openapi_parser (2.3.1)
     openssl (3.3.1)
     openssl (3.3.1-java)
       jruby-openssl (~> 0.14)
@@ -881,7 +882,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.20)
+    rack (2.2.21)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -952,7 +953,7 @@ GEM
       tsort
     redis (5.4.1)
       redis-client (>= 0.22.0)
-    redis-client (0.25.1)
+    redis-client (0.26.1)
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
@@ -1047,7 +1048,7 @@ GEM
     rubocop-capybara (2.22.1)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
-    rubocop-factory_bot (2.27.1)
+    rubocop-factory_bot (2.28.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-junit-formatter (0.1.4)
@@ -1101,7 +1102,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.17.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.28.1)
+    sentry-ruby (6.1.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
@@ -1194,9 +1195,9 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.12)
+    waterdrop (2.8.14)
       karafka-core (>= 2.4.9, < 3.0.0)
-      karafka-rdkafka (>= 0.20.0)
+      karafka-rdkafka (>= 0.23.1)
       zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)
@@ -1294,6 +1295,7 @@ DEPENDENCIES
   dogstatsd-ruby
   dry-struct
   dry-types
+  employment_questionnaires!
   ethon (>= 0.13.0)
   facilities_api!
   factory_bot_rails
@@ -1379,7 +1381,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.20)
+  rack (~> 2.2.21)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)

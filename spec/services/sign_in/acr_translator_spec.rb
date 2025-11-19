@@ -35,10 +35,10 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is min' do
         let(:acr) { 'min' }
-        let(:acr_comparison) { SignIn::Constants::Auth::IDME_COMPARISON_MINIMUM }
 
         context 'and uplevel is false' do
           let(:uplevel) { false }
+          let(:acr_comparison) { SignIn::Constants::Auth::IDME_COMPARISON_MINIMUM }
           let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA1, acr_comparison: } }
 
           it 'returns expected translated acr value' do
@@ -48,7 +48,7 @@ RSpec.describe SignIn::AcrTranslator do
 
         context 'and uplevel is true' do
           let(:uplevel) { true }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA3, acr_comparison: } }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA3 } }
 
           it 'returns expected translated acr value' do
             expect(subject).to eq(expected_translated_acr)

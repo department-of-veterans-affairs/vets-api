@@ -71,7 +71,8 @@ module TravelPay
         # Add decision letter reason for denied or partial payment claims
         if Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
           decision_document = find_decision_letter_document(claim)
-          if (claim['claimStatus'].eql?('Denied') || claim['claimStatus'].eql?('Paid')) && !decision_document.nil?
+          if (claim['claimStatus'].eql?('Denied') || claim['claimStatus'].casecmp?('Claim paid')) &&
+             !decision_document.nil?
             claim['decision_letter_reason'] = get_decision_reason(claim_id, decision_document['documentId'])
           end
         end
