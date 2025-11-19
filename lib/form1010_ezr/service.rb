@@ -36,24 +36,6 @@ module Form1010Ezr
       }
     end
 
-    # @param [JSON] parsed_form
-    # @param [String] sentry_msg
-    # @param [String] sentry_context - identifier specific to the error
-    def self.log_submission_failure_to_sentry(
-      parsed_form,
-      sentry_msg,
-      sentry_context
-    )
-      if parsed_form.present?
-        log_message_to_sentry(
-          sentry_msg.to_s,
-          :error,
-          veteran_initials(parsed_form),
-          ezr: :"#{sentry_context}"
-        )
-      end
-    end
-
     def self.log_submission_failure(parsed_form, msg)
       log_message_to_rails(msg, :error, veteran_initials(parsed_form))
     end
