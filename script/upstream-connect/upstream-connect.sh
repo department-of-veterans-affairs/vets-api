@@ -367,12 +367,17 @@ sync_service_settings() {
     if [[ ${#tunnel_array[@]} -gt $namespace_index ]]; then
       local tunnel_setting="${tunnel_array[$namespace_index]}"
       if [[ -n "$tunnel_setting" ]]; then
-        if [[ -n "$skipped_for_namespace" ]]; then
-          skipped_for_namespace="$skipped_for_namespace $tunnel_setting"
+        # Validate that tunnel setting exists in the expected structure
+        if ruby script/upstream-connect/upstream_settings_sync.rb --validate-tunnel "$namespace" "$tunnel_setting" 2>/dev/null; then
+          if [[ -n "$skipped_for_namespace" ]]; then
+            skipped_for_namespace="$skipped_for_namespace $tunnel_setting"
+          else
+            skipped_for_namespace="$tunnel_setting"
+          fi
+          log_info "Auto-excluding tunnel setting: $tunnel_setting"
         else
-          skipped_for_namespace="$tunnel_setting"
+          log_warning "Tunnel setting '$tunnel_setting' not found in namespace '$namespace' structure - skipping"
         fi
-        log_info "Auto-excluding tunnel setting: $tunnel_setting"
       fi
     fi
     
@@ -396,8 +401,13 @@ sync_service_settings() {
       if [[ -n "$tunnel_setting" ]]; then
         local port="${ports_array[$namespace_index]}"
         if [[ -n "$port" ]]; then
-          log_info "Setting up tunnel mapping for $namespace.$tunnel_setting"
-          setup_tunnel_setting "$namespace" "$tunnel_setting" "$port"
+          # Validate tunnel setting before applying
+          if ruby script/upstream-connect/upstream_settings_sync.rb --validate-tunnel "$namespace" "$tunnel_setting" 2>/dev/null; then
+            log_info "Setting up tunnel mapping for $namespace.$tunnel_setting"
+            setup_tunnel_setting "$namespace" "$tunnel_setting" "$port"
+          else
+            log_warning "Tunnel setting '$tunnel_setting' not found in namespace '$namespace' structure - skipping tunnel setup"
+          fi
         fi
       fi
     fi
@@ -467,59 +477,19 @@ setup_tunnel_setting() {
     log_warning "Settings file not found: $settings_file"
     return 1
   fi
+
+  # Use the structure-aware settings sync to add the tunnel setting
+  log_info "Adding tunnel setting $namespace.$tunnel_setting = https://localhost:$port"
   
-  # Directly update the settings file to preserve comments (no Parameter Store needed)
-  # Update the specific line to preserve comments
-    ruby -e "
-      settings_file = '$settings_file'
-      namespace = '$namespace'
-      tunnel_setting = '$tunnel_setting'
-      port = '$port'
-      
-      lines = File.readlines(settings_file)
-      namespace_parts = namespace.split('.')
-      in_namespace = namespace_parts.empty?
-      namespace_depth = 0
-      current_indent = 0
-      
-      lines.each_with_index do |line, index|
-        next if line.strip.start_with?('#') || line.strip.empty?
-        
-        if line.match(/^(\s*)([^:\s#]+):\s*([^#]*)(#.*)?$/)
-          line_indent = \$1.length
-          key = \$2
-          current_value = \$3.strip
-          comment = \$4
-          
-          unless in_namespace
-            if namespace_depth < namespace_parts.length && key == namespace_parts[namespace_depth]
-              namespace_depth += 1
-              current_indent = line_indent
-              in_namespace = (namespace_depth == namespace_parts.length)
-            elsif line_indent <= current_indent && namespace_depth > 0
-              namespace_depth = 0
-              in_namespace = false
-            end
-          end
-          
-          if in_namespace && key == tunnel_setting
-            comment_part = comment ? \" #{comment}\" : \"\"
-            lines[index] = \"#{\$1}#{key}: https://localhost:#{port}#{comment_part}\\n\"
-            File.write(settings_file, lines.join)
-            puts \"Updated #{namespace}.#{tunnel_setting} to https://localhost:#{port}\"
-            exit 0
-          end
-        end
-      end
-      
-      # If not found, add it (simplified approach)
-      puts \"Warning: Could not find \#{namespace}.\#{tunnel_setting} to update\"
-    "
+  # Use our structure-aware settings sync script to add the tunnel setting
+  ruby script/upstream-connect/upstream_settings_sync.rb --add-tunnel-setting "$namespace" "$tunnel_setting" "https://localhost:$port"
   
-  if [[ $? -eq 0 ]]; then
+  local exit_code=$?
+  if [[ $exit_code -eq 0 ]]; then
     log_success "Updated $namespace.$tunnel_setting to https://localhost:$port"
   else
-    log_error "Failed to update tunnel setting"
+    log_error "Failed to set tunnel setting $namespace.$tunnel_setting"
+    return 1
   fi
 }
 

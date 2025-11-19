@@ -9,23 +9,48 @@ require 'optparse'
 
 # Specialized settings sync for upstream connections with exclusion support
 # and comment preservation
-class UpstreamSettingsSync
+class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
   SETTINGS_LOCAL_PATH = File.expand_path('../../config/settings.local.yml', __dir__)
 
   def initialize
     @options = {}
+    @settings_yml_path = File.expand_path('../../config/settings.yml', __dir__)
   end
 
-  def run
+  def run # rubocop:disable Metrics/MethodLength
     parse_options
-    validate_options
+
+    # Handle validation action separately
+    if @options[:action] == :validate_tunnel
+      is_valid = validate_tunnel_setting(@options[:namespace], @options[:tunnel_setting])
+      exit(is_valid ? 0 : 1)
+    end
+
+    # Handle add tunnel setting action separately
+    if @options[:action] == :add_tunnel_setting
+      add_tunnel_setting(@options[:namespace], @options[:tunnel_setting], @options[:tunnel_value])
+      exit(0)
+    end
+
+    validate_options # Get expected structure from settings.yml
+    expected_settings = get_expected_namespace_structure(@options[:namespace])
+
+    if expected_settings.blank?
+      puts "Warning: No settings found for namespace '#{@options[:namespace]}' in settings.yml"
+      puts "This might indicate the namespace doesn't exist or has no configurable settings."
+      return
+    end
+
+    puts "Found #{expected_settings.length} settings in #{@options[:namespace]} namespace:"
+    expected_settings.each { |setting| puts "  - #{setting}" }
+    puts ''
 
     if @options[:exclusions].any?
       puts "Syncing #{@options[:namespace]} settings (excluding #{@options[:exclusions].size} parameters)"
     end
 
-    # Fetch and filter parameters
-    parameters = fetch_parameters
+    # Fetch and filter parameters - but only for settings that should exist
+    parameters = fetch_parameters_for_expected_settings(expected_settings)
     filtered_parameters = filter_parameters(parameters)
 
     if filtered_parameters.empty?
@@ -41,7 +66,7 @@ class UpstreamSettingsSync
 
   private
 
-  def parse_options
+  def parse_options # rubocop:disable Metrics/MethodLength
     parser = OptionParser.new do |opts|
       opts.banner = 'Usage: upstream_settings_sync.rb --namespace NAMESPACE --environment ENV [options]'
       opts.separator ''
@@ -72,6 +97,21 @@ class UpstreamSettingsSync
 
       opts.on('--devops-path PATH', 'Path to devops repository (default: ../../../devops)') do |path|
         @options[:devops_path] = path
+      end
+
+      opts.on('--validate-tunnel NAMESPACE SETTING',
+              'Validate that a tunnel setting exists in namespace structure') do |namespace|
+        @options[:action] = :validate_tunnel
+        @options[:namespace] = namespace
+        @options[:tunnel_setting] = ARGV.shift # Get the next argument
+      end
+
+      opts.on('--add-tunnel-setting NAMESPACE SETTING VALUE',
+              'Add a tunnel setting to the local settings file') do |namespace|
+        @options[:action] = :add_tunnel_setting
+        @options[:namespace] = namespace
+        @options[:tunnel_setting] = ARGV.shift # Get the setting name
+        @options[:tunnel_value] = ARGV.shift   # Get the value
       end
 
       opts.on('-h', '--help', 'Show this help message') do
@@ -105,6 +145,44 @@ class UpstreamSettingsSync
       puts "Error: devops repository not found at #{@options[:devops_path]}"
       exit 1
     end
+  end
+
+  def fetch_parameters_for_expected_settings(expected_settings) # rubocop:disable Metrics/MethodLength
+    # Convert expected settings to AWS parameter paths
+    param_prefix = "/dsva-vagov/vets-api/#{@options[:environment]}/env_vars/#{@options[:namespace].tr('.', '/')}"
+
+    puts "Fetching parameters with prefix: #{param_prefix}"
+    return {} if @options[:dry_run]
+
+    expected_param_names = expected_settings.map do |setting|
+      "#{param_prefix}/#{setting.tr('.', '/')}"
+    end
+
+    # Fetch all parameters in the namespace
+    cmd = [
+      'aws', 'ssm', 'get-parameters-by-path',
+      '--path', param_prefix,
+      '--recursive',
+      '--with-decryption'
+    ]
+
+    stdout, stderr, status = Open3.capture3(*cmd)
+
+    unless status.success?
+      puts "Error fetching parameters: #{stderr}"
+      exit 1
+    end
+
+    all_parameters = parse_parameter_response(stdout, param_prefix)
+
+    # Filter to only include expected settings
+    filtered_parameters = {}
+    expected_param_names.each do |expected_name|
+      setting_key = expected_name.sub("#{param_prefix}/", '').tr('/', '.')
+      filtered_parameters[setting_key] = all_parameters[setting_key] if all_parameters.key?(setting_key)
+    end
+
+    filtered_parameters
   end
 
   def fetch_parameters
@@ -155,7 +233,11 @@ class UpstreamSettingsSync
 
   def filter_parameters(parameters)
     original_count = parameters.size
-    filtered = parameters.reject { |key, _| @options[:exclusions].include?(key) }
+
+    filtered = parameters.reject do |key, _|
+      should_exclude_parameter?(key)
+    end
+
     excluded_count = original_count - filtered.size
 
     unless @options[:dry_run]
@@ -163,10 +245,24 @@ class UpstreamSettingsSync
     end
 
     @options[:exclusions].each do |excluded|
-      puts "  Excluding: #{excluded}" if parameters.key?(excluded) && !@options[:dry_run]
+      excluded_params = parameters.keys.select { |key| should_exclude_parameter?(key, excluded) }
+      excluded_params.each do |param|
+        puts "  Excluding: #{param} (matched by: #{excluded})" unless @options[:dry_run]
+      end
     end
 
     filtered
+  end
+
+  def should_exclude_parameter?(key, specific_exclusion = nil)
+    exclusions_to_check = specific_exclusion ? [specific_exclusion] : @options[:exclusions]
+
+    exclusions_to_check.any? do |exclusion|
+      # Exact match
+      key == exclusion ||
+        # Namespace match - if exclusion is 'form526', exclude 'form526.access_token.client_id'
+        key.start_with?("#{exclusion}.")
+    end
   end
 
   def update_settings_preserving_comments(parameters)
@@ -197,7 +293,7 @@ class UpstreamSettingsSync
     puts "Settings updated in #{SETTINGS_LOCAL_PATH}" unless @options[:dry_run]
   end
 
-  def update_single_setting(setting_path, new_value)
+  def update_single_setting(setting_path, new_value) # rubocop:disable Metrics/MethodLength
     return if @options[:dry_run]
 
     # Read the current file content
@@ -207,9 +303,8 @@ class UpstreamSettingsSync
     namespace_path = setting_path[0..-2]
     setting_key = setting_path.last
 
-    current_indent = 0
-    in_namespace = namespace_path.empty?
-    namespace_depth = 0
+    # Track our position in the namespace hierarchy
+    namespace_stack = []
     line_updated = false
 
     lines.each_with_index do |line, index|
@@ -219,23 +314,19 @@ class UpstreamSettingsSync
       if line.match(/^(\s*)([^:\s#]+):\s*([^#]*)(#.*)?$/)
         line_indent = ::Regexp.last_match(1).length
         key = ::Regexp.last_match(2)
-        ::Regexp.last_match(3).strip
+        value = ::Regexp.last_match(3).strip
         comment = ::Regexp.last_match(4)
 
-        # Navigate namespace hierarchy
-        unless in_namespace
-          if namespace_depth < namespace_path.length && key == namespace_path[namespace_depth]
-            namespace_depth += 1
-            current_indent = line_indent
-            in_namespace = (namespace_depth == namespace_path.length)
-          elsif line_indent <= current_indent && namespace_depth > 0
-            namespace_depth = 0
-            in_namespace = false
-          end
-        end
+        # Update namespace stack based on indentation
+        # Remove items from stack if we've moved to a lower or equal indentation level
+        namespace_stack.pop while namespace_stack.any? && namespace_stack.last[:indent] >= line_indent
 
-        # Update the target setting
-        if in_namespace && key == setting_key
+        # Add current key to stack if it has no value (indicating a namespace)
+        namespace_stack << { key:, indent: line_indent } if value.empty? || value == ''
+
+        # Check if we're in the target namespace
+        current_namespace = namespace_stack.map { |item| item[:key] }
+        if current_namespace == namespace_path && key == setting_key
           formatted_value = format_yaml_value(new_value)
           # Preserve any existing comment
           comment_part = comment ? " #{comment}" : ''
@@ -246,30 +337,98 @@ class UpstreamSettingsSync
       end
     end
 
-    # If we didn't find the setting, add it (this preserves the original add logic)
+    # If we didn't find the setting, add it
     lines = add_new_setting_to_lines(lines, setting_path, new_value) unless line_updated
 
     # Write back the modified lines
     File.write(SETTINGS_LOCAL_PATH, lines.join)
   end
 
-  def add_new_setting_to_lines(lines, setting_path, new_value)
+  def add_new_setting_to_lines(lines, setting_path, new_value) # rubocop:disable Metrics/MethodLength
     namespace_path = setting_path[0..-2]
     setting_key = setting_path.last
 
-    # For new settings, we'll add them in the appropriate namespace
-    # This is a simplified version - find the namespace and add at the end
     if namespace_path.empty?
       # Root level setting - add at end
       formatted_value = format_yaml_value(new_value)
       lines << "#{setting_key}: #{formatted_value}\n"
+      return lines
+    end
+
+    # Try to find existing namespace to insert into
+    namespace_stack = []
+    best_match_line = -1
+    best_match_depth = -1
+
+    lines.each_with_index do |line, index|
+      # Skip comments and empty lines for structure tracking
+      next if line.strip.start_with?('#') || line.strip.empty?
+
+      if line.match(/^(\s*)([^:\s#]+):\s*([^#]*)(#.*)?$/)
+        line_indent = ::Regexp.last_match(1).length
+        key = ::Regexp.last_match(2)
+        value = ::Regexp.last_match(3).strip
+
+        # Update namespace stack based on indentation
+        namespace_stack.pop while namespace_stack.any? && namespace_stack.last[:indent] >= line_indent
+
+        # Add current key to stack if it has no value (indicating a namespace)
+        namespace_stack << { key:, indent: line_indent, line: index } if value.empty? || value == ''
+
+        # Check if current namespace matches part of our target path
+        current_namespace = namespace_stack.map { |item| item[:key] }
+
+        # Find the deepest matching namespace
+        if namespace_path[0...current_namespace.length] == current_namespace &&
+           current_namespace.length > best_match_depth
+          best_match_depth = current_namespace.length
+          best_match_line = index
+        end
+      end
+    end
+
+    if best_match_depth.positive?
+      # Found a partial namespace match - insert after the best match
+      remaining_path = namespace_path[best_match_depth..]
+      insert_point = find_namespace_end(lines, best_match_line)
+      insert_nested_setting(lines, insert_point, remaining_path, setting_key, new_value, best_match_depth * 2)
     else
-      # Find the namespace and add the setting there
-      # For simplicity, add at the end of the file with full namespace structure
+      # No existing namespace found - create complete structure at end
       create_namespace_structure_in_lines(lines, namespace_path, setting_key, new_value)
     end
 
     lines
+  end
+
+  def find_namespace_end(lines, start_line)
+    start_indent = lines[start_line].match(/^(\s*)/)[1].length
+
+    ((start_line + 1)...lines.length).each do |i|
+      line = lines[i]
+      next if line.strip.empty? || line.strip.start_with?('#')
+
+      if line.match(/^(\s*)/)
+        current_indent = ::Regexp.last_match(1).length
+        # If we find a line at the same or lower indentation, we've reached the end
+        return i if current_indent <= start_indent
+      end
+    end
+
+    lines.length # If no end found, insert at very end
+  end
+
+  def insert_nested_setting(lines, insert_point, remaining_path, setting_key, new_value, base_indent) # rubocop:disable Metrics/ParameterLists
+    # Create the remaining namespace structure and the setting
+    remaining_path.each_with_index do |namespace_key, depth|
+      indent = base_indent + (depth * 2)
+      lines.insert(insert_point, "#{' ' * indent}#{namespace_key}:\n")
+      insert_point += 1
+    end
+
+    # Add the final setting
+    final_indent = base_indent + (remaining_path.length * 2)
+    formatted_value = format_yaml_value(new_value)
+    lines.insert(insert_point, "#{' ' * final_indent}#{setting_key}: #{formatted_value}\n")
   end
 
   def create_namespace_structure_in_lines(lines, namespace_path, key, value)
@@ -350,7 +509,7 @@ class UpstreamSettingsSync
     update
   end
 
-  def format_yaml_value(value)
+  def format_yaml_value(value) # rubocop:disable Metrics/MethodLength
     case value
     when String
       # Convert string representations of booleans to actual booleans (weird, but it works)
@@ -362,8 +521,9 @@ class UpstreamSettingsSync
       when 'null', ''
         'null'
       else
-        # Quote if contains special characters or looks like other types
-        if value.match(/[:\[\]{}|>@`]/) || value.start_with?('#') || value =~ /^\d+$/
+        # Quote if contains special characters or looks like other types, except URLs
+        if (value.match(/[\[\]{}|>@`]/) || value.start_with?('#') || value =~ /^\d+$/) &&
+           !value.match(%r{^https?://}) && !value.match(/^[\w.-]+:\d+$/)
           value.inspect
         else
           value
@@ -373,6 +533,86 @@ class UpstreamSettingsSync
       value.to_s
     else
       value.to_yaml.strip
+    end
+  end
+
+  def get_expected_namespace_structure(namespace)
+    unless File.exist?(@settings_yml_path)
+      puts "Warning: settings.yml not found at #{@settings_yml_path}"
+      return nil
+    end
+
+    begin
+      # Read the raw content and process ERB, but skip actual evaluation
+      # We just want the structure, not the actual ENV values
+      raw_content = File.read(@settings_yml_path)
+
+      # Replace ERB tags with placeholder values to get structure
+      processed_content = raw_content.gsub(/<%= ENV\[['"][^'"]+['"]\] %>/, 'placeholder')
+
+      settings_yml = YAML.safe_load(processed_content, aliases: true)
+      namespace_parts = namespace.split('.')
+
+      # Navigate to the namespace in settings.yml
+      current_section = settings_yml
+      namespace_parts.each do |part|
+        return nil unless current_section.is_a?(Hash) && current_section.key?(part)
+
+        current_section = current_section[part]
+      end
+
+      # Extract all keys in this namespace (recursively get all setting paths)
+      extract_setting_paths(current_section)
+    rescue => e
+      puts "Error reading settings.yml: #{e.message}"
+      nil
+    end
+  end
+
+  def extract_setting_paths(hash, path = [])
+    paths = []
+
+    return paths unless hash.is_a?(Hash)
+
+    hash.each do |key, value|
+      current_path = path + [key]
+
+      if value.is_a?(Hash)
+        # Recurse into nested hashes
+        paths.concat(extract_setting_paths(value, current_path))
+      else
+        # This is a leaf setting - add the path
+        paths << current_path.join('.')
+      end
+    end
+
+    paths
+  end
+
+  def validate_tunnel_setting(namespace, tunnel_setting)
+    expected_settings = get_expected_namespace_structure(namespace)
+    return false unless expected_settings
+
+    # Check if the tunnel setting exists as a direct setting in this namespace
+    expected_settings.include?(tunnel_setting)
+  end
+
+  def add_tunnel_setting(namespace, tunnel_setting, value)
+    # First validate the tunnel setting is valid for this namespace
+    unless validate_tunnel_setting(namespace, tunnel_setting)
+      puts "Error: Tunnel setting '#{tunnel_setting}' is not valid for namespace '#{namespace}'"
+      exit(1)
+    end
+
+    # Use our existing update_single_setting method to add the tunnel setting
+    setting_path = namespace.split('.') + [tunnel_setting]
+
+    begin
+      update_single_setting(setting_path, value)
+      puts "Successfully added #{namespace}.#{tunnel_setting} = #{value}"
+    rescue => e
+      puts "Error adding tunnel setting: #{e.message}"
+      exit(1)
     end
   end
 
