@@ -169,9 +169,9 @@ jobs:
 
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           if [[ "$all_files_exempt" == "true" ]]; then
-            echo "[PASS] All files are exempt"
+            echo "All files are exempt"
           else
-            echo "[FAIL] Some files require backend approval"
+            echo "Some files require backend approval"
           fi
 
           echo "all_files_exempt=${all_files_exempt}" >> "$GITHUB_OUTPUT"
