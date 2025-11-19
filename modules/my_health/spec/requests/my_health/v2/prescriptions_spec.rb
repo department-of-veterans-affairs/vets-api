@@ -501,22 +501,13 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         allow(Flipper).to receive(:enabled?).and_return(true)
       end
 
-      it 'returns list of refillable prescriptions' do
+      it 'filters prescriptions to only include refillable ones' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response.content_type).to include('application/json')
-
-          json_response = JSON.parse(response.body)
-          expect(json_response['data']).to be_an(Array)
-        end
-      end
-
-      it 'filters prescriptions to only include refillable ones' do
-        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           response_data = json_response['data']
