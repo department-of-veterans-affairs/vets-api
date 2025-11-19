@@ -435,6 +435,15 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             ]
           )
 
+        expect(StatsD).to receive(:increment)
+          .with(
+            described_class::REFERRAL_TYPE_OF_CARE_METRIC,
+            tags: [
+              'service:community_care_appointments',
+              'type_of_care:CARDIOLOGY'
+            ]
+          )
+
         expect(StatsD).to receive(:increment).with('api.rack.request', any_args)
 
         get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
@@ -477,6 +486,14 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
                 'service:community_care_appointments',
                 'referring_facility_code:no_value',
                 'station_id:528A6'
+              ]
+            )
+          expect(StatsD).to receive(:increment)
+            .with(
+              described_class::REFERRAL_TYPE_OF_CARE_METRIC,
+              tags: [
+                'service:community_care_appointments',
+                'type_of_care:CARDIOLOGY'
               ]
             )
           # Allow for middleware StatsD calls

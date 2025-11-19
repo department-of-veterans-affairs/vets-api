@@ -194,6 +194,14 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
                 ])
           .once
 
+        expect(StatsD).to receive(:increment)
+          .with(VAOS::V2::ReferralsController::REFERRAL_TYPE_OF_CARE_METRIC,
+                tags: [
+                  'service:community_care_appointments',
+                  'type_of_care:CARDIOLOGY'
+                ])
+          .once
+
         allow(StatsD).to receive(:increment)
 
         get "/vaos/v2/referrals/#{encrypted_uuid}"
