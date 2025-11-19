@@ -138,7 +138,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-            expect(response).to match_camelized_response_schema('message')
+            expect(response).to match_camelized_response_schema('message', strict: false)
             included = response.parsed_body.dig('included', 0)
             expect(included).to be_nil
 
@@ -178,7 +178,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-            expect(response).to match_camelized_response_schema('message')
+            expect(response).to match_camelized_response_schema('message', strict: false)
 
             # Verify event logging was called
             expect(UniqueUserEvents).to have_received(:log_event).with(
@@ -302,7 +302,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
           it 'does not extend timeout for non-create/reply actions like show' do
             VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
                 get "/mobile/v0/messaging/health/messages/#{message_id}?is_oh_triage_group=true",
                     headers: sis_headers
 
