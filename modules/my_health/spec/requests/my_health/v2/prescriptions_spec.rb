@@ -122,22 +122,29 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           expect(json_response['data']).to be_an(Array)
           expect(json_response['data']).not_to be_empty
 
-          # After grouping, we should still have prescriptions in the list
-          # Pick the first one to verify it has Oracle/UHD specific fields
-          first_prescription = json_response['data'].first
-          expect(first_prescription).not_to be_nil
 
-          attributes = first_prescription['attributes']
+          # Verify we have at least one Oracle prescription (station number 556 is Oracle Health facility)
+          oracle_prescriptions = json_response['data'].select do |rx|
+            rx['attributes']['station_number'] == '556'
+          end
+          expect(oracle_prescriptions).not_to be_empty,
+                                        'Expected to find at least one prescription from Oracle facility (station 556)'
 
-          # These are Oracle/UHD specific fields that come from the unified_health_data service
-          expect(attributes).to have_key('facility_name')
-          expect(attributes).to have_key('station_number')
-          expect(attributes).to have_key('is_refillable')
-          expect(attributes).to have_key('is_trackable')
-          expect(attributes).to have_key('prescription_source')
+          # Select an Oracle prescription and verify key fields have expected data
+          oracle_rx = oracle_prescriptions.first
+          oracle_attrs = oracle_rx['attributes']
 
-          # Verify prescription_source is present (RX, PD, NV, etc.)
-          expect(attributes['prescription_source']).to be_present
+          # Verify Oracle prescription has required fields populated
+          expect(oracle_attrs['station_number']).to eq('556')
+          expect(oracle_attrs['prescription_id']).to be_present
+          expect(oracle_attrs['prescription_name']).to be_present
+          expect(oracle_attrs['ordered_date']).to be_present
+          expect(oracle_attrs['refill_status']).to be_present
+          expect(oracle_attrs['is_refillable']).to be_in([true, false])
+          expect(oracle_attrs['is_trackable']).to be_in([true, false])
+
+          # Verify prescription_source is valid for Oracle (VA indicates Oracle Health/Cerner system)
+          expect(oracle_attrs['prescription_source']).to eq('VA')
         end
       end
 
