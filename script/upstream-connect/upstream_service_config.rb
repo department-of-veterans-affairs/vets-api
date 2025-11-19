@@ -18,39 +18,65 @@ class UpstreamServiceConfig
       instructions: <<~TEXT
         Appeals/Caseflow Connection Instructions:
 
-        1. Your local vets-api will now connect to staging Caseflow
-        2. Test the connection by visiting:
-           - Caseflow API: http://localhost:4437/health-check
+        1. No additional steps needed.
+      TEXT
+    },
+    'claims' => {
+      name: 'Benefits Claims API (Lighthouse)',
+      description: 'Connect to VA Benefits Claims API for claims data',
+      ports: [4492],
+      settings_keys: ['lighthouse.benefits_claims'],
+      skipped_settings: [['access_token.client_id', 'access_token.rsa_key', 'form526']],
+      tunnel_setting: ['host'],
+      instructions: <<~TEXT
+        Benefits Claims API Connection Instructions:
 
-        3. In your vets-api console, you can test with:
-           Caseflow::Service.new.get_appeals('some-user-id')
+        1. Sign up for VA Benefits Claims API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/benefits-claims/sandbox-access
+        2. Generate Public key: https://developer.va.gov/explore/api/benefits-claims/client-credentials
+        3. Update Local Settings with client_id and rsa_key:
+          ```
+          # config/settings.local.yml
+
+          lighthouse:
+            benefits_claims:
+              access_token:
+                client_id: 'your-client-id'
+                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/benefits-claims/private.pem
+          ```
 
         Additional Notes:
-        - Appeals data is sensitive - use test user IDs only
-        - Staging Caseflow may have different data than production
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/benefits-claims
       TEXT
     },
     'letters' => {
-      name: 'Letters (Lighthouse Letters Generator)',
-      description: 'Connect to Lighthouse Letters Generator API for letters',
+      name: 'Letter Generator API (Lighthouse)',
+      description: 'Connect to VA Letter Generator API for official VA letters',
       ports: [4492],
       settings_keys: ['lighthouse.letters_generator'],
       skipped_settings: [['access_token.client_id', 'access_token.rsa_key']],
       tunnel_setting: ['url'],
       instructions: <<~TEXT
-        Letters Connection Instructions:
+        Letter Generator API Connection Instructions:
 
-        1. Your local vets-api will now connect to staging Lighthouse Benefits Claims
-        2. Test the connection by visiting:
-           - Lighthouse API: http://localhost:4492/health
+        1. Sign up for VA Letter Generator API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/va-letter-generator/sandbox-access
+        2. Generate Public key: https://developer.va.gov/explore/api/va-letter-generator/client-credentials
+        3. Update Local Settings with client_id and rsa_key:
+          ```
+          # config/settings.local.yml
 
-        3. In your vets-api console, you can test with:
-           response = Lighthouse::BenefitsClaims::Service.new.get_letters('test-icn')
+          lighthouse:
+            letters_generator:
+              access_token:
+                client_id: 'your-client-id'
+                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/letter-generator/private.pem
+          ```
 
         Additional Notes:
-        - Use staging test ICNs for testing
-        - Letters API requires valid veteran identifiers
-        - Check the Lighthouse documentation for available endpoints
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/va-letter-generator
       TEXT
     }
   }.freeze
@@ -69,6 +95,8 @@ class UpstreamServiceConfig
       validate_service(@options[:service])
     when :config
       show_service_config(@options[:service])
+    when :check_settings
+      check_local_settings
     else
       show_usage
     end
@@ -98,6 +126,10 @@ class UpstreamServiceConfig
         @options[:service] = service
       end
 
+      opts.on('--check-settings', 'Check which services have settings present in local config') do
+        @options[:action] = :check_settings
+      end
+
       opts.on('-h', '--help', 'Show this help message') do
         puts opts
         exit
@@ -118,6 +150,7 @@ class UpstreamServiceConfig
     puts '  --list                List all available services'
     puts '  --validate SERVICE    Validate that a service exists'
     puts '  --config SERVICE      Get configuration for a service'
+    puts '  --check-settings      Check which services have settings present'
     exit 1
   end
 
@@ -165,6 +198,47 @@ class UpstreamServiceConfig
     }
 
     puts JSON.pretty_generate(output)
+  end
+
+  def check_local_settings
+    settings_file = File.expand_path('../../config/settings.local.yml', __dir__)
+
+    unless File.exist?(settings_file)
+      puts JSON.pretty_generate({ error: 'settings.local.yml not found' })
+      return
+    end
+
+    begin
+      require 'yaml'
+      settings = YAML.load_file(settings_file) || {}
+
+      results = {}
+
+      SERVICES.each do |service_key, service_config|
+        service_config[:settings_keys].each do |namespace|
+          namespace_parts = namespace.split('.')
+          value = get_nested_setting(settings, namespace_parts)
+
+          results[namespace] = {
+            service: service_key,
+            present: !value.nil?,
+            has_content: value.is_a?(Hash) && !value.empty?
+          }
+        end
+      end
+
+      puts JSON.pretty_generate(results)
+    rescue => e
+      puts JSON.pretty_generate({ error: "Failed to parse settings: #{e.message}" })
+    end
+  end
+
+  def get_nested_setting(hash, keys)
+    keys.reduce(hash) do |current, key|
+      return nil unless current.is_a?(Hash)
+
+      current[key] || current[key.to_sym]
+    end
   end
 end
 

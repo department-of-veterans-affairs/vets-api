@@ -818,23 +818,49 @@ show_status() {
   echo ""
   
   # Check settings.local.yml for upstream configurations
-  if [[ -f config/settings.local.yml ]]; then
-    echo -e "${BLUE}Local Settings:${NC}"
-    
-    # Check for common service settings
-    if grep -q "caseflow:" config/settings.local.yml 2>/dev/null; then
-      log_success "Caseflow settings: Present"
-    else
-      echo "  Caseflow settings: Not found"
-    fi
-    
-    if grep -q "lighthouse:" config/settings.local.yml 2>/dev/null; then
-      log_success "Lighthouse settings: Present"
-    else
-      echo "  Lighthouse settings: Not found"
-    fi
+  echo -e "${BLUE}Local Settings:${NC}"
+  
+  local settings_check
+  settings_check=$(ruby "$CONFIG_SCRIPT" --check-settings 2>/dev/null)
+  
+  if [[ $? -eq 0 ]] && [[ -n "$settings_check" ]]; then
+    # Parse the JSON response to show service settings status
+    echo "$settings_check" | ruby -rjson -e '
+      begin
+        data = JSON.parse(STDIN.read)
+        
+        if data.key?("error")
+          puts "  #{data["error"]}"
+        else
+          # Group by service
+          services = {}
+          data.each do |namespace, info|
+            service = info["service"]
+            services[service] ||= []
+            services[service] << {
+              namespace: namespace,
+              present: info["present"],
+              has_content: info["has_content"]
+            }
+          end
+          
+          services.each do |service, namespaces|
+            service_name = service.capitalize
+            all_present = namespaces.all? { |ns| ns[:present] && ns[:has_content] }
+            
+            if all_present
+              puts "✅ #{service_name} settings: Present"
+            else
+              puts "  #{service_name} settings: Not found or incomplete"
+            end
+          end
+        end
+      rescue JSON::ParserError
+        puts "  Error: Failed to parse settings check"
+      end
+    '
   else
-    log_warning "Local Settings: config/settings.local.yml not found"
+    log_warning "Local Settings: Unable to check settings"
   fi
 }
 
