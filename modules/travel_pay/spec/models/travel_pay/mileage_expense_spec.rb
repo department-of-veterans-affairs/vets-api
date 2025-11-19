@@ -59,8 +59,6 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
         expect(subject.errors[:trip_type]).to include('is not included in the list')
       end
     end
-
-
   end
 
   describe '#expense_type' do
