@@ -14,7 +14,16 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
     end
 
     let(:mpi_service) { instance_double(MPI::Service) }
-    let(:mpi_profile) { OpenStruct.new(participant_id: user.participant_id, ssn: user.ssn) }
+    let(:mpi_profile) do
+      OpenStruct.new(
+        participant_id: user.participant_id,
+        ssn: user.ssn,
+        icn: user.icn,
+        given_names: ['Abraham'],
+        family_name: 'Lincoln',
+        birth_date: '1809-02-12'
+      )
+    end
     let(:mpi_resp)    { OpenStruct.new(profile: mpi_profile) }
 
     before do
@@ -30,10 +39,20 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
     end
 
     context 'success' do
-      it 'builds the DMC service with MPI user, calls it, marks success, and clears the in-progress form' do
+      it 'builds the DMC service with complete user object including all BGS required attributes' do
         service = instance_double(DebtsApi::V0::DigitalDisputeDmcService, call!: true)
         expect(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new)
-          .with(have_attributes(participant_id: user.participant_id, ssn: user.ssn), submission)
+          .with(
+            have_attributes(
+              participant_id: user.participant_id,
+              ssn: user.ssn,
+              icn: user.icn,
+              common_name: 'Abraham Lincoln',
+              email: nil,
+              uuid: submission.user_uuid
+            ),
+            submission
+          )
           .and_return(service)
 
         form_double = instance_double(InProgressForm, destroy: true)
@@ -65,9 +84,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
     context 'when no in-progress form exists' do
       it 'still marks success' do
         service = instance_double(DebtsApi::V0::DigitalDisputeDmcService, call!: true)
-        expect(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new)
-          .with(have_attributes(participant_id: user.participant_id, ssn: user.ssn), submission)
-          .and_return(service)
+        allow(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new).and_return(service)
 
         expect(InProgressForm).to receive(:form_for_user)
           .with('DISPUTE-DEBT', anything)
@@ -109,7 +126,8 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
 
       # StatsD key used by the job
       stub_const('DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY', 'debts_api.v0.digital_dispute')
-      expect(StatsD).to receive(:increment).with('debts_api.v0.digital_dispute.retries_exhausted')
+      expect(StatsD).to receive(:increment).with('debts_api.v0.digital_dispute.retries_exhausted').ordered
+      expect(StatsD).to receive(:increment).with('debts_api.v0.digital_dispute.failure').ordered
 
       # Let the hook load the record for real, but assert failure handling on it
       expect(DebtsApi::V0::DigitalDisputeSubmission).to receive(:find).with(submission.id).and_call_original

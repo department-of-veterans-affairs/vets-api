@@ -170,6 +170,69 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
           post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json }
         end
       end
+
+      context 'email notifications' do
+        let(:submission_params) do
+          {
+            metadata: metadata_json,
+            files: [pdf_file_one]
+          }
+        end
+
+        context 'when email notifications are enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:digital_dispute_email_notifications).and_return(true)
+          end
+
+          it 'enqueues submission email with SUBMISSION_TEMPLATE' do
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_in).with(
+              5.minutes,
+              hash_including(
+                'submission_type' => 'digital_dispute',
+                'email' => user.email,
+                'first_name' => user.first_name,
+                'user_uuid' => user.uuid,
+                'template_id' => DebtsApi::V0::DigitalDisputeSubmission::SUBMISSION_TEMPLATE
+              )
+            )
+
+            post '/debts_api/v0/digital_disputes', params: submission_params
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        context 'when email notifications are disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:digital_dispute_email_notifications).and_return(false)
+          end
+
+          it 'does not enqueue submission email' do
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).not_to receive(:perform_in)
+
+            post '/debts_api/v0/digital_disputes', params: submission_params
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        context 'when user has no email' do
+          let(:user_without_email) { build(:user, :loa3, email: nil) }
+
+          before do
+            sign_in_as(user_without_email)
+            allow(Flipper).to receive(:enabled?)
+              .with(:digital_dispute_email_notifications).and_return(true)
+          end
+
+          it 'does not enqueue submission email' do
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).not_to receive(:perform_in)
+
+            post '/debts_api/v0/digital_disputes', params: submission_params
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
     end
   end
 end
