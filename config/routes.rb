@@ -401,6 +401,7 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
+    resources :medical_copays, only: %i[index]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -425,6 +426,7 @@ Rails.application.routes.draw do
   mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
+  mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IncreaseCompensation::Engine, at: '/increase_compensation'

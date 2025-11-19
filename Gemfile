@@ -22,6 +22,7 @@ path 'modules' do
   gem 'dependents_benefits'
   gem 'dependents_verification'
   gem 'dhp_connected_devices'
+  gem 'employment_questionnaires'
   gem 'facilities_api'
   gem 'income_and_assets'
   gem 'income_limits'
@@ -47,7 +48,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.2.2'
+gem 'rails', '~> 7.2.3'
 
 gem 'aasm'
 gem 'activerecord-import'
@@ -140,7 +141,7 @@ gem 'prawn-markup'
 gem 'prawn-table'
 gem 'puma'
 gem 'pundit'
-gem 'rack', '~> 2.2.20'
+gem 'rack', '~> 2.2.21'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rack-timeout', require: 'rack/timeout/base'
