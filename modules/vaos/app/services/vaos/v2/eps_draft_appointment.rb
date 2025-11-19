@@ -488,11 +488,13 @@ module VAOS
 
         referring_facility_code = sanitize_log_value(referral.referring_facility_code)
         station_id = sanitize_log_value(referral.station_id)
+        type_of_care = sanitize_log_value(referral.category_of_care)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
                            COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "station_id:#{station_id}"
+                           "station_id:#{station_id}",
+                           "type_of_care:#{type_of_care}"
                          ])
       end
 

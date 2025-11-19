@@ -21,7 +21,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       expiration_date: '2024-04-15',
       provider_specialty: 'Cardiology',
       treating_facility_address: { city: 'Denver', state: 'CO' },
-      referring_facility_code: 'FAC123'
+      referring_facility_code: 'FAC123',
+      category_of_care: 'CARDIOLOGY',
+      station_id: '528A6'
     )
   end
   let(:provider_data) do
@@ -401,7 +403,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           tags: [
             'service:community_care_appointments',
             'referring_facility_code:FAC123',
-            'station_id:no_value'
+            'station_id:528A6',
+            'type_of_care:CARDIOLOGY'
           ]
         )
         expect(StatsD).to receive(:increment).with(

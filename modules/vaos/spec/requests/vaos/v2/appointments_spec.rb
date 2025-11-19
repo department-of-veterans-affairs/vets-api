@@ -1532,7 +1532,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                   tags: [
                                     'service:community_care_appointments',
                                     'referring_facility_code:528A6',
-                                    'station_id:528A6'
+                                    'station_id:528A6',
+                                    'type_of_care:UROLOGY'
                                   ])
                             .once
 
