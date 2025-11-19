@@ -368,7 +368,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
         it 'raises error with combined failure message' do
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(EventBusGateway::NotificationEnqueueError, /All notifications failed/)
+          end.to raise_error(EventBusGateway::Errors::NotificationEnqueueError, /All notifications failed/)
             .and not_change(EventBusGatewayNotification, :count)
             .and not_change(EventBusGatewayPushNotification, :count)
         end
@@ -386,7 +386,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(EventBusGateway::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
+          end.to raise_error(EventBusGateway::Errors::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
         end
       end
 
@@ -400,7 +400,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(EventBusGateway::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
+          end.to raise_error(EventBusGateway::Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
         end
       end
     end

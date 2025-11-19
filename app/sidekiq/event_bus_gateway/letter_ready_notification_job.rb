@@ -159,7 +159,7 @@ module EventBusGateway
       if errors.length == 2
         # Both notifications failed to enqueue
         error_details = errors.map { |e| "#{e[:type]}: #{e[:error]}" }.join('; ')
-        raise NotificationEnqueueError, "All notifications failed to enqueue: #{error_details}"
+        raise Errors::NotificationEnqueueError, "All notifications failed to enqueue: #{error_details}"
       else
         # Partial failure - determine which notification succeeded
         successful = errors[0][:type] == 'email' ? 'push' : 'email'

@@ -12,7 +12,7 @@ module EventBusGateway
       @bgs_person ||= begin
         bgs = BGS::Services.new(external_uid: participant_id, external_key: participant_id)
         person = bgs.people.find_person_by_ptcpnt_id(participant_id)
-        raise BgsPersonNotFoundError, 'Participant ID cannot be found in BGS' if person.nil?
+        raise Errors::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS' if person.nil?
 
         person
       end
@@ -33,7 +33,7 @@ module EventBusGateway
     end
 
     def handle_mpi_response(mpi_response)
-      raise MpiProfileNotFoundError, 'Failed to fetch MPI profile' if mpi_response.nil?
+      raise Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile' if mpi_response.nil?
 
       return mpi_response.profile if mpi_response.ok? && mpi_response.profile.present?
 
@@ -43,10 +43,10 @@ module EventBusGateway
           detail: 'MPI service returned a server error'
         )
       elsif mpi_response.not_found?
-        raise MpiProfileNotFoundError, 'MPI profile not found for participant'
+        raise Errors::MpiProfileNotFoundError, 'MPI profile not found for participant'
       else
         # Unexpected state
-        raise MpiProfileNotFoundError, 'Failed to fetch MPI profile'
+        raise Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile'
       end
     end
 

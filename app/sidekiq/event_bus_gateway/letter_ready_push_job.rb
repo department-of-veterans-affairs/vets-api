@@ -29,7 +29,7 @@ module EventBusGateway
     def perform(participant_id, template_id, icn = nil)
       icn ||= get_icn(participant_id)
 
-      raise IcnNotFoundError, 'Failed to fetch ICN' if icn.blank?
+      raise Errors::IcnNotFoundError, 'Failed to fetch ICN' if icn.blank?
 
       send_push_notification(icn, template_id)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)

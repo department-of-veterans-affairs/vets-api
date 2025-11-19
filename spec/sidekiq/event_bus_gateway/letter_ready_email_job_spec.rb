@@ -245,7 +245,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
         expect do
           subject.new.perform(participant_id, template_id)
-        end.to raise_error(EventBusGateway::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
+        end.to raise_error(EventBusGateway::Errors::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
           .and not_change(EventBusGatewayNotification, :count)
       end
     end
@@ -258,7 +258,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
         expect do
           subject.new.perform(participant_id, template_id)
-        end.to raise_error(EventBusGateway::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
+        end.to raise_error(EventBusGateway::Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
           .and not_change(EventBusGatewayNotification, :count)
       end
     end
