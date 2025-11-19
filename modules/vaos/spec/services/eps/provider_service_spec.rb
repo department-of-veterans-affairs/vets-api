@@ -4,16 +4,21 @@ require 'rails_helper'
 
 describe Eps::ProviderService do
   let(:service) { described_class.new(user) }
-  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123') }
+  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123', va_treatment_facility_ids: ['123']) }
 
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)
     allow(Rails.logger).to receive(:public_send)
+    allow(Rails.logger).to receive(:warn)
     allow(StatsD).to receive(:increment)
     # Bypass token authentication which is tested in another spec
     allow(Settings.vaos.eps).to receive(:mock).and_return(true)
+    # Set up RequestStore for controller name logging
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
+    # Clear eps_trace_id to ensure test isolation
+    RequestStore.store['eps_trace_id'] = nil
   end
 
   describe '#get_provider_service' do
@@ -762,13 +767,7 @@ describe Eps::ProviderService do
           {
             count: 1,
             provider_services: [
-              {
-                id: '53mL4LAZ',
-                specialties: [{ name: 'Dermatology' }],
-                location: {
-                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
-                }
-              }
+              self_schedulable_provider(specialties: [{ name: 'Dermatology' }])
             ]
           }
         end
@@ -816,13 +815,7 @@ describe Eps::ProviderService do
           {
             count: 1,
             provider_services: [
-              {
-                id: '53mL4LAZ',
-                specialties: [],
-                location: {
-                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
-                }
-              }
+              self_schedulable_provider(specialties: [])
             ]
           }
         end
@@ -842,6 +835,300 @@ describe Eps::ProviderService do
         end
       end
 
+      context 'when providers are returned but none are self-schedulable' do
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              {
+                id: 'provider1',
+                specialties: [{ name: 'Cardiology' }],
+                appointment_types: [
+                  {
+                    name: 'Office Visit',
+                    is_self_schedulable: false
+                  }
+                ],
+                features: {
+                  is_digital: true,
+                  direct_booking: {
+                    is_enabled: true
+                  }
+                },
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              },
+              {
+                id: 'provider2',
+                specialties: [{ name: 'Cardiology' }],
+                appointment_types: [
+                  {
+                    name: 'Office Visit',
+                    is_self_schedulable: true
+                  }
+                ],
+                features: {
+                  is_digital: false,
+                  direct_booking: {
+                    is_enabled: true
+                  }
+                },
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'returns nil, logs error, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: No self-schedulable providers found for NPI',
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
+          )
+        end
+      end
+
+      context 'when provider meets all self-schedulable criteria' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              self_schedulable_provider
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns the provider' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+      end
+
+      context 'when provider fails office visit appointment type criteria' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              self_schedulable_provider(
+                appointment_types: [
+                  {
+                    name: 'Office Visit',
+                    is_self_schedulable: false
+                  }
+                ]
+              )
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'returns nil, logs error, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: No self-schedulable providers found for NPI',
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
+          )
+        end
+      end
+
+      context 'when provider fails isDigital criteria' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              self_schedulable_provider(
+                features: {
+                  is_digital: false,
+                  direct_booking: {
+                    is_enabled: true
+                  }
+                }
+              )
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'returns nil, logs error, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: No self-schedulable providers found for NPI',
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
+          )
+        end
+      end
+
+      context 'when provider fails directBooking.isEnabled criteria' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              self_schedulable_provider(
+                features: {
+                  is_digital: true,
+                  direct_booking: {
+                    is_enabled: false
+                  }
+                }
+              )
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'returns nil, logs error, and increments metric' do
+          expect(StatsD).to receive(:increment).with(
+            'api.vaos.provider_service.no_self_schedulable',
+            tags: ['service:community_care_appointments']
+          )
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+          expected_controller_name = 'VAOS::V2::AppointmentsController'
+          expected_station_number = user.va_treatment_facility_ids&.first
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: No self-schedulable providers found for NPI',
+            {
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: nil,
+              user_uuid: 'user-uuid-123'
+            }
+          )
+        end
+      end
+
+      context 'when multiple self-schedulable providers exist' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              self_schedulable_provider(
+                id: 'provider1',
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              ),
+              self_schedulable_provider(
+                id: 'provider2',
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              )
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns the first matching provider' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider1')
+        end
+      end
+
       # New comprehensive tests for specialty and address matching
       context 'when both specialty and address match perfectly' do
         let(:matching_address) do
@@ -857,13 +1144,11 @@ describe Eps::ProviderService do
           {
             count: 1,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              }
+              )
             ]
           }
         end
@@ -898,20 +1183,17 @@ describe Eps::ProviderService do
           {
             count: 2,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider456',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
-              }
+              )
             ]
           }
         end
@@ -952,13 +1234,12 @@ describe Eps::ProviderService do
           {
             count: 1,
             provider_services: [
-              {
-                id: 'provider123',
+              self_schedulable_provider(
                 specialties: [{ name: 'CARDIOLOGY' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              }
+              )
             ]
           }
         end
@@ -993,13 +1274,11 @@ describe Eps::ProviderService do
           {
             count: 1,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              }
+              )
             ]
           }
         end
@@ -1034,20 +1313,17 @@ describe Eps::ProviderService do
           {
             count: 2,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider456',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
-              }
+              )
             ]
           }
         end
@@ -1082,20 +1358,17 @@ describe Eps::ProviderService do
           {
             count: 2,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider456',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
-              }
+              )
             ]
           }
         end
@@ -1137,20 +1410,17 @@ describe Eps::ProviderService do
           {
             count: 2,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider456',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
-              }
+              )
             ]
           }
         end
@@ -1186,20 +1456,17 @@ describe Eps::ProviderService do
           {
             count: 2,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider456',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
-              }
+              )
             ]
           }
         end
@@ -1240,13 +1507,11 @@ describe Eps::ProviderService do
           {
             count: 1,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: 'Incomplete Address'
                 }
-              }
+              )
             ]
           }
         end
@@ -1280,27 +1545,24 @@ describe Eps::ProviderService do
           {
             count: 3,
             provider_services: [
-              {
+              self_schedulable_provider(
                 id: 'provider1',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848, US' # 4-digit street, zip+4
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider2',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '16011 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848' # 5-digit street, zip+4
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider3',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '16011 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414, US' # 5-digit street, 5-digit zip
                 }
-              }
+              )
             ]
           }
         end
@@ -1391,14 +1653,13 @@ describe Eps::ProviderService do
             {
               count: 1,
               provider_services: [
-                {
+                self_schedulable_provider(
                   id: 'provider_extreme',
-                  specialties: [{ name: 'Cardiology' }],
                   location: {
                     # Extreme case: street address has 45414-3333 format, but actual zip is 12345
                     address: '45414-3333 FAKE STREET, COLUMBUS, OH 12345-6789, US'
                   }
-                }
+                )
               ]
             }
           end
@@ -1441,13 +1702,12 @@ describe Eps::ProviderService do
           {
             count: 1,
             provider_services: [
-              {
+              self_schedulable_provider(
                 id: 'single_provider',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              }
+              )
             ]
           }
         end
@@ -1502,20 +1762,17 @@ describe Eps::ProviderService do
           {
             count: 2,
             provider_services: [
-              {
-                id: 'provider123',
-                specialties: [{ name: 'Cardiology' }],
+              self_schedulable_provider(
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
                 }
-              },
-              {
+              ),
+              self_schedulable_provider(
                 id: 'provider456',
-                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
-              }
+              )
             ]
           }
         end
@@ -1598,7 +1855,7 @@ describe Eps::ProviderService do
         expect_any_instance_of(VAOS::SessionService).to receive(:perform).with(
           :get,
           '/api/v1/provider-services',
-          { npi:, isSelfSchedulable: true },
+          { npi: },
           headers
         ).and_return(response)
 
@@ -1678,6 +1935,29 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'npi is required and cannot be blank')
       end
     end
+  end
+
+  # Helper method to create a self-schedulable provider
+  def self_schedulable_provider(overrides = {})
+    {
+      id: 'provider123',
+      specialties: [{ name: 'Cardiology' }],
+      appointment_types: [
+        {
+          name: 'Office Visit',
+          is_self_schedulable: true
+        }
+      ],
+      features: {
+        is_digital: true,
+        direct_booking: {
+          is_enabled: true
+        }
+      },
+      location: {
+        address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+      }
+    }.merge(overrides)
   end
 
   # Helper method to create EPS exceptions with properly formatted messages

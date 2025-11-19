@@ -48,4 +48,5 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VIC'
   inflect.acronym 'VRE'
   inflect.acronym 'VSO'
+  inflect.acronym 'HCC'
 end

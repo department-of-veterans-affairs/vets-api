@@ -16,6 +16,7 @@ module IvcChampva
 
     include Vets::Model
     include Attachments
+    include StampableLogging
 
     attribute :data, Hash
     attr_reader :form_id
@@ -69,6 +70,11 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 rev2025 Email Used', email_used:)
     end
 
+    def track_delegate_form(parent_form_id)
+      StatsD.increment("#{STATS_KEY}.delegate_form.#{parent_form_id}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 rev2025 Delegate Form', parent_form_id:)
+    end
+
     # rubocop:disable Naming/BlockForwarding
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)
@@ -83,8 +89,16 @@ module IvcChampva
     private
 
     def initial_stamps
+      signature = @data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => {
+                                 value: signature.present? ? 'present' : nil
+                               }
+                             })
+
       [
-        { coords: [170, 65], text: @data['statement_of_truth_signature'], page: 0 }
+        { coords: [170, 65], text: signature, page: 0 }
       ]
     end
   end
