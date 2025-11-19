@@ -4,29 +4,29 @@ require_relative '../../../lib/travel_pay/constants'
 
 module TravelPay
   class FlightExpense < BaseExpense
-    attribute :vendor, :string
+    attribute :vendor_name, :string
     attribute :trip_type, :string
-    attribute :departure_location, :string
-    attribute :arrival_location, :string
+    attribute :departured_from, :string
+    attribute :arrived_to, :string
     attribute :departure_date, :datetime
-    attribute :arrival_date, :datetime
+    attribute :return_date, :datetime
 
-    validates :vendor, presence: true, length: { maximum: 255 }
+    validates :vendor_name, presence: true, length: { maximum: 255 }
     validates :trip_type, presence: true, inclusion: { in: TravelPay::Constants::TRIP_TYPES.values }
-    validates :departure_location, presence: true, length: { maximum: 255 }
-    validates :arrival_location, presence: true, length: { maximum: 255 }
+    validates :departured_from, presence: true, length: { maximum: 255 }
+    validates :arrived_to, presence: true, length: { maximum: 255 }
     validates :departure_date, presence: true
-    validates :arrival_date, presence: true
+    validates :return_date, presence: true
 
-    validate :departure_and_arrival_locations_must_be_different
-    validate :departure_date_must_be_before_arrival_date
+    validate :departure_and_arrival_must_be_different
+    validate :departure_date_must_be_before_return_date
 
     # Returns the list of permitted parameters for flight expenses
     # Extends base params with flight-specific fields
     #
     # @return [Array<Symbol>] list of permitted parameter names
     def self.permitted_params
-      super + %i[vendor trip_type departure_location arrival_location departure_date arrival_date]
+      super + %i[vendor_name trip_type departured_from arrived_to departure_date return_date]
     end
 
     # Returns the expense type for flight expenses
@@ -42,31 +42,31 @@ module TravelPay
     # @return [Hash] parameters formatted for the service
     def to_service_params
       super.merge(
-        'vendor' => vendor,
+        'vendor_name' => vendor_name,
         'trip_type' => trip_type,
-        'departure_location' => departure_location,
-        'arrival_location' => arrival_location,
+        'departured_from' => departured_from,
+        'arrived_to' => arrived_to,
         'departure_date' => format_date(departure_date),
-        'arrival_date' => format_date(arrival_date)
+        'return_date' => format_date(return_date)
       )
     end
 
     private
 
     # Validates that departure and arrival locations are different
-    def departure_and_arrival_locations_must_be_different
-      return unless departure_location.present? && arrival_location.present?
+    def departure_and_arrival_must_be_different
+      return unless departured_from.present? && arrived_to.present?
 
-      if departure_location.strip.casecmp?(arrival_location.strip)
-        errors.add(:arrival_location, 'must be different from departure location')
+      if departured_from.strip.casecmp?(arrived_to.strip)
+        errors.add(:arrived_to, 'must be different from departure location')
       end
     end
 
     # Validates that departure date comes before arrival date
-    def departure_date_must_be_before_arrival_date
-      return unless departure_date.present? && arrival_date.present?
+    def departure_date_must_be_before_return_date
+      return unless departure_date.present? && return_date.present?
 
-      errors.add(:arrival_date, 'must be after departure date') if departure_date >= arrival_date
+      errors.add(:return_date, 'must be after departure date') if departure_date >= return_date
     end
   end
 end
