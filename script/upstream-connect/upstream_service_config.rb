@@ -19,6 +19,11 @@ class UpstreamServiceConfig
         Appeals/Caseflow Connection Instructions:
 
         1. No additional steps needed.
+
+        Test Connection:
+          - Test User: vets.gov.user+0@gmail.com (Hector)
+          - endpoint: /mobile/v0/appeal/:id, A6223
+
       TEXT
     },
     'claims' => {
@@ -31,6 +36,7 @@ class UpstreamServiceConfig
       instructions: <<~TEXT
         Benefits Claims API Connection Instructions:
 
+        (One-time setup)
         1. Sign up for VA Benefits Claims API Sandbox access and retrieve credentials.
           - https://developer.va.gov/explore/api/benefits-claims/sandbox-access
         2. Generate Public key: https://developer.va.gov/explore/api/benefits-claims/client-credentials
@@ -44,6 +50,10 @@ class UpstreamServiceConfig
                 client_id: 'your-client-id'
                 rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/benefits-claims/private.pem
           ```
+
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - endpoint: /mobile/v0/claim/:id, id: 600810891
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -60,6 +70,7 @@ class UpstreamServiceConfig
       instructions: <<~TEXT
         Letter Generator API Connection Instructions:
 
+        (One-time setup)
         1. Sign up for VA Letter Generator API Sandbox access and retrieve credentials.
           - https://developer.va.gov/explore/api/va-letter-generator/sandbox-access
         2. Generate Public key: https://developer.va.gov/explore/api/va-letter-generator/client-credentials
@@ -73,6 +84,10 @@ class UpstreamServiceConfig
                 client_id: 'your-client-id'
                 rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/letter-generator/private.pem
           ```
+
+        Test Connection:
+          - Test User: vets.gov.user+54@gmail.com
+          - endpoint: /mobile/v0/letters
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -104,7 +119,7 @@ class UpstreamServiceConfig
 
   private
 
-  def parse_options
+  def parse_options # rubocop:disable Metrics/MethodLength
     parser = OptionParser.new do |opts|
       opts.banner = 'Usage: upstream_service_config.rb [options]'
       opts.separator ''
@@ -200,7 +215,7 @@ class UpstreamServiceConfig
     puts JSON.pretty_generate(output)
   end
 
-  def check_local_settings
+  def check_local_settings # rubocop:disable Metrics/MethodLength
     settings_file = File.expand_path('../../config/settings.local.yml', __dir__)
 
     unless File.exist?(settings_file)
