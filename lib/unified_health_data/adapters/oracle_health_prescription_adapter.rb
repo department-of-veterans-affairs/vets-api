@@ -265,9 +265,9 @@ module UnifiedHealthData
       # @return [String] VistA status value ('expired' or 'discontinued')
       def normalize_completed_status(expiration_date)
         if expiration_date && expiration_date < 6.months.ago.utc
-          'expired'
-        else
           'discontinued'
+        else
+          'expired'
         end
       end
 

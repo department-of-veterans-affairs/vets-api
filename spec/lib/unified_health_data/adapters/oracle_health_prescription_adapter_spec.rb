@@ -1917,7 +1917,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
 
     context 'when MedicationRequest status is completed' do
-      it 'returns "expired" when expired more than 6 months ago' do
+      it 'returns "discontinued" when expired more than 6 months ago' do
         resource = status_test_resource.merge(
           'status' => 'completed',
           'dispenseRequest' => {
@@ -1926,10 +1926,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
 
         result = subject.send(:normalize_to_vahb_status, resource)
-        expect(result).to eq('expired')
+        expect(result).to eq('discontinued')
       end
 
-      it 'returns "discontinued" when expired less than 6 months ago' do
+      it 'returns "expired" when expired less than 6 months ago' do
         resource = status_test_resource.merge(
           'status' => 'completed',
           'dispenseRequest' => {
@@ -1938,7 +1938,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
 
         result = subject.send(:normalize_to_vahb_status, resource)
-        expect(result).to eq('discontinued')
+        expect(result).to eq('expired')
       end
     end
 
@@ -2130,21 +2130,21 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#normalize_completed_status' do
-    it 'returns "expired" when expired more than 6 months ago' do
+    it 'returns "discontinued" when expired more than 6 months ago' do
       expiration_date = 7.months.ago.utc
+      result = subject.send(:normalize_completed_status, expiration_date)
+      expect(result).to eq('discontinued')
+    end
+
+    it 'returns "expired" when expired less than 6 months ago' do
+      expiration_date = 3.months.ago.utc
       result = subject.send(:normalize_completed_status, expiration_date)
       expect(result).to eq('expired')
     end
 
-    it 'returns "discontinued" when expired less than 6 months ago' do
-      expiration_date = 3.months.ago.utc
-      result = subject.send(:normalize_completed_status, expiration_date)
-      expect(result).to eq('discontinued')
-    end
-
-    it 'returns "discontinued" when expiration date is nil' do
+    it 'returns "expired" when expiration date is nil' do
       result = subject.send(:normalize_completed_status, nil)
-      expect(result).to eq('discontinued')
+      expect(result).to eq('expired')
     end
   end
 end
