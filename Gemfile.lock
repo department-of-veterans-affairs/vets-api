@@ -882,7 +882,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.20)
+    rack (2.2.21)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1381,7 +1381,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.20)
+  rack (~> 2.2.21)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
