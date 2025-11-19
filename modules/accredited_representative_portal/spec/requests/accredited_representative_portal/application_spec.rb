@@ -29,53 +29,30 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
       Rails.application.reload_routes!
     end
 
-    context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(
-          :accredited_representative_portal_pilot,
-          instance_of(AccreditedRepresentativePortal::RepresentativeUser)
-        ).and_return(true)
-      end
-
-      context 'when authenticated' do
-        context 'with a valid audience' do
-          it 'allows access' do
-            expect(subject).to have_http_status(:ok)
-          end
-        end
-
-        context 'with an invalid audience' do
-          let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: invalid_access_token).perform }
-          let(:expected_log_message) { '[SignIn][AudienceValidator] Invalid audience' }
-          let(:expected_log_payload) do
-            { invalid_audience: invalid_access_token.audience, valid_audience: valid_access_token.audience }
-          end
-          let(:expected_response_body) do
-            { errors: 'Invalid audience' }.to_json
-          end
-
-          before { allow(Rails.logger).to receive(:error) }
-
-          it 'denies access' do
-            expect(subject).to have_http_status(:unauthorized)
-            expect(subject.body).to eq(expected_response_body)
-            expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
-          end
+    context 'when authenticated' do
+      context 'with a valid audience' do
+        it 'allows access' do
+          expect(subject).to have_http_status(:ok)
         end
       end
-    end
 
-    context 'when feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(
-          :accredited_representative_portal_pilot,
-          instance_of(AccreditedRepresentativePortal::RepresentativeUser)
-        ).and_return(false)
-      end
+      context 'with an invalid audience' do
+        let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: invalid_access_token).perform }
+        let(:expected_log_message) { '[SignIn][AudienceValidator] Invalid audience' }
+        let(:expected_log_payload) do
+          { invalid_audience: invalid_access_token.audience, valid_audience: valid_access_token.audience }
+        end
+        let(:expected_response_body) do
+          { errors: 'Invalid audience' }.to_json
+        end
 
-      it 'returns 403 Forbidden regardless of authentication' do
-        expect(subject).to have_http_status(:forbidden)
-        expect(subject.body).to match(/flag is disabled/)
+        before { allow(Rails.logger).to receive(:error) }
+
+        it 'denies access' do
+          expect(subject).to have_http_status(:unauthorized)
+          expect(subject.body).to eq(expected_response_body)
+          expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
+        end
       end
     end
   end
