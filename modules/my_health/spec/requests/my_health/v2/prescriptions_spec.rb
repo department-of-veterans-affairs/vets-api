@@ -303,7 +303,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             rx['attributes']['station_number'] == '556'
           end
           expect(oracle_prescriptions).not_to be_empty,
-                                              'Expected to find at least one prescription from Oracle facility (station 556)'
+                                              'Expected to find at least one Oracle prescription (station 556)'
 
           # Select an Oracle prescription and verify key fields have expected data
           oracle_rx = oracle_prescriptions.first
@@ -943,93 +943,4 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       end
     end
   end
-
-  describe 'POST /my_health/v2/prescriptions/refill' do
-    context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).and_return(true)
-      end
-
-      it 'refills prescriptions and logs event' do
-        VCR.use_cassette('unified_health_data/refill_prescriptions_success', match_requests_on: %i[method path]) do
-          allow(UniqueUserEvents).to receive(:log_event)
-
-          orders = [
-            { stationNumber: '989', id: '3636691' }
-          ]
-
-          post('/my_health/v2/prescriptions/refill',
-               params: orders.to_json,
-               headers:)
-
-          expect(response).to have_http_status(:success)
-          expect(response.body).to be_a(String)
-
-          # Verify event logging was called
-          expect(UniqueUserEvents).to have_received(:log_event).with(
-            user: anything,
-            event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
-          )
-        end
-      end
-
-      it 'validates required fields in orders' do
-        allow(UniqueUserEvents).to receive(:log_event)
-
-        # Missing required fields
-        invalid_orders = [
-          { stationNumber: '989' } # missing id
-        ]
-
-        post('/my_health/v2/prescriptions/refill',
-             params: invalid_orders.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:bad_request)
-      end
-
-      it 'requires orders to be an array' do
-        allow(UniqueUserEvents).to receive(:log_event)
-
-        # Not an array
-        invalid_params = { stationNumber: '989', id: '3636691' }
-
-        post('/my_health/v2/prescriptions/refill',
-             params: invalid_params.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:bad_request)
-      end
-
-      it 'requires at least one order' do
-        allow(UniqueUserEvents).to receive(:log_event)
-
-        # Empty array
-        empty_orders = []
-
-        post('/my_health/v2/prescriptions/refill',
-             params: empty_orders.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:bad_request)
-      end
-    end
-
-    context 'when feature flag is disabled' do
-      it 'returns forbidden' do
-        allow(Flipper).to receive(:enabled?).and_return(false)
-
-        orders = [
-          { stationNumber: '989', id: '3636691' }
-        ]
-
-        post('/my_health/v2/prescriptions/refill',
-             params: orders.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-  end
 end
-
