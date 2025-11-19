@@ -122,13 +122,12 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           expect(json_response['data']).to be_an(Array)
           expect(json_response['data']).not_to be_empty
 
-
           # Verify we have at least one Oracle prescription (station number 556 is Oracle Health facility)
           oracle_prescriptions = json_response['data'].select do |rx|
             rx['attributes']['station_number'] == '556'
           end
           expect(oracle_prescriptions).not_to be_empty,
-                                        'Expected to find at least one prescription from Oracle facility (station 556)'
+                                              'Expected to find at least one prescription from Oracle facility (station 556)'
 
           # Select an Oracle prescription and verify key fields have expected data
           oracle_rx = oracle_prescriptions.first
