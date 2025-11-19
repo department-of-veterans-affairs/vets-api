@@ -680,6 +680,7 @@ config/form_profile_mappings/21-686C.yml @department-of-veterans-affairs/disabil
 config/form_profile_mappings/21P-0969.yml @department-of-veterans-affairs/income-and-assets @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21P-527EZ.yml @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21P-530EZ.yml @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
+config/form_profile_mappings/21P-601.yml @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-0993.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-0994.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 config/form_profile_mappings/22-10203.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers

@@ -667,33 +667,35 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
     context 'with Vista prescriptions containing dispenses' do
       let(:vista_medication_with_dispenses) do
         vista_medication_data.merge(
-          'rxRFRecords' => [
-            {
-              'id' => 'rf-1',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-              'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'SLC4',
-              'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
-              'quantity' => 1,
-              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
-              'prescriptionNumber' => 'RX001',
-              'cmopDivisionPhone' => '800-555-0100',
-              'cmopNdcNumber' => '12345-678-90',
-              'remarks' => 'Handle with care',
-              'dialCmopDivisionPhone' => '8005550100',
-              'disclaimer' => 'This is a test disclaimer'
-            },
-            {
-              'id' => 'rf-2',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'SLC4',
-              'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
-              'quantity' => 1,
-              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
-            }
-          ]
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'rf-1',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'SLC4',
+                'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
+                'quantity' => 1,
+                'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
+                'prescriptionNumber' => 'RX001',
+                'cmopDivisionPhone' => '800-555-0100',
+                'cmopNdcNumber' => '12345-678-90',
+                'remarks' => 'Handle with care',
+                'dialCmopDivisionPhone' => '8005550100',
+                'disclaimer' => 'This is a test disclaimer'
+              },
+              {
+                'id' => 'rf-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'SLC4',
+                'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
+                'quantity' => 1,
+                'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
+              }
+            ]
+          }
         )
       end
 
