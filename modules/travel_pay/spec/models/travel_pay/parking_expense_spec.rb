@@ -23,9 +23,15 @@ RSpec.describe TravelPay::ParkingExpense, type: :model do
       expect(parking_expense.errors[:purchase_date]).to include("can't be blank")
     end
 
-    it 'requires a description to be present' do
+    it 'allows description to be nil (inherited allow_nil: true from BaseExpense)' do
       parking_expense.description = nil
+      expect(parking_expense).to be_valid
+    end
+
+    it 'requires description to be present when not nil (validates empty string)' do
+      parking_expense.description = ''
       expect(parking_expense).not_to be_valid
+      expect(parking_expense.errors[:description]).to include("can't be blank")
     end
 
     it 'requires cost_requested to be present' do

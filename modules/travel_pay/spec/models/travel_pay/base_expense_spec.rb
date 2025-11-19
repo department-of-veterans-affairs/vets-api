@@ -71,8 +71,14 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     context 'description validation' do
-      it 'requires description to be present' do
+      it 'allows description to be nil (allow_nil: true)' do
         subject.description = nil
+        expect(subject).to be_valid
+        expect(subject.errors[:description]).to be_empty
+      end
+
+      it 'requires description to be present when not nil' do
+        subject.description = ''
         expect(subject).not_to be_valid
         expect(subject.errors[:description]).to include("can't be blank")
       end
@@ -310,7 +316,8 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     it 'inherits all validations' do
       custom_expense = custom_expense_class.new
       custom_expense.valid?
-      expect(custom_expense.errors[:description]).to include("can't be blank")
+      # description allows nil, so no error when nil
+      expect(custom_expense.errors[:description]).to be_empty
       expect(custom_expense.errors[:cost_requested]).to include("can't be blank")
       expect(custom_expense.errors[:purchase_date]).to include("can't be blank")
     end
