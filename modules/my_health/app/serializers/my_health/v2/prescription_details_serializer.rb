@@ -38,9 +38,7 @@ module MyHealth
         object.provider_name if object.respond_to?(:provider_name)
       end
 
-      attribute :remarks do |object|
-        object.remarks if object.respond_to?(:remarks)
-      end
+      attribute :remarks
 
       attribute :division_name do |object|
         object.division_name if object.respond_to?(:division_name)
@@ -62,9 +60,7 @@ module MyHealth
         object.pharmacy_phone_number if object.respond_to?(:pharmacy_phone_number)
       end
 
-      attribute :disp_status do |object|
-        object.disp_status if object.respond_to?(:disp_status)
-      end
+      attribute :disp_status
 
       attribute :ndc do |object|
         object.ndc if object.respond_to?(:ndc)
@@ -78,22 +74,16 @@ module MyHealth
         object.prescription_number_index if object.respond_to?(:prescription_number_index)
       end
 
-      # UHD has this field
       attribute :prescription_source
 
-      attribute :disclaimer do |object|
-        object.disclaimer if object.respond_to?(:disclaimer)
-      end
+      attribute :disclaimer
 
-      attribute :indication_for_use do |object|
-        object.indication_for_use if object.respond_to?(:indication_for_use)
-      end
+      attribute :indication_for_use
 
       attribute :indication_for_use_flag do |object|
         object.indication_for_use_flag if object.respond_to?(:indication_for_use_flag)
       end
 
-      # UHD has this field (Array)
       attribute :category
 
       # UHD has 'tracking' array field, alias as 'tracking_list'
