@@ -3,59 +3,61 @@
 module SignIn
   class UserInfo
     include ActiveModel::Model
+    include ActiveModel::Attributes
 
-    attr_accessor :csp_type,
-                  :csp_uuid,
-                  :ial,
-                  :aal,
-                  :email,
-                  :full_name,
-                  :birth_date,
-                  :ssn,
-                  :gender,
-                  :address,
-                  :phone_number,
-                  :person_type,
-                  :icn,
-                  :sec_id,
-                  :edipi,
-                  :mhv_ien,
-                  :cerner_id,
-                  :corp_id,
-                  :birls
+    attribute :sub, :string
+    attribute :email, :string
+    attribute :full_name, :string
+    attribute :first_name, :string
+    attribute :last_name, :string
+    attribute :csp_type, :string
+    attribute :csp_uuid, :string
+    attribute :ial, :string
+    attribute :aal, :string
+    attribute :birth_date, :string
+    attribute :ssn, :string
+    attribute :gender, :string
+    attribute :address, :string
+    attribute :phone_number, :string
+    attribute :person_type, :string
+    attribute :icn, :string
+    attribute :sec_id, :string
+    attribute :edipi, :string
+    attribute :mhv_ien, :string
+    attribute :cerner_id, :string
+    attribute :corp_id, :string
+    attribute :birls, :string
+    attribute :credential_uuid, :string
 
-    def initialize(current_user)
-      @current_user = current_user
-      super(build_attributes_from(current_user))
+    def self.from_user(user, user_verification: nil)
+      new(
+        sub: user.uuid,
+        email: user_verification&.user_credential_email&.credential_email || user.email,
+        full_name: full_name_from(user), first_name: user.first_name, last_name: user.last_name,
+        csp_type: user.csp_type, csp_uuid: user.csp_uuid, ial: user.ial, aal: user.aal,
+        birth_date: user.birth_date, ssn: user.ssn, gender: user.gender, address: user.address,
+        phone_number: user.phone, person_type: user.person_type, icn: user.icn, sec_id: user.sec_id,
+        edipi: user.edipi, mhv_ien: user.mhv_ien, cerner_id: user.cerner_id, corp_id: user.corp_id,
+        birls: user.birls_id, credential_uuid: user_verification&.credential_identifier
+      )
     end
 
-    def persisted?
-      false
-    end
-
-    def to_h
+    def to_oidc_json
       {
-        csp_type:, csp_uuid:, ial:, aal:,
-        email:, full_name:, birth_date:, ssn:, gender:,
-        address:, phone_number:, person_type:, icn:, sec_id:,
-        edipi:, mhv_ien:, cerner_id:, corp_id:, birls:
+        sub:, first_name:,
+        last_name:, email:, csp_type:, csp_uuid:,
+        ial:, aal:, birth_date:, ssn:,
+        gender:, address:, phone_number:, person_type:,
+        icn:, sec_id:, edipi:, mhv_ien:,
+        cerner_id:, corp_id:, birls:, credential_uuid:
       }.compact
     end
 
-    private
-
-    def build_attributes_from(user)
-      {
-        csp_type: user.csp_type, csp_uuid: user.csp_uuid, ial: user.ial, aal: user.aal,
-        email: user.email, full_name: full_name_from(user), birth_date: user.birth_date,
-        ssn: user.ssn, gender: user.gender, address: user.address,
-        phone_number: user.phone, person_type: user.person_type, icn: user.icn,
-        sec_id: user.sec_id, edipi: user.edipi, mhv_ien: user.mhv_ien,
-        cerner_id: user.cerner_id, corp_id: user.corp_id, birls: user.birls_id
-      }
+    def to_h
+      attributes.deep_symbolize_keys.compact
     end
 
-    def full_name_from(user)
+    def self.full_name_from(user)
       return user.full_name if user.respond_to?(:full_name) && user.full_name.present?
 
       [user.try(:first_name), user.try(:middle_name), user.try(:last_name)]
