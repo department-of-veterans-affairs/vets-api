@@ -9,7 +9,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
   let(:claim) { create(:fake_saved_claim) }
 
   describe '#perform' do
-    context 'with SavedClaim::Test and many of stubs' do
+    context 'with SavedClaim::Test' do
       let(:service) { double('service') }
       let(:response) { double('response') }
       let(:pdf_path) { 'random/path/to/pdf' }
