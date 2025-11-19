@@ -2225,4 +2225,192 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       expect(result).to eq('discontinued')
     end
   end
+
+  describe '#map_refill_status_to_disp_status' do
+    context 'with standard refill_status values' do
+      it 'maps "active" to "Active"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'active', 'VA')
+        expect(result).to eq('Active')
+      end
+
+      it 'maps "refillinprocess" to "Active: Refill in Process"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'refillinprocess', 'VA')
+        expect(result).to eq('Active: Refill in Process')
+      end
+
+      it 'maps "providerHold" to "Active: On hold"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'providerHold', 'VA')
+        expect(result).to eq('Active: On hold')
+      end
+
+      it 'maps "discontinued" to "Discontinued"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'discontinued', 'VA')
+        expect(result).to eq('Discontinued')
+      end
+
+      it 'maps "expired" to "Expired"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'expired', 'VA')
+        expect(result).to eq('Expired')
+      end
+
+      it 'maps "unknown" to "Unknown"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'unknown', 'VA')
+        expect(result).to eq('Unknown')
+      end
+
+      it 'maps "pending" to "Unknown"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'pending', 'VA')
+        expect(result).to eq('Unknown')
+      end
+    end
+
+    context 'with Non-VA prescriptions' do
+      it 'maps "active" + "NV" source to "Active: Non-VA"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'active', 'NV')
+        expect(result).to eq('Active: Non-VA')
+      end
+
+      it 'does not apply Non-VA mapping to non-active statuses' do
+        result = subject.send(:map_refill_status_to_disp_status, 'expired', 'NV')
+        expect(result).to eq('Expired')
+      end
+
+      it 'does not apply Non-VA mapping to VA prescriptions' do
+        result = subject.send(:map_refill_status_to_disp_status, 'active', 'VA')
+        expect(result).to eq('Active')
+      end
+    end
+
+    context 'with unexpected refill_status values' do
+      before do
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'returns "Unknown" and logs a warning' do
+        result = subject.send(:map_refill_status_to_disp_status, 'unexpected_status', 'VA')
+        expect(result).to eq('Unknown')
+        expect(Rails.logger).to have_received(:warn)
+          .with('Unexpected refill_status for disp_status mapping: unexpected_status')
+      end
+    end
+  end
+
+  describe '#parse with disp_status' do
+    context 'when parsing a VA prescription with active status' do
+      let(:active_va_resource) do
+        base_resource.merge(
+          'status' => 'active',
+          'reportedBoolean' => false,
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'sets disp_status to "Active"' do
+        result = subject.parse(active_va_resource)
+        expect(result.disp_status).to eq('Active')
+      end
+    end
+
+    context 'when parsing a Non-VA prescription with active status' do
+      let(:active_nv_resource) do
+        base_resource.merge(
+          'status' => 'active',
+          'reportedBoolean' => true,
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'sets disp_status to "Active: Non-VA"' do
+        result = subject.parse(active_nv_resource)
+        expect(result.disp_status).to eq('Active: Non-VA')
+      end
+    end
+
+    context 'when parsing a prescription with on-hold status' do
+      let(:on_hold_resource) do
+        base_resource.merge('status' => 'on-hold')
+      end
+
+      it 'sets disp_status to "Active: On hold"' do
+        result = subject.parse(on_hold_resource)
+        expect(result.disp_status).to eq('Active: On hold')
+      end
+    end
+
+    context 'when parsing a prescription with completed status' do
+      let(:completed_resource) do
+        base_resource.merge(
+          'status' => 'completed',
+          'dispenseRequest' => {
+            'validityPeriod' => {
+              'end' => 60.days.ago.utc.iso8601
+            }
+          }
+        )
+      end
+
+      it 'sets disp_status to "Expired"' do
+        result = subject.parse(completed_resource)
+        expect(result.disp_status).to eq('Expired')
+      end
+    end
+
+    context 'when parsing a prescription with discontinued status' do
+      let(:discontinued_resource) do
+        base_resource.merge('status' => 'cancelled')
+      end
+
+      it 'sets disp_status to "Discontinued"' do
+        result = subject.parse(discontinued_resource)
+        expect(result.disp_status).to eq('Discontinued')
+      end
+    end
+
+    context 'when parsing a prescription with in-progress dispense' do
+      let(:refill_in_process_resource) do
+        base_resource.merge(
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'in-progress',
+              'whenHandedOver' => '2025-01-29T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'sets disp_status to "Active: Refill in Process"' do
+        result = subject.parse(refill_in_process_resource)
+        expect(result.disp_status).to eq('Active: Refill in Process')
+      end
+    end
+  end
 end
