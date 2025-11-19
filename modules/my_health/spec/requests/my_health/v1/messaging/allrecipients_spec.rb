@@ -72,9 +72,11 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
     end
 
     it 'replaces health care system names for hardcoded stations' do
+      # rubocop:disable Layout/LineLength
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_complex_teams') do
         get '/my_health/v1/messaging/allrecipients'
       end
+      # rubocop:enable Layout/LineLength
       expect(response).to be_successful
       resp_body = JSON.parse(response.body)
       resp_body['data'].each do |team|

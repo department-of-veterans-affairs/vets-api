@@ -5,6 +5,7 @@ require 'lighthouse/facilities/v1/client'
 module MyHealth
   module FacilitiesHelper
     module_function
+
     COMPLICATED_SYSTEMS = {
       '528' => 'VA New York state health care (multiple facilities)',
       '589' => 'VA Kansas and Missouri health care (multiple facilities)',
@@ -13,7 +14,7 @@ module MyHealth
       '636' => 'VA Nebraska and Iowa health care (multiple facilities)',
       '657' => 'VA Missouri and Illinois health care (multiple facilities)',
       '612' => 'VA Northern California'
-    }
+    }.freeze
     def set_health_care_system_names(all_triage_teams_collection)
       triage_teams = all_triage_teams_collection.records
       triage_teams.each do |team|

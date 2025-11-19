@@ -181,6 +181,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         parsed_response_meta = response.parsed_body['meta']
         care_systems = parsed_response_meta['careSystems']
         expect(care_systems.length).to be(10)
+        # rubocop:disable Layout/LineLength
         expect(care_systems[0]['healthCareSystemName']).to eq('Manila VA Clinic')
         expect(care_systems[1]['healthCareSystemName']).to eq('978')
         expect(care_systems[2]['healthCareSystemName']).to eq('Chalmers P. Wylie Veterans Outpatient Clinic')
@@ -191,6 +192,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         expect(care_systems[7]['healthCareSystemName']).to eq('VA Nebraska and Iowa health care (multiple facilities)')
         expect(care_systems[8]['healthCareSystemName']).to eq('VA Missouri and Illinois health care (multiple facilities)')
         expect(care_systems[9]['healthCareSystemName']).to eq('VA Northern California')
+        # rubocop:enable Layout/LineLength
       end
     end
   end
