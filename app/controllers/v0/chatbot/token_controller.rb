@@ -20,11 +20,13 @@ module V0
           render json: { token: directline_response[:token],
                          conversationId: directline_response[:conversationId],
                          apiSession: ERB::Util.url_encode(cookies[:api_session]),
-                         code: }
+                         code:,
+                        expires_in: directline_response[:expires_in]}
         else
           render json: { token: directline_response[:token],
                          conversationId: directline_response[:conversationId],
-                         apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+                         apiSession: ERB::Util.url_encode(cookies[:api_session])
+                         expires_in: directline_response[:expires_in]}
         end
       end
 
@@ -45,10 +47,12 @@ module V0
 
       def parse_connector_values(response)
         raise ServiceException.new(response.body), response.body unless response.code == '200'
+        parsed = JSON.parse(response.body)
 
         {
-          token: JSON.parse(response.body)['token'],
-          conversationId: JSON.parse(response.body)['conversationId']
+          token: parsed['token'],
+          conversationId: parsed['conversationId'],
+          expires_in: parsed['expires_in']
         }
       end
 
