@@ -143,7 +143,6 @@ class FormProfile
     '10-7959C' => ::FormProfiles::VHA107959c,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
-    '1330M' => ::FormProfiles::VA1330m,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
     '21-0538' => DependentsVerification::FormProfiles::VA210538,
