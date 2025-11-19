@@ -200,40 +200,65 @@ module UnifiedHealthData
         expiration_date = parse_expiration_date_utc(resource)
         has_in_progress_dispense = any_dispense_in_progress?(resource)
 
-        # Log transformation for monitoring and validation
-        normalized_status = case mr_status
-                            when 'active'
-                              normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense)
-                            when 'on-hold'
-                              'providerHold'
-                            when 'cancelled', 'entered-in-error', 'stopped'
-                              'discontinued'
-                            when 'completed'
-                              normalize_completed_status(expiration_date)
-                            when 'draft'
-                              'pending'
-                            when 'unknown'
-                              'unknown'
-                            else
-                              # Fallback for unexpected statuses
-                              Rails.logger.warn("Unexpected MedicationRequest status: #{mr_status}")
-                              'unknown'
-                            end
+        normalized_status = map_fhir_status_to_vista(
+          mr_status,
+          refills_remaining,
+          expiration_date,
+          has_in_progress_dispense
+        )
 
-        # Only log last 3 digits of prescription ID for privacy
+        log_status_normalization(resource, mr_status, normalized_status, refills_remaining, has_in_progress_dispense)
+
+        normalized_status
+      end
+
+      # Maps FHIR MedicationRequest status to VistA equivalent using business rules
+      #
+      # @param mr_status [String] FHIR MedicationRequest.status
+      # @param refills_remaining [Integer] Number of refills remaining
+      # @param expiration_date [Time, nil] Parsed UTC expiration date
+      # @param has_in_progress_dispense [Boolean] Whether any dispense is in-progress
+      # @return [String] VistA-compatible status value
+      def map_fhir_status_to_vista(mr_status, refills_remaining, expiration_date, has_in_progress_dispense)
+        case mr_status
+        when 'active'
+          normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense)
+        when 'on-hold'
+          'providerHold'
+        when 'cancelled', 'entered-in-error', 'stopped'
+          'discontinued'
+        when 'completed'
+          normalize_completed_status(expiration_date)
+        when 'draft'
+          'pending'
+        when 'unknown'
+          'unknown'
+        else
+          Rails.logger.warn("Unexpected MedicationRequest status: #{mr_status}")
+          'unknown'
+        end
+      end
+
+      # Logs status normalization details for monitoring
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param original_status [String] Original FHIR status
+      # @param normalized_status [String] Normalized VistA status
+      # @param refills_remaining [Integer] Number of refills remaining
+      # @param has_in_progress_dispense [Boolean] Whether any dispense is in-progress
+      def log_status_normalization(resource, original_status, normalized_status, refills_remaining,
+                                   has_in_progress_dispense)
         prescription_id_suffix = resource['id']&.to_s&.last(3) || 'unknown'
 
         Rails.logger.info(
           message: 'Oracle Health status normalized',
           prescription_id_suffix:,
-          original_status: mr_status,
+          original_status:,
           normalized_status:,
           refills_remaining:,
           has_in_progress_dispense:,
           service: 'unified_health_data'
         )
-
-        normalized_status
       end
 
       # Determines VistA status for 'active' MedicationRequest based on business rules
@@ -244,19 +269,13 @@ module UnifiedHealthData
       # @return [String] VistA status value
       def normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense)
         # Rule: Expired more than 6 months ago → discontinued
-        if expiration_date && expiration_date < 6.months.ago.utc
-          return 'discontinued'
-        end
+        return 'discontinued' if expiration_date && expiration_date < 6.months.ago.utc
 
         # Rule: No refills remaining → expired
-        if refills_remaining.zero?
-          return 'expired'
-        end
+        return 'expired' if refills_remaining.zero?
 
         # Rule: Has in-progress dispense → refillinprocess
-        if has_in_progress_dispense
-          return 'refillinprocess'
-        end
+        return 'refillinprocess' if has_in_progress_dispense
 
         # Default: active
         'active'

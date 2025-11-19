@@ -2029,12 +2029,12 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     it 'logs normalization details with last 3 digits of prescription ID only' do
       expect(Rails.logger).to receive(:info).with(hash_including(
-                                                     message: 'Oracle Health status normalized',
-                                                     prescription_id_suffix: '123',
-                                                     original_status: 'active',
-                                                     normalized_status: 'active',
-                                                     service: 'unified_health_data'
-                                                   ))
+                                                    message: 'Oracle Health status normalized',
+                                                    prescription_id_suffix: '123',
+                                                    original_status: 'active',
+                                                    normalized_status: 'active',
+                                                    service: 'unified_health_data'
+                                                  ))
 
       subject.send(:normalize_to_legacy_vista_status, status_test_resource)
     end
