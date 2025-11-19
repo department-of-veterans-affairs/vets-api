@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require 'claims_evidence_api/service/documenttypes'
 
-require_relative '../../../support/claims_evidence_api/shared_examples/service'
+require_relative 'shared/service'
 
 RSpec.describe ClaimsEvidenceApi::Service::DocumentTypes do
   let(:service) { described_class.new }
