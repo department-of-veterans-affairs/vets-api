@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'dgi/claimant/service'
+require 'dgi/letters/service'
+require 'dgi/status/service'
 require 'dgi/eligibility/service'
 require 'dgi/automation/service'
 require 'dgi/submission/service'

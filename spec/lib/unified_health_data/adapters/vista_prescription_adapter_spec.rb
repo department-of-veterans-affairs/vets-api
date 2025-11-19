@@ -96,6 +96,38 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
 
         expect(result.dial_cmop_division_phone).to eq('555-DIAL-TEST')
       end
+
+      it 'uses facilityName when facilityApiName is not present' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.facility_name).to eq('Test Facility')
+      end
+    end
+
+    context 'with facilityApiName field' do
+      let(:medication_with_api_name) do
+        base_vista_medication.merge('facilityApiName' => 'API Facility Name')
+      end
+
+      it 'uses facilityApiName when present' do
+        result = subject.parse(medication_with_api_name)
+
+        expect(result.facility_name).to eq('API Facility Name')
+      end
+
+      it 'falls back to facilityName when facilityApiName is empty string' do
+        medication_with_empty_api_name = base_vista_medication.merge('facilityApiName' => '')
+        result = subject.parse(medication_with_empty_api_name)
+
+        expect(result.facility_name).to eq('Test Facility')
+      end
+
+      it 'falls back to facilityName when facilityApiName is nil' do
+        medication_with_nil_api_name = base_vista_medication.merge('facilityApiName' => nil)
+        result = subject.parse(medication_with_nil_api_name)
+
+        expect(result.facility_name).to eq('Test Facility')
+      end
     end
 
     context 'with disclaimer field' do
@@ -135,6 +167,26 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         result = subject.parse(base_vista_medication)
 
         expect(result.indication_for_use).to be_nil
+      end
+    end
+
+    context 'with disp_status field' do
+      let(:vista_medication_with_disp_status) do
+        base_vista_medication.merge('dispStatus' => 'Active: Refill in Process')
+      end
+
+      it 'extracts the disp_status field' do
+        result = subject.parse(vista_medication_with_disp_status)
+
+        expect(result.disp_status).to eq('Active: Refill in Process')
+      end
+    end
+
+    context 'without disp_status field' do
+      it 'sets disp_status to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.disp_status).to be_nil
       end
     end
 
