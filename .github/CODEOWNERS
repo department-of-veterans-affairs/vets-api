@@ -898,6 +898,7 @@ lib/form526_backup_submission/service.rb @department-of-veterans-affairs/disabil
 lib/form526_backup_submission/utilities @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/form526_backup_submission/utilities/convert_to_pdf.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/formatters @department-of-veterans-affairs/octo-identity
+lib/forms/client.rb @department-of-veterans-affairs/backend-review-group
 lib/forms/submission_statuses @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 lib/generators @department-of-veterans-affairs/backend-review-group
 lib/gi/client.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
