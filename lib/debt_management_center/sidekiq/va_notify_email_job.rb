@@ -36,7 +36,7 @@ module DebtManagementCenter
       LOG
     end
 
-    def perform(identifier, template_id, personalisation = nil, options = {}) # rubocop:disable Metrics/MethodLength
+    def perform(identifier, template_id, personalisation = nil, options = {})
       options = (options || {}).transform_keys(&:to_s)
       id_type = options['id_type'] || 'email'
       use_failure_mailer = options['failure_mailer']

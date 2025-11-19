@@ -16,7 +16,7 @@ module Organizations
 
         record.update(name: org[:name])
       rescue => e
-        error_message = "Error updating organization name for POA in Organizations::UpdateNames: " \
+        error_message = 'Error updating organization name for POA in Organizations::UpdateNames: ' \
                         "#{e.message}. POA: '#{org[:poa]}', Org Name: '#{org[:name]}'."
         log_message_to_sentry(error_message)
         log_message_to_rails(error_message)
