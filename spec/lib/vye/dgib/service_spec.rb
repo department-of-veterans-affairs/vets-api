@@ -63,6 +63,7 @@ RSpec.describe Vye::DGIB::Service do
               service: 'DGI/VYE',
               method: method_name,
               error_class: backend_error.class.name,
+              error_status: backend_error.try(:status),
               timestamp: Time.current.iso8601
             ),
             hash_including(:backtrace)
@@ -120,6 +121,7 @@ RSpec.describe Vye::DGIB::Service do
                 service: 'DGI/VYE',
                 method: method_name,
                 error_class: backend_error.class.name,
+                error_status: backend_error.try(:status),
                 timestamp: Time.current.iso8601
               ),
               hash_including(:backtrace)
@@ -170,6 +172,7 @@ RSpec.describe Vye::DGIB::Service do
                 service: 'DGI/VYE',
                 method: method_name,
                 error_class: backend_error.class.name,
+                error_status: backend_error.try(:status),
                 timestamp: Time.current.iso8601
               ),
               hash_including(:backtrace)
@@ -259,6 +262,7 @@ RSpec.describe Vye::DGIB::Service do
                 service: 'DGI/VYE',
                 method: method_name,
                 error_class: backend_error.class.name,
+                error_status: backend_error.try(:status),
                 timestamp: Time.current.iso8601
               ),
               hash_including(:backtrace)

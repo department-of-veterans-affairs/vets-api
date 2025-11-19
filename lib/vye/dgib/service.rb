@@ -134,6 +134,7 @@ module Vye
           service: 'DGI/VYE',
           method: method_name,
           error_class: error.class.name,
+          error_status: error.try(:status),
           timestamp: Time.current.iso8601
         }
 
