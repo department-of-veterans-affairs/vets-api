@@ -1860,16 +1860,18 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to eq('refillinprocess')
       end
 
-      it 'returns "refillinprocess" when any dispense is in-progress' do
+      it 'returns "refillinprocess" when most recent dispense is in-progress' do
         resource = status_test_resource.merge(
           'contained' => [
             {
               'resourceType' => 'MedicationDispense',
-              'status' => 'completed'
+              'status' => 'completed',
+              'whenHandedOver' => 2.days.ago.utc.iso8601
             },
             {
               'resourceType' => 'MedicationDispense',
-              'status' => 'in-progress'
+              'status' => 'in-progress',
+              'whenHandedOver' => 1.day.ago.utc.iso8601
             }
           ]
         )
@@ -2090,6 +2092,44 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     it 'returns false when contained is nil' do
       resource = {}
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+    end
+
+    it 'returns true when most recent dispense is in-progress even if older ones are completed' do
+      resource = {
+        'contained' => [
+          {
+            'resourceType' => 'MedicationDispense',
+            'status' => 'completed',
+            'whenHandedOver' => 2.days.ago.utc.iso8601
+          },
+          {
+            'resourceType' => 'MedicationDispense',
+            'status' => 'in-progress',
+            'whenHandedOver' => 1.day.ago.utc.iso8601
+          }
+        ]
+      }
+
+      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+    end
+
+    it 'returns false when most recent dispense is completed even if older ones are in-progress' do
+      resource = {
+        'contained' => [
+          {
+            'resourceType' => 'MedicationDispense',
+            'status' => 'in-progress',
+            'whenHandedOver' => 2.days.ago.utc.iso8601
+          },
+          {
+            'resourceType' => 'MedicationDispense',
+            'status' => 'completed',
+            'whenHandedOver' => 1.day.ago.utc.iso8601
+          }
+        ]
+      }
 
       expect(subject.send(:any_dispense_in_progress?, resource)).to be false
     end

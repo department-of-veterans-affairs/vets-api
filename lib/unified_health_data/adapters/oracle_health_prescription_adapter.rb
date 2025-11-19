@@ -297,20 +297,17 @@ module UnifiedHealthData
         end
       end
 
-      # Checks if any MedicationDispense has an in-progress status
+      # Checks if the most recent MedicationDispense has an in-progress status
       # In-progress statuses: preparation, in-progress, on-hold
       #
       # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] True if any dispense is in-progress
+      # @return [Boolean] True if most recent dispense is in-progress
       def any_dispense_in_progress?(resource)
-        contained = resource['contained'] || []
-        dispenses = contained.select { |c| c['resourceType'] == 'MedicationDispense' }
+        most_recent_dispense = find_most_recent_medication_dispense(resource['contained'])
+        return false if most_recent_dispense.nil?
 
         in_progress_statuses = %w[preparation in-progress on-hold]
-
-        dispenses.any? do |dispense|
-          in_progress_statuses.include?(dispense['status'])
-        end
+        in_progress_statuses.include?(most_recent_dispense['status'])
       end
 
       # Parses validityPeriod.end to UTC Time object for comparison
