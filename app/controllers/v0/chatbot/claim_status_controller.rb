@@ -11,6 +11,7 @@ module V0
     class ClaimStatusController < SignIn::ServiceAccountApplicationController
       include IgnoreNotFound
       include Vets::SharedLogging
+      before_action { authorize :lighthouse, :access? }
       service_tag 'chatbot'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
 
