@@ -33,19 +33,21 @@ module MedicalExpenseReports
             key: 'form1[0].#subform[9].TextField1[2]'
           }
         },
-        # 1b
         'veteranSocialSecurityNumber' => {
-          question_num: 1,
-          question_suffix: 'B',
-          limit: 9,
-          key: 'form1[0].#subform[9].Enter_Veterans_Social_Security_Number[0]'
+          # 1b
+          'ssn' => {
+            question_num: 1,
+            question_suffix: 'B',
+            limit: 9,
+            key: 'form1[0].#subform[9].Enter_Veterans_Social_Security_Number[0]'
+          },
+          # 1c
+          'vaFileNumber' => {
+            question_num: 1,
+            question_suffix: 'C',
+            key: 'form1[0].#subform[9].Enter_V_A_File_Number[0]'
+          }
         },
-        # 1c
-        'vaFileNumber' => {
-          question_num: 1,
-          question_suffix: 'C',
-          key: 'form1[0].#subform[9].Enter_V_A_File_Number[0]'
-        }
       }.freeze
 
       # expand veteran name
