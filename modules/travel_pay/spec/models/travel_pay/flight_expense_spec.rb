@@ -8,12 +8,12 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       description: 'Flight to medical appointment',
       cost_requested: 350.00,
       purchase_date: Time.current,
-      vendor: 'American Airlines',
+      vendor_name: 'American Airlines',
       trip_type: 'RoundTrip',
-      departure_location: 'San Francisco, CA',
-      arrival_location: 'Denver, CO',
+      departured_from: 'San Francisco, CA',
+      arrived_to: 'Denver, CO',
       departure_date: 1.day.from_now,
-      arrival_date: 3.days.from_now
+      return_date: 3.days.from_now
     }
   end
 
@@ -32,32 +32,32 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
   describe 'validations' do
     subject { described_class.new(valid_attributes) }
 
-    context 'vendor validation' do
-      it 'requires vendor to be present' do
-        subject.vendor = nil
+    context 'vendor_name validation' do
+      it 'requires vendor_name to be present' do
+        subject.vendor_name = nil
         expect(subject).not_to be_valid
-        expect(subject.errors[:vendor]).to include("can't be blank")
+        expect(subject.errors[:vendor_name]).to include("can't be blank")
       end
 
-      it 'requires vendor to be present when empty string' do
-        subject.vendor = ''
+      it 'requires vendor_name to be present when empty string' do
+        subject.vendor_name = ''
         expect(subject).not_to be_valid
-        expect(subject.errors[:vendor]).to include("can't be blank")
+        expect(subject.errors[:vendor_name]).to include("can't be blank")
       end
 
-      it 'enforces maximum length of 255 characters for vendor' do
-        subject.vendor = 'a' * 256
+      it 'enforces maximum length of 255 characters for vendor_name' do
+        subject.vendor_name = 'a' * 256
         expect(subject).not_to be_valid
-        expect(subject.errors[:vendor]).to include('is too long (maximum is 255 characters)')
+        expect(subject.errors[:vendor_name]).to include('is too long (maximum is 255 characters)')
       end
 
-      it 'accepts valid vendor at maximum length' do
-        subject.vendor = 'a' * 255
+      it 'accepts valid vendor_name at maximum length' do
+        subject.vendor_name = 'a' * 255
         expect(subject).to be_valid
       end
 
-      it 'accepts valid vendor strings' do
-        subject.vendor = 'Delta Airlines'
+      it 'accepts valid vendor_name strings' do
+        subject.vendor_name = 'Delta Airlines'
         expect(subject).to be_valid
       end
     end
@@ -97,40 +97,40 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       end
     end
 
-    context 'departure_location validation' do
-      it 'requires departure_location to be present' do
-        subject.departure_location = nil
+    context 'departured_from validation' do
+      it 'requires departured_from to be present' do
+        subject.departured_from = nil
         expect(subject).not_to be_valid
-        expect(subject.errors[:departure_location]).to include("can't be blank")
+        expect(subject.errors[:departured_from]).to include("can't be blank")
       end
 
-      it 'enforces maximum length of 255 characters for departure_location' do
-        subject.departure_location = 'a' * 256
+      it 'enforces maximum length of 255 characters for departured_from' do
+        subject.departured_from = 'a' * 256
         expect(subject).not_to be_valid
-        expect(subject.errors[:departure_location]).to include('is too long (maximum is 255 characters)')
+        expect(subject.errors[:departured_from]).to include('is too long (maximum is 255 characters)')
       end
 
-      it 'accepts valid departure_location strings' do
-        subject.departure_location = 'Los Angeles International Airport'
+      it 'accepts valid departured_from strings' do
+        subject.departured_from = 'Los Angeles International Airport'
         expect(subject).to be_valid
       end
     end
 
-    context 'arrival_location validation' do
-      it 'requires arrival_location to be present' do
-        subject.arrival_location = nil
+    context 'arrived_to validation' do
+      it 'requires arrived_to to be present' do
+        subject.arrived_to = nil
         expect(subject).not_to be_valid
-        expect(subject.errors[:arrival_location]).to include("can't be blank")
+        expect(subject.errors[:arrived_to]).to include("can't be blank")
       end
 
-      it 'enforces maximum length of 255 characters for arrival_location' do
-        subject.arrival_location = 'a' * 256
+      it 'enforces maximum length of 255 characters for arrived_to' do
+        subject.arrived_to = 'a' * 256
         expect(subject).not_to be_valid
-        expect(subject.errors[:arrival_location]).to include('is too long (maximum is 255 characters)')
+        expect(subject.errors[:arrived_to]).to include('is too long (maximum is 255 characters)')
       end
 
-      it 'accepts valid arrival_location strings' do
-        subject.arrival_location = 'Denver International Airport'
+      it 'accepts valid arrived_to strings' do
+        subject.arrived_to = 'Denver International Airport'
         expect(subject).to be_valid
       end
     end
@@ -148,15 +148,15 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       end
     end
 
-    context 'arrival_date validation' do
-      it 'requires arrival_date to be present' do
-        subject.arrival_date = nil
+    context 'return_date validation' do
+      it 'requires return_date to be present' do
+        subject.return_date = nil
         expect(subject).not_to be_valid
-        expect(subject.errors[:arrival_date]).to include("can't be blank")
+        expect(subject.errors[:return_date]).to include("can't be blank")
       end
 
-      it 'accepts valid arrival_date' do
-        subject.arrival_date = 5.days.from_now
+      it 'accepts valid return_date' do
+        subject.return_date = 5.days.from_now
         expect(subject).to be_valid
       end
     end
@@ -164,76 +164,76 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
     context 'custom validations' do
       describe 'departure and arrival locations must be different' do
         it 'is invalid when departure and arrival locations are identical' do
-          subject.departure_location = 'Denver, CO'
-          subject.arrival_location = 'Denver, CO'
+          subject.departured_from = 'Denver, CO'
+          subject.arrived_to = 'Denver, CO'
           expect(subject).not_to be_valid
-          expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+          expect(subject.errors[:arrived_to]).to include('must be different from departure location')
         end
 
         it 'is invalid when departure and arrival locations are identical (case insensitive)' do
-          subject.departure_location = 'Denver, CO'
-          subject.arrival_location = 'DENVER, CO'
+          subject.departured_from = 'Denver, CO'
+          subject.arrived_to = 'DENVER, CO'
           expect(subject).not_to be_valid
-          expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+          expect(subject.errors[:arrived_to]).to include('must be different from departure location')
         end
 
         it 'is invalid when departure and arrival locations are identical (with extra whitespace)' do
-          subject.departure_location = ' Denver, CO '
-          subject.arrival_location = 'Denver, CO'
+          subject.departured_from = ' Denver, CO '
+          subject.arrived_to = 'Denver, CO'
           expect(subject).not_to be_valid
-          expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+          expect(subject.errors[:arrived_to]).to include('must be different from departure location')
         end
 
         it 'is valid when departure and arrival locations are different' do
-          subject.departure_location = 'San Francisco, CA'
-          subject.arrival_location = 'Denver, CO'
+          subject.departured_from = 'San Francisco, CA'
+          subject.arrived_to = 'Denver, CO'
           expect(subject).to be_valid
         end
 
         it 'skips validation when either location is missing' do
-          subject.departure_location = nil
-          subject.arrival_location = 'Denver, CO'
+          subject.departured_from = nil
+          subject.arrived_to = 'Denver, CO'
           # Should not add location difference error (presence validation will catch the nil)
           subject.valid?
-          expect(subject.errors[:arrival_location]).not_to include('must be different from departure location')
+          expect(subject.errors[:arrived_to]).not_to include('must be different from departure location')
         end
       end
 
-      describe 'departure date must be before arrival date' do
-        it 'is invalid when departure date is after arrival date' do
+      describe 'departure date must be before return date' do
+        it 'is invalid when departure date is after return date' do
           subject.departure_date = 3.days.from_now
-          subject.arrival_date = 1.day.from_now
+          subject.return_date = 1.day.from_now
           expect(subject).not_to be_valid
-          expect(subject.errors[:arrival_date]).to include('must be after departure date')
+          expect(subject.errors[:return_date]).to include('must be after departure date')
         end
 
-        it 'is invalid when departure date equals arrival date' do
+        it 'is invalid when departure date equals return date' do
           same_time = 2.days.from_now
           subject.departure_date = same_time
-          subject.arrival_date = same_time
+          subject.return_date = same_time
           expect(subject).not_to be_valid
-          expect(subject.errors[:arrival_date]).to include('must be after departure date')
+          expect(subject.errors[:return_date]).to include('must be after departure date')
         end
 
-        it 'is valid when departure date is before arrival date' do
+        it 'is valid when departure date is before return date' do
           subject.departure_date = 1.day.from_now
-          subject.arrival_date = 3.days.from_now
+          subject.return_date = 3.days.from_now
           expect(subject).to be_valid
         end
 
-        it 'is valid when departure and arrival are on same day with different times' do
+        it 'is valid when departure and return are on same day with different times' do
           base_date = 2.days.from_now.beginning_of_day
-          subject.departure_date = base_date + 8.hours  # 8:00 AM
-          subject.arrival_date = base_date + 14.hours   # 2:00 PM
+          subject.departure_date = base_date + 8.hours # 8:00 AM
+          subject.return_date = base_date + 14.hours # 2:00 PM
           expect(subject).to be_valid
         end
 
         it 'skips validation when either date is missing' do
           subject.departure_date = nil
-          subject.arrival_date = 3.days.from_now
+          subject.return_date = 3.days.from_now
           # Should not add date comparison error (presence validation will catch the nil)
           subject.valid?
-          expect(subject.errors[:arrival_date]).not_to include('must be after departure date')
+          expect(subject.errors[:return_date]).not_to include('must be after departure date')
         end
       end
     end
@@ -252,13 +252,13 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
 
     it 'returns a hash representation including flight-specific attributes' do
       json = subject.to_h
-      expect(json['vendor']).to eq('American Airlines')
+      expect(json['vendor_name']).to eq('American Airlines')
       expect(json['trip_type']).to eq('RoundTrip')
-      expect(json['departure_location']).to eq('San Francisco, CA')
-      expect(json['arrival_location']).to eq('Denver, CO')
+      expect(json['departured_from']).to eq('San Francisco, CA')
+      expect(json['arrived_to']).to eq('Denver, CO')
       expect(json['expense_type']).to eq('airtravel')
       expect(json['departure_date']).to be_present
-      expect(json['arrival_date']).to be_present
+      expect(json['return_date']).to be_present
     end
   end
 
@@ -269,22 +269,22 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
           description: 'Round trip flight to VA medical center',
           cost_requested: 485.00,
           purchase_date: Date.current,
-          vendor: 'United Airlines',
+          vendor_name: 'United Airlines',
           trip_type: 'RoundTrip',
-          departure_location: 'Chicago, IL',
-          arrival_location: 'Phoenix, AZ',
+          departured_from: 'Chicago, IL',
+          arrived_to: 'Phoenix, AZ',
           departure_date: 1.week.from_now,
-          arrival_date: 2.weeks.from_now,
+          return_date: 2.weeks.from_now,
           claim_id: 'uuid-flight-123'
         )
       end
 
       it 'creates a valid round trip flight expense' do
         expect(expense).to be_valid
-        expect(expense.vendor).to eq('United Airlines')
+        expect(expense.vendor_name).to eq('United Airlines')
         expect(expense.trip_type).to eq('RoundTrip')
-        expect(expense.departure_location).to eq('Chicago, IL')
-        expect(expense.arrival_location).to eq('Phoenix, AZ')
+        expect(expense.departured_from).to eq('Chicago, IL')
+        expect(expense.arrived_to).to eq('Phoenix, AZ')
         expect(expense.claim_id).to eq('uuid-flight-123')
         expect(expense.expense_type).to eq('airtravel')
       end
@@ -296,19 +296,19 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
           description: 'One way flight for treatment',
           cost_requested: 275.00,
           purchase_date: 2.days.ago,
-          vendor: 'Southwest Airlines',
+          vendor_name: 'Southwest Airlines',
           trip_type: 'OneWay',
-          departure_location: 'Austin, TX',
-          arrival_location: 'San Diego, CA',
+          departured_from: 'Austin, TX',
+          arrived_to: 'San Diego, CA',
           departure_date: 3.days.from_now,
-          arrival_date: 3.days.from_now + 4.hours
+          return_date: 3.days.from_now + 4.hours
         )
       end
 
       it 'creates a valid one way flight expense' do
         expect(expense).to be_valid
         expect(expense.trip_type).to eq('OneWay')
-        expect(expense.vendor).to eq('Southwest Airlines')
+        expect(expense.vendor_name).to eq('Southwest Airlines')
       end
     end
 
@@ -318,19 +318,19 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
           description: 'Emergency medical flight',
           cost_requested: 1200.00,
           purchase_date: 1.day.ago,
-          vendor: 'Emergency Air Transport',
+          vendor_name: 'Emergency Air Transport',
           trip_type: 'Unspecified',
-          departure_location: 'Rural Hospital, MT',
-          arrival_location: 'Mayo Clinic, MN',
+          departured_from: 'Rural Hospital, MT',
+          arrived_to: 'Mayo Clinic, MN',
           departure_date: Time.current,
-          arrival_date: 2.hours.from_now
+          return_date: 2.hours.from_now
         )
       end
 
       it 'creates a valid unspecified trip type flight expense' do
         expect(expense).to be_valid
         expect(expense.trip_type).to eq('Unspecified')
-        expect(expense.vendor).to eq('Emergency Air Transport')
+        expect(expense.vendor_name).to eq('Emergency Air Transport')
       end
     end
   end
@@ -339,59 +339,59 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
     subject { described_class.new(valid_attributes) }
 
     it 'handles multiple FlightExpense validation errors gracefully' do
-      subject.vendor = ''
+      subject.vendor_name = ''
       subject.trip_type = 'INVALID'
-      subject.departure_location = nil
-      subject.arrival_location = 'a' * 256
+      subject.departured_from = nil
+      subject.arrived_to = 'a' * 256
 
       expect(subject).not_to be_valid
-      expect(subject.errors[:vendor]).to include("can't be blank")
+      expect(subject.errors[:vendor_name]).to include("can't be blank")
       expect(subject.errors[:trip_type]).to include('is not included in the list')
-      expect(subject.errors[:departure_location]).to include("can't be blank")
-      expect(subject.errors[:arrival_location]).to include('is too long (maximum is 255 characters)')
+      expect(subject.errors[:departured_from]).to include("can't be blank")
+      expect(subject.errors[:arrived_to]).to include('is too long (maximum is 255 characters)')
     end
 
     it 'handles empty strings as invalid for required fields' do
-      subject.vendor = ''
-      subject.departure_location = ''
-      subject.arrival_location = ''
+      subject.vendor_name = ''
+      subject.departured_from = ''
+      subject.arrived_to = ''
 
       expect(subject).not_to be_valid
-      expect(subject.errors[:vendor]).to include("can't be blank")
-      expect(subject.errors[:departure_location]).to include("can't be blank")
-      expect(subject.errors[:arrival_location]).to include("can't be blank")
+      expect(subject.errors[:vendor_name]).to include("can't be blank")
+      expect(subject.errors[:departured_from]).to include("can't be blank")
+      expect(subject.errors[:arrived_to]).to include("can't be blank")
     end
 
     it 'handles multiple custom validation errors' do
-      subject.departure_location = 'Same City'
-      subject.arrival_location = 'Same City'
+      subject.departured_from = 'Same City'
+      subject.arrived_to = 'Same City'
       subject.departure_date = 3.days.from_now
-      subject.arrival_date = 1.day.from_now
+      subject.return_date = 1.day.from_now
 
       expect(subject).not_to be_valid
-      expect(subject.errors[:arrival_location]).to include('must be different from departure location')
-      expect(subject.errors[:arrival_date]).to include('must be after departure date')
+      expect(subject.errors[:arrived_to]).to include('must be different from departure location')
+      expect(subject.errors[:return_date]).to include('must be after departure date')
     end
 
     it 'combines built-in and custom validation errors' do
-      subject.vendor = ''
-      subject.departure_location = 'Same Location'
-      subject.arrival_location = 'Same Location'
+      subject.vendor_name = ''
+      subject.departured_from = 'Same Location'
+      subject.arrived_to = 'Same Location'
       subject.departure_date = 2.days.from_now
-      subject.arrival_date = 1.day.from_now
+      subject.return_date = 1.day.from_now
 
       expect(subject).not_to be_valid
-      expect(subject.errors[:vendor]).to include("can't be blank")
-      expect(subject.errors[:arrival_location]).to include('must be different from departure location')
-      expect(subject.errors[:arrival_date]).to include('must be after departure date')
+      expect(subject.errors[:vendor_name]).to include("can't be blank")
+      expect(subject.errors[:arrived_to]).to include('must be different from departure location')
+      expect(subject.errors[:return_date]).to include('must be after departure date')
     end
   end
 
   describe '.permitted_params' do
     it 'extends base expense permitted parameters with flight-specific fields' do
       params = described_class.permitted_params
-      expect(params).to include(:vendor, :trip_type, :departure_location, :arrival_location, :departure_date,
-                                :arrival_date)
+      expect(params).to include(:vendor_name, :trip_type, :departured_from, :arrived_to, :departure_date,
+                                :return_date)
     end
   end
 
@@ -401,28 +401,28 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
         purchase_date: Date.new(2024, 3, 15),
         description: 'Flight to medical appointment',
         cost_requested: 350.00,
-        vendor: 'Delta Airlines',
+        vendor_name: 'Delta Airlines',
         trip_type: 'RoundTrip',
-        departure_location: 'Atlanta, GA',
-        arrival_location: 'Boston, MA',
+        departured_from: 'Atlanta, GA',
+        arrived_to: 'Boston, MA',
         departure_date: DateTime.new(2024, 3, 15, 10, 0, 0),
-        arrival_date: DateTime.new(2024, 3, 15, 14, 30, 0),
+        return_date: DateTime.new(2024, 3, 15, 14, 30, 0),
         claim_id: 'claim-uuid-flight'
       )
     end
 
     it 'includes flight-specific fields' do
       params = subject.to_service_params
-      expect(params['vendor']).to eq('Delta Airlines')
+      expect(params['vendor_name']).to eq('Delta Airlines')
       expect(params['trip_type']).to eq('RoundTrip')
-      expect(params['departure_location']).to eq('Atlanta, GA')
-      expect(params['arrival_location']).to eq('Boston, MA')
+      expect(params['departured_from']).to eq('Atlanta, GA')
+      expect(params['arrived_to']).to eq('Boston, MA')
     end
 
     it 'formats datetime fields as ISO8601 strings' do
       params = subject.to_service_params
       expect(params['departure_date']).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
-      expect(params['arrival_date']).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+      expect(params['return_date']).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
     end
   end
 end
