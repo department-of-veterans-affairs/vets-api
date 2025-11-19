@@ -43,7 +43,7 @@ module Mobile
       def get_unique_care_systems612_fix(all_recipients)
         unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
         included_complex_systems = MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS.keys & unique_care_system_ids
-        unique_care_system_ids.reject! { |id| included_complex_systems.include?(id) }
+        unique_care_system_ids -= included_complex_systems
         care_system_map = map_care_systems(unique_care_system_ids)
         included_complex_systems.each do |system_id|
           care_system_map << {
