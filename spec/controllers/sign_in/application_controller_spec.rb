@@ -293,7 +293,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'user fingerprint validation' do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry).with(:warn)
           expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end
