@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/sftp'
-require 'sentry_logging'
+require 'vets/shared_logging'
 require 'sftp_writer/factory'
 
 module EducationForm
@@ -36,7 +36,7 @@ module EducationForm
                'Are you currently employed?', 'What is your current salary?',
                'Are you currently working in the technology industry? (If so, please select one)'].freeze
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options queue: 'default',
                     unique_for: 30.minutes,
                     retry: 5
@@ -184,6 +184,8 @@ module EducationForm
 
     def log_exception(exception)
       log_exception_to_sentry(exception)
+
+      log_exception_to_rails(exception)
     end
 
     def log_info(message)

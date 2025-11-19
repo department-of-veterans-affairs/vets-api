@@ -48,7 +48,6 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
   describe 'when retries are exhausted' do
     before do
       Flipper.enable(:ezr_use_va_notify_on_submission_failure)
-      allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
     end
 
     after do
@@ -87,37 +86,13 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           expect(pii_log.data).to eq(form)
         end
 
-        it 'logs the errors to Sentry' do
-          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
+        it 'logs the errors' do
           msg = {
             'args' => [encrypted_form, nil]
           }
 
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             allow(VANotify::EmailJob).to receive(:perform_async)
-            expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_rails)
-            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
-              '1010EZR total failure',
-              :error,
-              {
-                first_initial: 'F',
-                middle_initial: 'M',
-                last_initial: 'Z'
-              },
-              ezr: :total_failure
-            )
-          end
-        end
-
-        it 'logs the errors to Rails' do
-          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
-          msg = {
-            'args' => [encrypted_form, nil]
-          }
-
-          described_class.within_sidekiq_retries_exhausted_block(msg) do
-            allow(VANotify::EmailJob).to receive(:perform_async)
-            expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
             expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
               '[10-10EZR] total failure',
               :error,
@@ -165,10 +140,8 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     end
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
       allow(User).to receive(:find).with(user.uuid).and_return(user)
       allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
-      allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
     end
 
     context 'when submission has an error' do
@@ -190,24 +163,8 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           expect(personal_information_log.data).to eq(form)
         end
 
-        it 'logs the error to Sentry' do
+        it 'logs the error' do
           allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
-          expect(HCA::EzrSubmissionJob).not_to receive(:log_exception_to_rails)
-          expect(Form1010Ezr::Service).not_to receive(:log_submission_failure)
-          expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
-          expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
-            form,
-            '1010EZR failure',
-            'failure'
-          )
-          subject
-        end
-
-        it 'logs the error to Rails' do
-          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
-          allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
-          expect(Form1010Ezr::Service).not_to receive(:log_submission_failure_to_sentry)
-          expect(HCA::EzrSubmissionJob).not_to receive(:log_exception_to_sentry)
           expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_rails)
           expect(Form1010Ezr::Service).to receive(:log_submission_failure).with(
             form,
@@ -226,7 +183,6 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           allow(StatsD).to receive(:increment)
           allow(Rails.logger).to receive(:info)
           allow(VANotify::EmailJob).to receive(:perform_async)
-          allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
           allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
           allow(ezr_service).to receive(:submit_sync).and_raise(Ox::ParseError.new(error_msg))
         end

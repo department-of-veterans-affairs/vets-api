@@ -78,7 +78,7 @@ module Logging
 
       # protected keys not to be scrubbed
       SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id response_code
-                     in_progress_form_id].freeze
+                     in_progress_form_id submission_id completely_removed removed_keys].freeze
 
       module_function
 

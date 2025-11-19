@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require 'sidekiq'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
@@ -8,7 +10,7 @@ module Lighthouse
   module EvidenceSubmissions
     class FailureNotificationEmailJob
       include Sidekiq::Job
-      include SentryLogging
+      include Vets::SharedLogging
       # Job runs daily with 0 retries
       sidekiq_options retry: 0
       NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
@@ -65,6 +67,8 @@ module Lighthouse
         ::Rails.logger.error(error_message, { message: error.message })
         StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
         log_exception_to_sentry(error)
+
+        log_exception_to_rails(error)
       end
     end
   end
