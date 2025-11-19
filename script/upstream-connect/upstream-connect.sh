@@ -534,8 +534,8 @@ start_ssm_port_forwarding() {
   local instance_id="$5"  # optional
   
   # Validate ports
-  if ! [[ "${local_port}" =~ ^[0-9]+$ ]] || [ $local_port -ge 6000 ]; then
-    log_error "Local port must be a number below 6000"
+  if ! [[ "${local_port}" =~ ^[0-9]+$ ]]; then
+    log_error "Local port must be a number"
     return 1
   fi
 
