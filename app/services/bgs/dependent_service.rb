@@ -5,8 +5,6 @@ require 'dependents/monitor'
 
 module BGS
   class DependentService
-    include SentryLogging
-
     attr_reader :first_name,
                 :middle_name,
                 :last_name,
@@ -68,9 +66,7 @@ module BGS
       submit_to_central_service(claim:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { error: e.message })
-      log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
-
+                           "#{STATS_KEY}.failure", { error: e.message, user_uuid: uuid })
       raise e
     end
 

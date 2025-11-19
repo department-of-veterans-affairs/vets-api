@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/backend_service_exception'
+require 'vets/shared_logging'
 
 module Chip
   class ServiceException < Common::Exceptions::BackendServiceException
-    include SentryLogging
+    include Vets::SharedLogging
 
     UNMAPPED_KEY = 'unmapped_service_exception'
 
