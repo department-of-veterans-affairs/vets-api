@@ -27,7 +27,7 @@ RSpec.describe Vye::DGIB::Service do
 
       context 'when claimant ID zero' do
         let(:zero_id_metric) { "#{described_class::STATSD_KEY_PREFIX}.claimant_lookup_id_zero" }
-        let(:raw_response) { double('response', status: 200, body: { 'claimant_id' => 0 }) }
+        let(:raw_response) { instance_double(Faraday::Response, status: 200, body: { 'claimant_id' => 0 }) }
 
         before do
           allow(service).to receive(:perform).and_return(raw_response)
