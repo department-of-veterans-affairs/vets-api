@@ -5,7 +5,9 @@ require 'rails_helper'
 RSpec.describe MyHealth::V1::PrescriptionsController, type: :controller do
   let(:user) { build(:user, :mhv, mhv_account_type: 'Premium') }
   let(:prescription1) { double('Prescription', prescription_id: 1, is_refillable: true, disp_status: 'Active') }
-  let(:prescription2) { double('Prescription', prescription_id: 2, is_refillable: false, disp_status: 'Active', refill_remaining: 0) }
+  let(:prescription2) do
+    double('Prescription', prescription_id: 2, is_refillable: false, disp_status: 'Active', refill_remaining: 0)
+  end
   let(:prescription3) { double('Prescription', prescription_id: 3, is_refillable: false, disp_status: 'Expired') }
   let(:recently_requested) { [prescription1] }
   let(:filtered_prescriptions) { [prescription1, prescription2] }
@@ -20,13 +22,15 @@ RSpec.describe MyHealth::V1::PrescriptionsController, type: :controller do
 
   before do
     sign_in_as(user)
-    allow(controller).to receive(:current_user).and_return(user)
-    allow(controller).to receive(:collection_resource).and_return(collection_resource)
-    allow(controller).to receive(:get_recently_requested_prescriptions).and_return(recently_requested)
-    allow(controller).to receive(:filter_data_by_refill_and_renew).and_return(filtered_prescriptions)
+    allow(controller).to receive_messages(
+      current_user: user,
+      collection_resource:,
+      get_recently_requested_prescriptions: recently_requested,
+      filter_data_by_refill_and_renew: filtered_prescriptions,
+      render: nil
+    )
     serializer_double = instance_double(MyHealth::V1::PrescriptionDetailsSerializer)
     allow(MyHealth::V1::PrescriptionDetailsSerializer).to receive(:new).and_return(serializer_double)
-    allow(controller).to receive(:render)
   end
 
   describe '#list_refillable_prescriptions' do
@@ -53,7 +57,8 @@ RSpec.describe MyHealth::V1::PrescriptionsController, type: :controller do
     it 'serializes resource.records (not resource.data) - verifying the bug fix' do
       controller.list_refillable_prescriptions
 
-      # Verify serializer was called with filtered_prescriptions (resource.records), not all_prescriptions (resource.data)
+      # Verify serializer was called with filtered_prescriptions (resource.records),
+      # not all_prescriptions (resource.data)
       expect(MyHealth::V1::PrescriptionDetailsSerializer).to have_received(:new).with(
         filtered_prescriptions,
         hash_including(meta: hash_including(recently_requested:))
@@ -84,4 +89,3 @@ RSpec.describe MyHealth::V1::PrescriptionsController, type: :controller do
     end
   end
 end
-
