@@ -131,8 +131,8 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    memorials: ['1330M'],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601],
+    memorials: %w[1330M],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
@@ -173,6 +173,7 @@ class FormProfile
     '28-1900-V2' => ::FormProfiles::VA281900v2,
     '28-8832' => ::FormProfiles::VA288832,
     '40-10007' => ::FormProfiles::VA4010007,
+    '1330M' => ::FormProfiles::VA1330m,
     '5655' => ::FormProfiles::VA5655,
     '686C-674-V2' => ::FormProfiles::VA686c674v2,
     '686C-674' => ::FormProfiles::VA686c674,
