@@ -17,7 +17,7 @@ module VBADocuments
         @to = Time.zone.now
         @from = @to.monday? ? 7.days.ago : 1.day.ago
         @consumers = UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq.compact_blank
-        UnsuccessfulReportMailer.build(totals, stuck, errored, @from, @to).deliver_now
+        UnsuccessfulReportMailer.build(totals, stuck.to_a, errored.to_a, @from, @to).deliver_now
       end
     end
 
