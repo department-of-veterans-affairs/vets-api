@@ -1979,20 +1979,20 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
 
     context 'when MedicationRequest status is unexpected' do
-      it 'returns "active" and logs a warning' do
+      it 'returns "unknown" and logs a warning' do
         resource = status_test_resource.merge('status' => 'unexpected-status')
 
         expect(Rails.logger).to receive(:warn).with('Unexpected MedicationRequest status: unexpected-status')
 
         result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('active')
+        expect(result).to eq('unknown')
       end
     end
 
-    it 'logs normalization details' do
+    it 'logs normalization details with last 3 digits of prescription ID only' do
       expect(Rails.logger).to receive(:info).with(hash_including(
                                                      message: 'Oracle Health status normalized',
-                                                     prescription_id: 'test-123',
+                                                     prescription_id_suffix: '123',
                                                      original_status: 'active',
                                                      normalized_status: 'active',
                                                      service: 'unified_health_data'

@@ -217,12 +217,15 @@ module UnifiedHealthData
                             else
                               # Fallback for unexpected statuses
                               Rails.logger.warn("Unexpected MedicationRequest status: #{mr_status}")
-                              'active'
+                              'unknown'
                             end
+
+        # Only log last 3 digits of prescription ID for privacy
+        prescription_id_suffix = resource['id']&.to_s&.last(3) || 'unknown'
 
         Rails.logger.info(
           message: 'Oracle Health status normalized',
-          prescription_id: resource['id'],
+          prescription_id_suffix:,
           original_status: mr_status,
           normalized_status:,
           refills_remaining:,
