@@ -1,14 +1,190 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unified_health_data/service'
 require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
-  let(:user) { build(:user, :mhv) }
+  let(:current_user) { build(:user, :mhv) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:refill_path) { '/my_health/v2/prescriptions/refill' }
 
   before do
-    sign_in_as(user)
+    sign_in_as(current_user)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
+  end
+
+  describe 'POST /my_health/v2/prescriptions/refill' do
+    context 'when user is not authenticated' do
+      before do
+        # Override the default sign_in_as behavior for this context
+        allow_any_instance_of(ApplicationController).to receive(:authenticate).and_raise(
+          Common::Exceptions::Unauthorized.new(detail: 'Not authenticated')
+        )
+      end
+
+      it 'returns unauthorized' do
+        post refill_path,
+             params: [{ stationNumber: '123', id: '25804851' }].to_json,
+             headers: { 'Content-Type' => 'application/json' }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'with feature flag disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
+      end
+
+      it 'returns forbidden error' do
+        post refill_path,
+             params: [{ stationNumber: '123', id: '25804851' }].to_json,
+             headers: { 'Content-Type' => 'application/json' }
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+        expect(response.parsed_body['error']['message']).to eq('This feature is not currently available')
+      end
+    end
+
+    context 'with feature flag enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
+      end
+
+      context 'when refill is successful' do
+        it 'returns success response for batch refill' do
+          allow(UniqueUserEvents).to receive(:log_event)
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            post refill_path,
+                 params: [
+                   { stationNumber: '556', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body).to have_key('data')
+
+            data = response.parsed_body['data']
+            expect(data).to have_key('id')
+            expect(data['type']).to eq('PrescriptionRefills')
+            expect(data['attributes']).to have_key('failed_station_list')
+            expect(data['attributes']).to have_key('successful_station_list')
+            expect(data['attributes']).to have_key('last_updated_time')
+            expect(data['attributes']).to have_key('prescription_list')
+            expect(data['attributes']).to have_key('failed_prescription_ids')
+            expect(data['attributes']).to have_key('errors')
+            expect(data['attributes']).to have_key('info_messages')
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+            )
+          end
+        end
+      end
+
+      context 'when prescription refill fails' do
+        it 'returns 502 error for upstream service failure' do
+          VCR.use_cassette('unified_health_data/refill_prescription_failure') do
+            post refill_path,
+                 params: [{ stationNumber: '123', id: '99999999999999' }].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(response.parsed_body['errors'][0]['code']).to eq('VA900')
+            expect(response.parsed_body['errors'][0]['detail']).to include('Operation failed')
+          end
+        end
+      end
+
+      context 'with invalid request format' do
+        it 'returns error when orders is not an array' do
+          post refill_path,
+               params: { stationNumber: '123', id: '25804851' }.to_json,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:bad_request)
+          error = response.parsed_body['errors']&.first
+          expect(error).to be_present
+          expect(error['title']).to eq('Invalid field value')
+          expect(error['detail']).to include('orders')
+          expect(error['detail']).to include('Must be an array')
+        end
+
+        it 'returns error when orders array is empty' do
+          post refill_path,
+               params: '[]',
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:bad_request)
+          error = response.parsed_body['errors']&.first
+          expect(error).to be_present
+          expect(error['title']).to eq('Missing parameter')
+          expect(error['status']).to eq('400')
+          expect(error['detail']).to include('orders')
+        end
+
+        it 'returns error when order is missing stationNumber' do
+          post refill_path,
+               params: [{ id: '25804851' }].to_json,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:bad_request)
+          error = response.parsed_body['errors']&.first
+          expect(error).to be_present
+          expect(error['title']).to eq('Invalid field value')
+          expect(error['detail']).to include('orders[0]')
+          expect(error['detail']).to include('stationNumber')
+        end
+
+        it 'returns error when order is missing id' do
+          post refill_path,
+               params: [{ stationNumber: '123' }].to_json,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:bad_request)
+          error = response.parsed_body['errors']&.first
+          expect(error).to be_present
+          expect(error['title']).to eq('Invalid field value')
+          expect(error['detail']).to include('orders[0]')
+          expect(error['detail']).to include('id')
+        end
+
+        it 'returns error when JSON is malformed' do
+          post refill_path,
+               params: 'not valid json',
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:bad_request)
+          error = response.parsed_body['errors']&.first
+          expect(error).to be_present
+          expect(error['title']).to eq('Invalid field value')
+          expect(error['detail']).to include('orders')
+          expect(error['detail']).to include('Invalid JSON format')
+        end
+      end
+
+      context 'when response count does not match request count' do
+        it 'returns an error for each order id when response count does not match request count' do
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            post refill_path,
+                 params: [
+                   { stationNumber: '123', id: '25804851' },
+                   { stationNumber: '124', id: '25804852' },
+                   { stationNumber: '125', id: '25804853' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body['data']['attributes']['failed_prescription_ids'].length).to eq(3)
+        end
+      end
+    end
   end
 
   describe 'GET /my_health/v2/prescriptions' do
@@ -122,22 +298,28 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           expect(json_response['data']).to be_an(Array)
           expect(json_response['data']).not_to be_empty
 
-          # After grouping, we should still have prescriptions in the list
-          # Pick the first one to verify it has Oracle/UHD specific fields
-          first_prescription = json_response['data'].first
-          expect(first_prescription).not_to be_nil
+          # Verify we have at least one Oracle prescription (station number 556 is Oracle Health facility)
+          oracle_prescriptions = json_response['data'].select do |rx|
+            rx['attributes']['station_number'] == '556'
+          end
+          expect(oracle_prescriptions).not_to be_empty,
+                                              'Expected to find at least one Oracle prescription (station 556)'
 
-          attributes = first_prescription['attributes']
+          # Select an Oracle prescription and verify key fields have expected data
+          oracle_rx = oracle_prescriptions.first
+          oracle_attrs = oracle_rx['attributes']
 
-          # These are Oracle/UHD specific fields that come from the unified_health_data service
-          expect(attributes).to have_key('facility_name')
-          expect(attributes).to have_key('station_number')
-          expect(attributes).to have_key('is_refillable')
-          expect(attributes).to have_key('is_trackable')
-          expect(attributes).to have_key('prescription_source')
+          # Verify Oracle prescription has required fields populated
+          expect(oracle_attrs['station_number']).to eq('556')
+          expect(oracle_attrs['prescription_id']).to be_present
+          expect(oracle_attrs['prescription_name']).to be_present
+          expect(oracle_attrs['ordered_date']).to be_present
+          expect(oracle_attrs['refill_status']).to be_present
+          expect(oracle_attrs['is_refillable']).to be_in([true, false])
+          expect(oracle_attrs['is_trackable']).to be_in([true, false])
 
-          # Verify prescription_source is present (RX, PD, NV, etc.)
-          expect(attributes['prescription_source']).to be_present
+          # Verify prescription_source is valid for Oracle (VA indicates Oracle Health/Cerner system)
+          expect(oracle_attrs['prescription_source']).to eq('VA')
         end
       end
 
@@ -150,12 +332,8 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           expect(prescriptions).not_to be_empty
 
-          # NOTE: Currently, RF records are nested in rxRFRecords and not flattened into the main list,
-          # so the grouping helper doesn't find them to group. This will be addressed in future work
-          # when the UHD service flattens refills or the controller pre-processes the data.
-          # For now, verify the attribute exists even if empty.
           prescriptions.each do |prescription|
-            # Verify grouped_medications attribute exists
+            # Verify grouped_medications attribute exists (populated by RxGroupingHelperV2)
             expect(prescription['attributes']).to have_key('grouped_medications')
           end
         end
@@ -501,22 +679,13 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         allow(Flipper).to receive(:enabled?).and_return(true)
       end
 
-      it 'returns list of refillable prescriptions' do
+      it 'filters prescriptions to only include refillable ones' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response.content_type).to include('application/json')
-
-          json_response = JSON.parse(response.body)
-          expect(json_response['data']).to be_an(Array)
-        end
-      end
-
-      it 'filters prescriptions to only include refillable ones' do
-        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           response_data = json_response['data']
@@ -771,94 +940,6 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             end
           end
         end
-      end
-    end
-  end
-
-  describe 'POST /my_health/v2/prescriptions/refill' do
-    context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).and_return(true)
-      end
-
-      it 'refills prescriptions and logs event' do
-        VCR.use_cassette('unified_health_data/refill_prescriptions_success', match_requests_on: %i[method path]) do
-          allow(UniqueUserEvents).to receive(:log_event)
-
-          orders = [
-            { stationNumber: '989', id: '3636691' }
-          ]
-
-          post('/my_health/v2/prescriptions/refill',
-               params: orders.to_json,
-               headers:)
-
-          expect(response).to have_http_status(:success)
-          expect(response.body).to be_a(String)
-
-          # Verify event logging was called
-          expect(UniqueUserEvents).to have_received(:log_event).with(
-            user: anything,
-            event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
-          )
-        end
-      end
-
-      it 'validates required fields in orders' do
-        allow(UniqueUserEvents).to receive(:log_event)
-
-        # Missing required fields
-        invalid_orders = [
-          { stationNumber: '989' } # missing id
-        ]
-
-        post('/my_health/v2/prescriptions/refill',
-             params: invalid_orders.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:bad_request)
-      end
-
-      it 'requires orders to be an array' do
-        allow(UniqueUserEvents).to receive(:log_event)
-
-        # Not an array
-        invalid_params = { stationNumber: '989', id: '3636691' }
-
-        post('/my_health/v2/prescriptions/refill',
-             params: invalid_params.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:bad_request)
-      end
-
-      it 'requires at least one order' do
-        allow(UniqueUserEvents).to receive(:log_event)
-
-        # Empty array
-        empty_orders = []
-
-        post('/my_health/v2/prescriptions/refill',
-             params: empty_orders.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:bad_request)
-      end
-    end
-
-    context 'when feature flag is disabled' do
-      it 'returns forbidden' do
-        allow(Flipper).to receive(:enabled?).and_return(false)
-
-        orders = [
-          { stationNumber: '989', id: '3636691' }
-        ]
-
-        post('/my_health/v2/prescriptions/refill',
-             params: orders.to_json,
-             headers:)
-
-        expect(response).to have_http_status(:forbidden)
       end
     end
   end
