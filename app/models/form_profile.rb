@@ -132,7 +132,7 @@ class FormProfile
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
     memorials: %w[1330M],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
