@@ -130,20 +130,6 @@ To make this check warn but not fail the CI:
     # ... rest of the script
 ```
 
-## Testing
-
-To test the workflow locally before deploying:
-
-```bash
-# Install act (GitHub Actions local runner)
-brew install act  # macOS
-# or
-curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
-
-# Run the workflow
-act pull_request -W .github/workflows/check-codeowners.yml
-```
-
 ## Example PR Output
 
 When violations are detected, the PR will receive a comment like:
