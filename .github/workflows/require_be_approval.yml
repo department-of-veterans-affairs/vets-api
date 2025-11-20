@@ -4,11 +4,8 @@
 name: Backend Approval
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
-    branches: [master]
   pull_request_review:
-    types: [submitted]
+    types: [submitted, dismissed]
 
 permissions:
   id-token: write
