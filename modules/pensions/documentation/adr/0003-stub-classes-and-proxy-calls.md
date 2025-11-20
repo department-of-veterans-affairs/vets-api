@@ -26,7 +26,7 @@ There are quite a few other package references in this job:
 1. Datadog
 1. Sidekiq
 1. Common
-1. SentryLogging
+1. Vets::SharedLogging (formerly SentryLogging)
 2. Statsd
 
 ## Decision

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'string_helpers'
-require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
 require 'vets/model'
+require 'vets/shared_logging'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -84,7 +84,7 @@ end
 
 class FormProfile
   include Vets::Model
-  include SentryLogging
+  include Vets::SharedLogging
 
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
@@ -131,7 +131,7 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
@@ -153,6 +153,7 @@ class FormProfile
     '21P-8416' => MedicalExpenseReports::FormProfiles::VA21p8416,
     '21P-527EZ' => Pensions::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '21P-601' => FormProfiles::VA21p601,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
@@ -297,6 +298,8 @@ class FormProfile
     military_information_data
   rescue => e
     log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
+
+    log_exception_to_rails(e)
 
     {}
   end

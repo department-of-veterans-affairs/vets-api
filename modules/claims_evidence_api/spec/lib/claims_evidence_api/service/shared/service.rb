@@ -32,7 +32,7 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
 
       # 'request' is a method within the `super` chain
       expect(service).to receive(:request).with(*args).and_raise error
-      expect(monitor).to receive(:track_api_request).with(:get, 'test/path', 503, 'VEFSERR40009',
+      expect(monitor).to receive(:track_api_request).with(:get, endpoint, 503, 'VEFSERR40009',
                                                           call_location: anything)
 
       expect { service.perform(*args) }.to raise_error error
