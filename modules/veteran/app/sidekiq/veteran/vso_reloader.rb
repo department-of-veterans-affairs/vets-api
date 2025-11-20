@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module Veteran
   class VSOReloader < BaseReloader
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must not decrease by more than this percentage from the previous count
-    DECREASE_THRESHOLD = 0.50 # 50% maximum decrease allowed
+    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
 
     # User type constants
     USER_TYPE_ATTORNEY = 'attorney'
@@ -43,6 +43,8 @@ module Veteran
       log_to_slack('VSO Reloader failed to connect to OGC')
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("VSO Reloading error: #{e.message}", :warn)
+
+      log_message_to_rails("OGC connection failed: #{e.message}", :warn)
       log_to_slack('VSO Reloader job has failed!')
     end
 
@@ -229,6 +231,8 @@ module Veteran
                             previous_count:,
                             new_count:,
                             decrease_percentage:)
+
+      log_message_to_rails("VSO Reloader threshold exceeded for #{rep_type}", :warn)
     end
 
     def save_accreditation_totals
@@ -271,8 +275,14 @@ module Veteran
         }
       end.compact.uniq
 
+      # Extract current POA codes from incoming data
+      current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact_blank.uniq
+
       # Always import organizations when processing VSO data to maintain referential integrity
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
+
+      # Remove stale organizations that are no longer in the OGC data
+      Veteran::Service::Organization.where.not(poa: current_poa_codes).destroy_all
 
       vso_reps
     end

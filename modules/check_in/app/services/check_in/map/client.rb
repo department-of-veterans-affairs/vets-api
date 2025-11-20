@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module CheckIn
   module Map
     ##
@@ -7,7 +9,7 @@ module CheckIn
     #
     class Client
       extend Forwardable
-      include SentryLogging
+      include Vets::SharedLogging
 
       attr_reader :settings
 

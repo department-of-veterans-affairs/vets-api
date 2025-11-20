@@ -561,6 +561,18 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
           expect(response.media_type).to eq('application/pdf')
         end
       end
+
+      it 'increments the COE status counters' do
+        allow(StatsD).to receive(:increment)
+
+        VCR.use_cassette 'mobile/lgy/documents_coe_file' do
+          post '/mobile/v0/letters/certificate_of_eligibility_home_loan/download',
+               headers: sis_headers, as: :json
+          expect(response).to have_http_status(:ok)
+          expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.download_total')
+          expect(StatsD).to have_received(:increment).with('mobile.letters.coe_status.download_success')
+        end
+      end
     end
   end
 
