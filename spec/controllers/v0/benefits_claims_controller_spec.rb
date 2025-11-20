@@ -373,8 +373,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
             expect(response).to have_http_status(:ok)
             expect(Rails.logger).to have_received(:error)
-              .with('BenefitsClaimsController#index Error adding evidence submissions', hash_including(:error_message,
-                                                                                                       :claim_ids))
+              .with('BenefitsClaimsController#index Error adding evidence submissions', hash_including(:claim_ids))
           end
         end
 
@@ -801,8 +800,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
             expect(response).to have_http_status(:ok)
             expect(Rails.logger).to have_received(:error)
-              .with('BenefitsClaimsController#show Error adding evidence submissions', hash_including(:error_message,
-                                                                                                      :claim_ids))
+              .with('BenefitsClaimsController#show Error adding evidence submissions', hash_including(:claim_ids))
           end
         end
 

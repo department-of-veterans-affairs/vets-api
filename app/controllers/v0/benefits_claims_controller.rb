@@ -43,7 +43,6 @@ module V0
 
       tap_claims(claims['data'])
 
-      # Report metrics for evidence submission upload statuses
       report_evidence_submission_metrics('index', evidence_submissions)
 
       render json: claims
@@ -80,7 +79,6 @@ module V0
 
       tap_claims([claim['data']])
 
-      # Report metrics for evidence submission upload statuses
       report_evidence_submission_metrics('show', evidence_submissions)
 
       render json: claim
@@ -310,7 +308,7 @@ module V0
     end
 
     def report_evidence_submission_metrics(endpoint, evidence_submissions)
-      status_counts = evidence_submissions.group_by(&:upload_status).transform_values(&:count)
+      status_counts = evidence_submissions.group(:upload_status).count
 
       BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
         count = status_counts[status] || 0
@@ -449,9 +447,7 @@ module V0
         "BenefitsClaimsController##{endpoint} Error adding evidence submissions",
         {
           claim_ids:,
-          error_message: e.message,
-          error_class: e.class.name,
-          timestamp: Time.now.utc
+          error_class: e.class.name
         }
       )
     end
