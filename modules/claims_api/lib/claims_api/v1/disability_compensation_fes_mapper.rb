@@ -125,7 +125,6 @@ module ClaimsApi
         if type == 'INTERNATIONAL'
           formatted[:internationalPostalCode] = addr[:internationalPostalCode]
         else
-          formatted[:city] = addr[:city]
           formatted[:state] = addr[:state]
         end
         @fes_claim[:veteran] ||= {}
@@ -185,7 +184,6 @@ module ClaimsApi
           )
         else
           addr.merge!(
-            city: change_data[:city],
             state: change_data[:state],
             addressType: 'DOMESTIC'
           )
