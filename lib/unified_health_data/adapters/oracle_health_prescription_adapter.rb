@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/v1/client'
+require_relative 'facility_name_resolver'
 
 module UnifiedHealthData
   module Adapters
@@ -214,9 +214,7 @@ module UnifiedHealthData
           'Discontinued'
         when 'expired'
           'Expired'
-        when 'unknown'
-          'Unknown'
-        when 'pending'
+        when 'unknown', 'pending'
           'Unknown'
         else
           # Fallback for unexpected values
@@ -256,7 +254,8 @@ module UnifiedHealthData
       # @param expiration_date [Time, nil] Parsed UTC expiration date
       # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
       # @return [String] VistA-compatible status value
-      def map_fhir_status_to_vista(mr_status, refills_remaining, expiration_date, has_in_progress_dispense, resource = nil)
+      def map_fhir_status_to_vista(mr_status, refills_remaining, expiration_date, has_in_progress_dispense,
+                                   resource = nil)
         case mr_status
         when 'active'
           normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense, resource)
@@ -371,31 +370,7 @@ module UnifiedHealthData
       end
 
       def extract_facility_name(resource)
-        # Get latest dispense using existing helper
-        latest_dispense = find_most_recent_medication_dispense(resource['contained'])
-        return nil unless latest_dispense
-
-        # Get .location.display from latest dispense
-        location_display = latest_dispense.dig('location', 'display')
-        return nil unless location_display
-
-        # First try the legacy 3-digit station number
-        three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
-        facility_name = attempt_facility_lookup(three_digit_station)
-        return facility_name if facility_name
-
-        # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
-        facility_identifier = location_display.split('-').first
-        # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
-        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
-        if facility_identifier.present? && facility_identifier != three_digit_station &&
-           facility_identifier.match?(valid_station_regex)
-          return attempt_facility_lookup(facility_identifier)
-        end
-
-        Rails.logger.error("Unable to extract valid station number from: #{location_display}")
-
-        nil
+        facility_resolver.extract_facility_name(resource, method(:find_most_recent_medication_dispense))
       end
 
       def extract_quantity(resource)
@@ -587,43 +562,8 @@ module UnifiedHealthData
         end
       end
 
-      def fetch_facility_name_from_api(station_number)
-        facility_id = "vha_#{station_number}"
-        cache_key = "uhd:facility_names:#{station_number}"
-
-        begin
-          facilities_client = Lighthouse::Facilities::V1::Client.new
-          facilities = facilities_client.get_facilities(facilityIds: facility_id)
-
-          facility_name = if facilities&.any?
-                            facilities.first.name
-                          else
-                            Rails.logger.warn(
-                              "No facility found for station number #{station_number} in Lighthouse API"
-                            )
-                            nil
-                          end
-
-          # Cache the result (including nil) to avoid repeated API calls
-          # Keep TTL aligned with FacilityNameCacheJob refresh cadence (4 hours)
-          Rails.cache.write(cache_key, facility_name, expires_in: 4.hours)
-
-          facility_name
-        rescue => e
-          Rails.logger.error("Failed to fetch facility name from API for station #{station_number}: #{e.message}")
-          StatsD.increment('unified_health_data.facility_name_fallback.api_error')
-          nil
-        end
-      end
-
-      def attempt_facility_lookup(station_identifier)
-        return nil if station_identifier.blank?
-
-        cache_key = "uhd:facility_names:#{station_identifier}"
-        cached_name = Rails.cache.read(cache_key)
-        return cached_name if Rails.cache.exist?(cache_key)
-
-        fetch_facility_name_from_api(station_identifier)
+      def facility_resolver
+        @facility_resolver ||= FacilityNameResolver.new
       end
     end
   end
