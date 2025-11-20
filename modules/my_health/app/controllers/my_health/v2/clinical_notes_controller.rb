@@ -7,10 +7,11 @@ require 'unique_user_events'
 module MyHealth
   module V2
     class ClinicalNotesController < ApplicationController
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       def index
-        care_notes = service.get_care_summaries_and_notes.sort
+        care_notes = sort_records(service.get_care_summaries_and_notes, params[:sort])
         serialized_notes = UnifiedHealthData::ClinicalNotesSerializer.new(care_notes)
 
         # Log unique user events for clinical notes accessed

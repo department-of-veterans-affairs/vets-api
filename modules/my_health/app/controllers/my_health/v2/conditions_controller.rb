@@ -7,10 +7,11 @@ require 'unique_user_events'
 module MyHealth
   module V2
     class ConditionsController < ApplicationController
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       def index
-        conditions = service.get_conditions.sort
+        conditions = sort_records(service.get_conditions, params[:sort])
 
         # Log unique user events for conditions accessed
         UniqueUserEvents.log_events(

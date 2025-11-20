@@ -7,10 +7,11 @@ require 'unique_user_events'
 module MyHealth
   module V2
     class AllergiesController < ApplicationController
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       def index
-        allergies = service.get_allergies.sort
+        allergies = sort_records(service.get_allergies, params[:sort])
         serialized_allergies = UnifiedHealthData::AllergySerializer.new(allergies)
 
         # Log unique user events for allergies accessed
