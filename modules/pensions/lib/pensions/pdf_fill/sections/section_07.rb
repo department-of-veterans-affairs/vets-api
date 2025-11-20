@@ -42,7 +42,7 @@ module Pensions
           'spouseFullNameOverflow' => {
             question_num: 7,
             question_suffix: 'A',
-            question_label: '(1) Who Were You Married To?',
+            question_label: 'Who Were You Married To?',
             question_text: '(1) WHO WERE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
@@ -51,14 +51,14 @@ module Pensions
           'reasonForSeparationOverflow' => {
             question_num: 7,
             question_suffix: 'A',
-            question_label: '(2) How Did Your Previous Marriage End?',
+            question_label: 'How Did Your Previous Marriage End?',
             question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END?'
           },
           'otherExplanation' => {
             limit: 43,
             question_num: 7,
             question_suffix: 'A',
-            question_label: '(2) How Did Your Previous Marriage End (Other Reason)?',
+            question_label: 'How Did Your Previous Marriage End (Other Reason)?',
             question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END (OTHER REASON)?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -87,14 +87,14 @@ module Pensions
           'dateRangeOfMarriageOverflow' => {
             question_num: 7,
             question_suffix: 'A',
-            question_label: '(3) What Are The Dates Of The Previous Marriage?',
+            question_label: 'What Are The Dates Of The Previous Marriage?',
             question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
           },
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7,
             question_suffix: 'A',
-            question_label: '(4) Place Of Marriage',
+            question_label: 'Place Of Marriage',
             question_text: '(4) PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -102,7 +102,7 @@ module Pensions
             limit: 54,
             question_num: 7,
             question_suffix: 'A',
-            question_label: '(5) Place Marriage Ended',
+            question_label: 'Place Marriage Ended',
             question_text: '(5) PLACE MARRIAGE ENDED',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -140,7 +140,7 @@ module Pensions
           'spouseFullNameOverflow' => {
             question_num: 7,
             question_suffix: 'B',
-            question_label: '(1) Who Was Your Spouse Married To?',
+            question_label: 'Who Was Your Spouse Married To?',
             question_text: '(1) WHO WAS YOUR SPOUSE MARRIED TO?'
           },
           'reasonForSeparation' => {
@@ -149,14 +149,14 @@ module Pensions
           'reasonForSeparationOverflow' => {
             question_num: 7,
             question_suffix: 'B',
-            question_label: '(2) How Did The Previous Marriage End?',
+            question_label: 'How Did The Previous Marriage End?',
             question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END?'
           },
           'otherExplanation' => {
             limit: 43,
             question_num: 7,
             question_suffix: 'B',
-            question_label: '(2) How Did The Previous Marriage End (Other Reason)?',
+            question_label: 'How Did The Previous Marriage End (Other Reason)?',
             question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END (OTHER REASON)?',
             key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -185,14 +185,14 @@ module Pensions
           'dateRangeOfMarriageOverflow' => {
             question_num: 7,
             question_suffix: 'B',
-            question_label: '(3) What Are The Dates Of The Previous Marriage?',
+            question_label: 'What Are The Dates Of The Previous Marriage?',
             question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
           },
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7,
             question_suffix: 'B',
-            question_label: '(4) Place Of Marriage',
+            question_label: 'Place Of Marriage',
             question_text: '(4) PLACE OF MARRIAGE',
             key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -200,7 +200,7 @@ module Pensions
             limit: 54,
             question_num: 7,
             question_suffix: 'B',
-            question_label: '(5) Place Marriage Ended',
+            question_label: 'Place Marriage Ended',
             question_text: '(5) PLACE MARRIAGE ENDED',
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
