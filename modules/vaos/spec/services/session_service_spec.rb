@@ -16,7 +16,7 @@ describe VAOS::SessionService do
     {
       'Accept' => 'application/json',
       'Content-Type' => 'application/json',
-      'Referer' => 'https://review-instance.va.gov',
+      'Referer' => 'https://id.vfs.va.gov',
       'User-Agent' => 'Vets.gov Agent',
       'X-Request-ID' => request_id,
       'X-VAMF-JWT' => 'stubbed_token'
