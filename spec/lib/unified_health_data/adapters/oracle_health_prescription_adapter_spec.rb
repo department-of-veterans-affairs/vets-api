@@ -129,7 +129,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  # Note: #extract_facility_name and facility lookup tests moved to facility_name_resolver_spec.rb
+  # NOTE: #extract_facility_name and facility lookup tests moved to facility_name_resolver_spec.rb
   # The adapter now delegates facility name extraction to FacilityNameResolver
 
   describe '#extract_is_refillable' do
