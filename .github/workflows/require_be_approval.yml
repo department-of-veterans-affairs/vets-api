@@ -309,7 +309,7 @@ jobs:
           echo "To get your PR exempt from this requirement, ensure:"
           echo "  • All changed files are owned exclusively by exempt teams in CODEOWNERS"
           echo "  • Exempt teams: octo-identity, lighthouse-dash, lighthouse-pivot,"
-          echo "    lighthouse-banana-peels, mobile-api-team, fed-eng-admin"
+          echo "    lighthouse-banana-peels, mobile-api-team"
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 1
