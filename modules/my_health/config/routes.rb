@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 MyHealth::Engine.routes.draw do
+  namespace :v3 do
+    resources :prescriptions, only: [], defaults: { format: :json } do
+      get :refillable_prescriptions, on: :collection
+    end
+  end
+
   namespace :v2 do
     scope :medical_records do
       resources :allergies, only: %i[index show], defaults: { format: :json }
