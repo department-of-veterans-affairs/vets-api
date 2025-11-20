@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module DebtManagementCenter
   class VANotifyEmailJob
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 14
     STATS_KEY = 'api.dmc.va_notify_email'
     VA_NOTIFY_CALLBACK_OPTIONS = {
@@ -51,11 +53,11 @@ module DebtManagementCenter
       Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{e.message}")
       log_exception_to_sentry(
         e,
-        {
-          args: { template_id: }
-        },
+        { args: { template_id: } },
         { error: :dmc_va_notify_email_job }
       )
+
+      log_exception_to_rails(e)
 
       raise e
     end

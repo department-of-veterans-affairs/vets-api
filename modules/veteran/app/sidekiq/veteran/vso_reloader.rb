@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module Veteran
   class VSOReloader < BaseReloader
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must not decrease by more than this percentage from the previous count
@@ -319,6 +319,8 @@ module Veteran
                             previous_count:,
                             new_count:,
                             decrease_percentage:)
+
+      log_message_to_rails("VSO Reloader threshold exceeded for #{rep_type}", :warn)
     end
 
     def save_accreditation_totals

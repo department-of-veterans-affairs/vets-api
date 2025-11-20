@@ -5,7 +5,7 @@ require 'sign_in/credential_attributes_digester'
 
 RSpec.describe SignIn::CredentialAttributesDigester do
   subject(:digester) do
-    described_class.new(credential_uuid:, first_name:, last_name:, ssn:, birth_date:, email:, address:)
+    described_class.new(credential_uuid:, first_name:, last_name:, ssn:, birth_date:, email:)
   end
 
   let(:credential_uuid) { '5bfd88a0-e61d-4427-80e1-211b2b61ad6f' }
@@ -14,15 +14,6 @@ RSpec.describe SignIn::CredentialAttributesDigester do
   let(:ssn) { '796126859' }
   let(:birth_date) { '1932-02-05' }
   let(:email) { 'test@email.com' }
-  let(:address) do
-    {
-      street: 'Sesame Street',
-      postal_code: '60131',
-      state: 'IL',
-      city: 'Franklin Park',
-      country: 'USA'
-    }
-  end
 
   let(:pepper) { '5740e000be940493231f85324c413bd2' }
 
@@ -53,8 +44,8 @@ RSpec.describe SignIn::CredentialAttributesDigester do
       it { is_expected.not_to be_valid }
     end
 
-    context 'when address is not a hash' do
-      let(:address) { 'Not a hash' }
+    context 'when email is missing' do
+      let(:email) { nil }
 
       it { is_expected.not_to be_valid }
     end
@@ -68,7 +59,7 @@ RSpec.describe SignIn::CredentialAttributesDigester do
 
   describe '#perform' do
     context 'with valid attributes' do
-      let(:expected_digest) { 'e074ee2758fa5c27ee3a783aa7d2eabb9e16299aea63e79f485e1b896629e1e7' }
+      let(:expected_digest) { '626deaddbf14a3697aabcad66770ca0fd24638f7bca5d3380694c3e6c3f41e5b' }
 
       it 'returns the expected digest' do
         expect(digester.perform).to eq(expected_digest)
@@ -88,13 +79,13 @@ RSpec.describe SignIn::CredentialAttributesDigester do
       let(:expected_log_payload) { { message: 'error' } }
 
       before do
-        allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:info)
         allow(OpenSSL::HMAC).to receive(:hexdigest).and_raise(StandardError, 'error')
       end
 
       it 'logs and returns nil' do
         expect(digester.perform).to be_nil
-        expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
+        expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
       end
     end
   end
