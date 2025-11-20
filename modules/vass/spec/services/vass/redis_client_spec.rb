@@ -200,27 +200,27 @@ describe Vass::RedisClient do
   end
 
   describe 'OTC isolation by UUID' do
-    let(:uuid_1) { 'uuid-1111-aaaa' }
-    let(:uuid_2) { 'uuid-2222-bbbb' }
-    let(:code_1) { '111111' }
-    let(:code_2) { '222222' }
+    let(:uuid1) { 'uuid-1111-aaaa' }
+    let(:uuid2) { 'uuid-2222-bbbb' }
+    let(:code1) { '111111' }
+    let(:code2) { '222222' }
 
     it 'stores OTCs separately for different UUIDs' do
-      redis_client.save_otc(uuid: uuid_1, code: code_1)
-      redis_client.save_otc(uuid: uuid_2, code: code_2)
+      redis_client.save_otc(uuid: uuid1, code: code1)
+      redis_client.save_otc(uuid: uuid2, code: code2)
 
-      expect(redis_client.otc(uuid: uuid_1)).to eq(code_1)
-      expect(redis_client.otc(uuid: uuid_2)).to eq(code_2)
+      expect(redis_client.otc(uuid: uuid1)).to eq(code1)
+      expect(redis_client.otc(uuid: uuid2)).to eq(code2)
     end
 
     it 'deletes OTC for one UUID without affecting others' do
-      redis_client.save_otc(uuid: uuid_1, code: code_1)
-      redis_client.save_otc(uuid: uuid_2, code: code_2)
+      redis_client.save_otc(uuid: uuid1, code: code1)
+      redis_client.save_otc(uuid: uuid2, code: code2)
 
-      redis_client.delete_otc(uuid: uuid_1)
+      redis_client.delete_otc(uuid: uuid1)
 
-      expect(redis_client.otc(uuid: uuid_1)).to be_nil
-      expect(redis_client.otc(uuid: uuid_2)).to eq(code_2)
+      expect(redis_client.otc(uuid: uuid1)).to be_nil
+      expect(redis_client.otc(uuid: uuid2)).to eq(code2)
     end
   end
 
@@ -393,27 +393,27 @@ describe Vass::RedisClient do
   end
 
   describe 'session isolation by token' do
-    let(:token_1) { SecureRandom.uuid }
-    let(:token_2) { SecureRandom.uuid }
-    let(:edipi_1) { '1111111111' }
-    let(:edipi_2) { '2222222222' }
+    let(:token1) { SecureRandom.uuid }
+    let(:token2) { SecureRandom.uuid }
+    let(:edipi1) { '1111111111' }
+    let(:edipi2) { '2222222222' }
 
     it 'stores sessions separately for different tokens' do
-      redis_client.save_session(session_token: token_1, edipi: edipi_1, veteran_id: 'vet-1', uuid:)
-      redis_client.save_session(session_token: token_2, edipi: edipi_2, veteran_id: 'vet-2', uuid:)
+      redis_client.save_session(session_token: token1, edipi: edipi1, veteran_id: 'vet-1', uuid:)
+      redis_client.save_session(session_token: token2, edipi: edipi2, veteran_id: 'vet-2', uuid:)
 
-      expect(redis_client.edipi(session_token: token_1)).to eq(edipi_1)
-      expect(redis_client.edipi(session_token: token_2)).to eq(edipi_2)
+      expect(redis_client.edipi(session_token: token1)).to eq(edipi1)
+      expect(redis_client.edipi(session_token: token2)).to eq(edipi2)
     end
 
     it 'deletes session for one token without affecting others' do
-      redis_client.save_session(session_token: token_1, edipi: edipi_1, veteran_id: 'vet-1', uuid:)
-      redis_client.save_session(session_token: token_2, edipi: edipi_2, veteran_id: 'vet-2', uuid:)
+      redis_client.save_session(session_token: token1, edipi: edipi1, veteran_id: 'vet-1', uuid:)
+      redis_client.save_session(session_token: token2, edipi: edipi2, veteran_id: 'vet-2', uuid:)
 
-      redis_client.delete_session(session_token: token_1)
+      redis_client.delete_session(session_token: token1)
 
-      expect(redis_client.session(session_token: token_1)).to be_nil
-      expect(redis_client.edipi(session_token: token_2)).to eq(edipi_2)
+      expect(redis_client.session(session_token: token1)).to be_nil
+      expect(redis_client.edipi(session_token: token2)).to eq(edipi2)
     end
   end
 end
