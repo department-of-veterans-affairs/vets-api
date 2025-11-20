@@ -86,7 +86,7 @@ RSpec.describe IncreaseCompensation::Helpers do
       care_item =
         {
           'nameAndAddressOfHospital' => 'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001',
-          'hospitalCareDateRanges' => [
+          'hospitalTreatmentDates' => [
             {
               'from' => '2024-06-01',
               'to' => '2024-06-15'
@@ -109,7 +109,7 @@ RSpec.describe IncreaseCompensation::Helpers do
       care_item =
         {
           'nameAndAddressOfHospital' => 'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001',
-          'hospitalCareDateRanges' => [
+          'hospitalTreatmentDates' => [
             {
               'from' => '2024-06-01',
               'to' => '2024-06-15'
