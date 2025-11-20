@@ -21,7 +21,7 @@ concurrency:
 
 env:
   # Teams exempt from backend approval when they exclusively own changed files
-  EXEMPT_TEAMS: '["octo-identity", "lighthouse-dash", "lighthouse-pivot", "lighthouse-banana-peels", "mobile-api-team", "fed-eng-admin"]'
+  EXEMPT_TEAMS: '["octo-identity", "lighthouse-dash", "lighthouse-pivot", "lighthouse-banana-peels", "mobile-api-team"]'
   AWS_REGION: us-gov-west-1
   SSM_BOT_TOKEN_PATH: /devops/VA_VSP_BOT_GITHUB_TOKEN
 
