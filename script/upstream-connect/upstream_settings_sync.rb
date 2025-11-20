@@ -531,7 +531,7 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
   def get_current_value(setting_path)
     return nil unless File.exist?(SETTINGS_LOCAL_PATH)
 
-    settings = YAML.load_file(SETTINGS_LOCAL_PATH) || {}
+    settings = YAML.safe_load_file(SETTINGS_LOCAL_PATH, aliases: true) || {}
     get_nested_value(settings, setting_path)
   rescue Psych::SyntaxError
     nil
