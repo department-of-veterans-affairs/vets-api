@@ -626,7 +626,7 @@ module VAOS
 
         cached_referral = ccra_referral_service.get_cached_referral_data(referral_number, current_user.icn)
         sanitize_log_value(cached_referral&.category_of_care)
-      rescue Redis::BaseError => e
+      rescue Redis::BaseError
         'no_value'
       end
 
