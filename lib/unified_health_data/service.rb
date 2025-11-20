@@ -434,5 +434,11 @@ module UnifiedHealthData
     def default_end_date
       Time.zone.today.to_s
     end
+
+    def validate_date_param(date_string, param_name)
+      Date.parse(date_string)
+    rescue ArgumentError, TypeError
+      raise ArgumentError, "Invalid #{param_name}: '#{date_string}'. Expected format: YYYY-MM-DD"
+    end
   end
 end
