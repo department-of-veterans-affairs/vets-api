@@ -51,7 +51,7 @@ module V0
 
       def parse_connector_values(response)
         raise ServiceException.new(response.body), response.body unless response.code == '200'
-        
+
         parsed = JSON.parse(response.body)
 
         {
