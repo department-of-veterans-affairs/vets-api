@@ -6,6 +6,8 @@ require_relative '../reference_range_formatter'
 module UnifiedHealthData
   module Adapters
     class LabOrTestAdapter
+      ALLOWED_STATUSES = %w[final amended corrected appended].freeze
+
       def parse_labs(records)
         return [] if records.blank?
 
@@ -18,18 +20,28 @@ module UnifiedHealthData
 
       def parse_single_record(record)
         return nil if record.nil? || record['resource'].nil?
+        # Filter out DiagnosticReports with disallowed status
+        return nil unless allowed_status?(record['resource']['status'])
 
         contained = record['resource']['contained']
         code = get_code(record)
         encoded_data = get_encoded_data(record['resource'])
         observations = get_observations(record)
-        return nil unless code && (encoded_data || observations)
-
+        
+        # Log warnings before filtering out records
         log_warnings(record, encoded_data, observations)
+        
+        # Return nil if there's no code, and if there's no encoded data AND no valid observations
+        return nil unless code && (encoded_data.present? || observations.any?)
+
         build_lab_or_test(record, code, encoded_data, observations, contained)
       end
 
       private
+
+      def allowed_status?(status)
+        ALLOWED_STATUSES.include?(status)
+      end
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
         UnifiedHealthData::LabOrTest.new(
@@ -158,7 +170,10 @@ module UnifiedHealthData
       def get_observations(record)
         return [] if record['resource']['contained'].nil?
 
-        record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
+        record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.filter_map do |obs|
+          # Filter out observations with disallowed status
+          next unless allowed_status?(obs['status'])
+
           sample_tested = get_sample_tested(obs, record['resource']['contained'])
           body_site = get_body_site(obs, record['resource']['contained'])
           UnifiedHealthData::Observation.new(
