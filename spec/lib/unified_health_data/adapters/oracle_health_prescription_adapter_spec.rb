@@ -1504,7 +1504,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to eq('refillinprocess')
       end
 
-      it 'returns "refillinprocess" when any dispense is on-hold' do
+      it 'returns "refillinprocess" when the most recent dispense is on-hold' do
         resource = status_test_resource.merge(
           'contained' => [
             {
