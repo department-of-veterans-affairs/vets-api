@@ -353,8 +353,185 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
             expect(response).to have_http_status(:ok)
             expect(Rails.logger).to have_received(:error)
-              .with(a_string_including('BenefitsClaimsController#index'))
+              .with('BenefitsClaimsController#index Error fetching evidence submissions', hash_including(
+                                                                                            :error_message, :claim_ids
+                                                                                          ))
           end
+        end
+
+        context 'when adding evidence submissions fails' do
+          before do
+            create(:bd_lh_evidence_submission_success, claim_id:)
+            allow_any_instance_of(V0::BenefitsClaimsController).to receive(:add_evidence_submissions)
+              .and_raise(StandardError, 'Error processing evidence')
+          end
+
+          it 'logs the error with endpoint and claim_ids and continues processing' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(Rails.logger).to have_received(:error)
+              .with('BenefitsClaimsController#index Error adding evidence submissions', hash_including(:claim_ids))
+          end
+        end
+
+        context 'when including evidenceSubmissions in response' do
+          let(:tracked_item_id) { 394_443 }
+          let(:unique_file_name1) { 'test_unique_document_1.pdf' }
+          let(:unique_file_name2) { 'test_unique_document_2.pdf' }
+
+          before do
+            create(:bd_lh_evidence_submission_success,
+                   claim_id:,
+                   tracked_item_id:,
+                   template_metadata: {
+                     personalisation: {
+                       file_name: unique_file_name1,
+                       document_type: 'Medical Record'
+                     }
+                   }.to_json)
+            create(:bd_lh_evidence_submission_failed_type2_error,
+                   claim_id:,
+                   template_metadata: {
+                     personalisation: {
+                       file_name: unique_file_name2,
+                       document_type: 'Birth Certificate'
+                     }
+                   }.to_json)
+          end
+
+          it 'includes evidenceSubmissions in each claim' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+
+            expect(response).to have_http_status(:ok)
+            parsed_body = JSON.parse(response.body)
+
+            test_claim = parsed_body['data'].find { |claim| claim['id'] == claim_id.to_s }
+            expect(test_claim).not_to be_nil
+
+            evidence_submissions = test_claim.dig('attributes', 'evidenceSubmissions')
+            expect(evidence_submissions).to be_present
+            expect(evidence_submissions.size).to eq(2)
+          end
+
+          it 'filters duplicate evidence submissions' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+
+            expect(response).to have_http_status(:ok)
+            parsed_body = JSON.parse(response.body)
+
+            parsed_body['data'].each do |claim|
+              expect(claim['attributes']).to have_key('evidenceSubmissions')
+              expect(claim['attributes']['evidenceSubmissions']).to be_an(Array)
+            end
+          end
+        end
+
+        context 'when no evidence submissions exist for claims' do
+          it 'returns empty evidenceSubmissions array' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+
+            expect(response).to have_http_status(:ok)
+            parsed_body = JSON.parse(response.body)
+
+            parsed_body['data'].each do |claim|
+              expect(claim['attributes']).to have_key('evidenceSubmissions')
+              expect(claim['attributes']['evidenceSubmissions']).to be_an(Array)
+            end
+          end
+        end
+
+        context 'when multiple claims have different evidence submissions' do
+          let(:second_claim_id) { 600_229_972 }
+          let(:tracked_item_id) { 394_443 }
+          let(:unique_file_name1) { 'claim1_document_1.pdf' }
+          let(:unique_file_name2) { 'claim1_document_2.pdf' }
+          let(:unique_file_name3) { 'claim2_document_1.pdf' }
+
+          before do
+            create(:bd_lh_evidence_submission_success,
+                   claim_id:,
+                   tracked_item_id:,
+                   template_metadata: {
+                     personalisation: {
+                       file_name: unique_file_name1,
+                       document_type: 'Medical Record'
+                     }
+                   }.to_json)
+            create(:bd_lh_evidence_submission_failed_type2_error,
+                   claim_id:,
+                   template_metadata: {
+                     personalisation: {
+                       file_name: unique_file_name2,
+                       document_type: 'Birth Certificate'
+                     }
+                   }.to_json)
+            create(:bd_evidence_submission_pending,
+                   claim_id: second_claim_id,
+                   template_metadata: {
+                     personalisation: {
+                       file_name: unique_file_name3,
+                       document_type: 'DD214'
+                     }
+                   }.to_json)
+          end
+
+          it 'correctly associates evidence submissions with their respective claims' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+
+            expect(response).to have_http_status(:ok)
+            parsed_body = JSON.parse(response.body)
+
+            first_claim = parsed_body['data'].find { |c| c['id'] == claim_id.to_s }
+            first_claim_submissions = first_claim.dig('attributes', 'evidenceSubmissions')
+            expect(first_claim_submissions).to be_present
+            expect(first_claim_submissions.size).to eq(2)
+            expect(first_claim_submissions.all? { |es| es['claim_id'] == claim_id }).to be true
+
+            second_claim = parsed_body['data'].find { |c| c['id'] == second_claim_id.to_s }
+            second_claim_submissions = second_claim.dig('attributes', 'evidenceSubmissions')
+            expect(second_claim_submissions).to be_present
+            expect(second_claim_submissions.size).to eq(1)
+            expect(second_claim_submissions.first['claim_id']).to eq(second_claim_id)
+          end
+        end
+      end
+
+      context 'when :cst_show_document_upload_status is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(false)
+
+          # Create some evidence submissions that should NOT be included
+          create(:bd_lh_evidence_submission_success, claim_id:)
+          create(:bd_lh_evidence_submission_failed_type2_error, claim_id:)
+        end
+
+        it 'does not include evidenceSubmissions in claims' do
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+            get(:index)
+          end
+
+          expect(response).to have_http_status(:ok)
+          parsed_body = JSON.parse(response.body)
+
+          # Find the claim with our test claim_id
+          test_claim = parsed_body['data'].find { |claim| claim['id'] == claim_id.to_s }
+
+          expect(test_claim.dig('attributes', 'evidenceSubmissions')).to be_nil
         end
       end
     end
@@ -585,14 +762,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
         end
 
-        context 'when evidence submission metrics reporting fails' do
+        context 'when evidence submission fetching fails' do
           before do
             # Allow normal EvidenceSubmission calls to work
             allow(EvidenceSubmission).to receive(:where).and_call_original
 
-            # Mock specifically for the metrics method pattern (claim_id with an array)
-            # Show endpoint passes a single ID converted to array in the metrics method
-            allow(EvidenceSubmission).to receive(:where).with(claim_id: kind_of(Array))
+            # Mock to raise error when fetching evidence submissions for this specific claim
+            allow(EvidenceSubmission).to receive(:where).with(claim_id: claim_id.to_s)
                                                         .and_raise(StandardError, 'Database connection error')
           end
 
@@ -603,7 +779,28 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
             expect(response).to have_http_status(:ok)
             expect(Rails.logger).to have_received(:error)
-              .with(a_string_including('BenefitsClaimsController#show'))
+              .with('BenefitsClaimsController#show Error fetching evidence submissions', hash_including(:error_message,
+                                                                                                        :claim_ids))
+          end
+        end
+
+        context 'when adding evidence submissions fails' do
+          before do
+            create(:bd_lh_evidence_submission_success, claim_id:)
+
+            # Mock add_evidence_submissions to raise an error
+            allow_any_instance_of(V0::BenefitsClaimsController).to receive(:add_evidence_submissions)
+              .and_raise(StandardError, 'Error processing evidence')
+          end
+
+          it 'logs the error with endpoint and claim_ids and continues processing' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(Rails.logger).to have_received(:error)
+              .with('BenefitsClaimsController#show Error adding evidence submissions', hash_including(:claim_ids))
           end
         end
 
