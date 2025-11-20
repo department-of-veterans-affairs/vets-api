@@ -19,10 +19,6 @@ The Codeowner Check triggers on PRs that modify `.github/CODEOWNERS` and:
 
 1. **Analyzes the diff** to find new assignments
 2. **Identifies directory patterns** (paths without file extensions)
-3. **Detects backend-review-group assignments** to those directories
-4. **Reports violations** in the CI check and comments on the PR
-5. **Provides recommendations** for better CODEOWNERS patterns
-
 
 ### ❌ Incorrect Ownership
 
