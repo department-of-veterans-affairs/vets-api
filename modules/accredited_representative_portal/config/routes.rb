@@ -48,6 +48,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
       post 'search'
     end
 
-    resources :intent_to_file, only: %i[show create]
+    resources :intent_to_file, only: %i[create]
+    get 'intent_to_file', to: 'intent_to_file#show'
   end
 end
