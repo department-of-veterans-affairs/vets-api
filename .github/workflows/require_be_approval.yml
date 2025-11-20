@@ -30,7 +30,7 @@ jobs:
     name: Succeed if backend approval is confirmed
     runs-on: ubuntu-latest
     permissions: write-all
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -63,9 +63,9 @@ jobs:
 
           echo "$CHANGED_FILES" > /tmp/changed_files.txt
           FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-          
+
           echo "file_count=${FILE_COUNT}" >> "$GITHUB_OUTPUT"
-          
+
           echo "PR #${PR_NUMBER} Analysis"
           echo "  Author: $(echo "$PR_DATA" | jq -r '.author')"
           echo "  Draft: $(echo "$PR_DATA" | jq -r '.draft')"
@@ -78,6 +78,8 @@ jobs:
         run: |
           if [[ ! -s /tmp/changed_files.txt ]]; then
             echo "all_files_exempt=true" >> "$GITHUB_OUTPUT"
+            echo "required_exempt_teams=" >> "$GITHUB_OUTPUT"
+            echo "has_backend_owned_files=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -85,6 +87,8 @@ jobs:
           if [[ ! -f "$CODEOWNERS_FILE" ]]; then
             echo "[ERROR] CODEOWNERS file not found"
             echo "all_files_exempt=false" >> "$GITHUB_OUTPUT"
+            echo "required_exempt_teams=" >> "$GITHUB_OUTPUT"
+            echo "has_backend_owned_files=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -98,7 +102,9 @@ jobs:
           )
 
           all_files_exempt=true
-          
+          has_backend_owned_files=false
+          declare -A required_teams
+
           echo "Analyzing Code Owners"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
@@ -138,9 +144,10 @@ jobs:
             if [[ $? -ne 0 || -z "$result" ]]; then
               echo "  Pattern matched: (none)"
               echo "  Code owners: (none)"
-              echo "  Status: [X] REQUIRES APPROVAL"
+              echo "  Status: [X] REQUIRES BACKEND APPROVAL"
               echo ""
               all_files_exempt=false
+              has_backend_owned_files=true
               continue
             fi
 
@@ -150,31 +157,48 @@ jobs:
             echo "  Pattern matched: \"$pattern\""
             echo "  Code owners: $owners"
 
-            file_is_exempt=false
+            # Check if backend-review-group owns this file
+            if echo "$owners" | grep -q "@department-of-veterans-affairs/backend-review-group"; then
+              echo "  Status: [!] BACKEND-REVIEW-GROUP OWNER"
+              has_backend_owned_files=true
+              all_files_exempt=false
+            fi
+
+            # Check which exempt teams own this file
+            file_has_exempt_owner=false
             for team in "${EXEMPT_TEAM_ARRAY[@]}"; do
               if echo "$owners" | grep -q "@department-of-veterans-affairs/${team}"; then
-                echo "  Status: [OK] EXEMPT (via team: $team)"
-                file_is_exempt=true
-                break
+                echo "  Status: [OK] OWNED BY EXEMPT TEAM: $team"
+                file_has_exempt_owner=true
+                required_teams["$team"]=1
               fi
             done
 
-            if [[ "$file_is_exempt" == "false" ]]; then
-              echo "  Status: [X] REQUIRES APPROVAL"
-              all_files_exempt=false
+            # If file has no exempt owner and no backend owner, backend approval needed
+            if [[ "$file_has_exempt_owner" == "false" ]]; then
+              if ! echo "$owners" | grep -q "@department-of-veterans-affairs/backend-review-group"; then
+                echo "  Status: [X] REQUIRES BACKEND APPROVAL (no exempt/backend owner)"
+                has_backend_owned_files=true
+                all_files_exempt=false
+              fi
             fi
 
             echo ""
           done < /tmp/changed_files.txt
 
+          # Convert required teams to comma-separated string
+          required_teams_list=$(printf "%s," "${!required_teams[@]}" | sed 's/,$//')
+
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          if [[ "$all_files_exempt" == "true" ]]; then
-            echo "All files are exempt"
-          else
-            echo "Some files require backend approval"
-          fi
+          echo "Summary:"
+          echo "  All files have exempt owners only: ${all_files_exempt}"
+          echo "  Has backend-owned files: ${has_backend_owned_files}"
+          echo "  Required exempt teams: ${required_teams_list:-none}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
           echo "all_files_exempt=${all_files_exempt}" >> "$GITHUB_OUTPUT"
+          echo "required_exempt_teams=${required_teams_list}" >> "$GITHUB_OUTPUT"
+          echo "has_backend_owned_files=${has_backend_owned_files}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
@@ -195,25 +219,33 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
           ALL_FILES_EXEMPT: ${{ steps.file_ownership.outputs.all_files_exempt }}
+          REQUIRED_EXEMPT_TEAMS: ${{ steps.file_ownership.outputs.required_exempt_teams }}
+          HAS_BACKEND_OWNED_FILES: ${{ steps.file_ownership.outputs.has_backend_owned_files }}
         run: |
-          exempt=false
-          exempt_reason=""
           backend_approved=false
+          exempt_teams_approved=false
+          missing_exempt_teams=""
           requires_approval=true
 
           echo "Determining approval requirements"
-          echo "----------------------------------------"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-          # Check: Are all files owned by exempt teams?
-          if [[ "${ALL_FILES_EXEMPT}" == "true" ]]; then
-            echo "[PASS] Exempt: All files owned by exempt teams"
-            exempt=true
-            exempt_reason="file ownership"
-            requires_approval=false
-          fi
+          # Get all current approvals (most recent per user)
+          readarray -t ALL_APPROVERS < <(
+            gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews --jq '
+              [.[] | select(.state == "APPROVED")]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user.login)
+              | .[].user.login
+            ' 2>/dev/null || true
+          )
 
-          # If not exempt, verify backend approval
-          if [[ "${requires_approval}" == "true" ]]; then
+          echo "Current approvers: ${ALL_APPROVERS[*]}"
+          echo ""
+
+          # Check if backend-review-group approval is needed and present
+          if [[ "${HAS_BACKEND_OWNED_FILES}" == "true" ]]; then
             echo "Checking for backend-review-group approval..."
 
             # Fetch backend-review-group members
@@ -221,50 +253,104 @@ jobs:
             BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
             echo "  Backend reviewers: ${BACKEND_REVIEWERS}"
 
-            # Get most recent review state per user
-            readarray -t APPROVALS < <(
-              gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews --jq '
-                [.[] | select(.state == "APPROVED")]
-                | sort_by(.submitted_at)
-                | reverse
-                | unique_by(.user.login)
-                | .[].user.login
-              ' 2>/dev/null || true
-            )
-
             # Check if any approver is from backend-review-group
-            for approver in "${APPROVALS[@]}"; do
+            for approver in "${ALL_APPROVERS[@]}"; do
               if echo "$approver" | grep -iqE "^(${BACKEND_REVIEWERS})$"; then
                 echo "[PASS] Backend approval confirmed by: ${approver}"
                 backend_approved=true
-                requires_approval=false
                 break
               fi
             done
 
             if [[ "${backend_approved}" == "false" ]]; then
-              echo "No approval from backend-review-group"
+              echo "[FAIL] No approval from backend-review-group"
             fi
+            echo ""
           fi
 
-          echo "----------------------------------------"
-          echo "Final Status:"
-          echo "  Exempt: ${exempt}"
-          [[ "${exempt}" == "true" ]] && echo "  Exempt Reason: ${exempt_reason}"
-          echo "  Backend Approved: ${backend_approved}"
-          echo "  Requires Approval: ${requires_approval}"
+          # Check if exempt teams approval is needed and present
+          if [[ -n "${REQUIRED_EXEMPT_TEAMS}" ]]; then
+            echo "Checking for exempt team approvals..."
+            echo "Required exempt teams: ${REQUIRED_EXEMPT_TEAMS}"
+            echo ""
+
+            IFS=',' read -ra TEAMS <<< "${REQUIRED_EXEMPT_TEAMS}"
+            all_exempt_teams_approved=true
+
+            for team in "${TEAMS[@]}"; do
+              echo "  Checking team: $team"
+
+              # Fetch team members
+              TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${team}/members --jq '.[].login' 2>/dev/null || echo "")
+
+              if [[ -z "$TEAM_MEMBERS" ]]; then
+                echo "    [WARN] Could not fetch members for team: $team"
+                continue
+              fi
+
+              TEAM_MEMBERS=$(echo "$TEAM_MEMBERS" | tr '\n' '|' | sed 's/|$//')
+              echo "    Team members: ${TEAM_MEMBERS}"
+
+              # Check if any approver is from this team
+              team_approved=false
+              for approver in "${ALL_APPROVERS[@]}"; do
+                if echo "$approver" | grep -iqE "^(${TEAM_MEMBERS})$"; then
+                  echo "    [PASS] Approved by: ${approver}"
+                  team_approved=true
+                  break
+                fi
+              done
+
+              if [[ "${team_approved}" == "false" ]]; then
+                echo "    [FAIL] No approval from team: $team"
+                all_exempt_teams_approved=false
+                missing_exempt_teams="${missing_exempt_teams}${team}, "
+              fi
+              echo ""
+            done
+
+            exempt_teams_approved=${all_exempt_teams_approved}
+            missing_exempt_teams=$(echo "$missing_exempt_teams" | sed 's/, $//')
+          else
+            # No exempt teams required, mark as approved
+            exempt_teams_approved=true
+          fi
+
+          # Determine final approval status
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Approval Status Summary:"
+          echo "  Backend-owned files: ${HAS_BACKEND_OWNED_FILES}"
+          echo "  Backend approved: ${backend_approved}"
+          echo "  Required exempt teams: ${REQUIRED_EXEMPT_TEAMS:-none}"
+          echo "  Exempt teams approved: ${exempt_teams_approved}"
+
+          if [[ "${HAS_BACKEND_OWNED_FILES}" == "true" && "${backend_approved}" == "false" ]]; then
+            requires_approval=true
+            echo ""
+            echo "[FAIL] Missing backend-review-group approval"
+          elif [[ -n "${REQUIRED_EXEMPT_TEAMS}" && "${exempt_teams_approved}" == "false" ]]; then
+            requires_approval=true
+            echo ""
+            echo "[FAIL] Missing approval from exempt teams: ${missing_exempt_teams}"
+          else
+            requires_approval=false
+            echo ""
+            echo "[PASS] All required approvals received"
+          fi
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
           # Output results for subsequent steps
-          echo "exempt=${exempt}" >> "$GITHUB_OUTPUT"
-          echo "exempt_reason=${exempt_reason}" >> "$GITHUB_OUTPUT"
           echo "backend_approved=${backend_approved}" >> "$GITHUB_OUTPUT"
+          echo "exempt_teams_approved=${exempt_teams_approved}" >> "$GITHUB_OUTPUT"
           echo "requires_approval=${requires_approval}" >> "$GITHUB_OUTPUT"
+          echo "missing_exempt_teams=${missing_exempt_teams}" >> "$GITHUB_OUTPUT"
 
       - name: Update PR labels
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
-          EXEMPT: ${{ steps.approval_status.outputs.exempt }}
+          HAS_BACKEND_OWNED_FILES: ${{ steps.file_ownership.outputs.has_backend_owned_files }}
+          REQUIRED_EXEMPT_TEAMS: ${{ steps.file_ownership.outputs.required_exempt_teams }}
           REQUIRES_APPROVAL: ${{ steps.approval_status.outputs.requires_approval }}
         run: |
           echo "Updating PR labels..."
@@ -273,17 +359,25 @@ jobs:
           LABELS_TO_ADD=()
           LABELS_TO_REMOVE=()
 
-          if [[ "${EXEMPT}" == "true" ]]; then
-            LABELS_TO_ADD+=("exempt-be-review")
-            LABELS_TO_REMOVE+=("require-backend-approval")
+          # Handle backend approval label
+          if [[ "${HAS_BACKEND_OWNED_FILES}" == "true" ]]; then
+            if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
+              LABELS_TO_ADD+=("require-backend-approval")
+            else
+              LABELS_TO_REMOVE+=("require-backend-approval")
+            fi
           else
-            LABELS_TO_REMOVE+=("exempt-be-review")
+            LABELS_TO_REMOVE+=("require-backend-approval")
           fi
 
-          if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
-            LABELS_TO_ADD+=("require-backend-approval")
-          else
-            LABELS_TO_REMOVE+=("require-backend-approval")
+          # Handle exempt team labels
+          if [[ -n "${REQUIRED_EXEMPT_TEAMS}" ]]; then
+            if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
+              LABELS_TO_ADD+=("require-team-approval")
+            else
+              LABELS_TO_ADD+=("team-approved")
+              LABELS_TO_REMOVE+=("require-team-approval")
+            fi
           fi
 
           # Apply label changes
@@ -297,38 +391,63 @@ jobs:
             gh pr edit "${PR_NUMBER}" --add-label "${label}" 2>/dev/null || echo "  [WARN] Could not add ${label}"
           done
 
-      - name: Fail if backend approval required
+      - name: Fail if approval required
         if: steps.approval_status.outputs.requires_approval == 'true'
+        env:
+          HAS_BACKEND_OWNED_FILES: ${{ steps.file_ownership.outputs.has_backend_owned_files }}
+          REQUIRED_EXEMPT_TEAMS: ${{ steps.file_ownership.outputs.required_exempt_teams }}
+          BACKEND_APPROVED: ${{ steps.approval_status.outputs.backend_approved }}
+          EXEMPT_TEAMS_APPROVED: ${{ steps.approval_status.outputs.exempt_teams_approved }}
+          MISSING_EXEMPT_TEAMS: ${{ steps.approval_status.outputs.missing_exempt_teams }}
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "[FAIL] BACKEND APPROVAL REQUIRED"
+          echo "[FAIL] REQUIRED APPROVALS MISSING"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "This PR requires approval from the backend-review-group before merging."
-          echo ""
-          echo "To get your PR exempt from this requirement, ensure:"
-          echo "  • All changed files are owned exclusively by exempt teams in CODEOWNERS"
-          echo "  • Exempt teams: octo-identity, lighthouse-dash, lighthouse-pivot,"
-          echo "    lighthouse-banana-peels, mobile-api-team, fed-eng-admin"
+
+          if [[ "${HAS_BACKEND_OWNED_FILES}" == "true" && "${BACKEND_APPROVED}" == "false" ]]; then
+            echo "❌ This PR requires approval from backend-review-group"
+            echo ""
+          fi
+
+          if [[ -n "${REQUIRED_EXEMPT_TEAMS}" && "${EXEMPT_TEAMS_APPROVED}" == "false" ]]; then
+            echo "❌ This PR requires approval from the following team(s):"
+            echo "   ${MISSING_EXEMPT_TEAMS}"
+            echo ""
+            echo "These teams own files in this PR and must review the changes."
+            echo ""
+          fi
+
+          echo "To resolve:"
+          echo "  • Request review from the required team(s)"
+          echo "  • Ensure team members with proper access approve the PR"
+          echo "  • Both backend-review-group AND exempt team approvals are required"
+          echo "    when files are owned by both"
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 1
 
       - name: Confirm approval success
         if: steps.approval_status.outputs.requires_approval == 'false'
+        env:
+          BACKEND_APPROVED: ${{ steps.approval_status.outputs.backend_approved }}
+          EXEMPT_TEAMS_APPROVED: ${{ steps.approval_status.outputs.exempt_teams_approved }}
+          REQUIRED_EXEMPT_TEAMS: ${{ steps.file_ownership.outputs.required_exempt_teams }}
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "[PASS] APPROVAL CHECK PASSED"
+          echo "[PASS] ALL REQUIRED APPROVALS RECEIVED"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          
-          if [[ "${{ steps.approval_status.outputs.exempt }}" == "true" ]]; then
-            echo ""
-            echo "PR is exempt from backend approval requirement"
-            echo "Reason: ${{ steps.approval_status.outputs.exempt_reason }}"
-          else
-            echo ""
-            echo "Backend approval has been confirmed"
+          echo ""
+
+          if [[ "${BACKEND_APPROVED}" == "true" ]]; then
+            echo "✓ Backend-review-group approval: confirmed"
           fi
-          
+
+          if [[ -n "${REQUIRED_EXEMPT_TEAMS}" ]]; then
+            echo "✓ Exempt team approvals: confirmed"
+            echo "  Teams: ${REQUIRED_EXEMPT_TEAMS}"
+          fi
+
+          echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 0
