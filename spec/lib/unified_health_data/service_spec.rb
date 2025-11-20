@@ -30,14 +30,10 @@ describe UnifiedHealthData::Service, type: :service do
         VCR.use_cassette('mobile/unified_health_data/get_labs') do
           labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
 
-          # Get labs with non-nil dates
           labs_with_dates = labs.select { |lab| lab.date_completed.present? }
-
-          # Verify sorted in descending order (most recent first)
           dates = labs_with_dates.map { |lab| Time.zone.parse(lab.date_completed) }
           expect(dates).to eq(dates.sort.reverse)
 
-          # Verify nil dates are at the end
           last_labs = labs.last(5)
           if last_labs.any? { |lab| lab.date_completed.nil? }
             expect(labs.select { |lab| lab.date_completed.nil? }).to eq(last_labs.select { |lab|
@@ -195,17 +191,12 @@ describe UnifiedHealthData::Service, type: :service do
 
           allergies = service.get_allergies
 
-          # Get allergies with non-nil dates
           allergies_with_dates = allergies.select { |allergy| allergy.date.present? }
-
-          # Verify sorted in descending order (most recent first)
-          # Use the same parsing logic as the service
           dates = allergies_with_dates.map do |allergy|
             service.send(:parse_date_for_sorting, allergy.date)
           end
           expect(dates).to eq(dates.sort.reverse)
 
-          # Verify nil dates are at the end
           allergies_without_dates = allergies.select { |allergy| allergy.date.nil? }
           if allergies_without_dates.any?
             expect(allergies.last(allergies_without_dates.size)).to eq(allergies_without_dates)
@@ -468,13 +459,8 @@ describe UnifiedHealthData::Service, type: :service do
         it 'returns clinical notes sorted by date in descending order' do
           notes = service.get_care_summaries_and_notes
 
-          # All notes should have dates
           dates = notes.map { |note| Time.zone.parse(note.date) }
-
-          # Verify sorted in descending order (most recent first)
           expect(dates).to eq(dates.sort.reverse)
-
-          # Verify first note is the most recent
           expect(notes.first.date).to eq(notes.map(&:date).max)
         end
       end
@@ -1469,14 +1455,10 @@ describe UnifiedHealthData::Service, type: :service do
     it 'returns conditions sorted by date in descending order' do
       conditions = service.get_conditions
 
-      # Get conditions with non-nil dates
       conditions_with_dates = conditions.select { |condition| condition.date.present? }
-
-      # Verify sorted in descending order (most recent first)
       dates = conditions_with_dates.map { |condition| Time.zone.parse(condition.date) }
       expect(dates).to eq(dates.sort.reverse)
 
-      # Verify nil dates are at the end
       conditions_without_dates = conditions.select { |condition| condition.date.nil? }
       if conditions_without_dates.any?
         expect(conditions.last(conditions_without_dates.size)).to eq(conditions_without_dates)
@@ -1761,9 +1743,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         sorted = service.send(:sort_records_by_date, records)
 
-        # Verify dated records are first in correct order
         expect(sorted.map(&:id).first(2)).to eq(%w[3 1])
-        # Verify nil dates are at the end (order between nils is not guaranteed)
         expect(sorted.last(2).map(&:id)).to contain_exactly('2', '4')
         expect(sorted.last(2).all? { |r| r.date.nil? }).to be true
       end

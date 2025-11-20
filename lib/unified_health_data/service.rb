@@ -263,7 +263,6 @@ module UnifiedHealthData
 
       records.sort_by do |record|
         date_value = record.respond_to?(date_field) ? record.send(date_field) : nil
-        # Parse string dates to Time objects for proper sorting
         parsed_date = parse_date_for_sorting(date_value)
         parsed_date || Time.zone.at(0)
       end.reverse
@@ -278,11 +277,9 @@ module UnifiedHealthData
       return nil if date_value.nil?
       return date_value if date_value.is_a?(Time) || date_value.is_a?(DateTime)
 
-      # Convert to string if it's not already
       date_string = date_value.to_s
 
-      # Handle year-only dates (e.g., "2024", "2002")
-      # Convert them to January 1st of that year for sorting purposes
+      # Handle year-only dates (e.g., "2024") by converting to January 1st
       return Time.zone.parse("#{date_string}-01-01") if date_string.match?(/^\d{4}$/)
 
       Time.zone.parse(date_string)
