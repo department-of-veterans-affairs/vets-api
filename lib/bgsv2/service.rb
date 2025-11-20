@@ -4,12 +4,14 @@ require_relative 'exceptions/bgs_errors'
 require 'common/client/concerns/monitoring'
 require 'logging/helper/data_scrubber'
 require 'logging/helper/parameter_filter'
+require 'vets/shared_logging'
 
 module BGSV2
   class Service
     STATSD_KEY_PREFIX = 'api.bgs'
 
     include BGSV2::Exceptions::BGSErrors
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
     include Logging::Helper::DataScrubber
     include Logging::Helper::ParameterFilter

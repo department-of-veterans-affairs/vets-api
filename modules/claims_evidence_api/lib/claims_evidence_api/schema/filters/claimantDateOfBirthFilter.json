@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/claimantDateOfBirthFilter.json",
+  "description" : "Filters results on range for claimantDobFilter.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "description" : "This is the claimant DOB",
+      "example" : "2020-10-09",
+      "type" : "string"
+    }
+  },
+  "title" : "Claimant DOB Filter Request",
+  "type" : "object"
+}

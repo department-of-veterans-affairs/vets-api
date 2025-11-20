@@ -92,44 +92,30 @@ module TravelPay
 
     ##
     # Builds the request body for the expense API call
+    # Transforms snake_case params to camelCase for the API
     #
     # @param params [Hash] The expense parameters
     # @return [Hash] The formatted request body
     #
     def build_expense_request_body(params)
-      request_body = {
-        'dateIncurred' => params['purchase_date'],
-        'description' => params['description'],
-        'costRequested' => params['cost_requested'],
-        'expenseType' => params['expense_type']
+      # Map of special cases where the API field name doesn't follow simple camelCase conversion
+      special_mappings = {
+        'purchase_date' => 'dateIncurred',
+        'receipt' => 'expenseReceipt'
       }
 
-      # Only add claimId if it exists in params
-      request_body['claimId'] = params['claim_id'] if params['claim_id'].present?
+      request_body = {}
 
-      # Include placeholder receipt unless feature flag is enabled to exclude it
-      unless Flipper.enabled?(:travel_pay_exclude_expense_placeholder_receipt)
-        request_body['expenseReceipt'] = build_placeholder_receipt
+      params.each do |key, value|
+        next if value.nil?
+
+        # Use special mapping if it exists, otherwise convert to camelCase
+        key_str = key.to_s
+        api_key = special_mappings[key_str] || key_str.camelize(:lower)
+        request_body[api_key] = value
       end
 
       request_body
-    end
-
-    ##
-    # Builds the smallest possible placeholder receipt that satisfies the client contract
-    #
-    # @return [Hash] The minimal placeholder receipt data
-    #
-    def build_placeholder_receipt
-      # Minimal valid BMP (1x1 white pixel) - 58 bytes
-      bmp_base64 = 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-
-      {
-        'contentType' => 'image/bmp',
-        'length' => 58,
-        'fileName' => 'placeholder.bmp',
-        'fileData' => bmp_base64
-      }
     end
 
     def client
