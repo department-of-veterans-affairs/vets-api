@@ -59,11 +59,16 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         expect(claim.errors.full_messages.join).to include('pattern')
       end
 
-      it 'rejects aptOrUnitNumber longer than 5 characters' do
-        form['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'Suite 100'
+      it 'accepts aptOrUnitNumber up to 30 characters' do
+        form['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'A' * 30
+        expect(claim).to be_valid
+      end
+
+      it 'rejects aptOrUnitNumber longer than 30 characters' do
+        form['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 5')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'accepts country codes up to 3 characters' do

@@ -801,8 +801,8 @@
                               },
                               "aptOrUnitNumber": {
                                 "type": "string",
-                                "maxLength": 5,
-                                "description": "Apartment or unit number (max 5 characters)",
+                                "maxLength": 30,
+                                "description": "Apartment or unit number (max 30 characters)",
                                 "example": "Suite"
                               },
                               "city": {
@@ -1089,8 +1089,8 @@
                               },
                               "aptOrUnitNumber": {
                                 "type": "string",
-                                "maxLength": 5,
-                                "description": "Apartment or unit number (max 5 characters)",
+                                "maxLength": 30,
+                                "description": "Apartment or unit number (max 30 characters)",
                                 "example": "Suite"
                               },
                               "city": {
@@ -1268,7 +1268,7 @@
           "street2": {
             "type": "string",
             "example": "4B",
-            "maxLength": 5
+            "maxLength": 30
           },
           "city": {
             "type": "string",

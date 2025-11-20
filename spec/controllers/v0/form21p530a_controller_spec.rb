@@ -312,5 +312,63 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(json['errors'].first['status']).to eq('500')
       end
     end
+
+    context 'with 30-character aptOrUnitNumber' do
+      let(:payload_with_max_apt) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'A' * 30
+        payload
+      end
+
+      it 'accepts aptOrUnitNumber with exactly 30 characters' do
+        post(:download_pdf, body: payload_with_max_apt.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+    end
+  end
+
+  describe 'address field validation' do
+    context 'with extended aptOrUnitNumber values' do
+      let(:payload_with_long_apt) do
+        payload = valid_payload.deep_dup
+        payload['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] =
+          'Suite 100, Building North'
+        payload
+      end
+
+      it 'accepts aptOrUnitNumber values up to 30 characters for form submission' do
+        post(:create, body: payload_with_long_apt.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['confirmation_number']).to be_present
+      end
+
+      it 'accepts aptOrUnitNumber values up to 30 characters for PDF generation' do
+        post(:download_pdf, body: payload_with_long_apt.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+    end
+
+    context 'with aptOrUnitNumber values exceeding 30 characters' do
+      let(:payload_with_too_long_apt) do
+        payload = valid_payload.deep_dup
+        # Set aptOrUnitNumber to 31 characters
+        payload['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'A' * 31
+        payload
+      end
+
+      it 'rejects aptOrUnitNumber values exceeding 30 characters for form submission' do
+        post(:create, body: payload_with_too_long_apt.to_json, as: :json)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+      end
+    end
   end
 end
