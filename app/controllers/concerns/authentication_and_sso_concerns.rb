@@ -13,6 +13,8 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
 
     validates_access_token_audience [IdentitySettings.sign_in.vaweb_client_id,
                                      ('vamock' if MockedAuthentication.mockable_env?)]
+
+    # testing logic
   end
 
   protected
