@@ -37,7 +37,7 @@ jobs:
           echo ""
 
           # Get the diff for CODEOWNERS file
-          git diff origin/${{ github.base_ref }} HEAD -- .github/CODEOWNERS > codeowners.diff
+          git diff origin/master/.github/CODEOWNERS .github/CODEOWNERS  > codeowners.diff
 
           # Initialize arrays and counters
           declare -a violations
