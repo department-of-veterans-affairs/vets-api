@@ -1144,11 +1144,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Bay Pines VA Healthcare System')
       allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
     end
-
-    it 'extracts facility name using existing extract_facility_name method' do
-      result = subject.send(:extract_facility_name_from_dispense, resource_for_facility, dispense_with_location)
-      expect(result).to eq('Bay Pines VA Healthcare System')
-    end
   end
 
   describe '#extract_category' do

@@ -6,17 +6,15 @@ module UnifiedHealthData
   module Adapters
     # Resolves facility names from station numbers using Lighthouse API with caching
     class FacilityNameResolver
-      # Extracts facility name from a FHIR MedicationRequest resource
+      # Extracts facility name from a FHIR MedicationDispense resource
       #
-      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param dispense [Hash] FHIR MedicationDispense resource
       # @return [String, nil] Facility name or nil if not found
-      def extract_facility_name(resource, most_recent_dispense_finder)
-        # Get latest dispense using provided finder
-        latest_dispense = most_recent_dispense_finder.call(resource['contained'])
-        return nil unless latest_dispense
+      def resolve_facility_name(dispense)
+        return nil unless dispense
 
-        # Get .location.display from latest dispense
-        location_display = latest_dispense.dig('location', 'display')
+        # Get .location.display from dispense
+        location_display = dispense.dig('location', 'display')
         return nil unless location_display
 
         # First try the legacy 3-digit station number

@@ -14,32 +14,14 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
     }
   end
 
-  let(:dispense_finder) do
-    lambda do |contained|
-      return nil unless contained.is_a?(Array)
-
-      dispenses = contained.select { |c| c['resourceType'] == 'MedicationDispense' }
-      return nil if dispenses.empty?
-
-      dispenses.max_by do |dispense|
-        when_handed_over = dispense['whenHandedOver']
-        when_handed_over ? Time.zone.parse(when_handed_over) : Time.zone.at(0)
-      end
-    end
-  end
-
-  describe '#extract_facility_name' do
+  describe '#resolve_facility_name' do
     context 'with MedicationDispense containing station number' do
-      let(:resource_with_station_number) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'location' => { 'display' => '556-RX-MAIN-OP' }
-            }
-          ]
-        )
+      let(:dispense_with_station_number) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-1',
+          'location' => { 'display' => '556-RX-MAIN-OP' }
+        }
       end
 
       context 'when facility name is cached' do
@@ -49,7 +31,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         end
 
         it 'returns the cached facility name' do
-          result = subject.extract_facility_name(resource_with_station_number, dispense_finder)
+          result = subject.resolve_facility_name(dispense_with_station_number)
           expect(result).to eq('Cached Facility Name')
         end
 
@@ -58,7 +40,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
           expect(mock_client).not_to receive(:get_facilities)
 
-          subject.extract_facility_name(resource_with_station_number, dispense_finder)
+          subject.resolve_facility_name(dispense_with_station_number)
         end
       end
 
@@ -75,23 +57,19 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
           allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
 
-          result = subject.extract_facility_name(resource_with_station_number, dispense_finder)
+          result = subject.resolve_facility_name(dispense_with_station_number)
           expect(result).to eq('API Facility Name')
           expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
         end
       end
 
       context 'when 3-digit lookup misses but full facility identifier exists' do
-        let(:resource_with_extended_station) do
-          base_resource.merge(
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'id' => 'dispense-extended',
-                'location' => { 'display' => '648A4-RX-MAIN' }
-              }
-            ]
-          )
+        let(:dispense_with_extended_station) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-extended',
+            'location' => { 'display' => '648A4-RX-MAIN' }
+          }
         end
 
         before do
@@ -102,26 +80,22 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         end
 
         it 'falls back to the full station identifier' do
-          result = subject.extract_facility_name(resource_with_extended_station, dispense_finder)
+          result = subject.resolve_facility_name(dispense_with_extended_station)
           expect(result).to eq('Full Station Facility')
         end
       end
 
       context 'when extended station identifier is invalid' do
-        let(:resource_with_invalid_station) do
-          base_resource.merge(
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'id' => 'dispense-invalid',
-                'location' => { 'display' => 'ABC-RX-MAIN' }
-              }
-            ]
-          )
+        let(:dispense_with_invalid_station) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-invalid',
+            'location' => { 'display' => 'ABC-RX-MAIN' }
+          }
         end
 
         it 'returns nil without attempting lookup' do
-          expect(subject.extract_facility_name(resource_with_invalid_station, dispense_finder)).to be_nil
+          expect(subject.resolve_facility_name(dispense_with_invalid_station)).to be_nil
         end
       end
 
@@ -139,23 +113,19 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
           allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([])
 
-          result = subject.extract_facility_name(resource_with_station_number, dispense_finder)
+          result = subject.resolve_facility_name(dispense_with_station_number)
           expect(result).to be_nil
         end
       end
     end
 
     context 'with MedicationDispense containing non-standard station format' do
-      let(:resource_with_short_station) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'location' => { 'display' => '12-PHARMACY' }
-            }
-          ]
-        )
+      let(:dispense_with_short_station) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-1',
+          'location' => { 'display' => '12-PHARMACY' }
+        }
       end
 
       before do
@@ -163,7 +133,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       it 'returns nil when station number does not match 3-digit pattern' do
-        result = subject.extract_facility_name(resource_with_short_station, dispense_finder)
+        result = subject.resolve_facility_name(dispense_with_short_station)
         expect(Rails.logger).to have_received(:error).with(
           'Unable to extract valid station number from: 12-PHARMACY'
         )
@@ -171,83 +141,23 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
     end
 
-    context 'with no MedicationDispense in contained resources' do
-      let(:resource_without_dispense) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'VA Medical Center - Emergency'
-                  }
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns nil when no MedicationDispense found' do
-        result = subject.extract_facility_name(resource_without_dispense, dispense_finder)
+    context 'with nil dispense' do
+      it 'returns nil' do
+        result = subject.resolve_facility_name(nil)
         expect(result).to be_nil
       end
     end
 
     context 'with MedicationDispense but no location' do
-      let(:resource_no_location) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1'
-            }
-          ]
-        )
+      let(:dispense_no_location) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-1'
+        }
       end
 
       it 'returns nil when MedicationDispense has no location' do
-        result = subject.extract_facility_name(resource_no_location, dispense_finder)
-        expect(result).to be_nil
-      end
-    end
-
-    context 'with multiple MedicationDispense resources' do
-      let(:resource_multiple_dispenses) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'location' => { 'display' => '442-RX-MAIN' },
-              'whenHandedOver' => '2025-01-15T10:00:00Z'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-2',
-              'location' => { 'display' => '556-RX-MAIN-OP' },
-              'whenHandedOver' => '2025-01-20T10:00:00Z'
-            }
-          ]
-        )
-      end
-
-      before do
-        allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Recent Facility')
-        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
-      end
-
-      it 'uses the most recent MedicationDispense for station number' do
-        result = subject.extract_facility_name(resource_multiple_dispenses, dispense_finder)
-        expect(result).to eq('Recent Facility')
-      end
-    end
-
-    context 'with no contained resources' do
-      it 'returns nil when no contained resources exist' do
-        result = subject.extract_facility_name(base_resource, dispense_finder)
+        result = subject.resolve_facility_name(dispense_no_location)
         expect(result).to be_nil
       end
     end
