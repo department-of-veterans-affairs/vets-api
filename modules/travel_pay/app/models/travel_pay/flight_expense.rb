@@ -16,9 +16,10 @@ module TravelPay
     validates :departed_from, presence: true, length: { maximum: 255 }
     validates :arrived_to, presence: true, length: { maximum: 255 }
     validates :departure_date, presence: true
+    validates :return_date, presence: true, if: :round_trip?
 
-    validate :departure_and_arrival_must_be_different
-    validate :departure_date_must_be_before_return_date
+    validate :departure_and_arrival_must_be_different, if: :round_trip?
+    validate :departure_date_must_be_before_return_date, if: :round_trip?
 
     # Returns the list of permitted parameters for flight expenses
     # Extends base params with flight-specific fields
@@ -51,6 +52,13 @@ module TravelPay
     end
 
     private
+
+    # Returns true if the trip type is RoundTrip
+    #
+    # @return [Boolean] true if trip is round trip
+    def round_trip?
+      trip_type == TravelPay::Constants::TRIP_TYPES[:round_trip]
+    end
 
     # Validates that departure and arrival locations are different
     def departure_and_arrival_must_be_different
