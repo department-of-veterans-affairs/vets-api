@@ -60,10 +60,33 @@ module Lighthouse
         self_url = relations['self']&.dig('url')
         query_string = CGI.parse(URI(self_url).query.to_s)
 
-        {
+        base_meta = {
           total: @bundle['total'].to_i,
           page: query_string['page']&.first.to_i,
           per_page: query_string['_count']&.first.to_i
+        }
+
+        base_meta.merge(copay_summary_meta)
+      end
+
+      private
+
+      def copay_summary_meta
+        total_current_balance = @entries.reduce(BigDecimal("0")) do |sum, entry|
+          sum + BigDecimal(entry.current_balance.to_s)
+        end
+
+        copay_bill_count = @entries.size
+
+        # Try bundle-level timestamp first, then fall back to per-entry date (if present)
+        last_updated_on = @entries.map(&:last_updated_at).compact.max
+
+        {
+          copay_summary: {
+            total_current_balance: total_current_balance.to_f,
+            copay_bill_count: copay_bill_count,
+            last_updated_on: last_updated_on
+          }
         }
       end
     end
