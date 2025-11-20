@@ -92,49 +92,7 @@ in those directories.
 
 The check fails and a comment is posted to the PR explaining the issue.
 
-## Customization
 
-### Adjust Directory Detection
-
-If you need to customize what counts as a "directory" vs a "file", modify the directory detection logic in the workflow:
-
-```bash
-# Current logic checks for:
-# 1. Paths ending with /
-# 2. Paths without file extensions
-# 3. Paths with slashes but no dots
-
-is_directory=false
-
-if [[ "$path" =~ /$ ]]; then
-  is_directory=true
-elif [[ ! "$path" =~ \\.[a-zA-Z0-9]+$ ]]; then
-  is_directory=true
-elif [[ "$path" =~ ^[^.]+$ ]] && [[ "$path" =~ / ]]; then
-  is_directory=true
-fi
-```
-
-### Make Check Non-Blocking (Warning Only)
-
-To make this check warn but not fail the CI:
-
-1. Change `exit 1` to `exit 0` in the check step
-2. Or add `continue-on-error: true` to the step
-
-```yaml
-- name: Check for backend-review-group directory assignments
-  continue-on-error: true  # Add this line
-  if: steps.changed-files.outputs.any_changed == 'true'
-  run: |
-    # ... rest of the script
-```
-
-## Example PR Output
-
-When violations are detected, the PR will receive a comment like:
-
----
 
 ## ⚠️ CODEOWNERS Directory Assignment Warning
 
