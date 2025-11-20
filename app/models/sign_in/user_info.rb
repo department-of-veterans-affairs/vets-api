@@ -27,30 +27,33 @@ module SignIn
     attribute :cerner_id, :string
     attribute :corp_id, :string
     attribute :birls, :string
-    attribute :credential_uuid, :string
 
     def self.from_user(user, user_verification: nil)
       new(
         sub: user.uuid,
         email: user_verification&.user_credential_email&.credential_email || user.email,
-        full_name: full_name_from(user), first_name: user.first_name, last_name: user.last_name,
-        csp_type: user.csp_type, csp_uuid: user.csp_uuid, ial: user.ial, aal: user.aal,
-        birth_date: user.birth_date, ssn: user.ssn, gender: user.gender, address: user.address,
-        phone_number: user.phone, person_type: user.person_type, icn: user.icn, sec_id: user.sec_id,
-        edipi: user.edipi, mhv_ien: user.mhv_ien, cerner_id: user.cerner_id, corp_id: user.corp_id,
-        birls: user.birls_id, credential_uuid: user_verification&.credential_identifier
+        full_name: full_name_from(user),
+        first_name: user.first_name, last_name: user.last_name,
+        csp_type: csp_type_from_mpi(user_verification), csp_uuid: user_verification.credential_identifier,
+        ial: ial_level(user_verification), aal: aal_level(user_verification),
+        birth_date: user.birth_date, ssn: user.ssn,
+        gender: user.gender, address: user.address, phone_number: user.home_phone,
+        person_type: user.try(:person_type), icn: user.icn,
+        sec_id: user.sec_id, edipi: user.try(:edipi),
+        mhv_ien: user.try(:mhv_ien), cerner_id: user.try(:cerner_id),
+        corp_id: user.participant_id, birls: user.birls_id
       )
     end
 
     def to_oidc_json
       {
-        sub:, first_name:,
+        sub:, first_name:, full_name:,
         last_name:, email:, csp_type:, csp_uuid:,
         ial:, aal:, birth_date:, ssn:,
         gender:, address:, phone_number:, person_type:,
         icn:, sec_id:, edipi:, mhv_ien:,
-        cerner_id:, corp_id:, birls:, credential_uuid:
-      }.compact
+        cerner_id:, corp_id:, birls:
+      }
     end
 
     def to_h
@@ -64,6 +67,23 @@ module SignIn
         .compact_blank
         .join(' ')
         .presence
+    end
+
+    def self.ial_level(user_verification)
+      user_verification.verified? ? '2' : '1'
+    end
+
+    def self.aal_level(user_verification)
+      '2' if %w[idme logingov].include?(user_verification.credential_type)
+    end
+
+    def self.csp_type_from_mpi(user_verification)
+      case user_verification.credential_type
+      when 'idme'
+        '200VIDM'
+      when 'logingov'
+        '200VLGN'
+      end
     end
   end
 end
