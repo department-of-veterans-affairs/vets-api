@@ -129,379 +129,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#extract_facility_name' do
-    context 'with MedicationDispense containing station number' do
-      let(:resource_with_station_number) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'location' => { 'display' => '556-RX-MAIN-OP' }
-            }
-          ]
-        )
-      end
-
-      context 'when facility name is cached' do
-        before do
-          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Cached Facility Name')
-          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
-        end
-
-        it 'returns the cached facility name' do
-          result = subject.send(:extract_facility_name, resource_with_station_number)
-          expect(result).to eq('Cached Facility Name')
-        end
-
-        it 'does not call the API when cache hit occurs' do
-          # Mock the Lighthouse client to ensure it's not called
-          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
-          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
-          expect(mock_client).not_to receive(:get_facilities)
-
-          subject.send(:extract_facility_name, resource_with_station_number)
-        end
-      end
-
-      context 'when facility name is not cached' do
-        before do
-          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
-          allow(Rails.cache).to receive(:write)
-          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
-        end
-
-        it 'calls the API and returns the facility name' do
-          # Mock the Lighthouse API to return a facility
-          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
-          mock_facility = double('facility', name: 'API Facility Name')
-          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
-          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
-
-          result = subject.send(:extract_facility_name, resource_with_station_number)
-          expect(result).to eq('API Facility Name')
-          expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
-        end
-      end
-
-      context 'when 3-digit lookup misses but full facility identifier exists' do
-        let(:resource_with_extended_station) do
-          base_resource.merge(
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'id' => 'dispense-extended',
-                'location' => { 'display' => '648A4-RX-MAIN' }
-              }
-            ]
-          )
-        end
-
-        before do
-          allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return(nil)
-          allow(Rails.cache).to receive(:read).with('uhd:facility_names:648A4').and_return('Full Station Facility')
-          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(false)
-          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648A4').and_return(true)
-        end
-
-        it 'falls back to the full station identifier' do
-          result = subject.send(:extract_facility_name, resource_with_extended_station)
-          expect(result).to eq('Full Station Facility')
-        end
-      end
-
-      context 'when extended station identifier is invalid' do
-        let(:resource_with_invalid_station) do
-          base_resource.merge(
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'id' => 'dispense-invalid',
-                'location' => { 'display' => 'ABC-RX-MAIN' }
-              }
-            ]
-          )
-        end
-
-        it 'returns nil without attempting lookup' do
-          expect(subject.send(:extract_facility_name, resource_with_invalid_station)).to be_nil
-        end
-      end
-
-      context 'when API returns nil' do
-        before do
-          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
-          allow(Rails.cache).to receive(:write)
-          allow(Rails.logger).to receive(:warn)
-          allow(StatsD).to receive(:increment)
-          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
-        end
-
-        it 'returns nil when API call returns nil' do
-          # Mock the Lighthouse API to return empty array
-          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
-          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
-          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([])
-
-          result = subject.send(:extract_facility_name, resource_with_station_number)
-          expect(result).to be_nil
-        end
-      end
-    end
-
-    context 'with MedicationDispense containing non-standard station format' do
-      let(:resource_with_short_station) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'location' => { 'display' => '12-PHARMACY' }
-            }
-          ]
-        )
-      end
-
-      before do
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'returns nil when station number does not match 3-digit pattern' do
-        result = subject.send(:extract_facility_name, resource_with_short_station)
-        expect(Rails.logger).to have_received(:error).with(
-          'Unable to extract valid station number from: 12-PHARMACY'
-        )
-        expect(result).to be_nil
-      end
-    end
-
-    context 'with no MedicationDispense in contained resources' do
-      let(:resource_without_dispense) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'VA Medical Center - Emergency'
-                  }
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns nil when no MedicationDispense found' do
-        result = subject.send(:extract_facility_name, resource_without_dispense)
-        expect(result).to be_nil
-      end
-    end
-
-    context 'with MedicationDispense but no location' do
-      let(:resource_no_location) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1'
-            },
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'Outpatient Clinic'
-                  }
-                }
-              ]
-            },
-            {
-              'resourceType' => 'Organization',
-              'id' => 'org-1'
-            }
-          ]
-        )
-      end
-
-      it 'returns nil when MedicationDispense has no location' do
-        result = subject.send(:extract_facility_name, resource_no_location)
-        expect(result).to be_nil
-      end
-    end
-
-    context 'with multiple MedicationDispense resources' do
-      let(:resource_multiple_dispenses) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'location' => { 'display' => '442-RX-MAIN' },
-              'whenHandedOver' => '2025-01-15T10:00:00Z'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-2',
-              'location' => { 'display' => '556-RX-MAIN-OP' },
-              'whenHandedOver' => '2025-01-20T10:00:00Z'
-            }
-          ]
-        )
-      end
-
-      before do
-        allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Recent Facility')
-        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
-      end
-
-      it 'uses the most recent MedicationDispense for station number' do
-        result = subject.send(:extract_facility_name, resource_multiple_dispenses)
-        expect(result).to eq('Recent Facility')
-      end
-    end
-
-    context 'with no contained resources' do
-      it 'returns nil when no contained resources exist' do
-        result = subject.send(:extract_facility_name, base_resource)
-        expect(result).to be_nil
-      end
-    end
-  end
-
-  describe '#fetch_facility_name_from_api' do
-    let(:mock_client) { instance_double(Lighthouse::Facilities::V1::Client) }
-    let(:mock_facility) { double('facility', name: 'Test VA Medical Center') }
-
-    before do
-      allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
-      allow(Rails.logger).to receive(:info)
-      allow(Rails.logger).to receive(:warn)
-      allow(StatsD).to receive(:increment)
-    end
-
-    context 'when API returns facility data' do
-      before do
-        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
-        allow(Rails.cache).to receive(:write)
-      end
-
-      it 'returns the facility name' do
-        result = subject.send(:fetch_facility_name_from_api, '556')
-        expect(result).to eq('Test VA Medical Center')
-      end
-
-      it 'calls the Lighthouse API with correct facility ID format' do
-        subject.send(:fetch_facility_name_from_api, '556')
-        expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
-      end
-
-      it 'writes the facility name to cache with TTL' do
-        subject.send(:fetch_facility_name_from_api, '556')
-        expect(Rails.cache).to have_received(:write).with(
-          'uhd:facility_names:556',
-          'Test VA Medical Center',
-          expires_in: 4.hours
-        )
-      end
-    end
-
-    context 'when API returns empty array' do
-      before do
-        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([])
-        allow(Rails.cache).to receive(:write)
-      end
-
-      it 'returns nil and logs warning message' do
-        result = subject.send(:fetch_facility_name_from_api, '556')
-        expect(result).to be_nil
-        expect(Rails.logger).to have_received(:warn).with(
-          'No facility found for station number 556 in Lighthouse API'
-        )
-      end
-
-      it 'caches nil result to avoid repeated API calls' do
-        subject.send(:fetch_facility_name_from_api, '556')
-        expect(Rails.cache).to have_received(:write).with(
-          'uhd:facility_names:556',
-          nil,
-          expires_in: 4.hours
-        )
-      end
-    end
-
-    context 'when API returns nil' do
-      before do
-        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return(nil)
-      end
-
-      it 'returns nil and logs warning message' do
-        result = subject.send(:fetch_facility_name_from_api, '556')
-        expect(result).to be_nil
-        expect(Rails.logger).to have_received(:warn).with(
-          'No facility found for station number 556 in Lighthouse API'
-        )
-      end
-    end
-
-    context 'when API raises an exception' do
-      let(:api_error) { StandardError.new('API connection failed') }
-
-      before do
-        allow(mock_client).to receive(:get_facilities).and_raise(api_error)
-        allow(Rails.cache).to receive(:write)
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'returns nil, logs error, and increments StatsD metric' do
-        result = subject.send(:fetch_facility_name_from_api, '556')
-
-        expect(result).to be_nil
-        expect(Rails.logger).to have_received(:error).with(
-          'Failed to fetch facility name from API for station 556: API connection failed'
-        )
-        expect(StatsD).to have_received(:increment).with(
-          'unified_health_data.facility_name_fallback.api_error'
-        )
-      end
-
-      it 'does not cache error results' do
-        subject.send(:fetch_facility_name_from_api, '556')
-        expect(Rails.cache).not_to have_received(:write)
-      end
-    end
-
-    context 'when API returns facility without name' do
-      let(:facility_without_name) { double('facility', name: nil) }
-
-      before do
-        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([facility_without_name])
-      end
-
-      it 'returns nil when facility name is nil' do
-        result = subject.send(:fetch_facility_name_from_api, '556')
-        expect(result).to be_nil
-      end
-    end
-
-    context 'when API returns multiple facilities' do
-      let(:facility_one) { double('facility', name: 'First Facility') }
-      let(:facility_two) { double('facility', name: 'Second Facility') }
-
-      before do
-        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([facility_one,
-                                                                                                facility_two])
-      end
-
-      it 'returns the name of the first facility' do
-        result = subject.send(:fetch_facility_name_from_api, '556')
-        expect(result).to eq('First Facility')
-      end
-    end
-  end
+  # NOTE: #extract_facility_name and facility lookup tests moved to facility_name_resolver_spec.rb
+  # The adapter now delegates facility name extraction to FacilityNameResolver
 
   describe '#extract_is_refillable' do
     let(:base_refillable_resource) do
@@ -1515,11 +1144,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Bay Pines VA Healthcare System')
       allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
     end
-
-    it 'extracts facility name using existing extract_facility_name method' do
-      result = subject.send(:extract_facility_name_from_dispense, resource_for_facility, dispense_with_location)
-      expect(result).to eq('Bay Pines VA Healthcare System')
-    end
   end
 
   describe '#extract_category' do
@@ -2223,6 +1847,194 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     it 'returns "discontinued" when expiration date is nil' do
       result = subject.send(:normalize_completed_status, nil)
       expect(result).to eq('discontinued')
+    end
+  end
+
+  describe '#map_refill_status_to_disp_status' do
+    context 'with standard refill_status values' do
+      it 'maps "active" to "Active"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'active', 'VA')
+        expect(result).to eq('Active')
+      end
+
+      it 'maps "refillinprocess" to "Active: Refill in Process"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'refillinprocess', 'VA')
+        expect(result).to eq('Active: Refill in Process')
+      end
+
+      it 'maps "providerHold" to "Active: On hold"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'providerHold', 'VA')
+        expect(result).to eq('Active: On hold')
+      end
+
+      it 'maps "discontinued" to "Discontinued"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'discontinued', 'VA')
+        expect(result).to eq('Discontinued')
+      end
+
+      it 'maps "expired" to "Expired"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'expired', 'VA')
+        expect(result).to eq('Expired')
+      end
+
+      it 'maps "unknown" to "Unknown"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'unknown', 'VA')
+        expect(result).to eq('Unknown')
+      end
+
+      it 'maps "pending" to "Unknown"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'pending', 'VA')
+        expect(result).to eq('Unknown')
+      end
+    end
+
+    context 'with Non-VA prescriptions' do
+      it 'maps "active" + "NV" source to "Active: Non-VA"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'active', 'NV')
+        expect(result).to eq('Active: Non-VA')
+      end
+
+      it 'does not apply Non-VA mapping to non-active statuses' do
+        result = subject.send(:map_refill_status_to_disp_status, 'expired', 'NV')
+        expect(result).to eq('Expired')
+      end
+
+      it 'does not apply Non-VA mapping to VA prescriptions' do
+        result = subject.send(:map_refill_status_to_disp_status, 'active', 'VA')
+        expect(result).to eq('Active')
+      end
+    end
+
+    context 'with unexpected refill_status values' do
+      before do
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'returns "Unknown" and logs a warning' do
+        result = subject.send(:map_refill_status_to_disp_status, 'unexpected_status', 'VA')
+        expect(result).to eq('Unknown')
+        expect(Rails.logger).to have_received(:warn)
+          .with('Unexpected refill_status for disp_status mapping: unexpected_status')
+      end
+    end
+  end
+
+  describe '#parse with disp_status' do
+    context 'when parsing a VA prescription with active status' do
+      let(:active_va_resource) do
+        base_resource.merge(
+          'status' => 'active',
+          'reportedBoolean' => false,
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'sets disp_status to "Active"' do
+        result = subject.parse(active_va_resource)
+        expect(result.disp_status).to eq('Active')
+      end
+    end
+
+    context 'when parsing a Non-VA prescription with active status' do
+      let(:active_nv_resource) do
+        base_resource.merge(
+          'status' => 'active',
+          'reportedBoolean' => true,
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-29T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'sets disp_status to "Active: Non-VA"' do
+        result = subject.parse(active_nv_resource)
+        expect(result.disp_status).to eq('Active: Non-VA')
+      end
+    end
+
+    context 'when parsing a prescription with on-hold status' do
+      let(:on_hold_resource) do
+        base_resource.merge('status' => 'on-hold')
+      end
+
+      it 'sets disp_status to "Active: On hold"' do
+        result = subject.parse(on_hold_resource)
+        expect(result.disp_status).to eq('Active: On hold')
+      end
+    end
+
+    context 'when parsing a prescription with completed status' do
+      let(:completed_resource) do
+        base_resource.merge(
+          'status' => 'completed',
+          'dispenseRequest' => {
+            'validityPeriod' => {
+              'end' => 60.days.ago.utc.iso8601
+            }
+          }
+        )
+      end
+
+      it 'sets disp_status to "Expired"' do
+        result = subject.parse(completed_resource)
+        expect(result.disp_status).to eq('Expired')
+      end
+    end
+
+    context 'when parsing a prescription with discontinued status' do
+      let(:discontinued_resource) do
+        base_resource.merge('status' => 'cancelled')
+      end
+
+      it 'sets disp_status to "Discontinued"' do
+        result = subject.parse(discontinued_resource)
+        expect(result.disp_status).to eq('Discontinued')
+      end
+    end
+
+    context 'when parsing a prescription with in-progress dispense' do
+      let(:refill_in_process_resource) do
+        base_resource.merge(
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'in-progress',
+              'whenHandedOver' => '2025-01-29T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'sets disp_status to "Active: Refill in Process"' do
+        result = subject.parse(refill_in_process_resource)
+        expect(result.disp_status).to eq('Active: Refill in Process')
+      end
     end
   end
 end

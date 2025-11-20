@@ -177,11 +177,13 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(vista_prescription.disp_status).to eq('Active: Refill in Process')
       end
 
-      it 'sets disp_status to nil for Oracle Health prescriptions' do
+      it 'sets disp_status derived from refill_status for Oracle Health prescriptions' do
         prescriptions = subject.parse(unified_response)
         oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
-        expect(oracle_prescription.disp_status).to be_nil
+        # Oracle Health prescription with status='active', 0 refills remaining = 'expired' refill_status
+        # which maps to 'Expired' disp_status
+        expect(oracle_prescription.disp_status).to eq('Expired')
       end
 
       context 'business rules filtering (applied regardless of current_only)' do
