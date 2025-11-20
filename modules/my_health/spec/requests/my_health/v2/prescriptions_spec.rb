@@ -944,12 +944,12 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     end
   end
 
-  describe 'GET /my_health/v2/prescriptions/:station_number/:prescription_id' do
+  describe 'GET /my_health/v2/prescriptions/:id' do
     context 'when feature flag is disabled' do
       it 'returns forbidden' do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
 
-        get('/my_health/v2/prescriptions/556/12345', headers:)
+        get('/my_health/v2/prescriptions/12345', params: { station_number: '556' }, headers:)
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -962,7 +962,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'returns a successful response when prescription is found' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions/556/15214174591', headers:)
+          get('/my_health/v2/prescriptions/15214174591', params: { station_number: '556' }, headers:)
 
           expect(response).to have_http_status(:success)
           json_response = JSON.parse(response.body)
@@ -973,7 +973,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'returns 404 when prescription is not found' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions/123/99999', headers:)
+          get('/my_health/v2/prescriptions/99999', params: { station_number: '123' }, headers:)
 
           expect(response).to have_http_status(:not_found)
         end
@@ -982,7 +982,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       it 'returns camelCase attributes when X-Key-Inflection: camel header is provided' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           camel_headers = headers.merge('X-Key-Inflection' => 'camel')
-          get('/my_health/v2/prescriptions/556/15214174591', headers: camel_headers)
+          get('/my_health/v2/prescriptions/15214174591', params: { station_number: '556' }, headers: camel_headers)
 
           expect(response).to have_http_status(:success)
           json_response = JSON.parse(response.body)

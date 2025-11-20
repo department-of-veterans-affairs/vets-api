@@ -60,11 +60,11 @@ module MyHealth
 
         prescriptions = service.get_prescriptions(current_only: false).compact
         prescription = prescriptions.find do |p|
-          p.prescription_id.to_s == params[:prescription_id].to_s &&
+          p.prescription_id.to_s == params[:id].to_s &&
             p.station_number.to_s == params[:station_number].to_s
         end
 
-        raise Common::Exceptions::RecordNotFound, params[:prescription_id] unless prescription
+        raise Common::Exceptions::RecordNotFound, params[:id] unless prescription
 
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
       end
