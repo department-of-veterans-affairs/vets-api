@@ -77,7 +77,7 @@ module EventBusGateway
     def handle_push_notification(participant_id, push_template_id, icn)
       if should_send_push?(push_template_id, icn)
         send_push_async(participant_id, push_template_id, icn)
-      elsif push_template_id.present?
+      else
         log_notification_skipped('push', 'ICN or template not available', push_template_id)
         nil
       end

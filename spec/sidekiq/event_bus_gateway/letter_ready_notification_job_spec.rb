@@ -116,10 +116,15 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
                                                             .and not_change(EventBusGatewayPushNotification, :count)
         end
 
-        it 'increments only email success metric' do
+        it 'increments email success metric and push skipped metric' do
           expect(StatsD).to receive(:increment).with(
             'event_bus_gateway.letter_ready_email.success',
             tags: EventBusGateway::Constants::DD_TAGS
+          )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:push',
+                                                         'reason:icn_or_template_not_available']
           )
 
           subject.new.perform(participant_id, email_template_id)
@@ -142,10 +147,15 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
             .and change(EventBusGatewayPushNotification, :count).by(1)
         end
 
-        it 'increments only push success metric' do
+        it 'increments push success metric and email skipped metric' do
           expect(StatsD).to receive(:increment).with(
             'event_bus_gateway.letter_ready_push.success',
             tags: EventBusGateway::Constants::DD_TAGS
+          )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email',
+                                                         'reason:icn_or_template_not_available']
           )
 
           subject.new.perform(participant_id, nil, push_template_id)
