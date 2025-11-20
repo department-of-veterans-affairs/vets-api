@@ -40,7 +40,7 @@ module VeteranEnrollmentSystem
 
       def pdf_file
         template_path = self.class.pdf_template_path(tax_year)
-        unless File.exist?(template_path)
+        unless File.exist?(template_path) && respond_to?("pdf_#{tax_year}_attributes", true)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
