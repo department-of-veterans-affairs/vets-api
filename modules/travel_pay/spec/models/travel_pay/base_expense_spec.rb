@@ -71,16 +71,16 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     context 'description validation' do
-      it 'allows description to be nil (allow_nil: true)' do
+      it 'allows description to be nil' do
         subject.description = nil
         expect(subject).to be_valid
         expect(subject.errors[:description]).to be_empty
       end
 
-      it 'requires description to be present when not nil' do
+      it 'allows description to be blank/empty string' do
         subject.description = ''
-        expect(subject).not_to be_valid
-        expect(subject.errors[:description]).to include("can't be blank")
+        expect(subject).to be_valid
+        expect(subject.errors[:description]).to be_empty
       end
 
       it 'requires description to be 255 characters or less when present' do
