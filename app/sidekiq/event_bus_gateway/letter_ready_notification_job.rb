@@ -75,6 +75,11 @@ module EventBusGateway
     end
 
     def handle_push_notification(participant_id, push_template_id, icn)
+      unless Flipper.enabled?(:event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(icn))
+        log_notification_skipped('push', 'Push notifications not enabled for this user', push_template_id)
+        return nil
+      end
+
       if should_send_push?(push_template_id, icn)
         send_push_async(participant_id, push_template_id, icn)
       else
