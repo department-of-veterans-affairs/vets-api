@@ -101,9 +101,16 @@ module Lighthouse
           end
           return
         else
-          # Check the submission.created_at date, if it's more than 4 days old
-          # update the job status to pdf_not_found immediately and exit the job
-          unless submission.created_at.between?(DateTime.now - 4.days, DateTime.now)
+          # Evaluate the submission's creation date:
+          # - Log a warning if the submission is between 1 and 4 days old.
+          # - If the submission is older than 4 days:
+          #   - Update the job status to 'pdf_not_found'.
+          #   - Exit the job immediately.
+          if submission.created_at.between?(DateTime.now - 4.days, DateTime.now - 1.day)
+            Rails.logger.warn(
+              "Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id #{submission.id}" \
+            )
+          elsif submission.created_at < DateTime.now - 4.days
             form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
             message = 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...'
             PollForm526PdfStatus.update_job_status(
