@@ -62,6 +62,10 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:warn)
+    # Enable push notifications feature flag by default
+    allow(Flipper).to receive(:enabled?)
+      .with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor))
+      .and_return(true)
   end
 
   describe '#perform' do
@@ -257,6 +261,63 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
             'event_bus_gateway.letter_ready_notification.skipped',
             tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email', 'reason:first_name_not_present']
           )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+      end
+    end
+
+    describe 'feature flag scenarios' do
+      around do |example|
+        Sidekiq::Testing.inline! { example.run }
+      end
+
+      context 'when push notifications feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor))
+            .and_return(false)
+        end
+
+        it 'sends email but skips push notification' do
+          expect(va_notify_service).to receive(:send_email)
+          expect(va_notify_service).not_to receive(:send_push)
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'logs that push notification was skipped due to feature flag' do
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob push skipped',
+            {
+              notification_type: 'push',
+              reason: 'Push notifications not enabled for this user',
+              template_id: push_template_id
+            }
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'increments skipped metric for push with feature flag reason' do
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_email.success',
+            tags: EventBusGateway::Constants::DD_TAGS
+          )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:push',
+                                                         'reason:push_notifications_not_enabled_for_this_user']
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+      end
+
+      context 'when push notifications feature flag is enabled' do
+        it 'sends both email and push notifications' do
+          expect(va_notify_service).to receive(:send_email)
+          expect(va_notify_service).to receive(:send_push)
 
           subject.new.perform(participant_id, email_template_id, push_template_id)
         end
