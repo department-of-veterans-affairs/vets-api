@@ -44,6 +44,9 @@ module VAOS
       #   @return [Hash, nil] Drive time information from user's address to provider, or nil if unavailable
       # @!attribute [r] error
       #   @return [Hash, nil] Error information with :message and :status keys, or nil if successful
+      # @!attribute [r] type_of_care
+      #   @return [String, nil] The sanitized type of care from the referral (e.g., 'CARDIOLOGY'),
+      #     or nil if not yet determined
       attr_reader :id, :provider, :slots, :drive_time, :error, :type_of_care
 
       ##
@@ -71,6 +74,15 @@ module VAOS
         return unless validate_params(referral_id, referral_consult_id)
 
         build_appointment_draft(referral_id, referral_consult_id)
+
+        if @error
+          log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
+        else
+          log_draft_creation_metric(APPT_DRAFT_CREATION_SUCCESS_METRIC)
+        end
+      rescue => e
+        log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
+        raise e # Re-raise to let controller handle it
       end
 
       ##
@@ -131,9 +143,6 @@ module VAOS
         @slots = fetch_provider_slots(referral, provider, draft.id)
         @id = draft.id
         @provider = provider
-
-        # Log success metric with type_of_care
-        log_draft_creation_metric(APPT_DRAFT_CREATION_SUCCESS_METRIC)
       end
 
       ##
@@ -212,7 +221,7 @@ module VAOS
           **common_logging_context
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
-        set_error('Redis connection error', :bad_gateway)
+        raise # Re-raise to let initialize rescue block handle metric logging
       end
 
       ##
@@ -528,29 +537,11 @@ module VAOS
       ##
       # Log draft creation success or failure metric with type_of_care
       #
-      # Attempts to use the stored type_of_care from the referral fetch.
-      # If not available (e.g., error occurred before referral was fetched),
-      # tries to fetch from cache as a fallback.
-      #
       # @param metric [String] The metric name to log
       # @return [void]
       def log_draft_creation_metric(metric)
-        type_of_care = @type_of_care || fetch_type_of_care_from_cache || 'no_value'
+        type_of_care = @type_of_care || 'no_value'
         StatsD.increment(metric, tags: [COMMUNITY_CARE_SERVICE_TAG, "type_of_care:#{type_of_care}"])
-      end
-
-      ##
-      # Attempt to fetch type_of_care from cache
-      #
-      # @return [String, nil] The sanitized type of care, or nil if not found
-      def fetch_type_of_care_from_cache
-        return nil if @referral_id.blank? || @current_user.nil?
-
-        cached_referral = ccra_referral_service.get_cached_referral_data(@referral_id, @current_user.icn)
-        sanitize_log_value(cached_referral&.category_of_care)
-      rescue
-        # If we can't fetch from cache (Redis down, etc.), return nil to use 'no_value'
-        nil
       end
 
       ##
@@ -598,8 +589,7 @@ module VAOS
       # @return [nil] Always returns nil to support early return pattern
       def set_error(message, status)
         @error = { message:, status: }
-        log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
-        nil
+        nil # Metric logging happens at end of initialize
       end
 
       ##

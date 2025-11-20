@@ -62,7 +62,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
   # Shared setup for successful scenarios
   def setup_successful_services
-    allow(ccra_referral_service).to receive_messages(get_referral: referral_data, get_cached_referral_data: nil)
+    allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
     allow(appointments_service).to receive(:referral_appointment_already_exists?)
       .and_return({ error: false, exists: false })
     allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
@@ -210,7 +210,14 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_raise(Redis::BaseError, 'Connection refused')
         end
 
-        include_examples 'returns error response', 'Redis connection error', :bad_gateway
+        it 'logs failure metric and re-raises the error' do
+          expect(StatsD).to receive(:increment).with(
+            described_class::APPT_DRAFT_CREATION_FAILURE_METRIC,
+            tags: [VAOS::CommunityCareConstants::COMMUNITY_CARE_SERVICE_TAG, 'type_of_care:no_value']
+          )
+
+          expect { subject }.to raise_error(Redis::BaseError, 'Connection refused')
+        end
       end
     end
 

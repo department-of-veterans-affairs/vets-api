@@ -92,13 +92,8 @@ module VAOS
           render json: Eps::DraftAppointmentSerializer.new(draft_appt), status: :created
         end
       rescue Redis::BaseError => e
-        # Can't fetch from cache if Redis is down, use 'no_value'
-        record_appt_metric(APPT_DRAFT_CREATION_FAILURE_METRIC, 'no_value')
         handle_redis_error(e)
       rescue => e
-        # Log failure metric for exceptions not caught by the service
-        type_of_care = get_type_of_care_for_metrics(referral_id)
-        record_appt_metric(APPT_DRAFT_CREATION_FAILURE_METRIC, type_of_care)
         handle_appointment_creation_error(e)
       end
 
