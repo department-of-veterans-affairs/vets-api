@@ -17,16 +17,20 @@ module V0
         if current_user&.icn
           code = SecureRandom.uuid
           ::Chatbot::CodeContainer.new(code:, icn: current_user.icn).save!
-          render json: { token: directline_response[:token],
-                         conversationId: directline_response[:conversationId],
-                         apiSession: ERB::Util.url_encode(cookies[:api_session]),
-                         code:,
-                        expires_in: directline_response[:expires_in]}
+          render json: {
+            token: directline_response[:token],
+            conversationId: directline_response[:conversationId],
+            apiSession: ERB::Util.url_encode(cookies[:api_session]),
+            code:,
+            expires_in: directline_response[:expires_in]
+          }
         else
-          render json: { token: directline_response[:token],
-                         conversationId: directline_response[:conversationId],
-                         apiSession: ERB::Util.url_encode(cookies[:api_session])
-                         expires_in: directline_response[:expires_in]}
+          render json: {
+            token: directline_response[:token],
+            conversationId: directline_response[:conversationId],
+            apiSession: ERB::Util.url_encode(cookies[:api_session]),
+            expires_in: directline_response[:expires_in]
+          }
         end
       end
 
