@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
+require 'bgs/monitor'
+
 module BGS
   class PaymentService
-    include SentryLogging
-
     attr_reader :common_name, :email, :icn
 
     def initialize(user)
@@ -27,7 +27,7 @@ module BGS
 
       response
     rescue => e
-      log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
+      monitor.error(e.message, 'payment_history_error')
       empty_response if e.message.include?('No Data Found')
     end
 
@@ -62,6 +62,10 @@ module BGS
           payment[:payment_type] = "CH 33 #{payment[:payment_type]}"
         end
       end
+    end
+
+    def monitor
+      @monitor ||= BGS::Monitor.new
     end
   end
 end
