@@ -27,6 +27,7 @@ module SignIn
     attribute :cerner_id, :string
     attribute :corp_id, :string
     attribute :birls, :string
+    attribute :gcids, :string
 
     def self.from_user(user, user_verification: nil)
       new(
@@ -41,7 +42,7 @@ module SignIn
         person_type: user.try(:person_type), icn: user.icn,
         sec_id: user.sec_id, edipi: user.try(:edipi),
         mhv_ien: user.try(:mhv_ien), cerner_id: user.try(:cerner_id),
-        corp_id: user.participant_id, birls: user.birls_id
+        corp_id: user.participant_id, birls: user.birls_id, gcids: user.mpi_gcids
       )
     end
 
@@ -52,7 +53,7 @@ module SignIn
         ial:, aal:, birth_date:, ssn:,
         gender:, address:, phone_number:, person_type:,
         icn:, sec_id:, edipi:, mhv_ien:,
-        cerner_id:, corp_id:, birls:
+        cerner_id:, corp_id:, birls:, gcids:
       }
     end
 
@@ -84,6 +85,10 @@ module SignIn
       when 'logingov'
         '200VLGN'
       end
+    end
+
+    def gcids=(value)
+      super(Array(value).join('|'))
     end
   end
 end
