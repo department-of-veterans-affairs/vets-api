@@ -193,7 +193,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           allergies_with_dates = allergies.select { |allergy| allergy.date.present? }
           # Use sort_date for comparison since that's what's used for sorting
-          dates = allergies_with_dates.map { |allergy| allergy.sort_date }
+          dates = allergies_with_dates.map(&:sort_date)
           expect(dates).to eq(dates.sort.reverse)
 
           allergies_without_dates = allergies.select { |allergy| allergy.date.nil? }
