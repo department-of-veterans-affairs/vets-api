@@ -1,0 +1,182 @@
+name: Check CODEOWNERS for Backend Review Group Directory Assignments (Enhanced)
+
+on:
+  pull_request:
+    paths:
+      - '.github/CODEOWNERS'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-codeowners:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: .github/CODEOWNERS
+
+      - name: Check for backend-review-group directory assignments
+        if: steps.changed-files.outputs.any_changed == 'true'
+        id: check
+        run: |
+          #!/bin/bash
+          set -e
+
+          echo "🔍 Checking for backend-review-group assignments to directories..."
+          echo ""
+
+          # Get the diff for CODEOWNERS file
+          git diff origin/${{ github.base_ref }} HEAD -- .github/CODEOWNERS > codeowners.diff
+
+          # Initialize arrays and counters
+          declare -a violations
+          declare -a file_assignments
+          declare -a removed_assignments
+          violation_count=0
+          file_count=0
+          removed_count=0
+
+          # Process additions
+          while IFS= read -r line; do
+            # Process added lines
+            if [[ "$line" =~ ^\\+ ]] && [[ ! "$line" =~ ^\\+\\+\\+ ]]; then
+              clean_line="${line:1}"
+
+              # Skip empty lines and comments
+              if [[ -z "$clean_line" ]] || [[ "$clean_line" =~ ^[[:space:]]*# ]]; then
+                continue
+              fi
+
+              # Check if line contains backend-review-group
+              if [[ "$clean_line" =~ backend-review-group ]]; then
+                path=$(echo "$clean_line" | awk '{print $1}')
+
+                # Determine if it's a directory
+                is_directory=false
+
+                if [[ "$path" =~ /$ ]]; then
+                  is_directory=true
+                elif [[ ! "$path" =~ \.[a-zA-Z0-9]+$ ]]; then
+                  # Exception for Makefile and similar
+                  if [[ ! "$path" =~ ^[A-Z][a-z]*file$ ]] && [[ ! "$path" =~ ^README$ ]]; then
+                    is_directory=true
+                  fi
+                fi
+
+                if [ "$is_directory" = true ]; then
+                  violations+=("$path")
+                  ((violation_count++))
+                  echo "⚠️  Directory: $path"
+                else
+                  file_assignments+=("$path")
+                  ((file_count++))
+                  echo "✓  File: $path"
+                fi
+              fi
+            fi
+
+            # Track removals for context
+            if [[ "$line" =~ ^- ]] && [[ ! "$line" =~ ^--- ]]; then
+              clean_line="${line:1}"
+              if [[ "$clean_line" =~ backend-review-group ]]; then
+                path=$(echo "$clean_line" | awk '{print $1}')
+                if [[ ! "$path" =~ \.[a-zA-Z0-9]+$ ]]; then
+                  removed_assignments+=("$path")
+                  ((removed_count++))
+                fi
+              fi
+            fi
+          done < codeowners.diff
+
+          # Generate summary
+          echo ""
+          echo "════════════════════════════════════════════════"
+          echo "                    SUMMARY                     "
+          echo "════════════════════════════════════════════════"
+          echo ""
+          echo "📊 Statistics:"
+          echo "  • Directory assignments added: $violation_count"
+          echo "  • File assignments added: $file_count"
+          echo "  • Directory assignments removed: $removed_count"
+          echo ""
+
+          # Save results for next steps
+          echo "violation_count=$violation_count" >> $GITHUB_OUTPUT
+          echo "file_count=$file_count" >> $GITHUB_OUTPUT
+          echo "removed_count=$removed_count" >> $GITHUB_OUTPUT
+
+          # Create violation list file for PR comment
+          if [ $violation_count -gt 0 ]; then
+            {
+              echo "VIOLATIONS_JSON<<EOF"
+              printf '%s\n' "${violations[@]}" | jq -R -s -c 'split("\n")[:-1]'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+          if [ $removed_count -gt 0 ]; then
+            {
+              echo "REMOVED_JSON<<EOF"
+              printf '%s\n' "${removed_assignments[@]}" | jq -R -s -c 'split("\n")[:-1]'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+          # Final verdict
+          if [ $violation_count -eq 0 ]; then
+            echo "✅ PASSED: No directory assignments detected"
+            echo ""
+            if [ $file_count -gt 0 ]; then
+              echo "✓ All $file_count backend-review-group assignments are for specific files"
+            fi
+            if [ $removed_count -gt 0 ]; then
+              echo "✓ Good job removing $removed_count directory assignments!"
+            fi
+            echo ""
+            exit 0
+          else
+            echo "❌ FAILED: Found $violation_count directory assignment(s)"
+            echo ""
+            echo "Directory assignments detected:"
+            for violation in "${violations[@]}"; do
+              echo "  • $violation"
+            done
+            echo ""
+            echo "════════════════════════════════════════════════"
+            echo ""
+            echo "⚠️  WARNING"
+            echo "Assigning backend-review-group to directories causes"
+            echo "automatic assignment for ALL new files created by"
+            echo "other VFS teams in those directories."
+            echo ""
+            echo "📚 See EXAMPLES.md for recommended patterns"
+            echo ""
+            exit 1
+          fi
+
+      - name: Generate detailed PR comment
+        if: failure() && steps.check.outputs.violation_count > 0
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const violationCount = parseInt('${{ steps.check.outputs.violation_count }}');
+            const fileCount = parseInt('${{ steps.check.outputs.file_count }}');
+            const removedCount = parseInt('${{ steps.check.outputs.removed_count }}');
+
+            // Parse JSON arrays
+            const violations = ${{ steps.check.outputs.VIOLATIONS_JSON || '[]' }};
+            const removed = ${{ steps.check.outputs.REMOVED_JSON || '[]' }};
+
+            // Build comment body
+            let body = `## ⚠️ CODEOWNERS Backend Review Group Check
+
