@@ -1041,7 +1041,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(vista_prescription.refill_status).to eq('activeParked')
           expect(vista_prescription.refill_remaining).to eq(2)
-          expect(vista_prescription.facility_name).to eq('DAYT29')
+          expect(vista_prescription.facility_name).to eq('Dayton Medical Center')
           expect(vista_prescription.prescription_name).to eq('BACITRACIN 500 UNIT/GM OINT 30GM')
           expect(vista_prescription.instructions).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
           expect(vista_prescription.is_refillable).to be true
@@ -1106,9 +1106,10 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription_with_patient_instruction.refill_date).to eq('2025-06-24T21:05:53.000Z')
           expect(oracle_prescription_with_patient_instruction.dispensed_date).to be_nil
 
-          # Test prescription with completed status mapping
+          # Test prescription with completed status mapping (normalized to discontinued/expired)
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
-          expect(completed_prescription.refill_status).to eq('completed')
+          # Completed status is normalized to either 'discontinued' or 'expired' based on expiration date
+          expect(completed_prescription.refill_status).to be_in(%w[discontinued expired])
           expect(completed_prescription.is_refillable).to be false
           expect(completed_prescription.refill_date).to be_nil
         end

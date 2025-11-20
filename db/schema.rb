@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -904,6 +904,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
     t.datetime "updated_at", null: false
     t.integer "attempts", default: 1
     t.index ["user_account_id"], name: "index_event_bus_gateway_notifications_on_user_account_id"
+  end
+
+  create_table "event_bus_gateway_push_notifications", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.string "template_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_event_bus_gateway_push_notifications_on_user_account_id"
   end
 
   create_table "evidence_submissions", force: :cascade do |t|
@@ -1839,6 +1847,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.text "service_api_key_path"
+    t.uuid "service_id"
     t.index ["needs_kms_rotation"], name: "index_va_notify_notifications_on_needs_kms_rotation"
     t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
   end
@@ -2147,6 +2156,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_12_224705) do
   add_foreign_key "digital_dispute_submissions", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "event_bus_gateway_notifications", "user_accounts"
+  add_foreign_key "event_bus_gateway_push_notifications", "user_accounts"
   add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"

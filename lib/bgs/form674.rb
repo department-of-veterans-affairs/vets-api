@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require_relative 'benefit_claim'
 require_relative 'dependents'
 require_relative 'service'
@@ -12,6 +14,8 @@ require_relative '../bid/awards/service'
 
 module BGS
   class Form674
+    include Vets::SharedLogging
+
     attr_reader :user, :saved_claim, :proc_id
 
     def initialize(user, saved_claim)
@@ -45,8 +49,8 @@ module BGS
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
         log_claim_status(benefit_claim_record, proc_id)
-      rescue
-        log_submit_failure(error)
+      rescue => e
+        log_submit_failure(e)
       end
     end
 
