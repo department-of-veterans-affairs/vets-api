@@ -2,8 +2,7 @@
 
 ## Overview
 
-When `backend-review-group` is assigned to directories (rather than specific files), **all new files created by other VFS teams** in those directories are automatically assigned to the backend-review-group for review. Assigning the correct files and directories helps prevent unintended automatic assignment of code reviews to the backend-review-group for new files created by other VFS teams.
-
+When `backend-review-group` is assigned to directories (rather than specific files), **all new files created by other VFS teams** in those directories are automatically assigned to the backend-review-group for review. Assigning the correct files and directories helps prevent unintended automatic assignment of code reviews to the backend-review-group for new files created by other VFS teams. Please refer to (Github Codeowners documentation)[https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners] for more guidance.
 
 ## Problem Statement
 
@@ -29,9 +28,9 @@ modules/appeals_api @department-of-veterans-affairs/lighthouse-banana-peels @dep
 spec/models/saved_claim @department-of-veterans-affairs/backend-review-group
 ```
 
-## Recommended Patterns
+## Recommended Steps
 
-### Pattern 1: Assign to Owning Team Only (Exempt teams only)
+### Steps 1: Assign to Owning Team Only
 
 ```
 # Remove backend-review-group from directory, let owning team manage it
@@ -39,18 +38,17 @@ app/models/claims_api @department-of-veterans-affairs/lighthouse-dash
 modules/appeals_api @department-of-veterans-affairs/lighthouse-banana-peels
 ```
 
-### Pattern 2: Specific Files with Backend Review
+### Step 2: Assign Specific Files That Have Shared Ownership Across Shared Directories
 
 ```
-# Assign backend-review-group only to specific legacy files
-app/models/claims_api @department-of-veterans-affairs/lighthouse-dash
-app/models/claims_api/legacy_model.rb @department-of-veterans-affairs/backend-review-group
+app/models/claims_api # This should not be assigned to one team when multiple teams also own files inside a directory.
+app/models/claims_api/legacy_model.rb  @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/backend-review-group
 ```
 
 ### Recommendations:
 
 1. **Assign to specific files** instead of directories
-2. **Add the owning team first** with backend-review-group as secondary reviewer
+2. **Add the owning team**
 3. **Use specific path patterns** to limit the scope
 
 ---
@@ -61,7 +59,3 @@ For issues or questions:
 - Review the workflow logs in the Actions tab
 - Check the PR that introduced this pattern: #25237
 - Consult your team's CODEOWNERS documentation
-
-## License
-
-This workflow is provided as-is for use in the vets-api repository and related VA projects.
