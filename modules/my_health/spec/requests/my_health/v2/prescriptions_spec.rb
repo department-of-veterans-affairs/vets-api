@@ -190,7 +190,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
   describe 'GET /my_health/v2/prescriptions' do
     context 'when feature flag is disabled' do
       it 'returns forbidden' do
-        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
 
         get('/my_health/v2/prescriptions', headers:)
 
@@ -200,7 +200,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
     context 'when feature flag is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
       end
 
       it 'returns a successful response' do
@@ -666,7 +666,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
   describe 'GET /my_health/v2/prescriptions/list_refillable_prescriptions' do
     context 'when feature flag is disabled' do
       it 'returns forbidden' do
-        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
 
         get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
@@ -676,7 +676,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
     context 'when feature flag is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
       end
 
       it 'filters prescriptions to only include refillable ones' do
@@ -947,7 +947,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
   describe 'GET /my_health/v2/prescriptions/:station_number/:prescription_id' do
     context 'when feature flag is disabled' do
       it 'returns forbidden' do
-        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
 
         get('/my_health/v2/prescriptions/556/12345', headers:)
 
@@ -957,7 +957,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
     context 'when feature flag is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
       end
 
       it 'returns a successful response when prescription is found' do
