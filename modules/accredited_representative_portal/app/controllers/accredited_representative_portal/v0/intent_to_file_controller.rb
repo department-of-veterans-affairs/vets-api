@@ -10,7 +10,7 @@ module AccreditedRepresentativePortal
       before_action :validate_file_type, only: %i[show create]
 
       def show
-        parsed_response = service.get_intent_to_file(intent_to_file_params(:benefitType))
+        parsed_response = service.get_intent_to_file(params[:benefitType])
 
         if parsed_response['errors']&.first.try(:[], 'title') == 'Resource not found'
           raise NotFound.new(error: parsed_response['errors']&.first&.[]('detail'))
@@ -20,7 +20,7 @@ module AccreditedRepresentativePortal
       end
 
       def create
-        parsed_response = service.create_intent_to_file(intent_to_file_params[:benefitType], nil)
+        parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
 
         if parsed_response['errors'].present?
           raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
@@ -35,7 +35,7 @@ module AccreditedRepresentativePortal
 
       def check_feature_toggle
         unless Flipper.enabled?(:accredited_representative_portal_intent_to_file, @current_user)
-          message = 'The accredited_representative_portal_intent_to_filefeature flag is disabled ' \
+          message = 'The accredited_representative_portal_intent_to_file feature flag is disabled ' \
                     "for the user with uuid: #{@current_user.uuid}"
 
           raise Common::Exceptions::Forbidden, detail: message
@@ -48,23 +48,18 @@ module AccreditedRepresentativePortal
 
       def icn
         @icn ||= ClaimantLookupService.get_icn(
-          intent_to_file_params[:veteranFullName][:first],
-          intent_to_file_params[:veteranFullName][:last],
-          intent_to_file_params[:veteranSsn],
-          intent_to_file_params[:veteranDateOfBirth]
+          params[:veteranFirstName] || params[:veteranFullName][:first],
+          params[:veteranLastName] || params[:veteranFullName][:last],
+          params[:veteranSsn],
+          params[:veteranDateOfBirth]
         )
       end
 
       private
 
-      def intent_to_file_params
-        params.require(:intent_to_file).permit(
-          :veteranSsn, :veteranDateOfBirth, :benefitType, veteranFullName: [:first, :last]
-        )
-      end
-
       def validate_file_type
-        unless INTENT_TO_FILE_TYPES.include? intent_to_file_params[:benefitType]
+        Rails.logger.info("benefitType=#{params[:benefitType]}")
+        unless INTENT_TO_FILE_TYPES.include? params[:benefitType]
           raise ActionController::BadRequest, <<~MSG.squish
             Invalid type parameter.
             Must be one of (#{INTENT_TO_FILE_TYPES.join(', ')})
