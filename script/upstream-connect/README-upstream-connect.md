@@ -113,7 +113,7 @@ To add a new service, edit `script/upstream-connect/upstream_service_config.rb` 
   name: 'Human Readable Name',
   description: 'Brief description of the service',
   ports: [4438, 4439],                          # Ports to forward
-  settings_keys: ['namespace1', 'namespace2'],  # Parameter Store namespaces
+  settings_namespaces: ['namespace1', 'namespace2'],  # Settings.yml/Parameter Store namespaces
   skipped_settings: [['namespace1_key1', 'namespace1_key2'], ['namespace2_key1']],     # Settings/namespaces to skip (array per namespace)
   tunnel_setting: ['url', 'host'],          # Settings to map to localhost (one per port)
   instructions: <<~TEXT
@@ -134,12 +134,12 @@ To add a new service, edit `script/upstream-connect/upstream_service_config.rb` 
   - Local and remote ports will use the same numbers
   - Each port creates a tunnel from `localhost:PORT` to `staging:PORT`
 
-- **`settings_keys`**: Array of AWS Parameter Store namespaces to sync
+- **`settings_namespaces`**: Array of AWS Parameter Store namespaces to sync
   - Each namespace corresponds to a dotted path like `lighthouse.letters_generator`
   - Settings will be pulled from `/dsva-vagov/vets-api/staging/env_vars/{namespace}`
 
 - **`skipped_settings`**: Array of arrays containing settings to exclude from sync
-  - One array per namespace in `settings_keys`
+  - One array per namespace in `settings_namespaces`
   - Settings are specified as dot-notation paths relative to the namespace
   - For example: `[['access_token.client_id', 'access_token.path']]` will skip `namespace.access_token.client_id` and `namespace.access_token.path`
 

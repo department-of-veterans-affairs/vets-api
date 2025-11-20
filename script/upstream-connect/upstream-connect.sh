@@ -321,175 +321,29 @@ sync_service_settings() {
   
   log_info "Syncing settings for service: $service"
   
-  # Get service configuration
-  local service_config
-  service_config=$(ruby "$CONFIG_SCRIPT" --config "$service")
-  
-  if [[ -z "$service_config" ]]; then
-    log_error "Failed to get service configuration"
-    exit 1
-  fi
-  
-  # Parse JSON configuration
-  local settings_keys
-  settings_keys=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["settings_keys"].join(" ")')
-  
-  local tunnel_settings
-  tunnel_settings=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["tunnel_setting"].join(" ")')
-  
-  local ports
-  ports=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["ports"].join(" ")')
-  
-  if [[ -z "$settings_keys" ]]; then
-    log_warning "No settings keys configured for service: $service"
-    return 0
-  fi
-  
-  # Convert space-separated strings to arrays
-  local settings_array=($settings_keys)
-  local tunnel_array=($tunnel_settings)
-  local ports_array=($ports)
-  
-  # Get skipped settings for each namespace
-  local skipped_settings_json
-  skipped_settings_json=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["skipped_settings"].to_json')
-  
-  # Sync each settings namespace
-  local namespace_index=0
-  for namespace in "${settings_array[@]}"; do
-    log_info "Syncing settings namespace: $namespace"
+  if [[ -n "$DRY_RUN" ]]; then
+    log_info "[DRY RUN] Would sync settings for service: $service"
+    "$SCRIPT_DIR/upstream_settings_sync.rb" --service "$service" --dry-run
+  else
+    # Run the dedicated Ruby script with service parameter
+    # It will handle all namespaces, exclusions, and tunnel settings
+    local sync_args=("--service" "$service")
     
-    # Get skipped settings for this namespace
-    local skipped_for_namespace
-    skipped_for_namespace=$(echo "$skipped_settings_json" | ruby -rjson -e "puts JSON.parse(STDIN.read)[$namespace_index].join(' ') rescue ''")
-    
-    # Add tunnel setting to exclusions (it will be set separately to localhost)
-    if [[ ${#tunnel_array[@]} -gt $namespace_index ]]; then
-      local tunnel_setting="${tunnel_array[$namespace_index]}"
-      if [[ -n "$tunnel_setting" ]]; then
-        # Validate that tunnel setting exists in the expected structure
-        if ruby script/upstream-connect/upstream_settings_sync.rb --validate-tunnel "$namespace" "$tunnel_setting" 2>/dev/null; then
-          if [[ -n "$skipped_for_namespace" ]]; then
-            skipped_for_namespace="$skipped_for_namespace $tunnel_setting"
-          else
-            skipped_for_namespace="$tunnel_setting"
-          fi
-          log_info "Auto-excluding tunnel setting: $tunnel_setting"
-        else
-          log_warning "Tunnel setting '$tunnel_setting' not found in namespace '$namespace' structure - skipping"
-        fi
-      fi
+    # Add force flag if present
+    if [[ -n "$FORCE" ]]; then
+      sync_args+=("--force")
     fi
     
-    if [[ -n "$skipped_for_namespace" ]]; then
-      log_info "Skipping settings: $skipped_for_namespace"
-    fi
+    "$SCRIPT_DIR/upstream_settings_sync.rb" "${sync_args[@]}"
     
-    if [[ -n "$DRY_RUN" ]]; then
-      log_info "[DRY RUN] Would run: $SCRIPT_DIR/sync-settings $namespace staging $FORCE $DRY_RUN"
-      if [[ -n "$skipped_for_namespace" ]]; then
-        log_info "[DRY RUN] Would skip: $skipped_for_namespace"
-      fi
+    local exit_code=$?
+    
+    if [[ $exit_code -eq 0 ]]; then
+      log_success "Settings sync complete"
     else
-      # Run sync-settings with potential modifications for skipped settings
-      sync_settings_with_exclusions "$namespace" "$skipped_for_namespace"
+      log_error "Settings sync failed with exit code $exit_code"
+      return 1
     fi
-    
-    # Handle tunnel settings after sync
-    if [[ ${#tunnel_array[@]} -gt $namespace_index ]]; then
-      local tunnel_setting="${tunnel_array[$namespace_index]}"
-      if [[ -n "$tunnel_setting" ]]; then
-        local port="${ports_array[$namespace_index]}"
-        if [[ -n "$port" ]]; then
-          # Validate tunnel setting before applying
-          if ruby script/upstream-connect/upstream_settings_sync.rb --validate-tunnel "$namespace" "$tunnel_setting" 2>/dev/null; then
-            log_info "Setting up tunnel mapping for $namespace.$tunnel_setting"
-            setup_tunnel_setting "$namespace" "$tunnel_setting" "$port"
-          else
-            log_warning "Tunnel setting '$tunnel_setting' not found in namespace '$namespace' structure - skipping tunnel setup"
-          fi
-        fi
-      fi
-    fi
-    
-    namespace_index=$((namespace_index + 1))
-  done
-  
-  log_success "Settings sync complete"
-}
-
-sync_settings_with_exclusions() {
-  local namespace="$1"
-  local skipped_settings="$2"
-  
-  if [[ -n "$DRY_RUN" ]]; then
-    # In dry run mode, just show what would happen
-    log_info "[DRY RUN] Would sync $namespace settings excluding: $skipped_settings"
-    return 0
-  fi
-  
-  log_info "Syncing settings with exclusions: $skipped_settings"
-  
-  # Build arguments for the upstream settings sync script
-  local sync_args=(
-    "--namespace" "$namespace"
-    "--environment" "staging"
-  )
-  
-  # Add exclusions
-  if [[ -n "$skipped_settings" ]]; then
-    for setting in $skipped_settings; do
-      sync_args+=("--exclude" "$setting")
-    done
-  fi
-  
-  # Add force flag if present
-  if [[ -n "$FORCE" ]]; then
-    sync_args+=("--force")
-  fi
-  
-  # Run the dedicated Ruby script
-  "$SCRIPT_DIR/upstream_settings_sync.rb" "${sync_args[@]}"
-  
-  local exit_code=$?
-  
-  if [[ $exit_code -eq 0 ]]; then
-    log_success "Settings sync complete (with exclusions)"
-  else
-    log_error "Settings sync failed with exit code $exit_code"
-    return 1
-  fi
-}
-
-setup_tunnel_setting() {
-  local namespace="$1"
-  local tunnel_setting="$2"
-  local port="$3"
-  
-  local settings_file="config/settings.local.yml"
-  
-  if [[ -n "$DRY_RUN" ]]; then
-    log_info "[DRY RUN] Would set $namespace.$tunnel_setting to https://localhost:$port"
-    return 0
-  fi
-  
-  if [[ ! -f "$settings_file" ]]; then
-    log_warning "Settings file not found: $settings_file"
-    return 1
-  fi
-
-  # Use the structure-aware settings sync to add the tunnel setting
-  log_info "Adding tunnel setting $namespace.$tunnel_setting = https://localhost:$port"
-  
-  # Use our structure-aware settings sync script to add the tunnel setting
-  ruby script/upstream-connect/upstream_settings_sync.rb --add-tunnel-setting "$namespace" "$tunnel_setting" "https://localhost:$port"
-  
-  local exit_code=$?
-  if [[ $exit_code -eq 0 ]]; then
-    log_success "Updated $namespace.$tunnel_setting to https://localhost:$port"
-  else
-    log_error "Failed to set tunnel setting $namespace.$tunnel_setting"
-    return 1
   fi
 }
 
@@ -687,12 +541,12 @@ show_connection_info() {
   fi
   
   # Show settings that were synced
-  local settings_keys
-  settings_keys=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["settings_keys"].join(" ")')
+  local settings_namespaces
+  settings_namespaces=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["settings_namespaces"].join(" ")')
   
-  if [[ -n "$settings_keys" ]]; then
+  if [[ -n "$settings_namespaces" ]]; then
     echo -e "${BLUE}Settings Synced:${NC}"
-    for namespace in $settings_keys; do
+    for namespace in $settings_namespaces; do
       echo "  $namespace"
     done
     echo ""

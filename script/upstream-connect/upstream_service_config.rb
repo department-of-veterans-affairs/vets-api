@@ -12,7 +12,7 @@ class UpstreamServiceConfig
       name: 'Appeals (Caseflow)',
       description: 'Connect to Caseflow appeals system',
       ports: [4437],
-      settings_keys: ['caseflow'],
+      settings_namespaces: ['caseflow'],
       skipped_settings: [[]],
       tunnel_setting: ['host'],
       instructions: <<~TEXT
@@ -30,7 +30,7 @@ class UpstreamServiceConfig
       name: 'Benefits Claims API (Lighthouse)',
       description: 'Connect to VA Benefits Claims API for claims data',
       ports: [4492],
-      settings_keys: ['lighthouse.benefits_claims'],
+      settings_namespaces: ['lighthouse.benefits_claims'],
       skipped_settings: [['access_token.client_id', 'access_token.rsa_key', 'form526']],
       tunnel_setting: ['host'],
       instructions: <<~TEXT
@@ -64,7 +64,7 @@ class UpstreamServiceConfig
       name: 'Letter Generator API (Lighthouse)',
       description: 'Connect to VA Letter Generator API for official VA letters',
       ports: [4492],
-      settings_keys: ['lighthouse.letters_generator'],
+      settings_namespaces: ['lighthouse.letters_generator'],
       skipped_settings: [['access_token.client_id', 'access_token.rsa_key']],
       tunnel_setting: ['url'],
       instructions: <<~TEXT
@@ -205,7 +205,7 @@ class UpstreamServiceConfig
     output = {
       name: config[:name],
       description: config[:description],
-      settings_keys: config[:settings_keys],
+      settings_namespaces: config[:settings_namespaces],
       ports: config[:ports],
       tunnel_setting: config[:tunnel_setting],
       skipped_settings: config[:skipped_settings],
@@ -230,7 +230,7 @@ class UpstreamServiceConfig
       results = {}
 
       SERVICES.each do |service_key, service_config|
-        service_config[:settings_keys].each do |namespace|
+        service_config[:settings_namespaces].each do |namespace|
           namespace_parts = namespace.split('.')
           value = get_nested_setting(settings, namespace_parts)
 

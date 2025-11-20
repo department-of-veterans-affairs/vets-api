@@ -17,74 +17,25 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     @settings_yml_path = File.expand_path('../../config/settings.yml', __dir__)
   end
 
-  def run # rubocop:disable Metrics/MethodLength
+  def run
     parse_options
-
-    # Handle validation action separately
-    if @options[:action] == :validate_tunnel
-      is_valid = validate_tunnel_setting(@options[:namespace], @options[:tunnel_setting])
-      exit(is_valid ? 0 : 1)
-    end
-
-    # Handle add tunnel setting action separately
-    if @options[:action] == :add_tunnel_setting
-      add_tunnel_setting(@options[:namespace], @options[:tunnel_setting], @options[:tunnel_value])
-      exit(0)
-    end
-
-    validate_options # Get expected structure from settings.yml
-    expected_settings = get_expected_namespace_structure(@options[:namespace])
-
-    if expected_settings.blank?
-      puts "Warning: No settings found for namespace '#{@options[:namespace]}' in settings.yml"
-      puts "This might indicate the namespace doesn't exist or has no configurable settings."
-      return
-    end
-
-    puts "Found #{expected_settings.length} settings in #{@options[:namespace]} namespace:"
-    expected_settings.each { |setting| puts "  - #{setting}" }
-    puts ''
-
-    if @options[:exclusions].any?
-      puts "Syncing #{@options[:namespace]} settings (excluding #{@options[:exclusions].size} parameters)"
-    end
-
-    # Fetch and filter parameters - but only for settings that should exist
-    parameters = fetch_parameters_for_expected_settings(expected_settings)
-    filtered_parameters = filter_parameters(parameters)
-
-    if filtered_parameters.empty?
-      puts 'No parameters to sync after applying exclusions'
-      return
-    end
-
-    # Update settings while preserving comments
-    update_settings_preserving_comments(filtered_parameters)
-
-    puts 'Settings sync complete!'
+    validate_options
+    run_service_sync
   end
 
   private
 
   def parse_options # rubocop:disable Metrics/MethodLength
     parser = OptionParser.new do |opts|
-      opts.banner = 'Usage: upstream_settings_sync.rb --namespace NAMESPACE --environment ENV [options]'
+      opts.banner = 'Usage: upstream_settings_sync.rb --service SERVICE [options]'
       opts.separator ''
-      opts.separator 'Sync settings from AWS Parameter Store with exclusion support and comment preservation'
+      opts.separator 'Internal script for upstream connection settings sync.'
+      opts.separator 'This script is called by upstream-connect.sh and not meant for direct use.'
       opts.separator ''
       opts.separator 'Options:'
 
-      opts.on('-n', '--namespace NAMESPACE', 'Settings namespace (e.g., lighthouse.letters_generator)') do |namespace|
-        @options[:namespace] = namespace
-      end
-
-      opts.on('-e', '--environment ENV', 'Environment (e.g., staging, dev, prod)') do |env|
-        @options[:environment] = env
-      end
-
-      opts.on('--exclude SETTING', 'Exclude a specific setting (can use multiple times)') do |setting|
-        @options[:exclusions] ||= []
-        @options[:exclusions] << setting
+      opts.on('-s', '--service SERVICE', 'Service name (e.g., appeals, claims, letters)') do |service|
+        @options[:service] = service
       end
 
       opts.on('--force', 'Overwrite existing values without prompting') do
@@ -93,25 +44,6 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
 
       opts.on('--dry-run', 'Show what would be changed without making changes') do
         @options[:dry_run] = true
-      end
-
-      opts.on('--devops-path PATH', 'Path to devops repository (default: ../../../devops)') do |path|
-        @options[:devops_path] = path
-      end
-
-      opts.on('--validate-tunnel NAMESPACE SETTING',
-              'Validate that a tunnel setting exists in namespace structure') do |namespace|
-        @options[:action] = :validate_tunnel
-        @options[:namespace] = namespace
-        @options[:tunnel_setting] = ARGV.shift # Get the next argument
-      end
-
-      opts.on('--add-tunnel-setting NAMESPACE SETTING VALUE',
-              'Add a tunnel setting to the local settings file') do |namespace|
-        @options[:action] = :add_tunnel_setting
-        @options[:namespace] = namespace
-        @options[:tunnel_setting] = ARGV.shift # Get the setting name
-        @options[:tunnel_value] = ARGV.shift   # Get the value
       end
 
       opts.on('-h', '--help', 'Show this help message') do
@@ -128,15 +60,12 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
   end
 
   def validate_options
-    errors = []
-    errors << '--namespace is required' unless @options[:namespace]
-    errors << '--environment is required' unless @options[:environment]
-
-    if errors.any?
-      puts "Error: #{errors.join(', ')}"
+    unless @options[:service]
+      puts 'Error: --service is required'
       exit 1
     end
 
+    # Set defaults
     @options[:exclusions] ||= []
     @options[:devops_path] ||= File.expand_path('../../../devops', __dir__)
 
@@ -147,13 +76,148 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def fetch_parameters_for_expected_settings(expected_settings) # rubocop:disable Metrics/MethodLength
-    # Convert expected settings to AWS parameter paths
-    param_prefix = "/dsva-vagov/vets-api/#{@options[:environment]}/env_vars/#{@options[:namespace].tr('.', '/')}"
+  def run_service_sync # rubocop:disable Metrics/MethodLength
+    service_config_path = File.join(__dir__, 'upstream_service_config.rb')
 
-    puts "Fetching parameters with prefix: #{param_prefix}"
+    unless File.exist?(service_config_path)
+      puts "Error: Service configuration file not found: #{service_config_path}"
+      exit 1
+    end
+
+    # Load the service configuration
+    load service_config_path
+
+    unless UpstreamServiceConfig::SERVICES.key?(@options[:service])
+      available_services = UpstreamServiceConfig::SERVICES.keys.join(', ')
+      puts "Error: Unknown service '#{@options[:service]}'. Available: #{available_services}"
+      exit 1
+    end
+
+    service_config = UpstreamServiceConfig::SERVICES[@options[:service]]
+    settings_namespaces = service_config[:settings_namespaces]
+    tunnel_settings = service_config[:tunnel_setting]
+    ports = service_config[:ports]
+    skipped_settings_per_namespace = service_config[:skipped_settings]
+
+    if settings_namespaces.empty?
+      puts "Error: No settings_namespaces configured for service '#{@options[:service]}'"
+      exit 1
+    end
+
+    puts "Syncing settings for service '#{@options[:service]}'"
+    puts ''
+
+    # Sync each namespace with its associated tunnel settings and skipped settings
+    settings_namespaces.each_with_index do |namespace, index|
+      puts "Processing namespace: #{namespace}"
+
+      # Set up namespace-specific options
+      namespace_options = @options.dup
+      namespace_options[:namespace] = namespace
+
+      # Start with any global exclusions
+      namespace_exclusions = @options[:exclusions] || []
+
+      # Add skipped settings for this namespace
+      if skipped_settings_per_namespace && skipped_settings_per_namespace[index]
+        skipped_settings_for_namespace = skipped_settings_per_namespace[index]
+        namespace_exclusions.concat(skipped_settings_for_namespace)
+        puts "Auto-excluding configured skipped settings: #{skipped_settings_for_namespace.join(', ')}"
+      end
+
+      # Add tunnel setting to exclusions if it exists for this namespace
+      if tunnel_settings[index].present?
+        tunnel_setting = tunnel_settings[index]
+
+        # Validate tunnel setting exists in the namespace structure
+        if tunnel_setting_exists?(namespace, tunnel_setting)
+          namespace_exclusions << tunnel_setting
+          puts "Auto-excluding tunnel setting: #{tunnel_setting} (will be set to localhost)"
+        else
+          puts "Warning: Tunnel setting '#{tunnel_setting}' not found in namespace '#{namespace}' structure"
+        end
+      end
+
+      # Set the combined exclusions
+      namespace_options[:exclusions] = namespace_exclusions
+
+      # Sync this namespace with exclusions
+      saved_exclusions = @options[:exclusions]
+      @options[:exclusions] = namespace_options[:exclusions]
+
+      sync_namespace_with_options(namespace_options)
+
+      @options[:exclusions] = saved_exclusions
+
+      # Handle tunnel setting after sync
+      if tunnel_settings[index].present? && ports[index]
+        tunnel_setting = tunnel_settings[index]
+        port = ports[index]
+
+        if tunnel_setting_exists?(namespace, tunnel_setting)
+          puts "Setting up tunnel mapping for #{namespace}.#{tunnel_setting}"
+          if @options[:dry_run]
+            puts "[DRY RUN] Would set #{namespace}.#{tunnel_setting} = https://localhost:#{port}"
+          else
+            set_tunnel_setting(namespace, tunnel_setting, "https://localhost:#{port}")
+          end
+        end
+      end
+
+      puts '' # Add spacing between namespaces
+    end
+
+    puts "Service sync complete for '#{@options[:service]}'"
+  end
+
+  def sync_namespace_with_options(options)
+    expected_settings = get_expected_namespace_structure(options[:namespace])
+
+    if expected_settings.empty?
+      puts "Warning: No settings found for namespace '#{options[:namespace]}' in settings.yml"
+      puts "This might indicate the namespace doesn't exist or has no configurable settings."
+      return
+    end
+
+    puts "Found #{expected_settings.length} settings in #{options[:namespace]} namespace:"
+    expected_settings.each { |setting| puts "  - #{setting}" }
+    puts ''
+
+    if options[:exclusions]&.any?
+      puts "Syncing #{options[:namespace]} settings (excluding #{options[:exclusions].size} parameters)"
+    end
+
+    # Fetch and filter parameters - but only for settings that should exist
+    parameters = fetch_parameters_from_service_config(expected_settings)
+
+    filtered_parameters = filter_parameters(parameters)
+
+    if filtered_parameters.empty?
+      puts 'No parameters to sync after applying exclusions'
+      return
+    end
+
+    # Update settings while preserving comments
+    update_settings_preserving_comments(filtered_parameters, options[:namespace])
+
+    puts 'Settings sync complete!'
+  end
+
+  def fetch_parameters_from_service_config(expected_settings)
+    # Use the static service configuration - no user input involved
+    service_config = UpstreamServiceConfig::SERVICES[@options[:service]]
+    settings_namespace = service_config[:settings_namespaces].first
+
+    # Build parameter prefix using static configuration
+    param_prefix = "/dsva-vagov/vets-api/staging/env_vars/#{settings_namespace.tr('.', '/')}"
+
+    puts "Fetching parameters with prefix: #{param_prefix} (from service config)"
     return {} if @options[:dry_run]
 
+    fetch_aws_parameters(param_prefix, expected_settings)
+  end
+
+  def fetch_aws_parameters(param_prefix, expected_settings) # rubocop:disable Metrics/MethodLength
     expected_param_names = expected_settings.map do |setting|
       "#{param_prefix}/#{setting.tr('.', '/')}"
     end
@@ -185,49 +249,50 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     filtered_parameters
   end
 
-  def fetch_parameters
-    param_prefix = "/dsva-vagov/vets-api/#{@options[:environment]}/env_vars/#{@options[:namespace].gsub('.', '/')}"
-    ssm_script = File.join(@options[:devops_path], 'utilities/ssm-parameters.sh')
-
-    puts "Fetching parameters with prefix: #{param_prefix}"
-
-    if @options[:dry_run]
-      puts '[DRY RUN] Would fetch parameters from AWS Parameter Store'
-      return { 'sample.param' => 'sample_value' } # Return dummy data for dry run
-    end
-
-    cmd = [ssm_script, param_prefix, '--recursive', '--decrypt', '--json']
-    stdout, stderr, status = Open3.capture3(*cmd)
-
-    unless status.success?
-      puts "Error fetching parameters: #{stderr}"
-      exit 1
-    end
-
-    parse_parameter_response(stdout, param_prefix)
-  end
-
   def parse_parameter_response(stdout, param_prefix)
     response = JSON.parse(stdout)
     parameters = {}
 
     if response.is_a?(Array)
-      response.each do |param|
-        if param.is_a?(Hash) && param.key?('Name')
-          key_path = param['Name'].sub("#{param_prefix}/", '').split('/')
-          parameters[key_path.join('.')] = param['Value']
-        end
-      end
+      parse_array_response(response, param_prefix, parameters)
     elsif response.is_a?(Hash) && response.key?('Parameters')
-      response['Parameters'].each do |param|
-        key_path = param['Name'].sub("#{param_prefix}/", '').split('/')
-        parameters[key_path.join('.')] = param['Value']
-      end
+      parse_hash_response(response, param_prefix, parameters)
+    else
+      handle_unexpected_response(response)
     end
 
     parameters
   rescue JSON::ParserError => e
-    puts "Error parsing parameter response: #{e.message}"
+    handle_json_parse_error(e, stdout)
+  end
+
+  def parse_array_response(response, param_prefix, parameters)
+    response.each do |param|
+      if param.is_a?(Hash) && param.key?('Name')
+        key_path = param['Name'].sub("#{param_prefix}/", '').split('/')
+        parameters[key_path.join('.')] = param['Value']
+      else
+        puts "Warning: Unexpected parameter format: #{param.inspect}"
+      end
+    end
+  end
+
+  def parse_hash_response(response, param_prefix, parameters)
+    response['Parameters'].each do |param|
+      key_path = param['Name'].sub("#{param_prefix}/", '').split('/')
+      parameters[key_path.join('.')] = param['Value']
+    end
+  end
+
+  def handle_unexpected_response(response)
+    puts "Error: Unexpected response format: #{response.class}"
+    puts "Response: #{response.inspect}"
+    exit 1
+  end
+
+  def handle_json_parse_error(error, stdout)
+    puts "Error parsing parameter response: #{error.message}"
+    puts "Raw output: #{stdout}"
     exit 1
   end
 
@@ -244,7 +309,7 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
       puts "Found #{original_count} parameters, excluding #{excluded_count}, processing #{filtered.size}"
     end
 
-    @options[:exclusions].each do |excluded|
+    (@options[:exclusions] || []).each do |excluded|
       excluded_params = parameters.keys.select { |key| should_exclude_parameter?(key, excluded) }
       excluded_params.each do |param|
         puts "  Excluding: #{param} (matched by: #{excluded})" unless @options[:dry_run]
@@ -260,27 +325,27 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     exclusions_to_check.any? do |exclusion|
       # Exact match
       key == exclusion ||
-        # Namespace match - if exclusion is 'form526', exclude 'form526.access_token.client_id'
+        # Namespace match for nested settings
         key.start_with?("#{exclusion}.")
     end
   end
 
-  def update_settings_preserving_comments(parameters)
+  def update_settings_preserving_comments(parameters, namespace)
     if File.exist?(SETTINGS_LOCAL_PATH)
-      update_existing_file(parameters)
+      update_existing_file(parameters, namespace)
     else
-      create_new_file(parameters)
+      create_new_file(parameters, namespace)
     end
   end
 
-  def update_existing_file(parameters)
+  def update_existing_file(parameters, namespace)
     # Process each parameter individually with targeted updates
     parameters.each do |param_name, param_value|
       puts "Processing parameter: #{param_name}" unless @options[:dry_run]
 
       # Build the full setting path
       keys = param_name.split('.')
-      setting_path = @options[:namespace].split('.') + keys
+      setting_path = namespace.split('.') + keys
 
       # Check current value
       current_value = get_current_value(setting_path)
@@ -445,14 +510,14 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     lines << "#{'  ' * indent}#{key}: #{formatted_value}\n"
   end
 
-  def create_new_file(parameters)
+  def create_new_file(parameters, namespace)
     return if @options[:dry_run]
 
     # Build settings hash
     settings = {}
     parameters.each do |param_name, param_value|
       keys = param_name.split('.')
-      setting_path = @options[:namespace].split('.') + keys
+      setting_path = namespace.split('.') + keys
       set_nested_value(settings, setting_path, param_value)
     end
 
@@ -589,7 +654,7 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     paths
   end
 
-  def validate_tunnel_setting(namespace, tunnel_setting)
+  def tunnel_setting_exists?(namespace, tunnel_setting)
     expected_settings = get_expected_namespace_structure(namespace)
     return false unless expected_settings
 
@@ -597,13 +662,7 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     expected_settings.include?(tunnel_setting)
   end
 
-  def add_tunnel_setting(namespace, tunnel_setting, value)
-    # First validate the tunnel setting is valid for this namespace
-    unless validate_tunnel_setting(namespace, tunnel_setting)
-      puts "Error: Tunnel setting '#{tunnel_setting}' is not valid for namespace '#{namespace}'"
-      exit(1)
-    end
-
+  def set_tunnel_setting(namespace, tunnel_setting, value)
     # Use our existing update_single_setting method to add the tunnel setting
     setting_path = namespace.split('.') + [tunnel_setting]
 
