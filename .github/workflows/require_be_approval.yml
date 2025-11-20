@@ -8,7 +8,7 @@ on:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
     branches: [master]
   pull_request_review:
-    types: [submitted, dismissed]
+    types: [submitted]
 
 permissions:
   id-token: write
@@ -20,8 +20,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Teams exempt from backend approval when they exclusively own changed files
-  EXEMPT_TEAMS: '["octo-identity", "lighthouse-dash", "lighthouse-pivot", "lighthouse-banana-peels", "mobile-api-team"]'
   AWS_REGION: us-gov-west-1
   SSM_BOT_TOKEN_PATH: /devops/VA_VSP_BOT_GITHUB_TOKEN
 
@@ -73,8 +71,6 @@ jobs:
 
       - name: Analyze file ownership against CODEOWNERS
         id: file_ownership
-        env:
-          EXEMPT_TEAMS: ${{ env.EXEMPT_TEAMS }}
         run: |
           if [[ ! -s /tmp/changed_files.txt ]]; then
             echo "all_files_exempt=true" >> "$GITHUB_OUTPUT"
@@ -94,7 +90,6 @@ jobs:
             "lighthouse-pivot"
             "lighthouse-banana-peels"
             "mobile-api-team"
-            "fed-eng-admin"
           )
 
           all_files_exempt=true
