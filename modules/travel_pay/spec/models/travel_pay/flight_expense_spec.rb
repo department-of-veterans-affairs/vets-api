@@ -149,97 +149,192 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
     end
 
     context 'return_date validation' do
-      it 'allows return_date to be nil (allow_nil: true)' do
-        subject.return_date = nil
-        expect(subject).to be_valid
-        expect(subject.errors[:return_date]).to be_empty
+      context 'when trip type is RoundTrip' do
+        it 'requires return_date to be present' do
+          subject.trip_type = 'RoundTrip'
+          subject.return_date = nil
+          expect(subject).not_to be_valid
+          expect(subject.errors[:return_date]).to include("can't be blank")
+        end
+
+        it 'is invalid with empty string' do
+          subject.trip_type = 'RoundTrip'
+          subject.return_date = ''
+          expect(subject).not_to be_valid
+          expect(subject.errors[:return_date]).to include("can't be blank")
+        end
+
+        it 'accepts valid return_date' do
+          subject.trip_type = 'RoundTrip'
+          subject.return_date = 5.days.from_now
+          expect(subject).to be_valid
+        end
       end
 
-      it 'allows return_date to be empty string (casts to nil for datetime fields)' do
-        subject.return_date = ''
-        expect(subject).to be_valid
-        expect(subject.return_date).to be_nil
+      context 'when trip type is OneWay' do
+        it 'allows return_date to be nil' do
+          subject.trip_type = 'OneWay'
+          subject.return_date = nil
+          expect(subject).to be_valid
+          expect(subject.errors[:return_date]).to be_empty
+        end
+
+        it 'allows return_date to be empty string' do
+          subject.trip_type = 'OneWay'
+          subject.return_date = ''
+          expect(subject).to be_valid
+        end
+
+        it 'accepts return_date if provided' do
+          subject.trip_type = 'OneWay'
+          subject.return_date = 5.days.from_now
+          expect(subject).to be_valid
+        end
       end
 
-      it 'accepts valid return_date' do
-        subject.return_date = 5.days.from_now
-        expect(subject).to be_valid
+      context 'when trip type is Unspecified' do
+        it 'allows return_date to be nil' do
+          subject.trip_type = 'Unspecified'
+          subject.return_date = nil
+          expect(subject).to be_valid
+          expect(subject.errors[:return_date]).to be_empty
+        end
       end
     end
 
     context 'custom validations' do
       describe 'departure and arrival locations must be different' do
-        it 'is invalid when departure and arrival locations are identical' do
-          subject.departed_from = 'Denver, CO'
-          subject.arrived_to = 'Denver, CO'
-          expect(subject).not_to be_valid
-          expect(subject.errors[:arrived_to]).to include('must be different from departure location')
+        context 'when trip type is RoundTrip' do
+          it 'is invalid when departure and arrival locations are identical' do
+            subject.trip_type = 'RoundTrip'
+            subject.departed_from = 'Denver, CO'
+            subject.arrived_to = 'Denver, CO'
+            expect(subject).not_to be_valid
+            expect(subject.errors[:arrived_to]).to include('must be different from departure location')
+          end
+
+          it 'is invalid when departure and arrival locations are identical (case insensitive)' do
+            subject.trip_type = 'RoundTrip'
+            subject.departed_from = 'Denver, CO'
+            subject.arrived_to = 'DENVER, CO'
+            expect(subject).not_to be_valid
+            expect(subject.errors[:arrived_to]).to include('must be different from departure location')
+          end
+
+          it 'is invalid when departure and arrival locations are identical (with extra whitespace)' do
+            subject.trip_type = 'RoundTrip'
+            subject.departed_from = ' Denver, CO '
+            subject.arrived_to = 'Denver, CO'
+            expect(subject).not_to be_valid
+            expect(subject.errors[:arrived_to]).to include('must be different from departure location')
+          end
+
+          it 'is valid when departure and arrival locations are different' do
+            subject.trip_type = 'RoundTrip'
+            subject.departed_from = 'San Francisco, CA'
+            subject.arrived_to = 'Denver, CO'
+            expect(subject).to be_valid
+          end
+
+          it 'skips validation when either location is missing' do
+            subject.trip_type = 'RoundTrip'
+            subject.departed_from = nil
+            subject.arrived_to = 'Denver, CO'
+            # Should not add location difference error (presence validation will catch the nil)
+            subject.valid?
+            expect(subject.errors[:arrived_to]).not_to include('must be different from departure location')
+          end
         end
 
-        it 'is invalid when departure and arrival locations are identical (case insensitive)' do
-          subject.departed_from = 'Denver, CO'
-          subject.arrived_to = 'DENVER, CO'
-          expect(subject).not_to be_valid
-          expect(subject.errors[:arrived_to]).to include('must be different from departure location')
+        context 'when trip type is OneWay' do
+          it 'does not validate location difference' do
+            subject.trip_type = 'OneWay'
+            subject.departed_from = 'Denver, CO'
+            subject.arrived_to = 'Denver, CO'
+            subject.return_date = nil
+            expect(subject).to be_valid
+          end
         end
 
-        it 'is invalid when departure and arrival locations are identical (with extra whitespace)' do
-          subject.departed_from = ' Denver, CO '
-          subject.arrived_to = 'Denver, CO'
-          expect(subject).not_to be_valid
-          expect(subject.errors[:arrived_to]).to include('must be different from departure location')
-        end
-
-        it 'is valid when departure and arrival locations are different' do
-          subject.departed_from = 'San Francisco, CA'
-          subject.arrived_to = 'Denver, CO'
-          expect(subject).to be_valid
-        end
-
-        it 'skips validation when either location is missing' do
-          subject.departed_from = nil
-          subject.arrived_to = 'Denver, CO'
-          # Should not add location difference error (presence validation will catch the nil)
-          subject.valid?
-          expect(subject.errors[:arrived_to]).not_to include('must be different from departure location')
+        context 'when trip type is Unspecified' do
+          it 'does not validate location difference' do
+            subject.trip_type = 'Unspecified'
+            subject.departed_from = 'Denver, CO'
+            subject.arrived_to = 'Denver, CO'
+            subject.return_date = nil
+            expect(subject).to be_valid
+          end
         end
       end
 
       describe 'departure date must be before return date' do
-        it 'is invalid when departure date is after return date' do
-          subject.departure_date = 3.days.from_now
-          subject.return_date = 1.day.from_now
-          expect(subject).not_to be_valid
-          expect(subject.errors[:return_date]).to include('must be after departure date')
+        context 'when trip type is RoundTrip' do
+          it 'is invalid when departure date is after return date' do
+            subject.trip_type = 'RoundTrip'
+            subject.departure_date = 3.days.from_now
+            subject.return_date = 1.day.from_now
+            expect(subject).not_to be_valid
+            expect(subject.errors[:return_date]).to include('must be after departure date')
+          end
+
+          it 'is invalid when departure date equals return date' do
+            subject.trip_type = 'RoundTrip'
+            same_time = 2.days.from_now
+            subject.departure_date = same_time
+            subject.return_date = same_time
+            expect(subject).not_to be_valid
+            expect(subject.errors[:return_date]).to include('must be after departure date')
+          end
+
+          it 'is valid when departure date is before return date' do
+            subject.trip_type = 'RoundTrip'
+            subject.departure_date = 1.day.from_now
+            subject.return_date = 3.days.from_now
+            expect(subject).to be_valid
+          end
+
+          it 'is valid when departure and return are on same day with different times' do
+            subject.trip_type = 'RoundTrip'
+            base_date = 2.days.from_now.beginning_of_day
+            subject.departure_date = base_date + 8.hours # 8:00 AM
+            subject.return_date = base_date + 14.hours # 2:00 PM
+            expect(subject).to be_valid
+          end
+
+          it 'skips validation when either date is missing' do
+            subject.trip_type = 'RoundTrip'
+            subject.departure_date = nil
+            subject.return_date = 3.days.from_now
+            # Should not add date comparison error (presence validation will catch the nil)
+            subject.valid?
+            expect(subject.errors[:return_date]).not_to include('must be after departure date')
+          end
         end
 
-        it 'is invalid when departure date equals return date' do
-          same_time = 2.days.from_now
-          subject.departure_date = same_time
-          subject.return_date = same_time
-          expect(subject).not_to be_valid
-          expect(subject.errors[:return_date]).to include('must be after departure date')
+        context 'when trip type is OneWay' do
+          it 'does not validate date comparison' do
+            subject.trip_type = 'OneWay'
+            subject.departure_date = 3.days.from_now
+            subject.return_date = 1.day.from_now
+            expect(subject).to be_valid
+          end
+
+          it 'allows same dates without error' do
+            subject.trip_type = 'OneWay'
+            same_time = 2.days.from_now
+            subject.departure_date = same_time
+            subject.return_date = same_time
+            expect(subject).to be_valid
+          end
         end
 
-        it 'is valid when departure date is before return date' do
-          subject.departure_date = 1.day.from_now
-          subject.return_date = 3.days.from_now
-          expect(subject).to be_valid
-        end
-
-        it 'is valid when departure and return are on same day with different times' do
-          base_date = 2.days.from_now.beginning_of_day
-          subject.departure_date = base_date + 8.hours # 8:00 AM
-          subject.return_date = base_date + 14.hours # 2:00 PM
-          expect(subject).to be_valid
-        end
-
-        it 'skips validation when either date is missing' do
-          subject.departure_date = nil
-          subject.return_date = 3.days.from_now
-          # Should not add date comparison error (presence validation will catch the nil)
-          subject.valid?
-          expect(subject.errors[:return_date]).not_to include('must be after departure date')
+        context 'when trip type is Unspecified' do
+          it 'does not validate date comparison' do
+            subject.trip_type = 'Unspecified'
+            subject.departure_date = 3.days.from_now
+            subject.return_date = 1.day.from_now
+            expect(subject).to be_valid
+          end
         end
       end
     end
@@ -306,15 +401,15 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
           trip_type: 'OneWay',
           departed_from: 'Austin, TX',
           arrived_to: 'San Diego, CA',
-          departure_date: 3.days.from_now,
-          return_date: 3.days.from_now + 4.hours
+          departure_date: 3.days.from_now
         )
       end
 
-      it 'creates a valid one way flight expense' do
+      it 'creates a valid one way flight expense without return_date' do
         expect(expense).to be_valid
         expect(expense.trip_type).to eq('OneWay')
         expect(expense.vendor_name).to eq('Southwest Airlines')
+        expect(expense.return_date).to be_nil
       end
     end
 
@@ -328,15 +423,15 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
           trip_type: 'Unspecified',
           departed_from: 'Rural Hospital, MT',
           arrived_to: 'Mayo Clinic, MN',
-          departure_date: Time.current,
-          return_date: 2.hours.from_now
+          departure_date: Time.current
         )
       end
 
-      it 'creates a valid unspecified trip type flight expense' do
+      it 'creates a valid unspecified trip type flight expense without return_date' do
         expect(expense).to be_valid
         expect(expense.trip_type).to eq('Unspecified')
         expect(expense.vendor_name).to eq('Emergency Air Transport')
+        expect(expense.return_date).to be_nil
       end
     end
   end
@@ -368,7 +463,8 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       expect(subject.errors[:arrived_to]).to include("can't be blank")
     end
 
-    it 'handles multiple custom validation errors' do
+    it 'handles multiple custom validation errors for round trips' do
+      subject.trip_type = 'RoundTrip'
       subject.departed_from = 'Same City'
       subject.arrived_to = 'Same City'
       subject.departure_date = 3.days.from_now
@@ -379,7 +475,8 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       expect(subject.errors[:return_date]).to include('must be after departure date')
     end
 
-    it 'combines built-in and custom validation errors' do
+    it 'combines built-in and custom validation errors for round trips' do
+      subject.trip_type = 'RoundTrip'
       subject.vendor_name = ''
       subject.departed_from = 'Same Location'
       subject.arrived_to = 'Same Location'
