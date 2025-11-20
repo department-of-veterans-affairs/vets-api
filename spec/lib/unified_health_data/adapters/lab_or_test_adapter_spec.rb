@@ -1003,9 +1003,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         it 'processes records with status "final"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'final'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).not_to be_nil
           expect(result.status).to eq('final')
         end
@@ -1013,9 +1013,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         it 'processes records with status "amended"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'amended'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).not_to be_nil
           expect(result.status).to eq('amended')
         end
@@ -1023,9 +1023,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         it 'processes records with status "corrected"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'corrected'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).not_to be_nil
           expect(result.status).to eq('corrected')
         end
@@ -1033,9 +1033,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         it 'processes records with status "appended"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'appended'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).not_to be_nil
           expect(result.status).to eq('appended')
         end
@@ -1045,54 +1045,54 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         it 'filters out records with status "preliminary"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'preliminary'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).to be_nil
         end
 
         it 'filters out records with status "partial"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'partial'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).to be_nil
         end
 
         it 'filters out records with status "cancelled"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'cancelled'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).to be_nil
         end
 
         it 'filters out records with status "entered-in-error"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'entered-in-error'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).to be_nil
         end
 
         it 'filters out records with status "unknown"' do
           record = base_record.deep_dup
           record['resource']['status'] = 'unknown'
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).to be_nil
         end
 
         it 'filters out records with nil status' do
           record = base_record.deep_dup
           record['resource']['status'] = nil
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).to be_nil
         end
       end
@@ -1113,9 +1113,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result.size).to eq(1)
           expect(result.first.status).to eq('final')
         end
@@ -1133,9 +1133,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result.size).to eq(1)
           expect(result.first.status).to eq('amended')
         end
@@ -1153,9 +1153,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result.size).to eq(1)
           expect(result.first.status).to eq('corrected')
         end
@@ -1173,9 +1173,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result.size).to eq(1)
           expect(result.first.status).to eq('appended')
         end
@@ -1195,9 +1195,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result).to be_empty
         end
 
@@ -1214,9 +1214,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result).to be_empty
         end
 
@@ -1233,9 +1233,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result).to be_empty
         end
       end
@@ -1266,9 +1266,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               ]
             }
           }
-          
+
           result = adapter.send(:get_observations, record)
-          
+
           expect(result.size).to eq(2)
           expect(result.map(&:test_code)).to contain_exactly('Glucose', 'Potassium')
           expect(result.map(&:status)).to contain_exactly('final', 'amended')
@@ -1301,9 +1301,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               'status' => 'corrected'
             }
           ]
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).not_to be_nil
           expect(result.observations.size).to eq(2)
           expect(result.observations.map(&:test_code)).to contain_exactly('Valid Obs 1', 'Valid Obs 2')
@@ -1321,9 +1321,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               'status' => 'cancelled'
             }
           ]
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).not_to be_nil
           expect(result.observations).to be_empty
           expect(result.encoded_data).to eq('encoded_data')
@@ -1341,9 +1341,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               'status' => 'cancelled'
             }
           ]
-          
+
           result = adapter.send(:parse_single_record, record)
-          
+
           expect(result).to be_nil
         end
       end
@@ -1398,9 +1398,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
               }
             }
           ]
-          
+
           result = adapter.send(:parse_labs, records)
-          
+
           expect(result.size).to eq(2)
           expect(result.map(&:id)).to contain_exactly('1', '3')
           expect(result.map(&:status)).to contain_exactly('final', 'amended')
