@@ -226,7 +226,7 @@ module UnifiedHealthData
         mr_status = resource['status']
         refills_remaining = extract_refill_remaining(resource)
         expiration_date = parse_expiration_date_utc(resource)
-        has_in_progress_dispense = any_dispense_in_progress?(resource)
+        has_in_progress_dispense = most_recent_dispense_in_progress?(resource)
 
         normalized_status = map_fhir_status_to_vista(
           mr_status,
@@ -334,7 +334,7 @@ module UnifiedHealthData
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] True if most recent dispense is in-progress
-      def any_dispense_in_progress?(resource)
+      def most_recent_dispense_in_progress?(resource)
         most_recent_dispense = find_most_recent_medication_dispense(resource['contained'])
         return false if most_recent_dispense.nil?
 

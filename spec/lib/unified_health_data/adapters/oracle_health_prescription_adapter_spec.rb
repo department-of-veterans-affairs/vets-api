@@ -1666,7 +1666,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#any_dispense_in_progress?' do
+  describe '#most_recent_dispense_in_progress?' do
     it 'returns true when a dispense has preparation status' do
       resource = {
         'contained' => [
@@ -1674,7 +1674,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         ]
       }
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be true
     end
 
     it 'returns true when a dispense has in-progress status' do
@@ -1684,7 +1684,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         ]
       }
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be true
     end
 
     it 'returns true when a dispense has on-hold status' do
@@ -1694,7 +1694,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         ]
       }
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be true
     end
 
     it 'returns false when all dispenses are completed' do
@@ -1705,19 +1705,19 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         ]
       }
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be false
     end
 
     it 'returns false when no dispenses exist' do
       resource = { 'contained' => [] }
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be false
     end
 
     it 'returns false when contained is nil' do
       resource = {}
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be false
     end
 
     it 'returns true when most recent dispense is in-progress even if older ones are completed' do
@@ -1736,7 +1736,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         ]
       }
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be true
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be true
     end
 
     it 'returns false when most recent dispense is completed even if older ones are in-progress' do
@@ -1755,7 +1755,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         ]
       }
 
-      expect(subject.send(:any_dispense_in_progress?, resource)).to be false
+      expect(subject.send(:most_recent_dispense_in_progress?, resource)).to be false
     end
   end
 
