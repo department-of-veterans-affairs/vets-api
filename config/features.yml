@@ -1406,7 +1406,7 @@ features:
     enable_in_development: true
   mhv_medical_records_ccd_extended_file_types:
     actor_type: user
-    description: Allows users to download CCD (health summary) in PDF and HTML formats
+    description: Enables CCD downloads in XML, HTML, PDF w/ support for OH and VistA facilities
     enable_in_development: true
   mhv_medical_records_display_conditions:
     actor_type: user
