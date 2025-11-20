@@ -705,7 +705,7 @@ GEM
     libddwaf (1.25.1.1.0-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.10.0)
+    liquid (5.11.0)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
