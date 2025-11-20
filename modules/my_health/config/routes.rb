@@ -17,6 +17,7 @@ MyHealth::Engine.routes.draw do
     resources :prescriptions, only: %i[index], defaults: { format: :json } do
       post :refill, on: :collection
       get :list_refillable_prescriptions, on: :collection
+      get ':station_number/:prescription_id', to: 'prescriptions#show', on: :collection
     end
   end
 

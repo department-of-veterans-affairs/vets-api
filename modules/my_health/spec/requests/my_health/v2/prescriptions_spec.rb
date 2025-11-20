@@ -943,4 +943,59 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       end
     end
   end
+
+  describe 'GET /my_health/v2/prescriptions/:station_number/:prescription_id' do
+    context 'when feature flag is disabled' do
+      it 'returns forbidden' do
+        allow(Flipper).to receive(:enabled?).and_return(false)
+
+        get('/my_health/v2/prescriptions/556/12345', headers:)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_return(true)
+      end
+
+      it 'returns a successful response when prescription is found' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/556/15214174591', headers:)
+
+          expect(response).to have_http_status(:success)
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['attributes']['prescription_id']).to eq('15214174591')
+          expect(json_response['data']['attributes']['station_number']).to eq('556')
+        end
+      end
+
+      it 'returns 404 when prescription is not found' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/123/99999', headers:)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      it 'returns camelCase attributes when X-Key-Inflection: camel header is provided' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          camel_headers = headers.merge('X-Key-Inflection' => 'camel')
+          get('/my_health/v2/prescriptions/556/15214174591', headers: camel_headers)
+
+          expect(response).to have_http_status(:success)
+          json_response = JSON.parse(response.body)
+          attributes = json_response['data']['attributes']
+
+          expect(attributes).to have_key('prescriptionId')
+          expect(attributes['prescriptionId']).to eq('15214174591')
+          expect(attributes).to have_key('stationNumber')
+          expect(attributes['stationNumber']).to eq('556')
+          expect(attributes).not_to have_key('prescription_id')
+          expect(attributes).not_to have_key('station_number')
+        end
+      end
+    end
+  end
 end
