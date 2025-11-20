@@ -6,7 +6,7 @@ require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/configuration'
 
 RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
-  include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859' } }
+  include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859', participant_id: '12345678' } }
 
   describe 'GET /v0/chatbot/claims from lighthouse' do
     subject(:get_claims) do
