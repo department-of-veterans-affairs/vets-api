@@ -12,6 +12,7 @@ module Swagger
           extend Swagger::Responses::UnprocessableEntityError
           extend Swagger::Responses::InternalServerError
           extend Swagger::Responses::BadRequestError
+          extend Swagger::Responses::RecordNotFoundError
 
           key :description,
               'Generate and download a pre-filled 21-2680 PDF form ' \

@@ -501,3 +501,25 @@ links:
     provider: Datadog
     url: https://vagov.ddog-gov.com/dashboard/szu-xny-9fu/public-websites-dashboard
 integrations: {}
+---
+schema-version: v2.2
+dd-service: vass
+team: check-in-experience
+application: VASS Appointment Scheduling
+tier: '2'
+lifecycle: development
+description: Veterans Affairs Scheduling System - enables non-authenticated users to schedule appointments including suicide awareness and health appointments
+contacts:
+  - type: slack
+    contact: https://dsva.slack.com/team/U05AUP24DJ8
+links:
+  - name: VASS Engine in vets-api
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/vass
+tags:
+  - vass
+type: web
+languages:
+  - ruby
+integrations: {}

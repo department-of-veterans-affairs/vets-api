@@ -11,7 +11,9 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       def index
-        care_notes = sort_records(service.get_care_summaries_and_notes, params[:sort])
+        start_date = params[:start_date]
+        end_date = params[:end_date]
+        care_notes = sort_records(service.get_care_summaries_and_notes(start_date:, end_date:), params[:sort])
         serialized_notes = UnifiedHealthData::ClinicalNotesSerializer.new(care_notes)
 
         # Log unique user events for clinical notes accessed
@@ -25,6 +27,8 @@ module MyHealth
 
         render json: serialized_notes,
                status: :ok
+      rescue ArgumentError => e
+        render_error('Invalid Parameter', e.message, '400', 400, :bad_request)
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
              StandardError => e
