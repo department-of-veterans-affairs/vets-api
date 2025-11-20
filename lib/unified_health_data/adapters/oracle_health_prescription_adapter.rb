@@ -254,8 +254,7 @@ module UnifiedHealthData
       # @param mr_status [String] FHIR MedicationRequest.status
       # @param refills_remaining [Integer] Number of refills remaining
       # @param expiration_date [Time, nil] Parsed UTC expiration date
-      # @param has_in_progress_dispense [Boolean] Whether any dispense is in-progress
-      # @param resource [Hash] FHIR MedicationRequest resource (for checking Non-VA status)
+      # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
       # @return [String] VistA-compatible status value
       def map_fhir_status_to_vista(mr_status, refills_remaining, expiration_date, has_in_progress_dispense, resource = nil)
         case mr_status
@@ -283,7 +282,7 @@ module UnifiedHealthData
       # @param original_status [String] Original FHIR status
       # @param normalized_status [String] Normalized VistA status
       # @param refills_remaining [Integer] Number of refills remaining
-      # @param has_in_progress_dispense [Boolean] Whether any dispense is in-progress
+      # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
       def log_status_normalization(resource, original_status, normalized_status, refills_remaining,
                                    has_in_progress_dispense)
         prescription_id_suffix = resource['id']&.to_s&.last(3) || 'unknown'
@@ -303,8 +302,7 @@ module UnifiedHealthData
       #
       # @param refills_remaining [Integer] Number of refills remaining
       # @param expiration_date [Time, nil] Parsed UTC expiration date
-      # @param has_in_progress_dispense [Boolean] Whether any dispense is in-progress
-      # @param resource [Hash, nil] FHIR MedicationRequest resource (for checking Non-VA status)
+      # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
       # @return [String] VistA status value
       def normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense, resource = nil)
         # Rule: Expired more than 120 days ago → discontinued
@@ -315,7 +313,7 @@ module UnifiedHealthData
         is_non_va = resource && non_va_med?(resource)
         return 'expired' if refills_remaining.zero? && !is_non_va
 
-        # Rule: Has in-progress dispense → refillinprocess
+        # Rule: Most recent dispense is in-progress → refillinprocess
         return 'refillinprocess' if has_in_progress_dispense
 
         # Default: active
