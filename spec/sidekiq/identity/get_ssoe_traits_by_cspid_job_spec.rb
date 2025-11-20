@@ -169,7 +169,8 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
 
       it 'logs and re-raises the AttrPackage error' do
         expect(Rails.logger).to receive(:error).with(
-          '[GetSSOeTraitsByCspidJob] AttrPackage error: Sidekiq::AttrPackageError - [Sidekiq] [AttrPackage] find error: Redis connection failed',
+          '[GetSSOeTraitsByCspidJob] AttrPackage error: Sidekiq::AttrPackageError - ' \
+          '[Sidekiq] [AttrPackage] find error: Redis connection failed',
           hash_including(credential_method:, credential_id:)
         )
 
