@@ -39,8 +39,16 @@ class DebtTransactionLogService
     private
 
     def create_transaction_log(transactionable:, transaction_type:, user_uuid:, debt_identifiers:, summary_data:)
+      # For DigitalDisputeSubmission, use guid instead of id for polymorphic association
+      transactionable_id = if transactionable.is_a?(DebtsApi::V0::DigitalDisputeSubmission)
+                             transactionable.guid
+                           else
+                             transactionable.id
+                           end
+
       log = DebtTransactionLog.create!(
-        transactionable:,
+        transactionable_type: transactionable.class.name,
+        transactionable_id:,
         transaction_type:,
         user_uuid:,
         debt_identifiers:,

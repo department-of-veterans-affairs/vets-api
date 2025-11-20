@@ -1,7 +1,24 @@
 # frozen_string_literal: true
 
 class DebtTransactionLog < ApplicationRecord
-  belongs_to :transactionable, polymorphic: true
+  belongs_to :transactionable, polymorphic: true, optional: true
+
+  # Override setter to use guid for DigitalDisputeSubmission
+  def transactionable=(record)
+    if record.is_a?(DebtsApi::V0::DigitalDisputeSubmission)
+      self.transactionable_type = record.class.name
+      self.transactionable_id = record.guid
+    else
+      super
+    end
+  end
+
+  # Override getter to find by guid for DigitalDisputeSubmission
+  def transactionable
+    return super unless transactionable_type == 'DebtsApi::V0::DigitalDisputeSubmission'
+
+    DebtsApi::V0::DigitalDisputeSubmission.find_by(guid: transactionable_id)
+  end
 
   enum :state, pending: 'pending', submitted: 'submitted', completed: 'completed', failed: 'failed'
 

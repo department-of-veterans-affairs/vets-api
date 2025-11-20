@@ -10,6 +10,8 @@ module DebtsApi
       self.table_name = 'digital_dispute_submissions'
       belongs_to :user_account, dependent: nil, optional: false
       has_many_attached :files
+      has_many :debt_transaction_logs, as: :transactionable, foreign_key: :transactionable_id,
+                                        primary_key: :guid, dependent: :nullify, inverse_of: :transactionable
       has_kms_key
       has_encrypted :form_data, :metadata, key: :kms_key
       validates :user_uuid, presence: true
@@ -153,7 +155,7 @@ module DebtsApi
           'first_name' => user.first_name,
           'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
           'updated_at' => updated_at,
-          'confirmation_number' => id
+          'confirmation_number' => guid
         }
       end
     end

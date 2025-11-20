@@ -137,7 +137,7 @@ module DebtsApi
       def success_result(submission)
         {
           success: true,
-          submission_id: submission.id,
+          submission_id: submission.guid,
           message: 'Digital dispute submission received successfully'
         }
       end
