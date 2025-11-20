@@ -16,6 +16,33 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Helper functions for clean output
+extract_username_from_arn() {
+  local arn="$1"
+  # Extract username from ARN like 'arn:aws-us-gov:iam::123456789:user/First.Last'
+  echo "$arn" | sed -n 's/.*user\/\([^/]*\)$/\1/p'
+}
+
+mask_instance_id() {
+  local instance_id="$1"
+  # Hash all but last 8 characters: i-########12341234
+  if [[ ${#instance_id} -gt 10 ]]; then
+    local prefix="${instance_id:0:2}"  # 'i-'
+    local last8="${instance_id: -8}"   # last 8 chars
+    local middle_count=$((${#instance_id} - 10))
+    local hashes=$(printf '#%.0s' $(seq 1 $middle_count))
+    echo "${prefix}${hashes}${last8}"
+  else
+    echo "$instance_id"  # too short to mask
+  fi
+}
+
+get_process_pid() {
+  local port="$1"
+  # Extract just the PID from lsof output
+  lsof -i :$port | tail -n +2 | awk '{print $2}' | head -1
+}
+
 USAGE=$(cat <<-END
 upstream-connect.sh [OPTIONS] [SERVICE]
 
@@ -435,7 +462,12 @@ start_ssm_port_forwarding() {
       fi
     done
     
-    log_info "Found instances: ${instance_ids[@]}"
+    # Create masked version for display
+    local masked_instances=()
+    for id in "${instance_ids[@]}"; do
+      masked_instances+=("$(mask_instance_id "$id")")
+    done
+    log_info "Found instances: ${masked_instances[@]}"
     
     if [[ ${#instance_ids[@]} -eq 0 ]]; then
       log_error "No instances found for deployment_name=$deployment_name app_env=$app_env"
@@ -447,14 +479,18 @@ start_ssm_port_forwarding() {
     # Pick a random instance
     local picked=$(($RANDOM % ${#instance_ids[@]}))
     instance_id=${instance_ids[$picked]}
-    log_info "Selected instance: ${instance_id}"
+    local masked_selected
+    masked_selected=$(mask_instance_id "$instance_id")
+    log_info "Selected instance: $masked_selected"
   fi
   
   # Prepare SSM parameters
   local parameters="portNumber=${remote_port},localPortNumber=${local_port}"
   
   log_info "Starting SSM port forwarding session..."
-  log_info "Instance: ${instance_id}"
+  local masked_instance
+  masked_instance=$(mask_instance_id "$instance_id")
+  log_info "Instance: $masked_instance"
   log_info "Local port ${local_port} → Remote port ${remote_port}"
   
   # Check if port is already in use
@@ -469,7 +505,7 @@ start_ssm_port_forwarding() {
   local log_file="/tmp/ssm-port-forward-${local_port}-${remote_port}.log"
   
   # Start SSM session in background and capture PID
-  log_info "Running: aws ssm start-session --target $instance_id --document-name AWS-StartPortForwardingSession --parameters \"$parameters\""
+  log_info "Running: aws ssm start-session --target $masked_instance --document-name AWS-StartPortForwardingSession --parameters \"$parameters\""
   aws ssm start-session \
     --target "$instance_id" \
     --document-name AWS-StartPortForwardingSession \
@@ -592,7 +628,9 @@ show_status() {
     if aws sts get-caller-identity > /dev/null 2>&1; then
       local aws_identity
       aws_identity=$(aws sts get-caller-identity --query 'Arn' --output text 2>/dev/null)
-      log_success "AWS Connectivity: OK ($aws_identity)"
+      local username
+      username=$(extract_username_from_arn "$aws_identity")
+      log_success "AWS Connectivity: OK ($username)"
     else
       log_error "AWS Connectivity: Failed"
     fi
@@ -628,9 +666,9 @@ show_status() {
   # Check each configured port
   for port in "${all_ports[@]}"; do
     if lsof -i :$port > /dev/null 2>&1; then
-      local process_info
-      process_info=$(lsof -i :$port | tail -n +2 | awk '{print $1, $2}' | head -1)
-      echo "  Port $port: Active ($process_info)"
+      local pid
+      pid=$(get_process_pid "$port")
+      echo "  Port $port: Active (PID $pid)"
       found_tunnels=true
     fi
   done
