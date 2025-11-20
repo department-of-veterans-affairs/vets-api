@@ -149,10 +149,16 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
     end
 
     context 'return_date validation' do
-      it 'requires return_date to be present' do
+      it 'allows return_date to be nil (allow_nil: true)' do
         subject.return_date = nil
-        expect(subject).not_to be_valid
-        expect(subject.errors[:return_date]).to include("can't be blank")
+        expect(subject).to be_valid
+        expect(subject.errors[:return_date]).to be_empty
+      end
+
+      it 'allows return_date to be empty string (casts to nil for datetime fields)' do
+        subject.return_date = ''
+        expect(subject).to be_valid
+        expect(subject.return_date).to be_nil
       end
 
       it 'accepts valid return_date' do
