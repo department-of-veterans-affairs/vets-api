@@ -1,0 +1,52 @@
+type: object
+required:
+  - type
+  - id
+  - attributes
+properties:
+  type:
+    type: string
+    example: "refillable_prescription"
+  id:
+    type: string
+    example: "123456"
+  attributes:
+    type: object
+    required:
+      - prescriptionName
+      - prescriptionNumber
+      - refillRemaining
+      - expirationDate
+      - stationNumber
+      - isRefillable
+      - dispStatus
+    properties:
+      prescriptionName:
+        type: string
+        description: The name of the prescription medication
+        example: "ASPIRIN 81MG TAB"
+      prescriptionNumber:
+        type: string
+        description: The prescription number
+        example: "RX123456"
+      refillRemaining:
+        type: integer
+        description: Number of refills remaining
+        example: 3
+      expirationDate:
+        type: string
+        format: date
+        description: The expiration date of the prescription
+        example: "2025-12-31"
+      stationNumber:
+        type: string
+        description: The VA station number
+        example: "556"
+      isRefillable:
+        type: boolean
+        description: Indicates if the prescription can be refilled
+        example: true
+      dispStatus:
+        type: string
+        description: The dispensing status of the prescription
+        example: "Active"
