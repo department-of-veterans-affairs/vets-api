@@ -7,6 +7,7 @@ require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
+require 'sidekiq/pii_scrubber'  # Add this line
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 require 'admin/redis_health_checker'
 require 'kafka/producer_manager'
@@ -23,6 +24,9 @@ Rails.application.reloader.to_prepare do
     config.super_fetch! if defined?(Sidekiq::Pro)
 
     config.server_middleware do |chain|
+      # Add PII scrubber early in the chain, before logging
+      chain.add Sidekiq::PiiScrubber
+
       chain.add Sidekiq::SemanticLogging
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring
@@ -44,6 +48,9 @@ Rails.application.reloader.to_prepare do
     end
 
     config.client_middleware do |chain|
+      # Add PII scrubber to client middleware as well
+      chain.add Sidekiq::PiiScrubber
+
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
     end
 
@@ -74,6 +81,9 @@ Rails.application.reloader.to_prepare do
     config.redis = REDIS_CONFIG[:sidekiq]
 
     config.client_middleware do |chain|
+      # Add PII scrubber to client middleware
+      chain.add Sidekiq::PiiScrubber
+
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
       chain.add Sidekiq::SetRequestId
       chain.add Sidekiq::SetRequestAttributes
