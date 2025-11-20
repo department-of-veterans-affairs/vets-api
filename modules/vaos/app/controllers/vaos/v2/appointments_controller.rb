@@ -118,7 +118,13 @@ module VAOS
       # @raise [StandardError] For any unexpected errors during submission
       #
       def submit_referral_appointment
-        type_of_care = get_type_of_care_for_metrics(submit_params[:referral_number])
+        type_of_care = 'no_value'
+        begin
+          type_of_care = get_type_of_care_for_metrics(submit_params[:referral_number])
+        rescue => e
+          Rails.logger.error("Failed to retrieve type of care for metrics: #{e.message}")
+        end
+
         submit_args = build_submit_args
         appointment = eps_appointment_service.submit_appointment(submit_params[:id], submit_args)
 
