@@ -1470,7 +1470,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to eq('expired')
       end
 
-      it 'returns "refillinprocess" when any dispense is preparation' do
+      it 'returns "refillinprocess" when the most recent dispense is preparation' do
         resource = status_test_resource.merge(
           'contained' => [
             {
