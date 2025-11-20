@@ -75,10 +75,7 @@ module Lighthouse
         total_current_balance = @entries.reduce(BigDecimal("0")) do |sum, entry|
           sum + BigDecimal(entry.current_balance.to_s)
         end
-
         copay_bill_count = @entries.size
-
-        # Try bundle-level timestamp first, then fall back to per-entry date (if present)
         last_updated_on = @entries.map(&:last_updated_at).compact.max
 
         {
