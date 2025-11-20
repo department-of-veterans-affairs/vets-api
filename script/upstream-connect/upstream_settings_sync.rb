@@ -126,7 +126,7 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
       end
 
       # Add tunnel setting to exclusions if it exists for this namespace
-      if tunnel_settings[index].present?
+      if tunnel_settings[index] && !tunnel_settings[index].empty? # rubocop:disable Rails/Present # this isn't Rails...
         tunnel_setting = tunnel_settings[index]
 
         # Validate tunnel setting exists in the namespace structure
@@ -150,7 +150,7 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
       @options[:exclusions] = saved_exclusions
 
       # Handle tunnel setting after sync
-      if tunnel_settings[index].present? && ports[index]
+      if tunnel_settings[index] && !tunnel_settings[index].empty? && ports[index] # rubocop:disable Rails/Present # this isn't Rails...
         tunnel_setting = tunnel_settings[index]
         port = ports[index]
 
