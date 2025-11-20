@@ -77,11 +77,10 @@ RSpec.describe 'MyHealth::V3::Prescriptions', type: :request do
             expect(response).to have_http_status(:ok)
             body = response.parsed_body
 
-            # All returned prescriptions should be refillable
+            # All returned prescriptions should be refillable (trust UHD's is_refillable field)
             body['data'].each do |prescription|
               attributes = prescription['attributes']
               expect(attributes['is_refillable']).to be(true)
-              expect(attributes['refill_remaining']).to be_positive
             end
           end
         end

@@ -42,16 +42,10 @@ module MyHealth
       end
 
       # Filter prescriptions to only those that are refillable
-      # A prescription is refillable if:
-      # - is_refillable is true
-      # - disp_status indicates it can be refilled
-      # - Has remaining refills
+      # Trust UHD's is_refillable field
       def filter_refillable_prescriptions(prescriptions)
         prescriptions.select do |prescription|
-          prescription.respond_to?(:is_refillable) &&
-            prescription.is_refillable &&
-            prescription.respond_to?(:refill_remaining) &&
-            prescription.refill_remaining.to_i.positive?
+          prescription.respond_to?(:is_refillable) && prescription.is_refillable
         end
       end
 
