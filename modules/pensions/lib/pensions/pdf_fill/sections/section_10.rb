@@ -14,7 +14,7 @@ module Pensions
         },
         # 10b-d Care Expenses
         'careExpenses' => {
-          limit: 2,
+          limit: 3,
           item_label: 'Care expense',
           first_key: 'childName',
           # (1) Recipient
