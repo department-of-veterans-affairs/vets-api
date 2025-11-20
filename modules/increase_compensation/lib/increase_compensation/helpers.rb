@@ -84,7 +84,7 @@ module IncreaseCompensation
     end
 
     def format_first_care_item(care_item)
-      date_key = care_item.key?('doctorsTreatmentDates') ? 'doctorsTreatmentDates' : 'hospitalCareDateRanges'
+      date_key = care_item.key?('doctorsTreatmentDates') ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
       namekey = care_item.key?('nameAndAddressOfDoctor') ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'
       dates = care_item[date_key].length > 1 ? # rubocop:disable Style/MultilineTernaryOperator
       {
@@ -115,7 +115,7 @@ module IncreaseCompensation
       else
         care_info_array.map do |info|
           "#{info['nameAndAddressOfHospital']}" \
-            "\n #{info['hospitalCareDateRanges'].map { |td| "from: #{td['from']}, to: #{td['to']}\n" }.join}"
+            "\n #{info['hospitalTreatmentDates'].map { |td| "from: #{td['from']}, to: #{td['to']}\n" }.join}"
         end
       end
     end

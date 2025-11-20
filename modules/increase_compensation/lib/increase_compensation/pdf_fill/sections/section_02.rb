@@ -76,7 +76,7 @@ module IncreaseCompensation
           question_text: 'Name and Addresses of Hospitals',
           key: 'form1[0].#subform[0].Name_And_Address_Of_Hospital[0]'
         },
-        'hospitalCareDateRanges' => {
+        'hospitalTreatmentDates' => {
           question_num: 13,
           question_label: 'Hospitail Care Date Ranges',
           question_text: 'Hospitail Care Date Ranges',
@@ -134,12 +134,12 @@ module IncreaseCompensation
           end
         end
 
-        if form_data['hospitalCare'].present?
-          if form_data['hospitalCare'].length == 1
-            form_data['hospitalCareDateRanges'], form_data['nameAndAddressesOfHospitals'] =
-              format_first_care_item(form_data['hospitalCare'].first)
+        if form_data['hospitalsCare'].present?
+          if form_data['hospitalsCare'].length == 1
+            form_data['hospitalTreatmentDates'], form_data['nameAndAddressesOfHospitals'] =
+              format_first_care_item(form_data['hospitalsCare'].first)
           else
-            form_data['hospitalCareOverflow'] = overflow_doc_and_hospitails(form_data['hospitalCare'], false)
+            form_data['hospitalCareOverflow'] = overflow_doc_and_hospitails(form_data['hospitalsCare'], false)
             form_data['nameAndAddressesOfHospitals'] = 'See Additional Pages'
           end
         end
