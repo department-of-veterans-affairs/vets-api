@@ -108,7 +108,7 @@ module ClaimsApi
         @fes_claim[:veteran][:currentMailingAddress] = formatted
       end
 
-      def handle_domestic_or_international_address # rubocop:disable Metrics/MethodLength
+      def handle_domestic_or_international_address
         addr = veteran_mailing_address || {}
         type = addr[:internationalPostalCode].present? ? 'INTERNATIONAL' : 'DOMESTIC'
         line1 = addr[:addressLine1] || format_address_line(addr[:numberAndStreet], addr[:apartmentOrUnitNumber])
@@ -129,7 +129,7 @@ module ClaimsApi
         end
         @fes_claim[:veteran] ||= {}
         @fes_claim[:veteran][:currentMailingAddress] = formatted.compact_blank
-      end # rubocop:enable Metrics/MethodLength
+      end
 
       def change_of_address
         change_data = @data.dig(:veteran, :changeOfAddress)
