@@ -38,12 +38,15 @@ module UnifiedHealthData
         record = note['resource']
         return nil unless record && get_note(record)
 
+        date_value = record['date']
+
         UnifiedHealthData::ClinicalNotes.new({
                                                id: record['id'],
                                                name: get_title(record),
                                                note_type: get_record_type(record),
                                                loinc_codes: get_loinc_codes(record),
-                                               date: record['date'],
+                                               date: date_value,
+                                               sort_date: normalize_date_for_sorting(date_value),
                                                date_signed: get_date_signed(record),
                                                written_by: extract_author(record),
                                                signed_by: extract_authenticator(record),
@@ -281,6 +284,18 @@ module UnifiedHealthData
         else
           raise ArgumentError, "Invalid format: #{format}. Use xml, html, or pdf"
         end
+      end
+
+      # Normalizes date strings for consistent sorting
+      # Year-only dates (e.g., "2024") are converted to "2024-01-01T00:00:00Z"
+      # Dates without time are converted to include T00:00:00Z for consistent comparison
+      # Nil dates are converted to "1900-01-01T00:00:00Z" to sort at the end
+      def normalize_date_for_sorting(date_value)
+        return '1900-01-01T00:00:00Z' if date_value.nil?
+        return "#{date_value}-01-01T00:00:00Z" if date_value.match?(/^\d{4}$/) # Year only
+        return "#{date_value}T00:00:00Z" if date_value.match?(/^\d{4}-\d{2}-\d{2}$/) # Date without time
+        
+        date_value # Pass through dates that already have time (e.g., "2024-11-08T10:00:00Z")
       end
     end
   end

@@ -10,7 +10,7 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       def index
-        allergies = service.get_allergies
+        allergies = service.get_allergies.sort
         serialized_allergies = UnifiedHealthData::AllergySerializer.new(allergies)
 
         # Log unique user events for allergies accessed

@@ -10,7 +10,7 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       def index
-        care_notes = service.get_care_summaries_and_notes
+        care_notes = service.get_care_summaries_and_notes.sort
         serialized_notes = UnifiedHealthData::ClinicalNotesSerializer.new(care_notes)
 
         # Log unique user events for clinical notes accessed

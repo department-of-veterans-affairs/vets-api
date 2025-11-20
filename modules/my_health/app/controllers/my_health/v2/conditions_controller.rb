@@ -10,7 +10,7 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       def index
-        conditions = service.get_conditions
+        conditions = service.get_conditions.sort
 
         # Log unique user events for conditions accessed
         UniqueUserEvents.log_events(

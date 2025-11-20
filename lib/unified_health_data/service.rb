@@ -34,7 +34,7 @@ module UnifiedHealthData
         # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        sort_records_by_date(parsed_records, date_field: :date_completed)
+        parsed_records
       end
     end
 
@@ -48,7 +48,7 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_conditions = conditions_adapter.parse(combined_records)
-        sort_records_by_date(parsed_conditions)
+        parsed_conditions
       end
     end
 
@@ -127,7 +127,7 @@ module UnifiedHealthData
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
 
-        sort_records_by_date(parsed_notes)
+        parsed_notes
       end
     end
 
@@ -162,7 +162,7 @@ module UnifiedHealthData
         combined_records = fetch_combined_records(body)
 
         parsed_allergies = allergy_adapter.parse(combined_records)
-        sort_records_by_date(parsed_allergies)
+        parsed_allergies
       end
     end
 
@@ -250,41 +250,6 @@ module UnifiedHealthData
       vista_records = body.dig('vista', 'entry') || []
       oracle_health_records = body.dig('oracle-health', 'entry') || []
       vista_records + oracle_health_records
-    end
-
-    # Sorts records by date in descending order
-    # Records with nil dates are placed at the end
-    #
-    # @param records [Array] Array of record objects to sort
-    # @param date_field [Symbol] The attribute name containing the date (default: :date)
-    # @return [Array] Sorted array of records
-    def sort_records_by_date(records, date_field: :date)
-      return records if records.blank?
-
-      records.sort_by do |record|
-        date_value = record.respond_to?(date_field) ? record.send(date_field) : nil
-        parsed_date = parse_date_for_sorting(date_value)
-        parsed_date || Time.zone.at(0)
-      end.reverse
-    end
-
-    # Parses a date string into a Time object, handling year-only formats.
-    # Returns nil if the date_string is nil, already a Time object, or cannot be parsed.
-    #
-    # @param date_value [String, Time, DateTime, nil] The date value to parse
-    # @return [Time, nil] Parsed Time object or nil
-    def parse_date_for_sorting(date_value)
-      return nil if date_value.nil?
-      return date_value if date_value.is_a?(Time) || date_value.is_a?(DateTime)
-
-      date_string = date_value.to_s
-
-      # Handle year-only dates (e.g., "2024") by converting to January 1st
-      return Time.zone.parse("#{date_string}-01-01") if date_string.match?(/^\d{4}$/)
-
-      Time.zone.parse(date_string)
-    rescue ArgumentError, TypeError
-      nil
     end
 
     # Prescription refill helper methods
