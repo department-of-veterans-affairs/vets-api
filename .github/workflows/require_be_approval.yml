@@ -1,336 +1,36 @@
-name: Require backend-review-group approval
+name: Require backend-review-group approval  
 on:
   pull_request_review:
     types: [submitted]
-    branches: master
-permissions:
-  id-token: write
-  contents: read
+
 jobs:
-  get-pr-data:
-    name: Get PR Data
-    permissions: write-all
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    outputs:
-      pr_draft: ${{ steps.pr_data.outputs.pr_draft }}
-      pr_branch: ${{ steps.pr_data.outputs.pr_branch }}
-      pr_number: ${{ steps.pr_data.outputs.pr_number }}
-      pr_labels: ${{ steps.pr_data.outputs.pr_labels }}
-    steps:
-      - name: Checkout PR HEAD ref
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Get PR data
-        id: pr_data
-        run: |
-          # Pull recent data
-          ORG="department-of-veterans-affairs"
-          REPO="department-of-veterans-affairs/vets-api"
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-
-          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
-
-          # Fetch PR details from GitHub API
-          PR_INFO=$(gh api /repos/${REPO}/pulls/${PR_NUMBER} --jq '{
-            draft: .draft,
-            labels: [.labels[].name],
-            head_ref: .head.ref
-          }')
-
-          PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
-          PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
-          PR_BRANCH=$(echo "$PR_INFO" | jq -r '.head_ref')
-
-          echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
-          echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
-          echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
-
-      - name: Remove ready-for-review label
-        if: steps.pr_data.outputs.pr_draft == 'true'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ steps.get_pr_data.outputs.pr_number }}
-          labels: ready-for-review
-
-      - name: Remove ready-for-backend-review label
-        if: steps.pr_data.outputs.pr_draft == 'true'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ steps.get_pr_data.outputs.pr_number }}
-          labels: ready-for-backend-review
-
-      - name: Remove final-review-confirmed label
-        if: steps.pr_data.outputs.pr_draft == 'true'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ steps.get_pr_data.outputs.pr_number }}
-          labels: final-review-confirmed
-
-      - name: Fail if draft or failures
-        if: steps.pr_data.outputs.pr_draft == 'true'
-        run: exit 1
-
-  # Fetch approvals when required workflows are successful.
-  fetch-pr-reviews:
+  check-approvals:
     name: Succeed if backend approval is confirmed
-    needs: [get-pr-data]
     runs-on: ubuntu-latest
-    permissions: write-all
-    env:
-      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
-      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
-      pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
-      pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
-    outputs:
-      exempt_be_review: ${{ steps.verify_approval.outputs.exempt_be_review }}
-      author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
-      team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
-      approval_status: ${{ steps.verify_approval.outputs.approval_status }}
-      backend_approval_required: ${{ steps.verify_approval.outputs.backend_approval_required }}
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
     steps:
-      - name: Checkout PR HEAD ref
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: "us-gov-west-1"
-
-      - name: Get bot token from Parameter Store
-        uses: marvinpinto/action-inject-ssm-secrets@latest
+      - name: Get GitHub Bot Token
+        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+          
+      - name: Check for required approvals
+        id: check-approvals
+        uses: skymoore/required-approvals@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          read_org_scoped_token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          org_name: department-of-veterans-affairs
+          min_approvals: 1
+          limit_org_teams_to_codeowners_file: true
+          approval_mode: ALL
+          require_all_approvals_latest_commit: true
 
-      - name: Verify backend-review-group approval
-        id: verify_approval
+      - name: Run action if all required approvals are met
+        if: ${{ steps.check-approvals.outputs.approved == 'true' }}
         run: |
-          approval_status=required
-          team_approval_status=required
-          author_is_backend=false
-          backend_approval_required=true
-          exempt_be_review=false
-          backend_approval=false
-          review_complete=false
-
-          EXEMPT_TEAMS=(
-            octo-identity
-            lighthouse-dash
-            lighthouse-pivot
-            lighthouse-banana-peels
-            mobile-api-team
-            fed-eng-admin
-          )
-
-          BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
-          BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
-          echo "Backend reviewers regex: $BACKEND_REVIEWERS"
-
-          # Get PR author
-          PR_AUTHOR=${{ github.event.pull_request.user.login }}
-          if echo "$PR_AUTHOR" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
-            echo "PR author '$PR_AUTHOR' is a backend-review-group member."
-            author_is_backend=true
-          fi
-
-          readarray -t APPROVED < <(
-            gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
-              [ .[]
-              | select(.state == "APPROVED")
-              ]
-              | sort_by(.submitted_at)
-              | reverse
-              | unique_by(.user.login)
-              | .[].user.login
-            ' || true
-          )
-          echo "Approvers: ${APPROVED[@]}"
-
-
-          readarray -t DISMISSED < <(
-            gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
-              [ .[]
-              | select(.state == "DISMISSED")
-              ]
-              | sort_by(.submitted_at)
-              | reverse
-              | unique_by(.user.login)
-              | .[].user.login
-            ' || true
-          )
-          echo "DISMISSED: ${DISMISSED[@]}"
-
-          for TEAM in "${EXEMPT_TEAMS[@]}"; do
-            echo "Non BE Requested Team: $TEAM"
-
-            if [[ "$author_is_backend" == "false" ]]; then
-              author_membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
-                --jq '.state' 2>/dev/null || echo "")
-              if [[ "$author_membership_state" == "active" ]]; then
-                echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
-                exempt_be_review=true
-                backend_approval_required=false
-              fi
-            fi
-
-            if [ "${#APPROVED[@]}" -gt 0 ]; then
-              for approve in "${APPROVED[@]}"; do
-                echo "Checking approver: $approve"
-                if ! echo "$approve" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
-                  echo "PR Reviewer '$approve' is NOT a backend-review-group member."
-                  team_approval_status=confirmed
-                  membership_state=$(gh api -X GET \
-                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
-                    --jq '.state' 2>/dev/null || echo "")
-                  if [[ "$membership_state" == "active" || "$exempt_be_review" == "true" ]]; then
-                    echo "$approve is an active member of $TEAM"
-                    review_complete=true
-                    exempt_be_review=true
-                    backend_approval_required=false
-                    approval_status=confirmed
-                  fi
-                else
-                  echo "PR Reviewer '$approve' is a backend-review-group member."
-                  backend_approval=true
-                fi
-              done
-            else
-              if [ "${#DISMISSED[@]}" -gt 0 ]; then
-                echo "DISMISSED: ${DISMISSED[@]}"
-                for dismiss in "${DISMISSED[@]}"; do
-                  echo "Checking dismissed review: $dismiss"
-                  if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
-                    membership_state=$(gh api -X GET \
-                      "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
-                      --jq '.state' 2>/dev/null || echo "")
-                    if [[ "$membership_state" == "active" ]]; then
-                      echo "$dismiss is an active member of $TEAM"
-                      exempt_be_review=true
-                      backend_approval_required=false
-                      break
-                    fi
-                  fi
-                done
-              fi
-            fi
-          done
-
-          if [[ "${author_is_backend}" == "true" && "${backend_approval}" == "true" ]]; then
-            backend_approval_required=true
-            team_approval_status=confirmed
-            approval_status=confirmed
-            review_complete=true
-          fi
-
-          if [[ "${review_complete}" == "false" ]]; then
-            # Check PR Labels
-            PR_LABELS="${pr_labels}"
-            echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
-              echo "Fetching label: $LABEL"
-              if [[ "$LABEL" == "exempt-be-review" ]]; then
-                echo "$LABEL exists"
-                exempt_be_review=true
-                backend_approval_required=false
-              fi
-              if [[ "$LABEL" == "final-review-confirmed" ]]; then
-                echo "$LABEL exists"
-                team_approval_status=confirmed
-                approval_status=confirmed
-              fi
-            done
-
-            echo "Team Approvals: $TEAM_APPROVALS"
-            if [ "${team_approval_status}" == "required" ]; then
-              echo "TEAM APPROVAL REQUIRED"
-              team_approval_status=required
-            else
-              echo "TEAM APPROVAL CONFIRMED"
-              team_approval_status=confirmed
-              if [[ "${exempt_be_review}" == "true" ]]; then
-                echo "Approvals Confirmed"
-                approval_status=confirmed
-              fi
-            fi
-
-            if [[ "${exempt_be_review}" == "false" ]]; then
-              if [[ "${backend_approval}" == "false" ]]; then
-                echo "BE APPROVAL NOT CONFIRMED"
-                approval_status=required
-              else
-                echo "BE APPROVAL CONFIRMED"
-                approval_status=confirmed
-              fi
-            fi
-          fi
-
-          echo "exempt_be_review=$exempt_be_review" >> "$GITHUB_OUTPUT"
-          echo "backend_approval_required=$backend_approval_required" >> "$GITHUB_OUTPUT"
-          echo "team_approval_status=$team_approval_status" >> "$GITHUB_OUTPUT"
-          echo "approval_status=$approval_status" >> "$GITHUB_OUTPUT"
-        env:
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-
-      - name: Remove ready-for-review label
-        if: steps.verify_approval.outputs.team_approval_status == 'confirmed'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-review
-
-      - name: Remove ready-for-backend-review label
-        if: |
-          steps.verify_approval.outputs.approval_status == 'confirmed' ||
-          steps.verify_approval.outputs.backend_approval_required == 'false'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-backend-review
-
-      - name: Add exempt-be-review label
-        if: steps.verify_approval.outputs.exempt_be_review == 'true'
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: exempt-be-review
-
-      - name: Exit for non backend approvals
-        if: steps.verify_approval.outputs.backend_approval_required == 'false' || steps.verify_approval.outputs.exempt_be_review == 'true'
-        run: exit 0
-
-      - name: Fail if draft or failures
-        if: steps.verify_approval.outputs.exempt_be_review == 'false' && steps.verify_approval.outputs.approval_status == 'required'
-        run: exit 1
-
-      - name: Add ready-for-backend-review label
-        if: |
-          steps.verify_approval.outputs.approval_status == 'required' &&
-          steps.verify_approval.outputs.team_approval_status == 'confirmed'
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-backend-review
-
-      - name: Add final-review-confirmed label
-        if: steps.verify_approval.outputs.approval_status == 'confirmed'
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: final-review-confirmed
-
-      - name: Backend Approval Confirmed
-        if: steps.verify_approval.outputs.approval_status == 'confirmed'
-        run: exit 0
+          echo "All required approvals are met. Running the action."

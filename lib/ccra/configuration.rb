@@ -6,6 +6,8 @@ require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/snakecase'
 require 'faraday/multipart'
 
+# test
+
 module Ccra
   # CCRA::Configuration provides the configuration settings for the CCRA API.
   # It retrieves settings from the application configuration (e.g., Settings.vaos.ccra)
