@@ -23,10 +23,20 @@ module MedicalExpenseReports
         MedicalExpenseReports::SavedClaim
       end
 
+      # points to S3 settings, where PDFs are archived
+      def config
+        Settings.bio.medical_expense_reports
+      end
+
+      # returns the URL to the PDF in S3 so the person completing the forms can download them
+      def pdf_url(guid)
+        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
+      end
+
       # GET serialized medical expense reports form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: SavedClaimSerializer.new(claim)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -56,7 +66,7 @@ module MedicalExpenseReports
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
