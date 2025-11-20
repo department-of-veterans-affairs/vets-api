@@ -32,20 +32,6 @@ module MyHealth
         render json: response.serializable_hash
       end
 
-      def show
-        return unless validate_feature_flag
-
-        prescriptions = service.get_prescriptions(current_only: false).compact
-        prescription = prescriptions.find do |p|
-          p.prescription_id.to_s == params[:prescription_id].to_s &&
-            p.station_number.to_s == params[:station_number].to_s
-        end
-
-        raise Common::Exceptions::RecordNotFound, params[:prescription_id] unless prescription
-
-        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
-      end
-
       # This index action supports various parameters described below, all are optional
       # @param refill_status - one refill status to filter on
       # @param page - the paginated page to fetch
@@ -67,6 +53,20 @@ module MyHealth
 
         log_prescriptions_access
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
+      end
+
+      def show
+        return unless validate_feature_flag
+
+        prescriptions = service.get_prescriptions(current_only: false).compact
+        prescription = prescriptions.find do |p|
+          p.prescription_id.to_s == params[:prescription_id].to_s &&
+            p.station_number.to_s == params[:station_number].to_s
+        end
+
+        raise Common::Exceptions::RecordNotFound, params[:prescription_id] unless prescription
+
+        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
       end
 
       def list_refillable_prescriptions
