@@ -13,7 +13,8 @@ module MyHealth
       '626' => 'VA Tennessee health care (multiple facilities)',
       '636' => 'VA Nebraska and Iowa health care (multiple facilities)',
       '657' => 'VA Missouri and Illinois health care (multiple facilities)',
-      '612' => 'VA Northern California'
+      '612' => 'VA Northern California (multiple facilities)',
+      '612A4' => 'VA Northern California (multiple facilities)'
     }.freeze
     def set_health_care_system_names(all_triage_teams_collection)
       triage_teams = all_triage_teams_collection.records
