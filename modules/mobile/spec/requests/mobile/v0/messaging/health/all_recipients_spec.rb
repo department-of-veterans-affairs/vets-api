@@ -191,7 +191,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         expect(care_systems[6]['healthCareSystemName']).to eq('VA Tennessee health care (multiple facilities)')
         expect(care_systems[7]['healthCareSystemName']).to eq('VA Nebraska and Iowa health care (multiple facilities)')
         expect(care_systems[8]['healthCareSystemName']).to eq('VA Missouri and Illinois health care (multiple facilities)')
-        expect(care_systems[9]['healthCareSystemName']).to eq('VA Northern California')
+        expect(care_systems[9]['healthCareSystemName']).to eq('VA Northern California (multiple facilities)')
         # rubocop:enable Layout/LineLength
       end
     end
