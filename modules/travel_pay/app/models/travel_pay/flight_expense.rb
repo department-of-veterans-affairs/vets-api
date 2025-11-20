@@ -16,7 +16,6 @@ module TravelPay
     validates :departured_from, presence: true, length: { maximum: 255 }
     validates :arrived_to, presence: true, length: { maximum: 255 }
     validates :departure_date, presence: true
-    validates :return_date, presence: true
 
     validate :departure_and_arrival_must_be_different
     validate :departure_date_must_be_before_return_date
