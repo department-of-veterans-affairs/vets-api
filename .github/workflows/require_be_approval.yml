@@ -21,7 +21,7 @@ concurrency:
 
 env:
   # Teams exempt from backend approval when they exclusively own changed files
-  EXEMPT_TEAMS: '["octo-identity", "lighthouse-dash", "lighthouse-pivot", "lighthouse-banana-peels", "mobile-api-team", "fed-eng-admin"]'
+  EXEMPT_TEAMS: '["octo-identity", "lighthouse-dash", "lighthouse-pivot", "lighthouse-banana-peels", "mobile-api-team"]'
   AWS_REGION: us-gov-west-1
   SSM_BOT_TOKEN_PATH: /devops/VA_VSP_BOT_GITHUB_TOKEN
 
@@ -217,14 +217,7 @@ jobs:
             echo "Checking for backend-review-group approval..."
 
             # Fetch backend-review-group members
-            if ! BACKEND_REVIEWERS=$(gh api \
-              /orgs/department-of-veterans-affairs/teams/backend-review-group/members \
-              --jq '.[].login' 2>/dev/null); then
-              echo "[ERROR] Failed to fetch backend-review-group members"
-              echo "requires_approval=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-
+            BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
             BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
             echo "  Backend reviewers: ${BACKEND_REVIEWERS}"
 
