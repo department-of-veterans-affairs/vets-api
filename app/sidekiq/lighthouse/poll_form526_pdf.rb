@@ -108,7 +108,7 @@ module Lighthouse
           #   - Exit the job immediately.
           if submission.created_at.between?(DateTime.now - 4.days, DateTime.now - 1.day)
             Rails.logger.warn(
-              "Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id #{submission.id}" \
+              "Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id #{submission.id}"
             )
           elsif submission.created_at < DateTime.now - 4.days
             form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
