@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/models/redis_store'
-require 'sentry_logging'
 
 class Session < Common::RedisStore
-  include SentryLogging
-
   redis_store REDIS_CONFIG[:session_store][:namespace]
   redis_ttl REDIS_CONFIG[:session_store][:each_ttl]
   redis_key :token
@@ -66,9 +63,8 @@ class Session < Common::RedisStore
   def within_maximum_ttl
     time_remaining = (@created_at + MAX_SESSION_LIFETIME - Time.now.utc).round
     if time_remaining.negative?
-      log_message_to_sentry(
-        'Maximum Session Duration Reached', :info, {}, session_token: self.class.obscure_token(@token)
-      )
+      Rails.logger.info('[Session] Maximum Session Duration Reached',
+                        session_token: self.class.obscure_token(@token))
       errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] seconds. Session is too old")
     end
   end

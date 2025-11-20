@@ -23,6 +23,7 @@ module Mobile
       attribute :documents_needed, Types::Bool.optional.default(nil)
       attribute :development_letter_sent, Types::Bool.optional.default(nil)
       attribute :claim_type_code, Types::String.optional.default(nil)
+      attribute :claim_type_base, Types::String.optional.default(nil)
     end
   end
 end

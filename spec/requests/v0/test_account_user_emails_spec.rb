@@ -7,12 +7,11 @@ RSpec.describe 'V0::TestAccountUserEmails', type: :request do
     subject { post '/v0/test_account_user_email', params: }
 
     let(:email) { 'some-email' }
-    let(:email_redis_key) { 'some-email-redis-key' }
+    let(:email_redis_key) { Digest::SHA256.hexdigest(email) }
     let(:params) { { email: } }
     let(:rendered_error) { { 'errors' => 'invalid params' } }
 
     before do
-      allow(SecureRandom).to receive(:uuid).and_return(email_redis_key)
       allow(Rails.logger).to receive(:info)
     end
 

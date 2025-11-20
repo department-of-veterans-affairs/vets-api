@@ -1,0 +1,38 @@
+{
+  "veteranProfile": {
+    "firstName": "VICTORIA",
+    "lastName": "DUNCAN",
+    "dob": "1901-09-11Z",
+    "characterOfDischarge": "Honorable",
+    "servicePeriod": [
+      {
+        "serviceBeganDate": "1941-12-05Z",
+        "serviceEndDate": "1960-12-07Z",
+        "characterOfDischarge": "Honorable"
+      },
+      {
+        "serviceBeganDate": "2021-01-01Z",
+        "serviceEndDate": "2023-04-01Z",
+        "characterOfDischarge": "Honorable"
+      }
+    ]
+  },
+  "disabilityRating": {
+    "combinedScd": 0,
+    "scdDetails": []
+  },
+  "irndDate": "2025-08-04Z",
+  "eligibilityTerminationDate": null,
+  "entitlementDetails": {
+    "maxCh31Entitlement": { "month": 48, "days": 0 },
+    "ch31EntitlementRemaining": { "month": 0, "days": 0 },
+    "entitlementUsed": { "month": 0, "days": 0 }
+  },
+  "resCaseId": 685,
+  "qualifyingMilitaryServiceStatus": "Eligible",
+  "characterOfDischargeStatus": "Eligible",
+  "disabilityRatingStatus": "Ineligible",
+  "irndStatus": "Eligible",
+  "eligibilityTerminationDateStatus": "Eligible",
+  "resEligibilityRecommendation": "Ineligible"
+}

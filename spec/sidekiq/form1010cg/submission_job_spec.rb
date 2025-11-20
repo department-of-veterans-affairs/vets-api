@@ -145,26 +145,14 @@ RSpec.describe Form1010cg::SubmissionJob do
 
     context 'when there is a standarderror' do
       it 'increments statsd except applications_retried' do
-        allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
-        start_time = Time.current
-        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
-        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
-        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
-        expected_arguments = { context: :process_job, event: :failure, start_time: }
-        auditor_double = instance_double(Form1010cg::Auditor)
-        allow(Form1010cg::Auditor).to receive(:new) { auditor_double }
-        expect(auditor_double).to receive(:log_caregiver_request_duration).with(**expected_arguments).twice
-
         allow_any_instance_of(Form1010cg::Service).to receive(
           :process_claim_v2!
         ).and_raise(StandardError)
 
-        expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-        expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
-
-        # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
-        expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
+        expect(Rails.logger).to receive(:error).with(
+          '[10-10CG] - Error processing Caregiver claim submission in job',
+          { exception: StandardError, claim_id: claim.id }
+        ).twice
 
         2.times do
           expect do
@@ -172,51 +160,11 @@ RSpec.describe Form1010cg::SubmissionJob do
           end.to raise_error(StandardError)
         end
       end
-
-      context 'with :caregiver_use_rails_logging_over_sentry enabled' do
-        it 'increments statsd except applications_retried' do
-          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
-
-          allow_any_instance_of(Form1010cg::Service).to receive(
-            :process_claim_v2!
-          ).and_raise(StandardError)
-
-          expect(Rails.logger).to receive(:error).with(
-            '[10-10CG] - Error processing Caregiver claim submission in job',
-            { exception: StandardError, claim_id: claim.id }
-          ).twice
-          expect(job).not_to receive(:log_exception_to_sentry)
-
-          2.times do
-            expect do
-              job.perform(claim.id)
-            end.to raise_error(StandardError)
-          end
-        end
-      end
-
-      context 'with :caregiver_use_rails_logging_over_sentry disabled' do
-        it 'increments statsd except applications_retried' do
-          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
-
-          allow_any_instance_of(Form1010cg::Service).to receive(
-            :process_claim_v2!
-          ).and_raise(StandardError)
-
-          expect(Rails.logger).not_to receive(:error)
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
-
-          2.times do
-            expect do
-              job.perform(claim.id)
-            end.to raise_error(StandardError)
-          end
-        end
-      end
     end
 
     context 'when the service throws a record parse error' do
       before do
+        allow(Process).to receive(:clock_gettime).and_call_original
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
       end
@@ -256,6 +204,7 @@ RSpec.describe Form1010cg::SubmissionJob do
           expected_arguments = { context: :process_job, event: :failure, start_time: }
           expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration)
             .with(**expected_arguments)
+          allow(Process).to receive(:clock_gettime).and_call_original
           allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
 
           expect_any_instance_of(Form1010cg::Service).to receive(
@@ -274,34 +223,17 @@ RSpec.describe Form1010cg::SubmissionJob do
     end
 
     context 'when claim can not be destroyed' do
-      context 'with :caregiver_use_rails_logging_over_sentry enabled' do
-        it 'logs the exception using the Rails logger' do
-          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
-          expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
-          error = StandardError.new
-          expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
+      it 'logs the exception using the Rails logger' do
+        expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
+        error = StandardError.new
+        expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
 
-          expect(Rails.logger).to receive(:error).with(
-            '[10-10CG] - Error destroying Caregiver claim after processing submission in job',
-            { exception: error, claim_id: claim.id }
-          )
-          expect(job).not_to receive(:log_exception_to_sentry)
+        expect(Rails.logger).to receive(:error).with(
+          '[10-10CG] - Error destroying Caregiver claim after processing submission in job',
+          { exception: error, claim_id: claim.id }
+        )
 
-          job.perform(claim.id)
-        end
-      end
-
-      context 'with :caregiver_use_rails_logging_over_sentry disabled' do
-        it 'logs the exception to sentry' do
-          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
-          expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
-          error = StandardError.new
-          expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
-
-          expect(Rails.logger).not_to receive(:error)
-          expect(job).to receive(:log_exception_to_sentry).with(error, { claim_id: claim.id })
-          job.perform(claim.id)
-        end
+        job.perform(claim.id)
       end
     end
 
@@ -310,6 +242,7 @@ RSpec.describe Form1010cg::SubmissionJob do
       expected_arguments = { context: :process_job, event: :success, start_time: }
       expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration).with(**expected_arguments)
 
+      allow(Process).to receive(:clock_gettime).and_call_original
       allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
       allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
       allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)

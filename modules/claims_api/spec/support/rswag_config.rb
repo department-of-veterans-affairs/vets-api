@@ -15,7 +15,7 @@ class ClaimsApi::RswagConfig
           {
             name: 'Claims',
             description: <<~VERBIAGE
-              Allows authenticated and authorized users to access claims data for a single claim by ID, or for all claims based on Veteran data. No data is returned if the user is not authenticated and authorized.
+              Allows authenticated and authorized users to access claims data for a single claim by ID, or for all claims based on claimant data. No data is returned if the user is not authenticated and authorized.
             VERBIAGE
           },
           {
@@ -101,7 +101,7 @@ class ClaimsApi::RswagConfig
           {
             name: 'Claims',
             description: <<~VERBIAGE
-              Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.
+              Allows authenticated and authorized users to access claims data for a given VA claimant. No data is returned if the user is not authenticated and authorized.
             VERBIAGE
           },
           {

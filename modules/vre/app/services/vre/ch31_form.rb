@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module VRE
   class Ch31Form < VRE::Service
     class Ch31Error < StandardError; end
     class Ch31NilClaimError < StandardError; end
 
-    include SentryLogging
+    include Vets::SharedLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.res'
 
@@ -40,6 +40,10 @@ module VRE
     end
 
     private
+
+    def api_path
+      'form281900'
+    end
 
     def format_payload_for_res
       form_data = claim_form_hash

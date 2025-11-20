@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'burials/notification_email'
-require 'zero_silent_failures/monitor'
 require 'logging/base_monitor'
 
 module Burials
@@ -21,12 +19,8 @@ module Burials
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.burial.submit_benefits_intake_claim'
 
-    attr_reader :tags
-
     def initialize
       super('burial-application')
-
-      @tags = ["form_id:#{form_id}"]
     end
 
     private
@@ -64,13 +58,6 @@ module Burials
     # @return [String]
     def form_id
       Burials::FORM_ID
-    end
-
-    ##
-    # Class name for notification email
-    # @return [Class]
-    def send_email(claim_id, email_type)
-      Burials::NotificationEmail.new(claim_id).deliver(email_type)
     end
   end
 end

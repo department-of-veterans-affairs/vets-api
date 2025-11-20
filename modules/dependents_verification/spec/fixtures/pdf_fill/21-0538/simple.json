@@ -1,0 +1,16 @@
+{
+  "veteranInformation": {
+    "ssnLastFour": "4445",
+    "ssn": "333224445",
+    "vaFileNumber": "333224445",
+    "fullName": {
+      "first": "Jane",
+      "middle": "Elizabeth",
+      "last": "Minimal"
+    },
+    "birthDate": "2020-01-01"
+  },
+  "hasDependentsStatusChanged": "N",
+  "statementOfTruthSignature": "Jane Elizabeth Minimal",
+  "statementOfTruthCertified": true
+}

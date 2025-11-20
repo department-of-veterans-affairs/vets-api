@@ -60,11 +60,11 @@ module HCA
       validated_string
     end
 
-    def validate_name(*, **)
+    def validate_name(*, all_caps: true, **)
       formatted_name = validate_string(*, **)
       return '' if formatted_name.blank?
 
-      formatted_name.upcase
+      all_caps ? formatted_name.upcase : formatted_name
     end
 
     def validate_ssn(input_ssn)

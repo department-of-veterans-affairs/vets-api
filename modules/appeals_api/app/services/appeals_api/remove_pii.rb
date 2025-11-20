@@ -4,8 +4,6 @@ require 'datadog'
 
 module AppealsApi
   class RemovePii
-    include SentryLogging
-
     APPEALS_TYPES = [
       HigherLevelReview,
       NoticeOfDisagreement,

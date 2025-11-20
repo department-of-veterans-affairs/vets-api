@@ -53,7 +53,8 @@
         "updatedAt",
         "failedStationList",
         "sort",
-        "pagination"
+        "pagination",
+        "recently_requested"
       ],
       "properties": {
         "updatedAt": {

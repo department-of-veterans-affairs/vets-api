@@ -14,8 +14,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::MilitaryServiceController', type: 
   let(:aal_client) { instance_spy(AAL::MRClient) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
     allow(AAL::MRClient).to receive(:new).and_return(aal_client)
 
     phr_mgr_client = PHRMgr::Client.new(

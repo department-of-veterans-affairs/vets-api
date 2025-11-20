@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::Chatbot::TokenController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
 
   describe '#create' do
     context 'when external service is healthy' do
@@ -39,6 +39,17 @@ RSpec.describe V0::Chatbot::TokenController, type: :controller do
 
         res = JSON.parse(response.body)
         expect(res['token']).to eq(recorded_token)
+      end
+
+      it 'includes a positive expires_in value' do
+        VCR.use_cassette('chatbot/webchat_token_success') do
+          post :create
+        end
+
+        res = JSON.parse(response.body)
+        expect(res).to have_key('expires_in')
+        expect(res['expires_in']).to be_a(Integer)
+        expect(res['expires_in']).to be > 0
       end
 
       it('does not return code') do
@@ -110,6 +121,9 @@ RSpec.describe V0::Chatbot::TokenController, type: :controller do
       res = JSON.parse(response.body)
 
       expect(res['code']).to be_a(String)
+      expect(res).to have_key('expires_in')
+      expect(res['expires_in']).to be_a(Integer)
+      expect(res['expires_in']).to be > 0
     end
   end
 end

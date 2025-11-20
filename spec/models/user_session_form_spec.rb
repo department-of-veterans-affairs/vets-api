@@ -10,9 +10,10 @@ RSpec.describe UserSessionForm, type: :model do
     build(:user, :loa3, uuid: saml_attributes[:uuid],
                         idme_uuid: saml_attributes[:uuid])
   end
+  let(:authn_context) { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
   let(:saml_response) do
     build_saml_response(
-      authn_context: 'myhealthevet',
+      authn_context:,
       level_of_assurance: '3',
       attributes: saml_attributes,
       existing_attributes: nil,
@@ -104,7 +105,7 @@ RSpec.describe UserSessionForm, type: :model do
 
       context 'when credential identifier can be found on existing account' do
         let(:user_account) { create(:user_account, icn: saml_attributes[:va_eauth_icn]) }
-        let!(:user_verification) { create(:idme_user_verification, user_account:) }
+        let!(:user_verification) { create(:user_verification, user_account:) }
         let(:idme_uuid) { user_verification.idme_uuid }
         let(:add_person_response) do
           MPI::Responses::AddPersonResponse.new(status:, parsed_codes:)
@@ -116,11 +117,11 @@ RSpec.describe UserSessionForm, type: :model do
           allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
         end
 
-        it 'uses the injected identifier as the user key' do
+        it 'uses the user account uuid as the user key' do
           subject = UserSessionForm.new(saml_response)
           subject.persist
-          expect(User.find(idme_uuid)).to be_truthy
-          expect(UserIdentity.find(idme_uuid)).to be_truthy
+          expect(User.find(user_account.id)).to be_truthy
+          expect(UserIdentity.find(user_account.id)).to be_truthy
         end
 
         it 'adds the identifier to an existing mpi record' do
@@ -130,11 +131,12 @@ RSpec.describe UserSessionForm, type: :model do
 
         context 'when failure occurs during adding identifier to existing mpi record' do
           let(:status) { 'some-not-successful-status' }
-          let(:sentry_log) { "Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}" }
-          let(:sentry_level) { :warn }
 
-          it 'logs a message to sentry' do
-            expect_any_instance_of(UserSessionForm).to receive(:log_message_to_sentry).with(sentry_log, sentry_level)
+          it 'logs a message to Rails logger' do
+            expect(Rails.logger).to receive(:warn).with(
+              '[UserSessionForm] Failed Add CSP ID to MPI',
+              idme_uuid:
+            )
             UserSessionForm.new(saml_response)
           end
         end
@@ -142,6 +144,7 @@ RSpec.describe UserSessionForm, type: :model do
     end
 
     context 'and Login.gov UUID is present in SAML' do
+      let(:authn_context) { 'http://idmanagement.gov/ns/assurance/ial/2/mfa' }
       let(:saml_attributes) do
         build(:ssoe_logingov_ial2)
       end

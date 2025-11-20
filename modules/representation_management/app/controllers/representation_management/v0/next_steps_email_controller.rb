@@ -17,18 +17,10 @@ module RepresentationManagement
         if data.valid?
           VANotify::EmailJob.perform_async(
             data.email_address,
-            Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
-            {
-              # The first_name is the only key here that has an underscore.
-              # That is intentional.  All the keys here match the keys in the
-              # template.
-              'first_name' => data.first_name,
-              'form name' => data.form_name,
-              'form number' => data.form_number,
-              'representative type' => data.entity_display_type,
-              'representative name' => data.entity_name,
-              'representative address' => data.entity_address
-            }
+            template_id,
+            email_personalisation(data),
+            Settings.vanotify.services.va_gov.api_key,
+            email_callback_options(data)
           )
           render json: { message: 'Email enqueued' }, status: :ok
         else
@@ -38,8 +30,38 @@ module RepresentationManagement
 
       private
 
+      def email_personalisation(data)
+        {
+          'first_name' => data.first_name,
+          'form name' => data.form_name,
+          'form number' => data.form_number,
+          'representative type' => data.entity_display_type,
+          'representative name' => data.entity_name,
+          'representative address' => data.entity_address
+        }
+      end
+
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
+      end
+
+      def email_callback_options(data)
+        return unless Flipper.enabled?(:accredited_representative_portal_email_delivery_callback)
+
+        email_delivery_callback(data)
+      end
+
+      def email_delivery_callback(data)
+        {
+          callback_klass: 'AccreditedRepresentativePortal::EmailDeliveryStatusCallback',
+          callback_metadata: {
+            form_number: data.form_number,
+            statsd_tags: {
+              service: 'representation-management',
+              function: 'appoint_a_representative_confirmation_email'
+            }
+          }
+        }
       end
 
       # Strong parameters method for sanitizing input data for the next steps email.
@@ -54,6 +76,10 @@ module RepresentationManagement
           :entity_type,
           :entity_id
         )
+      end
+
+      def template_id
+        Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email
       end
     end
   end

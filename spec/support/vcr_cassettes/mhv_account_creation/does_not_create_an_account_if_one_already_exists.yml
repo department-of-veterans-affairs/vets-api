@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/account/register"
+    uri: "<MHV_HOST>/v1/usermgmt/alter/register"
     body:
       encoding: UTF-8
       string: '{"icn":"1012667122V019349","isPatient":true,"isPatientAdvocate":false,"isVeteran":true,"isChampVaBeneficiary":false,"isServiceMember":false,"isEmployee":false,"isHealthCareProvider":false,"isOther":false,"city":"Houston","country":"USA","zip":"77040","state":"Tx","address1":"20140624","email":"vets.gov.user+0@gmail.com","signInPartners":"VETS.GOV","termsVersion":"v3.2","termsAcceptedDate":"Tue,
@@ -16,6 +16,8 @@ http_interactions:
       - Vets.gov Agent
       Apptoken:
       - "<APP_TOKEN>"
+      X-Api-Key:
+      - "<X_API_KEY>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

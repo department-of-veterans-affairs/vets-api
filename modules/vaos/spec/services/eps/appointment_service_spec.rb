@@ -5,17 +5,23 @@ require 'rails_helper'
 describe Eps::AppointmentService do
   subject(:service) { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234', icn:) }
+  let(:user) do
+    double('User', account_uuid: '1234', icn:, uuid: '1234', email: 'test@example.com',
+                   va_profile_email: 'va.profile@example.com', va_treatment_facility_ids: ['123'])
+  end
   let(:config) { instance_double(Eps::Configuration) }
-  let(:headers) { { 'Authorization' => 'Bearer token123' } }
-  let(:response_headers) { { 'Content-Type' => 'application/json' } }
+  let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
+  let(:response_headers) { { 'Content-Type' => 'application/json', 'x-wellhive-trace-id' => 'test-trace-id-123' } }
 
   let(:appointment_id) { 'appointment-123' }
   let(:icn) { '123ICN' }
 
   before do
-    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
-    allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
+    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false, api_url: 'https://api.wellhive.com')
+    allow_any_instance_of(Eps::BaseService).to receive_messages(config:)
+    allow_any_instance_of(Eps::BaseService).to receive(:request_headers_with_correlation_id).and_return(headers)
+    # Set up RequestStore for controller name logging
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
   end
 
   describe '#get_appointment' do
@@ -40,8 +46,9 @@ describe Eps::AppointmentService do
 
       context 'when retrieve_latest_details is true' do
         before do
+          path = "/#{config.base_path}/appointments/#{appointment_id}?retrieveLatestDetails=true"
           expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/appointments/#{appointment_id}?retrieveLatestDetails=true", {}, headers)
+            .with(:get, path, {}, headers)
             .and_return(success_response)
         end
 
@@ -69,6 +76,48 @@ describe Eps::AppointmentService do
       it 'throws exception' do
         expect { service.get_appointment(appointment_id:) }.to raise_error(Common::Exceptions::BackendServiceException,
                                                                            /VA900/)
+      end
+    end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { 'id' => appointment_id,
+                                                'state' => 'submitted',
+                                                'patientId' => icn,
+                                                'error' => 'conflict' },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.get_appointment(appointment_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
+        expected_station_number = user.va_treatment_facility_ids&.first
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: EPS appointment error',
+          {
+            error_type: 'conflict',
+            method: 'get_appointment',
+            status: 200,
+            controller: expected_controller_name,
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
+          }
+        )
+
+        expect { service.get_appointment(appointment_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
       end
     end
   end
@@ -109,6 +158,47 @@ describe Eps::AppointmentService do
       it 'throws exception' do
         expect { service.get_appointments }.to raise_error(Common::Exceptions::BackendServiceException,
                                                            /VA900/)
+      end
+    end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { error: 'conflict',
+                                                'count' => 0,
+                                                'appointments' => [] },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.get_appointments }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
+        expected_station_number = user.va_treatment_facility_ids&.first
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: EPS appointment error',
+          {
+            error_type: 'conflict',
+            method: 'get_appointments',
+            status: 200,
+            controller: expected_controller_name,
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
+          }
+        )
+
+        expect { service.get_appointments }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
       end
     end
   end
@@ -154,6 +244,48 @@ describe Eps::AppointmentService do
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { 'id' => appointment_id,
+                                                'state' => 'draft',
+                                                'patientId' => icn,
+                                                'error' => 'conflict' },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.create_draft_appointment(referral_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
+        expected_station_number = user.va_treatment_facility_ids&.first
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: EPS appointment error',
+          {
+            error_type: 'conflict',
+            method: 'create_draft_appointment',
+            status: 200,
+            controller: expected_controller_name,
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
+          }
+        )
+
+        expect { service.create_draft_appointment(referral_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+    end
   end
 
   describe '#submit_appointment' do
@@ -184,8 +316,22 @@ describe Eps::AppointmentService do
           }
         }
 
+        redis_client = instance_double(Eps::RedisClient)
+        allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+        expect(redis_client).to receive(:store_appointment_data).with(
+          uuid: user.account_uuid,
+          appointment_id:,
+          email: user.email
+        )
+
+        expect(Eps::AppointmentStatusJob).to receive(:perform_async).with(
+          user.account_uuid,
+          appointment_id.last(4)
+        )
+
+        path = "/#{config.base_path}/appointments/#{appointment_id}/submit"
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
+          .with(:post, path, expected_payload, kind_of(Hash))
           .and_return(successful_response)
 
         exp_response = OpenStruct.new(successful_response.body)
@@ -207,8 +353,9 @@ describe Eps::AppointmentService do
           additional_patient_attributes: patient_attributes
         }
 
+        path = "/#{config.base_path}/appointments/#{appointment_id}/submit"
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
+          .with(:post, path, expected_payload, kind_of(Hash))
           .and_return(successful_response)
 
         service.submit_appointment(appointment_id, params_with_attributes)
@@ -263,6 +410,48 @@ describe Eps::AppointmentService do
         expect do
           service.submit_appointment(appointment_id, valid_params)
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { 'id' => appointment_id,
+                                                'state' => 'submitted',
+                                                'patientId' => icn,
+                                                'error' => 'conflict' },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+        # Mock the trace ID in RequestStore since middleware doesn't run in unit tests
+        RequestStore.store['eps_trace_id'] = 'test-trace-id-123'
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.submit_appointment(appointment_id, valid_params) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expected_controller_name = 'VAOS::V2::AppointmentsController'
+        expected_station_number = user.va_treatment_facility_ids&.first
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: EPS appointment error',
+          {
+            error_type: 'conflict',
+            method: 'submit_appointment',
+            status: 200,
+            controller: expected_controller_name,
+            station_number: expected_station_number,
+            eps_trace_id: 'test-trace-id-123'
+          }
+        )
+
+        expect { service.submit_appointment(appointment_id, valid_params) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
       end
     end
   end

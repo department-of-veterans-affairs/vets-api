@@ -1,0 +1,71 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntAddrsService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>xUid</vaws:ExternalUid>
+              <vaws:ExternalKey>xKey</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntAddrsFindByPrimaryKey><vnpPtcpntAddrsId>148886</vnpPtcpntAddrsId>
+        </tns:vnpPtcpntAddrsFindByPrimaryKey>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntAddrsFindByPrimaryKey"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 17 Jul 2025 17:32:20 GMT
+      Server:
+      - Apache/2.4.37 (Red Hat Enterprise Linux) OpenSSL/1.1.1k
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-2145824372"
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntAddrsFindByPrimaryKeyResponse
+        xmlns:ns0="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>148886</vnpPtcpntAddrsId><efctvDt>2025-01-06T07:05:51-06:00</efctvDt><vnpPtcpntId>187164</vnpPtcpntId><vnpProcId>3858407</vnpProcId><addrsOneTxt>2719
+        Hyperion Ave</addrsOneTxt><addrsTwoTxt>Apt 2</addrsTwoTxt><cityNm>Los Angeles</cityNm><cntryNm>USA</cntryNm><jrnDt>2025-01-06T07:05:52-06:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><postalCd>CA</postalCd><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><zipFirstSuffixNbr>0200</zipFirstSuffixNbr><zipPrefixNbr>92264</zipPrefixNbr></return></ns0:vnpPtcpntAddrsFindByPrimaryKeyResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 17 Jul 2025 17:32:20 GMT
+recorded_with: VCR 6.3.1

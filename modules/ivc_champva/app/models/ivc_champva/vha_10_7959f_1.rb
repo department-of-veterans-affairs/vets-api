@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA107959f1
     STATS_KEY = 'api.ivc_champva_form.10_7959f_1'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
+    include StampableLogging
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -35,7 +38,15 @@ module IvcChampva
     end
 
     def desired_stamps
-      [{ coords: [26, 82.5], text: data['statement_of_truth_signature'], page: 0 }]
+      signature = data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => {
+                                 value: signature.present? ? 'present' : nil
+                               }
+                             })
+
+      [{ coords: [26, 82.5], text: signature, page: 0 }]
     end
 
     def track_current_user_loa(current_user)

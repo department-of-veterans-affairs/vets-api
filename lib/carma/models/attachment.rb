@@ -103,17 +103,6 @@ module CARMA
         }
       end
 
-      def to_hash
-        {
-          id:,
-          carma_case_id:,
-          veteran_name:,
-          file_path:,
-          document_type:,
-          document_date:
-        }
-      end
-
       private
 
       def as_base64

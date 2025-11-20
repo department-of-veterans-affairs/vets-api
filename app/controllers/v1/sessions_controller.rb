@@ -96,7 +96,7 @@ module V1
       callback_stats(:success, saml_response)
       Rails.logger.info("SessionsController version:v1 saml_callback complete, user_uuid=#{@current_user&.uuid}")
     rescue SAML::SAMLError => e
-      handle_callback_error(e, :failure, saml_response, e.level, e.context, e.code, e.tag)
+      handle_callback_error(e, :failure, saml_response, e.context, e.code, e.tag)
     rescue => e
       # the saml_response variable may or may not be defined depending on
       # where the exception was raised
@@ -159,11 +159,11 @@ module V1
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
       mhv_unverified_validation(user_session_form.user)
-      user_verification = create_user_verification(user_session_form.user_identity)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
 
+      user_verification = current_user.user_verification
       if user_verification.user_account.needs_accepted_terms_of_use?
         redirect_to url_service.terms_of_use_redirect_url
       else
@@ -171,16 +171,6 @@ module V1
       end
       UserAudit.logger.success(event: :sign_in, user_verification:)
       login_stats(:success)
-    end
-
-    def create_user_verification(user_identity)
-      Login::UserVerifier.new(login_type: user_identity.sign_in&.dig(:service_name),
-                              auth_broker: user_identity.sign_in&.dig(:auth_broker),
-                              mhv_uuid: user_identity.mhv_credential_uuid,
-                              idme_uuid: user_identity.idme_uuid,
-                              dslogon_uuid: user_identity.edipi,
-                              logingov_uuid: user_identity.logingov_uuid,
-                              icn: user_identity.icn).perform
     end
 
     def mhv_unverified_validation(user)
@@ -317,18 +307,6 @@ module V1
                         cookie_action: value.nil? ? :not_found : :found)
     end
 
-    def user_logout(saml_response)
-      logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
-      if logout_request.present?
-        logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id " \
-                          "'#{originating_request_id}'")
-      else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id ' \
-                          "'#{originating_request_id}'")
-      end
-    end
-
     def new_stats(type, client_id, operation)
       tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
 
@@ -381,15 +359,16 @@ module V1
     end
 
     # rubocop:disable Metrics/ParameterLists
-    def handle_callback_error(exc, status, response, level = :error, context = {},
+    def handle_callback_error(exc, status, response, context = {},
                               code = SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE, tag = nil)
       # replaces bundled Sentry error message with specific XML messages
-      message = if response.normalized_errors.count > 1 && response.status_detail
+      message = if response && response.normalized_errors.count > 1 && response.status_detail
                   response.status_detail
                 else
                   exc.message
                 end
-      conditional_log_message_to_sentry(message, level, context)
+
+      Rails.logger.error('[V1][Sessions Controller] error', context:, message:)
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
@@ -407,17 +386,6 @@ module V1
       )
     end
     # rubocop:enable Metrics/ParameterLists
-
-    def conditional_log_message_to_sentry(message, level, context)
-      # If the user has an invalid message timestamp
-      # error, this means they have waited too long in the log in page to progress, so it's not really an
-      # appropriate Sentry error
-      if invalid_message_timestamp_error?(message)
-        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
-      else
-        log_message_to_sentry(message, level, extra_context: context)
-      end
-    end
 
     def invalid_message_timestamp_error?(message)
       message.match(FIM_INVALID_MESSAGE_TIMESTAMP)

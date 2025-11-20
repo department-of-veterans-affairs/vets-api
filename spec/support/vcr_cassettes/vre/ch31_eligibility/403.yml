@@ -1,0 +1,65 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake_url.com/suite/webapi/chapter31-eligibility-details-search
+    body:
+      encoding: UTF-8
+      string: '{"icn":"1234"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Appian-API-Key:
+      - eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNDdiNzNjMy04ZTgzLTQ5MzQtODViMS1kOTNhMmNhMjgxN2UifQ.8TqYLKpQKmdK5PrWvS1FeA7nE2a8HU9S0BuTVXIR5Gw
+  response:
+    status:
+      code: 403
+      message: '403'
+    headers:
+      date:
+      - Mon, 15 Sep 2025 14:22:27 GMT
+      content-type:
+      - application/json
+      content-length:
+      - '87'
+      connection:
+      - keep-alive
+      server:
+      - Apache
+      cache-control:
+      - no-cache, private
+      x-trace-id:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      x-frame-options:
+      - SAMEORIGIN
+      content-security-policy-report-only:
+      - 'style-src ''unsafe-inline'' ''self'' ''strict-dynamic'' ''nonce-YjQyMWZjOWEtN2IwNC00N2YxLTljZWUtMTgzYWZmZjc2ZDFi'';
+        child-src ''none''; script-src ''self'' ''unsafe-inline'' ''unsafe-eval''
+        ''strict-dynamic'' ''nonce-N2VlMGNkNmEtZGZlNy00MzNlLWFmN2EtOTNhZDJhOTBiOTMy'';
+        object-src https:; frame-src https:; img-src https:; default-src ''self'';
+        font-src ''self'' https: data:; report-uri /suite/rest/a/logging/latest/csp/report;
+        report-to report;'
+      content-security-policy:
+      - report-uri /suite/rest/a/logging/latest/csp/report; report-to report;
+      reporting-endpoints:
+      - report="/suite/rest/a/logging/latest/csp/report"
+      x-xss-protection:
+      - 1; mode=block
+      requested-while-authenticated:
+      - 'false'
+      x-content-type-options:
+      - nosniff
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"errorMessageList":["Internal server error occurred while retrieving
+        data from MPI."]}'
+  recorded_at: Mon, 15 Sep 2025 14:22:27 GMT
+recorded_with: VCR 6.3.1

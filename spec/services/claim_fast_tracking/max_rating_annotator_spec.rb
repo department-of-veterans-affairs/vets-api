@@ -252,7 +252,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
     it 'logs an error when the DisabilityMaxRating client raises a ClientError' do
       VCR.use_cassette('disability_max_ratings/max_ratings_failure') do
         expect(Rails.logger).to receive(:error).with(
-          'Get Max Ratings Failed  the server responded with status 500.',
+          match(/Get Max Ratings Failed  the server responded with status 500/),
           hash_including(:backtrace)
         )
 

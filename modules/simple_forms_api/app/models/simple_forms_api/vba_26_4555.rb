@@ -67,7 +67,7 @@ module SimpleFormsApi
 
     def living_situation_payload
       care_facility_address = data.dig('living_situation', 'care_facility_address')
-      {
+      payload = {
         careFacilityName: data.dig('living_situation', 'care_facility_name'),
         careFacilityAddress: {
           street: care_facility_address&.fetch('street', nil),
@@ -78,6 +78,12 @@ module SimpleFormsApi
         },
         isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
       }
+
+      if Rails.env.eql?('development') || Settings.vsp_environment == 'staging'
+        payload[:careFacilityAddress][:country] = care_facility_address&.fetch('country', nil)
+      end
+
+      payload
     end
 
     def previous_hi_application_payload

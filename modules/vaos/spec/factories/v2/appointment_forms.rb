@@ -369,5 +369,39 @@ FactoryBot.define do
         }
       end
     end
+
+    trait :vistaVideoTrue do
+      va_proposed_base
+      telehealth
+      extension do
+        {
+          vvs_vista_video_appt: true
+        }
+      end
+    end
+
+    trait :vistaVideoFalse do
+      va_proposed_base
+      telehealth
+      extension do
+        {
+          vvs_vista_video_appt: false
+        }
+      end
+    end
+
+    trait :cerner_telehealth do
+      va_proposed_base
+      kind { 'telehealth' }
+    end
+
+    trait :cerner_telehealth_url do
+      cerner_telehealth
+      telehealth do
+        {
+          url: 'https://vvc.va.gov/clinical/guest/appointment/52499028'
+        }
+      end
+    end
   end
 end

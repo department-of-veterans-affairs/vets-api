@@ -20,7 +20,7 @@ module DebtsApi
   # Allows users to submit financial status reports, and download copies of completed reports.
   #
   class V0::FinancialStatusReportService < DebtManagementCenter::BaseService
-    include SentryLogging
+    include Vets::SharedLogging
 
     class FSRNotFoundInRedis < StandardError; end
     class FSRInvalidRequest < StandardError; end
@@ -45,20 +45,6 @@ module DebtsApi
     }.freeze
 
     ##
-    # Measure the time taken to execute a block of code and send that timing metric to StatsD/Datadog.
-    #
-    # @param metric_key [String]
-    # @return [Hash]
-    #
-    def measure_latency(metric_key)
-      start_time = Time.current
-      result = yield
-      elapsed_time = (Time.current - start_time) * 1000
-      StatsD.measure(metric_key, elapsed_time)
-      result
-    end
-
-    ##
     # Submit a financial status report to the Debt Management Center
     #
     # @param form [JSON] JSON serialized form data of a Financial Status Report form (VA-5655)
@@ -69,6 +55,7 @@ module DebtsApi
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
           5.minutes,
           {
+            'submission_type' => 'fsr',
             'email' => @user.email,
             'first_name' => @user.first_name,
             'user_uuid' => @user.uuid,
@@ -237,6 +224,7 @@ module DebtsApi
     def submit_vha_batch_job(vha_submissions)
       return unless defined?(Sidekiq::Batch)
 
+      StatsD.increment("#{DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY}.initiated")
       template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
 
       submission_batch = Sidekiq::Batch.new
@@ -262,7 +250,7 @@ module DebtsApi
         # Instead use #validate! to raise an ActiveModel::ValidationError error which contains a more detailed message
         fsr.validate!
       rescue ActiveModel::ValidationError => e
-        log_exception_to_sentry(e, { fsr_attributes: fsr.attributes, fsr_response: response.to_h })
+        log_exception_to_rails(e)
       end
     end
 

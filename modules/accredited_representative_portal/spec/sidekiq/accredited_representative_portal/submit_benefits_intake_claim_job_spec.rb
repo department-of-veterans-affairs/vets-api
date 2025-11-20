@@ -12,12 +12,10 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
       JSON.parse(fixture)
     end
 
-  subject(:perform) { described_class.new.perform(claim.id) }
-
-  let(:claim) do
+  subject(:perform) do
     attachments = [
-      create(:persistent_attachment_va_form),
-      create(:persistent_attachment_va_form_documentation)
+      create(:persistent_attachment_va_form, form_id: '21-686c'),
+      create(:persistent_attachment_va_form_documentation, form_id: '21-686c')
     ]
 
     AccreditedRepresentativePortal::SavedClaimService::Create.perform(
@@ -27,30 +25,22 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
       claimant_representative:
         AccreditedRepresentativePortal::ClaimantRepresentative.new(
           claimant_id: '1234',
-          power_of_attorney_holder_type: 'veteran_service_organization',
-          power_of_attorney_holder_poa_code: '123',
-          accredited_individual_registration_number: '10001'
+          accredited_individual_registration_number: '10001',
+          power_of_attorney_holder:
+            AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: '123',
+              name: 'Org Name', can_accept_digital_poa_requests: nil
+            )
         )
     )
   end
 
-  before do
+  let(:vcr_options) do
     ##
-    # This works around some test configuration weirdness. Without this, the
-    # locations used for reading and writing differ, likely due to a difference
-    # in which Shrine plugins have been plugged in at various points.
+    # It seems as though request bodies and headers are dynamic given static
+    # inputs, which is why we exclude them from VCR matching.
     #
-    allow_any_instance_of(Shrine::UploadedFile).to(
-      receive(:storage).and_return(Shrine.storages[:store])
-    )
-  end
-
-  it 'performs' do
-    vcr_options = {
-      ##
-      # It seems as though request bodies and headers are dynamic given static
-      # inputs, which is why we exclude them from VCR matching.
-      #
+    {
       match_requests_on: %i[method uri],
 
       ##
@@ -64,15 +54,104 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
       #
       allow_unused_http_interactions: false
     }
+  end
 
-    use_cassette('performs', vcr_options) do
-      expect_any_instance_of(BenefitsIntakeService::Service).to(
-        receive(:upload_doc).and_call_original
-      )
+  before do
+    ##
+    # This works around some test configuration weirdness. Without this, the
+    # locations used for reading and writing differ, likely due to a difference
+    # in which Shrine plugins have been plugged in at various points.
+    #
+    allow_any_instance_of(Shrine::UploadedFile).to(
+      receive(:storage).and_return(Shrine.storages[:store])
+    )
+  end
 
-      expect { perform }.to change {
-        FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
-      }.by(1)
+  context 'accredited_representative_portal_lighthouse_api_key is not set' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(
+        :accredited_representative_portal_lighthouse_api_key
+      ).and_return(false)
+    end
+
+    it 'performs using BenefitsIntakeService::Service' do
+      use_cassette('performs', vcr_options) do
+        expect_any_instance_of(BenefitsIntakeService::Service).to(
+          receive(:upload_doc).and_call_original
+        )
+
+        expect { perform }.to change {
+          FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
+        }.by(1)
+      end
+    end
+
+    context 'submission has additional documentation' do
+      around { |example| Timecop.freeze { example.run } }
+
+      let(:stamper) { double }
+
+      it 'stamps the footer of the additional docs' do
+        timestamp = DateTime.now.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')
+
+        use_cassette('performs', vcr_options) do
+          # mock stamping of provided VA form
+          allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(stamper)
+          allow(stamper).to receive(:stamp_pdf)
+
+          expect_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run).with(
+            text: "Submitted via VA.gov at #{timestamp} UTC. Signed in and submitted " \
+                  'with an identity-verified account.',
+            text_only: true, x: 5, y: 5
+          ).and_call_original
+
+          perform
+        end
+      end
+    end
+  end
+
+  context 'accredited_representative_portal_lighthouse_api_key is set' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(
+        :accredited_representative_portal_lighthouse_api_key
+      ).and_return(true)
+    end
+
+    it 'performs using ARP BenefitsIntakeService' do
+      use_cassette('performs', vcr_options) do
+        expect_any_instance_of(AccreditedRepresentativePortal::BenefitsIntakeService).to(
+          receive(:upload_doc).and_call_original
+        )
+
+        expect { perform }.to change {
+          FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
+        }.by(1)
+      end
+    end
+
+    context 'submission has additional documentation' do
+      around { |example| Timecop.freeze { example.run } }
+
+      let(:stamper) { double }
+
+      it 'stamps the footer of the additional docs' do
+        timestamp = DateTime.now.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')
+
+        use_cassette('performs', vcr_options) do
+          # mock stamping of provided VA form
+          allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(stamper)
+          allow(stamper).to receive(:stamp_pdf)
+
+          expect_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run).with(
+            text: "Submitted via VA.gov at #{timestamp} UTC. Signed in and submitted " \
+                  'with an identity-verified account.',
+            text_only: true, x: 5, y: 5
+          ).and_call_original
+
+          perform
+        end
+      end
     end
   end
 end

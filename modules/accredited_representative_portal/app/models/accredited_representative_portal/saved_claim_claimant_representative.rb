@@ -18,8 +18,8 @@ module AccreditedRepresentativePortal
       validate: true
     )
 
-    delegate :form_id, :parsed_form, :claimant_info, :persistent_attachments,
-             :guid, :latest_submission_attempt, to: :saved_claim
+    delegate :form_id, :display_form_id, :parsed_form, :claimant_info, :persistent_attachments,
+             :guid, :latest_submission_attempt, :pending_submission_attempt_stale?, to: :saved_claim
 
     scope :for_power_of_attorney_holders, lambda { |poa_holders|
       return none if poa_holders.empty?

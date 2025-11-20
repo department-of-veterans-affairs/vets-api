@@ -65,6 +65,7 @@ module Lighthouse
         return "#{prefix}.night.phone.number.invalid" if detail.include? 'Night phone number is invalid'
         return "#{prefix}.night.area.number.invalid" if detail.include? 'Night area number is invalid'
         return "#{prefix}.mailing.address.invalid" if detail.include? 'field not entered for mailing address update'
+        return "#{prefix}.payment.address.missing" if detail.include? 'Payment Address Data Not Found'
         return "#{prefix}.potential.fraud" if %w[GUIE50022 GUIE50041].any? { |code| detail.include?(code) }
 
         "#{prefix}.generic.error"

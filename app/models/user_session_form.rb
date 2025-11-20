@@ -2,7 +2,6 @@
 
 class UserSessionForm
   include ActiveModel::Validations
-  include SentryLogging
 
   VALIDATIONS_FAILED_ERROR_CODE = '004'
   SAML_REPLAY_VALID_SESSION_ERROR_CODE = '002'
@@ -22,10 +21,11 @@ class UserSessionForm
     @saml_uuid = saml_response.in_response_to
     saml_user = SAML::User.new(saml_response)
     saml_attributes = normalize_saml(saml_user)
-    uuid = saml_attributes[:uuid]
+    user_verification = create_user_verification(saml_attributes)
+    uuid = user_verification.user_account.id
     existing_user = User.find(uuid)
     @session = Session.new(uuid:, ssoe_transactionid: saml_user.user_attributes.try(:transactionid))
-    @user_identity = UserIdentity.new(saml_attributes)
+    @user_identity = UserIdentity.new(saml_attributes.merge(uuid:))
     @user = User.new(uuid:)
     @user.session_handle = @session.token
     @user.instance_variable_set(:@identity, @user_identity)
@@ -58,6 +58,16 @@ class UserSessionForm
     saml_user_attributes.merge({ uuid: idme_uuid, idme_uuid: })
   end
 
+  def create_user_verification(saml_attributes)
+    Login::UserVerifier.new(login_type: saml_attributes[:sign_in]&.dig(:service_name),
+                            auth_broker: saml_attributes[:sign_in]&.dig(:auth_broker),
+                            mhv_uuid: saml_attributes[:mhv_credential_uuid],
+                            idme_uuid: saml_attributes[:idme_uuid],
+                            dslogon_uuid: saml_attributes[:edipi],
+                            logingov_uuid: saml_attributes[:logingov_uuid],
+                            icn: saml_attributes[:icn]).perform
+  end
+
   def add_csp_id_to_mpi(saml_user_attributes, idme_uuid)
     return unless saml_user_attributes[:loa][:current] == LOA::THREE
 
@@ -67,7 +77,7 @@ class UserSessionForm
                                                                ssn: saml_user_attributes[:ssn],
                                                                birth_date: saml_user_attributes[:birth_date],
                                                                idme_uuid:)
-    log_message_to_sentry("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}", :warn) unless mpi_response.ok?
+    Rails.logger.warn('[UserSessionForm] Failed Add CSP ID to MPI', idme_uuid:) unless mpi_response.ok?
   end
 
   def uuid_from_account(identifier)
@@ -155,7 +165,7 @@ class UserSessionForm
   private
 
   def log_existing_user_warning(saml_uuid, saml_icn)
-    message = "Couldn't locate exiting user after MFA establishment"
-    log_message_to_sentry(message, :warn, { saml_uuid:, saml_icn: })
+    message = "Couldn't locate existing user after MFA establishment"
+    Rails.logger.warn("[UserSessionForm] #{message}", saml_uuid:, saml_icn:)
   end
 end

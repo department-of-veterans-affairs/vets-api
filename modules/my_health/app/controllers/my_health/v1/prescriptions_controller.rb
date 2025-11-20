@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module MyHealth
   module V1
     class PrescriptionsController < RxController
@@ -16,6 +18,7 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
+        recently_requested = get_recently_requested_prescriptions(resource.data)
         raw_data = resource.data.dup
         resource.records = resource_data_modifications(resource)
 
@@ -26,30 +29,36 @@ module MyHealth
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
-        options = { meta: resource.metadata.merge(filter_count) }
+        options = { meta: resource.metadata.merge(filter_count).merge(recently_requested:) }
         options[:links] = pagination_links(resource) if is_using_pagination
+
+        # Log unique user event for prescriptions accessed
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        )
+
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
 
       def show
         id = params[:id].try(:to_i)
-        resource = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
-                     get_single_rx_from_grouped_list(collection_resource.data, id)
-                   else
-                     client.get_rx_details(id)
-                   end
+        resource = get_single_rx_from_grouped_list(collection_resource.data, id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        options = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
-                    { meta: client.get_rx_details(id).metadata }
-                  else
-                    { meta: resource.metadata }
-                  end
+        options = { meta: client.get_rx_details(id).metadata }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
       def refill
         client.post_refill_rx(params[:id])
+
+        # Log unique user event for prescription refill requested
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+
         head :no_content
       end
 
@@ -81,9 +90,10 @@ module MyHealth
 
       def list_refillable_prescriptions
         resource = collection_resource
+        recently_requested = get_recently_requested_prescriptions(resource.data)
         resource.records = filter_data_by_refill_and_renew(resource.data)
 
-        options = { meta: resource.metadata }
+        options = { meta: resource.metadata.merge(recently_requested:) }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
@@ -94,6 +104,12 @@ module MyHealth
       end
 
       private
+
+      def get_recently_requested_prescriptions(data)
+        data.select do |item|
+          ['Active: Refill in Process', 'Active: Submitted'].include?(item.disp_status)
+        end
+      end
 
       # rubocop:disable ThreadSafety/NewThread
       # New threads are joined at the end
@@ -172,7 +188,6 @@ module MyHealth
       end
 
       def resource_data_modifications(resource)
-        display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
         # according to business logic filter for all medications is the only list that should contain PD meds
         resource.records = if params[:filter].blank? && display_pending_meds
@@ -181,8 +196,7 @@ module MyHealth
                              # TODO: remove this line when PF and PD are allowed on va.gov
                              resource.records = remove_pf_pd(resource.data)
                            end
-        resource.records = group_prescriptions(resource.data) if display_grouping
-        resource.records = filter_non_va_meds(resource.data)
+        resource.records = group_prescriptions(resource.data)
       end
 
       def set_filter_metadata(list, non_modified_collection)
@@ -190,7 +204,7 @@ module MyHealth
           filter_count: {
             all_medications: count_grouped_prescriptions(non_modified_collection),
             active: count_active_medications(list),
-            recently_requested: count_recently_requested_medications(list),
+            recently_requested: get_recently_requested_prescriptions(list).length,
             renewal: list.select(&method(:renewable)).length,
             non_active: count_non_active_medications(list)
           }
@@ -203,11 +217,6 @@ module MyHealth
           'Active: Parked', 'Active: Submitted'
         ]
         list.select { |rx| active_statuses.include?(rx.disp_status) }.length
-      end
-
-      def count_recently_requested_medications(list)
-        recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
-        list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
       end
 
       def count_non_active_medications(list)

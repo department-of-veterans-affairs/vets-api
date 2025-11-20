@@ -108,10 +108,13 @@ Metrics/MethodLength:
 
 Metrics/ClassLength:
   Max: 400
+  Exclude:
+    - 'lib/sm/client.rb'
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
+    - 'modules/mobile/app/controllers/mobile/application_controller.rb'
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -169,6 +172,10 @@ Naming/MemoizedInstanceVariableName:
 Rails/ActiveRecordAliases:
   Enabled: false
 
+# The suggestions would break 54 files. Skip for now.
+Rails/Pluck:
+  Enabled: false
+
 # The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element,
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
 Naming/MethodParameterName:
@@ -195,7 +202,6 @@ RSpec/SpecFilePathFormat:
     - 'spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb'
     - 'spec/lib/common/client/middleware/response/gids_response_middleware_spec.rb'
     - 'spec/lib/common/client/middleware/response/response_middleware_spec.rb'
-    - 'spec/lib/evss/pciu_address/pciu_address_spec.rb'
     - 'spec/lib/sm/client/message_drafts_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
     - 'spec/lib/mail_automation/integration/client_spec.rb'
@@ -338,7 +344,6 @@ RSpec/ScatteredLet:
     - 'spec/lib/sentry/scrubbers/log_as_warning_spec.rb'
     - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
     - 'spec/models/form_profile_spec.rb'
-    - 'spec/models/va_profile_redis/contact_information_spec.rb'
     - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
     - 'spec/requests/health_care_applications_request_spec.rb'
     - 'spec/requests/http_method_not_allowed_spec.rb'
@@ -393,7 +398,7 @@ Naming/PredicatePrefix:
     - app/models/preneeds/burial_form.rb
 
 Rails/UnusedIgnoredColumns:
-  Exclude: 
+  Exclude:
     - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
 
 Rails/InverseOf:
@@ -408,5 +413,13 @@ Lint/DuplicateMethods:
     - modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v4/form_data.rb
 
 Rails/UniqueValidationWithoutIndex:
-  Exclude: 
+  Exclude:
     - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - 'rakelib/decision_review_repl.rb'
+
+Style/SafeNavigation:
+  Exclude:
+    - 'modules/mobile/app/models/mobile/v0/adapters/immunizations.rb'

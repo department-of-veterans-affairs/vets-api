@@ -42,10 +42,10 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     context 'Feature burial_submitted_email_notification=false' do
       it 'submits the saved claim successfully' do
         allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return(false)
-        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
+        allow(job).to receive_messages(process_document: pdf_path, lighthouse_submission_pending_or_success: false)
 
-        expect(FormSubmission).to receive(:create)
-        expect(FormSubmissionAttempt).to receive(:create)
+        expect(Lighthouse::Submission).to receive(:create)
+        expect(Lighthouse::SubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
 
@@ -64,10 +64,10 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     context 'Feature burial_submitted_email_notification=true' do
       it 'submits the saved claim successfully' do
         allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return(true)
-        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
+        allow(job).to receive_messages(process_document: pdf_path, lighthouse_submission_pending_or_success: false)
 
-        expect(FormSubmission).to receive(:create)
-        expect(FormSubmissionAttempt).to receive(:create)
+        expect(Lighthouse::Submission).to receive(:create)
+        expect(Lighthouse::SubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
 
@@ -95,7 +95,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         ActiveRecord::RecordNotFound,
-        "Couldn't find UserAccount with 'id'=user_account_uuid"
+        /Couldn't find UserAccount/
       )
     end
 
@@ -121,7 +121,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     # perform
   end
 
-  describe '#form_submission_pending_or_success' do
+  describe '#lighthouse_submission_pending_or_success' do
     before do
       job.instance_variable_set(:@claim, claim)
       allow(Burials::SavedClaim).to receive(:find).and_return(claim)
@@ -129,7 +129,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
     context 'with no form submissions' do
       it 'returns false' do
-        expect(job.send(:form_submission_pending_or_success)).to be(false).or be_nil
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(false).or be_nil
       end
     end
 
@@ -137,15 +137,15 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       let(:claim) { create(:burials_saved_claim, :pending) }
 
       it 'return true' do
-        expect(job.send(:form_submission_pending_or_success)).to be(true)
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
       end
     end
 
     context 'with success form submission attempt' do
-      let(:claim) { create(:burials_saved_claim, :success) }
+      let(:claim) { create(:burials_saved_claim, :submitted) }
 
       it 'return true' do
-        expect(job.send(:form_submission_pending_or_success)).to be(true)
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
       end
     end
 
@@ -153,7 +153,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       let(:claim) { create(:burials_saved_claim, :failure) }
 
       it 'return false' do
-        expect(job.send(:form_submission_pending_or_success)).to be(false)
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(false)
       end
     end
   end
@@ -282,6 +282,40 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(notification).to receive(:deliver).with(:submitted)
       expect(monitor).to receive(:track_send_email_failure)
       job.send(:send_submitted_email)
+    end
+  end
+
+  describe '#generate_form_pdf' do
+    let(:pdf_path) { 'random/path/to/pdf' }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(claim).to receive(:to_pdf).and_return(pdf_path)
+      allow(job).to receive(:process_document).and_return(pdf_path)
+    end
+
+    context 'when burial_extras_redesign_enabled is true' do
+      it 'generates PDF with redesign options' do
+        allow(Flipper).to receive(:enabled?).with(:burial_extras_redesign_enabled).and_return(true)
+
+        expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: true, omit_esign_stamp: true })
+        expect(job).to receive(:process_document).with(pdf_path)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when burial_extras_redesign_enabled is false' do
+      it 'generates PDF with default options' do
+        allow(Flipper).to receive(:enabled?).with(:burial_extras_redesign_enabled).and_return(false)
+
+        expect(claim).to receive(:to_pdf).with(no_args)
+        expect(job).to receive(:process_document).with(pdf_path)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
     end
   end
 

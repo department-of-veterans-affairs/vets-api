@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'ostruct'
 
 RSpec.describe VAOS::V2::AppointmentsController, type: :request do
+  include ActiveSupport::Testing::TimeHelpers
   describe '#start_date' do
     context 'with an invalid date' do
       it 'throws an InvalidFieldValue exception' do
@@ -91,7 +92,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       )
       allow(controller).to receive(:render)
       allow(StatsD).to receive(:increment)
-      allow(StatsD).to receive(:measure)
+      allow(StatsD).to receive(:histogram)
       allow(Rails.logger).to receive(:info)
     end
 
@@ -118,10 +119,14 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
             json: { data: { id: 'APPT123' } },
             status: :created
           )
-          expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.success')
-          expect(StatsD).to have_received(:measure).with(
+          expect(StatsD).to have_received(:increment).with(
+            described_class::APPT_CREATION_SUCCESS_METRIC,
+            tags: ['service:community_care_appointments']
+          )
+          expect(StatsD).to have_received(:histogram).with(
             described_class::APPT_CREATION_DURATION_METRIC,
-            5000
+            5000,
+            tags: ['service:community_care_appointments']
           )
         end
       end
@@ -142,8 +147,10 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
           json: { errors: [{ detail: 'Error' }] },
           status: :conflict
         )
-        expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure',
-                                                         tags: ['error_type:conflict'])
+        expect(StatsD).to have_received(:increment).with(
+          described_class::APPT_CREATION_FAILURE_METRIC,
+          tags: ['service:community_care_appointments']
+        )
       end
     end
 
@@ -159,7 +166,33 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         controller.submit_referral_appointment
 
         expect(controller).to have_received(:handle_appointment_creation_error).with(error)
-        expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure')
+        expect(StatsD).to have_received(:increment).with(
+          described_class::APPT_CREATION_FAILURE_METRIC,
+          tags: ['service:community_care_appointments']
+        )
+      end
+    end
+
+    context 'when patient attributes are empty' do
+      let(:appointment) { OpenStruct.new(id: 'APPT123') }
+
+      before do
+        allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
+        allow(controller).to receive(:patient_attributes).and_return({})
+      end
+
+      it 'does not include additional_patient_attributes in the service call' do
+        controller.submit_referral_appointment
+
+        expect(eps_appointment_service).to have_received(:submit_appointment).with(
+          submit_params[:id],
+          {
+            referral_number: submit_params[:referral_number],
+            network_id: submit_params[:network_id],
+            provider_service_id: submit_params[:provider_service_id],
+            slot_ids: [submit_params[:slot_id]]
+          }
+        )
       end
     end
   end

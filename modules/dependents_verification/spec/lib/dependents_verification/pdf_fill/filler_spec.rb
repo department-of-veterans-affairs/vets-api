@@ -6,10 +6,10 @@ require 'pdf_fill/filler'
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
-  describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
+  describe '#fill_ancillary_form', run_at: '2025-06-25 00:00:00 UTC' do
     %w[21-0538].each do |form_id|
       context "form #{form_id}" do
-        %w[kitchen_sink].each do |type|
+        %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               JSON.parse(File.read("modules/dependents_verification/spec/fixtures/pdf_fill/#{form_id}/#{type}.json"))
@@ -29,20 +29,17 @@ describe PdfFill::Filler, type: :model do
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-
+                expected_path = "modules/dependents_verification/spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf"
                 expect(
-                  FileUtils.compare_file(
-                    extras_path,
-                    "modules/dependents_verification/spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf"
-                  )
+                  FileUtils.compare_file(extras_path, expected_path)
                 ).to be(true)
 
                 File.delete(extras_path)
               end
 
-              expect(file_path).to match_pdf_fields(
-                "modules/dependents_verification/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf"
-              )
+              expected_path = "modules/dependents_verification/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf"
+
+              expect(file_path).to match_pdf_fields(expected_path)
 
               File.delete(file_path)
             end

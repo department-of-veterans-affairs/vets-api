@@ -10,6 +10,17 @@ accredited_representative_portal:
       base_uri: ~
       path: ~
       repo: ~
+  frontend_base_url: http://localhost:3001/representative
+  lighthouse:
+    benefits_intake:
+      api_key: ~
+      host: https://sandbox-api.va.gov
+      path: "/services/vba_documents"
+      report:
+        batch_size: 1000
+        stale_sla: 10
+      use_mocks: false
+      version: v1
 adapted_housing:
   prefill: true
 argocd:
@@ -105,35 +116,42 @@ check_in:
     retry_attempt_expiry: 604800
   chip_api_v2:
     base_path: dev
-    host: ~
+    base_path_v2: dev
     mock: false
     redis_session_prefix: check_in_chip_v2
     service_name: CHIP-API
     timeout: 30
     tmp_api_id: 2dcdrrn5zc
+    tmp_api_id_v2: 2dcdrrn5zc
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_user_v2: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_username: vetsapiTempUser
+    tmp_api_username_v2: vetsapiTempUser
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    url_v2: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   lorota_v2:
     api_id: 22t00c6f97
+    api_id_v2: 22t00c6f97
     api_key: fake_key
+    api_key_v2: fake_key
     base_path: dev
-    host: ~
+    base_path_v2: dev
     key_path: fake_api_path
     mock: false
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200
     service_name: LoROTA-API
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    url_v2: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
   travel_reimbursement_api_v2:
-    auth_url: https://login.microsoftonline.us
+    auth_url: https://fake.service.us
     auth_url_v2: ~
     claims_base_path: ~
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
+    claims_url: https://fake.dev.va.gov
+    claims_url_v2: https://fake.dev.va.gov
     client_id: ~
     client_number: ~
     client_number_oh: ~
@@ -145,6 +163,9 @@ check_in:
     service_name: BTSSS-API
     subscription_key: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    travel_pay_client_id: ~
+    travel_pay_client_secret: secret
+    travel_pay_resource: ~
   vaos:
     mock: false
 chip:
@@ -177,6 +198,12 @@ claims_api:
     client_id: ~
     client_key: ~
     client_secret: ~
+  fes:
+    auth:
+      ccg:
+        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
+        client_id: ~
+    host: https://qa.lighthouse.va.gov
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -211,8 +238,15 @@ claims_api:
         notification_client_secret: ~
         notify_service_id: ~
 claims_evidence_api:
-  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
-  jwt_secret: 'fake_api_key'
+  base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  include_request: false
+  jwt_secret: fake-secret
+  mock: false
+  ssl: false
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: 0.0.0.0
   mock: true
@@ -225,10 +259,9 @@ connected_apps_api:
     auth_access_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
     url: https://sandbox-api.va.gov/internal/auth/v3/user/connected-apps
-contention-classification-api:
-  url: ~
 contention_classification_api:
   expanded_contention_classification_path: expanded-contention-classification
+  hybrid_contention_classification_path: hybrid-contention-classification
   open_timeout: 5
   read_timeout: 10
   url: http://contention-classification-api-dev.vfs.va.gov/
@@ -266,13 +299,9 @@ dgi:
   jwt:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
-  post911_sob:
-    claimants:
-      mock: false
-      url: ~
-    jwt:
-      private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
-      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
+  sob:
+    mock: ~
+    url: ~
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -398,16 +427,6 @@ evss:
   mock_disabilities_form: true
   mock_gi_bill_status: false
   mock_letters: false
-  mock_pciu: true
-  mock_pciu_address: false
-  mock_ppiu: true
-  mock_vso_search: false
-  pciu:
-    timeout: 30
-  pciu_address:
-    timeout: 30
-  ppiu:
-    timeout: 30
   prefill: true
   root_cert_path: ~
   s3:
@@ -459,6 +478,8 @@ form526_export:
     bucket: ~
     region: ~
     secret_access_key: ~
+form_10275:
+  submission_email: form_10275@example.com
 form_10282:
   sftp:
     host: ~
@@ -588,6 +609,9 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
+ivc_champva_llm_processor_api:
+  api_key: fake_llm_api_key
+  host: fake_base_path
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
@@ -607,8 +631,6 @@ ivc_forms:
     missing_form_status_job:
       enabled: true
     old_records_cleanup_job:
-      enabled: true
-    ves_retry_failures_job:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
@@ -670,6 +692,7 @@ lighthouse:
     use_mocks: false
   benefits_intake:
     api_key: ~
+    breakers_error_threshold: 80
     host: https://sandbox-api.va.gov
     path: "/services/vba_documents"
     report:
@@ -696,6 +719,23 @@ lighthouse:
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
+  healthcare_cost_and_coverage:
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/fake1tcityDg93hgKkd#/v1/token
+      client_id: fake_client_id
+      rsa_key: path/to/fake/pem
+    host: https://test-api.va.gov
+    scopes:
+      - system/ChargeItem.read
+      - system/Invoice.read
+      - system/PaymentReconciliation.read
+      - system/MedicationDispense.read
+      - system/Encounter.read
+      - system/Account.read
+      - system/Medication.read
+      - launch
+    timeout: 30
+    use_mocks: false
   letters_generator:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
@@ -785,22 +825,26 @@ maintenance:
     1010ezr: ~
     appeals: P9S4RFU
     arcgis: P45YBFA
+    askva: ~
     avs: ~
     bgs: P5Q2OCZ
     carma: P6XLE0T
     caseflow: ~
     cie: ~
     coe: PSY4HU1
+    community_care_ds: ~
     decision_reviews: ~
+    disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
     evss: PZKWB6Y
-    form1010d: P69N8ZY
-    form107959a: POTKY39
-    form107959c: PEP32F2
-    form107959f1: P63EKXC
-    form107959f2: PZWR9XI
+    form1010d: ~
+    form1010d_ext: ~
+    form107959a: ~
+    form107959c: ~
+    form107959f1: ~
+    form107959f2: ~
     global: PLPSIB0
     hcq: PWGA814
     idme: PVWB4R8
@@ -828,7 +872,6 @@ maintenance:
     travel_pay: ~
     vaos: ~
     vaosWarning: ~
-    vaoswarning: ~
     vapro_contact_info: ~
     vapro_health_care_contacts: ~
     vapro_military_info: ~
@@ -839,6 +882,7 @@ maintenance:
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
     vre: ~
+    vre_ch31_eligibility: ~
 mcp:
   notifications:
     batch_size: 10
@@ -862,7 +906,6 @@ mcp:
     url: https://fake_url.com:9000
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
-  breakers: false
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
@@ -911,15 +954,15 @@ mhv:
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
-    base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: https://mhv-api.example.com
     mock: true
+    timeout: <%= ENV['mhv__sm__timeout'] || 60 %>
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
     app_token: faketoken
     host: https://example.myhealth.va.gov
+    labs_logging_date_range_days: 30
     mock: true
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
@@ -986,10 +1029,6 @@ modules_appeals_api:
       api_key: ''
 mvi_hca:
   url: http://example.com
-nod_vanotify_status_callback:
-  bearer_token: bearer_token_secret
-notifications:
-  public_key: ~
 ogc:
   form21a_service_url:
     api_key: fake_key
@@ -1153,7 +1192,9 @@ reports:
       - adam.freemer@accenturefederal.com
 res:
   api_key: ~
-  base_url: ~
+  base_url: https://fake_url.com
+  ch_31_eligibility:
+    mock: ~
   mock_ch_31: ~
 review_instance_slug: ~
 rrd:
@@ -1313,7 +1354,14 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+vahb:
+  version_requirement:
+    allergies_oracle_health: '3.0.0'
+    labs_oracle_health: '3.0.0'
+    medications_oracle_health: '2.99.99'
+valid_va_file_number: false
 vanotify:
+  callback_url: https://dev-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1327,12 +1375,51 @@ vanotify:
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
+    21_0538: &vanotify_services_dependents_verification
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_error
+        received:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_received
+        submitted:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_submitted
+    21_686c_674: &vanotify_services_dependents_benefits
+      api_key: fake_secret
+      email:
+        error_674_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form674_only_error_email_template_id
+        error_686c_674:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form686c_674_error_email_template_id
+        error_686c_only:
+          flipper_id: dependents_benefits_error_email_notification
+          template_id: form686c_only_error_email_template_id
+        received_674_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form674_only_received_email_template_id
+        received_686c_674:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form686c_674_received_email_template_id
+        received_686c_only:
+          flipper_id: dependents_benefits_received_email_notification
+          template_id: form686c_only_received_email_template_id
+        submitted:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c_674_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
         error:
           flipper_id: income_and_assets_error_email_notification
           template_id: form0969_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: form0969_persistent_attachment_error_email_template_id
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: form0969_received_email_template_id
@@ -1348,6 +1435,9 @@ vanotify:
         error:
           flipper_id: pension_error_email_notification
           template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: pension_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
         received:
           flipper_id: pension_received_email_notification
           template_id: form527ez_received_email_template_id
@@ -1363,6 +1453,9 @@ vanotify:
         error:
           flipper_id: burial_error_email_notification
           template_id: burial_claim_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: burial_persistent_attachment_error_email_notification
+          template_id: burial_persistent_attachment_error_email_template_id
         received:
           flipper_id: burial_received_email_notification
           template_id: burial_received_email_template_id
@@ -1370,7 +1463,52 @@ vanotify:
           flipper_id: burial_submitted_email_notification
           template_id: burial_submitted_email_template_id
     21p_530: *vanotify_services_burial
+    21p_534ez: &vanotify_services_survivors_benefits
+      api_key: fake_secret
+      email:
+        confirmation:
+          flipper_id: false
+          template_id: form527ez_confirmation_email_template_id
+        error:
+          flipper_id: survivors_benefits_error_email_notification
+          template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: survivors_benefits_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
+        received:
+          flipper_id: survivors_benefits_received_email_notification
+          template_id: form527ez_received_email_template_id
+        submitted:
+          flipper_id: survivors_benefits_submitted_email_notification
+          template_id: form527ez_submitted_email_template_id
     21p_530v2: *vanotify_services_burial
+    21p_8416: &vanotify_services_medical_expense_reports
+      api_key: fake_secret
+      email:
+        confirmation:
+          flipper_id: false
+          template_id: form8416_confirmation_email_template_id
+        error:
+          flipper_id: survivors_benefits_error_email_notification
+          template_id: form8416_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: survivors_benefits_persistent_attachment_error_email_notification
+          template_id: form8416_persistent_attachment_error_email_template_id
+        received:
+          flipper_id: survivors_benefits_received_email_notification
+          template_id: form8416_received_email_template_id
+        submitted:
+          flipper_id: survivors_benefits_submitted_email_notification
+          template_id: form8416_submitted_email_template_id
+    accredited_representative_portal:
+      api_key: fake_secret
+      email:
+        confirmation:
+          template_id: accredited_representative_portal_confirmation_email_template_id
+        error:
+          template_id: accredited_representative_portal_error_email_template_id
+        received:
+          template_id: accredited_representative_portal_received_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:
@@ -1417,9 +1555,14 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
+    dependents_benefits: *vanotify_services_dependents_benefits
+    dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret
       template_id:
+        digital_dispute_confirmation_email: fake_template_id
+        digital_dispute_failure_email: fake_template_id
+        digital_dispute_submission_email: fake_template_id
         fsr_confirmation_email: fake_template_id
         fsr_failed_email: fake_template_id
         fsr_step_1_submission_in_progress_email: fake_template_id
@@ -1461,6 +1604,7 @@ vanotify:
         notice_of_disagreement_received_claimant: ~
         supplemental_claim_received: ~
         supplemental_claim_received_claimant: ~
+    medical_expense_reports: *vanotify_services_medical_expense_reports
     oracle_health:
       sms_sender_id: fake_secret
       template_id:
@@ -1470,9 +1614,12 @@ vanotify:
         claim_submission_success_text: fake_template_id
         claim_submission_timeout_text: ~
     pensions: *vanotify_services_pension
+    survivors_benefits: *vanotify_services_survivors_benefits
     va_gov:
       api_key: fake_secret
       template_id:
+        accredited_representative_portal_poa_request_failure_claimant_email: accredited_representative_portal_poa_request_failure_claimant_email_template_id
+        accredited_representative_portal_poa_request_failure_rep_email: accredited_representative_portal_poa_request_failure_rep_email_template_id
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
         appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
@@ -1481,16 +1628,20 @@ vanotify:
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
+        contact_email_address_change_confirmation_needed_email: contact_email_address_change_confirmation_needed_email_fake_template_id
+        contact_email_address_confirmation_needed_email: contact_email_address_confirmation_needed_email_fake_template_id
+        contact_email_address_confirmed_email: contact_email_address_confirmed_email_fake_template_id
         contact_info_change: fake_template_id
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
+        form10275_submission_email: form10275_submission_email_template_id
+        form10297_confirmation_email: form10297_confirmation_email_template_id
         form1880_reminder_email: form1880_reminder_email_template_id
         form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
-        form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1990emeb_approved_confirmation_email: form1990emeb_approved_confirmation_email_template_id
         form1990emeb_denied_confirmation_email: form1990emeb_denied_confirmation_email_template_id
         form1990emeb_offramp_confirmation_email: form1990emeb_offramp_confirmation_email_template_id
@@ -1527,9 +1678,15 @@ vanotify:
         form21_674_action_needed_email: form21_674_action_needed_email_template_id
         form21_686c_674_action_needed_email: form21_686c_674_action_needed_email_template_id
         form21_686c_action_needed_email: form21_686c_action_needed_email_template_id
+        form21p_0537_confirmation_email: form21p_0537_confirmation_email_template_id
+        form21p_0537_error_email: form21p_0537_error_email_template_id
+        form21p_0537_received_email: form21p_0537_received_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21p_0847_error_email: form21p_0847_error_email_template_id
         form21p_0847_received_email: form21p_0847_received_email_template_id
+        form21p_601_confirmation_email: form21p_601_confirmation_email_template_id
+        form21p_601_error_email: form21p_601_error_email_template_id
+        form21p_601_received_email: form21p_601_received_email_template_id
         form26_4555_confirmation_email: form26_4555_confirmation_email_template_id
         form26_4555_duplicate_email: form26_4555_duplicate_email_template_id
         form26_4555_rejected_email: form26_4555_rejected_email_template_id
@@ -1556,6 +1713,15 @@ vanotify:
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
         va_appointment_failure: fake_template_id
+    veteran_readiness_and_employment:
+      api_key: ~
+      email:
+        confirmation_lighthouse:
+          template_id: 'confirmation_lighthouse_email_template_id'
+        confirmation_vbms:
+          template_id: 'confirmation_vbms_email_template_id'
+        error:
+          template_id: 'error_email_template_id'
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1575,6 +1741,7 @@ vaos:
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: false
+    pagination_timeout_seconds: 45
     scopes: care-nav
   referral:
     encryption:
@@ -1582,8 +1749,6 @@ vaos:
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
-  documentation:
-    path_enabled_flag: false
   enable_download_endpoint: ~
   enable_status_override: ~
   enable_validate_document_endpoint: true
@@ -1601,7 +1766,6 @@ vba_documents:
   slack:
     api_key: ''
     channel_id: ''
-    daily_notification_hour: 7
     default_alert_email: ''
     enabled: false
     in_flight_notification_hung_time_in_days: 14
@@ -1613,13 +1777,6 @@ vba_documents:
       - vetsgov-arn
       - vagov-arn
   updater_enabled: ~
-  v2_enabled: false
-  v2_upload_endpoint_enabled: false
-  webhooks:
-    registration_max_retries: 3
-    registration_next_run_in_minutes: 15
-    registration_next_run_minutes: 15
-    registration_rescue_in_minutes: 60
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
@@ -1669,6 +1826,10 @@ veteran_enrollment_system:
   associations:
     api_key: ~
   ee_summary:
+    api_key: ~
+  enrollment_periods:
+    api_key: ~
+  form1095b:
     api_key: ~
   host: https://localhost
   open_timeout: 10
@@ -1803,8 +1964,6 @@ vye:
     salt: development-vye-scrypt-salt
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://host.docker.internal,null
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\z"
-webhooks:
-  require_https: true
 websockets:
   require_https: ~
   websocket_settings: false

@@ -42,31 +42,6 @@ module CARMA
           'records' => all.map(&:to_request_payload)
         }
       end
-
-      def submit!(client)
-        return response if response
-
-        @response = client.upload_attachments(to_request_payload)
-
-        @has_errors = @response['hasErrors']
-
-        @all.each do |attachment|
-          matching_result = @response['results'].find do |upload_result|
-            upload_result['referenceId'] == attachment.reference_id
-          end
-
-          attachment.id = matching_result['id'] if matching_result
-        end
-
-        self
-      end
-
-      def to_hash
-        {
-          has_errors:,
-          data: all.map(&:to_hash)
-        }
-      end
     end
   end
 end

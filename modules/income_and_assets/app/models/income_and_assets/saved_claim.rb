@@ -30,11 +30,23 @@ module IncomeAndAssets
       'NCA'
     end
 
+    # the VBMS document type for _this_ claim type
+    def document_type
+      1292
+    end
+
     # Utility function to retrieve claimant email from form
     #
     # @return [String] the claimant email
     def email
       parsed_form['email'] || 'test@example.com' # TODO: update this when we have a real email field
+    end
+
+    # Utility function to retrieve veteran filenumber/ssn
+    #
+    # @return [String]
+    def veteran_filenumber
+      parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber']
     end
 
     # Utility function to retrieve veteran first name from form
@@ -87,6 +99,13 @@ module IncomeAndAssets
     #
     def to_pdf(file_name = nil, fill_options = {})
       ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(email_type)
+      IncomeAndAssets::NotificationEmail.new(id).deliver(email_type)
     end
   end
 end

@@ -9,8 +9,17 @@ module Burials
   #
   # todo: migrate encryption to Burials::SavedClaim, remove inheritance and encryption shim
   class SavedClaim < ::SavedClaim
+    # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
+    self.inheritance_column = :_type_disabled
+
+    # We want to override the `Type` behaviors for backwards compatability
+    default_scope -> { where(type: 'SavedClaim::Burial') }, all_queries: true
+
     ##
     # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+    # ***********************************************************************************
+    # Note: This CAN NOT be removed as long as there are existing records of this type. *
+    # ***********************************************************************************
     #
     def kms_encryption_context
       {
@@ -49,6 +58,18 @@ module Burials
     end
 
     ##
+    # Provides a mapping from claim attachment keys (as used in claim models)
+    # to in-progress form keys (as used in InProgressForm#form_data) for Burials
+    def attachment_key_map
+      {
+        transportationReceipts: :transportation_receipts,
+        deathCertificate: :death_certificate,
+        militarySeparationDocuments: :military_separation_documents,
+        additionalEvidence: :additional_evidence
+      }.freeze
+    end
+
+    ##
     # Parse claimant's email address from the parsed_form.
     #
     # @return [String, nil]
@@ -74,6 +95,11 @@ module Burials
     # @return [String]
     def business_line
       'NCA'
+    end
+
+    # the VBMS document type for _this_ claim type
+    def document_type
+      133
     end
 
     ##
@@ -110,6 +136,24 @@ module Burials
       claimed << 'Plot Allowance' if parsed_form['plotAllowance']
       claimed << 'Transportation' if parsed_form['transportation']
       claimed
+    end
+
+    ##
+    # Generates a PDF from the saved claim data
+    #
+    # @param file_name [String, nil] Optional name for the output PDF file
+    # @param fill_options [Hash] Additional options for PDF generation
+    # @return [String] Path to the generated PDF file
+    #
+    def to_pdf(file_name = nil, fill_options = {})
+      ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(email_type)
+      Burials::NotificationEmail.new(id).deliver(email_type)
     end
   end
 end

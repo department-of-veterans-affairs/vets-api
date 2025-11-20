@@ -2,27 +2,30 @@
 
 require 'common/client/base'
 require 'lighthouse/benefits_discovery/configuration'
-require 'lighthouse/benefits_discovery/params'
 
 module BenefitsDiscovery
   class Service < Common::Client::Base
     configuration BenefitsDiscovery::Configuration
 
-    def get_eligible_benefits(user_uuid)
-      response = perform(:post, 'benefits-discovery-service/v0/recommendations', params(user_uuid).to_json, headers)
-      response.body['data']
+    def initialize(api_key:, app_id:)
+      @api_key = api_key
+      @app_id = app_id
+      super()
+    end
+
+    def get_eligible_benefits(params)
+      response = perform(:post, 'benefits-discovery-service/v0/recommendations', params.to_json, headers)
+      response.body
     end
 
     private
 
-    def params(user_uuid)
-      BenefitsDiscovery::Params.new(user_uuid).prepared_params
-    end
+    attr_reader :api_key, :app_id
 
     def headers
       {
-        'x-api-key' => Settings.lighthouse.benefits_discovery.x_api_key,
-        'x-app-id' => Settings.lighthouse.benefits_discovery.x_app_id
+        'x-api-key' => api_key,
+        'x-app-id' => app_id
       }
     end
   end

@@ -24,14 +24,17 @@ module IncomeAndAssets
             question_num: 11,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Recipient Relationship'
+            question_label: 'Relationship to Veteran',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship11[#{ITERATOR}]",
             question_num: 11,
-            question_suffix: '(1)',
+            question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN (OTHER)",
-            question_label: 'Other Relationship'
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {
@@ -66,7 +69,10 @@ module IncomeAndAssets
             question_num: 11,
             question_suffix: '(5)',
             question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED',
-            question_label: 'Income Frequency'
+            question_label: 'Income Frequency',
+            format_options: {
+              humanize: true
+            }
           },
           # Q6
           'incomeLastReceivedDate' => {
@@ -113,7 +119,7 @@ module IncomeAndAssets
       def expand(form_data)
         incomes = form_data['discontinuedIncomes']
 
-        form_data['discontinuedIncome'] = incomes&.length ? 0 : 1
+        form_data['discontinuedIncome'] = radio_yesno(incomes&.length)
         form_data['discontinuedIncomes'] = incomes&.map { |income| expand_item(income) }
       end
 
@@ -143,7 +149,8 @@ module IncomeAndAssets
           'incomeFrequency' => IncomeAndAssets::Constants::INCOME_FREQUENCIES[income_frequency],
           'incomeLastReceivedDate' => split_date(income_last_received_date),
           'incomeLastReceivedDateOverflow' => format_date_to_mm_dd_yyyy(income_last_received_date),
-          'grossAnnualAmount' => split_currency_amount_sm(item['grossAnnualAmount'])
+          'grossAnnualAmount' => split_currency_amount_sm(item['grossAnnualAmount'], { 'thousands' => 3 }),
+          'grossAnnualAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['grossAnnualAmount'])
         }
 
         expanded.merge(overrides)

@@ -161,8 +161,8 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person',
-            :skip_va_profile_user, :skip_vet360 do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::V2::Service#get_person',
+            :skip_va_profile_user do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
@@ -210,14 +210,12 @@ RSpec.describe 'V0::User', type: :request do
       expect(response).to match_response_schema('user_loa1')
     end
 
-    it 'returns a status of 296 with errors', :aggregate_failures do
-      body  = JSON.parse(response.body)
-      error = body.dig('meta', 'errors').first
+    it 'returns a status of 200 and no errors (VAProfile suppressed for LOA1)', :aggregate_failures do
+      body = JSON.parse(response.body)
+      errors = body.dig('meta', 'errors')
 
-      expect(response).to have_http_status 296
-      expect(error['external_service']).to eq 'MVI'
-      expect(error['description']).to be_present
-      expect(error['status']).to eq 401
+      expect(response).to have_http_status :ok
+      expect(errors).to eq([]).or be_nil
     end
 
     context 'with camel inflection' do
@@ -254,11 +252,10 @@ RSpec.describe 'V0::User', type: :request do
   end
 
   context 'GET /v0/user - MVI Integration', :skip_mvi do
-    let(:user) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
+    let(:user) { create(:user, :loa3, :no_mpi_profile) }
     let(:edipi) { '1005127153' }
 
     before do
-      create(:user_verification, idme_uuid: user.idme_uuid)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         sign_in_as(user)
         allow_any_instance_of(User).to receive(:edipi).and_return(edipi)

@@ -35,9 +35,6 @@ require 'vets/model'
 #   @return [Array[Attachment]] an array of Attachments
 #
 class Message
-  MAX_TOTAL_FILE_SIZE_MB = 10.0
-  MAX_SINGLE_FILE_SIZE_MB = 6.0
-
   include Vets::Model
   include RedisCaching
 
@@ -48,9 +45,9 @@ class Message
 
   # Always require body to be present: new message, drafts, and replies
   validates :body, presence: true
-  validates :uploads, length: { maximum: 4, message: 'has too many files (maximum is 4 files)' }
 
   # Only validate upload sizes if uploads are present.
+  validate :total_file_count_validation, if: proc { uploads.present? }
   validate :each_upload_size_validation, if: proc { uploads.present? }
   validate :total_upload_size_validation, if: proc { uploads.present? }
 
@@ -76,6 +73,7 @@ class Message
   attribute :suggested_name_display, String
   attribute :is_oh_message, Bool, default: false
   attribute :metadata, Hash, default: -> { {} }
+  attribute :is_large_attachment_upload, Bool, default: false
 
   # This is only used for validating uploaded files, never rendered
   attribute :uploads, ActionDispatch::Http::UploadedFile, array: true
@@ -115,23 +113,41 @@ class Message
 
   private
 
+  def max_single_file_size_mb
+    is_large_attachment_upload ? 25.0 : 6.0
+  end
+
   def total_upload_size
     return 0 if uploads.blank?
 
     uploads.sum(&:size)
   end
 
-  def total_upload_size_validation
-    return unless total_upload_size > MAX_TOTAL_FILE_SIZE_MB.megabytes
+  def max_total_file_count
+    is_large_attachment_upload ? 10 : 4
+  end
 
-    errors.add(:base, "Total size of uploads exceeds #{MAX_TOTAL_FILE_SIZE_MB} MB")
+  def max_total_file_size
+    is_large_attachment_upload ? 25.0 : 10.0
+  end
+
+  def total_upload_size_validation
+    return unless total_upload_size > max_total_file_size.megabytes
+
+    errors.add(:base, "Total size of uploads exceeds #{max_total_file_size} MB")
   end
 
   def each_upload_size_validation
     uploads.each do |upload|
-      next if upload.size <= MAX_SINGLE_FILE_SIZE_MB.megabytes
+      next if upload.size <= max_single_file_size_mb.megabytes
 
-      errors.add(:base, "The #{upload.original_filename} exceeds file size limit of #{MAX_SINGLE_FILE_SIZE_MB} MB")
+      errors.add(:base, "The #{upload.original_filename} exceeds file size limit of #{max_single_file_size_mb} MB")
     end
+  end
+
+  def total_file_count_validation
+    return unless uploads.length > max_total_file_count
+
+    errors.add(:base, "Total file count exceeds #{max_total_file_count} files")
   end
 end

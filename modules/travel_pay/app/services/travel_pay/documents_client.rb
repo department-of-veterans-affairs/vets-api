@@ -49,5 +49,63 @@ module TravelPay
         end
       end
     end
+
+    ##
+    # HTTP POST call to the BTSSS 'api/v3/claims/:claimId/documents/form-data' endpoint
+    # API responds with the document id
+    # "documentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    #
+    # @return [TravelPay::DocumentId]
+    #
+    def add_document(veis_token, btsss_token, params = {})
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+
+      # Normalize keys
+      params.symbolize_keys!
+      claim_id = params[:claim_id]
+      document = params[:document]
+
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      log_to_statsd('documents', 'add_document') do
+        connection(server_url: btsss_url, multipart: true)
+          .post("api/v3/claims/#{claim_id}/documents/form-data") do |req|
+            req.headers['Authorization'] = "Bearer #{veis_token}"
+            req.headers['BTSSS-Access-Token'] = btsss_token
+            req.headers['X-Correlation-ID'] = correlation_id
+            # Remove the content-type from the claim_headers so that we dont override the multipart/form-data header
+            req.headers.merge!(claim_headers.except('Content-Type'))
+            # Use capital 'Document' key for Swagger compliance
+            req.body = {
+              'Document' => Faraday::Multipart::FilePart.new(
+                document.path, document.content_type, document.original_filename
+              )
+            }
+          end
+      end
+    end
+
+    ##
+    # HTTP DELETE call to the BTSSS '/api/v1/claims/{claimId}/documents/{documentId}' endpoint
+    # API responds with the document id
+    # "documentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    #
+    # @return [TravelPay::DocumentId]
+    #
+    # brakeman:skip all
+    def delete_document(veis_token, btsss_token, params = {})
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      params.symbolize_keys => { claim_id:, document_id: }
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      log_to_statsd('documents', 'delete_document') do
+        connection(server_url: btsss_url).delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+        end
+      end
+    end
   end
 end

@@ -10,7 +10,6 @@ FactoryBot.define do
           add_child: true,
           report674: true
         },
-        add_child: true,
         privacy_agreementAccepted: true,
         veteran_information: {
           full_name: {
@@ -143,6 +142,7 @@ FactoryBot.define do
       }.to_json
     }
   end
+
   factory :dependency_claim_674_only, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674' }
 
@@ -151,7 +151,6 @@ FactoryBot.define do
         'view:selectable686_options': {
           report674: true
         },
-        add_child: false,
         privacy_agreementAccepted: true,
         veteran_information: {
           full_name: {
@@ -234,6 +233,8 @@ FactoryBot.define do
 
     form {
       {
+        statement_of_truth_certified: true,
+        statement_of_truth_signature: 'Mark Webb',
         'view:selectable686_options': {
           add_spouse: true,
           add_child: true,
@@ -454,7 +455,8 @@ FactoryBot.define do
               does_child_live_with_you: true,
               has_child_ever_been_married: false,
               is_biological_child_of_spouse: true,
-              relationship_to_child: { biological: false, stepchild: true },
+              relationship_to_child: { stepchild: true },
+              is_biological_child: false,
               does_child_have_permanent_disability: true,
               birth_location: {
                 location: {
@@ -513,7 +515,8 @@ FactoryBot.define do
               marriage_end_description: 'description of annulment',
               does_child_live_with_you: true,
               has_child_ever_been_married: false,
-              relationship_to_child: { biological: false, adopted: true },
+              relationship_to_child: { adopted: true },
+              is_biological_child: false,
               birth_location: { location: { state: 'NH', city: 'durham', postal_code: '03301' } },
               ssn: '987654321',
               full_name: { first: 'test', middle: 'middle', last: 'childfive' },
@@ -586,7 +589,7 @@ FactoryBot.define do
             },
             student_income: true,
             ssn: '987654321',
-            is_parent: true,
+            relationship_to_student: 'biological',
             full_name: {
               first: 'test',
               middle: 'middle',
@@ -690,8 +693,7 @@ FactoryBot.define do
           birth_date: '1980-01-01',
           full_name: {
             first: 'Mark',
-            last: 'Webb',
-            middle: nil
+            last: 'Webb'
           },
           ssn: '000000000',
           va_file_number: '000000000'

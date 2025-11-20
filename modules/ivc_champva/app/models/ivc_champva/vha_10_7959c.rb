@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA107959c
     STATS_KEY = 'api.ivc_champva_form.10_7959c'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -51,6 +53,11 @@ module IvcChampva
       email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
       StatsD.increment("#{STATS_KEY}.#{email_used}")
       Rails.logger.info('IVC ChampVA Forms - 10-7959C Email Used', email_used:)
+    end
+
+    def track_delegate_form(parent_form_id)
+      StatsD.increment("#{STATS_KEY}.delegate_form.#{parent_form_id}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C Delegate Form', parent_form_id:)
     end
 
     # rubocop:disable Naming/BlockForwarding

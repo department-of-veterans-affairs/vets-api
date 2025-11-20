@@ -195,4 +195,80 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       expect(e.errors[0][:detail]).to eq('The server received an invalid or null response from an upstream server.')
     end
   end
+
+  describe 'for the get_error_info method' do
+    context 'when the original_body hash does not contain a messages key' do
+      error_original_body = { status: 'error', code: 'SOME_ERROR_CODE' }
+      let(:backend_error) { Common::Exceptions::BackendServiceException.new({}, 400, error_original_body) }
+      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
+
+      it 'does not raise a KeyError when accessing missing messages key' do
+        # Test that get_error_info method doesn't throw KeyError
+        expect { backend_error_submit.send(:get_error_info) }.not_to raise_error
+        # Verify it returns an empty array when no messages exist
+        result = backend_error_submit.send(:get_error_info)
+        expect(result).to eq([])
+      end
+
+      it 'still raises the intended BackendServiceException from build_error' do
+        expected_exception = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException
+        expect { backend_error_submit.build_error }.to raise_error(expected_exception) do |error|
+          expect(error.errors).to eq([])
+        end
+      end
+    end
+  end
+
+  describe 'FES errors' do
+    let(:response_values) do
+      { status: 400, detail: nil, code: 'VA_400', source: nil }
+    end
+    let(:bad_request_detail) do
+      { errors: [
+        {
+          detail: 'Http Message Not Readable (Unrecognized Property)', status: 400, title: 'Bad Request',
+          instance: 'b3a8fe91', diagnostics: '285vwsmYlv='
+        }
+      ] }
+    end
+    let(:invalid_data_detail) do
+      { data: {
+        valid: false,
+        errors: [
+          { status: '400', title: 'Invalid service period branch name',
+            detail: 'Provided service period branch name is not valid: AIR\\n Force',
+            source: {
+              pointer: '/data/form526/serviceInformation/servicePeriods/0/serviceBranch'
+            } }
+        ]
+      } }
+    end
+
+    # (key = nil, response_values = {}, original_status = nil, original_body = nil)
+    let(:bad_request) do
+      Common::Exceptions::BackendServiceException.new('VA_400', response_values, 400, bad_request_detail)
+    end
+
+    let(:invalid_data) do
+      Common::Exceptions::BackendServiceException.new('VA_400', response_values, 400, invalid_data_detail)
+    end
+
+    it 'handles returning a message when :errors is inside the original_body not :messages' do
+      ClaimsApi::CustomError.new(bad_request, bad_request_detail, false).build_error
+    rescue => e
+      expect(e.errors[0][:status]).to eq('422') # standards require this to be a string
+      expect(e.errors[0][:title]).to eq('Backend Service Exception')
+      expect(e.errors[0][:detail]).to eq('The claim could not be established - Http Message Not Readable ' \
+                                         '(Unrecognized Property).')
+    end
+
+    it 'handles returning a message when :errors is inside :data in the original_body not :messages' do
+      ClaimsApi::CustomError.new(invalid_data, invalid_data_detail, false).build_error
+    rescue => e
+      expect(e.errors[0][:status]).to eq('422') # standards require this to be a string
+      expect(e.errors[0][:title]).to eq('Backend Service Exception')
+      expect(e.errors[0][:detail]).to eq('The claim could not be established - Provided service period branch ' \
+                                         'name is not valid: AIR\\n Force.')
+    end
+  end
 end

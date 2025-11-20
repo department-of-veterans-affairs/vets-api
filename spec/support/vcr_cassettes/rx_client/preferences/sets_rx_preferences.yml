@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/email"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/email"
     body:
       encoding: UTF-8
       string: '{"emailAddress":"kamyar.karshenas@va.gov"}'
@@ -36,7 +36,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 06:11:14 GMT
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/rx"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/rx"
     body:
       encoding: UTF-8
       string: '{"flag":false}'
@@ -70,7 +70,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 06:11:14 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/email"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/email"
     body:
       encoding: US-ASCII
       string: ''
@@ -104,7 +104,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 06:11:14 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/rx"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/rx"
     body:
       encoding: US-ASCII
       string: ''
@@ -138,7 +138,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 06:11:14 GMT
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/email"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/email"
     body:
       encoding: UTF-8
       string: '{"emailAddress":"Praneeth.Gaganapally@va.gov"}'
@@ -172,7 +172,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 06:11:15 GMT
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/rx"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/rx"
     body:
       encoding: UTF-8
       string: '{"flag":true}'
@@ -206,7 +206,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 06:11:15 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/email"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/email"
     body:
       encoding: US-ASCII
       string: ''
@@ -240,7 +240,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 06:11:15 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/preferences/rx"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/rx"
     body:
       encoding: US-ASCII
       string: ''

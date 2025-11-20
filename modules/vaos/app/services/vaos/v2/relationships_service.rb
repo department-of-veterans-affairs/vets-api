@@ -7,12 +7,13 @@ require 'json'
 module VAOS
   module V2
     class RelationshipsService < VAOS::SessionService
-      def get_patient_relationships(clinic_service_id, facility_id)
+      def get_patient_relationships(clinic_service_id, facility_id, has_availability_before)
         with_monitoring do
           params = {
             clinicalService: clinic_service_id,
-            location: facility_id
-          }
+            location: facility_id,
+            hasAvailabilityBefore: has_availability_before
+          }.compact_blank!
 
           response = perform(:get, "/vpg/v1/patients/#{user.icn}/relationships", params, headers)
           relationships = response[:body][:data][:relationships].map { |relationship| OpenStruct.new(relationship) }
@@ -51,7 +52,7 @@ module VAOS
           failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
         end
 
-        log_message_to_sentry(
+        log_message_to_rails(
           'VAOS::V2::RelationshipsService#get_patient_relationships has response errors.',
           :info,
           failures: failures_dup.to_json

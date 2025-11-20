@@ -79,7 +79,7 @@ module SM
     # @return [Sting] json response
     #
     def post_signature(params)
-      request_body = MessagingSignature.new(params).to_json
+      request_body = MessagingSignature.new(params).to_h
       perform(:post, 'preferences/signature', request_body, token_headers).body
     end
     # @!endgroup
@@ -91,15 +91,15 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(user_uuid, use_cache, requires_oh_messages = nil)
+    def get_folders(user_uuid, use_cache)
       path = 'folder'
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
-        Folder.set_cached(cache_key, data.records)
+        Folder.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -109,9 +109,9 @@ module SM
     #
     # @return [Folder]
     #
-    def get_folder(id, requires_oh_messages = nil)
+    def get_folder(id)
       path = "folder/#{id}"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
       Folder.new(json[:data].merge(json[:metadata]))
@@ -164,6 +164,7 @@ module SM
 
         loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+          path = append_requires_oh_messages_query(path)
           page_data = perform(:get, path, nil, token_headers).body
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
@@ -172,7 +173,7 @@ module SM
           page += 1
         end
         messages = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
-        Message.set_cached(cache_key, messages.records)
+        Message.set_cached(cache_key, messages.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         messages
       end
     end
@@ -197,7 +198,7 @@ module SM
         "sortOrder=#{params[:sort_order]}"
       ].join('&')
       path = "#{base_path}?#{query_params}"
-      path = append_requires_oh_messages_query(path, params[:requires_oh_messages])
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
 
@@ -213,12 +214,12 @@ module SM
     # @param args [Hash] arguments for the message search
     # @return [Common::Collection]
     #
-    def post_search_folder(folder_id, page_num, page_size, args = {}, requires_oh_messages = nil)
+    def post_search_folder(folder_id, page_num, page_size, args = {})
       page_num ||= 1
       page_size ||= MHV_MAXIMUM_PER_PAGE
 
       path = "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:post,
                      path,
@@ -312,9 +313,9 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThread]]
     #
-    def get_messages_for_thread(id, requires_oh_messages = nil)
+    def get_messages_for_thread(id)
       path = "message/#{id}/messagesforthread"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
       Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
@@ -326,9 +327,9 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThreadDetails]]
     #
-    def get_full_messages_for_thread(id, requires_oh_messages = nil)
+    def get_full_messages_for_thread(id)
       path = "message/#{id}/allmessagesforthread/1"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
       json = perform(:get, path, nil, token_headers).body
       Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
     end
@@ -340,11 +341,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message(args = {})
+    def post_create_message(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
-
       json = perform(:post, 'message', args.to_h, token_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -354,12 +358,52 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_with_attachment(args = {})
+    def post_create_message_with_attachment(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
-
+      Rails.logger.info('MESSAGING: post_create_message_with_attachments')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
+    end
+
+    ##
+    # Create a presigned URL for an attachment
+    # # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
+    # @return [String] the MHV S3 presigned URL for the attachment
+    #
+    def create_presigned_url_for_attachment(file)
+      attachment_name = File.basename(file.original_filename, File.extname(file.original_filename))
+      file_extension = File.extname(file.original_filename).delete_prefix('.')
+
+      query_params = {
+        attachmentName: attachment_name,
+        fileExtension: file_extension
+      }
+
+      perform(:get, 'attachment/presigned-url', query_params, token_headers).body
+    end
+
+    ##
+    # Create a message with attachments
+    # Utilizes MHV S3 presigned URLs to upload large attachments
+    # bypassing the 10MB limit of the MHV API gateway limitation
+    #
+    # @param args [Hash] a hash of message arguments
+    # @return [Message]
+    # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+    #
+    def post_create_message_with_lg_attachments(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
+      validate_create_context(args)
+      Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
+      message = create_message_with_lg_attachments_request('message/attach', args)
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -369,12 +413,35 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply_with_attachment(id, args = {})
+    def post_create_message_reply_with_attachment(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
-
+      Rails.logger.info('MESSAGING: post_create_message_reply_with_attachment')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
+    end
+
+    ##
+    # Create a message reply with attachments
+    # Utilizes MHV S3 presigned URLs to upload large attachments
+    # bypassing the 10MB limit of the MHV API gateway limitation
+    #
+    # @param args [Hash] a hash of message arguments
+    # @return [Message]
+    # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+    #
+    def post_create_message_reply_with_lg_attachment(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
+      validate_reply_context(args)
+      Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
+      message = create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -384,11 +451,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply(id, args = {})
+    def post_create_message_reply(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
-
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -433,16 +503,38 @@ module SM
 
     ##
     # Retrieve a message attachment
+    # Endpoint returns either a binary file response, or object with AWS S3 URL details.
+    # If the response is a URL (string or object format), it will fetch the file from that URL.
+    # Object format includes: { "url": URL, "mimeType": "application/pdf", "name": "filename.pdf" }
+    # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
     # @param attachment_id [Fixnum] the attachment id
-    # @return [Hash] an object with attachment response details
+    # @return [Hash] an object with binary file content and filename { body: binary_data, filename: string }
     #
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
-
       response = perform(:get, path, nil, token_headers)
-      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
+      data = response.body[:data] if response.body.is_a?(Hash)
+
+      # Attachments that are stored in AWS S3 via presigned URL return an object with URL details
+      if data.is_a?(Hash) && data[:url] && data[:mime_type] && data[:name]
+        url = data[:url]
+        uri = URI.parse(url)
+        file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+          http.get(uri.request_uri)
+        end
+        unless file_response.is_a?(Net::HTTPSuccess)
+          Rails.logger.error('Failed to fetch attachment from presigned URL')
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
+                                                                file_response.code)
+        end
+        filename = data[:name]
+        return { body: file_response.body, filename: }
+      end
+
+      # Default: treat as binary file response
+      filename = response.response_headers['content-disposition']&.gsub(CONTENT_DISPOSITION, '')&.gsub(/%22|"/, '')
       { body: response.body, filename: }
     end
     # @!endgroup
@@ -459,7 +551,7 @@ module SM
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
         json = perform(:get, 'triageteam', nil, token_headers).body
         data = Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
-        TriageTeam.set_cached(cache_key, data.records)
+        TriageTeam.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -471,21 +563,16 @@ module SM
     #
     # @return [Common::Collection[AllTriageTeams]]
     #
-    def get_all_triage_teams(user_uuid, use_cache, requires_oh = nil)
+    def get_all_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-all-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
-        path = 'alltriageteams'
-        if requires_oh == '1'
-          separator = path.include?('?') ? '&' : '?'
-          path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
-        end
+        path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
-        AllTriageTeams.set_cached(cache_key, data.records)
+        AllTriageTeams.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
-    # @!endgroup
 
     ##
     # Update preferredTeam value for a patient's list of triage teams
@@ -518,15 +605,7 @@ module SM
 
     def get_session_tagged
       Sentry.set_tags(error: 'mhv_sm_session')
-      current_user = User.find(session.user_uuid)
-
-      requires_oh_messages = '0'
-      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
-        requires_oh_messages = '1'
-      end
-
-      Rails.logger.info("secure messaging session tagged with requiresOHMessages=#{requires_oh_messages}")
-      path = append_requires_oh_messages_query('session', requires_oh_messages)
+      path = append_requires_oh_messages_query('session')
       env = perform(:get, path, nil, auth_headers)
       Sentry.get_current_scope.tags.delete(:error)
       env
@@ -535,26 +614,18 @@ module SM
     private
 
     def auth_headers
-      headers = config.base_request_headers.merge(
+      config.base_request_headers.merge(
         'appToken' => config.app_token,
-        'mhvCorrelationId' => session.user_id.to_s
+        'mhvCorrelationId' => session.user_id.to_s,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def token_headers
-      headers = config.base_request_headers.merge(
-        'Token' => session.token
+      config.base_request_headers.merge(
+        'Token' => session.token,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def reply_draft?(id)
@@ -581,10 +652,11 @@ module SM
       end
     end
 
-    def append_requires_oh_messages_query(path, requires_oh_messages = nil)
-      if requires_oh_messages == '1'
+    def append_requires_oh_messages_query(path, param_name = 'requiresOHMessages')
+      current_user = User.find(session.user_uuid)
+      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
         separator = path.include?('?') ? '&' : '?'
-        path += "#{separator}requiresOHMessages=#{requires_oh_messages}"
+        path += "#{separator}#{param_name}=1"
       end
       path
     end
@@ -596,6 +668,132 @@ module SM
         raise Common::Exceptions::ValidationErrors, draft
       end
     end
+
+    ##
+    # Upload an attachment to S3 using a presigned URL
+    # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
+    def upload_attachment_to_s3(file, presigned_url)
+      uri = URI.parse(presigned_url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = (uri.scheme == 'https')
+
+      request = Net::HTTP::Put.new(uri)
+      request['Content-Type'] = file.content_type
+      request.body_stream = file
+      request.content_length = file.size
+
+      response = http.request(request)
+
+      unless response.is_a?(Net::HTTPSuccess)
+        Rails.logger.error("Failed to upload Messaging attachment to S3: \\#{response.body}")
+        raise Common::Exceptions::BackendServiceException.new('SM_UPLOAD_ATTACHMENT_ERROR', 500)
+      end
+    end
+
+    def extract_uploaded_file_name(url)
+      URI.parse(url).path.split('/').last
+    end
+
+    def build_lg_attachment(file)
+      url = create_presigned_url_for_attachment(file)[:data]
+      uploaded_file_name = extract_uploaded_file_name(url)
+      upload_attachment_to_s3(file, url)
+      {
+        'attachmentName' => file.original_filename,
+        'mimeType' => file.content_type,
+        'size' => file.size,
+        'lgAttachmentId' => CGI.unescape(uploaded_file_name) # Decode URL-encoded filename
+      }
+    end
+
+    def camelize_keys(hash)
+      hash.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+    end
+
+    def form_large_attachment_payload(message, lg_attachments)
+      camelized_message = camelize_keys(message)
+      {
+        'message' => Faraday::Multipart::ParamPart.new(
+          camelized_message.to_json(camelize: true),
+          'application/json'
+        ),
+        'lgAttachments[]' => Faraday::Multipart::ParamPart.new(
+          lg_attachments.to_json,
+          'application/json'
+        )
+      }
+    end
+
+    def create_message_with_lg_attachments_request(path, args)
+      uploads = args.delete(:uploads)
+      raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
+
+      # Parallel upload of attachments
+      require 'concurrent-ruby'
+      futures = uploads.map { |file| Concurrent::Promises.future { build_lg_attachment(file) } }
+      lg_attachments = Concurrent::Promises.zip(*futures).value!
+
+      # Build multipart payload
+      payload = form_large_attachment_payload(args[:message], lg_attachments)
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
+      json = perform(:post, path, payload, custom_headers).body
+      Message.new(json[:data].merge(json[:metadata]))
+    end
+
+    ##
+    # @!group Message Status
+    ##
+    # Poll OH message status until terminal state or timeout
+    #
+    def get_message_status(message_id)
+      path = "message/#{message_id}/status"
+      json = perform(:get, path, nil, token_headers).body
+      data = json.is_a?(Hash) && json[:data].present? ? json[:data] : json
+      {
+        message_id: data[:message_id] || data[:id] || message_id,
+        status: data[:status]&.to_s&.upcase,
+        is_oh_message: data.key?(:is_oh_message) ? data[:is_oh_message] : data[:oh_message],
+        oh_secure_message_id: data[:oh_secure_message_id]
+      }
+    end
+
+    def poll_message_status(message_id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
+      terminal_statuses = %w[SENT FAILED INVALID UNKNOWN NOT_SUPPORTED]
+      deadline = Time.zone.now + timeout_seconds
+      consecutive_errors = 0
+
+      loop do
+        raise Common::Exceptions::GatewayTimeout if Time.zone.now >= deadline
+
+        begin
+          result = get_message_status(message_id)
+          status = result[:status]
+          return result if status && terminal_statuses.include?(status)
+        rescue Common::Exceptions::GatewayTimeout
+          # Immediately re-raise upstream timeouts
+          raise
+        rescue => e
+          consecutive_errors += 1
+          raise e if consecutive_errors > max_errors
+        end
+
+        sleep interval_seconds
+      end
+    end
+
+    # Polling integration for OH messages on send/reply
+    def poll_status(message)
+      if %w[staging production].include?(Settings.vsp_environment)
+        Rails.logger.info("MHV SM: message id #{message.id} is in the OH polling path")
+      end
+      result = poll_message_status(message.id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
+      status = result && result[:status]
+      raise Common::Exceptions::UnprocessableEntity if %w[FAILED INVALID].include?(status)
+
+      message
+    end
+
+    # @!endgroup
 
     ##
     # @!group StatsD
@@ -610,6 +808,7 @@ module SM
     def statsd_cache_miss
       StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
     end
+
     # @!endgroup
   end
 end

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 # Subclasses the `UserIdentity` model. Adds a unique redis namespace for IAM user identities.
 # Like the it's base model it acts as an adapter for the attributes from the IAMSSOeOAuth::Service's
 # introspect endpoint.Adds IAM sourced versions of ICN, EDIPI, and SEC ID to pass to the IAMUser model.
 #
 class IAMUserIdentity < UserIdentity
-  extend SentryLogging
+  extend Vets::SharedLogging
   extend Identity::Parsers::GCIdsHelper
 
   PREMIUM_LOAS = [2, 3].freeze
@@ -83,7 +83,7 @@ class IAMUserIdentity < UserIdentity
     mhv_ids = (id_from_profile == 'NOT_FOUND' ? nil : id_from_profile)
     mhv_ids = mhv_ids&.split(',')&.uniq
     if mhv_ids&.size.to_i > 1
-      log_message_to_sentry('OAuth: Multiple MHV IDs present', :warn, { mhv_ien: id_from_profile })
+      Rails.logger.warn('[IAMUserIdentity] OAuth: Multiple MHV IDs present', mhv_ien: id_from_profile)
     end
     mhv_ids&.first
   end

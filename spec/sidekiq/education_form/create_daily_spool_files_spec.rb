@@ -73,6 +73,26 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
   end
 
   describe '#format_application' do
+    context 'with a 0993 form' do
+      let(:application_1606) { create(:va0993_full_form).education_benefits_claim }
+
+      it 'tracks the 0993 form' do
+        expect(subject).to receive(:track_form_type).with('22-0993', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA0993)
+      end
+    end
+
+    context 'with a 0994 form' do
+      let(:application_1606) { create(:va0994_full_form).education_benefits_claim }
+
+      it 'tracks the 0994 form' do
+        expect(subject).to receive(:track_form_type).with('22-0994', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA0994)
+      end
+    end
+
     context 'with a 1990 form' do
       it 'tracks and returns a form object' do
         expect(subject).to receive(:track_form_type).with('22-1990', 999)
@@ -88,6 +108,46 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
         expect(subject).to receive(:track_form_type).with('22-1995', 999)
         result = subject.format_application(application_1606, rpo: 999)
         expect(result).to be_a(EducationForm::Forms::VA1995)
+      end
+    end
+
+    context 'with a 5490 form' do
+      let(:application_1606) { create(:va5490_full_form).education_benefits_claim }
+
+      it 'tracks the 5490 form' do
+        expect(subject).to receive(:track_form_type).with('22-5490', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA5490)
+      end
+    end
+
+    context 'with a 5495 form' do
+      let(:application_1606) { create(:va5495_full_form).education_benefits_claim }
+
+      it 'tracks the 5495 form' do
+        expect(subject).to receive(:track_form_type).with('22-5495', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA5495)
+      end
+    end
+
+    context 'with a 10203 form' do
+      let(:application_1606) { create(:va10203, :va10203_full_form).education_benefits_claim }
+
+      it 'tracks the 10203 form' do
+        expect(subject).to receive(:track_form_type).with('22-10203', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA10203)
+      end
+    end
+
+    context 'with a 10297 form' do
+      let(:application_1606) { create(:va10297_full_form).education_benefits_claim }
+
+      it 'tracks the 10297 form' do
+        expect(subject).to receive(:track_form_type).with('22-10297', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA10297)
       end
     end
 

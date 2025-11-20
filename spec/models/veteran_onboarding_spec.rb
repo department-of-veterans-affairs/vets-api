@@ -3,9 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe VeteranOnboarding, type: :model do
-  let(:user_verification) { create(:user_verification) }
-  let(:user_account) { user_verification.user_account }
-  let(:user) { build(:user, :loa3, idme_uuid: user_verification.idme_uuid) }
+  let(:user) { build(:user, :loa3) }
+  let(:user_account) { user.user_account }
 
   describe 'validations' do
     it 'validates presence of user_account_uuid' do

@@ -171,7 +171,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             'api.veteran_enrollment_system.associations.get_associations.failed'
           )
           expect(Rails.logger).to have_received(:error).with(
-            "10-10EZR retrieve associations failed: #{failure_message}"
+            "10-10EZR get associations failed: #{failure_message}"
           )
         end
       end

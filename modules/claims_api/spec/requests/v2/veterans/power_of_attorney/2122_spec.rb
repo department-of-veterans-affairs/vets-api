@@ -54,7 +54,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
           context 'when valid' do
             it 'returns a 202' do
               mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
                 allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
@@ -111,7 +111,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   it 'returns a 202 when no zipCode is included in the veteran data' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
-                        expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                        allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                           .and_return(bgs_poa)
                         allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                           .and_return({ person_poa_history: nil })
@@ -211,6 +211,22 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                     end
                   end
 
+                  it 'adds cid to attributes' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data
+                        request_body = json.to_json
+
+                        post appoint_organization_path, params: request_body, headers: auth_header
+
+                        poa_id = JSON.parse(response.body)['data']['id']
+                        poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                        expect(poa.cid).to eq('test-id-here')
+                      end
+                    end
+                  end
+
                   it "does not add dependent values to the auth_headers if relationship is 'Self'" do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
@@ -285,7 +301,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
             it 'returns a success response' do
               mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
                 allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
@@ -396,7 +412,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'returns a 202 with no zipCode' do
                 VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                   mock_ccg(scopes) do |auth_header|
-                    expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                    allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                       .and_return(bgs_poa)
                     allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                       .and_return({ person_poa_history: nil })
@@ -419,7 +435,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'allows an empty string' do
                 data[:data][:attributes][:veteran][:email] = ''
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
@@ -433,7 +449,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it "allows a valid 'normal' looking email" do
                 data[:data][:attributes][:veteran][:email] = 'valid@email.com'
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
@@ -491,7 +507,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
         context 'POA organization' do
           it 'returns a 202 response when successful' do
             mock_ccg_for_fine_grained_scope(poa_scopes) do |auth_header|
-              expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+              allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
@@ -511,27 +527,26 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
         end
       end
 
-      context 'multiple reps with same poa code and registration number' do
-        let(:rep_id) do
-          create(:veteran_representative, representative_id: '999999999999',
-                                          poa_codes: [organization_poa_code],
-                                          first_name: 'George', last_name: 'Washington-test').id
+      context 'creating a rep with the same representative_id' do
+        let!(:existing) do
+          create(
+            :veteran_representative,
+            representative_id: '555',
+            poa_codes: [organization_poa_code]
+          )
         end
 
-        it 'returns the last one with a 202 response' do
-          mock_ccg(scopes) do |auth_header|
-            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
-              .and_return(bgs_poa)
-            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
-              .and_return({ person_poa_history: nil })
-            expect(ClaimsApi::V2::PoaFormBuilderJob).to receive(:perform_async) do |*args|
-              expect(args[3]).to eq(rep_id)
-            end
+        let(:rep) do
+          build(
+            :veteran_representative,
+            representative_id: existing.representative_id,
+            poa_codes: [organization_poa_code]
+          )
+        end
 
-            post appoint_organization_path, params: data.to_json, headers: auth_header
-
-            expect(response).to have_http_status(:accepted)
-          end
+        it 'raises RecordNotUnique and does not create a second instance' do
+          expect { rep.save! }.to raise_error(ActiveRecord::RecordNotUnique)
+          expect(Veteran::Service::Representative.where(representative_id: '999999999999').count).to eq(1)
         end
       end
     end

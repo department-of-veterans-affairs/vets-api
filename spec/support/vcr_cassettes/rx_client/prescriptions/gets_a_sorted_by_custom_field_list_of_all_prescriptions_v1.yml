@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/medications"
+    uri: "<MHV_HOST>/v1/pharmacy/ess/medications"
     body:
       encoding: US-ASCII
       string: ''
@@ -8126,7 +8126,7 @@ http_interactions:
   recorded_at: Wed, 16 Apr 2025 15:31:19 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/medications"
+    uri: "<MHV_HOST>/v1/pharmacy/ess/medications"
     body:
       encoding: US-ASCII
       string: ''

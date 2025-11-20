@@ -8,6 +8,8 @@ RSpec.describe DependentsVerification::Monitor do
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:message_prefix) { "#{described_class} #{DependentsVerification::FORM_ID}" }
+  let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
+  let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
 
   describe '#service_name' do
     it 'returns expected name' do
@@ -27,7 +29,7 @@ RSpec.describe DependentsVerification::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -50,7 +52,7 @@ RSpec.describe DependentsVerification::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -121,7 +123,7 @@ RSpec.describe DependentsVerification::Monitor do
           claim_id: claim.id,
           form_id: claim.form_id,
           errors: [],
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -180,6 +182,31 @@ RSpec.describe DependentsVerification::Monitor do
           **payload
         )
         monitor.track_process_attachment_error(ipf, claim, current_user)
+      end
+    end
+
+    describe '#track_send_email_failure' do
+      it 'logs sidekiq job send_submitted_email error' do
+        log = "#{message_prefix} send_submitted_email failed"
+        payload = {
+          claim_id: claim.id,
+          form_id: claim.form_id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          error: monitor_error.message,
+          tags: monitor.tags
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          :warn,
+          log,
+          "#{submission_stats_key}.send_submitted_failed",
+          call_location: anything,
+          **payload
+        )
+
+        monitor.track_send_email_failure(claim, lh_service, current_user.uuid, 'submitted', monitor_error)
       end
     end
   end

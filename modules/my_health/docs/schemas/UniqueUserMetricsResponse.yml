@@ -1,0 +1,19 @@
+type: object
+required:
+  - results
+properties:
+  results:
+    type: array
+    description: Array of processing results for each event name that was submitted
+    items:
+      $ref: "./UniqueUserMetricsEventResult.yml"
+    example:
+      - event_name: "mhv_landing_page_accessed"
+        status: "created"
+        new_event: true
+      - event_name: "secure_messaging_accessed"
+        status: "exists"
+        new_event: false
+      - event_name: "prescriptions_accessed"
+        status: "created"
+        new_event: true

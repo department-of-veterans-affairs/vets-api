@@ -6,12 +6,12 @@ RSpec.describe AppealSubmission, type: :model do
   describe '#get_mpi_profile' do
     subject { appeal_submission.get_mpi_profile }
 
-    let(:user) { create(:user, :with_terms_of_use_agreement, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:user_account) { user.user_account }
     let(:mpi_profile) { build(:mpi_profile, icn: user_account.icn) }
     let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-    let(:appeal_submission) { create(:appeal_submission, user_account:) }
+    let(:appeal_submission) { create(:appeal_submission, user_account:, user_uuid: user.uuid) }
     let(:identifier) { user_account.icn }
     let(:identifier_type) { MPI::Constants::ICN }
 

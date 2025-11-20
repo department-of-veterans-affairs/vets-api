@@ -31,28 +31,23 @@ module AskVAApi
           payload = {
             AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
-            CaregiverZipCode: nil,
-            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference] || 'Email'),
-            DependentDOB: family_member_field(:date_of_birth),
-            DependentFirstName: family_member_field(:first)
+            CaregiverZipCode: nil, ContactMethod: @translator.call(:response_type,
+                                                                   inquiry_params[:contact_preference] || 'Email'),
+            DependentDOB: family_member_field(:date_of_birth), DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
-          # Add debug logging to determine root cause for https://github.com/department-of-veterans-affairs/ask-va/issues/1872
-          # Level of Authentication is a misnomer. it doesn't contain any PII and the two possible values are:
-          # 'Business' or 'Personal'.
-          if user.nil? && inquiry_details_obj.education_benefits?
-            Rails.logger.warn('Unauthenticated Education inquiry submitted. ' \
-                              "Category: #{inquiry_details_obj.category}, " \
-                              "Topic: #{inquiry_details_obj.topic}")
+          context = {
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            user_loa: user&.loa&.fetch(:current, nil),
+            category: inquiry_details_obj.category, topic: inquiry_details_obj.topic,
+            user_is_authenticated: user.present?
+          }
+          Rails.logger.info('Education Inquiry Context', context)
+          if user.nil? && inquiry_details_obj.inquiry_education_related?
+            raise InquiryPayloadError, 'Unauthenticated Education inquiry submitted'
           end
 
-          Rails.logger.info("Level of Authentication: #{inquiry_details[:level_of_authentication]}")
-
-          # Also log user's LOA if available (to verify that it didn't get downgraded for any reason)
-          Rails.logger.info("User LOA: #{user&.loa&.fetch(:current, nil)}") if user.present?
-
           payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
-
           payload
         end
 
@@ -104,7 +99,9 @@ module AskVAApi
         end
 
         def list_of_attachments
-          return if inquiry_params[:files].first[:file_name].nil?
+          # To try and resolve Exception InquiriesCreatorError: undefined method `[]' for nil
+          return if inquiry_params[:files].blank?
+          return if inquiry_params[:files].first.nil? || inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
             file_name = normalize_file_name(file[:file_name])

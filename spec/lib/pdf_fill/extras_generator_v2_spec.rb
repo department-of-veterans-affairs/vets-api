@@ -6,7 +6,24 @@ require 'pdf_fill/extras_generator_v2'
 describe PdfFill::ExtrasGeneratorV2 do
   subject { described_class.new(sections:) }
 
-  let(:sections) { nil }
+  let(:sections) do
+    [
+      {
+        label: 'Section I',
+        page: 1,
+        dest_name: 'Section_I',
+        dest_y_coord: 650,
+        question_nums: %w[1 2 3 4 5 6 7]
+      },
+      {
+        label: 'Section II',
+        page: 1,
+        dest_name: 'Section_II',
+        dest_y_coord: 500,
+        question_nums: %w[8 9]
+      }
+    ]
+  end
 
   describe PdfFill::ExtrasGeneratorV2::Question do
     subject do
@@ -18,14 +35,15 @@ describe PdfFill::ExtrasGeneratorV2 do
     describe '#numbered_label_markup' do
       context 'when show_suffix is true' do
         it 'appends suffix to question number when there is a single subquestion' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
-          question.add_text('Value', { question_suffix: 'A' })
-
+          config = { question_number: '5a', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5a' }, config)
+          question.add_text('Value', {})
           expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
         end
 
         it 'does not append suffix when there are multiple subquestions' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          config = { question_number: '5', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value1', { question_suffix: 'A' })
           question.add_text('Value2', { question_suffix: 'B' })
 
@@ -33,7 +51,8 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
 
         it 'handles nil suffix gracefully' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          config = { question_number: '5', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value', {})
 
           expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
@@ -42,7 +61,8 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       context 'when show_suffix is false' do
         it 'does not append suffix to question number' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: false })
+          config = { question_number: '5', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5', show_suffix: false }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
           expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
@@ -50,11 +70,45 @@ describe PdfFill::ExtrasGeneratorV2 do
       end
 
       context 'when number is not an integer' do
-        it 'does not include a prefix' do
-          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true })
+        it 'includes the prefix for non-integer question numbers' do
+          config = { question_number: '5.2', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
-          expect(question.numbered_label_markup).to eq('<h3>Test Question</h3>')
+          expect(question.numbered_label_markup).to eq('<h3>5.2. Test Question</h3>')
+        end
+      end
+
+      context 'when question_number and question_num are both string "10c"' do
+        it 'renders 10c. for string match' do
+          config = { question_number: '10c', question_text: 'Additional Behavioral Change(s)' }
+          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+          question.add_text('Value', {})
+          expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
+        end
+      end
+
+      it 'falls back to just question_number when display_suffix is missing' do
+        config = { question_number: '11.5', question_text: 'Police report location(s)' }
+        question = described_class.new('Police report location(s)', { question_num: '11.5' }, config)
+        question.add_text('Value', {})
+        expect(question.numbered_label_markup).to eq('<h3>11.5. Police report location(s)</h3>')
+      end
+
+      it 'falls back to just number if no config match' do
+        config = { question_number: '99', question_text: 'Non-matching' }
+        question = described_class.new('Test Question', { question_num: '100' }, config)
+        question.add_text('Value', {})
+        expect(question.numbered_label_markup).to eq('<h3>100. Test Question</h3>')
+      end
+
+      context 'when hide_question_num is true in config' do
+        it 'does not display the question number in the label' do
+          config = { question_number: '10c', question_text: 'Additional Behavioral Change(s)',
+                     hide_question_num: true }
+          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+          question.add_text('Value', {})
+          expect(question.numbered_label_markup).to eq('<h3>Additional Behavioral Change(s)</h3>')
         end
       end
     end
@@ -246,19 +300,6 @@ describe PdfFill::ExtrasGeneratorV2 do
   end
 
   describe '#populate_section_indices!' do
-    let(:sections) do
-      [
-        {
-          label: 'Section I',
-          question_nums: (1..7).to_a
-        },
-        {
-          label: 'Section II',
-          question_nums: [8, 9]
-        }
-      ]
-    end
-
     it 'populates section indices correctly' do
       questions = [1, 9, 42, 7].index_with do |question_num|
         described_class::Question.new(nil, { question_num: })
@@ -929,6 +970,85 @@ describe PdfFill::ExtrasGeneratorV2 do
       it "converts #{test_case[:description]}: '#{test_case[:input]}' -> '#{test_case[:expected]}'" do
         expect(subject.send(:humanize_value, test_case[:input])).to eq(test_case[:expected])
       end
+    end
+  end
+
+  def width_of_mock(string)
+    # Mocked method to simulate Prawn's width_of behavior
+    string.length * 7 # Assuming average character width of 7px
+  end
+
+  describe '#calculate_text_box_position' do
+    mock_section_title = 'Section I'
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), width_of: width_of_mock(mock_section_title)) }
+
+    it 'returns an object with the correct positions' do
+      expect(subject.calculate_text_box_position(pdf, mock_section_title, 100, sections[0]))
+        .to eq({ width: 63, x: 83, y: 95 })
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#create_formatted_text_options' do
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50)) }
+
+    it 'returns the correct information' do
+      expect(subject.create_formatted_text_options('Test Text'))
+        .to eq([{ text: 'Test Text', color: '005EA2', size: 10.5, styles: [:underline] }])
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#store_section_coordinates' do
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), page_count: 3) }
+
+    it 'returns the correct information' do
+      expect(subject.store_section_coordinates(pdf, 0, { width: 100, height: 50, x: 10, y: 20 }))
+        .to eq([{ section: 0, page: 3, x: 55, y: 60, width: 100, height: 20, dest: 'Section_I' }])
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#render_new_section' do
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), page_count: 3) }
+
+    before do
+      allow(pdf).to receive(:cursor).and_return(250)
+      allow(pdf).to receive(:markup)
+    end
+
+    it 'renders the new section' do
+      subject.render_new_section(
+        pdf, 0
+      )
+      expect(pdf).to have_received(:markup).with(
+        '<h2>Section I</h2>'
+      )
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#render_back_to_section_text' do
+    mock_section_title = 'Section I'
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), page_count: 3, width_of: width_of_mock(mock_section_title)) }
+
+    before do
+      allow(pdf).to receive(:bounding_box).and_yield
+      allow(pdf).to receive(:formatted_text_box)
+      allow(pdf).to receive(:cursor).and_return(250)
+      allow(pdf).to receive(:markup)
+    end
+
+    it 'renders Back text with correct section' do
+      subject.render_back_to_section_text(pdf, 0, 20)
+      expect(pdf).to have_received(:formatted_text_box).with(
+        [{ color: '005EA2',
+           size: 10.5,
+           styles: [:underline],
+           text: 'Back to Section I' }],
+        { align: :right, at: [0, 7], height: 15, width: 63 }
+      )
+      File.delete(subject.generate)
     end
   end
 end

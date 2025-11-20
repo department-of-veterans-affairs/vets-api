@@ -1,0 +1,189 @@
+{
+  "agreementType": "newCommitment",
+  "mainInstitution": {
+    "facilityCode": "US123456",
+    "institutionName": "Springfield University",
+    "institutionAddress": {
+      "street": "123 College Ave",
+      "street2": "Building A",
+      "city": "Springfield",
+      "state": "IL",
+      "country": "USA",
+      "postalCode": "62704"
+    }
+  },
+  "additionalInstitutions": [
+    {
+      "facilityCode": "US654321",
+      "institutionName": "Springfield Technical Institute",
+      "institutionAddress": {
+        "street": "456 Tech Park Dr",
+        "street2": "Suite 200",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "USA",
+        "postalCode": "62703"
+      },
+      "pointOfContact": {
+        "fullName": {
+          "first": "Jane",
+          "middle": "A",
+          "last": "Doe"
+        },
+        "email": "jane.doe@sti.edu"
+      }
+    },
+    {
+      "facilityCode": "US654321",
+      "institutionName": "Springfield Technical Institute",
+      "institutionAddress": {
+        "street": "456 Tech Park Dr",
+        "street2": "Suite 200",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "USA",
+        "postalCode": "62703"
+      },
+      "pointOfContact": {
+        "fullName": {
+          "first": "Jane",
+          "middle": "A",
+          "last": "Doe"
+        },
+        "email": "jane.doe@sti.edu"
+      }
+    },
+    {
+      "facilityCode": "US654321",
+      "institutionName": "Springfield Technical Institute",
+      "institutionAddress": {
+        "street": "456 Tech Park Dr",
+        "street2": "Suite 200",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "USA",
+        "postalCode": "62703"
+      },
+      "pointOfContact": {
+        "fullName": {
+          "first": "Jane",
+          "middle": "A",
+          "last": "Doe"
+        },
+        "email": "jane.doe@sti.edu"
+      }
+    },
+    {
+      "facilityCode": "US654321",
+      "institutionName": "Springfield Technical Institute",
+      "institutionAddress": {
+        "street": "456 Tech Park Dr",
+        "street2": "Suite 200",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "USA",
+        "postalCode": "62703"
+      },
+      "pointOfContact": {
+        "fullName": {
+          "first": "Jane",
+          "middle": "A",
+          "last": "Doe"
+        },
+        "email": "jane.doe@sti.edu"
+      }
+    },
+    {
+      "facilityCode": "US654321",
+      "institutionName": "Springfield Technical Institute",
+      "institutionAddress": {
+        "street": "456 Tech Park Dr",
+        "street2": "Suite 200",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "USA",
+        "postalCode": "62703"
+      },
+      "pointOfContact": {
+        "fullName": {
+          "first": "Jane",
+          "middle": "A",
+          "last": "Doe"
+        },
+        "email": "jane.doe@sti.edu"
+      }
+    },
+    {
+      "facilityCode": "US654321",
+      "institutionName": "Springfield Technical Institute",
+      "institutionAddress": {
+        "street": "456 Tech Park Dr",
+        "street2": "Suite 200",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "USA",
+        "postalCode": "62703"
+      },
+      "pointOfContact": {
+        "fullName": {
+          "first": "Jane",
+          "middle": "A",
+          "last": "Doe"
+        },
+        "email": "jane.doe@sti.edu"
+      }
+    },
+    {
+      "facilityCode": "US654321",
+      "institutionName": "Springfield Technical Institute",
+      "institutionAddress": {
+        "street": "456 Tech Park Dr",
+        "street2": "Suite 200",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "USA",
+        "postalCode": "62703"
+      },
+      "pointOfContact": {
+        "fullName": {
+          "first": "Jane",
+          "middle": "A",
+          "last": "Doe"
+        },
+        "email": "jane.doe@sti.edu"
+      }
+    }
+  ],
+  "authorizedOfficial": {
+    "fullName": {
+      "first": "Robert",
+      "last": "Smith"
+    },
+    "title": "Vice President of Academic Affairs",
+    "usPhone": "2175551234",
+    "email": "robert.smith@springfield.edu"
+  },
+  "newCommitment": {
+    "principlesOfExcellencePointOfContact": {
+      "fullName": {
+        "first": "Emily",
+        "last": "Johnson"
+      },
+      "title": "Director of Compliance",
+      "usPhone": "2175555678",
+      "email": "emily.has.an.extremely.extremely.extremely.extremely.extremely.long.email.address@springfield.edu"
+    },
+    "schoolCertifyingOfficial": {
+      "fullName": {
+        "first": "Michael",
+        "last": "Brown"
+      },
+      "title": "Registrar",
+      "usPhone": "2175559876",
+      "email": "michael.brown@springfield.edu"
+    }
+  },
+  "privacyAgreementAccepted": true,
+  "statementOfTruthSignature": "Robert Smith",
+  "dateSigned": "2025-09-10"
+}

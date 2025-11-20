@@ -19,7 +19,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_4138.json',
     'vba_21_4140.json',
     'vba_21_4142.json',
+    'vba_21p_601.json',
     'vba_21p_0847.json',
+    'vba_21p_0537.json',
     'vba_40_0247.json',
     'vba_40_10007.json'
   ]
@@ -35,6 +37,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   let(:pdf_url) { 'https://s3.com/presigned-goodness' }
   let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
   let(:lighthouse_service) { instance_double(BenefitsIntake::Service) }
+  let(:user) { create(:user, :legacy_icn, participant_id:) }
+  let(:participant_id) { 'some-participant-id' }
 
   before do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
@@ -71,8 +75,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         context "for #{form}" do
           if is_authenticated
             before do
-              user = create(:user)
-              sign_in_as(user)
+              user = create(:user, :legacy_icn)
+              sign_in(user)
               create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
             end
           end
@@ -130,10 +134,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'request with intent to file' do
         context 'authenticated but without participant_id' do
+          let(:participant_id) { nil }
+
           before do
-            sign_in
-            allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
-            allow_any_instance_of(User).to receive(:participant_id).and_return(nil)
+            sign_in(user)
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
           end
 
@@ -263,8 +267,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'LOA3 authenticated' do
         before do
-          sign_in
-          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          sign_in(user)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
 
@@ -337,8 +340,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'authenticated' do
         before do
-          sign_in
-          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          sign_in(user)
           allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
@@ -418,7 +420,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
-
           expect(response).to have_http_status(:error)
           expect(response.body).to include("expected ',' or '}' after object value, got:")
 
@@ -530,6 +531,33 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
       end
     end
+
+    describe 'VSI flash feature flag' do
+      let(:controller) { SimpleFormsApi::V1::UploadsController.new }
+      let(:form) { instance_double(SimpleFormsApi::VBA2010207) }
+      let(:submission) { double(id: 123) }
+      let(:user) { create(:user, :legacy_icn) }
+
+      before do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(form_number: '20-10207'))
+        allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(user)
+        allow(form).to receive(:respond_to?).with(:add_vsi_flash).and_return(true)
+      end
+
+      it 'calls add_vsi_flash when feature flag is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:priority_processing_request_apply_vsi_flash, user).and_return(true)
+        expect(Rails.logger).to receive(:info).with('Simple Forms API - VSI Flash Applied',
+                                                    submission_id: submission.id)
+        expect(form).to receive(:add_vsi_flash)
+        controller.send(:add_vsi_flash_safely, form, submission)
+      end
+
+      it 'does not call add_vsi_flash when feature flag is disabled' do
+        allow(Flipper).to receive(:enabled?).with(:priority_processing_request_apply_vsi_flash, user).and_return(false)
+        allow(form).to receive(:add_vsi_flash) { raise 'should not be called' }
+        expect { controller.send(:add_vsi_flash_safely, form, submission) }.not_to raise_error
+      end
+    end
   end
 
   describe '#submit_supporting_documents' do
@@ -600,14 +628,78 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
+
+    it 'returns a user-friendly error message when document validation fails for form 40-10007' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      invalid_service = double
+      error = BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid file format')
+      allow(invalid_service).to receive(:valid_document?).and_raise(error)
+
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(invalid_service)
+
+      data = { form_id: '40-10007', file: invalid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      resp = JSON.parse(response.body)
+      expect(resp['errors']).to be_an(Array)
+      expect(resp['errors'][0]['detail']).to eq(
+        "We weren't able to upload your file. Make sure the file is in an accepted format and size before continuing."
+      )
+    end
+
+    it 'skips document validation for non-PDF files' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      # Mock a non-PDF file
+      non_pdf_file = fixture_file_upload('doctors-note.gif')
+
+      # BenefitsIntakeService should not be called for non-PDF files
+      expect(BenefitsIntakeService::Service).not_to receive(:new)
+
+      data = { form_id: '40-0247', file: non_pdf_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.to change(PersistentAttachment, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'skips document validation for form types that do not require it' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      # BenefitsIntakeService should not be called for form 20-10207
+      expect(BenefitsIntakeService::Service).not_to receive(:new)
+
+      data = { form_id: '20-10207', file: valid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.to change(PersistentAttachment, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   describe '#get_intents_to_file' do
+    let(:participant_id) { '123456789' }
+    let(:mpi_profile) { build(:mpi_profile, participant_id:) }
+
     before do
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor')
-      sign_in
+      allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
+      sign_in(user)
+
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
     end
 
@@ -710,7 +802,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
   describe 'email confirmations' do
     let(:confirmation_number) { 'some_confirmation_number' }
-    let(:user) { build(:user) }
 
     before do
       sign_in(user)
@@ -898,7 +989,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         before do
           user = create(:user)
-          sign_in_as(user)
+          sign_in(user)
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
           allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow(VANotify::EmailJob).to receive(:perform_async)

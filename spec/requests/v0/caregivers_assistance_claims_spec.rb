@@ -242,7 +242,11 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
       subject
 
+      veteran_full_name = claim.veteran_data['fullName']
+      expected_filename = "10-10CG_#{veteran_full_name['first']}_#{veteran_full_name['last']}.pdf"
+
       expect(response).to have_http_status(:ok)
+      expect(response.headers['Content-Disposition']).to include("filename=\"#{expected_filename}\"")
       expect(response.headers['Content-Type']).to eq('application/pdf')
       expect(response.body).to start_with('%PDF')
 

@@ -33,7 +33,7 @@ module MedicalCopays
     ##
     # Format collection of facilities to match VBS response
     #
-    # @return [Array<Hash>]
+    # @return [Array<Lighthouse::Facilities::Facility>]
     #
     def list
       facilities.map do |facility|
@@ -41,8 +41,8 @@ module MedicalCopays
           'pH_AMT_DUE' => 0,
           'pS_STATEMENT_DATE' => Time.zone.today.strftime('%m%d%Y'),
           'station' => {
-            'facilitY_NUM' => facility['id'].sub('vha_', ''),
-            'city' => facility['address']['physical']['city'].upcase
+            'facilitY_NUM' => facility.id.sub('vha_', ''),
+            'city' => facility.address['physical']['city'].upcase
           }
         }
       end

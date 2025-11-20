@@ -6,12 +6,10 @@ require 'mhv/account_creation/service'
 describe V0::User::MHVUserAccountsController, type: :controller do
   let(:user) { build(:user, :loa3, icn:) }
   let(:icn) { '10101V964144' }
+  let(:user_account) { user.user_account }
+  let(:user_verification) { user.user_verification }
+  let(:user_credential_email) { user_verification.user_credential_email }
 
-  let!(:user_verification) do
-    create(:idme_user_verification, idme_uuid: user.idme_uuid, user_credential_email:, user_account:)
-  end
-  let(:user_credential_email) { create(:user_credential_email) }
-  let(:user_account) { create(:user_account, icn:) }
   let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:, response: terms_of_use_response) }
   let(:terms_of_use_response) { 'accepted' }
 

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe DeleteOldTransactionsJob do
   context 'if an exception happens' do
     before do
-      allow_any_instance_of(AsyncTransaction::Vet360::AddressTransaction)
+      allow_any_instance_of(AsyncTransaction::VAProfile::AddressTransaction)
         .to receive(:destroy!)
         .and_raise(ActiveRecord::RecordNotDestroyed, 'BOOM!')
     end

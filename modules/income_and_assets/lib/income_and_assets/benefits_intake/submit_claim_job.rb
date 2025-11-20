@@ -38,12 +38,11 @@ module IncomeAndAssets
       # @return [UUID] benefits intake upload uuid
       #
       def perform(saved_claim_id, user_account_uuid = nil)
-        return unless Flipper.enabled?(:pension_income_and_assets_clarification)
-
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: extras_redesign_enabled? }))
+        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
+                                                                 omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
 
@@ -56,7 +55,7 @@ module IncomeAndAssets
         @intake_service.uuid
       rescue => e
         monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
-        @form_submission_attempt&.fail!
+        @lighthouse_submission_attempt&.fail!
         raise e
       ensure
         cleanup_file_paths
@@ -117,6 +116,7 @@ module IncomeAndAssets
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+          nil.to_s, # => '00000'; zipcode is not present on the 0969 form
           self.class.to_s,
           @claim.form_id,
           @claim.business_line
@@ -127,7 +127,7 @@ module IncomeAndAssets
       def upload_document
         @intake_service.request_upload
         monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
-        form_submission_polling
+        lighthouse_submission_polling
 
         payload = {
           upload_url: @intake_service.location,
@@ -142,19 +142,18 @@ module IncomeAndAssets
       end
 
       # Insert submission polling entries
-      def form_submission_polling
-        form_submission = {
-          form_type: @claim.form_id,
-          form_data: @claim.to_json,
-          saved_claim: @claim,
-          saved_claim_id: @claim.id
+      def lighthouse_submission_polling
+        lighthouse_submission = {
+          form_id: @claim.form_id,
+          reference_data: @claim.to_json,
+          saved_claim: @claim
         }
-        form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
 
-        FormSubmissionAttempt.transaction do
-          @form_submission = FormSubmission.create(**form_submission)
-          @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission,
-                                                                  benefits_intake_uuid: @intake_service.uuid)
+        Lighthouse::SubmissionAttempt.transaction do
+          @lighthouse_submission = Lighthouse::Submission.create(**lighthouse_submission)
+          @lighthouse_submission_attempt =
+            Lighthouse::SubmissionAttempt.create(submission: @lighthouse_submission,
+                                                 benefits_intake_uuid: @intake_service.uuid)
         end
 
         Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
@@ -173,16 +172,6 @@ module IncomeAndAssets
         @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
       rescue => e
         monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
-      end
-
-      # Check if the extras redesign feature flag is enabled for the current user
-      #
-      # @return [Boolean]
-      def extras_redesign_enabled?
-        return false if @user_account_uuid.nil?
-
-        user = OpenStruct.new({ flipper_id: @user_account_uuid })
-        Flipper.enabled?(:pension_income_and_assets_overflow_pdf_redesign, user)
       end
     end
   end

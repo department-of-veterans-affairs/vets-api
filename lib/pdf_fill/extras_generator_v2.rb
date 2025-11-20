@@ -2,6 +2,8 @@
 
 module PdfFill
   class ExtrasGeneratorV2 < ExtrasGenerator
+    attr_reader :section_coordinates, :use_hexapdf
+
     HEADER_FONT_SIZE = 14.5
     SUBHEADER_FONT_SIZE = 10.5
     FOOTER_FONT_SIZE = 9
@@ -11,27 +13,37 @@ module PdfFill
     MEAN_CHAR_WIDTH = 4.5
     HEADER_BODY_GAP = 25
     BODY_FOOTER_GAP = 27
+    # Constants for the back to section link text boxes
+    BOUNDING_BOX_X_OFFSET = 20
+    BOUNDING_BOX_Y_OFFSET = 5
+    BOUNDING_BOX_HEIGHT = 15
+    FORMATTED_TEXT_BOX_X = 0
+    FORMATTED_TEXT_BOX_Y = 7
+    TEXT_SIZE = 10.5
+    TEXT_COLOR = '005EA2'
 
     class Question
-      attr_accessor :section_index, :overflow
+      attr_accessor :section_index, :overflow, :config, :index
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, config = nil, index = nil)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
         @subquestions = []
         @overflow = false
         @show_suffix = metadata[:show_suffix] || false
+        @config = config
+        @index = index
       end
 
       def numbered_label_markup
-        suffix = if @show_suffix && @subquestions.size == 1
-                   @subquestions.first[:metadata][:question_suffix]&.downcase
-                 else
-                   ''
-                 end
-        prefix = @number.to_i == @number ? "#{@number.to_i}#{suffix}. " : ''
-        "<h3>#{prefix}#{@text}</h3>"
+        hide_number = config&.dig(:hide_question_num) || false
+        return "<h3>#{@text}</h3>" if hide_number || @number.blank?
+
+        show_suffix = @subquestions.first&.dig(:metadata, :show_suffix)
+        suffix = @subquestions.first&.dig(:metadata, :question_suffix)
+        suffix_part = show_suffix && suffix.present? ? suffix.to_s.downcase : ''
+        "<h3>#{@number}#{suffix_part}. #{@text}</h3>"
       end
 
       def add_text(value, metadata)
@@ -196,7 +208,7 @@ module PdfFill
     class CheckedDescriptionQuestion < Question
       attr_reader :description, :additional_info
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, config = nil, index = nil)
         super
         @description = nil
         @additional_info = nil
@@ -258,7 +270,7 @@ module PdfFill
     class ListQuestion < Question
       attr_reader :items, :item_label
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, config = nil, index = nil)
         super
         @item_label = metadata[:item_label]
         @items = []
@@ -272,9 +284,9 @@ module PdfFill
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
           @items[i] = if metadata[:question_type] == 'checked_description'
-                        CheckedDescriptionQuestion.new(nil, metadata)
+                        CheckedDescriptionQuestion.new(nil, metadata, config, index)
                       else
-                        Question.new(nil, metadata)
+                        Question.new(nil, metadata, config, index)
                       end
         end
 
@@ -351,8 +363,11 @@ module PdfFill
       @start_page             = options[:start_page] || 1
       @sections               = options[:sections]
       @default_label_width    = options[:label_width] || LABEL_WIDTH
+      @show_jumplinks         = options[:show_jumplinks] || false
+      @section_coordinates    = options[:section_coordinates] || []
+      @use_hexapdf            = options[:use_hexapdf] || false
       @questions              = {}
-      super()
+      super(options)
     end
 
     def placeholder_text
@@ -369,37 +384,58 @@ module PdfFill
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
 
-      value = apply_humanization(value, metadata[:format_options])
+      question_index = find_question_index(metadata)
+      return unless question_index
 
-      question_num = metadata[:question_num]
+      config = @question_key[question_index]
+      question_num = config[:question_number]
+
       if @questions[question_num].blank?
-        question_text = @question_key[question_num]
-        @questions[question_num] = get_question(question_text, metadata)
+        @questions[question_num] = get_question(config[:question_text], metadata, config, question_index)
       end
 
-      @questions[question_num].add_text(value, metadata)
+      value = apply_humanization(value, metadata[:format_options])
+      @questions[question_num]&.add_text(value, metadata)
     end
 
-    def get_question(question_text, metadata)
+    def get_question(question_text, metadata, config = nil, index = nil)
       if metadata[:i].blank?
         case metadata[:question_type]
         when 'free_text'
-          FreeTextQuestion.new(question_text, metadata)
+          FreeTextQuestion.new(question_text, metadata, config, index)
         when 'checked_description'
-          CheckedDescriptionQuestion.new(question_text, metadata)
+          CheckedDescriptionQuestion.new(question_text, metadata, config, index)
         else
-          Question.new(question_text, metadata)
+          Question.new(question_text, metadata, config, index)
         end
       else
-        ListQuestion.new(question_text, metadata)
+        ListQuestion.new(question_text, metadata, config, index)
       end
+    end
+
+    def find_question_index(metadata)
+      question_num = metadata[:question_num].to_s.downcase
+      suffix = metadata[:question_suffix].to_s.downcase
+      full_question_key = "#{question_num}#{suffix}".downcase
+
+      # First try to find exact match with suffix
+      exact_match = @question_key.each_with_index.find do |q, _index|
+        q[:question_number].to_s.downcase == full_question_key
+      end
+
+      return exact_match.last if exact_match
+
+      # Fall back to match without suffix
+      @question_key.each_with_index.find do |q, _index|
+        q[:question_number].to_s.downcase == question_num
+      end&.last
     end
 
     def populate_section_indices!
       return if @sections.blank?
 
       @questions.each do |num, question|
-        question.section_index = @sections.index { |sec| sec[:question_nums].include?(num) }
+        question.section_index = @sections.index { |sec| sec[:question_nums].include?(num.to_s) }
       end
     end
 
@@ -409,7 +445,9 @@ module PdfFill
 
     def sort_generate_blocks
       populate_section_indices!
-      @questions.keys.sort.map { |qnum| @questions[qnum] }.filter(&:overflow)
+      @questions.values
+                .select(&:overflow)
+                .sort_by(&:index)
     end
 
     def measure_section_header_height(temp_pdf, section_index)
@@ -516,8 +554,7 @@ module PdfFill
     end
 
     def render_question(pdf, block, section_index, current_section_index, block_heights)
-      page_break_inserted = handle_regular_question_page_break(pdf, block, section_index, block_heights)
-      current_section_index = nil if page_break_inserted
+      handle_regular_question_page_break(pdf, block, section_index, block_heights)
       current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
       block.render(pdf)
 
@@ -525,8 +562,7 @@ module PdfFill
     end
 
     def render_list_question(pdf, block, section_index, current_section_index, block_heights)
-      page_break_inserted = handle_list_title_page_break(pdf, block, section_index, block_heights)
-      current_section_index = nil if page_break_inserted
+      handle_list_title_page_break(pdf, block, section_index, block_heights)
       current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
       block.render_title(pdf)
       render_list_items(pdf, block, block_heights)
@@ -546,10 +582,68 @@ module PdfFill
            end
     end
 
+    def calculate_text_box_position(pdf, section_label, start_y, section)
+      x_same_line_placement = pdf.width_of(section[:label].to_s) + BOUNDING_BOX_X_OFFSET
+      y_same_line_placement = start_y - BOUNDING_BOX_Y_OFFSET
+      {
+        width: pdf.width_of("Back to #{section_label}"),
+        x: section[:link_next_line] ? pdf.bounds.left - 10 : x_same_line_placement,
+        y: section[:link_next_line] ? start_y + 3 : y_same_line_placement
+      }
+    end
+
+    def create_formatted_text_options(return_text)
+      [{
+        text: return_text,
+        color: TEXT_COLOR,
+        size: TEXT_SIZE,
+        styles: [:underline]
+      }]
+    end
+
+    def render_back_to_section_text(pdf, section_index, start_y)
+      section = @sections[section_index]
+      return unless %i[page dest_name dest_y_coord].all? { |key| section.key?(key) }
+
+      short_section_label = section[:label].split(':')[0]
+      box_position = calculate_text_box_position(pdf, short_section_label, start_y, section)
+      pdf.bounding_box(
+        [box_position[:x], box_position[:y]],
+        width: box_position[:width],
+        height: BOUNDING_BOX_HEIGHT
+      ) do
+        pdf.formatted_text_box(
+          create_formatted_text_options("Back to #{short_section_label}"),
+          at: [FORMATTED_TEXT_BOX_X, FORMATTED_TEXT_BOX_Y],
+          width: box_position[:width],
+          height: BOUNDING_BOX_HEIGHT,
+          align: :right
+        )
+      end
+
+      store_section_coordinates(pdf, section_index, box_position)
+    end
+
+    def store_section_coordinates(pdf, section_index, box_position)
+      (@section_coordinates ||= []) << {
+        section: section_index,
+        page: pdf.page_count,
+        x: box_position[:x] + 45,
+        y: box_position[:y] + 40,
+        width: box_position[:width],
+        height: 20,
+        dest: @sections[section_index][:dest_name]
+      }
+    end
+
     def render_new_section(pdf, section_index)
       return if @sections.blank?
 
+      start_y = pdf.cursor # gets the starting position to align the return text with the section header
       pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
+      start_y = pdf.cursor if section_index == 2
+
+      render_back_to_section_text(pdf, section_index, start_y) if @show_jumplinks
     end
 
     def set_header(pdf)

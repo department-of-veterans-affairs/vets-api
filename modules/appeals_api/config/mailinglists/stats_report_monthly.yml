@@ -1,8 +1,13 @@
 common:
-  - michel.mcdonald@adhocteam.us
   - kristen.brown@adhocteam.us
-  - matt.kelly@adhocteam.us
-  - gia.antoniades@adhocteam.us
+  - mmcdonald@technatomy.com
+  - pstevens@technatomy.com
+  - alattimore@technatomy.com
+  - dorner_brandon@bah.com
+  - eshvimmer@deloitte.com
+  - slamsal@deloitte.com
+  - mughumman@deloitte.com
+  - mbavanaka@deloitte.com
 development:
 staging:
 production:

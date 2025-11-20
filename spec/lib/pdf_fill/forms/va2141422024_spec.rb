@@ -20,11 +20,22 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#merge_fields' do
-    it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
-      .merge_fields.to_json)).to eq(
-        JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
-      )
+    context 'form data with a domestic phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
+        )
+      end
+    end
+
+    context 'form data with an international phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink_intl_phone'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields_intl_phone').to_json)
+        )
+      end
     end
   end
 
@@ -170,13 +181,7 @@ describe PdfFill::Forms::Va2141422024 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                              'phone_last_four_numbers' => '1234' },
-          'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' }
+                              'phone_last_four_numbers' => '1234' }
         )
       end
     end
@@ -510,7 +515,7 @@ describe PdfFill::Forms::Va2141422024 do
 
           Conditions Treated: Hypertension
 
-          Treatment Date Ranges: from: 2010-01-01 to: 2011-01-01
+          Treatment Date Ranges: from: 01-01-2010 to: 01-01-2011
         TEXT
 
         expect(overflow_text1).to include('Provider or Facility Name:')
@@ -518,7 +523,7 @@ describe PdfFill::Forms::Va2141422024 do
         expect(overflow_text1).to include('Address:')
         expect(overflow_text1).to include('Conditions Treated: Hypertension')
         expect(overflow_text1).to include('Treatment Date Ranges:')
-        expect(overflow_text1).to include('from: 2010-01-01 to: 2011-01-01')
+        expect(overflow_text1).to include('from: 01-01-2010 to: 01-01-2011')
 
         # Provider 2: Long address should overflow
         expect(form_data_result['provider2']['completeProviderInfo']).to be_present
@@ -534,7 +539,7 @@ describe PdfFill::Forms::Va2141422024 do
 
           Conditions Treated: Diabetes Type 2
 
-          Treatment Date Ranges: from: 2011-01-01 to: 2012-01-01
+          Treatment Date Ranges: from: 01-01-2011 to: 01-01-2012
         TEXT
 
         expect(overflow_text2).to include('Conditions Treated:')
@@ -650,7 +655,303 @@ describe PdfFill::Forms::Va2141422024 do
     end
   end
 
-  describe '#combine_date_ranges' do
+  describe 'PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX constant' do
+    it 'has the correct value of 60' do
+      expect(described_class::PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX).to eq(60)
+    end
+  end
+
+  describe '#provider_info_overflows?' do
+    context 'with provider name exactly at the 60 character limit' do
+      let(:provider_data) do
+        {
+          'providerFacilityName' => 'a' * 60,
+          'conditionsTreated' => 'Condition',
+          'addressOverflows' => false
+        }
+      end
+
+      it 'does not consider this as overflowing' do
+        result = new_form_class.send(:provider_info_overflows?, provider_data)
+        expect(result).to be false
+      end
+    end
+
+    context 'with provider name exceeding the 60 character limit' do
+      let(:provider_data) do
+        {
+          'providerFacilityName' => 'a' * 61,
+          'conditionsTreated' => 'Condition',
+          'addressOverflows' => false
+        }
+      end
+
+      it 'considers this as overflowing' do
+        result = new_form_class.send(:provider_info_overflows?, provider_data)
+        expect(result).to be true
+      end
+    end
+
+    context 'with conditions treated exactly at the 60 character limit' do
+      let(:provider_data) do
+        {
+          'providerFacilityName' => 'Provider Name',
+          'conditionsTreated' => 'a' * 60,
+          'addressOverflows' => false
+        }
+      end
+
+      it 'does not consider this as overflowing' do
+        result = new_form_class.send(:provider_info_overflows?, provider_data)
+        expect(result).to be false
+      end
+    end
+
+    context 'with conditions treated exceeding the 60 character limit' do
+      let(:provider_data) do
+        {
+          'providerFacilityName' => 'Provider Name',
+          'conditionsTreated' => 'a' * 61,
+          'addressOverflows' => false
+        }
+      end
+
+      it 'considers this as overflowing' do
+        result = new_form_class.send(:provider_info_overflows?, provider_data)
+        expect(result).to be true
+      end
+    end
+
+    context 'with addressOverflows set to true' do
+      let(:provider_data) do
+        {
+          'providerFacilityName' => 'Short Name',
+          'conditionsTreated' => 'Short Condition',
+          'addressOverflows' => true
+        }
+      end
+
+      it 'considers this as overflowing regardless of name/condition length' do
+        result = new_form_class.send(:provider_info_overflows?, provider_data)
+        expect(result).to be true
+      end
+    end
+
+    context 'with nil provider name and conditions' do
+      let(:provider_data) do
+        {
+          'providerFacilityName' => nil,
+          'conditionsTreated' => nil,
+          'addressOverflows' => false
+        }
+      end
+
+      it 'does not consider this as overflowing' do
+        result = new_form_class.send(:provider_info_overflows?, provider_data)
+        expect(result).to be false
+      end
+    end
+  end
+
+  describe 'overflow behavior with 60 character limit' do
+    context 'when provider name is exactly 60 characters' do
+      let(:form_data) do
+        {
+          'providerFacility' => [
+            {
+              'providerFacilityName' => 'a' * 60,
+              'conditionsTreated' => 'Hypertension',
+              'treatmentDateRange' => [{ 'from' => '2020-01-01', 'to' => '2021-01-01' }],
+              'providerFacilityAddress' => {
+                'street' => '123 Main St',
+                'city' => 'Baltimore',
+                'state' => 'MD',
+                'country' => 'USA',
+                'postalCode' => '21201'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'does not generate overflow content' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        expect(form_data_result['provider1']).not_to have_key('completeProviderInfo')
+        expect(form_data_result['provider1']['providerFacilityName']).to eq('a' * 60)
+      end
+    end
+
+    context 'when provider name is 61 characters (exceeds limit)' do
+      let(:form_data) do
+        {
+          'providerFacility' => [
+            {
+              'providerFacilityName' => 'a' * 61,
+              'conditionsTreated' => 'Hypertension',
+              'treatmentDateRange' => [{ 'from' => '2020-01-01', 'to' => '2021-01-01' }],
+              'providerFacilityAddress' => {
+                'street' => '123 Main St',
+                'city' => 'Baltimore',
+                'state' => 'MD',
+                'country' => 'USA',
+                'postalCode' => '21201'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'generates overflow content' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        expect(form_data_result['provider1']).to have_key('completeProviderInfo')
+        overflow_text = form_data_result['provider1']['completeProviderInfo'][0]['extras_value']
+        expect(overflow_text).to include("Provider or Facility Name: #{'a' * 61}")
+        expect(overflow_text).to include('Conditions Treated: Hypertension')
+      end
+    end
+
+    context 'when conditions treated is exactly 60 characters' do
+      let(:form_data) do
+        {
+          'providerFacility' => [
+            {
+              'providerFacilityName' => 'Provider Name',
+              'conditionsTreated' => 'b' * 60,
+              'treatmentDateRange' => [{ 'from' => '2020-01-01', 'to' => '2021-01-01' }],
+              'providerFacilityAddress' => {
+                'street' => '123 Main St',
+                'city' => 'Baltimore',
+                'state' => 'MD',
+                'country' => 'USA',
+                'postalCode' => '21201'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'does not generate overflow content' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        expect(form_data_result['provider1']).not_to have_key('completeProviderInfo')
+        expect(form_data_result['provider1']['conditionsTreated']).to eq('b' * 60)
+      end
+    end
+
+    context 'when conditions treated is 61 characters (exceeds limit)' do
+      let(:form_data) do
+        {
+          'providerFacility' => [
+            {
+              'providerFacilityName' => 'Provider Name',
+              'conditionsTreated' => 'b' * 61,
+              'treatmentDateRange' => [{ 'from' => '2020-01-01', 'to' => '2021-01-01' }],
+              'providerFacilityAddress' => {
+                'street' => '123 Main St',
+                'city' => 'Baltimore',
+                'state' => 'MD',
+                'country' => 'USA',
+                'postalCode' => '21201'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'generates overflow content' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        expect(form_data_result['provider1']).to have_key('completeProviderInfo')
+        overflow_text = form_data_result['provider1']['completeProviderInfo'][0]['extras_value']
+        expect(overflow_text).to include('Provider or Facility Name: Provider Name')
+        expect(overflow_text).to include("Conditions Treated: #{'b' * 61}")
+      end
+    end
+
+    context 'when both provider name and conditions treated exceed 60 characters' do
+      let(:form_data) do
+        {
+          'providerFacility' => [
+            {
+              'providerFacilityName' => 'c' * 61,
+              'conditionsTreated' => 'd' * 61,
+              'treatmentDateRange' => [{ 'from' => '2020-01-01', 'to' => '2021-01-01' }],
+              'providerFacilityAddress' => {
+                'street' => '123 Main St',
+                'city' => 'Baltimore',
+                'state' => 'MD',
+                'country' => 'USA',
+                'postalCode' => '21201'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'generates overflow content with both fields' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        expect(form_data_result['provider1']).to have_key('completeProviderInfo')
+        overflow_text = form_data_result['provider1']['completeProviderInfo'][0]['extras_value']
+        expect(overflow_text).to include("Provider or Facility Name: #{'c' * 61}")
+        expect(overflow_text).to include("Conditions Treated: #{'d' * 61}")
+      end
+    end
+  end
+
+  describe 'PROVIDER_KEYS constant field limits' do
+    it 'uses the correct limit for providerFacilityName fields' do
+      provider_keys = described_class::PROVIDER_KEYS
+
+      # Check provider1 through provider5
+      (1..5).each do |i|
+        provider_field = provider_keys["provider#{i}"]
+        expect(provider_field['providerFacilityName'][:limit]).to eq(60)
+      end
+    end
+
+    it 'uses the correct limit for conditionsTreated fields' do
+      provider_keys = described_class::PROVIDER_KEYS
+
+      # Check provider1 through provider5
+      (1..5).each do |i|
+        provider_field = provider_keys["provider#{i}"]
+        expect(provider_field['conditionsTreated'][:limit]).to eq(60)
+      end
+    end
+  end
+
+  describe 'ADDITIONAL_PROVIDER_KEYS constant field limits' do
+    it 'has the correct structure for overflow providers' do
+      additional_provider_keys = described_class::ADDITIONAL_PROVIDER_KEYS
+
+      # Check a few key additional providers to verify they have the correct structure
+      [6, 7, 8, 15, 25, 50].each do |i|
+        provider_field = additional_provider_keys["additionalProvider#{i}"]
+        expect(provider_field).to have_key('completeProviderInfo')
+        expect(provider_field['completeProviderInfo']).to have_key(:always_overflow)
+        expect(provider_field['completeProviderInfo'][:always_overflow]).to be true
+      end
+    end
+
+    it 'creates keys for providers 6 through 50' do
+      additional_provider_keys = described_class::ADDITIONAL_PROVIDER_KEYS
+
+      # Check that all expected provider keys exist
+      (6..50).each do |i|
+        expect(additional_provider_keys).to have_key("additionalProvider#{i}")
+      end
+    end
+  end
+
+  describe '#combine_date_ranges_for_overflow' do
     it 'combines multiple date ranges correctly' do
       date_ranges = [
         {
@@ -662,8 +963,8 @@ describe PdfFill::Forms::Va2141422024 do
           'to' => '1987-1-1'
         }
       ]
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
-        "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq(
+        "from: 01-01-1980 to: 01-01-1985\nfrom: 01-01-1986 to: 01-01-1987"
       )
     end
 
@@ -674,14 +975,19 @@ describe PdfFill::Forms::Va2141422024 do
           'to' => '1985-1-1'
         }
       ]
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
-        'from: 1980-1-1 to: 1985-1-1'
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq(
+        'from: 01-01-1980 to: 01-01-1985'
       )
     end
 
     it 'handles no date ranges' do
       date_ranges = []
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq('')
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq('')
+    end
+
+    it 'handles nil date ranges' do
+      date_ranges = nil
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq('')
     end
   end
 end

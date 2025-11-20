@@ -4,67 +4,47 @@ module AccreditedRepresentativePortal
   class ClaimantRepresentative <
     Data.define(
       :claimant_id,
-      :power_of_attorney_holder_type,
-      :power_of_attorney_holder_poa_code,
-      :accredited_individual_registration_number
+      :accredited_individual_registration_number,
+      :power_of_attorney_holder
     )
-
     class << self
-      def find(&)
-        Finder.new.tap(&).perform
+      def find(...)
+        Finder.new(...).perform
       end
     end
 
     class Finder
       Error = Class.new(RuntimeError)
 
+      def initialize(claimant_icn:, power_of_attorney_holder_memberships:)
+        @claimant =
+          Claimant.new(icn: claimant_icn)
+
+        @power_of_attorney_holder_memberships =
+          power_of_attorney_holder_memberships
+      end
+
       def perform
-        unless [@claimant, @representative].all?(&:present?)
-          raise ArgumentError, <<~MSG.squish
-            all of `claimant' and `representative'
-            must be present
-          MSG
-        end
+        @claimant.poa_code.present? or
+          return nil
 
-        poa_holder = @claimant.power_of_attorney_holder
-        poa_holders = @representative.power_of_attorney_holders
+        membership =
+          @power_of_attorney_holder_memberships.find(
+            @claimant.poa_code
+          )
 
-        poa_holders.each do |h|
-          ##
-          # Might be nice to instead have a `PowerOfAttorneyHolder#==` with a
-          # semantics that matches what is needed here.
-          #
-          next unless h.poa_code == poa_holder.poa_code
-          next unless h.type == poa_holder.type
+        membership.present? or
+          return nil
 
-          return build(h)
-        end
-
-        nil
-      rescue
-        raise Error
-      end
-
-      def for_claimant(...)
-        @claimant = Claimant.new(...)
-      end
-
-      def for_representative(...)
-        @representative = Representative.new(...)
-      end
-
-      private
-
-      def build(poa_holder)
         ClaimantRepresentative.new(
           claimant_id: @claimant.id,
-          power_of_attorney_holder_type: poa_holder.type,
-          power_of_attorney_holder_poa_code: poa_holder.poa_code,
           accredited_individual_registration_number:
-            @representative.get_registration_number(
-              poa_holder.type
-            )
+            membership.registration_number,
+          power_of_attorney_holder:
+            membership.power_of_attorney_holder
         )
+      rescue
+        raise Error
       end
     end
 
@@ -83,24 +63,16 @@ module AccreditedRepresentativePortal
 
       delegate :id, to: :identifier
 
-      def power_of_attorney_holder
-        @power_of_attorney_holder ||= begin
-          service = BenefitsClaims::Service.new(identifier.icn)
-          response = service.get_power_of_attorney['data']
+      def poa_code
+        defined?(@poa_code) and
+          return @poa_code
 
-          ##
-          # Also, the API does not fully distinguish types like we do. The value
-          # 'individual' is returned for both claims agents and attorneys.
-          #
-          response['type'] == 'organization' or
-            raise 'Unsupported power of attorney holder type'
-
-          PowerOfAttorneyHolder.new(
-            type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
-            poa_code: response.dig('attributes', 'code'),
-            can_accept_digital_poa_requests: nil
-          )
-        end
+        @poa_code =
+          begin
+            service = BenefitsClaims::Service.new(identifier.icn)
+            response = service.get_power_of_attorney['data'].to_h
+            response.dig('attributes', 'code')
+          end
       end
 
       private
@@ -111,31 +83,6 @@ module AccreditedRepresentativePortal
             IcnTemporaryIdentifier.find_or_create_by(icn: @icn)
           else
             IcnTemporaryIdentifier.find(@id)
-          end
-      end
-    end
-
-    class Representative
-      def initialize(icn:, email:, all_emails:)
-        @icn = icn
-        @email = email
-        @all_emails = all_emails
-      end
-
-      delegate(
-        :get_registration_number,
-        to: :representative_user_account
-      )
-
-      delegate :power_of_attorney_holders, to: :representative_user_account
-
-      private
-
-      def representative_user_account
-        @representative_user_account ||=
-          RepresentativeUserAccount.find_by!(icn: @icn).tap do |account|
-            account.set_email(@email)
-            account.set_all_emails(@all_emails)
           end
       end
     end

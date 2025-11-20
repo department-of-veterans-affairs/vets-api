@@ -12,6 +12,8 @@ module PdfFill
       include FormHelper
       include FormHelper::PhoneNumberFormatting
 
+      PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX = 60
+
       # rubocop:disable Metrics/BlockLength
       # rubocop:disable Layout/LineLength
 
@@ -30,7 +32,7 @@ module PdfFill
         # 1-based array indexing seems more intuitive here
         keys["provider#{provider_index + 1}"] = {
           'providerFacilityName' => {
-            limit: 100,
+            limit: PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX,
             key: "F[0].#subform[#{subform_num}].Provider_Or_Facility_Name[#{provider_index}]",
             question_num:,
             question_suffix: 'A',
@@ -38,7 +40,7 @@ module PdfFill
             hide_from_overflow: true
           },
           'conditionsTreated' => {
-            limit: 100,
+            limit: PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX,
             key: "F[0].#subform[#{subform_num}].Conditions_You_Are_Being_Treated_For[#{provider_index}]",
             question_num:,
             question_suffix: 'B',
@@ -259,7 +261,10 @@ module PdfFill
           }
         },
         'internationalPhoneNumber' => {
-          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]'
+          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]',
+          limit: 14,
+          question_text: 'International Phone Number',
+          question_num: 7
         },
         'email' => {
           key: 'F[0].Page_1[0].E_Mail_Address[0]',
@@ -396,11 +401,9 @@ module PdfFill
 
       def expand_phone_number_field
         phone = @form_data['veteranPhone']
-        return if phone.blank?
+        return nil if phone.blank?
 
-        ['', '1', '2', '3'].each do |suffix|
-          @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone)
-        end
+        @form_data['veteranPhone'] = expand_phone_number(phone)
       end
 
       def expand_claimant_address
@@ -517,14 +520,15 @@ module PdfFill
       end
 
       def provider_info_overflows?(provider)
-        provider['addressOverflows'] || (provider['providerFacilityName']&.size || 0) > 100 ||
-          (provider['conditionsTreated']&.size || 0) > 100
+        provider['addressOverflows'] ||
+          (provider['providerFacilityName']&.size || 0) > PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX ||
+          (provider['conditionsTreated']&.size || 0) > PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX
       end
 
       def generate_overflow_provider_info(provider)
         # Combine the provider name, address, and treatment dates into a single string for the overflow page
         address = combine_full_address_extras(provider['providerFacilityAddress'])
-        dates = combine_date_ranges(provider['treatmentDateRange'])
+        dates = combine_date_ranges_for_overflow(provider['treatmentDateRange'])
 
         provider_info_text = <<~TEXT.chomp
           Provider or Facility Name: #{provider['providerFacilityName']}
@@ -537,6 +541,24 @@ module PdfFill
         TEXT
 
         provider['completeProviderInfo'] = [PdfFill::FormValue.new('', provider_info_text)]
+      end
+
+      def combine_date_ranges_for_overflow(date_range_array)
+        return '' if date_range_array.nil?
+
+        date_range_array.filter_map do |range|
+          next unless range
+
+          "from: #{format_date_to_pdf(range['from'])} to: #{format_date_to_pdf(range['to'])}"
+        end.join("\n")
+      end
+
+      def format_date_to_pdf(date_string)
+        return date_string if date_string.blank?
+
+        # let it raise an error if the date_string is not a valid date
+        date = Date.parse(date_string)
+        date.strftime('%m-%d-%Y')
       end
 
       def expand_providers

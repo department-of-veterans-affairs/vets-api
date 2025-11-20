@@ -90,20 +90,6 @@
                 }
               }
             },
-            "account": {
-              "type": "object",
-              "required": [
-                "accountUuid"
-              ],
-              "properties": {
-                "accountUuid": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                }
-              }
-            },
             "profile": {
               "type": "object",
               "required": [

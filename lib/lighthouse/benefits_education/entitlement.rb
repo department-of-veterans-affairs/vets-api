@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module BenefitsEducation
   ##
@@ -10,7 +10,9 @@ module BenefitsEducation
   #   @return [Integer] Number of months in the entitlement
   # @!attribute days
   #   @return [Integer] Number of days in the entitlement
-  class Entitlement < Common::Base
+  class Entitlement
+    include Vets::Model
+
     attribute :months, Integer
     attribute :days, Integer
   end

@@ -178,10 +178,15 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 1 * * *', 'TransactionalEmailAnalyticsJob')
 
   # Disable FeatureCleanerJob. https://github.com/department-of-veterans-affairs/va.gov-team/issues/53538
-  # mgr.register('0 0 * * *', 'FeatureCleanerJob')
+  # Enabling FeatureCleanerJob for logging
+  # Features will not be removed when the job is executed
+  mgr.register('0 0 * * *', 'FeatureCleanerJob')
 
   # Request updated statuses for benefits intake submissions
   mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
+
+  # Request updated statuses for benefits intake submissions with upstream processing errors
+  mgr.register('13 */6 * * *', 'VBADocuments::UploadStatusErrorBatch')
 
   # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
@@ -214,6 +219,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
   # Updates veteran organizations address attributes (including lat, long, location, address fields)
   mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
+  # Updates all accredited entities (agents, attorneys, representatives, veteran service organizations)
+  mgr.register('0 4 * * *', 'RepresentationManagement::AccreditedEntitiesQueueUpdates')
 
   # Sends emails to power of attorney claimants whose request will expire in 30 days
   mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpirationReminderEmailJob')
@@ -230,6 +237,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
+  # Every day job at 1:30am that sends IVC CHAMPVA form insights data to DataDog
+  mgr.register('30 1 * * *', 'IvcChampva::InsightsDatadogJob')
+
   # Every hour job that retries failed VES submissions
   mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
 
@@ -239,6 +249,12 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
 
+  # Expire stale POA request records every night at 12:30 AM
+  mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
+
+  # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
+  mgr.register('0 1 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
+
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
   mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
@@ -247,16 +263,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Engine version: Clean SavedClaim records that are past delete date
   mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
 
+  # Engine version: Clean SecondaryAppealForm records that are past delete date (weekly due to lower volume)
+  mgr.register('30 5 * * 0', 'DecisionReviews::DeleteSecondaryAppealFormsJob')
+
   # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
-
-  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
-  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
-  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-  # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
-  mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
-  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
-  mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 
   # Daily cleanup of > 12 month old UserAction records
   mgr.register('45 3 * * *', 'UserActionsCleanupJob')
@@ -269,4 +280,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
+
+  # Daily cron job to check for PDF Form version changes
+  mgr.register('0 12 * * *', 'FormPdfChangeDetectionJob')
+
+  # Hourly job to cache facility names for UHD prescriptions
+  # Runs at 37 minutes past the hour to avoid resource contention
+  mgr.register('37 * * * *', 'UnifiedHealthData::FacilityNameCacheJob')
 }

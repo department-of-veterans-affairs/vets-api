@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/models/shared_examples/submission'
 
 RSpec.describe Lighthouse::Submission, type: :model do
-  it { is_expected.to validate_presence_of :form_id }
+  it_behaves_like 'a Submission model'
 end

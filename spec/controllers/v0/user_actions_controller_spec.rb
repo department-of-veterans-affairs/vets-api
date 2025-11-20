@@ -6,9 +6,8 @@ RSpec.describe V0::UserActionsController, type: :controller do
   describe 'GET #index' do
     subject(:index_request) { get :index, params: request_params }
 
-    let(:idme_uuid) { 'some-idme-uuid' }
-    let(:user) { create(:user, idme_uuid:) }
-    let!(:subject_user_verification) { create(:idme_user_verification, idme_uuid:) }
+    let(:user) { create(:user) }
+    let!(:subject_user_verification) { user.user_verification }
 
     let(:page) { nil }
     let(:per_page) { nil }

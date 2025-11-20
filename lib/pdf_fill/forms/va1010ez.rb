@@ -237,7 +237,7 @@ module PdfFill
       end
 
       def merge_dependents
-        merge_value('provideSupportLastYear', :map_radio_box_value)
+        merge_provide_support_last_year
 
         return if @form_data['dependents'].blank?
 
@@ -251,29 +251,55 @@ module PdfFill
         end
       end
 
+      # True if either `provideSupportLastYear` (spouse) or any of dependents `receivedSupportLastYear` is true
+      def merge_provide_support_last_year
+        if @form_data['dependents'].blank?
+          merge_value('provideSupportLastYear', :map_radio_box_value)
+          return
+        end
+
+        dependent_received_support = @form_data['dependents'].any? do |dependent|
+          dependent['receivedSupportLastYear']
+        end
+
+        @form_data['provideSupportLastYear'] =
+          map_radio_box_value(@form_data['provideSupportLastYear'] || dependent_received_support)
+      end
+
       def merge_single_dependent
-        dependent = @form_data['dependents'].first
+        dependent_copy = @form_data['dependents'][0].deep_dup
 
-        dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
-        dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
-        dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
+        dependent_copy['fullName'] = FORMATTER.format_full_name(dependent_copy['fullName'])
+        dependent_copy['dateOfBirth'] = FORMATTER.format_date(dependent_copy['dateOfBirth'])
+        dependent_copy['becameDependent'] = FORMATTER.format_date(dependent_copy['becameDependent'])
 
-        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent['dependentRelation']] || OFF
-        dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
-        dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
-        dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
+        dependent_copy['receivedSupportLastYear'] =
+          map_check_box(dependent_copy['receivedSupportLastYear'])
+        dependent_copy['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent_copy['dependentRelation']] || OFF
+        dependent_copy['attendedSchoolLastYear'] = map_radio_box_value(dependent_copy['attendedSchoolLastYear'])
+        dependent_copy['disabledBefore18'] = map_radio_box_value(dependent_copy['disabledBefore18'])
+        dependent_copy['cohabitedLastYear'] = map_radio_box_value(dependent_copy['cohabitedLastYear'])
+
+        @form_data['dependents'][0] = dependent_copy
       end
 
       def merge_multiple_dependents
-        @form_data['dependents'].each do |dependent|
-          dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
-          dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
-          dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
+        @form_data['dependents'] = @form_data['dependents'].map do |dependent|
+          dependent_copy = dependent.deep_dup
 
-          dependent['dependentEducationExpenses'] = FORMATTER.format_currency(dependent['dependentEducationExpenses'])
-          dependent['grossIncome'] = FORMATTER.format_currency(dependent['grossIncome'])
-          dependent['netIncome'] = FORMATTER.format_currency(dependent['netIncome'])
-          dependent['otherIncome'] = FORMATTER.format_currency(dependent['otherIncome'])
+          dependent_copy['fullName'] = FORMATTER.format_full_name(dependent_copy['fullName'])
+          dependent_copy['dateOfBirth'] = FORMATTER.format_date(dependent_copy['dateOfBirth'])
+          dependent_copy['becameDependent'] = FORMATTER.format_date(dependent_copy['becameDependent'])
+
+          dependent_copy['dependentEducationExpenses'] = FORMATTER.format_currency(
+            dependent_copy['dependentEducationExpenses']
+          )
+          dependent_copy['receivedSupportLastYear'] = map_check_box(dependent_copy['receivedSupportLastYear'])
+          dependent_copy['grossIncome'] = FORMATTER.format_currency(dependent_copy['grossIncome'])
+          dependent_copy['netIncome'] = FORMATTER.format_currency(dependent_copy['netIncome'])
+          dependent_copy['otherIncome'] = FORMATTER.format_currency(dependent_copy['otherIncome'])
+
+          dependent_copy
         end
       end
 

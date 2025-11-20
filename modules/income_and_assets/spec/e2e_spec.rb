@@ -12,12 +12,15 @@ RSpec.describe 'Income and Assets End to End', type: :request do
   let(:pdf_path) { 'random/path/to/pdf' }
   let(:monitor) { IncomeAndAssets::Monitor.new }
   let(:service) { BenefitsIntake::Service.new }
+  let(:vanotify) { double(send_email: true) }
 
   let(:stats_key) { BenefitsIntake::SubmissionStatusJob::STATS_KEY }
 
   before do
     allow(IncomeAndAssets::Monitor).to receive(:new).and_return(monitor)
     allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+
+    allow(VaNotify::Service).to receive(:new).and_return(vanotify)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
     allow(Flipper).to receive(:enabled?).with(:income_and_assets_submitted_email_notification).and_return true
@@ -51,8 +54,8 @@ RSpec.describe 'Income and Assets End to End', type: :request do
     expect(service).to receive(:request_upload)
     expect(monitor).to receive(:track_submission_begun).and_call_original
 
-    expect(FormSubmission).to receive(:create).and_call_original
-    expect(FormSubmissionAttempt).to receive(:create).and_call_original
+    expect(Lighthouse::Submission).to receive(:create).and_call_original
+    expect(Lighthouse::SubmissionAttempt).to receive(:create).and_call_original
     expect(Datadog::Tracing).to receive(:active_trace).and_call_original
 
     expect(service).to receive(:location)
@@ -65,8 +68,7 @@ RSpec.describe 'Income and Assets End to End', type: :request do
 
     # 'success' email notification
     expect(email).to receive(:deliver).with(:submitted).and_call_original
-    expect(VANotify::EmailJob).to receive(:perform_async)
-    expect(VeteranFacingServices::NotificationEmail).to receive(:monitor_deliver_success).and_call_original
+    expect(vanotify).to receive(:send_email)
 
     expect(monitor).to receive(:track_submission_success).and_call_original
     expect(Common::FileHelpers).to receive(:delete_file_if_exists).at_least(1).and_call_original
@@ -74,12 +76,12 @@ RSpec.describe 'Income and Assets End to End', type: :request do
     lh_bi_uuid = IncomeAndAssets::BenefitsIntake::SubmitClaimJob.new.perform(saved_claim_id)
 
     # verify upload artifacts - form_submission and claim_va_notification
-    submission = FormSubmission.find_by(saved_claim_id:)
+    submission = Lighthouse::Submission.find_by(saved_claim_id:)
     expect(submission).to be_present
 
     attempt = submission.latest_pending_attempt
     expect(attempt).to be_present
-    expect(attempt.aasm_state).to eq 'pending'
+    expect(attempt.status).to eq 'pending'
     expect(attempt.benefits_intake_uuid).to eq lh_bi_uuid
 
     notification = ClaimVANotification.find_by(saved_claim_id:)
@@ -93,18 +95,13 @@ RSpec.describe 'Income and Assets End to End', type: :request do
 
     expect(service).to receive(:bulk_status).and_return(bulk_status)
 
-    handler = IncomeAndAssets::BenefitsIntake::SubmissionHandler.new(saved_claim_id)
-    expect(IncomeAndAssets::BenefitsIntake::SubmissionHandler).to receive(:new).with(saved_claim_id).and_return(handler)
-    expect(handler).to receive(:handle).with('success', anything).and_call_original
-
     expect(email).to receive(:deliver).with(:received).and_call_original
-    expect(VANotify::EmailJob).to receive(:perform_async)
-    expect(VeteranFacingServices::NotificationEmail).to receive(:monitor_deliver_success).and_call_original
+    expect(vanotify).to receive(:send_email)
 
     BenefitsIntake::SubmissionStatusJob.new.perform(IncomeAndAssets::FORM_ID)
 
     updated = attempt.reload
-    expect(updated.aasm_state).to eq 'vbms'
+    expect(updated.status).to eq 'vbms'
     expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
     expect(updated.error_message).to be_nil
   end

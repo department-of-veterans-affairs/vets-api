@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestEmailJob
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 14 # The retry logic here matches VANotify::EmailJob.
 
     sidekiq_retries_exhausted do |msg, _ex|
@@ -20,8 +22,8 @@ module AccreditedRepresentativePortal
     def perform(poa_request_notification_id,
                 personalisation = nil,
                 api_key = Settings.vanotify.services.va_gov.api_key)
-      notify_client = VaNotify::Service.new(api_key, {})
       poa_request_notification = PowerOfAttorneyRequestNotification.find(poa_request_notification_id)
+      notify_client = VaNotify::Service.new(api_key, email_callback_options(poa_request_notification.type))
       template_id = poa_request_notification.template_id
 
       response = notify_client.send_email(
@@ -45,6 +47,8 @@ module AccreditedRepresentativePortal
           },
           { error: :accredited_representative_portal_power_of_attorney_request_email_job }
         )
+
+        log_exception_to_rails(e)
       else
         raise e
       end
@@ -53,21 +57,40 @@ module AccreditedRepresentativePortal
     private
 
     def generate_personalisation(notification)
-      personalisation_klass =
-        case notification.type
-        when 'requested'
-          EmailPersonalisations::Requested
-        when 'declined'
-          EmailPersonalisations::Declined
-        when 'expiring'
-          EmailPersonalisations::Expiring
-        when 'expired'
-          EmailPersonalisations::Expired
-        end
+      case [notification.type, notification.recipient_type]
+      in ['requested', _recipient_type]
+        EmailPersonalisations::Requested
+      in ['declined', _recipient_type]
+        EmailPersonalisations::Declined
+      in ['expiring', _recipient_type]
+        EmailPersonalisations::Expiring
+      in ['expired', _recipient_type]
+        EmailPersonalisations::Expired
+      in ['enqueue_failed' | 'submission_failed', 'claimant']
+        EmailPersonalisations::FailedClaimant
+      in ['enqueue_failed' | 'submission_failed', 'resolver']
+        EmailPersonalisations::FailedRep
+      else
+        raise "Unsupported notification type=#{notification.type} recipient_type=#{notification.recipient_type}"
+      end.generate(notification)
+    end
 
-      personalisation_klass.generate(
-        notification
-      )
+    def email_callback_options(type)
+      return unless Flipper.enabled?(:accredited_representative_portal_email_delivery_callback)
+
+      email_delivery_callback(type)
+    end
+
+    def email_delivery_callback(type)
+      {
+        callback_klass: 'AccreditedRepresentativePortal::EmailDeliveryStatusCallback',
+        callback_metadata: {
+          statsd_tags: {
+            service: 'accredited-representative-portal',
+            function: "poa_request_#{type}_email"
+          }
+        }
+      }
     end
   end
 end

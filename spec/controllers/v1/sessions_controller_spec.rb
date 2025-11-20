@@ -14,9 +14,8 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:request_id) { SecureRandom.uuid }
 
   # User test set-up
-  let(:user) { build(:user, loa, :with_terms_of_use_agreement, uuid:, idme_uuid: uuid) }
+  let(:user) { build(:user, loa, :with_terms_of_use_agreement) }
   let(:loa) { :loa3 }
-  let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
   let(:saml_user_attributes) { user.attributes.merge(user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
@@ -600,11 +599,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     context 'when logged in' do
-      let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+      let(:loa1_user) { build(:user, :loa1) }
 
       before do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        session_object = Session.create(uuid:, token:)
+        session_object = Session.create(uuid: loa1_user.uuid, token:)
         session_object.to_hash.each { |k, v| session[k] = v }
         loa1 = User.create(loa1_user.attributes)
         UserIdentity.create(loa1_user.identity.attributes)
@@ -637,7 +636,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
-          expect(User.find(uuid)).not_to be_nil
+          expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
           call_endpoint
           expect(response.location).to eq(expected_redirect_url)
@@ -645,7 +644,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(session).to be_empty
-          expect(User.find(uuid)).to be_nil
+          expect(User.find(loa1_user.user_account.id)).to be_nil
         end
 
         context 'when agreements_declined is true' do
@@ -654,14 +653,14 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
             verify_session_cookie
-            expect(User.find(uuid)).not_to be_nil
+            expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
             call_endpoint
             expect(response.location).to eq(expected_redirect_url)
 
             expect(Session.find(token)).to be_nil
             expect(session).to be_empty
-            expect(User.find(uuid)).to be_nil
+            expect(User.find(loa1_user.user_account.id)).to be_nil
           end
         end
       end
@@ -708,7 +707,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       it 'redirects to an auth failure page' do
         expect(Rails.logger)
-          .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
+          .to receive(:error).with(
+            '[V1][Sessions Controller] error',
+            hash_including(message: /#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
+          )
         expect(call_endpoint).to redirect_to(expected_redirect)
         expect(response).to have_http_status(:found)
         expect(response).to redirect_to(expected_redirect)
@@ -721,7 +723,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
       context 'when user has not accepted the current terms of use' do
-        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:user) { build(:user, loa) }
         let(:application) { 'some-applicaton' }
 
         before do
@@ -778,7 +780,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
       context 'when user has not accepted the current terms of use' do
-        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:user) { build(:user, loa) }
         let(:application) { 'some-applicaton' }
 
         before do
@@ -828,12 +830,13 @@ RSpec.describe V1::SessionsController, type: :controller do
         it_behaves_like 'a successful UserAudit log'
       end
 
-      context 'when cerner eligibiltiy is checked' do
-        let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, cerner_id:) }
+      context 'when cerner eligibility is checked' do
+        let(:user) { build(:user, :loa3, cerner_id:) }
         let(:cerner_id) { 'some-cerner-id' }
         let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
         let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
-        let(:expected_log_payload) { { eligible:, cookie_action: :set, icn: user.icn } }
+        let(:previous_value) { nil }
+        let(:expected_log_payload) { { eligible:, previous_value:, cookie_action: :set, icn: user.icn } }
 
         before do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
@@ -871,14 +874,17 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'when the cerner eligible cookie is present' do
+          let(:eligible) { true }
+          let(:previous_value) { true }
+
           before do
-            cookies.signed[cerner_eligible_cookie] = 'true'
+            cookies.signed[cerner_eligible_cookie] = true
           end
 
-          it 'does not log a message' do
+          it 'logs the cerner eligibility with the previous value' do
             call_endpoint
 
-            expect(Rails.logger).not_to have_received(:info).with(expected_log_message, anything)
+            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
           end
         end
       end
@@ -888,6 +894,10 @@ RSpec.describe V1::SessionsController, type: :controller do
       let(:params) { { RelayState: '{"type": "idme"}' } }
       let(:expected_redirect_params) { { auth: 'fail', code: error_code, request_id:, type: 'idme' }.to_query }
       let(:error_code) { '102' }
+      let(:error_message) do
+        ['[V1][Sessions Controller] error',
+         { context: {}, message: 'User attributes contain multiple distinct EDIPI values' }]
+      end
       let(:invalid_attributes) do
         build(:ssoe_idme_mhv_loa3, va_eauth_gcIds: ['0123456789^NI^200DOD^USDOD^A|0000000054^NI^200DOD^USDOD^A|'])
       end
@@ -902,7 +912,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       it 'redirects to an auth failure page' do
-        expect(controller).to receive(:log_message_to_sentry)
+        expect(Rails.logger).to receive(:error).with(*error_message)
+
         expect(call_endpoint).to redirect_to(expected_redirect)
         expect(response).to have_http_status(:found)
       end
@@ -912,7 +923,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           uuid: login_uuid,
           payload: { type: 'idme', application: 'vaweb' }
         )
-        expect(controller).to receive(:log_message_to_sentry)
+        expect(Rails.logger).to receive(:error).with(*error_message)
         expect { call_endpoint }
           .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLRESPONSE_KEY,
                                        tags: ['type:idme',
@@ -961,9 +972,15 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:loa) { :loa1 }
         let(:error_code) { SAML::UserAttributeError::MHV_UNVERIFIED_BLOCKED_CODE }
         let(:expected_redirect_params) { { auth: 'fail', code: error_code, request_id:, type: }.to_query }
+        let(:expected_error_message) do
+          ['[V1][Sessions Controller] error', {
+            context: {},
+            message: 'MHV account is unverified for context requiring verified account'
+          }]
+        end
 
         it 'redirects to an auth failure page' do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(Rails.logger).to receive(:error).with(*expected_error_message)
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -971,11 +988,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     context 'when user already logged in' do
-      let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+      let(:loa1_user) { build(:user, :loa1, uuid: user.uuid, idme_uuid: user.idme_uuid) }
 
       before do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        session_object = Session.create(uuid:, token:)
+        session_object = Session.create(uuid: loa1_user.uuid, token:)
         session_object.to_hash.each { |k, v| session[k] = v }
         loa1 = User.create(loa1_user.attributes)
         UserIdentity.create(loa1_user.identity.attributes)
@@ -995,7 +1012,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             uuid: login_uuid,
             payload: { type: 'verify', application: 'vaweb', operation: 'authorize' }
           )
-          existing_user = User.find(uuid)
+          existing_user = User.find(loa1_user.uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: IAL::ONE, current: IAL::ONE)
@@ -1017,7 +1034,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           expect(response.location).to start_with(expected_redirect_url)
 
-          new_user = User.find(uuid)
+          new_user = User.find(loa1_user.uuid)
           expect(new_user.ssn).to eq('796111863')
           expect(new_user.ssn_mpi).not_to eq('155256322')
           expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
@@ -1043,7 +1060,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'UserIdentity & MPI ID validations' do
           let(:mpi_profile) { build(:mpi_profile) }
-          let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mpi_profile:) }
+          let(:user) { build(:user, :loa3, mpi_profile:) }
           let(:expected_error_data) do
             { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: user.icn }
           end
@@ -1106,13 +1123,13 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'changes the multifactor to true, time is the same', :aggregate_failures do
-          existing_user = User.find(uuid)
+          existing_user = User.find(loa1_user.uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
           call_endpoint
-          new_user = User.find(uuid)
+          new_user = User.find(loa1_user.uuid)
           expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           expect(new_user.multifactor).to be_truthy
           expect(new_user.last_signed_in).to eq(existing_user.last_signed_in)
@@ -1120,19 +1137,25 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'with mismatched UUIDs' do
           let(:params) { { RelayState: '{"type": "mfa"}' } }
-          let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid, mhv_icn: '11111111111')  }
-          let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mhv_icn: '11111111111')  }
+          let(:loa1_user) { build(:user, :loa1, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
+          let(:loa3_user) { build(:user, :loa3, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
           let(:saml_user_attributes) do
-            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
+            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(mhv_icn: '11111111111'))
+          end
+
+          before do
+            allow_any_instance_of(UserAccount).to receive(:id).and_return('invalid')
+            allow(User).to receive(:find).with(user.uuid).and_return(loa1_user)
+            allow(User).to receive(:find).with('invalid').and_return(nil)
           end
 
           it 'logs a message to Sentry' do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
-            expect(Sentry).to receive(:set_extras).with(current_user_uuid: uuid, current_user_icn: '11111111111')
-            expect(Sentry).to receive(:set_extras).with({ saml_uuid: 'invalid', saml_icn: '11111111111' })
-            expect(Sentry).to receive(:capture_message).with(
-              "Couldn't locate exiting user after MFA establishment",
-              level: 'warning'
+            expect(Sentry).to receive(:set_extras).with(current_user_uuid: user.uuid, current_user_icn: '11111111111')
+            expect(Rails.logger).to receive(:warn).with(
+              "[UserSessionForm] Couldn't locate existing user after MFA establishment",
+              saml_uuid: 'invalid',
+              saml_icn: '11111111111'
             )
             expect(Sentry).to receive(:set_extras).at_least(:once) # From PostURLService#initialize
             with_settings(Settings.sentry, dsn: 'T') { call_endpoint }
@@ -1162,7 +1185,10 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Sentry).to receive(:set_tags).once
           expect(Rails.logger)
-            .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
+            .to receive(:error).with(
+              '[V1][Sessions Controller] error',
+              hash_including(message: /#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
+            )
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1175,7 +1201,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
-            .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
+            .to receive(:error).with(
+              '[V1][Sessions Controller] error',
+              hash_including(message: /#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
+            )
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1188,7 +1217,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger)
-            .to receive(:error).with(/#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
+            .to receive(:error).with(
+              '[V1][Sessions Controller] error',
+              hash_including(message: /#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
+            )
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1211,21 +1243,27 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when saml response returns an unknown type of error' do
         let(:error_code) { '007' }
+        let(:error_context) do
+          [{
+            code: '007',
+            tag: :unknown,
+            short_message: 'Other SAML Response Error(s)',
+            level: :error,
+            full_message: 'The status code of the Response was not Success, was Requester => ' \
+                          'NoAuthnContext -> AuthnRequest without an authentication context.'
+          }]
+        end
+        let(:expected_log_message) do
+          ['[V1][Sessions Controller] error', {
+            context: error_context,
+            message: 'Login Failed! Other SAML Response Error(s)'
+          }]
+        end
 
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! Other SAML Response Error(s)',
-              :error,
-              extra_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                                tag: :unknown,
-                                short_message: 'Other SAML Response Error(s)',
-                                level: :error,
-                                full_message: 'The status code of the Response was not Success, was Requester =>' \
-                                              ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
-            )
+          expect(Rails.logger).to receive(:error).with(*expected_log_message)
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1259,33 +1297,30 @@ RSpec.describe V1::SessionsController, type: :controller do
                             '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>' \
                             '</samlp:StatusDetail>' \
 
+        let(:extra_content) do
+          [
+            { code: '007', tag: :unknown, short_message: 'Other SAML Response Error(s)',
+              level: :error, full_message: 'Test1' },
+            { code: '007', tag: :unknown, short_message: 'Other SAML Response Error(s)',
+              level: :error, full_message: 'Test2' },
+            { code: '007', tag: :unknown, short_message: 'Other SAML Response Error(s)',
+              level: :error, full_message: 'Test3' }
+          ]
+        end
+
+        let(:expected_error_message) do
+          ['[V1][Sessions Controller] error', {
+            context: extra_content,
+            message: "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>"
+          }]
+        end
+
         before do
           allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_detail_error(status_detail_xml))
         end
 
-        it 'logs status_detail message to sentry' do
-          expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
-              :error,
-              extra_context: [
-                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                  tag: :unknown,
-                  short_message: 'Other SAML Response Error(s)',
-                  level: :error,
-                  full_message: 'Test1' },
-                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                  tag: :unknown,
-                  short_message: 'Other SAML Response Error(s)',
-                  level: :error,
-                  full_message: 'Test2' },
-                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                  tag: :unknown,
-                  short_message: 'Other SAML Response Error(s)',
-                  level: :error,
-                  full_message: 'Test3' }
-              ]
-            )
+        it 'logs status_detail message to Rails logger' do
+          expect(Rails.logger).to receive(:error).with(*expected_error_message)
           call_endpoint
         end
       end
@@ -1319,8 +1354,11 @@ RSpec.describe V1::SessionsController, type: :controller do
           ]
         end
         let(:version) { 'v1' }
-        let(:expected_warn_message) do
-          "SessionsController version:#{version} context:#{extra_content} message:#{expected_error_message}"
+        let(:expected_log_message) do
+          ['[V1][Sessions Controller] error', {
+            context: extra_content,
+            message: expected_error_message
+          }]
         end
 
         before do
@@ -1328,7 +1366,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'logs a generic user validation error', :aggregate_failures do
-          expect(Rails.logger).to receive(:warn).with(expected_warn_message)
+          expect(Rails.logger).to receive(:error).with(*expected_log_message)
           expect(call_endpoint).to redirect_to(expected_redirect)
 
           expect(response).to have_http_status(:found)
@@ -1338,27 +1376,27 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when saml response contains multiple errors (known or otherwise)' do
         let(:multi_error_uuid) { '2222' }
         let(:error_code) { '001' }
+        let(:error_context) do
+          [
+            { code: '001', tag: :clicked_deny, short_message: 'Subject did not consent to attribute release',
+              level: :warn, full_message: 'Subject did not consent to attribute release' },
+            { code: '007', tag: :unknown, short_message: 'Other SAML Response Error(s)',
+              level: :error, full_message: 'Other random error' }
+          ]
+        end
+        let(:expected_log_message) do
+          ['[V1][Sessions Controller] error', {
+            context: error_context,
+            message: 'Login Failed! Subject did not consent to attribute release Multiple SAML Errors'
+          }]
+        end
 
         before do
           allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error(multi_error_uuid))
         end
 
         it 'logs a generic error' do
-          expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
-              :warn,
-              extra_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
-                                tag: :clicked_deny,
-                                short_message: 'Subject did not consent to attribute release',
-                                level: :warn,
-                                full_message: 'Subject did not consent to attribute release' },
-                              { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                                tag: :unknown,
-                                short_message: 'Other SAML Response Error(s)',
-                                level: :error,
-                                full_message: 'Other random error' }]
-            )
+          expect(Rails.logger).to receive(:error).with(*expected_log_message)
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1397,71 +1435,11 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
-      context 'when a required saml attribute is missing' do
-        let(:loa) { :loa1 }
-        let(:saml_user_attributes) do
-          user.attributes.merge(user.identity.attributes).merge(uuid: nil)
-        end
-        let(:error_code) { '004' }
-
-        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
-
-        it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! on User/Session Validation',
-              :error,
-              extra_context: {
-                code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
-                tag: :validations_failed,
-                short_message: 'on User/Session Validation',
-                level: :error,
-                uuid: nil,
-                user: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                session: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                identity: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"],
-                  authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
-                  loa: { current: 1, highest: 1 }
-                },
-                mvi: 'breakers is open for MVI'
-              }
-            )
-          expect(call_endpoint).to redirect_to(expected_redirect)
-          expect(response).to have_http_status(:found)
-        end
-
-        it 'increments the failed and total statsd counters' do
-          SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vaweb' })
-          callback_tags = ['status:failure',
-                           "context:#{LOA::IDME_LOA1_VETS}",
-                           'version:v1',
-                           'type:idme',
-                           'client_id:vaweb',
-                           'operation:authorize']
-          failed_tags = ['error:validations_failed', 'version:v1']
-
-          expect { call_endpoint }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-        end
-
-        it 'captures the invalid saml response in a PersonalInformationLog' do
-          call_endpoint
-          expect(PersonalInformationLog.count).to be_positive
-          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
-        end
-      end
-
       context 'when EDIPI user attribute validation fails' do
+        let(:edipi_ids) { %w[0123456789 0000000054] }
+        let(:expected_icn) { '1013183292V131165' }
+        let(:expected_warning_message) { '[SAML::UserAttributes::SSOe] User attributes contain multiple distinct EDIPI values' }
+        let(:expected_warning_data) { { mismatched_ids: edipi_ids, icn: expected_icn } }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
                 va_eauth_gcIds: ['0123456789^NI^200DOD^USDOD^A|0000000054^NI^200DOD^USDOD^A|'])
@@ -1481,7 +1459,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'redirects to the auth failed endpoint with a specific code', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(Rails.logger).to receive(:warn).with(expected_warning_message, expected_warning_data)
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1508,7 +1486,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(Rails.logger).to receive(:warn)
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end

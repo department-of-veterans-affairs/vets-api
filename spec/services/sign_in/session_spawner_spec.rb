@@ -15,7 +15,7 @@ RSpec.describe SignIn::SessionSpawner do
     end
     let(:refresh_creation) { 5.minutes.ago }
     let(:current_session_handle) { 'edd4c2fc-d776-4596-8dce-71a9848e15e0' }
-    let(:user_uuid) { current_session.user_verification.backing_credential_identifier }
+    let(:user_uuid) { current_session.user_verification.user_account.id }
     let(:user_verification) { create(:user_verification, locked:) }
     let(:user_account) { user_verification.user_account }
     let(:locked) { false }

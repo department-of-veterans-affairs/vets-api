@@ -36,6 +36,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].MarketAnnuity4_9c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'C',
@@ -48,7 +49,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'D',
             question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?',
-            question_label: 'Added Funds'
+            question_label: 'Added Funds',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9e
           'addedFundsDate' => {
@@ -70,6 +77,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].HowMuchTransferred4_9f[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'F',
@@ -82,7 +90,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'G',
             question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?',
-            question_label: 'Revocable or Irrevocable'
+            question_label: 'Revocable',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9h
           'receivingIncomeFromAnnuity' => { key: "F[0].#subform[8].ReceiveIncomeFromAnnuity9h[#{ITERATOR}]" },
@@ -90,7 +104,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'H',
             question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUITY?',
-            question_label: 'Receiving Income from Annuity'
+            question_label: 'Receiving Income from Annuity',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9i
           'annualReceivedIncome' => {
@@ -100,6 +120,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].AnnualAmountReceived4_9i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'I',
@@ -112,7 +133,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'J',
             question_text: 'CAN THE ANNUITY BE LIQUIDATED?',
-            question_label: 'Can Be Liquidated'
+            question_label: 'Can Be Liquidated',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9k
           'surrenderValue' => {
@@ -122,6 +149,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].SurrenderValue4_9k[#{ITERATOR}]" }
           },
           'surrenderValueOverflow' => {
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'K',
@@ -141,7 +169,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         annuities = form_data['annuities']
-        form_data['annuity'] = annuities&.length ? 0 : 1
+        form_data['annuity'] = radio_yesno(annuities&.length)
         form_data['annuities'] = annuities&.map { |item| expand_item(item) }
       end
 
@@ -153,7 +181,6 @@ module IncomeAndAssets
       # @return [Hash]
       #
       def expand_item(item)
-        market_value = split_currency_amount_lg(item['marketValueAtEstablishment'], { 'millions' => 1 })
         expanded = {
           'addedFundsDate' => split_date(item['addedFundsDate']),
           'addedFundsAmount' => split_currency_amount_lg(item['addedFundsAmount'], { 'millions' => 1 }),
@@ -164,15 +191,34 @@ module IncomeAndAssets
           'annualReceivedIncome' => split_currency_amount_lg(item['annualReceivedIncome'], { 'millions' => 1 }),
           'revocable' => item['revocable'] ? 0 : 1,
           'establishedDate' => split_date(item['establishedDate']),
-          'marketValueAtEstablishment' => market_value
+          'marketValueAtEstablishment' => split_currency_amount_lg(item['marketValueAtEstablishment'],
+                                                                   { 'millions' => 1 })
         }
 
+        merge_overflow_and_overrides(item, expanded)
+      end
+
+      ##
+      # Merges overflow fields and overrides into the expanded annuity data.
+      #
+      # @param item [Hash] The original annuity item data.
+      # @param expanded [Hash] The expanded annuity data.
+      # @return [Hash] The merged data with overflow and overrides.
+      #
+      def merge_overflow_and_overrides(item, expanded)
         overflow = {}
         expanded.each_key do |fieldname|
           overflow["#{fieldname}Overflow"] = item[fieldname]
         end
 
-        expanded.merge(overflow)
+        overrides = {
+          'addedFundsAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['addedFundsAmount']),
+          'surrenderValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['surrenderValue']),
+          'annualReceivedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['annualReceivedIncome']),
+          'marketValueAtEstablishmentOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['marketValueAtEstablishment'])
+        }
+
+        expanded.merge(overflow).merge(overrides)
       end
     end
   end

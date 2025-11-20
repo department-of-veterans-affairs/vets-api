@@ -125,7 +125,6 @@ describe Ccra::RedisClient do
       # Parse the JSON string to verify the data
       parsed_data = JSON.parse(saved_data)
       expect(parsed_data['referral_number']).to eq(referral_number)
-      expect(parsed_data['appointment_type_id']).to eq('ov')
     end
   end
 
@@ -145,7 +144,6 @@ describe Ccra::RedisClient do
         result = subject.fetch_referral_data(id:, icn:)
         expect(result).to be_a(Ccra::ReferralDetail)
         expect(result.referral_number).to eq(referral_number)
-        expect(result.appointment_type_id).to eq('ov')
       end
     end
 

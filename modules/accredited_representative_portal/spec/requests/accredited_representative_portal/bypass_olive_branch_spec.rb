@@ -36,6 +36,21 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
     end
   end
 
+  ##
+  # Our reverse proxy for deployed environments prepends an extra slash at the
+  # beginning. Offending nginx conf here:
+  # https://github.com/department-of-veterans-affairs/devops/blob/c84a83696357b84e155c8ec849934af3019da769/ansible/deployment/config/revproxy-vagov/templates/nginx_api_server.conf.j2#L121
+  #
+  context 'when the request is for an accredited representative portal route with an extra slash prepended' do
+    let(:path_prefix) { '//accredited_representative_portal' }
+
+    it 'bypasses OliveBranch processing' do
+      expect(OliveBranch::Transformations).not_to receive(:underscore_params)
+      expect(OliveBranch::Transformations).not_to receive(:transform)
+      subject
+    end
+  end
+
   context 'when the request is for a normal route' do
     let(:path_prefix) { '' }
 

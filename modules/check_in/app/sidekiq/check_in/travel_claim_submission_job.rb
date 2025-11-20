@@ -7,14 +7,12 @@ module CheckIn
       station_number = redis_client.station_number(uuid:)
       facility_type = redis_client.facility_type(uuid:)
 
-      logger.info({
-                    message: "Submitting travel claim for #{uuid}, #{appointment_date}, " \
-                             "#{station_number}, #{facility_type}",
-                    uuid:,
-                    appointment_date:,
-                    station_number:,
-                    facility_type:
-                  })
+      self.class.log_with_context(:info, 'Submitting travel claim', {
+                                    appointment_date:,
+                                    station_number:,
+                                    facility_type:,
+                                    status: 'submitting'
+                                  })
 
       claim_number_last_four, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
       unless template_id.nil?
@@ -24,6 +22,14 @@ module CheckIn
 
     def submit_claim(opts = {})
       uuid, appointment_date, facility_type = opts.values_at(:uuid, :appointment_date, :facility_type)
+
+      self.class.log_with_context(:info, 'Travel claim job validation', {
+                                    uuid_present: uuid.present?,
+                                    appointment_date_present: appointment_date.present?,
+                                    facility_type:,
+                                    service: 'travel_claim_debug'
+                                  })
+
       check_in_session = CheckIn::V2::Session.build(data: { uuid: })
 
       claims_resp = TravelClaim::Service.build(check_in: check_in_session,
@@ -32,11 +38,19 @@ module CheckIn
 
       if should_handle_timeout(claims_resp)
         TravelClaimStatusCheckJob.perform_in(5.minutes, uuid, appointment_date)
+        [nil, nil] # Return nil values to prevent notification job from running
       else
         handle_response(claims_resp:, facility_type:)
       end
     rescue => e
-      logger.error({ message: "Error calling BTSSS Service: #{e.message}" }.merge(opts))
+      handle_submit_error(e, opts, facility_type)
+    end
+
+    private
+
+    def handle_submit_error(error, opts, facility_type)
+      self.class.log_with_context(:error, "Error calling BTSSS Service: #{error.message}",
+                                  { status: 'failed' }.merge(opts))
       if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID

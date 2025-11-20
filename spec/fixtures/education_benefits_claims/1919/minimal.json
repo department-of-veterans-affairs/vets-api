@@ -1,0 +1,70 @@
+{
+  "certifyingOfficial": {
+    "first": "John",
+    "last": "Doe",
+    "role": {
+      "level": "certifying official"
+    }
+  },
+  "aboutYourInstitution": true,
+  "institutionDetails": {
+    "facilityCode": "12345678",
+    "institutionName": "Test University",
+    "institutionAddress": {
+      "country": "USA",
+      "state": "CA",
+      "city": "Some City",
+      "street": "123 Main St",
+      "postalCode": "12345"
+    }
+  },
+  "isProprietaryProfit": true,
+  "isProfitConflictOfInterest": true,
+  "proprietaryProfitConflicts": [
+    {
+      "affiliatedIndividuals": {
+        "first": "Jane",
+        "last": "Smith",
+        "title": "Administrator",
+        "individualAssociationType": "va"
+      }
+    },
+    {
+      "affiliatedIndividuals": {
+        "first": "Bob",
+        "last": "Johnson",
+        "title": "Director",
+        "individualAssociationType": "saa"
+      }
+    }
+  ],
+  "allProprietaryConflictOfInterest": true,
+  "allProprietaryProfitConflicts": [
+    {
+      "certifyingOfficial": {
+        "first": "Alice",
+        "last": "Williams",
+        "title": "Certifying Official"
+      },
+      "fileNumber": "123456789",
+      "enrollmentPeriod": {
+        "from": "2023-01-01",
+        "to": "2023-12-31"
+      }
+    },
+    {
+      "certifyingOfficial": {
+        "first": "David",
+        "last": "Brown",
+        "title": "Senior Official"
+      },
+      "fileNumber": "987654321",
+      "enrollmentPeriod": {
+        "from": "2022-06-01",
+        "to": "2023-05-31"
+      }
+    }
+  ],
+  "statementOfTruthSignature": "John Doe",
+  "dateSigned": "2023-10-27"
+}

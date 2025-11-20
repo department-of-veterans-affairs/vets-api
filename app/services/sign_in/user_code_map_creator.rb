@@ -13,7 +13,8 @@ module SignIn
                 :request_ip,
                 :first_name,
                 :last_name,
-                :web_sso_session_id
+                :web_sso_session_id,
+                :credential_attributes_digest
 
     def initialize(user_attributes:, state_payload:, verified_icn:, request_ip:)
       @state_payload = state_payload
@@ -28,6 +29,7 @@ module SignIn
       @first_name = user_attributes[:first_name]
       @last_name = user_attributes[:last_name]
       @web_sso_session_id = user_attributes[:session_id]
+      @credential_attributes_digest = user_attributes[:digest]
     end
 
     def perform
@@ -84,7 +86,8 @@ module SignIn
                                                      idme_uuid:,
                                                      dslogon_uuid: edipi,
                                                      logingov_uuid:,
-                                                     icn: verified_icn).perform
+                                                     icn: verified_icn,
+                                                     credential_attributes_digest:).perform
     end
 
     def user_account
@@ -97,10 +100,6 @@ module SignIn
         auth_broker: Constants::Auth::BROKER_CODE,
         client_id: state_payload.client_id
       }
-    end
-
-    def user_uuid
-      @user_uuid ||= user_verification.backing_credential_identifier
     end
 
     def access_token_attributes

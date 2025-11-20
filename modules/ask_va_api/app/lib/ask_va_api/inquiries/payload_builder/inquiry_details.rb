@@ -27,6 +27,11 @@ module AskVAApi
           inquiry_params[:select_topic]
         end
 
+        def inquiry_education_related?
+          # A user MUST be logged in to submit under **either** of these 2 conditions. (Confirmed with Becky)
+          education_benefits? || benefits_outside_us_edu?
+        end
+
         def education_benefits?
           category == 'Education benefits and work study' &&
             topic != 'Veteran Readiness and Employment (Chapter 31)'

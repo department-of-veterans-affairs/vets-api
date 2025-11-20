@@ -4,12 +4,14 @@ require_relative 'mvi_profile_address'
 require_relative 'mvi_profile_identity'
 require_relative 'mvi_profile_ids'
 require_relative 'mvi_profile_relationship'
+require 'identity/model/inspect'
 
 module MPI
   module Models
     class MviProfile
       include ActiveModel::Model
       include ActiveModel::Attributes
+      include Identity::Model::Inspect
       include MviProfileIdentity
       include MviProfileIds
 

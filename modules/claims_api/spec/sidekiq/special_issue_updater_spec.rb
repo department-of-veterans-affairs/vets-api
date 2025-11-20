@@ -239,7 +239,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
                     cntntn_id: '999111',
                     clsfcn_id: contention_id[:code],
                     clmnt_txt: contention_id[:name],
-                    special_issues: (special_issues.map { |si| { spis_tc: si } })
+                    special_issues: special_issues.map { |si| { spis_tc: si } }
                   }
                 ],
                 lc_stt_rsn_tc: 'OPEN',

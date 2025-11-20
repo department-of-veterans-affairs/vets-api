@@ -13,8 +13,8 @@ module MebApi
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
-        claim_status_service.get_claim_status(params, claimant_id, @form_type)
+        claimant_id = claimant_response.claimant_id
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
 
         response = if valid_claimant_response?(claimant_response)
@@ -34,7 +34,7 @@ module MebApi
 
       def claim_status
         forms_claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = forms_claimant_response['claimant_id']
+        claimant_id = forms_claimant_response.claimant_id
 
         if claimant_id.present?
           claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)

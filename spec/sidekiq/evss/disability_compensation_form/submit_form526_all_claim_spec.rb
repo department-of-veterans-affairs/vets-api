@@ -19,14 +19,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                                               anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
                                               anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                              anything).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token)
       .and_return('fake_access_token')
   end
 
-  let(:user) { create(:user, :loa3, icn: '123498767V234859') }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user) { create(:user, :loa3, :legacy_icn) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -205,13 +207,48 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with contention classification enabled' do
-        it 'uses the migrated endpoint' do
+        it 'uses the expanded lookup endpoint as default' do
           mock_cc_client = instance_double(ContentionClassification::Client)
           allow(ContentionClassification::Client).to receive(:new).and_return(mock_cc_client)
+          allow(mock_cc_client).to receive(:classify_vagov_contentions_expanded)
           expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
           expect(mock_cc_client).to receive(:classify_vagov_contentions_expanded)
           subject.perform_async(submission.id)
           described_class.drain
+        end
+
+        context 'with ml classification toggle enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                      anything).and_return(true)
+          end
+
+          it 'uses the hybrid contention classification endpoint' do
+            mock_cc_client = instance_double(ContentionClassification::Client)
+            allow(ContentionClassification::Client).to receive(:new).and_return(mock_cc_client)
+            allow(mock_cc_client).to receive(:classify_vagov_contentions_hybrid)
+            expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
+            expect(mock_cc_client).to receive(:classify_vagov_contentions_hybrid)
+            subject.perform_async(submission.id)
+            described_class.drain
+          end
+        end
+
+        context 'with ml classification toggle disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                      anything).and_return(false)
+          end
+
+          it 'uses the expanded lookup endpoint' do
+            mock_cc_client = instance_double(ContentionClassification::Client)
+            allow(ContentionClassification::Client).to receive(:new).and_return(mock_cc_client)
+            allow(mock_cc_client).to receive(:classify_vagov_contentions_expanded)
+            expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
+            expect(mock_cc_client).to receive(:classify_vagov_contentions_expanded)
+            subject.perform_async(submission.id)
+            described_class.drain
+          end
         end
 
         context 'when diagnostic code is not set' do
@@ -291,6 +328,44 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         submission.reload
         classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
         expect(classification_codes).to eq([9012, 8994, nil, 8997])
+      end
+
+      context 'with ml classification toggle enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                    anything).and_return(true)
+        end
+
+        it 'uses hybrid classifier to classify contentions' do
+          subject.perform_async(submission.id)
+          expect do
+            VCR.use_cassette('contention_classification/hybrid_contention_classification') do
+              described_class.drain
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          submission.reload
+          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+          expect(classification_codes).to eq([9012, 8994, 8989, 8997])
+        end
+      end
+
+      context 'with ml classification toggle disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                    anything).and_return(false)
+        end
+
+        it 'uses expanded classification to classify contentions' do
+          subject.perform_async(submission.id)
+          expect do
+            VCR.use_cassette('contention_classification/expanded_classification') do
+              described_class.drain
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          submission.reload
+          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+          expect(classification_codes).to eq([9012, 8994, nil, 8997])
+        end
       end
 
       context 'when the disabilities array is empty' do
@@ -455,7 +530,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with Lighthouse as submission provider' do
-        let(:user) { create(:user, :loa3, icn: '123498767V234859') }
+        let(:user) { create(:user, :loa3, :legacy_icn) }
         let(:submission) do
           create(:form526_submission,
                  :with_everything,
@@ -487,6 +562,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                          headers:
                        ))
           expect_retryable_error(Common::Exceptions::UpstreamUnprocessableEntity)
+        end
+
+        it 'retries with a Net::ReadTimeout Error' do
+          error = Net::ReadTimeout.new('#<TCPSocket:(closed)>')
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
+        end
+
+        it 'retries with a Faraday::TimeoutError Error' do
+          error = Faraday::TimeoutError.new
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
+        end
+
+        it 'retries with a Common::Exceptions::Timeout Error' do
+          error = Common::Exceptions::Timeout.new('Timeout error')
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
         end
 
         it 'does not retry UnprocessableEntity errors with "pointer" defined' do

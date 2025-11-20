@@ -36,6 +36,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            limit: 13,
             dollar: true,
             question_num: 8,
             question_suffix: 'C',
@@ -48,7 +49,10 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'D',
             question_text: 'SPECIFY TYPE OF TRUST ESTABLISHED',
-            question_label: 'Trust Type'
+            question_label: 'Trust Type',
+            format_options: {
+              humanize: true
+            }
           },
           # 8e
           'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
@@ -56,7 +60,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'E',
             question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?',
-            question_label: 'Added Funds'
+            question_label: 'Added Funds',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8f
           'addedFundsDate' => {
@@ -77,6 +87,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            limit: 11,
             dollar: true,
             question_num: 8,
             question_suffix: 'G',
@@ -89,7 +100,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'H',
             question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? ',
-            question_label: 'Receiving Income from Trust'
+            question_label: 'Receiving Income from Trust',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8i
           'annualReceivedIncome' => {
@@ -111,7 +128,13 @@ module IncomeAndAssets
             question_suffix: 'J',
             question_text:
                       'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?',
-            question_label: 'Used for Medical Expenses'
+            question_label: 'Used for Medical Expenses',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
@@ -132,7 +155,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'L',
             question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?', # rubocop:disable Layout/LineLength
-            question_label: 'Trust Established for Veterans Child'
+            question_label: 'Trust Established for Veteran\'s Child',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8m
           'haveAuthorityOrControlOfTrust' => { key: "F[0].Page_10[0].AdditionalAuthority8m[#{ITERATOR}]" },
@@ -140,7 +169,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'M',
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?',
-            question_label: 'Additional Authority or Control of Trust'
+            question_label: 'Additional Authority or Control of Trust',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           }
         }
       }.freeze
@@ -155,7 +190,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         trusts = form_data['trusts']
-        form_data['trust'] = trusts&.length ? 0 : 1
+        form_data['trust'] = radio_yesno(trusts&.length)
         form_data['trusts'] = trusts&.map { |item| expand_item(item) }
       end
 
@@ -174,21 +209,40 @@ module IncomeAndAssets
           'trustType' => IncomeAndAssets::Constants::TRUST_TYPES[item['trustType']],
           'addedFundsAfterEstablishment' => item['addedFundsAfterEstablishment'] ? 0 : 1,
           'addedFundsDate' => split_date(item['addedFundsDate']),
-          'addedFundsAmount' => split_currency_amount_sm(item['addedFundsAmount']),
+          'addedFundsAmount' => split_currency_amount_sm(item['addedFundsAmount'], { 'thousands' => 3 }),
           'receivingIncomeFromTrust' => item['receivingIncomeFromTrust'] ? 0 : 1,
-          'annualReceivedIncome' => split_currency_amount_sm(item['annualReceivedIncome']),
+          'annualReceivedIncome' => split_currency_amount_sm(item['annualReceivedIncome'], { 'thousands' => 3 }),
           'trustUsedForMedicalExpenses' => item['trustUsedForMedicalExpenses'] ? 0 : 1,
-          'monthlyMedicalReimbursementAmount' => split_currency_amount_sm(item['monthlyMedicalReimbursementAmount']),
+          'monthlyMedicalReimbursementAmount' => split_currency_amount_sm(item['monthlyMedicalReimbursementAmount'],
+                                                                          { 'thousands' => 3 }),
           'trustEstablishedForVeteransChild' => item['trustEstablishedForVeteransChild'] ? 0 : 1,
           'haveAuthorityOrControlOfTrust' => item['haveAuthorityOrControlOfTrust'] ? 0 : 1
         }
 
+        merge_overflow_and_overrides(item, expanded)
+      end
+
+      ##
+      # Merges overflow fields and overrides into the expanded trust data.
+      #
+      # @param item [Hash] The original trust item data.
+      # @param expanded [Hash] The expanded trust data.
+      # @return [Hash] The merged data with overflow and overrides.
+      #
+      def merge_overflow_and_overrides(item, expanded)
         overflow = {}
         expanded.each_key do |fieldname|
           overflow["#{fieldname}Overflow"] = item[fieldname]
         end
 
-        expanded.merge(overflow)
+        overrides = {
+          'marketValueAtEstablishmentOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['marketValueAtEstablishment']),
+          'addedFundsAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['addedFundsAmount']),
+          'annualReceivedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['annualReceivedIncome']),
+          'monthlyMedicalReimbursementAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['monthlyMedicalReimbursementAmount'])
+        }
+
+        expanded.compact.merge(overflow).merge(overrides)
       end
     end
   end

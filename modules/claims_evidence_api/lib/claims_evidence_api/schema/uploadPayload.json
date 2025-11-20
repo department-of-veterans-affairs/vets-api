@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/uploadPayload.json",
+  "title": "Upload File Payload",
+  "type": "object",
+  "required": ["contentName", "providerData"],
+  "additionalProperties" : false,
+  "properties": {
+    "contentName": {
+      "$ref": "properties/contentName.json"
+    },
+    "providerData": {
+      "required": ["contentSource", "dateVaReceivedDocument", "documentTypeId"],
+      "$ref": "providerData.json"
+    }
+  }
+}

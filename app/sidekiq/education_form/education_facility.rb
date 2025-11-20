@@ -75,12 +75,12 @@ module EducationForm
       record = model.open_struct_form
       address = routing_address(record, form_type: model.form_type)
 
-      # special case 0993 and 1990s
-      return :western if %w[0993 1990s].include?(model.form_type)
+      # special case 0993
+      return :western if %w[0993].include?(model.form_type)
 
       # special case 0994
       # special case 10203
-      return :eastern if %w[0994 10203].include?(model.form_type)
+      return :eastern if %w[0994 10203 10297].include?(model.form_type)
 
       # special case Philippines
       return :western if address&.country == 'PHL'
@@ -108,9 +108,7 @@ module EducationForm
       case form_type.upcase
       when '1990'
         education_program(record)&.address || record.veteranAddress
-      when '1990N'
-        record.educationProgram&.address || record.veteranAddress
-      when '1990E', '5490', '5495'
+      when '5490', '5495'
         record.educationProgram&.address || record.relativeAddress
       when '1995'
         record.newSchool&.address || record.veteranAddress

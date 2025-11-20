@@ -1,46 +1,53 @@
 # frozen_string_literal: true
 
+require 'dependents/monitor'
+
 module V0
   class DependentsApplicationsController < ApplicationController
     service_tag 'dependent-change'
 
     def show
-      dependents = dependent_service.get_dependents
+      dependents = create_dependent_service.get_dependents
       dependents[:diaries] = dependency_verification_service.read_diaries
       render json: DependentsSerializer.new(dependents)
     rescue => e
-      log_exception_to_sentry(e)
+      monitor.track_event(:error, e.message, 'dependents_controller.show_error')
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
     end
 
     def create
-      if Flipper.enabled?(:va_dependents_v2)
-        form = dependent_params.to_json
-        use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
-        claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
-      else
-        claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
-      end
+      form = dependent_params.to_json
+      use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
+      claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
+
+      monitor.track_create_attempt(claim, current_user)
 
       # Populate the form_start_date from the IPF if available
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.form_start_date = in_progress_form.created_at if in_progress_form
 
       unless claim.save
-        StatsD.increment("#{stats_key}.failure")
-        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
+        monitor.track_create_validation_error(in_progress_form, claim, current_user)
+        log_validation_error_to_metadata(in_progress_form, claim)
         raise Common::Exceptions::ValidationErrors, claim
       end
 
       claim.process_attachments!
+
+      # reinstantiate as v1 dependent service if use_v2 is blank
+      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
+
       dependent_service.submit_686c_form(claim)
 
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      claim.send_submitted_email(current_user) if Flipper.enabled?(:dependents_submitted_email)
+      monitor.track_create_success(in_progress_form, claim, current_user)
+      claim.send_submitted_email(current_user)
 
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
       render json: SavedClaimSerializer.new(claim)
+    rescue => e
+      monitor.track_create_error(in_progress_form, claim, current_user, e)
+      raise e
     end
 
     private
@@ -57,18 +64,33 @@ module V0
         :report_death,
         :report_marriage_of_child_under18,
         :report_child18_or_older_is_not_attending_school,
+        :statement_of_truth_signature,
+        :statement_of_truth_certified,
         'view:selectable686_options': {},
         dependents_application: {},
         supporting_documents: []
       )
     end
 
-    def dependent_service
-      @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, current_user)
-                               BGS::DependentV2Service.new(current_user)
-                             else
-                               BGS::DependentService.new(current_user)
-                             end
+    ##
+    # Include validation error on in_progress_form metadata.
+    # `noop` if in_progress_form is `blank?`
+    #
+    # @param in_progress_form [InProgressForm]
+    # @param claim [SavedClaim::DependencyClaim]
+    #
+    # @return [void]
+    def log_validation_error_to_metadata(in_progress_form, claim)
+      return if in_progress_form.blank?
+
+      metadata = in_progress_form.metadata || {}
+      metadata['submission'] ||= {}
+      metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
+      in_progress_form.update(metadata:)
+    end
+
+    def create_dependent_service
+      @dependent_service ||= BGS::DependentV2Service.new(current_user)
     end
 
     def dependency_verification_service
@@ -77,6 +99,10 @@ module V0
 
     def stats_key
       'api.dependents_application'
+    end
+
+    def monitor(claim_id = nil)
+      @monitor ||= Dependents::Monitor.new(claim_id)
     end
   end
 end

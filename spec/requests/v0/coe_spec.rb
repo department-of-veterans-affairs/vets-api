@@ -5,7 +5,7 @@ require 'lgy/service'
 
 Rspec.describe 'V0::Coe', type: :request do
   context 'when user is signed in' do
-    let(:user) { create(:evss_user, :loa3) }
+    let(:user) { create(:evss_user, :loa3, icn: '123498767V234859') }
 
     before { sign_in_as user }
 

@@ -25,24 +25,23 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 01 Mar 2019 21:13:33 GMT
+      - Fri, 05 Sep 2025 16:30:00 GMT
       Content-Type:
       - application/json
-      Content-Length:
-      - '64'
+      Transfer-Encoding:
+      - chunked
       Connection:
       - keep-alive
-      Status:
-      - 404 Not Found
-      X-Ua-Compatible:
-      - IE=Edge,chrome=1
-      Cache-Control:
-      - no-cache
-      X-Request-Id:
-      - 025a6ad9-6e3b-455c-b07a-36f7350d8b8b
+      X-RateLimit-Limit:
+      - '100'
+      X-RateLimit-Remaining:
+      - '0'
+      X-RateLimit-Reset:
+      - '1725552600'
+      Retry-After:
+      - '60'
     body:
       encoding: ASCII-8BIT
-      string: '{"error":{"message":"Too Many Requests","code":2010}}'
-    http_version:
-  recorded_at: Fri, 01 Mar 2019 21:13:37 GMT
-recorded_with: VCR 3.0.3
+      string: '{"error":{"message":"Rate limit exceeded","code":2003}}'
+  recorded_at: Fri, 05 Sep 2025 16:30:00 GMT
+recorded_with: VCR 6.3.1

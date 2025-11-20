@@ -68,21 +68,8 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
       it 'rescues and logs the error' do
         VCR.use_cassette('va_notify/bad_request_invalid_template_id') do
           job = described_class.new
-          expect(job).to receive(:log_exception_to_sentry).with(
-            instance_of(VANotify::BadRequest),
-            {
-              args: {
-                recipient_identifier: {
-                  id_value: user_account.id,
-                  id_type: 'UserAccountId'
-                },
-                template_id:,
-                personalisation: nil
-              }
-            },
-            {
-              error: :va_notify_user_account_job
-            }
+          expect(job).to receive(:log_exception_to_rails).with(
+            instance_of(VANotify::BadRequest)
           )
 
           job.perform(user_account.id, template_id)

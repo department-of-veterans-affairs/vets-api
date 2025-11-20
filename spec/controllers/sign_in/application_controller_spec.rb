@@ -5,7 +5,8 @@ require 'rx/client'
 
 RSpec.describe SignIn::ApplicationController, type: :controller do
   controller do
-    skip_before_action :authenticate, only: %w[index_optional_auth access_token_auth access_token_optional_auth]
+    skip_before_action :authenticate,
+                       only: %w[index_optional_auth access_token_auth access_token_optional_auth test_logging]
     before_action :load_user, only: %(index_optional_auth)
     before_action lambda {
                     access_token_authenticate(skip_render_error: params[:skip_render_error] == 'true')
@@ -42,6 +43,11 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     def service_account_auth
       head :ok
     end
+
+    def test_logging
+      Rails.logger.info('Test log message')
+      head :ok
+    end
   end
 
   before do
@@ -50,7 +56,10 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       get 'index' => 'sign_in/application#index'
       get 'index_optional_auth' => 'sign_in/application#index_optional_auth'
       get 'access_token_auth' => 'sign_in/application#access_token_auth'
+      get 'test_logging' => 'sign_in/application#test_logging'
     end
+
+    allow(Rails.logger).to receive(:warn)
   end
 
   describe '#authentication' do
@@ -69,36 +78,38 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
     end
 
-    shared_context 'error response with sentry log' do
+    shared_context 'error response rails log' do
       let(:expected_error) { 'Access token JWT is malformed' }
-      let(:sentry_context) do
-        { access_token_authorization_header: access_token, access_token_cookie: }.compact
+      let(:log_context) do
+        { errors: expected_error, access_token_authorization_header: access_token, access_token_cookie: }.compact
       end
-      let(:sentry_log_level) { :error }
 
       it_behaves_like 'error response'
 
-      it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+      it 'logs error to Rails logger' do
+        expect(Rails.logger).to receive(:error).with(
+          '[SignIn][Authentication] authentication error',
+          hash_including(**log_context)
+        )
         subject
       end
     end
 
     shared_context 'user fingerprint validation' do
+      let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
+
       context 'user.fingerprint matches request IP' do
-        it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+        it 'passes fingerprint validation and does not warn' do
           expect(subject.request.remote_ip).to eq(user.fingerprint)
+          expect(Rails.logger).not_to have_received(:warn).with(expected_error, anything)
         end
       end
 
       context 'user.fingerprint does not match request IP' do
         let!(:user) do
-          create(:user, :loa3, uuid: access_token_object.user_uuid, session_handle: access_token_object.session_handle)
+          create(:user, :loa3, uuid: access_token_object.user_uuid,
+                               session_handle: access_token_object.session_handle)
         end
-        let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
         let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
         it 'fails fingerprint validation and creates a log' do
@@ -162,7 +173,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:expected_error) { 'Access token JWT is malformed' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
-          it_behaves_like 'error response with sentry log'
+          it_behaves_like 'error response rails log'
         end
 
         context 'and access_token is an expired JWT' do
@@ -225,7 +236,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:expected_error) { 'Access token JWT is malformed' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
-        it_behaves_like 'error response with sentry log'
+        it_behaves_like 'error response rails log'
       end
 
       context 'and access_token is an expired JWT' do
@@ -282,7 +293,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'user fingerprint validation' do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry).with(:warn)
           expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end
@@ -494,25 +505,25 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
     end
 
-    shared_context 'error response with sentry log' do
+    shared_context 'error response with rails log' do
       let(:expected_error) { 'Access token JWT is malformed' }
-      let(:sentry_context) do
+      let(:log_context) do
         { access_token_authorization_header: access_token, access_token_cookie: }.compact
       end
-      let(:sentry_log_level) { :error }
 
-      it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+      it 'logs error to Rails logger' do
+        expect(Rails.logger).to receive(:error).with(
+          '[SignIn][Authentication] authentication error',
+          hash_including(:errors, **log_context)
+        )
         subject
       end
 
       context 'when skip_error_handling is true' do
         let(:skip_render_error) { true }
 
-        it 'does not log an error to sentry' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry)
+        it 'does not log an error' do
+          expect(Rails.logger).not_to receive(:error)
           subject
         end
       end
@@ -538,7 +549,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is some arbitrary value' do
           let(:access_token_cookie) { 'some-arbitrary-access-token' }
 
-          it_behaves_like 'error response with sentry log'
+          it_behaves_like 'error response with rails log'
         end
 
         context 'and access_token is an expired JWT' do
@@ -711,6 +722,28 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     it 'renders service unavailable error' do
       subject
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(expected_error)
+    end
+  end
+
+  describe 'origin logging' do
+    let(:expected_result) { 'Test log message' }
+
+    context 'when controller has a name' do
+      it 'adds controller class name as origin to logs within around_action' do
+        expect(SemanticLogger).to receive(:named_tagged).with(origin: 'sign_in/application_controller')
+                                                        .and_call_original
+        expect(Rails.logger).to receive(:info).with(expected_result)
+        get :test_logging
+        expect(response).to have_http_status :ok
+      end
+    end
+
+    context 'when controller class name is blank' do
+      it 'does not call SemanticLogger.named_tagged when class name is blank' do
+        allow(controller.class).to receive(:name).and_return('')
+        expect(SemanticLogger).not_to receive(:named_tagged)
+        controller.send(:tag_with_controller_name) { 'test' }
+      end
     end
   end
 end

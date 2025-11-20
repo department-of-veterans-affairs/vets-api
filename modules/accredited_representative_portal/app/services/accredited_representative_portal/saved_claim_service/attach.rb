@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'benefits_intake_service/service'
+
 module AccreditedRepresentativePortal
   module SavedClaimService
     module Attach
@@ -20,8 +22,13 @@ module AccreditedRepresentativePortal
       class << self
         def perform(attachment_klass, file:, form_id:)
           attachment_klass.new.tap do |attachment|
-            attachment.file = file
+            ##
+            # Must assign `form_id` _before_ assigning `file` so that the
+            # validations of `file` that occur upon assignment are run relative
+            # to the appropriate `form_id`.
+            #
             attachment.form_id = form_id
+            attachment.file = file
 
             validate_record!(attachment)
             validate_upstream!(attachment)
@@ -47,16 +54,24 @@ module AccreditedRepresentativePortal
           raise RecordInvalidError, e.record
         end
 
+        def service
+          if Flipper.enabled?(:accredited_representative_portal_lighthouse_api_key)
+            ::AccreditedRepresentativePortal::BenefitsIntakeService.new
+          else
+            ::BenefitsIntakeService::Service.new
+          end
+        end
+
         ##
         # Duplicates the validations that run on attachments during ultimate
         # claim submission, less the stamping that is applied first. Should
         # we check the stamped version instead?
         #
         def validate_upstream!(attachment)
-          BenefitsIntakeService::Service.new.valid_document?(
+          service.valid_document?(
             document: attachment.to_pdf
           )
-        rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+        rescue ::BenefitsIntakeService::Service::InvalidDocumentError => e
           raise UpstreamInvalidError, e.message
         end
       end

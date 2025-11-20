@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+require_relative 'document_ocr_validators/base_validator'
+require_relative 'document_ocr_validators/tesseract/social_security_card_tesseract_validator'
+require_relative 'document_ocr_validators/tesseract/eob_tesseract_validator'
+require_relative 'document_ocr_validators/tesseract/superbill_tesseract_validator'
+require_relative 'document_ocr_validators/tesseract/pharmacy_claim_tesseract_validator'

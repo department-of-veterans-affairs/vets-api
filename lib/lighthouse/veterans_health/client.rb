@@ -101,6 +101,19 @@ module Lighthouse
         get_list(first_response)
       end
 
+      def get_immunizations(start_date: nil, end_date: nil)
+        params = {
+          patient: @icn,
+          _count: 100
+        }
+
+        params[:start_date] = start_date if start_date.present?
+        params[:end_date] = end_date if end_date.present?
+
+        first_response = perform_get('services/fhir/v0/r4/Immunization', **params)
+        get_list(first_response)
+      end
+
       private
 
       # @return Faraday::Env response with all the pages of data

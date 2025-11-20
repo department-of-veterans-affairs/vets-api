@@ -9,9 +9,7 @@ RSpec.describe Login::AfterLoginActions do
     let(:skip_mhv_account_creation) { false }
 
     context 'creating credential email' do
-      let(:user) { create(:user, email:, idme_uuid:) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
-      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:user) { create(:user, email:) }
       let(:email) { 'some-email' }
 
       it 'creates a user credential email with expected attributes' do
@@ -22,9 +20,7 @@ RSpec.describe Login::AfterLoginActions do
     end
 
     context 'creating user acceptable verified credential' do
-      let(:user) { create(:user, idme_uuid:) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
-      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:user) { create(:user) }
       let(:expected_avc_at) { '2021-1-1' }
 
       before { Timecop.freeze(expected_avc_at) }
@@ -129,9 +125,7 @@ RSpec.describe Login::AfterLoginActions do
     end
 
     context 'when creating an MHV account' do
-      let(:user) { create(:user, idme_uuid:) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
-      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:user) { create(:user) }
 
       before do
         allow(user).to receive(:create_mhv_account_async)

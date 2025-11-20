@@ -186,6 +186,32 @@ describe PdfFill::HashConverter do
         verify_hash({})
       end
     end
+
+    context 'when a form data key maps to multiple PDF keys' do
+      context 'when called from non-overflow' do
+        it 'sets the form data value for each PDF key' do
+          call_set_custom_value('hello world', { key: %w[key1 key2] }, nil)
+          verify_hash('key1' => 'hello world', 'key2' => 'hello world')
+        end
+      end
+
+      context 'when called from array overflow' do
+        it 'adds text to the extras page and sets the form data value for each PDF key' do
+          verify_extras_text('hello world', i: nil, question_num: 1, question_text: 'foo')
+          call_set_custom_value(
+            'hello world',
+            {
+              key: %w[key1 key2],
+              limit: 6,
+              question_num: 1,
+              question_text: 'foo'
+            },
+            nil
+          )
+          verify_hash('key1' => placeholder_text, 'key2' => placeholder_text)
+        end
+      end
+    end
   end
 
   describe '#transform_data' do

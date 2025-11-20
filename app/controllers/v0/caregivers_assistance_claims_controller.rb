@@ -4,6 +4,8 @@ module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
     include RetriableConcern
+    include PdfFilenameGenerator
+
     service_tag 'caregiver-application'
 
     AUDITOR = ::Form1010cg::Auditor.new
@@ -45,7 +47,7 @@ module V0
         @claim.to_pdf(file_name, sign: false)
       end
 
-      client_file_name = file_name_for_pdf(@claim.veteran_data)
+      client_file_name = file_name_for_pdf(@claim.veteran_data, 'fullName', '10-10CG')
       file_contents    = File.read(source_file_path)
 
       auditor.record(:pdf_download)
@@ -100,13 +102,6 @@ module V0
 
     def initialize_claim
       @claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
-    end
-
-    def file_name_for_pdf(veteran_data)
-      veteran_name = veteran_data.try(:[], 'fullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10CG_#{first_name}_#{last_name}.pdf"
     end
 
     def backend_service_outage

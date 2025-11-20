@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
-require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'logging/third_party_transaction'
 require 'lighthouse/poll_form526_pdf'
@@ -9,8 +8,8 @@ require 'scopes/form526_submission_state'
 
 class Form526Submission < ApplicationRecord
   extend Logging::ThirdPartyTransaction::MethodWrapper
-  include SentryLogging
   include Form526ClaimFastTrackingConcern
+  include Form526MPIConcern
   include Scopes::Form526SubmissionState
 
   wrap_with_logging(:start_evss_submission_job,
@@ -74,6 +73,8 @@ class Form526Submission < ApplicationRecord
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
   ZSF_DD_TAG_SERVICE = 'disability-application'
+  UPLOAD_DELAY_BASE = 60.seconds
+  UNIQUENESS_INCREMENT = 5
 
   # the keys of the Toxic Exposure details for each section
   TOXIC_EXPOSURE_DETAILS_MAPPING = {
@@ -135,8 +136,8 @@ class Form526Submission < ApplicationRecord
   # @return [NilClass] all BIRLS IDs for the veteran have been tried
   #
   def submit_with_birls_id_that_hasnt_been_tried_yet!(
-    extra_content_for_sentry: {},
-    silence_errors_and_log_to_sentry: false
+    extra_content_for_logs: {},
+    silence_errors_and_log: false
   )
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
 
@@ -146,15 +147,17 @@ class Form526Submission < ApplicationRecord
     save!
     start_evss_submission_job
   rescue => e
-    # 1) why have the 'silence_errors_and_log_to_sentry' option? (why not rethrow the error?)
+    # 1) why have the 'silence_errors_and_log' option? (why not rethrow the error?)
     # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end
     # (exhausted, or non-retryable error). One of the places this method is called is inside a
     # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
-    # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
+    # Sidekiq job instance (so no access to the log_exception method). Also, rethrowing the error
     # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
-    raise unless silence_errors_and_log_to_sentry
+    raise unless silence_errors_and_log
 
-    log_exception_to_sentry e, extra_content_for_sentry
+    Rails.logger.error('Form526Submission#submit_with_birls_id_that_hasnt_been_tried_yet! error',
+                       error: e,
+                       extra_content_for_logs: extra_content_for_logs.merge({ form526_submission_id: id }))
   end
 
   # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
@@ -171,10 +174,8 @@ class Form526Submission < ApplicationRecord
     name_hash = user&.full_name_normalized
     return name_hash if name_hash&.[](:first).present?
 
-    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
-      middle: nil,
-      last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
-      suffix: nil }
+    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize, middle: nil,
+      last: auth_headers&.dig('va_eauth_lastName')&.capitalize, suffix: nil }
   end
 
   # form_json is memoized here so call invalidate_form_hash after updating form_json
@@ -301,7 +302,7 @@ class Form526Submission < ApplicationRecord
     submit_form_526_job_statuses.presence&.any?(&:success?)
   ensure
     successful = submit_form_526_job_statuses.where(status: 'success').load
-    warn = ->(message) { log_message_to_sentry(message, :warn, { form_526_submission_id: id }) }
+    warn = ->(message) { Rails.logger.warn(message, form_526_submission_id: id) }
     warn.call 'There are multiple successful SubmitForm526 job statuses' if successful.size > 1
     if successful.size == 1 && submit_form_526_job_statuses.last.unsuccessful?
       warn.call "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job"
@@ -523,13 +524,7 @@ class Form526Submission < ApplicationRecord
     response_struct = Struct.new(:status, :body)
     mock_response = response_struct.new(status || 609, nil)
 
-    mock_response.body = {
-      'errors' => [
-        {
-          'title' => "Response Status Code '#{mock_response.status}' - #{error}"
-        }
-      ]
-    }
+    mock_response.body = { 'errors' => [{ 'title' => "Response Status Code '#{mock_response.status}' - #{error}" }] }
 
     @lighthouse_validation_response = mock_response
   end
@@ -563,13 +558,43 @@ class Form526Submission < ApplicationRecord
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
+  # This method calculates the delay for each upload based on its index in the uploads array.
+  # The delay is calculated to ensure that uploads are staggered and not sent all at once.
+  # Duplicate uploads (uploads with the same key) will have an additional delay.
+  #
+  # @param upload_index [Integer] the index of the upload in the uploads array
+  # @param key [String] a unique key for the upload, based on its name and size
+  # @param uniqueness_tracker [Hash] a hash to track the number of times each unique upload has been seen
+  # @return [Integer] the total delay in seconds for this upload
+  #
+  def calc_submit_delays(upload_index, key, uniqueness_tracker)
+    delay_per_upload = (upload_index * UPLOAD_DELAY_BASE) # staggered delay based on index
+    # If the upload is a duplicate, add an additional delay based on how many times it has been seen
+    dup_delay = [0, (UPLOAD_DELAY_BASE * (uniqueness_tracker[key] - 1 - upload_index))].max
+    # Final amount to delay
+    UPLOAD_DELAY_BASE + delay_per_upload + dup_delay
+  end
+
   def submit_uploads
-    # Put uploads on a one minute delay because of shared workload with EVSS
     uploads = form[FORM_526_UPLOADS]
-    delay = 60.seconds
-    uploads.each do |upload|
+    statsd_tags = ["form_id:#{FORM_526}"]
+
+    # Send the count of uploads to StatsD, happens before return to capture claims with no uploads
+    StatsD.gauge('form526.uploads.count', uploads.count, tags: statsd_tags)
+    return if uploads.blank?
+
+    # This happens only when there is 1+ uploads, otherwise will error out
+    uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
+    StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags: statsd_tags)
+
+    uniqueness_tracker = {}
+    uploads.each_with_index do |upload, upload_index|
+      key = "#{upload['name']}_#{upload['size']}"
+      uniqueness_tracker[key] ||= 1
+      delay = calc_submit_delays(upload_index, key, uniqueness_tracker)
+      StatsD.gauge('form526.uploads.delay', delay, tags: statsd_tags)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
-      delay += 15.seconds
+      uniqueness_tracker[key] += UNIQUENESS_INCREMENT
     end
   end
 
@@ -608,48 +633,8 @@ class Form526Submission < ApplicationRecord
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 
-  def get_icn_from_mpi
-    edipi_response_profile = edipi_mpi_profile_query(auth_headers['va_eauth_dodedipnid'])
-    if edipi_response_profile&.icn.present?
-      OpenStruct.new(icn: edipi_response_profile.icn)
-    else
-      Rails.logger.info('Form526Submission::account - unable to look up MPI profile with EDIPI', log_payload)
-      attributes_response_profile = attributes_mpi_profile_query(auth_headers)
-      if attributes_response_profile&.icn.present?
-        OpenStruct.new(icn: attributes_response_profile.icn)
-      else
-        Rails.logger.info('Form526Submission::account - no ICN present', log_payload)
-        OpenStruct.new(icn: nil)
-      end
-    end
-  end
-
-  def edipi_mpi_profile_query(edipi)
-    return unless edipi
-
-    edipi_response = mpi_service.find_profile_by_edipi(edipi:)
-    edipi_response.profile if edipi_response.ok? && edipi_response.profile.icn.present?
-  end
-
-  def attributes_mpi_profile_query(auth_headers)
-    required_attributes = %w[va_eauth_firstName va_eauth_lastName va_eauth_birthdate va_eauth_pnid]
-    return unless required_attributes.all? { |attr| auth_headers[attr].present? }
-
-    attributes_response = mpi_service.find_profile_by_attributes(
-      first_name: auth_headers['va_eauth_firstName'],
-      last_name: auth_headers['va_eauth_lastName'],
-      birth_date: auth_headers['va_eauth_birthdate']&.to_date.to_s,
-      ssn: auth_headers['va_eauth_pnid']
-    )
-    attributes_response.profile if attributes_response.ok? && attributes_response.profile.icn.present?
-  end
-
   def log_payload
     @log_payload ||= { user_uuid:, submission_id: id }
-  end
-
-  def mpi_service
-    @mpi_service ||= MPI::Service.new
   end
 
   def user

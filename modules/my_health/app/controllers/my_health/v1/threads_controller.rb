@@ -1,11 +1,23 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module MyHealth
   module V1
     class ThreadsController < SMController
+      include Vets::SharedLogging
+
+      STATSD_KEY_PREFIX = 'api.my_health.threads'
+
       def index
         resource = fetch_folder_threads
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
+
+        # Log unique user event for inbox accessed
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+        )
 
         options = { meta: resource.metadata }
         render json: ThreadsSerializer.new(resource.data, options)
@@ -24,15 +36,16 @@ module MyHealth
           page_size: params[:page_size],
           page_number: params[:page_number],
           sort_field: params[:sort_field],
-          sort_order: params[:sort_order],
-          requires_oh_messages: params[:requires_oh_messages].to_s
+          sort_order: params[:sort_order]
         }
         client.get_folder_threads(params[:folder_id].to_s, options)
       rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
         handle_error(e)
       end
 
       def handle_error(e)
+        log_exception_to_rails(e)
         error = e.errors.first
         if error.status.to_i == 400 && error.detail == 'No messages in the requested folder'
           Common::Collection.new(

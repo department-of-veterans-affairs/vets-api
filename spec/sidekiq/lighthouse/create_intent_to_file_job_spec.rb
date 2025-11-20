@@ -6,8 +6,7 @@ require 'lighthouse/benefits_claims/service'
 RSpec.describe Lighthouse::CreateIntentToFileJob do
   let(:job) { described_class.new }
   let(:user) { create(:user) }
-  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
-  let(:user_account) { create(:user_account, icn: user.icn, user_verifications: [user_verification]) }
+  let(:user_account) { user.user_account }
   let(:pension_ipf) { create(:in_progress_527_form, user_account:) }
   let(:itf_type) { Lighthouse::CreateIntentToFileJob::ITF_FORMS[pension_ipf.form_id] }
   let(:service) { double('service') }

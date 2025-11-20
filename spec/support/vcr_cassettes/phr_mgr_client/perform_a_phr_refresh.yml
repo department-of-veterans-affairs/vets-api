@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: "<MHV_MR_HOST>/mhvapi/v2/phrmgr/refresh/1000000000V000000"
+      uri: "<MHV_MR_HOST>/v2/phrmgr/refresh/1000000000V000000"
       body:
         encoding: UTF-8
         string: "{}"
