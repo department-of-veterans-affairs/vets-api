@@ -86,22 +86,27 @@ Shows a menu of available services to connect to.
 
 ## Architecture
 
-The wizard consists of two main files:
+The wizard consists of three main files:
 
 ### 1. `upstream-connect.sh` (Main Script)
 - Bash script that orchestrates the connection process
 - Handles command-line arguments and user interaction
-- Calls existing devops utilities for AWS operations
+- Calls upstream_settings_sync.rb for settings synchronization
 - Provides colored output and progress indicators
 
 ### 2. `upstream_service_config.rb` (Service Configuration)
-- Ruby script that manages service definitions
-- Returns service configuration in JSON format
-- Easy to extend with new services
+- Ruby module defining available services in a static SERVICES hash
+- Provides service metadata including ports, settings, and instructions
+- Single source of truth for all service configurations
+
+### 3. `upstream_settings_sync.rb` (Settings Synchronization)
+- Ruby script that handles AWS Parameter Store synchronization
+- Manages port forwarding setup and tunnel configuration
+- Processes service-specific settings and creates localhost mappings
 
 ## Adding New Services
 
-To add a new service, edit `script/upstream_service_config.rb` and add an entry to the `SERVICES` hash:
+To add a new service, edit `script/upstream-connect/upstream_service_config.rb` and add an entry to the `SERVICES` hash:
 
 ```ruby
 'service_key' => {
@@ -207,7 +212,7 @@ lsof -i :4437
 ### Port forwarding sessions not stopping
 Use the cleanup command to stop all background sessions:
 ```bash
-./script/upstream-connect.sh --cleanup
+./script/upstream-connect/upstream-connect.sh --cleanup
 ```
 
 ### Multiple port forwarding sessions
