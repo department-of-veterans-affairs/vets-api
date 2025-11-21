@@ -57,6 +57,9 @@ module Identity
 
       ICN_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
+      # NPI_REGEX ex. 12345^NI^200ENPI^USDVA^A
+      NPI_ID_REGEX = /^\w+\^NI\^200ENPI\^USDVA\^\w+$/
+
       # Defines the tokens we use to split identifiers or multiple ids in a single string
       IDENTIFIERS_SPLIT_TOKEN = '^'
       IDS_SPLIT_TOKEN = '|'
@@ -83,7 +86,8 @@ module Identity
         vha_facility_ids: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility },
         cerner_facility_ids: { regex: CERNER_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility },
         icn_with_aaid: { regex: PERMANENT_ICN_REGEX, root_oid: VA_ROOT_OID, type: :icn_with_aaid },
-        vha_facility_hash: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility_to_ids }
+        vha_facility_hash: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility_to_ids },
+        npi_id: { regex: NPI_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id }
       }.freeze
     end
   end

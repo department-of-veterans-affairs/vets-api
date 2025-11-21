@@ -28,12 +28,13 @@ module SignIn
     attribute :corp_id, :string
     attribute :birls, :string
     attribute :gcids, :string
+    attribute :npi_id, :string
 
     def self.from_user(user, user_verification: nil)
       new(
         sub: user.uuid,
         email: user_verification&.user_credential_email&.credential_email || user.email,
-        full_name: full_name_from(user),
+        npi_id: user.npi_id, full_name: full_name_from(user),
         first_name: user.first_name, last_name: user.last_name,
         csp_type: csp_type_from_mpi(user_verification), csp_uuid: user_verification.credential_identifier,
         ial: ial_level(user_verification), aal: aal_level(user_verification),
@@ -42,13 +43,13 @@ module SignIn
         person_type: user.try(:person_type), icn: user.icn,
         sec_id: user.sec_id, edipi: user.try(:edipi),
         mhv_ien: user.try(:mhv_ien), cerner_id: user.try(:cerner_id),
-        corp_id: user.participant_id, birls: user.birls_id, gcids: user.mpi_gcids
+        corp_id: user.participant_id, birls: user.birls_id, gcids: accepted_gcids(user.mpi_gcids)
       )
     end
 
     def to_oidc_json
       {
-        sub:, first_name:, full_name:,
+        sub:, first_name:, npi_id:, full_name:,
         last_name:, email:, csp_type:, csp_uuid:,
         ial:, aal:, birth_date:, ssn:,
         gender:, address:, phone_number:, person_type:,
@@ -89,6 +90,24 @@ module SignIn
 
     def gcids=(value)
       super(Array(value).join('|'))
+    end
+
+    ACCEPTED_GCID_TYPES = %w[200ENPI 200VETS 200BRLS 200CORP 200VET360 200VIDM 200VLGN 200MHV 200CERNER].freeze
+
+    def self.accepted_gcids(gcids)
+      return [] if gcids.blank?
+
+      gcid_list =
+        case gcids
+        when Array then gcids
+        when String then gcids.split('|')
+        else []
+        end
+
+      gcid_list.select do |gcid|
+        _identifier, _code, gcid_type, _agency, _status = gcid.split('^')
+        ACCEPTED_GCID_TYPES.include?(gcid_type)
+      end
     end
   end
 end
