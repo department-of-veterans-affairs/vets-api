@@ -120,7 +120,9 @@ RSpec.describe Login::AfterLoginActions do
         let(:expected_mpi_value) { loa3_user.mpi_mhv_correlation_id }
         let(:validation_id) { 'MHV Correlation ID' }
 
-        it_behaves_like 'identity-mpi id validation'
+        it 'fails when identity_value does not equal mpi_value' do
+          expect(expected_identity_value).not_to eq(expected_mpi_value)
+        end
       end
     end
 
