@@ -10,7 +10,9 @@ describe PdfFill::HashConverter do
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
   let(:placeholder_text) { 'special placeholder text' }
 
-  before { allow(extras_generator).to receive(:placeholder_text).and_return(placeholder_text) }
+  before do
+    allow(extras_generator).to receive_messages(placeholder_text:, use_hexapdf: false)
+  end
 
   def verify_extras_text(text, metadata)
     metadata[:overflow] = true unless metadata.key?(:overflow)
