@@ -7,11 +7,10 @@
 # Logstop scans actual content for PII patterns.
 #
 # Built-in patterns filtered by Logstop:
-# - SSN (XXX-XX-XXXX, XXXXXXXXX)
+# - SSN (XXX-XX-XXXX)
 # - Email addresses
 # - Phone numbers
 # - Credit card numbers
-# - IP addresses
 #
 # Custom VA-specific patterns added below:
 # - VA file numbers (8-9 digit numbers)

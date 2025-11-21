@@ -133,12 +133,6 @@ RSpec.describe 'Logstop PII filtering' do
       expect(result).not_to include('4111111111111111')
       expect(result).to include('[FILTERED]')
     end
-
-    it 'filters IP addresses' do
-      result = Logstop.scrub('IP: 192.168.1.1')
-      expect(result).not_to include('192.168.1.1')
-      expect(result).to include('[FILTERED]')
-    end
   end
 
   describe 'integration with existing filter_parameters' do
