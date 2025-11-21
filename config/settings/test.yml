@@ -1723,10 +1723,6 @@ vanotify:
           template_id: 'error_email_template_id'
   status_callback:
     bearer_token: fake_bearer_token
-vass:
-  redis_otc_expiry: 600            # 10 minutes (One-Time Codes)
-  redis_session_expiry: 7200       # 2 hours (Session data after OTC verification)
-  redis_token_expiry: 3540        # 59 minutes (OAuth token from Microsoft)
 vaos:
   ccra:
     api_url: https://api.ccra.placeholder.va.local
@@ -1750,6 +1746,10 @@ vaos:
     encryption:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+vass:
+  redis_otc_expiry: 600            # 10 minutes (One-Time Codes)
+  redis_session_expiry: 7200       # 2 hours (Session data after OTC verification)
+  redis_token_expiry: 3540        # 59 minutes (OAuth token from Microsoft)
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: true
