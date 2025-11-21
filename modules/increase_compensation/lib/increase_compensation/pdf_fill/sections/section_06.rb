@@ -49,6 +49,7 @@ module IncreaseCompensation
       }.freeze
       def expand(form_data = {})
         form_data['signatureDate'] = split_date(form_data['signatureDate'])
+        form_data['statement_of_truth_signature'] = form_data['statement_of_truth_signature'] || form_data['signature']
         if form_data['witnessSignature1'].present? && form_data['witnessSignature1']['address'].length > 1
           form_data['witnessSignature1'].merge!(
             two_line_overflow(form_data['witnessSignature1']['address'], 'address', 17)
