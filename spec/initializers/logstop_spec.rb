@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'logstop'
 
+# rubocop:disable RSpec/DescribeClass
 RSpec.describe 'Logstop PII filtering' do
   let(:va_custom_scrubber) do
     lambda do |msg|
@@ -154,3 +155,4 @@ RSpec.describe 'Logstop PII filtering' do
     end
   end
 end
+# rubocop:enable RSpec/DescribeClass
