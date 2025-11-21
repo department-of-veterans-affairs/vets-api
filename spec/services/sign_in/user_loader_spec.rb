@@ -64,6 +64,17 @@ RSpec.describe SignIn::UserLoader do
           stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, deceased_date:, id_theft_flag:, vha_facility_ids:))
         end
 
+        context 'and user is not verified' do
+          let(:user_icn) { nil }
+          let(:user_account) { create(:user_account, icn: user_icn) }
+          let(:user_verification) { create(:idme_user_verification, user_account:) }
+          let(:expected_loa) { { current: SignIn::Constants::Auth::LOA_ONE, highest: SignIn::Constants::Auth::LOA_ONE } }
+
+          it 'reloads user object with an loa of one' do
+            expect(subject.loa).to eq(expected_loa)
+          end
+        end
+
         context 'and user is authenticated with dslogon' do
           let(:user_verification) { create(:dslogon_user_verification, user_account:) }
 

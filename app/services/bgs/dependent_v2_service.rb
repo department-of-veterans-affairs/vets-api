@@ -2,9 +2,12 @@
 
 require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class DependentV2Service
+    include Vets::SharedLogging
+
     attr_reader :first_name,
                 :middle_name,
                 :last_name,
@@ -247,7 +250,15 @@ module BGS
     def get_form_hash_686c
       begin
         #  include ssn in call to BGS for mocks
-        bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+        bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+        if bgs_person.present?
+          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+                               "#{STATS_KEY}.find_by_participant_id")
+        else
+          bgs_person = service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+                               "#{STATS_KEY}.find_by_ssn")
+        end
         @file_number = bgs_person[:file_nbr]
         # BGS's file number is supposed to be an eight or nine-digit string, and
         # our code is built upon the assumption that this is the case. However,

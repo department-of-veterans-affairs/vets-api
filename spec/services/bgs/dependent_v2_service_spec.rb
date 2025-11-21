@@ -138,6 +138,38 @@ RSpec.describe BGS::DependentV2Service do
       end
     end
 
+    context 'BGS person is found by participant id or ssn' do
+      let(:monitor) { instance_double(Dependents::Monitor) }
+
+      before do
+        allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive(:track_event)
+      end
+
+      it 'submits call to find person by ptcpnt id and logs that the pid is present' do
+        expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
+        expect(monitor).to receive(:track_event).with(
+          'info',
+          'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+          'bgs.dependent_service.find_by_participant_id'
+        )
+
+        service.submit_686c_form(claim)
+      end
+
+      it 'submits call to find person by ssn after ptcpnt returns nil and logs that the ssn was used' do
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+        expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return(nil)
+        expect(monitor).to receive(:track_event).with(
+          'info',
+          'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+          'bgs.dependent_service.find_by_ssn'
+        )
+
+        service.submit_686c_form(claim)
+      end
+    end
+
     context 'va_profile_email returns error' do
       let(:monitor) { instance_double(Dependents::Monitor) }
 

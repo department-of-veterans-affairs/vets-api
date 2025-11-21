@@ -6,7 +6,7 @@ module VeteranEnrollmentSystem
   module EnrollmentPeriods
     class Configuration < VeteranEnrollmentSystem::BaseConfiguration
       def self.api_key_path
-        :form1095b
+        :enrollment_periods
       end
 
       def service_name
