@@ -26,15 +26,15 @@ module Common
         attributes ||= {}
         # nullifies blank values
         attributes = attributes.transform_values(&:presence) if attributes.present?
+
+        # set default value for detail
+        attributes[:detail] = attributes[:detail] || attributes[:title]
+
         # filters unknown attributes from the attributes hash
         filtered_attributes = attributes.slice(*self.class.attribute_names.map(&:to_s))
                                         .merge(attributes.slice(*self.class.attribute_names.map(&:to_sym)))
 
         super(filtered_attributes)
-      end
-
-      def detail
-        super.presence || title
       end
 
       def source=(value)
@@ -64,7 +64,7 @@ module Common
 
       # return only those attributes that have non nil values
       def to_hash
-        attributes.compact_blank.deep_symbolize_keys
+         attributes.compact_blank.deep_symbolize_keys
       end
       alias to_h to_hash
 
