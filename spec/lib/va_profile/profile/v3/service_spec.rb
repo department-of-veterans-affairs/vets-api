@@ -87,16 +87,10 @@ describe VAProfile::Profile::V3::Service do
         expect(types).to match_array(valid_contact_types)
       end
 
-      it 'does not call Sentry.set_extras' do
-        expect(Sentry).not_to receive(:set_extras)
-        subject.get_health_benefit_bio
-      end
-
       it 'logs request and response events and success metrics' do
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:measure)
-        allow(StatsD).to receive(:increment)
 
         subject.get_health_benefit_bio
 
@@ -104,10 +98,9 @@ describe VAProfile::Profile::V3::Service do
                                                             event: 'va_profile.health_benefit_bio.request', bios_requested: 1
                                                           ))
         expect(Rails.logger).to have_received(:info).with(hash_including(
-                                                            event: 'va_profile.health_benefit_bio.response', ok: true, contacts_present: true
+                                                            event: 'va_profile.health_benefit_bio.response', contacts_present: true
                                                           ))
         expect(StatsD).to have_received(:measure).with('va_profile.health_benefit_bio.latency', kind_of(Numeric))
-        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.success')
       end
     end
 
@@ -123,11 +116,6 @@ describe VAProfile::Profile::V3::Service do
         expect(response.status).to eq(404)
         expect(response.contacts.size).to eq(0)
         expect(response.messages.size).to eq(1)
-      end
-
-      it 'calls Sentry.set_extras' do
-        expect(Sentry).to receive(:set_extras).once.with(debug_data)
-        subject.get_health_benefit_bio
       end
     end
 
@@ -145,7 +133,6 @@ describe VAProfile::Profile::V3::Service do
         allow(StatsD).to receive(:increment)
         expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::BackendServiceException)
         expect(Rails.logger).to have_received(:error).with(hash_including(event: 'va_profile.health_benefit_bio.server_error'))
-        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.error')
       end
     end
 
@@ -162,7 +149,6 @@ describe VAProfile::Profile::V3::Service do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         allow(StatsD).to receive(:increment)
         expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::GatewayTimeout)
-        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.error')
       end
     end
 
@@ -184,7 +170,6 @@ describe VAProfile::Profile::V3::Service do
         expect(Rails.logger).to have_received(:info).with(hash_including(
                                                             event: 'va_profile.health_benefit_bio.response', contacts_present: false
                                                           ))
-        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.empty')
       end
     end
   end

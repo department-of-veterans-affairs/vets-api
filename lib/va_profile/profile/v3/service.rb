@@ -26,18 +26,16 @@ module VAProfile
 
         def get_health_benefit_bio
           oid = MPI::Constants::VA_ROOT_OID
-          identifier = icn_with_aaid
-          unless identifier
+          unless icn_with_aaid
             Rails.logger.error(
-              event: 'va_profile.health_benefit_bio.missing_identifier',
+              event: 'va_profile.health_benefit_bio.missing_icn_with_aaid',
               user_uuid: user.uuid,
               icn_present: user.icn.present?
             )
-            StatsD.increment('va_profile.health_benefit_bio.error')
-            raise Common::Exceptions::BackendServiceException.new('VET360_502', self.class) # preserve status semantics
+            raise Common::Exceptions::BackendServiceException.new('VET360_502', self.class)
           end
 
-          path = "#{oid}/#{ERB::Util.url_encode(identifier)}"
+          path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
           path_hash = Digest::SHA256.hexdigest(path)
           request_body = { bios: [{ bioPath: 'healthBenefit' }] }
 
@@ -55,16 +53,11 @@ module VAProfile
             event: 'va_profile.health_benefit_bio.response',
             path_hash:,
             upstream_status: response.code,
-            ok: response.ok?,
-            server_error: response.server_error?,
             contacts_present: response.contacts&.any?,
             latency_ms: latency
           )
           StatsD.measure('va_profile.health_benefit_bio.latency', latency)
-          StatsD.increment('va_profile.health_benefit_bio.empty') if response.ok? && response.contacts.blank?
-          StatsD.increment('va_profile.health_benefit_bio.success') if response.ok?
 
-          Sentry.set_extras(response.debug_data) unless response.ok?
           code = response.code || 502
           if response.server_error?
             Rails.logger.error(
@@ -72,7 +65,6 @@ module VAProfile
               upstream_status: code,
               path_hash:
             )
-            StatsD.increment('va_profile.health_benefit_bio.error')
             raise_backend_exception("VET360_#{code}", self.class)
           end
           response
