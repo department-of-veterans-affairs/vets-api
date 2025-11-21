@@ -91,8 +91,6 @@ module Lighthouse
     def perform(submission_id)
       @submission_id = submission_id
 
-      Sentry.set_tags(source: '526EZ-all-claims')
-
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
