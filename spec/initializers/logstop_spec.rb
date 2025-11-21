@@ -105,7 +105,7 @@ RSpec.describe 'Logstop PII filtering' do
   end
 
   describe 'Logstop built-in patterns' do
-    # Note: These tests verify Logstop's built-in behavior
+    # NOTE: These tests verify Logstop's built-in behavior
     # They require Logstop to be properly initialized
 
     it 'filters SSN with dashes' do
