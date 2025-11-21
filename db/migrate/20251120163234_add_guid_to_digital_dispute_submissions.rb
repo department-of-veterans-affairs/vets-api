@@ -5,12 +5,9 @@ class AddGuidToDigitalDisputeSubmissions < ActiveRecord::Migration[7.2]
     add_column :digital_dispute_submissions, :guid, :uuid
     change_column_default :digital_dispute_submissions, :guid, from: nil, to: -> { 'gen_random_uuid()' }
 
-    # Backfill existing records with guids
-    # rubocop:disable Rails/SkipsModelValidations
-    DebtsApi::V0::DigitalDisputeSubmission.where(guid: nil).update_all('guid = gen_random_uuid()')
-    # rubocop:enable Rails/SkipsModelValidations
-
+    # Backfill existing records with guids and add NOT NULL constraint
     safety_assured do
+      execute 'UPDATE digital_dispute_submissions SET guid = gen_random_uuid() WHERE guid IS NULL'
       change_column_null :digital_dispute_submissions, :guid, false
     end
   end
