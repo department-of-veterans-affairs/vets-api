@@ -9,6 +9,28 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
     Rake::Task.define_task(:environment)
   end
 
+  # Stub S3 uploads to prevent actual AWS calls during tests
+  before do
+    allow(Settings).to receive(:reports).and_return(
+      double(aws: double(
+        region: 'us-east-1',
+        access_key_id: 'test-key',
+        secret_access_key: 'test-secret',
+        bucket: 'test-bucket'
+      ))
+    )
+
+    # Stub S3 resource and operations
+    s3_resource = instance_double(Aws::S3::Resource)
+    s3_bucket = instance_double(Aws::S3::Bucket)
+    s3_object = instance_double(Aws::S3::Object)
+
+    allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)
+    allow(s3_resource).to receive(:bucket).and_return(s3_bucket)
+    allow(s3_bucket).to receive(:object).and_return(s3_object)
+    allow(s3_object).to receive(:put).and_return(true)
+  end
+
   let(:user_account) { create(:user_account) }
 
   describe 'decision_reviews:remediation:clear_recovered_statuses' do
@@ -57,12 +79,12 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
 
     context 'with valid appeal submission IDs in dry run mode' do
       it 'runs without errors' do
-        expect { run_rake_task }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
 
       it 'does not modify the database' do
         expect do
-          run_rake_task
+          silently { run_rake_task }
         end.not_to(change { saved_claim.reload.metadata })
       end
     end
@@ -76,7 +98,7 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
       end
 
       it 'clears error status from metadata' do
-        run_live_task
+        silently { run_live_task }
         metadata = JSON.parse(saved_claim.reload.metadata)
         expect(metadata).not_to have_key('status')
         expect(metadata).to have_key('uploads')
@@ -120,7 +142,7 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
       end
 
       it 'clears error status from upload metadata' do
-        run_evidence_task
+        silently { run_evidence_task }
         metadata = JSON.parse(upload_saved_claim.reload.metadata)
         upload_entry = metadata['uploads'].first
         expect(upload_entry['id']).to eq('test-uuid-123')
