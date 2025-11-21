@@ -30,7 +30,7 @@ describe Common::Exceptions::SerializableError do
     end
 
     it 'responds to #to_hash' do
-      expect(subject.to_hash).to eq(attributes)
+      expect(subject.to_hash).to match(attributes)
     end
   end
 
@@ -44,7 +44,7 @@ describe Common::Exceptions::SerializableError do
     end
 
     it 'responds to #to_hash with hash source' do
-      expect(subject.to_hash).to eq(attributes)
+      expect(subject.to_hash).to match(attributes)
     end
   end
 end
