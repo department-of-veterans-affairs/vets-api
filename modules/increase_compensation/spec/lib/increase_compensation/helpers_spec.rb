@@ -137,7 +137,8 @@ RSpec.describe IncreaseCompensation::Helpers do
           { 'from' => '2024-01-10',
             'to' => '2025-02-20' }
         ],
-        'nameAndAddressOfDoctor' => 'Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001'
+        'nameAndAddressOfDoctor' => 'Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001',
+        'relatedDisability' => ['PTSD']
       },
       {
         'doctorsTreatmentDates' => [
@@ -160,9 +161,9 @@ RSpec.describe IncreaseCompensation::Helpers do
     it 'formats all items for overflow' do
       expect(subject.overflow_doc_and_hospitails(doctors_care, true)).to eq(
         [
-          "Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001 \n from: 2024-01-10, to: 2025-02-20\n",
-          "Dr.Nick, 123 frontage St, Cheyenne, WY 82001 \n from: 2024-01-10, to: 2025-02-20\nfrom: 2024-01-10, to: \n",
-          "Dr. Zoidberg, 423 main St, Cheyenne, WY 82001 \n from: 2024-01-10, to: 2025-02-20\nfrom: 2024-01-10, to: 2025-02-20\n" # rubocop:disable Layout/LineLength
+          "Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001\nTreated for: PTSD\nFrom: 2024-01-10, To: 2025-02-20\n",
+          "Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n",
+          "Dr. Zoidberg, 423 main St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: 2025-02-20\n" # rubocop:disable Layout/LineLength
         ]
       )
     end

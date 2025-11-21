@@ -129,7 +129,9 @@ module IncreaseCompensation
             form_data['doctorsTreatmentDates'], form_data['nameAndAddressesOfDoctors'] =
               format_first_care_item(form_data['doctorsCare'].first)
           else
-            form_data['doctorsCareOverflow'] = overflow_doc_and_hospitails(form_data['doctorsCare'], true)
+            form_data['doctorsCareOverflow'] = [
+              overflow_doc_and_hospitails(form_data['doctorsCare'], true).join("\n\n")
+            ]
             form_data['nameAndAddressesOfDoctors'] = 'See Additional Pages'
           end
         end
@@ -139,7 +141,9 @@ module IncreaseCompensation
             form_data['hospitalTreatmentDates'], form_data['nameAndAddressesOfHospitals'] =
               format_first_care_item(form_data['hospitalsCare'].first)
           else
-            form_data['hospitalCareOverflow'] = overflow_doc_and_hospitails(form_data['hospitalsCare'], false)
+            form_data['hospitalCareOverflow'] = [
+              overflow_doc_and_hospitails(form_data['hospitalsCare'], false).join("\n\n")
+            ]
             form_data['nameAndAddressesOfHospitals'] = 'See Additional Pages'
           end
         end

@@ -107,16 +107,12 @@ module IncreaseCompensation
     def overflow_doc_and_hospitails(care_info_array, is_doc)
       return nil if care_info_array.nil? || is_doc.nil?
 
-      if is_doc
-        care_info_array.map do |info|
-          "#{info['nameAndAddressOfDoctor']} " \
-            "\n #{info['doctorsTreatmentDates'].map { |td| "from: #{td['from']}, to: #{td['to']}\n" }.join}"
-        end
-      else
-        care_info_array.map do |info|
-          "#{info['nameAndAddressOfHospital']}" \
-            "\n #{info['hospitalTreatmentDates'].map { |td| "from: #{td['from']}, to: #{td['to']}\n" }.join}"
-        end
+      key_name_address = is_doc ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'
+      key_treatment = is_doc ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
+      care_info_array.map do |info|
+        "#{info[key_name_address]}\n" \
+          "#{info['relatedDisability'] ? "Treated for: #{info['relatedDisability'].join(', ')}\n" : ''}" \
+          "#{info[key_treatment].map { |td| "From: #{td['from']}, To: #{td['to']}\n" }.join}"
       end
     end
 
