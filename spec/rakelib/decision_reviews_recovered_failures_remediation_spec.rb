@@ -13,7 +13,12 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
 
   describe 'decision_reviews:remediation:clear_recovered_statuses' do
     let(:saved_claim) do
-      create(:saved_claim_higher_level_review, metadata: { status: 'error', detail: 'Some error', code: 500 }.to_json)
+      create(:saved_claim_higher_level_review, metadata: {
+        status: 'error',
+        updatedAt: '2025-11-20T20:35:56.103Z',
+        createdAt: '2025-11-18T01:09:10.553Z',
+        uploads: []
+      }.to_json)
     end
     let(:appeal_submission) do
       create(:appeal_submission,
@@ -74,16 +79,22 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         run_live_task
         metadata = JSON.parse(saved_claim.reload.metadata)
         expect(metadata).not_to have_key('status')
-        expect(metadata).not_to have_key('detail')
-        expect(metadata).not_to have_key('code')
+        expect(metadata).to have_key('uploads')
       end
     end
 
     context 'with evidence upload IDs' do
       let(:upload_saved_claim) do
         create(:saved_claim_higher_level_review, metadata: {
+          status: 'complete',
+          updatedAt: '2025-11-20T20:35:56.103Z',
+          createdAt: '2025-11-18T01:09:10.553Z',
           uploads: [
-            { id: 'test-uuid-123', status: 'error', detail: 'Upload failed', code: 500 }
+            { id: 'test-uuid-123',
+              status: 'error',
+              detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Packet submission validation failed.',
+              createDate: '2025-11-15T23:07:40.892Z',
+              updateDate: '2025-11-15T23:07:40.892Z' }
           ]
         }.to_json)
       end
@@ -112,9 +123,9 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         run_evidence_task
         metadata = JSON.parse(upload_saved_claim.reload.metadata)
         upload_entry = metadata['uploads'].first
+        expect(upload_entry['id']).to eq('test-uuid-123')
         expect(upload_entry).not_to have_key('status')
         expect(upload_entry).not_to have_key('detail')
-        expect(upload_entry).not_to have_key('code')
       end
     end
   end

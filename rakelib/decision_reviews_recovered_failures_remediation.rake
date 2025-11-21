@@ -71,8 +71,6 @@ namespace :decision_reviews do
               log.call '    [DRY RUN] Would clear error status from metadata'
             else
               metadata.delete('status')
-              metadata.delete('detail')
-              metadata.delete('code')
               saved_claim.update!(metadata: metadata.to_json)
               stats[:cleared] += 1
               log.call '    ✅ Cleared error status from metadata'
@@ -177,7 +175,6 @@ namespace :decision_reviews do
               else
                 upload_entry.delete('status')
                 upload_entry.delete('detail')
-                upload_entry.delete('code')
                 saved_claim.update!(metadata: metadata.to_json)
                 stats[:cleared] += 1
                 log.call '    ✅ Cleared error status from upload metadata'
