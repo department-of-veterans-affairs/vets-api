@@ -177,11 +177,13 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(vista_prescription.disp_status).to eq('Active: Refill in Process')
       end
 
-      it 'sets disp_status to nil for Oracle Health prescriptions' do
+      it 'sets disp_status derived from refill_status for Oracle Health prescriptions' do
         prescriptions = subject.parse(unified_response)
         oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
-        expect(oracle_prescription.disp_status).to be_nil
+        # Oracle Health prescription with status='active', 0 refills remaining = 'expired' refill_status
+        # which maps to 'Expired' disp_status
+        expect(oracle_prescription.disp_status).to eq('Expired')
       end
 
       context 'business rules filtering (applied regardless of current_only)' do
@@ -667,33 +669,35 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
     context 'with Vista prescriptions containing dispenses' do
       let(:vista_medication_with_dispenses) do
         vista_medication_data.merge(
-          'rxRFRecords' => [
-            {
-              'id' => 'rf-1',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-              'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'SLC4',
-              'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
-              'quantity' => 1,
-              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
-              'prescriptionNumber' => 'RX001',
-              'cmopDivisionPhone' => '800-555-0100',
-              'cmopNdcNumber' => '12345-678-90',
-              'remarks' => 'Handle with care',
-              'dialCmopDivisionPhone' => '8005550100',
-              'disclaimer' => 'This is a test disclaimer'
-            },
-            {
-              'id' => 'rf-2',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'SLC4',
-              'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
-              'quantity' => 1,
-              'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
-            }
-          ]
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'rf-1',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'SLC4',
+                'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
+                'quantity' => 1,
+                'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
+                'prescriptionNumber' => 'RX001',
+                'cmopDivisionPhone' => '800-555-0100',
+                'cmopNdcNumber' => '12345-678-90',
+                'remarks' => 'Handle with care',
+                'dialCmopDivisionPhone' => '8005550100',
+                'disclaimer' => 'This is a test disclaimer'
+              },
+              {
+                'id' => 'rf-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'SLC4',
+                'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
+                'quantity' => 1,
+                'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
+              }
+            ]
+          }
         )
       end
 
