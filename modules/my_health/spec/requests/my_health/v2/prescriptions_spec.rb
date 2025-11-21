@@ -968,7 +968,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           json_response = JSON.parse(response.body)
           expect(json_response['data']['attributes']['prescription_id']).to eq('15214174591')
           expect(json_response['data']['attributes']['station_number']).to eq('556')
-          expect(json_response['data']['attributes']['name']).to eq('albuterol 90 mcg/inh Aerosol')
+          expect(json_response['data']['attributes']['prescription_name']).to eq('albuterol 90 mcg/inh Aerosol')
         end
       end
 
