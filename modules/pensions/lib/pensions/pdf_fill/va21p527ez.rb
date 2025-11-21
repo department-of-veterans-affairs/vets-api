@@ -44,6 +44,7 @@ module Pensions
         { question_number: '5', question_text: 'Employment History' },
         { question_number: '6', question_text: 'Marital Status' },
         { question_number: '7', question_text: 'Prior Marital History' },
+        { question_number: '7b', question_text: 'Prior Spouse Marital History' },
         { question_number: '8', question_text: 'Dependent Children' },
         { question_number: '9', question_text: 'Income and Assets' },
         { question_number: '10', question_text: 'Care Expenses' },
