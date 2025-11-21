@@ -9,7 +9,7 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
     %w[21P-530EZ].each do |form_id|
       context "form #{form_id}" do
-        %w[kitchen_sink].each do |type|
+        %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               JSON.parse(File.read("modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}.json"))
