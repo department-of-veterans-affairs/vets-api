@@ -132,7 +132,6 @@ PATH
     va_notify (0.1.0)
     vaos (0.1.0)
       sidekiq
-    vass (0.0.1)
     vba_documents (1.0.0)
       aws-sdk-s3 (~> 1)
       sidekiq
@@ -1449,7 +1448,6 @@ DEPENDENCIES
   utf8-cleaner
   va_notify!
   vaos!
-  vass!
   vba_documents!
   vcr
   veteran!
