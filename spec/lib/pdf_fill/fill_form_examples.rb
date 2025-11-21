@@ -160,7 +160,7 @@ RSpec.shared_examples 'a form filler' do |options|
                 fixture_path = File.join('tmp/pdfs', "#{form_id}.#{type}_fixture.page_#{index + 1}.png")
                 fixture_as_string = RTesseract.new(fixture_path).to_s
                 expect(file_as_string).to eq(fixture_as_string)
-                File.delete(image_path)
+                File.delete(image_path, fixture_path)
               end
             end
 
