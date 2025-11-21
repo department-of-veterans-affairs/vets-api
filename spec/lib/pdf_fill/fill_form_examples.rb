@@ -2,29 +2,6 @@
 
 require 'rails_helper'
 
-## Flattens the form fields of a PDF and saves the result to a new file.
-#
-# @param file_path [String] The path to the input PDF file.
-# @param output_path [String] The path to save the flattened PDF file.
-#
-# @return [String] The path to the flattened PDF file.
-#
-def flatten_form(file_path, output_path)
-  # Open the PDF file
-  doc = HexaPDF::Document.open(file_path)
-
-  # Get the form object
-  form = doc.acro_form
-
-  # Flatten the form fields
-  form.flatten
-
-  # Write the modified document to a new file
-  doc.write(output_path)
-
-  output_path
-end
-
 ##
 # Converts each page of a PDF to images and saves them to the specified output directory.
 #
@@ -46,17 +23,20 @@ def pdf_to_images(pdf_path, options = {})
 
   end_page = options[:end_page] || pdf.pages.size
 
+  test_type += '_fixture' if options[:fixture]
+
   pdf.pages.each_with_index do |page, index|
     next if index + 1 < start_page || index + 1 > end_page
 
-    image_path = File.join(output_dir, "#{options[:form_id]}.#{test_type}.page_#{index + 1}.png")
+    filename = "#{options[:form_id]}.#{test_type}.page_#{index + 1}.png"
+
     MiniMagick.convert do |convert|
-      convert.density 150
+      convert.density 300
       convert.background 'white'
       convert << page.path
       convert.flatten
       convert.quality 100
-      convert << image_path
+      convert << File.join(output_dir, filename)
     end
   end
 
@@ -158,28 +138,30 @@ RSpec.shared_examples 'a form filler' do |options|
             expect(Pathname.new(fixture_pdf)).to exist
             expect(file_path).to match_pdf_fields(fixture_pdf)
 
-            if options[:use_ocr]
-              flattened_pdf = flatten_form(file_path, "#{file_path}.#{type}.flattened.pdf")
-
+            # For now this should only run in development to avoid slowing down test suite in CI
+            if options[:use_ocr] && !ENV.fetch('CI', false)
               ocr_options = {
                 test_type: type,
                 form_id:,
                 start_page: options[:ocr_start_page] || 1,
-                end_page: options[:ocr_end_page] || nil
+                end_page: options[:ocr_end_page] || nil,
+                fixture: false
               }
 
-              num_pages = pdf_to_images(flattened_pdf, ocr_options)
+              fixture_ocr_options = ocr_options.clone.merge(fixture: true)
+
+              num_pages = pdf_to_images(file_path, ocr_options)
+              fixture_num_pages = pdf_to_images(fixture_pdf, fixture_ocr_options)
+              expect(num_pages).to eq(fixture_num_pages)
 
               (0...num_pages).each do |index|
                 image_path = File.join('tmp/pdfs', "#{form_id}.#{type}.page_#{index + 1}.png")
                 file_as_string = RTesseract.new(image_path).to_s
-                fixture_path = File.join(output_pdf_fixture_dir, 'ocr', type, "page_#{index + 1}.png")
+                fixture_path = File.join('tmp/pdfs', "#{form_id}.#{type}_fixture.page_#{index + 1}.png")
                 fixture_as_string = RTesseract.new(fixture_path).to_s
                 expect(file_as_string).to eq(fixture_as_string)
                 File.delete(image_path)
               end
-
-              File.delete(flattened_pdf)
             end
 
             File.delete(file_path)
