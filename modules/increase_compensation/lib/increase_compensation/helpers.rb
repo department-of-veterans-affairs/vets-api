@@ -83,6 +83,10 @@ module IncreaseCompensation
       end
     end
 
+    ##
+    # If the care arrays are exactly 1 item, this formats if to fit the form sections
+    #
+    #  @param care_item [Hash]
     def format_first_care_item(care_item)
       date_key = care_item.key?('doctorsTreatmentDates') ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
       namekey = care_item.key?('nameAndAddressOfDoctor') ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'
@@ -101,6 +105,7 @@ module IncreaseCompensation
     end
 
     ##
+    # If the care arrays have more than 1 entry, this formats it for the overflow pages
     #
     # @param care_info_array [Array]
     # @param is_doc [Bool]

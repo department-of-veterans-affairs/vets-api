@@ -124,27 +124,24 @@ module IncreaseCompensation
       def expand(form_data = {})
         form_data['doctorsCareInLastYTD'] = resolve_boolean_checkbox(form_data['doctorsCareInLastYTD'])
 
-        if form_data['doctorsCare'].present?
-          if form_data['doctorsCare'].length == 1
-            form_data['doctorsTreatmentDates'], form_data['nameAndAddressesOfDoctors'] =
-              format_first_care_item(form_data['doctorsCare'].first)
-          else
-            form_data['doctorsCareOverflow'] = [
-              overflow_doc_and_hospitails(form_data['doctorsCare'], true).join("\n\n")
-            ]
-            form_data['nameAndAddressesOfDoctors'] = 'See Additional Pages'
-          end
-        end
+        %w[doctorsCare hospitalsCare].each do |care_type|
+          items = form_data[care_type]
+          next if items.blank?
 
-        if form_data['hospitalsCare'].present?
-          if form_data['hospitalsCare'].length == 1
-            form_data['hospitalTreatmentDates'], form_data['nameAndAddressesOfHospitals'] =
-              format_first_care_item(form_data['hospitalsCare'].first)
+          # set up our keys
+          is_docotor = care_type == 'doctorsCare'
+          treatment_dates_key =  is_docotor ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
+          name_and_address_key = is_docotor ? 'nameAndAddressesOfDoctors' : 'nameAndAddressesOfHospitals'
+          overflow_key = is_docotor ? 'doctorsCareOverflow' : 'hospitalCareOverflow'
+
+          if items.length == 1
+            form_data[treatment_dates_key], form_data[name_and_address_key] =
+              format_first_care_item(items.first)
           else
-            form_data['hospitalCareOverflow'] = [
-              overflow_doc_and_hospitails(form_data['hospitalsCare'], false).join("\n\n")
+            form_data[overflow_key] = [
+              overflow_doc_and_hospitails(items, is_docotor).join("\n\n")
             ]
-            form_data['nameAndAddressesOfHospitals'] = 'See Additional Pages'
+            form_data[name_and_address_key] = 'See Additional Pages'
           end
         end
       end
