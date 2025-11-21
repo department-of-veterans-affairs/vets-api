@@ -890,21 +890,30 @@ namespace :decision_reviews do
       vanotify_template_id = ENV.fetch('VANOTIFY_TEMPLATE_ID', nil)
       dry_run = ENV['DRY_RUN'] == 'true'
 
-      puts "\n#{'=' * 80}"
-      puts 'DECISION REVIEWS REMEDIATION - SEND RECOVERY EMAILS'
-      puts '=' * 80
-      puts "Started at: #{Time.current}"
-      puts "Dry run mode: #{dry_run ? 'ENABLED (no emails will be sent)' : 'DISABLED'}"
-      puts "Appeal Submission IDs to process: #{appeal_submission_ids.count}"
-      puts '=' * 80
+      # Create output buffer to capture all output
+      output_buffer = StringIO.new
+
+      # Helper to log to both console and buffer
+      log = lambda do |message|
+        puts message
+        output_buffer.puts message
+      end
+
+      log.call "\n#{'=' * 80}"
+      log.call 'DECISION REVIEWS REMEDIATION - SEND RECOVERY EMAILS'
+      log.call '=' * 80
+      log.call "Started at: #{Time.current}"
+      log.call "Dry run mode: #{dry_run ? 'ENABLED (no emails will be sent)' : 'DISABLED'}"
+      log.call "Appeal Submission IDs to process: #{appeal_submission_ids.count}"
+      log.call '=' * 80
 
       if appeal_submission_ids.empty?
-        puts "\n❌ ERROR: No appeal submission IDs provided"
+        log.call "\n❌ ERROR: No appeal submission IDs provided"
         exit 1
       end
 
       if vanotify_template_id.blank?
-        puts "\n❌ ERROR: VA Notify template ID not provided"
+        log.call "\n❌ ERROR: VA Notify template ID not provided"
         exit 1
       end
 
@@ -912,7 +921,8 @@ namespace :decision_reviews do
         processed: 0,
         sent: 0,
         skipped: 0,
-        errors: 0
+        errors: 0,
+        deduplicated: 0
       }
 
       results = {
@@ -921,28 +931,37 @@ namespace :decision_reviews do
         errors: []
       }
 
-      puts "\n#{'📧 ' * 40}"
-      puts 'SENDING RECOVERY EMAILS'
-      puts '📧 ' * 40
+      # Track emails sent to avoid duplicates
+      emails_sent_to = Set.new
+
+      log.call "\n#{'📧 ' * 40}"
+      log.call 'SENDING RECOVERY EMAILS'
+      log.call '📧 ' * 40
 
       submissions = AppealSubmission.where(id: appeal_submission_ids).includes(
         :saved_claim_sc,
         :saved_claim_hlr,
         :saved_claim_nod,
-        :user_account
+        :user_account,
+        :appeal_submission_uploads
       )
 
-      puts "\nFound #{submissions.count} AppealSubmission records"
+      log.call "\nFound #{submissions.count} AppealSubmission records"
 
       submissions.each do |submission|
         stats[:processed] += 1
 
         begin
-          # Only send email if failure notification was previously sent
-          if submission.failure_notification_sent_at.blank?
+          # Only send email if failure notification was previously sent for the submission or any of its uploads
+          has_submission_failure = submission.failure_notification_sent_at.present?
+          has_upload_failure = submission.appeal_submission_uploads.any? do |upload|
+            upload.failure_notification_sent_at.present?
+          end
+
+          unless has_submission_failure || has_upload_failure
             stats[:skipped] += 1
-            skip_msg = 'No failure notification was sent'
-            puts "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
+            skip_msg = 'No failure notification was sent for submission or evidence uploads'
+            log.call "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
             results[:skipped] << { id: submission.id, reason: skip_msg }
             next
           end
@@ -951,7 +970,7 @@ namespace :decision_reviews do
           unless saved_claim
             stats[:skipped] += 1
             skip_msg = 'No SavedClaim found'
-            puts "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
+            log.call "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
             results[:skipped] << { id: submission.id, reason: skip_msg }
             next
           end
@@ -961,7 +980,16 @@ namespace :decision_reviews do
           if email_address.blank?
             stats[:skipped] += 1
             skip_msg = 'No email address available'
-            puts "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
+            log.call "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
+            results[:skipped] << { id: submission.id, reason: skip_msg }
+            next
+          end
+
+          # Check if we've already sent an email to this address
+          if emails_sent_to.include?(email_address)
+            stats[:deduplicated] += 1
+            skip_msg = 'Email already sent to this address (deduplicated)'
+            log.call "\n  ⏭️  AppealSubmission ##{submission.id}: #{skip_msg}"
             results[:skipped] << { id: submission.id, reason: skip_msg }
             next
           end
@@ -970,50 +998,80 @@ namespace :decision_reviews do
           mpi_profile = submission.get_mpi_profile
           first_name = mpi_profile&.given_names&.first || 'Veteran'
 
-          # Get submission date
-          submission_date = saved_claim.created_at.strftime('%B %d, %Y')
+          # Collect all original submission dates where failure notifications were sent
+          # (We reference when the user originally submitted the form/evidence, not when we notified them)
+          submission_dates = []
 
-          puts "\n  Processing AppealSubmission ##{submission.id}"
-          puts "    Created at: #{submission.created_at}"
-          puts "    Email: #{email_address}"
-          puts "    First name: #{first_name}"
-          puts "    Submission date: #{submission_date}"
-          puts "    Failure notification sent: #{submission.failure_notification_sent_at}"
+          # Add submission date if failure notification was sent for the submission
+          submission_dates << submission.created_at if submission.failure_notification_sent_at.present?
+
+          # Add evidence upload dates if failure notifications were sent for uploads
+          submission.appeal_submission_uploads.each do |upload|
+            submission_dates << upload.created_at if upload.failure_notification_sent_at.present?
+          end
+
+          # Format as comma-separated string, remove duplicates and sort
+          submission_date_string = submission_dates.uniq.sort
+                                                   .map { |date| date.strftime('%B %d, %Y') }
+                                                   .join(', ')
+
+          log.call "\n  Processing AppealSubmission ##{submission.id}"
+          log.call "    Created at: #{submission.created_at}"
+          log.call "    First name: #{first_name}"
+          log.call "    Submission date(s): #{submission_date_string}"
+          log.call "    Failure notification sent: #{submission.failure_notification_sent_at}"
 
           if dry_run
-            puts '    [DRY RUN] Would send recovery email via VA Notify'
+            log.call '    [DRY RUN] Would send recovery email via VA Notify'
             stats[:sent] += 1
+            emails_sent_to.add(email_address)
             results[:emails_sent] << {
               id: submission.id,
-              email: email_address,
               dry_run: true
             }
           else
-            # Send email via VA Notify
-            vanotify_service = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+            # Send email via VA Notify with callback tracking
+            appeal_type = submission.type_of_appeal
+            reference = "#{appeal_type}-recovery-#{submission.submitted_appeal_uuid}"
+
+            callback_options = {
+              callback_metadata: {
+                email_type: :recovery,
+                service_name: DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type],
+                function: 'recovered failure follow up email',
+                submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                email_template_id: vanotify_template_id,
+                reference:,
+                statsd_tags: ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+                              'function:recovery_email']
+              }
+            }
+
+            vanotify_service = VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key,
+                                                     callback_options)
             response = vanotify_service.send_email(
               email_address:,
               template_id: vanotify_template_id,
               personalisation: {
                 'first_name' => first_name,
-                'submission_date' => submission_date
+                'submission_date' => submission_date_string
               }
             )
 
             notification_id = response['id']
             stats[:sent] += 1
-            puts "    ✅ Email sent successfully (notification ID: #{notification_id})"
+            emails_sent_to.add(email_address)
+            log.call "    ✅ Email sent successfully (notification ID: #{notification_id})"
 
             results[:emails_sent] << {
               id: submission.id,
-              email: email_address,
               notification_id:
             }
           end
         rescue => e
           stats[:errors] += 1
           error_msg = "Error sending email for AppealSubmission #{submission.id}: #{e.message}"
-          puts "  ❌ #{error_msg}"
+          log.call "  ❌ #{error_msg}"
           results[:errors] << {
             id: submission.id,
             error: error_msg,
@@ -1023,37 +1081,41 @@ namespace :decision_reviews do
       end
 
       # Summary
-      puts "\n #{'📊 ' * 40}"
-      puts 'EMAIL SENDING COMPLETE'
-      puts '📊 ' * 40
-      puts "\n  Processed: #{stats[:processed]}"
-      puts "  Emails sent: #{stats[:sent]}"
-      puts "  Skipped: #{stats[:skipped]}"
-      puts "  Errors: #{stats[:errors]}"
+      log.call "\n #{'📊 ' * 40}"
+      log.call 'EMAIL SENDING COMPLETE'
+      log.call '📊 ' * 40
+      log.call "\n  Processed: #{stats[:processed]}"
+      log.call "  Emails sent: #{stats[:sent]}"
+      log.call "  Skipped: #{stats[:skipped]}"
+      log.call "  Deduplicated: #{stats[:deduplicated]}"
+      log.call "  Errors: #{stats[:errors]}"
 
       if results[:skipped].any?
-        puts "\n⚠️  Skipped submissions:"
+        log.call "\n⚠️  Skipped submissions:"
         results[:skipped].each do |skip|
-          puts "    AppealSubmission #{skip[:id]}: #{skip[:reason]}"
+          log.call "    AppealSubmission #{skip[:id]}: #{skip[:reason]}"
         end
       end
 
       if results[:errors].any?
-        puts "\n❌ Errors encountered:"
+        log.call "\n❌ Errors encountered:"
         results[:errors].each_with_index do |error, i|
-          puts "\n  Error ##{i + 1}:"
-          puts "    AppealSubmission ID: #{error[:id]}"
-          puts "    Message: #{error[:error]}"
+          log.call "\n  Error ##{i + 1}:"
+          log.call "    AppealSubmission ID: #{error[:id]}"
+          log.call "    Message: #{error[:error]}"
         end
       end
 
-      puts "\nFinished at: #{Time.current}"
-      puts '=' * 80
+      log.call "\nFinished at: #{Time.current}"
+      log.call '=' * 80
 
       if dry_run
-        puts "\n⚠️  DRY RUN MODE - No emails were sent"
-        puts 'Run without DRY_RUN=true to send emails'
+        log.call "\n⚠️  DRY RUN MODE - No emails were sent"
+        log.call 'Run without DRY_RUN=true to send emails'
       end
+
+      # Upload results to S3
+      upload_results_to_s3(output_buffer.string, dry_run)
     end
   end
 end

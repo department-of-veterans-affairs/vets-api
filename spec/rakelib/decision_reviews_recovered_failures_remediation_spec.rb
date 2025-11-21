@@ -11,12 +11,15 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
 
   # Stub S3 uploads to prevent actual AWS calls during tests
   before do
-    allow(Settings).to receive(:reports).and_return(
-      double(aws: double(
+    allow(Settings).to receive_messages(
+      reports: double(aws: double(
         region: 'us-east-1',
         access_key_id: 'test-key',
         secret_access_key: 'test-secret',
         bucket: 'test-bucket'
+      )),
+      vanotify: double(services: double(
+        benefits_decision_review: double(api_key: 'test-api-key')
       ))
     )
 
@@ -29,6 +32,13 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
     allow(s3_resource).to receive(:bucket).and_return(s3_bucket)
     allow(s3_bucket).to receive(:object).and_return(s3_object)
     allow(s3_object).to receive(:put).and_return(true)
+
+    # Stub DecisionReviews constants for email sending tests
+    stub_const('DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP', {
+                 'HLR' => 'higher-level-review',
+                 'NOD' => 'board-appeal',
+                 'SC' => 'supplemental-claims'
+               })
   end
 
   let(:user_account) { create(:user_account) }
@@ -300,6 +310,115 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         ENV['APPEAL_SUBMISSION_IDS'] = no_failure_submission.id.to_s
         expect_any_instance_of(VaNotify::Service).not_to receive(:send_email)
         expect { silently { run_rake_task } }.not_to raise_error
+      end
+    end
+
+    context 'with duplicate email addresses' do
+      let(:email_address) { 'duplicate@example.com' }
+      let(:saved_claim_one) { create(:saved_claim_higher_level_review) }
+      let(:saved_claim_two) { create(:saved_claim_higher_level_review) }
+      let(:submission_one) do
+        create(:appeal_submission,
+               saved_claim_hlr: saved_claim_one,
+               user_account:,
+               failure_notification_sent_at: 1.day.ago)
+      end
+      let(:submission_two) do
+        create(:appeal_submission,
+               saved_claim_hlr: saved_claim_two,
+               user_account:,
+               failure_notification_sent_at: 1.day.ago)
+      end
+      let(:vanotify_service) { instance_double(VaNotify::Service) }
+
+      let(:run_dedup_task) do
+        Rake::Task['decision_reviews:remediation:send_recovery_emails'].reenable
+        ENV['APPEAL_SUBMISSION_IDS'] = "#{submission_one.id},#{submission_two.id}"
+        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
+        ENV['DRY_RUN'] = 'false'
+        Rake.application.invoke_task 'decision_reviews:remediation:send_recovery_emails'
+      end
+
+      before do
+        allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
+        allow(vanotify_service).to receive(:send_email).and_return({ 'id' => 'notification-123' })
+
+        # Stub MPI profile and email for both submissions
+        mpi_profile = double(given_names: ['John'])
+        allow(submission_one).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
+        allow(submission_two).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
+
+        # Stub AppealSubmission.where to return both stubbed submissions
+        allow(AppealSubmission).to receive(:where).and_return(
+          double(includes: [submission_one, submission_two])
+        )
+      end
+
+      it 'sends only one email to duplicate addresses' do
+        expect(vanotify_service).to receive(:send_email).once
+        silently { run_dedup_task }
+      end
+
+      it 'tracks deduplicated count in output' do
+        output = capture_stdout { run_dedup_task }
+        expect(output).to include('Deduplicated: 1')
+      end
+    end
+
+    context 'PII protection' do
+      let(:email_address) { 'sensitive@example.com' }
+      let(:vanotify_service) { instance_double(VaNotify::Service) }
+
+      let(:run_live_rake_task) do
+        Rake::Task['decision_reviews:remediation:send_recovery_emails'].reenable
+        ENV['APPEAL_SUBMISSION_IDS'] = appeal_submission.id.to_s
+        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
+        ENV['DRY_RUN'] = 'false'
+        Rake.application.invoke_task 'decision_reviews:remediation:send_recovery_emails'
+      end
+
+      before do
+        allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
+        allow(vanotify_service).to receive(:send_email).and_return({ 'id' => 'notification-123' })
+
+        # Stub MPI profile
+        mpi_profile = double(given_names: ['John'])
+        allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
+
+        # Stub AppealSubmission.where to return our stubbed submission
+        allow(AppealSubmission).to receive(:where).and_return(
+          double(includes: [appeal_submission])
+        )
+      end
+
+      it 'does not log email addresses to console' do
+        output = capture_stdout { run_live_rake_task }
+        expect(output).not_to include(email_address)
+        expect(output).not_to include('Email:')
+      end
+    end
+
+    context 'S3 upload' do
+      let(:s3_object) { instance_double(Aws::S3::Object) }
+
+      before do
+        # More specific S3 stubbing for this test
+        s3_resource = instance_double(Aws::S3::Resource)
+        s3_bucket = instance_double(Aws::S3::Bucket)
+
+        allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)
+        allow(s3_resource).to receive(:bucket).and_return(s3_bucket)
+        allow(s3_bucket).to receive(:object).and_return(s3_object)
+        allow(s3_object).to receive(:put).and_return(true)
+      end
+
+      it 'uploads results to S3' do
+        expect(s3_object).to receive(:put).with(
+          hash_including(
+            content_type: 'text/plain'
+          )
+        )
+        silently { run_rake_task }
       end
     end
   end
