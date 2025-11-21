@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
+RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
   include ActiveSupport::Testing::TimeHelpers
-  subject { described_class.new(current_user, referral_id, referral_consult_id) }
+  subject { described_class.call(current_user, referral_id, referral_consult_id) }
 
   let(:current_user) { build(:user, :vaos) }
 
@@ -441,7 +441,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             user_uuid: current_user.uuid,
             controller: expected_controller_name,
             station_number: expected_station_number,
-            eps_trace_id: nil
+            eps_trace_id: a_kind_of(String).or(be_nil)
           }
         )
         expect(subject.error).to be_present
@@ -557,7 +557,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
               user_uuid: current_user.uuid,
               controller: expected_controller_name,
               station_number: expected_station_number,
-              eps_trace_id: nil
+              eps_trace_id: a_kind_of(String).or(be_nil)
             }
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')

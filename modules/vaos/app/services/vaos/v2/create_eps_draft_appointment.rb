@@ -3,7 +3,7 @@
 module VAOS
   module V2
     ##
-    # EpsDraftAppointment - Plain Old Ruby Object for creating Community Care appointment drafts
+    # CreateEpsDraftAppointment - Command object for creating Community Care appointment drafts
     #
     # This class encapsulates the business logic for creating a draft appointment through
     # the Enterprise Provider Service (EPS). It handles the complete workflow including:
@@ -18,14 +18,14 @@ module VAOS
     # BackendServiceException errors from external services bubble up naturally.
     #
     # @example Basic usage
-    #   draft = EpsDraftAppointment.new(current_user, referral_id, referral_consult_id)
+    #   draft = CreateEpsDraftAppointment.call(current_user, referral_id, referral_consult_id)
     #   if draft.error
     #     # Handle error: draft.error[:message], draft.error[:status]
     #   else
     #     # Use success data: draft.id, draft.provider, draft.slots, draft.drive_time
     #   end
     #
-    class EpsDraftAppointment
+    class CreateEpsDraftAppointment
       include VAOS::CommunityCareConstants
 
       REFERRAL_DRAFT_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_draft_station_id.access".freeze
@@ -50,39 +50,63 @@ module VAOS
       attr_reader :id, :provider, :slots, :drive_time, :error, :type_of_care
 
       ##
-      # Initialize and execute the draft appointment creation process
+      # Class method to create and execute draft appointment creation
       #
-      # Performs upfront validation of parameters, then orchestrates the complete
-      # workflow of creating a Community Care draft appointment. All work is done
-      # in the constructor, setting the object's final state.
+      # @param current_user [User] The authenticated user
+      # @param referral_id [String] The referral identifier
+      # @param referral_consult_id [String] The referral consultation identifier
+      # @return [CreateEpsDraftAppointment] Instance with populated attributes or error
+      def self.call(current_user, referral_id, referral_consult_id)
+        new(current_user, referral_id, referral_consult_id).call
+      end
+
+      ##
+      # Initialize a new draft appointment instance
+      #
+      # Sets up the instance with initial state. Does not perform any API calls
+      # or business logic - call #call to execute the draft creation workflow.
       #
       # @param current_user [User] The authenticated user requesting the appointment
       # @param referral_id [String] The unique referral identifier
       # @param referral_consult_id [String] The referral consultation identifier
       #
-      # @return [EpsDraftAppointment] A new instance with populated attributes or error
+      # @return [EpsDraftAppointment] A new instance ready to execute
       def initialize(current_user, referral_id, referral_consult_id)
         @current_user = current_user
         @referral_id = referral_id
+        @referral_consult_id = referral_consult_id
         @id = nil
         @provider = nil
         @slots = nil
         @drive_time = nil
         @error = nil
         @type_of_care = nil
+      end
 
-        return unless validate_params(referral_id, referral_consult_id)
+      ##
+      # Execute the draft appointment creation process
+      #
+      # Performs validation, then orchestrates the complete draft appointment
+      # creation workflow, including referral validation, provider lookup,
+      # slot checking, and draft creation. Sets either success state or an
+      # error with appropriate status. Logs metrics for success/failure.
+      #
+      # @return [CreateEpsDraftAppointment] self with populated attributes or error
+      def call
+        return self unless validate_params(@referral_id, @referral_consult_id)
 
-        build_appointment_draft(referral_id, referral_consult_id)
+        build_appointment_draft(@referral_id, @referral_consult_id)
 
         if @error
           log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
         else
           log_draft_creation_metric(APPT_DRAFT_CREATION_SUCCESS_METRIC)
         end
+
+        self
       rescue => e
         log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
-        raise e # Re-raise to let controller handle it
+        raise e
       end
 
       ##

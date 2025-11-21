@@ -82,7 +82,7 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_number]
         referral_consult_id = draft_params[:referral_consult_id]
-        draft_appt = VAOS::V2::EpsDraftAppointment.new(current_user, referral_id, referral_consult_id)
+        draft_appt = VAOS::V2::CreateEpsDraftAppointment.call(current_user, referral_id, referral_consult_id)
 
         if draft_appt.error
           render json: { errors: [{ title: 'Appointment creation failed', detail: draft_appt.error[:message] }] },
