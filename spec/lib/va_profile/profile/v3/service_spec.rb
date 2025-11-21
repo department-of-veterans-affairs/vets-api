@@ -91,6 +91,24 @@ describe VAProfile::Profile::V3::Service do
         expect(Sentry).not_to receive(:set_extras)
         subject.get_health_benefit_bio
       end
+
+      it 'logs request and response events and success metrics' do
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:measure)
+        allow(StatsD).to receive(:increment)
+
+        subject.get_health_benefit_bio
+
+        expect(Rails.logger).to have_received(:info).with(hash_including(
+                                                            event: 'va_profile.health_benefit_bio.request', bios_requested: 1
+                                                          ))
+        expect(Rails.logger).to have_received(:info).with(hash_including(
+                                                            event: 'va_profile.health_benefit_bio.response', ok: true, contacts_present: true
+                                                          ))
+        expect(StatsD).to have_received(:measure).with('va_profile.health_benefit_bio.latency', kind_of(Numeric))
+        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.success')
+      end
     end
 
     context '404 response' do
@@ -120,6 +138,15 @@ describe VAProfile::Profile::V3::Service do
       it 'raises an error' do
         expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::BackendServiceException)
       end
+
+      it 'logs server_error and increments error metric' do
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+        expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to have_received(:error).with(hash_including(event: 'va_profile.health_benefit_bio.server_error'))
+        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.error')
+      end
     end
 
     context 'api timeout' do
@@ -129,6 +156,35 @@ describe VAProfile::Profile::V3::Service do
       it 'raises an error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+
+      it 'increments error metric on timeout' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        allow(StatsD).to receive(:increment)
+        expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.error')
+      end
+    end
+
+    context 'empty contacts success' do
+      let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
+
+      it 'increments empty metric when contacts are blank' do
+        allow(StatsD).to receive(:increment)
+        allow(StatsD).to receive(:measure)
+        allow(Rails.logger).to receive(:info)
+        # Wrap original to override contacts
+        allow(VAProfile::Profile::V3::HealthBenefitBioResponse).to receive(:new).and_wrap_original do |orig, resp|
+          response = orig.call(resp)
+          allow(response).to receive(:contacts).and_return([])
+          response
+        end
+        subject.get_health_benefit_bio
+        expect(Rails.logger).to have_received(:info).with(hash_including(
+                                                            event: 'va_profile.health_benefit_bio.response', contacts_present: false
+                                                          ))
+        expect(StatsD).to have_received(:increment).with('va_profile.health_benefit_bio.empty')
       end
     end
   end

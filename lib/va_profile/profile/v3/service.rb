@@ -33,7 +33,7 @@ module VAProfile
               user_uuid: user.uuid,
               icn_present: user.icn.present?
             )
-            StatsD.increment('va_profile.health_benefit_bio.error') if defined?(StatsD)
+            StatsD.increment('va_profile.health_benefit_bio.error')
             raise Common::Exceptions::BackendServiceException.new('VET360_502', self.class) # preserve status semantics
           end
 
@@ -44,7 +44,7 @@ module VAProfile
           start_ms = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
           Rails.logger.info(
             event: 'va_profile.health_benefit_bio.request',
-            path_hash: path_hash,
+            path_hash:,
             bios_requested: request_body[:bios].size
           )
           service_response = perform(:post, path, request_body)
@@ -53,16 +53,16 @@ module VAProfile
 
           Rails.logger.info(
             event: 'va_profile.health_benefit_bio.response',
-            path_hash: path_hash,
+            path_hash:,
             upstream_status: response.code,
             ok: response.ok?,
             server_error: response.server_error?,
             contacts_present: response.contacts&.any?,
             latency_ms: latency
           )
-          StatsD.measure('va_profile.health_benefit_bio.latency', latency) if defined?(StatsD)
-          StatsD.increment('va_profile.health_benefit_bio.empty') if defined?(StatsD) && response.ok? && response.contacts.blank?
-          StatsD.increment('va_profile.health_benefit_bio.success') if defined?(StatsD) && response.ok?
+          StatsD.measure('va_profile.health_benefit_bio.latency', latency)
+          StatsD.increment('va_profile.health_benefit_bio.empty') if response.ok? && response.contacts.blank?
+          StatsD.increment('va_profile.health_benefit_bio.success') if response.ok?
 
           Sentry.set_extras(response.debug_data) unless response.ok?
           code = response.code || 502
@@ -70,9 +70,9 @@ module VAProfile
             Rails.logger.error(
               event: 'va_profile.health_benefit_bio.server_error',
               upstream_status: code,
-              path_hash: path_hash
+              path_hash:
             )
-            StatsD.increment('va_profile.health_benefit_bio.error') if defined?(StatsD)
+            StatsD.increment('va_profile.health_benefit_bio.error')
             raise_backend_exception("VET360_#{code}", self.class)
           end
           response

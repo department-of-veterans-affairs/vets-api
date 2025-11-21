@@ -28,14 +28,14 @@ module V0
           event: 'profile.contacts.request.finish',
           request_id: request.request_id,
           upstream_status: response.status,
-          contacts_count: contacts_count,
+          contacts_count:,
           ok: response.ok?,
           empty: contacts_count.zero?,
           latency_ms: elapsed
         )
-        StatsD.measure('profile.contacts.latency', elapsed) if defined?(StatsD)
-        StatsD.increment('profile.contacts.empty') if defined?(StatsD) && contacts_count.zero?
-        StatsD.increment('profile.contacts.success') if defined?(StatsD) && response.ok?
+        StatsD.measure('profile.contacts.latency', elapsed)
+        StatsD.increment('profile.contacts.empty') if contacts_count.zero?
+        StatsD.increment('profile.contacts.success') if response.ok?
 
         render json: ContactSerializer.new(response.contacts), status: response.status
       rescue Common::Exceptions::BackendServiceException => e
@@ -47,9 +47,9 @@ module V0
           message: e.message,
           latency_ms: elapsed
         )
-        StatsD.increment('profile.contacts.error') if defined?(StatsD)
+        StatsD.increment('profile.contacts.error')
         raise
-      rescue StandardError => e
+      rescue => e
         elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start_ms
         Rails.logger.error(
           event: 'profile.contacts.unhandled_error',
@@ -58,7 +58,7 @@ module V0
           message: e.message,
           latency_ms: elapsed
         )
-        StatsD.increment('profile.contacts.error') if defined?(StatsD)
+        StatsD.increment('profile.contacts.error')
         raise
       end
 
