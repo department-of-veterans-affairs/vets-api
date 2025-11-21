@@ -15,7 +15,9 @@
 #
 # Custom VA-specific patterns added below:
 # - VA file numbers (8-9 digit numbers)
-# - Claim numbers
+# - SSN without dashes (9 digits)
+# - ICN (17 digits)
+# - EDIPI (10 digits)
 #
 # Reference: https://github.com/ankane/logstop
 # Related ticket: https://github.com/department-of-veterans-affairs/va.gov-team/issues/120874
