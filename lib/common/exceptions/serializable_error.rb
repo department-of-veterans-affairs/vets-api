@@ -11,7 +11,7 @@ module Common
       include ActiveModel::Attributes
 
       attribute :title, :string
-      attribute :detail, :string
+      attribute :detail
       attribute :id, :integer
       attribute :href, :string
       attribute :code, :string
@@ -68,9 +68,13 @@ module Common
         nil
       end
 
+      def attributes
+        super.symbolize_keys
+      end
+
       # return only those attributes that have non nil values
       def to_hash
-        attributes.compact_blank.symbolize_keys
+        attributes.compact_blank
       end
       alias to_h to_hash
     end
