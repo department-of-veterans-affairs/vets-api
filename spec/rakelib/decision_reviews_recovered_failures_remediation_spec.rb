@@ -19,7 +19,13 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         bucket: 'test-bucket'
       )),
       vanotify: double(services: double(
-        benefits_decision_review: double(api_key: 'test-api-key')
+        benefits_decision_review: double(
+          api_key: 'test-api-key',
+          template_id: double(
+            evidence_recovery_email: 'evidence-template-id',
+            form_recovery_email: 'form-template-id'
+          )
+        )
       ))
     )
 
@@ -201,40 +207,18 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
     let(:run_rake_task) do
       Rake::Task['decision_reviews:remediation:send_evidence_recovery_emails'].reenable
       ENV['LIGHTHOUSE_UPLOAD_IDS'] = evidence_upload.lighthouse_upload_id
-      ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
       ENV['DRY_RUN'] = 'true'
       Rake.application.invoke_task 'decision_reviews:remediation:send_evidence_recovery_emails'
     end
 
     after do
       ENV.delete('LIGHTHOUSE_UPLOAD_IDS')
-      ENV.delete('VANOTIFY_TEMPLATE_ID')
       ENV.delete('DRY_RUN')
     end
 
     context 'with no lighthouse upload IDs' do
       it 'exits with error message' do
         ENV.delete('LIGHTHOUSE_UPLOAD_IDS')
-        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
-
-        exit_raised = false
-        begin
-          silently do
-            Rake::Task['decision_reviews:remediation:send_evidence_recovery_emails'].reenable
-            Rake.application.invoke_task 'decision_reviews:remediation:send_evidence_recovery_emails'
-          end
-        rescue SystemExit
-          exit_raised = true
-        end
-
-        expect(exit_raised).to be true
-      end
-    end
-
-    context 'with no VA Notify template ID' do
-      it 'exits with error message' do
-        ENV['LIGHTHOUSE_UPLOAD_IDS'] = evidence_upload.lighthouse_upload_id
-        ENV.delete('VANOTIFY_TEMPLATE_ID')
 
         exit_raised = false
         begin
@@ -268,7 +252,6 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
       let(:run_live_rake_task) do
         Rake::Task['decision_reviews:remediation:send_evidence_recovery_emails'].reenable
         ENV['LIGHTHOUSE_UPLOAD_IDS'] = evidence_upload.lighthouse_upload_id
-        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
         ENV['DRY_RUN'] = 'false'
         Rake.application.invoke_task 'decision_reviews:remediation:send_evidence_recovery_emails'
       end
@@ -294,7 +277,7 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         expect(vanotify_service).to receive(:send_email).with(
           hash_including(
             email_address:,
-            template_id: 'test-template-id',
+            template_id: 'evidence-template-id',
             personalisation: hash_including(
               'first_name' => 'John',
               'filename' => 'eviXXXXXXce.pdf',
@@ -334,40 +317,18 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
     let(:run_rake_task) do
       Rake::Task['decision_reviews:remediation:send_form_recovery_emails'].reenable
       ENV['APPEAL_SUBMISSION_IDS'] = appeal_submission.id.to_s
-      ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
       ENV['DRY_RUN'] = 'true'
       Rake.application.invoke_task 'decision_reviews:remediation:send_form_recovery_emails'
     end
 
     after do
       ENV.delete('APPEAL_SUBMISSION_IDS')
-      ENV.delete('VANOTIFY_TEMPLATE_ID')
       ENV.delete('DRY_RUN')
     end
 
     context 'with no appeal submission IDs' do
       it 'exits with error message' do
         ENV.delete('APPEAL_SUBMISSION_IDS')
-        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
-
-        exit_raised = false
-        begin
-          silently do
-            Rake::Task['decision_reviews:remediation:send_form_recovery_emails'].reenable
-            Rake.application.invoke_task 'decision_reviews:remediation:send_form_recovery_emails'
-          end
-        rescue SystemExit
-          exit_raised = true
-        end
-
-        expect(exit_raised).to be true
-      end
-    end
-
-    context 'with no VA Notify template ID' do
-      it 'exits with error message' do
-        ENV['APPEAL_SUBMISSION_IDS'] = appeal_submission.id.to_s
-        ENV.delete('VANOTIFY_TEMPLATE_ID')
 
         exit_raised = false
         begin
@@ -401,7 +362,6 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
       let(:run_live_rake_task) do
         Rake::Task['decision_reviews:remediation:send_form_recovery_emails'].reenable
         ENV['APPEAL_SUBMISSION_IDS'] = appeal_submission.id.to_s
-        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
         ENV['DRY_RUN'] = 'false'
         Rake.application.invoke_task 'decision_reviews:remediation:send_form_recovery_emails'
       end
@@ -424,11 +384,11 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         expect(vanotify_service).to receive(:send_email).with(
           hash_including(
             email_address:,
-            template_id: 'test-template-id',
+            template_id: 'form-template-id',
             personalisation: hash_including(
               'first_name' => 'John',
-              'decision_review_type' => 'Board Appeal',
-              'decision_review_form_id' => saved_claim.guid
+              'decision_review_type' => 'Notice of Disagreement (Board Appeal)',
+              'decision_review_form_id' => 'VA Form 10182'
             )
           )
         )

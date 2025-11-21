@@ -866,7 +866,7 @@ namespace :decision_reviews do
     task send_evidence_recovery_emails: :environment do
       # Configuration
       lighthouse_upload_ids = ENV['LIGHTHOUSE_UPLOAD_IDS']&.split(',') || []
-      vanotify_template_id = ENV.fetch('VANOTIFY_TEMPLATE_ID', nil)
+      vanotify_template_id = Settings.vanotify.services.benefits_decision_review.template_id.evidence_recovery_email
       dry_run = ENV['DRY_RUN'] == 'true'
 
       # Create output buffer to capture all output
@@ -884,6 +884,7 @@ namespace :decision_reviews do
       log.call "Started at: #{Time.current}"
       log.call "Dry run mode: #{dry_run ? 'ENABLED (no emails will be sent)' : 'DISABLED'}"
       log.call "Lighthouse Upload IDs to process: #{lighthouse_upload_ids.count}"
+      log.call "VA Notify Template ID: #{vanotify_template_id}"
       log.call '=' * 80
 
       if lighthouse_upload_ids.empty?
@@ -892,7 +893,8 @@ namespace :decision_reviews do
       end
 
       if vanotify_template_id.blank?
-        log.call "\n❌ ERROR: VA Notify template ID not provided"
+        log.call "\n❌ ERROR: VA Notify template ID not configured"
+        log.call 'Please set: vanotify__services__benefits_decision_review__template_id__evidence_recovery_email'
         exit 1
       end
 
@@ -992,7 +994,6 @@ namespace :decision_reviews do
           if dry_run
             log.call '    [DRY RUN] Would send evidence recovery email via VA Notify'
             stats[:sent] += 1
-            emails_sent_to.add(email_address)
             results[:emails_sent] << {
               id: upload.id,
               dry_run: true
@@ -1032,7 +1033,6 @@ namespace :decision_reviews do
 
             notification_id = response['id']
             stats[:sent] += 1
-            emails_sent_to.add(email_address)
             log.call "    ✅ Email sent successfully (notification ID: #{notification_id})"
 
             results[:emails_sent] << {
@@ -1094,7 +1094,7 @@ namespace :decision_reviews do
     task send_form_recovery_emails: :environment do
       # Configuration
       appeal_submission_ids = ENV['APPEAL_SUBMISSION_IDS']&.split(',')&.map(&:to_i) || []
-      vanotify_template_id = ENV.fetch('VANOTIFY_TEMPLATE_ID', nil)
+      vanotify_template_id = Settings.vanotify.services.benefits_decision_review.template_id.form_recovery_email
       dry_run = ENV['DRY_RUN'] == 'true'
 
       # Create output buffer to capture all output
@@ -1112,6 +1112,7 @@ namespace :decision_reviews do
       log.call "Started at: #{Time.current}"
       log.call "Dry run mode: #{dry_run ? 'ENABLED (no emails will be sent)' : 'DISABLED'}"
       log.call "Appeal Submission IDs to process: #{appeal_submission_ids.count}"
+      log.call "VA Notify Template ID: #{vanotify_template_id}"
       log.call '=' * 80
 
       if appeal_submission_ids.empty?
@@ -1120,7 +1121,8 @@ namespace :decision_reviews do
       end
 
       if vanotify_template_id.blank?
-        log.call "\n❌ ERROR: VA Notify template ID not provided"
+        log.call "\n❌ ERROR: VA Notify template ID not configured"
+        log.call 'Please set: vanotify__services__benefits_decision_review__template_id__form_recovery_email'
         exit 1
       end
 
@@ -1188,19 +1190,16 @@ namespace :decision_reviews do
           first_name = mpi_profile&.given_names&.first || 'Veteran'
 
           # Get decision review type
-          decision_review_type = case submission.type_of_appeal
-                                 when 'HLR'
-                                   'Higher-Level Review'
-                                 when 'SC'
-                                   'Supplemental Claim'
-                                 when 'NOD'
-                                   'Board Appeal'
-                                 else
-                                   'Decision Review'
-                                 end
-
-          # Get decision review form ID (the GUID from saved claim)
-          decision_review_form_id = saved_claim.guid
+          decision_review_type, decision_review_form_id = case submission.type_of_appeal
+                                                          when 'HLR'
+                                                            ['Higher-Level Review', 'VA Form 20-0996']
+                                                          when 'SC'
+                                                            ['Supplemental Claim', 'VA Form 20-0995']
+                                                          when 'NOD'
+                                                            ['Notice of Disagreement (Board Appeal)', 'VA Form 10182']
+                                                          else
+                                                            ['Decision Review', '']
+                                                          end
 
           # Format failure notification date
           failure_notification_date = submission.failure_notification_sent_at.strftime('%B %d, %Y')
@@ -1215,7 +1214,6 @@ namespace :decision_reviews do
           if dry_run
             log.call '    [DRY RUN] Would send form recovery email via VA Notify'
             stats[:sent] += 1
-            emails_sent_to.add(email_address)
             results[:emails_sent] << {
               id: submission.id,
               dry_run: true
@@ -1247,13 +1245,12 @@ namespace :decision_reviews do
                 'first_name' => first_name,
                 'decision_review_type' => decision_review_type,
                 'decision_review_form_id' => decision_review_form_id,
-                'failure_notification_sent_at' => failure_notification_date
+                'date_submitted' => submission.created_at.strftime('%B %d, %Y')
               }
             )
 
             notification_id = response['id']
             stats[:sent] += 1
-            emails_sent_to.add(email_address)
             log.call "    ✅ Email sent successfully (notification ID: #{notification_id})"
 
             results[:emails_sent] << {
