@@ -66,6 +66,8 @@ module Common
       def to_hash
         attributes.compact_blank.deep_symbolize_keys
       end
+      alias to_h to_hash
+
     end
   end
 end
