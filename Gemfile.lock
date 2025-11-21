@@ -132,6 +132,7 @@ PATH
     va_notify (0.1.0)
     vaos (0.1.0)
       sidekiq
+    vass (0.0.1)
     vba_documents (1.0.0)
       aws-sdk-s3 (~> 1)
       sidekiq
@@ -705,7 +706,7 @@ GEM
     libddwaf (1.25.1.1.0-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.10.0)
+    liquid (5.11.0)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -882,7 +883,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.20)
+    rack (2.2.21)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1048,7 +1049,7 @@ GEM
     rubocop-capybara (2.22.1)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
-    rubocop-factory_bot (2.27.1)
+    rubocop-factory_bot (2.28.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-junit-formatter (0.1.4)
@@ -1381,7 +1382,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.20)
+  rack (~> 2.2.21)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
@@ -1448,6 +1449,7 @@ DEPENDENCIES
   utf8-cleaner
   va_notify!
   vaos!
+  vass!
   vba_documents!
   vcr
   veteran!
