@@ -379,6 +379,7 @@ namespace :decision_reviews do
 
       # Hardcoded list of lighthouse upload IDs that have recovered
       lighthouse_upload_ids = %w[
+        a29fbac2-6c54-4043-8767-bb84df914e33
         df70f6ce-ff74-4178-8457-42053dcc9840
         6edf7e27-0001-4ed1-bc9c-76d0969f2ada
         0bf6184f-0118-419b-a26b-0c1f7c2841c8
