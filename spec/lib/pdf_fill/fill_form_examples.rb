@@ -24,6 +24,7 @@ def pdf_to_images(pdf_path, options = {})
   end_page = options[:end_page] || pdf.pages.size
 
   test_type += '_fixture' if options[:fixture]
+  FileUtils.mkdir_p(output_dir) # Ensure that the output directory exists
 
   pdf.pages.each_with_index do |page, index|
     next if index + 1 < start_page || index + 1 > end_page
@@ -40,7 +41,7 @@ def pdf_to_images(pdf_path, options = {})
     end
   end
 
-  end_page
+  end_page - start_page + 1
 end
 
 # Shared example for testing form fillers.
@@ -139,12 +140,15 @@ RSpec.shared_examples 'a form filler' do |options|
             expect(file_path).to match_pdf_fields(fixture_pdf)
 
             # For now this should only run in development to avoid slowing down test suite in CI
-            if options[:use_ocr] && !ENV.fetch('CI', false)
+            if options[:use_ocr] && ENV['CI'].blank?
+              start_page = options[:ocr_start_page] || 1
+              end_page = options[:ocr_end_page] || nil
+
               ocr_options = {
                 test_type: type,
                 form_id:,
-                start_page: options[:ocr_start_page] || 1,
-                end_page: options[:ocr_end_page] || nil,
+                start_page:,
+                end_page:,
                 fixture: false
               }
 
@@ -154,13 +158,16 @@ RSpec.shared_examples 'a form filler' do |options|
               fixture_num_pages = pdf_to_images(fixture_pdf, fixture_ocr_options)
               expect(num_pages).to eq(fixture_num_pages)
 
-              (0...num_pages).each do |index|
+              ((start_page - 1)...end_page).each do |index|
                 image_path = File.join('tmp/pdfs', "#{form_id}.#{type}.page_#{index + 1}.png")
-                file_as_string = RTesseract.new(image_path).to_s
                 fixture_path = File.join('tmp/pdfs', "#{form_id}.#{type}_fixture.page_#{index + 1}.png")
-                fixture_as_string = RTesseract.new(fixture_path).to_s
-                expect(file_as_string).to eq(fixture_as_string)
-                File.delete(image_path, fixture_path)
+                begin
+                  file_as_string = RTesseract.new(image_path).to_s
+                  fixture_as_string = RTesseract.new(fixture_path).to_s
+                  expect(file_as_string).to eq(fixture_as_string)
+                ensure
+                  File.delete(image_path, fixture_path) if File.exist?(image_path) || File.exist?(fixture_path)
+                end
               end
             end
 
