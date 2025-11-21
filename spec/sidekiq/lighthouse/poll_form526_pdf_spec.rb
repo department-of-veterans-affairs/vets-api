@@ -16,15 +16,14 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
 
     it 'transitions to pdf_not_found status if submission is older than 4 days' do
       form526_submission.update(created_at: 5.days.ago)
-      expect(Rails.logger).to receive(:warn).with('Poll for form 526 PDF: Submission creation date is over 4 days old.\
-                                                   Exiting...',
-                                                  hash_including(error_class: 'PollForm526PdfError',
-                                                                 error_message: 'Poll for form 526 PDF: \
-                                                                  Submission creation date is over 4 days old. \
-                                                                  Exiting...',
-                                                                 form526_submission_id: form526_submission.id,
-                                                                 job_id: kind_of(String),
-                                                                 timestamp: kind_of(Time)))
+      expect(Rails.logger).to receive(:warn).with(
+        'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...',
+        { error_class: 'PollForm526PdfError',
+          error_message: 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...',
+          form526_submission_id: form526_submission.id,
+          job_id: kind_of(String),
+          timestamp: kind_of(Time) }
+      )
       subject.perform_sync(form526_submission.id)
       form526_submission.reload
       job_status = form526_submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
@@ -35,7 +34,13 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
     it 'warns if submission is between 1 and 4 days old' do
       form526_submission.update!(created_at: 2.days.ago)
       expect(Rails.logger).to receive(:warn).with(
-        "Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id #{form526_submission.id}"
+        "Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id #{form526_submission.id}",
+        { error_class: 'PollForm526PdfError',
+          error_message: 'Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id ' \
+                         "#{form526_submission.id}",
+          form526_submission_id: form526_submission.id,
+          job_id: kind_of(String),
+          timestamp: kind_of(Time) }
       )
       expect { subject.perform_sync(form526_submission.id) }.to raise_error(Lighthouse::PollForm526PdfError)
       form526_submission.reload
