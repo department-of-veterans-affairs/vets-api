@@ -5,13 +5,16 @@ common:
   - 'pstevens@technatomy.com'
   - 'alattimore@technatomy.com'
   - 'dorner_brandon@bah.com'
+  - 'eshvimmer@deloitte.com'
+  - 'slamsal@deloitte.com'
+  - 'mughumman@deloitte.com'
+  - 'mbavanaka@deloitte.com'
 dev:
 staging:
 sandbox:
 prod:
   - 'drew.fisher@adhocteam.us'
   - 'melinda.cuerda@adhocteam.us'
-  - 'heather.roy@zerodelta365.com'
   - 'david.mazik@va.gov'
   - 'stone_christopher@bah.com'
   - 'valerie.hase@va.gov'
