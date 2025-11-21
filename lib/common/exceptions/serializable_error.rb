@@ -64,10 +64,9 @@ module Common
 
       # return only those attributes that have non nil values
       def to_hash
-         attributes.compact_blank.deep_symbolize_keys
+        attributes.compact_blank.deep_symbolize_keys
       end
       alias to_h to_hash
-
     end
   end
 end
