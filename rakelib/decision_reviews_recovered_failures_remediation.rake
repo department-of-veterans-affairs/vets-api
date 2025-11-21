@@ -305,9 +305,6 @@ namespace :decision_reviews do
                                        .select { |update| update[:cleared] }
                                        .map { |update| update[:appeal_submission_id] }
 
-      # Get unique IDs
-      cleared_appeal_submission_ids = cleared_appeal_submission_ids.uniq.sort
-
       # Print summary
       log.call "\n#{'📊 ' * 40}"
       log.call 'STATUS CLEARING COMPLETE'
@@ -322,27 +319,8 @@ namespace :decision_reviews do
       log.call "  Error statuses cleared: #{evidence_result[:stats][:cleared]}"
       log.call "  Errors encountered: #{evidence_result[:stats][:errors]}"
 
-      # Print unique AppealSubmission IDs for email sending
-      if cleared_appeal_submission_ids.any?
-        log.call "\n#{'✉️  ' * 40}"
-        log.call 'IMPACTED APPEAL SUBMISSIONS FOR EMAIL NOTIFICATIONS'
-        log.call '✉️  ' * 40
-        log.call "\nUnique AppealSubmission IDs with cleared error statuses: #{cleared_appeal_submission_ids.count}"
-        log.call "\nCopy-paste ready for email sending task:"
-        log.call "APPEAL_SUBMISSION_IDS='#{cleared_appeal_submission_ids.join(',')}' " \
-                 "VANOTIFY_TEMPLATE_ID='your-template-id' " \
-                 'rake decision_reviews:remediation:send_recovery_emails'
-
-        log.call "\nOr for dry run:"
-        log.call "DRY_RUN=true APPEAL_SUBMISSION_IDS='#{cleared_appeal_submission_ids.join(',')}' " \
-                 "VANOTIFY_TEMPLATE_ID='your-template-id' " \
-                 'rake decision_reviews:remediation:send_recovery_emails'
-
-        log.call "\nIndividual IDs:"
-        cleared_appeal_submission_ids.each do |id|
-          log.call "  - #{id}"
-        end
-      end
+      log.call "\nTotal unique AppealSubmission IDs with cleared statuses: #{cleared_appeal_submission_ids.uniq.count}"
+      log.call "  AppealSubmission IDs: #{cleared_appeal_submission_ids.uniq.sort.join(', ')}"
 
       if all_errors.any?
         log.call "\n⚠️  Errors encountered during processing:"
@@ -883,8 +861,248 @@ namespace :decision_reviews do
       )
     end
 
-    desc 'Send follow-up emails for recovered submissions that had failure notifications'
-    task send_recovery_emails: :environment do
+    desc 'Send follow-up emails for recovered evidence uploads that had failure notifications'
+    task send_evidence_recovery_emails: :environment do
+      # Configuration
+      lighthouse_upload_ids = ENV['LIGHTHOUSE_UPLOAD_IDS']&.split(',') || []
+      vanotify_template_id = ENV.fetch('VANOTIFY_TEMPLATE_ID', nil)
+      dry_run = ENV['DRY_RUN'] == 'true'
+
+      # Create output buffer to capture all output
+      output_buffer = StringIO.new
+
+      # Helper to log to both console and buffer
+      log = lambda do |message|
+        puts message
+        output_buffer.puts message
+      end
+
+      log.call "\n#{'=' * 80}"
+      log.call 'DECISION REVIEWS REMEDIATION - SEND EVIDENCE RECOVERY EMAILS'
+      log.call '=' * 80
+      log.call "Started at: #{Time.current}"
+      log.call "Dry run mode: #{dry_run ? 'ENABLED (no emails will be sent)' : 'DISABLED'}"
+      log.call "Lighthouse Upload IDs to process: #{lighthouse_upload_ids.count}"
+      log.call '=' * 80
+
+      if lighthouse_upload_ids.empty?
+        log.call "\n❌ ERROR: No lighthouse upload IDs provided"
+        exit 1
+      end
+
+      if vanotify_template_id.blank?
+        log.call "\n❌ ERROR: VA Notify template ID not provided"
+        exit 1
+      end
+
+      stats = {
+        processed: 0,
+        sent: 0,
+        skipped: 0,
+        errors: 0,
+        deduplicated: 0
+      }
+
+      results = {
+        emails_sent: [],
+        skipped: [],
+        errors: []
+      }
+
+      # Track emails sent to avoid duplicates
+      emails_sent_to = Set.new
+
+      log.call "\n#{'📧 ' * 40}"
+      log.call 'SENDING EVIDENCE RECOVERY EMAILS'
+      log.call '📧 ' * 40
+
+      uploads = AppealSubmissionUpload.where(lighthouse_upload_id: lighthouse_upload_ids).includes(
+        appeal_submission: %i[
+          saved_claim_sc
+          saved_claim_hlr
+          saved_claim_nod
+          user_account
+        ]
+      )
+
+      log.call "\nFound #{uploads.count} AppealSubmissionUpload records"
+
+      uploads.each do |upload|
+        stats[:processed] += 1
+
+        begin
+          # Only send email if failure notification was sent for this upload
+          if upload.failure_notification_sent_at.blank?
+            stats[:skipped] += 1
+            skip_msg = 'No failure notification was sent for this evidence upload'
+            log.call "\n  ⚠️  AppealSubmissionUpload ##{upload.id}: #{skip_msg}"
+            results[:skipped] << { id: upload.id, reason: skip_msg }
+            next
+          end
+
+          submission = upload.appeal_submission
+          unless submission
+            stats[:skipped] += 1
+            skip_msg = 'No associated AppealSubmission found'
+            log.call "\n  ⚠️  AppealSubmissionUpload ##{upload.id}: #{skip_msg}"
+            results[:skipped] << { id: upload.id, reason: skip_msg }
+            next
+          end
+
+          # Get email address from submission
+          email_address = submission.current_email_address
+          if email_address.blank?
+            stats[:skipped] += 1
+            skip_msg = 'No email address available'
+            log.call "\n  ⚠️  AppealSubmissionUpload ##{upload.id}: #{skip_msg}"
+            results[:skipped] << { id: upload.id, reason: skip_msg }
+            next
+          end
+
+          # Check if we've already sent an email to this address
+          if emails_sent_to.include?(email_address)
+            stats[:deduplicated] += 1
+            skip_msg = 'Email already sent to this address (deduplicated)'
+            log.call "\n  ⏭️  AppealSubmissionUpload ##{upload.id}: #{skip_msg}"
+            results[:skipped] << { id: upload.id, reason: skip_msg }
+            next
+          end
+
+          # Get user's first name from MPI profile
+          mpi_profile = submission.get_mpi_profile
+          first_name = mpi_profile&.given_names&.first || 'Veteran'
+
+          # Get decision review type
+          decision_review_type = case submission.type_of_appeal
+                                 when 'HLR'
+                                   'Higher-Level Review'
+                                 when 'SC'
+                                   'Supplemental Claim'
+                                 when 'NOD'
+                                   'Board Appeal'
+                                 else
+                                   'Decision Review'
+                                 end
+
+          # Format dates
+          failure_notification_date = upload.failure_notification_sent_at.strftime('%B %d, %Y')
+          date_submitted = upload.created_at.strftime('%B %d, %Y')
+
+          # Get filename from upload record
+          filename = upload.masked_attachment_filename || 'your evidence'
+
+          log.call "\n  Processing AppealSubmissionUpload ##{upload.id}"
+          log.call "    Submission ID: #{submission.id}"
+          log.call "    Created at: #{upload.created_at}"
+          log.call "    First name: #{first_name}"
+          log.call "    Decision review type: #{decision_review_type}"
+          log.call "    Filename: #{filename}"
+          log.call "    Date submitted: #{date_submitted}"
+          log.call "    Failure notification sent: #{failure_notification_date}"
+
+          if dry_run
+            log.call '    [DRY RUN] Would send evidence recovery email via VA Notify'
+            stats[:sent] += 1
+            emails_sent_to.add(email_address)
+            results[:emails_sent] << {
+              id: upload.id,
+              dry_run: true
+            }
+          else
+            # Send email via VA Notify with callback tracking
+            appeal_type = submission.type_of_appeal
+            reference = "#{appeal_type}-evidence-recovery-#{upload.lighthouse_upload_id}"
+
+            callback_options = {
+              callback_metadata: {
+                email_type: :evidence_recovery,
+                service_name: DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type],
+                function: 'recovered evidence upload follow up email',
+                appeal_submission_upload_id: upload.id,
+                lighthouse_upload_id: upload.lighthouse_upload_id,
+                email_template_id: vanotify_template_id,
+                reference:,
+                statsd_tags: ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+                              'function:evidence_recovery_email']
+              }
+            }
+
+            vanotify_service = VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key,
+                                                     callback_options)
+            response = vanotify_service.send_email(
+              email_address:,
+              template_id: vanotify_template_id,
+              personalisation: {
+                'first_name' => first_name,
+                'failure_notification_sent_at' => failure_notification_date,
+                'filename' => filename,
+                'decision_review_type' => decision_review_type,
+                'date_submitted' => date_submitted
+              }
+            )
+
+            notification_id = response['id']
+            stats[:sent] += 1
+            emails_sent_to.add(email_address)
+            log.call "    ✅ Email sent successfully (notification ID: #{notification_id})"
+
+            results[:emails_sent] << {
+              id: upload.id,
+              notification_id:
+            }
+          end
+        rescue => e
+          stats[:errors] += 1
+          error_msg = "Error sending email for AppealSubmissionUpload #{upload.id}: #{e.message}"
+          log.call "  ❌ #{error_msg}"
+          results[:errors] << {
+            id: upload.id,
+            error: error_msg,
+            backtrace: e.backtrace.first(3)
+          }
+        end
+      end
+
+      # Summary
+      log.call "\n #{'📊 ' * 40}"
+      log.call 'EVIDENCE EMAIL SENDING COMPLETE'
+      log.call '📊 ' * 40
+      log.call "\n  Processed: #{stats[:processed]}"
+      log.call "  Emails sent: #{stats[:sent]}"
+      log.call "  Skipped: #{stats[:skipped]}"
+      log.call "  Deduplicated: #{stats[:deduplicated]}"
+      log.call "  Errors: #{stats[:errors]}"
+
+      if results[:skipped].any?
+        log.call "\n⚠️  Skipped uploads:"
+        results[:skipped].each do |skip|
+          log.call "    AppealSubmissionUpload #{skip[:id]}: #{skip[:reason]}"
+        end
+      end
+
+      if results[:errors].any?
+        log.call "\n❌ Errors encountered:"
+        results[:errors].each_with_index do |error, i|
+          log.call "\n  Error ##{i + 1}:"
+          log.call "    AppealSubmissionUpload ID: #{error[:id]}"
+          log.call "    Message: #{error[:error]}"
+        end
+      end
+
+      log.call "\nFinished at: #{Time.current}"
+      log.call '=' * 80
+
+      if dry_run
+        log.call "\n⚠️  DRY RUN MODE - No emails were sent"
+        log.call 'Run without DRY_RUN=true to send emails'
+      end
+
+      # Upload results to S3
+      upload_results_to_s3(output_buffer.string, dry_run)
+    end
+
+    desc 'Send follow-up emails for recovered form submissions that had failure notifications'
+    task send_form_recovery_emails: :environment do
       # Configuration
       appeal_submission_ids = ENV['APPEAL_SUBMISSION_IDS']&.split(',')&.map(&:to_i) || []
       vanotify_template_id = ENV.fetch('VANOTIFY_TEMPLATE_ID', nil)
@@ -900,7 +1118,7 @@ namespace :decision_reviews do
       end
 
       log.call "\n#{'=' * 80}"
-      log.call 'DECISION REVIEWS REMEDIATION - SEND RECOVERY EMAILS'
+      log.call 'DECISION REVIEWS REMEDIATION - SEND FORM RECOVERY EMAILS'
       log.call '=' * 80
       log.call "Started at: #{Time.current}"
       log.call "Dry run mode: #{dry_run ? 'ENABLED (no emails will be sent)' : 'DISABLED'}"
@@ -935,15 +1153,14 @@ namespace :decision_reviews do
       emails_sent_to = Set.new
 
       log.call "\n#{'📧 ' * 40}"
-      log.call 'SENDING RECOVERY EMAILS'
+      log.call 'SENDING FORM RECOVERY EMAILS'
       log.call '📧 ' * 40
 
       submissions = AppealSubmission.where(id: appeal_submission_ids).includes(
         :saved_claim_sc,
         :saved_claim_hlr,
         :saved_claim_nod,
-        :user_account,
-        :appeal_submission_uploads
+        :user_account
       )
 
       log.call "\nFound #{submissions.count} AppealSubmission records"
@@ -952,15 +1169,10 @@ namespace :decision_reviews do
         stats[:processed] += 1
 
         begin
-          # Only send email if failure notification was previously sent for the submission or any of its uploads
-          has_submission_failure = submission.failure_notification_sent_at.present?
-          has_upload_failure = submission.appeal_submission_uploads.any? do |upload|
-            upload.failure_notification_sent_at.present?
-          end
-
-          unless has_submission_failure || has_upload_failure
+          # Only send email if failure notification was sent for the submission itself (not uploads)
+          if submission.failure_notification_sent_at.blank?
             stats[:skipped] += 1
-            skip_msg = 'No failure notification was sent for submission or evidence uploads'
+            skip_msg = 'No failure notification was sent for form submission'
             log.call "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
             results[:skipped] << { id: submission.id, reason: skip_msg }
             next
@@ -998,31 +1210,33 @@ namespace :decision_reviews do
           mpi_profile = submission.get_mpi_profile
           first_name = mpi_profile&.given_names&.first || 'Veteran'
 
-          # Collect all original submission dates where failure notifications were sent
-          # (We reference when the user originally submitted the form/evidence, not when we notified them)
-          submission_dates = []
+          # Get decision review type
+          decision_review_type = case submission.type_of_appeal
+                                 when 'HLR'
+                                   'Higher-Level Review'
+                                 when 'SC'
+                                   'Supplemental Claim'
+                                 when 'NOD'
+                                   'Board Appeal'
+                                 else
+                                   'Decision Review'
+                                 end
 
-          # Add submission date if failure notification was sent for the submission
-          submission_dates << submission.created_at if submission.failure_notification_sent_at.present?
+          # Get decision review form ID (the GUID from saved claim)
+          decision_review_form_id = saved_claim.guid
 
-          # Add evidence upload dates if failure notifications were sent for uploads
-          submission.appeal_submission_uploads.each do |upload|
-            submission_dates << upload.created_at if upload.failure_notification_sent_at.present?
-          end
-
-          # Format as comma-separated string, remove duplicates and sort
-          submission_date_string = submission_dates.uniq.sort
-                                                   .map { |date| date.strftime('%B %d, %Y') }
-                                                   .join(', ')
+          # Format failure notification date
+          failure_notification_date = submission.failure_notification_sent_at.strftime('%B %d, %Y')
 
           log.call "\n  Processing AppealSubmission ##{submission.id}"
           log.call "    Created at: #{submission.created_at}"
           log.call "    First name: #{first_name}"
-          log.call "    Submission date(s): #{submission_date_string}"
-          log.call "    Failure notification sent: #{submission.failure_notification_sent_at}"
+          log.call "    Decision review type: #{decision_review_type}"
+          log.call "    Decision review form ID: #{decision_review_form_id}"
+          log.call "    Failure notification sent: #{failure_notification_date}"
 
           if dry_run
-            log.call '    [DRY RUN] Would send recovery email via VA Notify'
+            log.call '    [DRY RUN] Would send form recovery email via VA Notify'
             stats[:sent] += 1
             emails_sent_to.add(email_address)
             results[:emails_sent] << {
@@ -1032,18 +1246,18 @@ namespace :decision_reviews do
           else
             # Send email via VA Notify with callback tracking
             appeal_type = submission.type_of_appeal
-            reference = "#{appeal_type}-recovery-#{submission.submitted_appeal_uuid}"
+            reference = "#{appeal_type}-form-recovery-#{submission.submitted_appeal_uuid}"
 
             callback_options = {
               callback_metadata: {
-                email_type: :recovery,
+                email_type: :form_recovery,
                 service_name: DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type],
-                function: 'recovered failure follow up email',
+                function: 'recovered form submission follow up email',
                 submitted_appeal_uuid: submission.submitted_appeal_uuid,
                 email_template_id: vanotify_template_id,
                 reference:,
                 statsd_tags: ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-                              'function:recovery_email']
+                              'function:form_recovery_email']
               }
             }
 
@@ -1054,7 +1268,9 @@ namespace :decision_reviews do
               template_id: vanotify_template_id,
               personalisation: {
                 'first_name' => first_name,
-                'submission_date' => submission_date_string
+                'decision_review_type' => decision_review_type,
+                'decision_review_form_id' => decision_review_form_id,
+                'failure_notification_sent_at' => failure_notification_date
               }
             )
 
@@ -1082,7 +1298,7 @@ namespace :decision_reviews do
 
       # Summary
       log.call "\n #{'📊 ' * 40}"
-      log.call 'EMAIL SENDING COMPLETE'
+      log.call 'FORM EMAIL SENDING COMPLETE'
       log.call '📊 ' * 40
       log.call "\n  Processed: #{stats[:processed]}"
       log.call "  Emails sent: #{stats[:sent]}"
