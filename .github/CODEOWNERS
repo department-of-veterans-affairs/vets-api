@@ -737,6 +737,7 @@ config/initializers/jsonapi_serializer_blank_id_patch.rb @department-of-veterans
 config/initializers/kms_encrypted.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/loa.rb @department-of-veterans-affairs/octo-identity
 config/initializers/lockbox.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/logstop.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/mime_types.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/okcomputer.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/override_redirect_to_logging.rb @department-of-veterans-affairs/octo-identity
@@ -1415,6 +1416,7 @@ spec/fixtures/vba_documents @department-of-veterans-affairs/lighthouse-banana-pe
 spec/fixtures/vbms @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/fixtures/veteran_enrollment_system @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/helpers/parameter_filter_helper_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/initializers/logstop_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/initializers/rails_semantic_logger_patch_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/apps @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/bb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
