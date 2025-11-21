@@ -78,7 +78,7 @@ module Vass
     #
     # @param uuid [String] Veteran UUID
     # @param code [String] One-time code
-    # @return [void]
+    # @return [Boolean] true if write succeeds
     #
     def save_otc(uuid:, code:)
       Rails.cache.write(
@@ -112,7 +112,7 @@ module Vass
     # @param edipi [String] Veteran EDIPI (required for VASS API headers)
     # @param veteran_id [String] Veteran ID in VASS system
     # @param uuid [String] Original UUID from email link
-    # @return [void]
+    # @return [Boolean] true if write succeeds
     #
     def save_session(session_token:, edipi:, veteran_id:, uuid:)
       session_data = {
