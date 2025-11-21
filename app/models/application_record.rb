@@ -3,6 +3,10 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
+  # Filter sensitive encryption keys from logs and console output
+  # This prevents encrypted_kms_key values from being exposed in plaintext
+  self.filter_attributes += [:encrypted_kms_key]
+
   def self.lockbox_options
     {
       previous_versions: [
