@@ -14,6 +14,7 @@ module PdfFill
       @pdftk_form = {}
       @date_strftime = date_strftime
       @extras_generator = extras_generator
+      @use_hexapdf = extras_generator.use_hexapdf
     end
 
     def convert_value(v, key_data, is_overflow = false)
@@ -127,8 +128,12 @@ module PdfFill
         # NOTE: Allows for accomodating fields that don't have enough space for the full placeholder text
         # PDFtk doesn't care and truncates the text at the field limit, but HexaPDF will error out if the text
         # exceeds the field limit
-        limit = key_data.fetch(:limit, placeholder_text.length)
-        new_value = placeholder_text[0...limit]
+        if @use_hexapdf
+          limit = key_data.fetch(:limit, placeholder_text.length)
+          new_value = placeholder_text[0...limit]
+        else
+          new_value = placeholder_text
+        end
       elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, overflow: false)
       end
