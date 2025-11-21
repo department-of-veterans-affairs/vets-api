@@ -26,7 +26,7 @@ describe PdfFill::Filler, type: :model do
               end
 
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
-                                                              { extras_redesign: true, omit_esign_stamp: true })
+                                                              { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true })
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
