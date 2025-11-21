@@ -32,18 +32,18 @@ module V0
 
       claims['data'].each do |claim|
         update_claim_type_language(claim)
+      end
 
-        # Add has_failed_uploads field for document uploads that were added
-        if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-          claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
-        end
+      claim_ids = claims['data'].map { |claim| claim['id'] }
+      evidence_submissions = fetch_evidence_submissions(claim_ids, 'index')
+
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
+        add_evidence_submissions_to_claims(claims['data'], evidence_submissions, 'index')
       end
 
       tap_claims(claims['data'])
 
-      # Report metrics for evidence submission upload statuses
-      claim_ids = claims['data'].map { |claim| claim['id'] }
-      report_evidence_submission_metrics('index', claim_ids)
+      report_evidence_submission_metrics('index', evidence_submissions)
 
       render json: claims
     end
@@ -67,13 +67,11 @@ module V0
       # be removed when we move to Lighthouse Benefits Documents for document uploads
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
-      # Add Evidence Submissions section for document uploads that were added
-      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-        # Fetch all evidence submissions for this claim once, polling for updates if enabled
-        evidence_submissions = update_evidence_submissions_for_claim(claim['data']['id'])
+      evidence_submissions = fetch_evidence_submissions(claim['data']['id'], 'show')
 
-        claim['data']['attributes']['evidenceSubmissions'] =
-          add_evidence_submissions(claim['data'], evidence_submissions)
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
+        update_evidence_submissions_for_claim(claim['data']['id'], evidence_submissions)
+        add_evidence_submissions_to_claims([claim['data']], evidence_submissions, 'show')
       end
 
       # We want to log some details about claim type patterns to track in DataDog
@@ -81,8 +79,7 @@ module V0
 
       tap_claims([claim['data']])
 
-      # Report metrics for evidence submission upload statuses
-      report_evidence_submission_metrics('show', params[:id])
+      report_evidence_submission_metrics('show', evidence_submissions)
 
       render json: claim
     end
@@ -168,14 +165,6 @@ module V0
           claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
         end
       end
-    end
-
-    def add_has_failed_uploads(claim)
-      failed_evidence_submissions = EvidenceSubmission.where(
-        claim_id: claim['id'],
-        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
-      )
-      failed_evidence_submissions.count.positive?
     end
 
     def add_evidence_submissions(claim, evidence_submissions)
@@ -318,15 +307,9 @@ module V0
       claim
     end
 
-    def report_evidence_submission_metrics(endpoint, claim_ids)
-      claim_ids = Array(claim_ids) # Ensure it's always an array
+    def report_evidence_submission_metrics(endpoint, evidence_submissions)
+      status_counts = evidence_submissions.group(:upload_status).count
 
-      # Get upload status counts for the claim(s)
-      status_counts = EvidenceSubmission.where(claim_id: claim_ids)
-                                        .group(:upload_status)
-                                        .count
-
-      # Increment metrics for each status found
       BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
         count = status_counts[status] || 0
         next if count.zero?
@@ -339,10 +322,22 @@ module V0
       )
     end
 
-    def update_evidence_submissions_for_claim(claim_id)
-      # Fetch all evidence submissions for this claim
-      evidence_submissions = EvidenceSubmission.where(claim_id:)
+    def fetch_evidence_submissions(claim_ids, endpoint)
+      EvidenceSubmission.where(claim_id: claim_ids)
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error fetching evidence submissions",
+        {
+          claim_ids: Array(claim_ids),
+          error_message: e.message,
+          error_class: e.class.name,
+          timestamp: Time.now.utc
+        }
+      )
+      EvidenceSubmission.none
+    end
 
+    def update_evidence_submissions_for_claim(claim_id, evidence_submissions)
       # Poll for updated statuses on pending evidence submissions if feature flag is enabled
       if Flipper.enabled?(:cst_update_evidence_submission_on_show, @current_user)
         # Get pending evidence submissions as an ActiveRecord relation
@@ -358,8 +353,6 @@ module V0
           process_evidence_submissions(claim_id, pending_submissions, request_ids)
         end
       end
-
-      evidence_submissions
     end
 
     def process_evidence_submissions(claim_id, pending_submissions, request_ids)
@@ -429,6 +422,33 @@ module V0
       StatsD.increment(
         "#{STATSD_METRIC_PREFIX}.show.upload_status_error",
         tags: STATSD_TAGS + ["error_source:#{error_source}"]
+      )
+    end
+
+    def add_evidence_submissions_to_claims(claims, all_evidence_submissions, endpoint)
+      return if claims.empty?
+
+      # Group evidence submissions by claim_id for efficient lookup
+      evidence_submissions_by_claim = all_evidence_submissions.group_by(&:claim_id)
+
+      # Add evidence submissions to each claim
+      claims.each do |claim|
+        claim_id = claim['id'].to_i
+        evidence_submissions = evidence_submissions_by_claim[claim_id] || []
+
+        claim['attributes']['evidenceSubmissions'] =
+          add_evidence_submissions(claim, evidence_submissions)
+      end
+    rescue => e
+      # Log error but don't fail the request - graceful degradation
+      # Frontend already handles missing evidenceSubmissions attribute
+      claim_ids = claims.map { |claim| claim['id'] }
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error adding evidence submissions",
+        {
+          claim_ids:,
+          error_class: e.class.name
+        }
       )
     end
   end

@@ -73,15 +73,9 @@
             "pagination": {
               "type": "object",
               "required": [
-                "current_page",
-                "per_page",
-                "total_pages",
                 "total_entries"
               ],
               "properties": {
-                "current_page": { "type": "integer" },
-                "per_page": { "type": "integer" },
-                "total_pages": { "type": "integer" },
                 "total_entries": { "type": "integer" }
               }
             }
@@ -97,15 +91,9 @@
             "pagination": {
               "type": "object",
               "required": [
-                "current_page",
-                "per_page",
-                "total_pages",
                 "total_entries"
               ],
               "properties": {
-                "current_page": { "type": "integer" },
-                "per_page": { "type": "integer" },
-                "total_pages": { "type": "integer" },
                 "total_entries": { "type": "integer" }
               }
             }

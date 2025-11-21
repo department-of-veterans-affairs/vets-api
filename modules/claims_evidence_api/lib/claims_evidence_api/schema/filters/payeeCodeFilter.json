@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/payeeCodeFilter.json",
+  "description" : "Filters results on payee code.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "01",
+      "type" : "string"
+    }
+  },
+  "title" : "Payee Code Filter Request",
+  "type" : "object"
+}

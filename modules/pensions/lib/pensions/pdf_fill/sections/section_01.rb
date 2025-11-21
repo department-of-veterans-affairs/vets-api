@@ -76,6 +76,7 @@ module Pensions
       # @note Modifies `form_data`
       #
       def expand(form_data)
+        form_data['veteranFullName'] ||= {}
         form_data['veteranFullName'] = expand_full_name(form_data['veteranFullName'] || {})
         form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranDateOfBirth'] = split_date(form_data['veteranDateOfBirth'])
@@ -89,7 +90,7 @@ module Pensions
       # @return [Hash] The modified full_name hash with titleized names and middle initial
       #
       def expand_full_name(full_name)
-        middle_initial = full_name['middle']&.first # Get middle initial
+        middle_initial = full_name['middle']&.first || '' # Get middle initial
 
         full_name['first'] = full_name['first']&.titleize
         full_name['middle'] = middle_initial&.upcase

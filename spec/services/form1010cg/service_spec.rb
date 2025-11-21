@@ -543,6 +543,7 @@ RSpec.describe Form1010cg::Service do
 
       it 'submits to mulesoft' do
         start_time = Time.current
+        allow(Process).to receive(:clock_gettime).and_call_original
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
@@ -619,6 +620,7 @@ RSpec.describe Form1010cg::Service do
         )
 
         start_time = Time.current
+        allow(Process).to receive(:clock_gettime).and_call_original
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
