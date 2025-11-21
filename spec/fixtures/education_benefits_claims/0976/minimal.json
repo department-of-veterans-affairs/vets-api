@@ -1,70 +1,127 @@
 {
-  "designatingOfficial": {
+  "submissionReasons": {
+      "initialApplication": true,
+      "approvalOfNewPrograms": false,
+      "reapproval": false,
+      "updateInformation": false,
+      "other": false,
+      "updateInformationText": "lorem ipsum update",
+      "otherText": "lorem ipsum other"
+    },
+  "institutionClassification": "public",
+  "institutionProfile": {
+    "isIHL": true,
+    "ihlDegreeTypes": "dummy degree",
+    "participatesInTitleIV": true,
+    "opeidNumber": "12345678"
+  },
+  "institutionDetails": [
+    {
+      "institutionName": "Test University",
+      "vaFacilityCode": "12345678",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    },
+    {
+      "institutionName": "Branch 1",
+      "vaFacilityCode": "12345679",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    }
+  ],
+  "website": "https://example.com",
+  "programs": [
+    {
+      "programName": "Physics",
+      "totalProgramLength": "1 year",
+      "weeksPerTerm": 12,
+      "entryRequirements": "test requirement",
+      "creditHours": 10
+    }
+  ],
+  "acknowledgement7": "JH",
+  "acknowledgement8": "JH",
+  "acknowledgement9": "JH",
+  "acknowledgement10a": {
+    "financiallySound": true,
+    "financialSoundnessExplanation": "lorem ipsum financial"
+  },
+  "acknowledgement10b": "JH",
+  "governingBodyAndFaculty": [
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe"
+      },
+      "title": "President"
+    }
+  ],
+  "isMedicalSchool": false,
+  "listedInWDOMS": false,
+  "accreditingAuthorityName": "US Accredits",
+  "programAtLeast32Months": true,
+  "graduatedLast12Months": true,
+  "graduatedClasses": [
+    {
+      "graduationDate": "2025-01-01",
+      "graduatesCount": 15
+    },
+    {
+      "graduationDate": "2025-02-01",
+      "graduatesCount": 16
+    }
+  ],
+  "financialRepresentative": {
     "fullName": {
       "first": "John",
       "middle": "A",
       "last": "Doe"
     },
-    "title": "Designating Official",
-    "emailAddress": "john.doe@example.com",
-    "phoneNumber": "5556071234"
+    "email": "doe@example.com"
   },
-  "institutionDetails": {
-    "hasVaFacilityCode": true,
-    "facilityCode": "12345678",
-    "institutionName": "Test University",
-    "institutionAddress": {
-      "country": "USA",
-      "street": "123 Main St",
-      "city": "Anytown",
-      "state": "CA",
-      "postalCode": "12345"
-    }
-  },
-  "primaryOfficialDetails": {
+  "schoolCertifyingOfficial": {
     "fullName": {
-      "first": "Jane",
-      "middle": "B",
-      "last": "Smith"
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
     },
-    "title": "Primary Certifying Official",
-    "emailAddress": "jane.smith@example.com",
-    "phoneNumber": "5556071234"
+    "email": "doe@example.com"
   },
-  "primaryOfficialTraining": {
-    "trainingCompletionDate": "2024-03-15",
-    "trainingExempt": false
+  "authorizingOfficial": {
+    "fullName": {
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
+    },
+    "signature": "John Doe"
   },
-  "primaryOfficialBenefitStatus": {
-    "hasVaEducationBenefits": true
-  },
-  "additionalCertifyingOfficials": [
-    {
-      "additionalCertifyingOfficialsDetails": {
-        "fullName": {
-          "first": "Fake",
-          "middle": "B",
-          "last": "Official1"
-        },
-        "title": "Some role",
-        "phoneNumber": "5556071235",
-        "emailAddress": "john_official1@example.com",
-        "trainingCompletionDate": "2024-03-16",
-        "hasVaEducationBenefits": false
-      }
-    }
-  ],
-  "hasReadOnlyCertifyingOfficial": true,
-  "readOnlyCertifyingOfficial": [
-    {
-      "fullName": {
-        "first": "Fake",
-        "middle": "B",
-        "last": "RCO1"
-      }
-    }
-  ],
-  "remarks": "Test remarks",
-  "statementOfTruthSignature": "John A Doe",
-  "dateSigned": "2024-03-15"
+  "dateSigned": "2025-10-10",
+  "isAuthenticated": true
 }
