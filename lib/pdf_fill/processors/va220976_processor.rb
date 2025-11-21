@@ -27,9 +27,9 @@ module PdfFill
         merged_form_data = FORM_CLASS.new(@form_data).merge_fields
         hash_converter = HashConverter.new(FORM_CLASS.date_strftime, ExtrasGenerator.new)
 
-        programs = @form_data['programs'] || []
-        branches = @form_data['branches'] || []
-        faculty = @form_data['faculty'] || []
+        programs = merged_form_data['programs'] || []
+        branches = merged_form_data['branches'] || []
+        faculty = merged_form_data['faculty'] || []
         if programs.size <= DEFAULT_PROGRAMS_LIMIT &&
            branches.size <= DEFAULT_BRANCHES_LIMIT &&
            faculty.size <= DEFAULT_FACULTY_LIMIT
