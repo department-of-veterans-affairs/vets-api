@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/v1/client'
+require_relative 'facility_name_resolver'
 
 module UnifiedHealthData
   module Adapters
@@ -34,7 +34,7 @@ module UnifiedHealthData
         {
           id: resource['id'],
           type: 'Prescription',
-          refill_status: resource['status'],
+          refill_status: extract_refill_status(resource),
           refill_submit_date: nil, # Not available in FHIR
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
@@ -59,17 +59,20 @@ module UnifiedHealthData
       end
 
       def build_contact_and_source_attributes(resource)
+        refill_status = extract_refill_status(resource)
+        prescription_source = extract_prescription_source(resource)
         {
           instructions: extract_instructions(resource),
           facility_phone_number: extract_facility_phone_number(resource),
           cmop_division_phone: nil,
           dial_cmop_division_phone: nil,
-          prescription_source: extract_prescription_source(resource),
+          prescription_source:,
           category: extract_category(resource),
           disclaimer: nil,
           provider_name: extract_provider_name(resource),
           indication_for_use: extract_indication_for_use(resource),
-          remarks: extract_remarks(resource)
+          remarks: extract_remarks(resource),
+          disp_status: map_refill_status_to_disp_status(refill_status, prescription_source)
         }
       end
 
@@ -112,7 +115,7 @@ module UnifiedHealthData
           {
             status: dispense['status'],
             refill_date: dispense['whenHandedOver'],
-            facility_name: extract_facility_name_from_dispense(resource, dispense),
+            facility_name: facility_resolver.resolve_facility_name(dispense),
             instructions: extract_sig_from_dispense(dispense),
             quantity: dispense.dig('quantity', 'value'),
             medication_name: dispense.dig('medicationCodeableConcept', 'text'),
@@ -126,12 +129,6 @@ module UnifiedHealthData
             disclaimer: nil
           }
         end
-      end
-
-      def extract_facility_name_from_dispense(_resource, dispense)
-        # Create a temporary resource with just this dispense to use existing extract_facility_name
-        temp_resource = { 'contained' => [dispense] }
-        extract_facility_name(temp_resource)
       end
 
       def extract_sig_from_dispense(dispense)
@@ -181,32 +178,194 @@ module UnifiedHealthData
         remaining.positive? ? remaining : 0
       end
 
-      def extract_facility_name(resource)
-        # Get latest dispense using existing helper
-        latest_dispense = find_most_recent_medication_dispense(resource['contained'])
-        return nil unless latest_dispense
+      # Extracts and normalizes MedicationRequest status to VistA-compatible values
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [String] VistA-compatible status value
+      def extract_refill_status(resource)
+        normalize_to_legacy_vista_status(resource)
+      end
 
-        # Get .location.display from latest dispense
-        location_display = latest_dispense.dig('location', 'display')
-        return nil unless location_display
+      # Maps refill_status to user-friendly disp_status for display
+      # When disp_status is nil (UHD service), derive it from refill_status
+      #
+      # @param refill_status [String] Internal refill status code
+      # @param prescription_source [String] Source of prescription (VA, NV, etc.)
+      # @return [String] User-friendly display status
+      def map_refill_status_to_disp_status(refill_status, prescription_source)
+        # Special case: active + Non-VA source
+        return 'Active: Non-VA' if refill_status == 'active' && prescription_source == 'NV'
 
-        # First try the legacy 3-digit station number
-        three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
-        facility_name = attempt_facility_lookup(three_digit_station)
-        return facility_name if facility_name
+        # Standard mapping
+        case refill_status
+        when 'active'
+          'Active'
+        when 'refillinprocess'
+          'Active: Refill in Process'
+        when 'providerHold'
+          'Active: On hold'
+        when 'discontinued'
+          'Discontinued'
+        when 'expired'
+          'Expired'
+        when 'unknown', 'pending'
+          'Unknown'
+        else
+          # Fallback for unexpected values
+          Rails.logger.warn("Unexpected refill_status for disp_status mapping: #{refill_status}")
+          'Unknown'
+        end
+      end
 
-        # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
-        facility_identifier = location_display.split('-').first
-        # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
-        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
-        if facility_identifier.present? && facility_identifier != three_digit_station &&
-           facility_identifier.match?(valid_station_regex)
-          return attempt_facility_lookup(facility_identifier)
+      # Maps Oracle Health FHIR MedicationRequest status to VistA-equivalent status
+      # Based on legacy VistA status mapping requirements
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [String] VistA-compatible status value
+      def normalize_to_legacy_vista_status(resource)
+        mr_status = resource['status']
+        refills_remaining = extract_refill_remaining(resource)
+        expiration_date = parse_expiration_date_utc(resource)
+        has_in_progress_dispense = most_recent_dispense_in_progress?(resource)
+
+        normalized_status = map_fhir_status_to_vista(
+          mr_status,
+          refills_remaining,
+          expiration_date,
+          has_in_progress_dispense,
+          resource
+        )
+
+        log_status_normalization(resource, mr_status, normalized_status, refills_remaining, has_in_progress_dispense)
+
+        normalized_status
+      end
+
+      # Maps FHIR MedicationRequest status to VistA equivalent using business rules
+      #
+      # @param mr_status [String] FHIR MedicationRequest.status
+      # @param refills_remaining [Integer] Number of refills remaining
+      # @param expiration_date [Time, nil] Parsed UTC expiration date
+      # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
+      # @return [String] VistA-compatible status value
+      def map_fhir_status_to_vista(mr_status, refills_remaining, expiration_date, has_in_progress_dispense,
+                                   resource = nil)
+        case mr_status
+        when 'active'
+          normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense, resource)
+        when 'on-hold'
+          'providerHold'
+        when 'cancelled', 'entered-in-error', 'stopped'
+          'discontinued'
+        when 'completed'
+          normalize_completed_status(expiration_date)
+        when 'draft'
+          'pending'
+        when 'unknown'
+          'unknown'
+        else
+          Rails.logger.warn("Unexpected MedicationRequest status: #{mr_status}")
+          'unknown'
+        end
+      end
+
+      # Logs status normalization details for monitoring
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param original_status [String] Original FHIR status
+      # @param normalized_status [String] Normalized VistA status
+      # @param refills_remaining [Integer] Number of refills remaining
+      # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
+      def log_status_normalization(resource, original_status, normalized_status, refills_remaining,
+                                   has_in_progress_dispense)
+        prescription_id_suffix = resource['id']&.to_s&.last(3) || 'unknown'
+
+        Rails.logger.info(
+          message: 'Oracle Health status normalized',
+          prescription_id_suffix:,
+          original_status:,
+          normalized_status:,
+          refills_remaining:,
+          has_in_progress_dispense:,
+          service: 'unified_health_data'
+        )
+      end
+
+      # Determines VistA status for 'active' MedicationRequest based on business rules
+      #
+      # @param refills_remaining [Integer] Number of refills remaining
+      # @param expiration_date [Time, nil] Parsed UTC expiration date
+      # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
+      # @return [String] VistA status value
+      def normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense, resource = nil)
+        # Rule: Expired more than 120 days ago → discontinued
+        return 'discontinued' if expiration_date && expiration_date < 120.days.ago.utc
+
+        # Rule: No refills remaining → expired (UNLESS it's a Non-VA medication)
+        # Non-VA meds are always reported with 0 refills but should still be 'active' if status is 'active'
+        is_non_va = resource && non_va_med?(resource)
+        return 'expired' if refills_remaining.zero? && !is_non_va
+
+        # Rule: Most recent dispense is in-progress → refillinprocess
+        return 'refillinprocess' if has_in_progress_dispense
+
+        # Default: active
+        'active'
+      end
+
+      # Determines VistA status for 'completed' MedicationRequest
+      #
+      # @param expiration_date [Time, nil] Parsed UTC expiration date
+      # @return [String] VistA status value ('expired' or 'discontinued')
+      def normalize_completed_status(expiration_date)
+        # If no expiration date, we can't determine if it's expired based on date
+        # A completed med without an expiration date should be discontinued
+        return 'discontinued' if expiration_date.nil?
+
+        if expiration_date < 120.days.ago.utc
+          'discontinued'
+        else
+          'expired'
+        end
+      end
+
+      # Checks if the most recent MedicationDispense has an in-progress status
+      # In-progress statuses: preparation, in-progress, on-hold
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] True if most recent dispense is in-progress
+      def most_recent_dispense_in_progress?(resource)
+        most_recent_dispense = find_most_recent_medication_dispense(resource['contained'])
+        return false if most_recent_dispense.nil?
+
+        in_progress_statuses = %w[preparation in-progress on-hold]
+        in_progress_statuses.include?(most_recent_dispense['status'])
+      end
+
+      # Parses validityPeriod.end to UTC Time object for comparison
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Time, nil] Parsed UTC time or nil if not available/invalid
+      def parse_expiration_date_utc(resource)
+        expiration_string = resource.dig('dispenseRequest', 'validityPeriod', 'end')
+        return nil if expiration_string.blank?
+
+        # Oracle Health dates are in Zulu time (UTC)
+        parsed_time = Time.zone.parse(expiration_string)
+        if parsed_time.nil?
+          Rails.logger.warn("Failed to parse expiration date '#{expiration_string}': invalid date format")
+          return nil
         end
 
-        Rails.logger.error("Unable to extract valid station number from: #{location_display}")
-
+        parsed_time.utc
+      rescue ArgumentError => e
+        Rails.logger.warn("Failed to parse expiration date '#{expiration_string}': #{e.message}")
         nil
+      end
+
+      def extract_facility_name(resource)
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        facility_resolver.resolve_facility_name(dispense)
       end
 
       def extract_quantity(resource)
@@ -398,43 +557,8 @@ module UnifiedHealthData
         end
       end
 
-      def fetch_facility_name_from_api(station_number)
-        facility_id = "vha_#{station_number}"
-        cache_key = "uhd:facility_names:#{station_number}"
-
-        begin
-          facilities_client = Lighthouse::Facilities::V1::Client.new
-          facilities = facilities_client.get_facilities(facilityIds: facility_id)
-
-          facility_name = if facilities&.any?
-                            facilities.first.name
-                          else
-                            Rails.logger.warn(
-                              "No facility found for station number #{station_number} in Lighthouse API"
-                            )
-                            nil
-                          end
-
-          # Cache the result (including nil) to avoid repeated API calls
-          # Keep TTL aligned with FacilityNameCacheJob refresh cadence (4 hours)
-          Rails.cache.write(cache_key, facility_name, expires_in: 4.hours)
-
-          facility_name
-        rescue => e
-          Rails.logger.error("Failed to fetch facility name from API for station #{station_number}: #{e.message}")
-          StatsD.increment('unified_health_data.facility_name_fallback.api_error')
-          nil
-        end
-      end
-
-      def attempt_facility_lookup(station_identifier)
-        return nil if station_identifier.blank?
-
-        cache_key = "uhd:facility_names:#{station_identifier}"
-        cached_name = Rails.cache.read(cache_key)
-        return cached_name if Rails.cache.exist?(cache_key)
-
-        fetch_facility_name_from_api(station_identifier)
+      def facility_resolver
+        @facility_resolver ||= FacilityNameResolver.new
       end
     end
   end
