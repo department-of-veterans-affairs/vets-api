@@ -5,6 +5,10 @@ common:
    - pstevens@technatomy.com
    - alattimore@technatomy.com
    - dorner_brandon@bah.com
+   - eshvimmer@deloitte.com
+   - slamsal@deloitte.com
+   - mughumman@deloitte.com
+   - mbavanaka@deloitte.com
 development:
 staging:
 sandbox:
@@ -12,4 +16,3 @@ production:
   - matthew.self2@va.gov
   - janet.coutinho@va.gov
   - drew.fisher@adhocteam.us
-  - heather.roy@zerodelta365.com
