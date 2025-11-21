@@ -815,6 +815,7 @@ maintenance:
   services:
     1010ez: <%= ENV['maintenance__services__1010ez'] %>
     1010ezr: <%= ENV['maintenance__services__1010ezr'] %>
+    accredited_representative_portal: <%= ENV['maintenance__services__accredited_representative_portal'] %>
     appeals: <%= ENV['maintenance__services__appeals'] %>
     arcgis: <%= ENV['maintenance__services__arcgis'] %>
     askva: <%= ENV['maintenance__services__askva'] %>
@@ -1806,6 +1807,8 @@ veteran_enrollment_system:
     api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
   ee_summary:
     api_key: ~
+  enrollment_periods:
+    api_key: <%= ENV['veteran_enrollment_system__enrollment_periods__api_key'] %>
   form1095b:
     api_key: <%= ENV['veteran_enrollment_system__form1095b__api_key'] %>
   host: <%= ENV['veteran_enrollment_system__host'] %>

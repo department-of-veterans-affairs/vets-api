@@ -164,6 +164,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
     context 'when the service throws a record parse error' do
       before do
+        allow(Process).to receive(:clock_gettime).and_call_original
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
       end
@@ -203,6 +204,7 @@ RSpec.describe Form1010cg::SubmissionJob do
           expected_arguments = { context: :process_job, event: :failure, start_time: }
           expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration)
             .with(**expected_arguments)
+          allow(Process).to receive(:clock_gettime).and_call_original
           allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
 
           expect_any_instance_of(Form1010cg::Service).to receive(
@@ -240,6 +242,7 @@ RSpec.describe Form1010cg::SubmissionJob do
       expected_arguments = { context: :process_job, event: :success, start_time: }
       expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration).with(**expected_arguments)
 
+      allow(Process).to receive(:clock_gettime).and_call_original
       allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
       allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
       allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
