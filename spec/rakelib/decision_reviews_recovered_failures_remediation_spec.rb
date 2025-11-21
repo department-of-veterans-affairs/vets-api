@@ -252,8 +252,15 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
       let(:vanotify_service) { instance_double(VaNotify::Service) }
       let(:email_address) { 'test@example.com' }
 
-      before do
+      let(:run_live_rake_task) do
+        Rake::Task['decision_reviews:remediation:send_recovery_emails'].reenable
+        ENV['APPEAL_SUBMISSION_IDS'] = appeal_submission.id.to_s
+        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
         ENV['DRY_RUN'] = 'false'
+        Rake.application.invoke_task 'decision_reviews:remediation:send_recovery_emails'
+      end
+
+      before do
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
         allow(vanotify_service).to receive(:send_email).and_return({ 'id' => 'notification-123' })
 
@@ -277,10 +284,7 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
             )
           )
         )
-        silently do
-          Rake::Task['decision_reviews:remediation:send_recovery_emails'].reenable
-          Rake.application.invoke_task 'decision_reviews:remediation:send_recovery_emails'
-        end
+        silently { run_live_rake_task }
       end
     end
 
