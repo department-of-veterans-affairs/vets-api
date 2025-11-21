@@ -281,7 +281,7 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         mpi_profile = double(given_names: ['John'])
         allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
 
-        # Stub masked filename on upload (realistic masked format: first 3 chars + Xs + last 6 chars including extension)
+        # Stub masked filename on upload
         allow(evidence_upload).to receive(:masked_attachment_filename).and_return('eviXXXXXXce.pdf')
 
         # Stub AppealSubmissionUpload.where to return our stubbed upload
