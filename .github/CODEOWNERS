@@ -290,6 +290,7 @@ app/models/saved_claim/education_benefits/va_10282.rb @department-of-veterans-af
 app/models/saved_claim/education_benefits/va_8794.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_benefits/va_10297.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_career_counseling_claim.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
+app/models/saved_claim/form210779.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/form212680.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/form214192.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/form21p530a.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
@@ -1037,6 +1038,7 @@ lib/vets @department-of-veterans-affairs/backend-review-group
 lib/vic @department-of-veterans-affairs/octo-identity
 lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
+lib/zero_silent_failures/manual_remediation/saved_claim.rb @department-of-veterans-affairs/backend-review-group
 Makefile @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/app/services/accredited_representative_portal/representative_user_loader.rb @department-of-veterans-affairs/octo-identity
@@ -1578,6 +1580,7 @@ spec/lib/vetext @department-of-veterans-affairs/mobile-api-team
 spec/lib/vets @department-of-veterans-affairs/backend-review-group
 spec/lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 spec/lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
+spec/lib/zero_silent_failures/manual_remediation/saved_claim_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_daily_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/mailers/create_excel_files_mailer_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_staging_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
