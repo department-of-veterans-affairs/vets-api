@@ -167,7 +167,20 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        # Add expansion logic here
+        split_postal_code(form_data) # ['claimantAddress']['postalCode']
+        extract_middle_i(form_data, 'claimantFullName')
+        form_data['claimantDateOfBirth'] = split_date(form_data['claimantDateOfBirth'])
+        split_phone(form_data, 'claimantPhone')
+        form_data['claimantSocialSecurityNumber'] = split_ssn(form_data['claimantSocialSecurityNumber'])
+        relationship_to_veteran = form_data['relationshipToVeteran']
+        form_data['relationshipToVeteran'] = {
+          'spouse' => select_checkbox(relationship_to_veteran == 'spouse'),
+          'child' => select_checkbox(relationship_to_veteran == 'child'),
+          'executor' => select_checkbox(relationship_to_veteran == 'executor'),
+          'parent' => select_checkbox(relationship_to_veteran == 'parent'),
+          'funeralDirector' => select_checkbox(relationship_to_veteran == 'funeralDirector'),
+          'otherFamily' => select_checkbox(relationship_to_veteran == 'otherFamily')
+        }
       end
     end
   end
