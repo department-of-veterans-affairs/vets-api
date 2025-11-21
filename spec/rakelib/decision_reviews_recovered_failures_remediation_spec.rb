@@ -451,58 +451,6 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
       end
     end
 
-    context 'with duplicate email addresses' do
-      let(:email_address) { 'duplicate@example.com' }
-      let(:saved_claim_one) { create(:saved_claim_higher_level_review) }
-      let(:saved_claim_two) { create(:saved_claim_higher_level_review) }
-      let(:submission_one) do
-        create(:appeal_submission,
-               saved_claim_hlr: saved_claim_one,
-               user_account:,
-               failure_notification_sent_at: 1.day.ago)
-      end
-      let(:submission_two) do
-        create(:appeal_submission,
-               saved_claim_hlr: saved_claim_two,
-               user_account:,
-               failure_notification_sent_at: 1.day.ago)
-      end
-      let(:vanotify_service) { instance_double(VaNotify::Service) }
-
-      let(:run_dedup_task) do
-        Rake::Task['decision_reviews:remediation:send_form_recovery_emails'].reenable
-        ENV['APPEAL_SUBMISSION_IDS'] = "#{submission_one.id},#{submission_two.id}"
-        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
-        ENV['DRY_RUN'] = 'false'
-        Rake.application.invoke_task 'decision_reviews:remediation:send_form_recovery_emails'
-      end
-
-      before do
-        allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
-        allow(vanotify_service).to receive(:send_email).and_return({ 'id' => 'notification-123' })
-
-        # Stub MPI profile and email for both submissions
-        mpi_profile = double(given_names: ['John'])
-        allow(submission_one).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
-        allow(submission_two).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
-
-        # Stub AppealSubmission.where to return both stubbed submissions
-        allow(AppealSubmission).to receive(:where).and_return(
-          double(includes: [submission_one, submission_two])
-        )
-      end
-
-      it 'sends only one email to duplicate addresses' do
-        expect(vanotify_service).to receive(:send_email).once
-        silently { run_dedup_task }
-      end
-
-      it 'tracks deduplicated count in output' do
-        output = capture_stdout { run_dedup_task }
-        expect(output).to include('Deduplicated: 1')
-      end
-    end
-
     context 'PII protection' do
       let(:email_address) { 'sensitive@example.com' }
       let(:vanotify_service) { instance_double(VaNotify::Service) }

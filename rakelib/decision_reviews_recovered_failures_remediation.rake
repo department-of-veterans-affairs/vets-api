@@ -909,9 +909,6 @@ namespace :decision_reviews do
         errors: []
       }
 
-      # Track emails sent to avoid duplicates
-      emails_sent_to = Set.new
-
       log.call "\n#{'📧 ' * 40}"
       log.call 'SENDING EVIDENCE RECOVERY EMAILS'
       log.call '📧 ' * 40
@@ -955,15 +952,6 @@ namespace :decision_reviews do
             stats[:skipped] += 1
             skip_msg = 'No email address available'
             log.call "\n  ⚠️  AppealSubmissionUpload ##{upload.id}: #{skip_msg}"
-            results[:skipped] << { id: upload.id, reason: skip_msg }
-            next
-          end
-
-          # Check if we've already sent an email to this address
-          if emails_sent_to.include?(email_address)
-            stats[:deduplicated] += 1
-            skip_msg = 'Email already sent to this address (deduplicated)'
-            log.call "\n  ⏭️  AppealSubmissionUpload ##{upload.id}: #{skip_msg}"
             results[:skipped] << { id: upload.id, reason: skip_msg }
             next
           end
@@ -1018,7 +1006,7 @@ namespace :decision_reviews do
                 email_type: :evidence_recovery,
                 service_name: DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type],
                 function: 'recovered evidence upload follow up email',
-                appeal_submission_upload_id: upload.id,
+                submitted_appeal_uuid: submission.submitted_appeal_uuid,
                 lighthouse_upload_id: upload.lighthouse_upload_id,
                 email_template_id: vanotify_template_id,
                 reference:,
@@ -1149,9 +1137,6 @@ namespace :decision_reviews do
         errors: []
       }
 
-      # Track emails sent to avoid duplicates
-      emails_sent_to = Set.new
-
       log.call "\n#{'📧 ' * 40}"
       log.call 'SENDING FORM RECOVERY EMAILS'
       log.call '📧 ' * 40
@@ -1193,15 +1178,6 @@ namespace :decision_reviews do
             stats[:skipped] += 1
             skip_msg = 'No email address available'
             log.call "\n  ⚠️  AppealSubmission ##{submission.id}: #{skip_msg}"
-            results[:skipped] << { id: submission.id, reason: skip_msg }
-            next
-          end
-
-          # Check if we've already sent an email to this address
-          if emails_sent_to.include?(email_address)
-            stats[:deduplicated] += 1
-            skip_msg = 'Email already sent to this address (deduplicated)'
-            log.call "\n  ⏭️  AppealSubmission ##{submission.id}: #{skip_msg}"
             results[:skipped] << { id: submission.id, reason: skip_msg }
             next
           end
