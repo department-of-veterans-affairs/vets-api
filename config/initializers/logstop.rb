@@ -1,0 +1,56 @@
+# frozen_string_literal: true
+
+# Logstop configuration for content-based PII filtering in Rails logs
+#
+# This provides defense-in-depth alongside our existing filter_parameters
+# configuration. While filter_parameters blocks specific parameter names,
+# Logstop scans actual content for PII patterns.
+#
+# Built-in patterns filtered by Logstop:
+# - SSN (XXX-XX-XXXX, XXXXXXXXX)
+# - Email addresses
+# - Phone numbers
+# - Credit card numbers
+# - IP addresses
+#
+# Custom VA-specific patterns added below:
+# - VA file numbers (8-9 digit numbers)
+# - Claim numbers
+#
+# Reference: https://github.com/ankane/logstop
+# Related ticket: https://github.com/department-of-veterans-affairs/va.gov-team/issues/120874
+
+require 'logstop'
+
+# Custom scrubber for VA-specific PII patterns
+# These patterns are not covered by Logstop's built-in filters
+va_custom_scrubber = lambda do |msg|
+  # VA file numbers (8-9 digit numbers that could be veteran identifiers)
+  # Using word boundaries to avoid matching other numeric sequences
+  msg = msg.gsub(/\bVA\s*(?:file\s*)?(?:number|#|no\.?)?:?\s*(\d{8,9})\b/i, 'VA file number: [VA_FILE_NUMBER_FILTERED]')
+
+  # Standalone 9-digit numbers that look like SSNs without dashes
+  # (Logstop handles XXX-XX-XXXX format, this catches XXXXXXXXX)
+  msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
+
+  # ICN (Integration Control Number) - 17 digit veteran identifier
+  msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
+
+  # EDIPI (10 digit DoD identifier)
+  msg = msg.gsub(/\b(?<!\d)(\d{10})(?!\d)\b/, '[EDIPI_FILTERED]')
+
+  msg
+end
+
+# Guard all Rails loggers with Logstop
+# This applies filtering to all log outputs (file, stdout, CloudWatch, DataDog)
+Logstop.guard(Rails.logger, scrubber: va_custom_scrubber)
+
+# Also guard the tagged logger if present
+if Rails.logger.respond_to?(:broadcast_to)
+  Rails.logger.broadcasts.each do |broadcast|
+    Logstop.guard(broadcast, scrubber: va_custom_scrubber) if broadcast.respond_to?(:info)
+  end
+end
+
+Rails.logger.info('Logstop PII filtering initialized with VA-specific patterns')
