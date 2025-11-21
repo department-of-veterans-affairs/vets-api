@@ -68,12 +68,18 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         ENV.delete('APPEAL_SUBMISSION_IDS')
         ENV.delete('LIGHTHOUSE_UPLOAD_IDS')
 
-        expect do
+        # Use begin/rescue to catch SystemExit without propagating exit code
+        exit_raised = false
+        begin
           silently do
             Rake::Task['decision_reviews:remediation:clear_recovered_statuses'].reenable
             Rake.application.invoke_task 'decision_reviews:remediation:clear_recovered_statuses'
           end
-        end.to raise_error(SystemExit)
+        rescue SystemExit
+          exit_raised = true
+        end
+
+        expect(exit_raised).to be true
       end
     end
 
@@ -196,12 +202,18 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         ENV.delete('APPEAL_SUBMISSION_IDS')
         ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
 
-        expect do
+        # Use begin/rescue to catch SystemExit without propagating exit code
+        exit_raised = false
+        begin
           silently do
             Rake::Task['decision_reviews:remediation:send_recovery_emails'].reenable
             Rake.application.invoke_task 'decision_reviews:remediation:send_recovery_emails'
           end
-        end.to raise_error(SystemExit)
+        rescue SystemExit
+          exit_raised = true
+        end
+
+        expect(exit_raised).to be true
       end
     end
 
@@ -210,12 +222,18 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         ENV['APPEAL_SUBMISSION_IDS'] = appeal_submission.id.to_s
         ENV.delete('VANOTIFY_TEMPLATE_ID')
 
-        expect do
+        # Use begin/rescue to catch SystemExit without propagating exit code
+        exit_raised = false
+        begin
           silently do
             Rake::Task['decision_reviews:remediation:send_recovery_emails'].reenable
             Rake.application.invoke_task 'decision_reviews:remediation:send_recovery_emails'
           end
-        end.to raise_error(SystemExit)
+        rescue SystemExit
+          exit_raised = true
+        end
+
+        expect(exit_raised).to be true
       end
     end
 
