@@ -4,6 +4,7 @@ require_relative 'bio_path_builder'
 require_relative 'configuration'
 require_relative 'health_benefit_bio_response'
 require_relative 'military_occupation_response'
+require 'digest'
 
 module VAProfile
   module Profile
@@ -25,12 +26,55 @@ module VAProfile
 
         def get_health_benefit_bio
           oid = MPI::Constants::VA_ROOT_OID
-          path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
-          service_response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
+          identifier = icn_with_aaid
+          unless identifier
+            Rails.logger.error(
+              event: 'va_profile.health_benefit_bio.missing_identifier',
+              user_uuid: user.uuid,
+              icn_present: user.icn.present?
+            )
+            StatsD.increment('va_profile.health_benefit_bio.error') if defined?(StatsD)
+            raise Common::Exceptions::BackendServiceException.new('VET360_502', self.class) # preserve status semantics
+          end
+
+          path = "#{oid}/#{ERB::Util.url_encode(identifier)}"
+          path_hash = Digest::SHA256.hexdigest(path)
+          request_body = { bios: [{ bioPath: 'healthBenefit' }] }
+
+          start_ms = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+          Rails.logger.info(
+            event: 'va_profile.health_benefit_bio.request',
+            path_hash: path_hash,
+            bios_requested: request_body[:bios].size
+          )
+          service_response = perform(:post, path, request_body)
+          latency = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start_ms
           response = VAProfile::Profile::V3::HealthBenefitBioResponse.new(service_response)
+
+          Rails.logger.info(
+            event: 'va_profile.health_benefit_bio.response',
+            path_hash: path_hash,
+            upstream_status: response.code,
+            ok: response.ok?,
+            server_error: response.server_error?,
+            contacts_present: response.contacts&.any?,
+            latency_ms: latency
+          )
+          StatsD.measure('va_profile.health_benefit_bio.latency', latency) if defined?(StatsD)
+          StatsD.increment('va_profile.health_benefit_bio.empty') if defined?(StatsD) && response.ok? && response.contacts.blank?
+          StatsD.increment('va_profile.health_benefit_bio.success') if defined?(StatsD) && response.ok?
+
           Sentry.set_extras(response.debug_data) unless response.ok?
           code = response.code || 502
-          raise_backend_exception("VET360_#{code}", self.class) if response.server_error?
+          if response.server_error?
+            Rails.logger.error(
+              event: 'va_profile.health_benefit_bio.server_error',
+              upstream_status: code,
+              path_hash: path_hash
+            )
+            StatsD.increment('va_profile.health_benefit_bio.error') if defined?(StatsD)
+            raise_backend_exception("VET360_#{code}", self.class)
+          end
           response
         end
 
