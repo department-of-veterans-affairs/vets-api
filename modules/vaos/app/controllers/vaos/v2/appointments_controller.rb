@@ -122,7 +122,7 @@ module VAOS
         begin
           type_of_care = get_type_of_care_for_metrics(submit_params[:referral_number])
         rescue => e
-          Rails.logger.error("Failed to retrieve type of care for metrics: #{e.message}")
+          Rails.logger.error('Failed to retrieve type of care for metrics')
         end
 
         submit_args = build_submit_args
