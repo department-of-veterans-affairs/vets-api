@@ -300,12 +300,12 @@ dgi:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
     public_key_path: <%= ENV['dgi__jwt__public_key_path'] %>
   sob:
-    jwt:
-      private_key_path: <%= ENV['dgi__sob__jwt__private_key_path'] %>
-      public_key_path: <%= ENV['dgi__sob__jwt__public_key_path'] %>
     claimants:
       mock: <%= ENV['dgi__sob__claimants__mock'] %>
       url: <%= ENV['dgi__sob__claimants__url'] %>
+    jwt:
+      private_key_path: <%= ENV['dgi__sob__jwt__private_key_path'] %>
+      public_key_path: <%= ENV['dgi__sob__jwt__public_key_path'] %>
   vets:
     mock: <%= ENV['dgi__vets__mock'] %>
     url: <%= ENV['dgi__vets__url'] %>
@@ -819,6 +819,7 @@ maintenance:
   services:
     1010ez: <%= ENV['maintenance__services__1010ez'] %>
     1010ezr: <%= ENV['maintenance__services__1010ezr'] %>
+    accredited_representative_portal: <%= ENV['maintenance__services__accredited_representative_portal'] %>
     appeals: <%= ENV['maintenance__services__appeals'] %>
     arcgis: <%= ENV['maintenance__services__arcgis'] %>
     askva: <%= ENV['maintenance__services__askva'] %>
