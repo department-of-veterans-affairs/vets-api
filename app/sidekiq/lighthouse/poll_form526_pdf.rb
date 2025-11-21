@@ -117,14 +117,14 @@ module Lighthouse
       if submission.created_at.between?(DateTime.now - 4.days, DateTime.now - 1.day)
         PollForm526PdfStatus.update_job_status(
           form_job_status:,
-          message: 'Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id' \
+          message: 'Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id ' \
                    "#{submission.id}",
           error_class: 'PollForm526PdfError',
-          error_message: 'Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id' \
+          error_message: 'Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id ' \
                          "#{submission.id}",
           status: Form526JobStatus::STATUS[:try]
         )
-      elsif submission.created_at < DateTime.now - 4.days
+      elsif submission.created_at <= DateTime.now - 4.days
         PollForm526PdfStatus.update_job_status(
           form_job_status:,
           message: 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...',
