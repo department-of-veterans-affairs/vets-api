@@ -15,7 +15,7 @@ module MyHealth
       include MyHealth::RxGroupingHelperV2
       include JsonApiPaginationLinks
 
-      service_tag 'mhv-prescriptions'
+      service_tag 'mhv-medications'
 
       def refill
         return unless validate_feature_flag
