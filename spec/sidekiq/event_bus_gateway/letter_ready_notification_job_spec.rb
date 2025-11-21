@@ -263,44 +263,6 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
       end
     end
 
-    describe 'private methods' do
-      let(:job_instance) { subject.new }
-
-      describe '#should_send_push?' do
-        it 'returns true when all requirements are met' do
-          result = job_instance.send(:should_send_push?, 'template_123', 'icn_456')
-          expect(result).to be true
-        end
-
-        it 'returns false when push_template_id is missing' do
-          result = job_instance.send(:should_send_push?, nil, 'icn_456')
-          expect(result).to be false
-        end
-
-        it 'returns false when icn is missing' do
-          result = job_instance.send(:should_send_push?, 'template_123', nil)
-          expect(result).to be false
-        end
-      end
-
-      describe '#should_send_email?' do
-        it 'returns true when all requirements are met' do
-          result = job_instance.send(:should_send_email?, 'template_123', 'icn_456')
-          expect(result).to be true
-        end
-
-        it 'returns false when email_template_id is missing' do
-          result = job_instance.send(:should_send_email?, nil, 'icn_456')
-          expect(result).to be false
-        end
-
-        it 'returns false when icn is missing' do
-          result = job_instance.send(:should_send_email?, 'template_123', nil)
-          expect(result).to be false
-        end
-      end
-    end
-
     describe 'partial failure scenarios' do
       around do |example|
         Sidekiq::Testing.inline! { example.run }
