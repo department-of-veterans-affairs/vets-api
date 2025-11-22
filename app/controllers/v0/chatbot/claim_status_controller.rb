@@ -139,6 +139,25 @@ module V0
       end
 
       class ServiceException < RuntimeError; end
+
+      # Pundit uses `pundit_user` (falls back to `current_user`) to build the policy.
+      # Service account authentication does not set `current_user`, it only sets
+      # `@service_account_access_token` with `user_attributes`. That made `authorize`
+      # pass a nil user into `LighthousePolicy`, triggering `undefined method `icn' for nil`.
+      # We expose a lightweight user object built from the token so LighthousePolicy
+      # can evaluate `icn.present? && participant_id.present?`.
+      def pundit_user
+        return @current_user if defined?(@current_user) && @current_user.present?
+
+        attrs = @service_account_access_token&.user_attributes || {}
+        return nil if attrs.blank?
+
+        # Minimal struct responding to the methods LighthousePolicy calls.
+        OpenStruct.new(
+          icn: attrs['icn'],
+          participant_id: attrs['participant_id']
+        )
+      end
     end
   end
 end
