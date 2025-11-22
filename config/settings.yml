@@ -1500,6 +1500,8 @@ vanotify:
         supplemental_claim_evidence_error_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__supplemental_claim_evidence_error_email'] %>
         supplemental_claim_form_error_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__supplemental_claim_form_error_email'] %>
         supplemental_claim_secondary_form_error_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__supplemental_claim_secondary_form_error_email'] %>
+        evidence_recovery_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__evidence_recovery_email'] %>
+        form_recovery_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__form_recovery_email'] %>
     benefits_disability:
       api_key: <%= ENV['vanotify__services__benefits_disability__api_key'] %>
       template_id:
