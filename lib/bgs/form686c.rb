@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require_relative 'benefit_claim'
 require_relative 'dependents'
 require_relative 'marriages'
@@ -13,6 +15,8 @@ require_relative '../bid/awards/service'
 
 module BGS
   class Form686c
+    include Vets::SharedLogging
+
     attr_reader :user, :saved_claim, :proc_id
 
     REMOVE_CHILD_OPTIONS = %w[report_child18_or_older_is_not_attending_school
@@ -58,7 +62,6 @@ module BGS
 
       begin
         benefit_claim_id = benefit_claim_record[:benefit_claim_id]
-
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
         if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
           prep_manual_claim(benefit_claim_id)
