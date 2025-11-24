@@ -457,7 +457,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE LAST NAME'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of end of full name
             'start_date' => {
               'month' => {
@@ -593,7 +593,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE LAST NAME'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'start_date' => {
               'month' => {
@@ -730,7 +730,7 @@ module DependentsBenefits
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > LAST NAME'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'ssn' => {
               'first' => {
@@ -983,7 +983,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > NAME OF FORMER SPOUSE'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end full_name
             'divorce_location' => {
               'location' => {
@@ -1189,7 +1189,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT DEPEDENT DEATH > NAME > LAST'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'dependent_death_date' => {
               'month' => {
@@ -1265,7 +1265,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT MARRIAGE OF A CHILD > NAME > LAST'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end full_name
             'date_married' => {
               'month' => {
@@ -1316,7 +1316,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT CHILD STOPPED ATTENDING SCHOOL > NAME > LAST'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             },
             'date_child_left_school' => {
               'month' => {
@@ -1429,7 +1429,7 @@ module DependentsBenefits
             question_suffix: 'L',
             question_text: 'REMARKS'
           }
-          # @TODO remarks
+          # @todo remarks
         },
         'addendum' => { key: 'addendum' },
         'veteran_ssn' => {
@@ -1620,7 +1620,7 @@ module DependentsBenefits
           spouse['end_date'] = split_date(spouse['end_date'])
 
           reason_marriage_ended = spouse['reason_marriage_ended']
-          # @TODO why is annulment not an option on FE ('Annulment or other')
+          # @todo why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
             'divorce' => select_radio_button(reason_marriage_ended == 'Divorce'),
@@ -1648,7 +1648,7 @@ module DependentsBenefits
 
           # expand reason marriage ended
           reason_marriage_ended = spouse['reason_marriage_ended']
-          # @TODO why is annulment not an option on FE ('Annulment or other')
+          # @todo why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
             'divorce' => select_radio_button(reason_marriage_ended == 'Divorce'),
@@ -1715,7 +1715,7 @@ module DependentsBenefits
         child['school_age_in_school'] =
           child.key?('school_age_in_school') ? 'Off' : select_radio_button(child['school_age_in_school'])
 
-        # @TODO 18-23 YEARS OLD AND IN SCHOOL
+        # @todo 18-23 YEARS OLD AND IN SCHOOL
         child['relationship_to_child'] = {
           # 'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
           'adopted' => select_radio_button(child_status['adopted']),
@@ -1809,7 +1809,7 @@ module DependentsBenefits
           }
         end
 
-        # @TODO we ask this on our form for each child, the pdf only has this in one place
+        # @todo we ask this on our form for each child, the pdf only has this in one place
         # expand_supporting_stepchild
       end
 
@@ -1918,7 +1918,7 @@ module DependentsBenefits
 
       def expand_remarks
         @form_data['remarks'] = {}
-        # @TODO FE changes for remarks
+        # @todo FE changes for remarks
         # 12.times do |i|
         #   @form_data['remarks']['remarks_line' + (i + 1).to_s] = ""
         # end

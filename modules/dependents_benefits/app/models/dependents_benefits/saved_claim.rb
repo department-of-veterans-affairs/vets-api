@@ -7,7 +7,7 @@ module DependentsBenefits
   # DependentsBenefit 686C-674 Active::Record
   # @see app/model/saved_claim
   #
-  # todo: migrate encryption to DependentsBenefits::SavedClaim, remove inheritance and encryption shim
+  # @todo: migrate encryption to DependentsBenefits::SavedClaim, remove inheritance and encryption shim
   class SavedClaim < ::SavedClaim
     include DependentsBenefits::ClaimBehavior
 

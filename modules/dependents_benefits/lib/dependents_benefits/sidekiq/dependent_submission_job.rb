@@ -218,15 +218,15 @@ module DependentsBenefits::Sidekiq
     end
 
     def send_in_progress_notification
-      # TODO
+      @todo
     end
 
     def send_success_notification
-      # TODO
+      @todo
     end
 
     def send_failure_notification
-      # TODO
+      @todo
     end
 
     def send_backup_job

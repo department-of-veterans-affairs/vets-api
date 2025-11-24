@@ -23,7 +23,7 @@ module DependentsBenefits
     # Checks if the claim was successfully submitted by checking the status of submission attempts
     # @return [Boolean] true if all submission attempts succeeded, false otherwise
     def submissions_succeeded?
-      # TODO: Add checks for each submission type for claim
+      # @todo: Add checks for each submission type for claim
       bgs_submissions = BGS::Submission.where(saved_claim_id: id)
       return false if bgs_submissions.empty?
 

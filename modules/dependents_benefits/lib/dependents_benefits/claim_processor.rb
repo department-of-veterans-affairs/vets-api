@@ -33,7 +33,7 @@ module DependentsBenefits
     def self.enqueue_submissions(parent_claim_id, proc_id)
       processor = new(parent_claim_id, proc_id)
       processor.enqueue_submissions
-      # TODO: Set claim group gets set as accepted
+      # @todo: Set claim group gets set as accepted
     end
 
     def enqueue_submissions
@@ -83,7 +83,7 @@ module DependentsBenefits
       Sidekiq::Claims686cJob.perform_async(claim.id, proc_id)
       jobs_count += 1
 
-      # TODO: Add calls to submission jobs here as they are implemented
+      # @todo: Add calls to submission jobs here as they are implemented
 
       monitor.track_processor_info('Enqueued 686c submission jobs', 'enqueue_686c',
                                    parent_claim_id:, claim_id: claim.id)
