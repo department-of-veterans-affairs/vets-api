@@ -6,7 +6,7 @@ require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/configuration'
 
 RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
-  include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859', participant_id: '12345678' } }
+  include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859', participant_id: '123456' } }
 
   describe 'GET /v0/chatbot/claims from lighthouse' do
     subject(:get_claims) do
@@ -29,7 +29,6 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
         it 'returns ordered list of all veteran claims from lighthouse' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_multiple_claims') do
             get_claims
-            # get('/v0/chatbot/claims', params: { conversation_id: 123 }, headers: service_account_auth_header)
           end
 
           expect(response).to have_http_status(:ok)
@@ -178,6 +177,12 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
     context 'authorized' do
       before do
+        # user.user_account_uuid = user_account.id
+        # user.save!
+        # sign_in_as(user)
+
+        # allow(Rails.logger).to receive(:info)
+        # allow(Rails.logger).to receive(:error)
         allow(Flipper).to receive(:enabled?).and_call_original
         @mock_cxi_reporting_service = instance_double(Chatbot::ReportToCxi)
         allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
