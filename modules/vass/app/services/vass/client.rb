@@ -186,7 +186,7 @@ module Vass
 
     ##
     # Ensures valid OAuth token is available.
-    # Fetches token from Redis cache or fetches new ones if needed.
+    # Fetches token from Redis cache or fetches a new one if needed.
     #
     def ensure_oauth_token!
       return @current_oauth_token if @current_oauth_token.present?
