@@ -170,7 +170,6 @@ module EVSS
       ###
       # Banking info
       ###
-      
       def translate_banking_info
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
