@@ -22,16 +22,16 @@ module SOB
 
       def get_ch33_status
         with_monitoring do
-          byebug
           raw_response = perform(
             :post,
             end_point,
             payload.to_json,
             request_headers
           )
-          byebug
-          raise
+          SOB::DGIB::Response.new(raw_response.status, raw_response)
         end
+      rescue Common::Exceptions::BackendServiceException => e
+        raise e
       end
 
       private

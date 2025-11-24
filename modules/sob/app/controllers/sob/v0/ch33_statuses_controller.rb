@@ -11,7 +11,7 @@ module SOB
 
       def show
         response = service.get_ch33_status
-        render json: Post911GIBillStatusSerializer.new(response)
+        render json: SOB::Ch33StatusSerializer.new(response)
       rescue => e
         byebug
         handle_error(e)
