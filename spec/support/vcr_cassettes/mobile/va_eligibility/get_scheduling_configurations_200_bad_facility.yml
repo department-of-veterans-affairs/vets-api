@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/scheduling/configurations?facilityIds=12345678&pageSize=0
+    uri: https://veteran.apps.va.gov/cscs/v1/configurations?facilityIds=12345678&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
