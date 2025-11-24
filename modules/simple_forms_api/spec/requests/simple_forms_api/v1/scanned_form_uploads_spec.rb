@@ -305,5 +305,106 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         expect(resp['errors'].first['detail']).to match(/password|locked|encrypted/i)
       end
     end
+
+    context 'error handling for missing or invalid file parameter' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns bad request when file parameter is missing' do
+        params = { form_id: form_number }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:bad_request)
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]['title']).to eq('Missing file')
+        expect(resp['errors'][0]['detail']).to eq('File parameter is required')
+      end
+
+      it 'returns bad request when file parameter is nil' do
+        params = { form_id: form_number, file: nil }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:bad_request)
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]['title']).to eq('Missing file')
+      end
+    end
+
+    context 'error handling for attachment save failures' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns internal server error when attachment fails to persist' do
+        # Mock processor to return an unpersisted attachment
+        allow(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment|
+          processor = double('ScannedFormProcessor')
+          allow(processor).to receive(:process!) do
+            # Return attachment without saving it
+            attachment
+          end
+          processor
+        end
+
+        params = { form_id: form_number, file: valid_pdf_file }
+
+        expect do
+          post('/simple_forms_api/v1/supporting_documents_upload', params:)
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:internal_server_error)
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]['title']).to eq('Save failed')
+        expect(resp['errors'][0]['detail']).to eq('Unable to save the uploaded document. Please try again.')
+      end
+    end
+
+    context 'error handling for unexpected failures' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns internal server error for unexpected StandardError' do
+        # Mock processor to raise an unexpected error
+        allow(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_raise(StandardError.new('Unexpected error'))
+
+        params = { form_id: form_number, file: valid_pdf_file }
+
+        expect do
+          post('/simple_forms_api/v1/supporting_documents_upload', params:)
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:internal_server_error)
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]['title']).to eq('Upload failed')
+        expect(resp['errors'][0]['detail']).to eq('An error occurred while processing your document. Please try again.')
+      end
+
+      it 'returns internal server error for database errors' do
+        # Mock a database error
+        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:file_attacher).and_raise(
+          ActiveRecord::ActiveRecordError.new('Database connection failed')
+        )
+
+        params = { form_id: form_number, file: valid_pdf_file }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:internal_server_error)
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]['title']).to eq('Upload failed')
+      end
+    end
   end
 end

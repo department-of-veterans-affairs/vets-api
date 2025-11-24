@@ -38,6 +38,17 @@ module SimpleFormsApi
           return
         end
 
+        # Validate file parameter presence
+        if params['file'].blank?
+          render json: {
+            errors: [{
+              title: 'Missing file',
+              detail: 'File parameter is required'
+            }]
+          }, status: :bad_request
+          return
+        end
+
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
 
@@ -46,10 +57,30 @@ module SimpleFormsApi
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
         processed_attachment = processor.process!
 
+        # Verify attachment was saved successfully
+        unless processed_attachment.persisted?
+          Rails.logger.error('Failed to save supporting document attachment')
+          render json: {
+            errors: [{
+              title: 'Save failed',
+              detail: 'Unable to save the uploaded document. Please try again.'
+            }]
+          }, status: :internal_server_error
+          return
+        end
+
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
         render json: { errors: e.errors }, status: :unprocessable_entity
+      rescue StandardError => e
+        Rails.logger.error("Supporting document upload failed: #{e.class} - #{e.message}")
+        render json: {
+          errors: [{
+            title: 'Upload failed',
+            detail: 'An error occurred while processing your document. Please try again.'
+          }]
+        }, status: :internal_server_error
       end
 
       private
