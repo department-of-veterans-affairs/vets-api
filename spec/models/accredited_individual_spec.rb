@@ -347,4 +347,186 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
     end
   end
+
+  describe '#geocode_and_update_location!' do
+    let(:individual) do
+      create(:accredited_individual,
+             address_line1: '1600 Pennsylvania Ave NW',
+             city: 'Washington',
+             state_code: 'DC',
+             zip_code: '20500')
+    end
+
+    let(:geocoding_result) do
+      double('Geocoder::Result',
+             latitude: 38.8977,
+             longitude: -77.0365)
+    end
+
+    before do
+      allow(Geocoder).to receive(:search).and_return([geocoding_result])
+    end
+
+    context 'when geocoding is successful' do
+      it 'updates lat, long, and location fields' do
+        expect(individual.geocode_and_update_location!).to be true
+
+        individual.reload
+        expect(individual.lat).to eq(38.8977)
+        expect(individual.long).to eq(-77.0365)
+        expect(individual.location.to_s).to eq('POINT (-77.0365 38.8977)')
+      end
+
+      it 'calls Geocoder.search with the built address' do
+        individual.geocode_and_update_location!
+
+        expect(Geocoder).to have_received(:search).with('1600 Pennsylvania Ave NW, Washington, DC, 20500')
+      end
+    end
+
+    context 'when no address data is available' do
+      let(:individual) do
+        create(:accredited_individual,
+               address_line1: nil,
+               city: nil,
+               state_code: nil,
+               zip_code: nil)
+      end
+
+      it 'returns false without calling Geocoder' do
+        expect(individual.geocode_and_update_location!).to be false
+        expect(Geocoder).not_to have_received(:search)
+      end
+
+      it 'does not update any fields' do
+        original_lat = individual.lat
+        original_long = individual.long
+        original_location = individual.location
+
+        individual.geocode_and_update_location!
+
+        expect(individual.lat).to eq(original_lat)
+        expect(individual.long).to eq(original_long)
+        expect(individual.location).to eq(original_location)
+      end
+    end
+
+    context 'when geocoding returns no results' do
+      before do
+        allow(Geocoder).to receive(:search).and_return([])
+      end
+
+      it 'returns false' do
+        expect(individual.geocode_and_update_location!).to be false
+      end
+
+      it 'does not update any fields' do
+        original_lat = individual.lat
+        original_long = individual.long
+        original_location = individual.location
+
+        individual.geocode_and_update_location!
+
+        expect(individual.lat).to eq(original_lat)
+        expect(individual.long).to eq(original_long)
+        expect(individual.location).to eq(original_location)
+      end
+    end
+
+    context 'when an error occurs during geocoding' do
+      before do
+        allow(Geocoder).to receive(:search).and_raise(StandardError.new('API error'))
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs the error and returns false' do
+        expect(individual.geocode_and_update_location!).to be false
+        expect(Rails.logger).to have_received(:error).with(/Geocoding error/)
+      end
+
+      it 'does not update any fields' do
+        original_lat = individual.lat
+        original_long = individual.long
+        original_location = individual.location
+
+        individual.geocode_and_update_location!
+
+        expect(individual.lat).to eq(original_lat)
+        expect(individual.long).to eq(original_long)
+        expect(individual.location).to eq(original_location)
+      end
+    end
+  end
+
+  describe '#build_geocodable_address' do
+    context 'with full address available' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: '123 Main St',
+              city: 'Springfield',
+              state_code: 'IL',
+              zip_code: '62701')
+      end
+
+      it 'returns the full address string' do
+        expect(individual.send(:build_geocodable_address)).to eq('123 Main St, Springfield, IL, 62701')
+      end
+    end
+
+    context 'with only city and state available' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: nil,
+              city: 'Springfield',
+              state_code: 'IL',
+              zip_code: nil)
+      end
+
+      it 'returns city and state' do
+        expect(individual.send(:build_geocodable_address)).to eq('Springfield, IL')
+      end
+    end
+
+    context 'with only zip code available' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: nil,
+              city: nil,
+              state_code: nil,
+              zip_code: '62701')
+      end
+
+      it 'returns just the zip code' do
+        expect(individual.send(:build_geocodable_address)).to eq('62701')
+      end
+    end
+
+    context 'with no address data available' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: nil,
+              city: nil,
+              state_code: nil,
+              zip_code: nil)
+      end
+
+      it 'returns nil' do
+        expect(individual.send(:build_geocodable_address)).to be_nil
+      end
+    end
+
+    context 'with partial address (missing zip)' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: '123 Main St',
+              city: 'Springfield',
+              state_code: 'IL',
+              zip_code: nil)
+      end
+
+      it 'returns address without zip' do
+        expect(individual.send(:build_geocodable_address)).to eq('123 Main St, Springfield, IL')
+      end
+    end
+  end
 end
