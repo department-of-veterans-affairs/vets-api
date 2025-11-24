@@ -29,5 +29,6 @@
   "ssn": "123456789",
   "vaBenefitProgram": "chapter35",
   "hasPreviouslyApplied": true,
-  "statementOfTruthSignature": "Jackie Doe"
+  "statementOfTruthSignature": "Jackie Doe",
+  "dateSigned": "2025-01-01"
 }

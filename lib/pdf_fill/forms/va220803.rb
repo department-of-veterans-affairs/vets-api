@@ -76,7 +76,6 @@ module PdfFill
 
         form_data['applicantName'] = combine_full_name(form_data['applicantName'])
         form_data['mailingAddress'] = combine_full_address_extras(form_data['mailingAddress'])
-        form_data['dateSigned'] = Date.today.to_s
         format_bill_type(form_data)
         format_file_number(form_data)
         format_previously_applied(form_data)
@@ -100,13 +99,11 @@ module PdfFill
 
       def format_file_number(form_data)
         form_data['fileNumber'] = form_data['vaFileNumber'] || form_data['ssn']
-        if form_data['payeeNumber'].present?
-          form_data['fileNumber'] += ":#{form_data['payeeNumber']}"
-        end
+        form_data['fileNumber'] += ":#{form_data['payeeNumber']}" if form_data['payeeNumber'].present?
       end
 
       def format_previously_applied(form_data)
-        if form_data["hasPreviouslyApplied"]
+        if form_data['hasPreviouslyApplied']
           form_data['previously_applied_yes'] = 'Yes'
         else
           form_data['previously_applied_no'] = 'Yes'
@@ -114,10 +111,10 @@ module PdfFill
       end
 
       def format_organization_info(form_data)
-        form_data['organizationInfo'] = <<~EOF
+        form_data['organizationInfo'] = <<~ORGINFO
           #{form_data['organizationName']}
           #{combine_full_address_extras(form_data['organizationAddress'])}
-        EOF
+        ORGINFO
       end
     end
   end

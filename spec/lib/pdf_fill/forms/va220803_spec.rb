@@ -28,22 +28,29 @@ describe PdfFill::Forms::Va220803 do
     it 'formats the bill type correctly' do
       merged_data = subject.merge_fields
 
-      expect(merged_data['bill_type_chapter_30']).to eq(nil)
-      expect(merged_data['bill_type_chapter_33']).to eq(nil)
+      expect(merged_data['bill_type_chapter_30']).to be_nil
+      expect(merged_data['bill_type_chapter_33']).to be_nil
       expect(merged_data['bill_type_chapter_35']).to eq('Yes')
-      expect(merged_data['bill_type_chapter_1606']).to eq(nil)
+      expect(merged_data['bill_type_chapter_1606']).to be_nil
     end
-    
+
     it 'formats the file number correctly' do
       merged_data = subject.merge_fields
 
       expect(merged_data['fileNumber']).to eq('123456789:AB')
     end
-    
+
     it 'formats the file organization info correctly' do
       merged_data = subject.merge_fields
 
       expect(merged_data['organizationInfo']).to eq("Acme Co.\n123 Fake St\nTulsa, OK, 23456\nUSA\n")
+    end
+
+    it 'formats the signature and date correctly' do
+      merged_data = subject.merge_fields
+
+      expect(merged_data['statementOfTruthSignature']).to eq('Jackie Doe')
+      expect(merged_data['dateSigned']).to eq('2025-01-01')
     end
   end
 end
