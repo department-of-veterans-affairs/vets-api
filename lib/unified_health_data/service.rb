@@ -264,8 +264,10 @@ module UnifiedHealthData
     def fetch_combined_records(body)
       return [] if body.nil?
 
-      vista_records = body.dig('vista', 'entry') || []
-      oracle_health_records = body.dig('oracle-health', 'entry') || []
+      vista_records = (body.dig('vista', 'entry') || []).map { |r| r.merge('source' => 'vista') }
+      oracle_health_records = (body.dig('oracle-health', 'entry') || []).map do |r|
+        r.merge('source' => 'oracle-health')
+      end
       vista_records + oracle_health_records
     end
 

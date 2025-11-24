@@ -49,7 +49,8 @@ module UnifiedHealthData
           ordered_by: get_ordered_by(record),
           observations:,
           body_site: get_body_site(record['resource'], contained),
-          status: record['resource']['status']
+          status: record['resource']['status'],
+          source: record['source']
         )
       end
 

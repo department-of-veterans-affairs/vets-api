@@ -114,6 +114,32 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to eq([])
       end
     end
+
+    context 'when body has VistA and Oracle Health records' do
+      let(:body) do
+        {
+          'vista' => {
+            'entry' => [
+              { 'resource' => { 'id' => 'vista-1', 'resourceType' => 'DiagnosticReport' } }
+            ]
+          },
+          'oracle-health' => {
+            'entry' => [
+              { 'resource' => { 'id' => 'oracle-1', 'resourceType' => 'DiagnosticReport' } }
+            ]
+          }
+        }
+      end
+
+      it 'adds source to each record and combines them' do
+        result = service.send(:fetch_combined_records, body)
+        expect(result.size).to eq(2)
+        vista_record = result.find { |r| r['resource']['id'] == 'vista-1' }
+        oracle_record = result.find { |r| r['resource']['id'] == 'oracle-1' }
+        expect(vista_record['source']).to eq('vista')
+        expect(oracle_record['source']).to eq('oracle-health')
+      end
+    end
   end
 
   # Allergies

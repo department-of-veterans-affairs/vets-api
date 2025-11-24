@@ -37,6 +37,7 @@ module UnifiedHealthData
     attribute :ordered_by, String
     attribute :body_site, String
     attribute :status, String
+    attribute :source, String
     attribute :observations, UnifiedHealthData::Observation, array: true
 
     default_sort_by sort_date: :desc
