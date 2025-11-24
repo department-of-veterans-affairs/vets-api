@@ -23,7 +23,7 @@ RSpec.describe 'Logstop PII filtering' do
         expect(result).to eq('Code is 12345678')
       end
 
-      it 'does not filter longer numbers that are not ICN/EDIPI' do
+      it 'does not filter longer numbers that are not EDIPI' do
         msg = 'Number is 12345678901'
         result = va_custom_scrubber.call(msg)
         # 11 digits - not filtered by our patterns
@@ -51,14 +51,6 @@ RSpec.describe 'Logstop PII filtering' do
       end
     end
 
-    context 'ICN (Integration Control Number)' do
-      it 'filters 17-digit ICN' do
-        msg = 'Veteran ICN: 12345678901234567'
-        result = va_custom_scrubber.call(msg)
-        expect(result).to eq('Veteran ICN: [ICN_FILTERED]')
-      end
-    end
-
     context 'EDIPI (DoD identifier)' do
       it 'filters 10-digit EDIPI' do
         msg = 'EDIPI is 1234567890'
@@ -69,9 +61,9 @@ RSpec.describe 'Logstop PII filtering' do
 
     context 'multiple PII in same message' do
       it 'filters multiple PII patterns' do
-        msg = 'User 123456789 with EDIPI 1234567890 and ICN 12345678901234567'
+        msg = 'User 123456789 with EDIPI 1234567890'
         result = va_custom_scrubber.call(msg)
-        expect(result).to eq('User [SSN_FILTERED] with EDIPI [EDIPI_FILTERED] and ICN [ICN_FILTERED]')
+        expect(result).to eq('User [SSN_FILTERED] with EDIPI [EDIPI_FILTERED]')
       end
     end
 
@@ -129,11 +121,6 @@ RSpec.describe 'Logstop PII filtering' do
         expect(result).to eq('SSN: [SSN_FILTERED]')
       end
 
-      it 'filters ICN' do
-        result = integrated_scrubber.call('ICN: 12345678901234567')
-        expect(result).to eq('ICN: [ICN_FILTERED]')
-      end
-
       it 'filters EDIPI' do
         result = integrated_scrubber.call('EDIPI: 1234567890')
         expect(result).to eq('EDIPI: [EDIPI_FILTERED]')
@@ -147,11 +134,11 @@ RSpec.describe 'Logstop PII filtering' do
 
     context 'combined patterns' do
       it 'filters multiple PII types in one message' do
-        msg = 'User SSN 123-45-6789, email test@example.com, ICN 12345678901234567'
+        msg = 'User SSN 123-45-6789, email test@example.com, EDIPI 1234567890'
         result = integrated_scrubber.call(msg)
         expect(result).not_to include('123-45-6789')
         expect(result).not_to include('test@example.com')
-        expect(result).not_to include('12345678901234567')
+        expect(result).not_to include('1234567890')
       end
     end
   end

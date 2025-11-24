@@ -15,7 +15,6 @@
 # Custom VA-specific patterns added below:
 # - VA file numbers (8-9 digit numbers)
 # - SSN without dashes (9 digits)
-# - ICN (17 digits)
 # - EDIPI (10 digits)
 #
 # Reference: https://github.com/ankane/logstop
@@ -42,12 +41,6 @@ module VAPiiScrubber
       # Standalone 9-digit numbers that look like SSNs without dashes
       # (Logstop handles XXX-XX-XXXX format, this catches XXXXXXXXX)
       msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
-
-      # ICN (Integration Control Number) - 17 digit veteran identifier
-      # Note: 17-digit numbers are uncommon, so false positive risk is low.
-      # ICNs are always exactly 17 digits. If false positives occur, consider
-      # adding context-based matching (e.g., requiring "ICN:" prefix).
-      msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
 
       # EDIPI (10 digit DoD identifier)
       # Note: 10-digit numbers are more common (order numbers, tracking IDs, etc.)
