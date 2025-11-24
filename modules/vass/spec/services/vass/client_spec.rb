@@ -47,9 +47,9 @@ describe Vass::Client do
 
   describe '#oauth_token_request' do
     it 'makes OAuth token request and returns response' do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(double('response',
-                                                                                     env: double('env',
-                                                                                                 body: { 'access_token' => 'token' })))
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+        double('response', env: double('env', body: { 'access_token' => 'token' }))
+      )
 
       result = subject.oauth_token_request
       expect(result).to be_present
@@ -58,9 +58,9 @@ describe Vass::Client do
 
   describe '#get_agent_skills' do
     it 'makes request to get agent skills' do
-      allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(double('response',
-                                                                                    env: double('env',
-                                                                                                body: { 'skills' => [] })))
+      allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+        double('response', env: double('env', body: { 'skills' => [] }))
+      )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
       result = subject.get_agent_skills
@@ -70,9 +70,9 @@ describe Vass::Client do
 
   describe '#get_veteran' do
     it 'makes request to get veteran data' do
-      allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(double('response',
-                                                                                    env: double('env',
-                                                                                                body: { 'firstName' => 'John' })))
+      allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+        double('response', env: double('env', body: { 'firstName' => 'John' }))
+      )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
       result = subject.get_veteran(edipi:, veteran_id:)
@@ -84,9 +84,9 @@ describe Vass::Client do
     let(:availability_request) { { 'startDate' => '2024-01-01', 'endDate' => '2024-01-31' } }
 
     it 'makes request to get appointment availability' do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(double('response',
-                                                                                     env: double('env',
-                                                                                                 body: { 'availableSlots' => [] })))
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+        double('response', env: double('env', body: { 'availableSlots' => [] }))
+      )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
       result = subject.get_appointment_availability(edipi:, availability_request:)
@@ -98,9 +98,9 @@ describe Vass::Client do
     let(:appointment_data) { { 'startTime' => '2024-01-01T10:00:00Z', 'skillId' => '123' } }
 
     it 'makes request to save appointment' do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(double('response',
-                                                                                     env: double('env',
-                                                                                                 body: { 'appointmentId' => 'appt-123' })))
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+        double('response', env: double('env', body: { 'appointmentId' => 'appt-123' }))
+      )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
       result = subject.save_appointment(edipi:, appointment_data:)
@@ -112,9 +112,9 @@ describe Vass::Client do
     let(:appointment_id) { 'appt-123' }
 
     it 'makes request to cancel appointment' do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(double('response',
-                                                                                     env: double('env',
-                                                                                                 body: { 'cancelled' => true })))
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+        double('response', env: double('env', body: { 'cancelled' => true }))
+      )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
       result = subject.cancel_appointment(edipi:, appointment_id:)
@@ -126,9 +126,9 @@ describe Vass::Client do
     let(:appointment_id) { 'appt-123' }
 
     it 'makes request to get veteran appointment' do
-      allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(double('response',
-                                                                                    env: double('env',
-                                                                                                body: { 'appointment' => {} })))
+      allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+        double('response', env: double('env', body: { 'appointment' => {} }))
+      )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
       result = subject.get_veteran_appointment(edipi:, appointment_id:)
@@ -140,9 +140,9 @@ describe Vass::Client do
     let(:veteran_id) { 'vet-123' }
 
     it 'makes request to get veteran appointments' do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(double('response',
-                                                                                     env: double('env',
-                                                                                                 body: { 'appointments' => [] })))
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+        double('response', env: double('env', body: { 'appointments' => [] }))
+      )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
       result = subject.get_veteran_appointments(edipi:, veteran_id:)
@@ -171,10 +171,10 @@ describe Vass::Client do
     end
 
     context 'when token needs to be minted' do
-      let(:mock_response) { double('response', body: { 'access_token' => oauth_token }) }
-
       before do
-        allow(subject).to receive(:oauth_token_request).and_return(mock_response)
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+          double('response', env: double('env', body: { 'access_token' => oauth_token }))
+        )
       end
 
       it 'requests new token and caches it' do
@@ -186,10 +186,10 @@ describe Vass::Client do
     end
 
     context 'when OAuth response is missing access_token' do
-      let(:mock_response) { double('response', body: {}) }
-
       before do
-        allow(subject).to receive(:oauth_token_request).and_return(mock_response)
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+          double('response', env: double('env', body: {}))
+        )
       end
 
       it 'raises BackendServiceException' do
