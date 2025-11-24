@@ -4,6 +4,12 @@ module SignIn
   class UserInfo
     include ActiveModel::Model
     include ActiveModel::Attributes
+    include ActiveModel::Serialization
+
+    ACCEPTED_GCID_TYPES = %w[
+      200ENPI 200VETS 200BRLS 200CORP 200VET360
+      200VIDM 200VLGN 200MHV 200CERNER
+    ].freeze
 
     attribute :sub, :string
     attribute :email, :string
@@ -30,83 +36,65 @@ module SignIn
     attribute :gcids, :string
     attribute :npi_id, :string
 
-    def self.from_user(user, user_verification: nil)
-      new(
-        sub: user.uuid,
-        email: user_verification&.user_credential_email&.credential_email || user.email,
-        npi_id: user.npi_id, full_name: full_name_from(user),
-        first_name: user.first_name, last_name: user.last_name,
-        csp_type: csp_type_from_mpi(user_verification), csp_uuid: user_verification.credential_identifier,
-        ial: ial_level(user_verification), aal: aal_level(user_verification),
-        birth_date: user.birth_date, ssn: user.ssn,
-        gender: user.gender, address: user.address, phone_number: user.home_phone,
-        person_type: user.try(:person_type), icn: user.icn,
-        sec_id: user.sec_id, edipi: user.try(:edipi),
-        mhv_ien: user.try(:mhv_ien), cerner_id: user.try(:cerner_id),
-        corp_id: user.participant_id, birls: user.birls_id, gcids: accepted_gcids(user.mpi_gcids)
-      )
-    end
-
-    def to_oidc_json
-      {
-        sub:, first_name:, npi_id:, full_name:,
-        last_name:, email:, csp_type:, csp_uuid:,
-        ial:, aal:, birth_date:, ssn:,
-        gender:, address:, phone_number:, person_type:,
-        icn:, sec_id:, edipi:, mhv_ien:,
-        cerner_id:, corp_id:, birls:, gcids:
-      }
-    end
-
-    def to_h
-      attributes.deep_symbolize_keys.compact
-    end
-
-    def self.full_name_from(user)
-      return user.full_name if user.respond_to?(:full_name) && user.full_name.present?
-
-      [user.try(:first_name), user.try(:middle_name), user.try(:last_name)]
-        .compact_blank
-        .join(' ')
-        .presence
-    end
-
-    def self.ial_level(user_verification)
-      user_verification.verified? ? '2' : '1'
-    end
-
-    def self.aal_level(user_verification)
-      '2' if %w[idme logingov].include?(user_verification.credential_type)
-    end
-
-    def self.csp_type_from_mpi(user_verification)
-      case user_verification.credential_type
-      when 'idme'
-        '200VIDM'
-      when 'logingov'
-        '200VLGN'
+    class << self
+      def from_user(user)
+        new(
+          sub: user.uuid,
+          email: user.user_verification&.user_credential_email&.credential_email || user.email,
+          npi_id: user.npi_id, full_name: full_name(user),
+          first_name: user.first_name, last_name: user.last_name,
+          csp_type: csp_type_from_mpi(user), csp_uuid: user.user_verification.credential_identifier,
+          ial: ial_level(user), aal: aal_level(user),
+          birth_date: user.birth_date, ssn: user.ssn,
+          gender: user.gender, address: user.address, phone_number: user.home_phone,
+          person_type: user.try(:person_type), icn: user.icn,
+          sec_id: user.sec_id, edipi: user.try(:edipi),
+          mhv_ien: user.try(:mhv_ien), cerner_id: user.try(:cerner_id),
+          corp_id: user.participant_id, birls: user.birls_id, gcids: validate_and_parse_gcids(user.mpi_gcids)
+        )
       end
-    end
 
-    def gcids=(value)
-      super(Array(value).join('|'))
-    end
+      def ial_level(user)
+        user.user_verification.verified? ? Constants::Auth::IAL_TWO : Constants::Auth::IAL_ONE
+      end
 
-    ACCEPTED_GCID_TYPES = %w[200ENPI 200VETS 200BRLS 200CORP 200VET360 200VIDM 200VLGN 200MHV 200CERNER].freeze
+      def aal_level(user)
+        AAL::LOGIN_GOV_AAL2 if %w[idme logingov].include?(user.user_verification.credential_type)
+      end
 
-    def self.accepted_gcids(gcids)
-      return [] if gcids.blank?
+      def csp_type_from_mpi(user)
+        case user.user_verification.credential_type
+        when 'idme'
+          '200VIDM'
+        when 'logingov'
+          '200VLGN'
+        end
+      end
 
-      gcid_list =
-        case gcids
-        when Array then gcids
-        when String then gcids.split('|')
-        else []
+      def validate_and_parse_gcids(gcids)
+        return nil if gcids.blank?
+
+        gcid_list =
+          case gcids
+          when Array then gcids
+          when String then gcids.split('|')
+          else []
+          end
+
+        filtered = gcid_list.select do |gcid|
+          _identifier, _code, gcid_type, _agency, _status = gcid.split('^')
+          ACCEPTED_GCID_TYPES.include?(gcid_type)
         end
 
-      gcid_list.select do |gcid|
-        _identifier, _code, gcid_type, _agency, _status = gcid.split('^')
-        ACCEPTED_GCID_TYPES.include?(gcid_type)
+        return nil if filtered.empty?
+
+        filtered.join('|')
+      end
+
+      private
+
+      def full_name(user)
+        user.full_name_normalized.values.compact.join(' ')
       end
     end
   end

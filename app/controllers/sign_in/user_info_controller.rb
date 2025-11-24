@@ -6,9 +6,9 @@ module SignIn
 
     def show
       authorize access_token, policy_class: SignIn::UserInfoPolicy
-      user_info = SignIn::UserInfo.from_user(current_user, user_verification:)
+      user_info = SignIn::UserInfo.from_user(current_user)
 
-      render json: user_info.to_oidc_json, status: :ok
+      render json: user_info.serializable_hash.compact, status: :ok
     end
 
     private
