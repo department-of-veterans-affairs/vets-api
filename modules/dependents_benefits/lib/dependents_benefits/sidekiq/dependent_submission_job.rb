@@ -34,7 +34,8 @@ module DependentsBenefits::Sidekiq
 
       # Use the class of the inheriting job that exhausted, not the base class
       job_class_name = msg['class']
-      monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion')
+      monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion',
+                                    claim_id:)
 
       # If we don't have a job class name, the error is irrecoverable
       if job_class_name.blank?
@@ -50,7 +51,8 @@ module DependentsBenefits::Sidekiq
       @claim_id = claim_id
       @proc_id = proc_id
 
-      monitor.track_submission_info("Starting #{self.class} for claim_id #{claim_id}", 'start')
+      monitor.track_submission_info("Starting #{self.class} for claim_id #{claim_id}", 'start', claim_id:,
+                                                                                                parent_claim_id:)
 
       # Early exit optimization - prevents unnecessary service calls
       return if parent_group_failed?
@@ -128,7 +130,8 @@ module DependentsBenefits::Sidekiq
         end
       end
     rescue => e
-      monitor.track_submission_error('Error handling job success', 'success_failure', error: e)
+      monitor.track_submission_error('Error handling job success', 'success_failure', error: e, claim_id:,
+                                                                                      parent_claim_id:)
     end
 
     def all_child_groups_succeeded?
@@ -137,7 +140,7 @@ module DependentsBenefits::Sidekiq
 
     # Distinguishes permanent vs transient failures for retry logic
     def handle_job_failure(error)
-      monitor.track_submission_error("Error submitting #{self.class}", 'error', error:)
+      monitor.track_submission_error("Error submitting #{self.class}", 'error', error:, claim_id:, parent_claim_id:)
       mark_submission_attempt_failed(error)
       if permanent_failure?(error)
         # Skip Sidekiq retries for permanent failures
@@ -151,7 +154,8 @@ module DependentsBenefits::Sidekiq
     # Called from retries_exhausted callback OR permanent failure detection
     # CRITICAL: Recreates instance state since callback runs outside job context
     def handle_permanent_failure(claim_id, exception)
-      monitor.track_submission_error("Error submitting #{self.class}", 'error.permanent', error: exception)
+      monitor.track_submission_error("Error submitting #{self.class}", 'error.permanent', error: exception, claim_id:,
+                                                                                          parent_claim_id:)
       # Reset claim_id class variable for if this was called from sidekiq_retries_exhausted
       @claim_id = claim_id
       ActiveRecord::Base.transaction do

@@ -38,7 +38,7 @@ module DependentsBenefits
         # Enqueue follow-up jobs to submit individual forms associated with this claim and proc_id
         DependentsBenefits::ClaimProcessor.enqueue_submissions(@parent_claim_id, @proc_id)
       rescue => e
-        monitor.track_submission_error('Error handling job success', 'success_failure', error: e)
+        monitor.track_submission_error('Error handling job success', 'success_failure', error: e, parent_claim_id:)
         send_backup_job
       end
 

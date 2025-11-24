@@ -47,7 +47,8 @@ module DependentsBenefits::Sidekiq
         end
       end
     rescue => e
-      monitor.track_submission_error('Error handling job success', 'success_failure', error: e)
+      monitor.track_submission_error('Error handling job success', 'success_failure',
+                                     error: e, parent_claim_id: claim_id)
     end
 
     private
