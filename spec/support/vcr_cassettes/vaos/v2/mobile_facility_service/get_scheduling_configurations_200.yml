@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/scheduling/configurations?facilityIds=489&pageSize=0
+    uri: https://veteran.apps.va.gov/cscs/v1/configurations?facilityIds=489&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -400,7 +400,7 @@ http_interactions:
   recorded_at: Fri, 11 Jun 2021 03:20:25 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/scheduling/configurations?facilityIds=489,984&pageSize=0
+    uri: https://veteran.apps.va.gov/cscs/v1/configurations?facilityIds=489,984&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -1123,7 +1123,7 @@ http_interactions:
   recorded_at: Fri, 11 Jun 2021 03:22:04 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/scheduling/configurations?ccEnabled=true&facilityIds=489,984&pageSize=0
+    uri: https://veteran.apps.va.gov/cscs/v1/configurations?ccEnabled=true&facilityIds=489,984&pageSize=0
     body:
       encoding: US-ASCII
       string: ''

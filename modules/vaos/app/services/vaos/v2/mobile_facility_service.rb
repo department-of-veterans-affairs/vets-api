@@ -289,7 +289,7 @@ module VAOS
       end
 
       def scheduling_url
-        '/facilities/v2/scheduling/configurations'
+        '/cscs/v1/configurations'
       end
 
       def facilities_url
