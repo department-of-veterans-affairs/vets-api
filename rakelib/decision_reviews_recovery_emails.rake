@@ -153,7 +153,7 @@ namespace :decision_reviews do
     end
 
     # Process form recovery emails
-    def self.process_form_recovery_emails(appeal_submission_ids, dry_run, output_buffer = nil) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+    def self.process_form_recovery_emails(appeal_submission_ids, dry_run, output_buffer = nil) # rubocop:disable Metrics/MethodLength
       # Helper to log to both console and buffer
       log = lambda do |message|
         puts message
