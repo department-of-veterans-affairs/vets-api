@@ -85,6 +85,13 @@ module MyHealth
           Rails.logger.debug { "Error refilling prescription with ID #{id}: #{e.message}" }
           failed_ids << id
         end
+
+        # Log unique user event for prescription refill requested
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+
         render json: { successful_ids:, failed_ids: }
       end
 
