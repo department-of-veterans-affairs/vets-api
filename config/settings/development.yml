@@ -1751,18 +1751,18 @@ vaos:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vass:
+  api_url: <%= ENV['vass__api_url'] %>
   auth_url: https://login.microsoftonline.us
-  tenant_id: <%= ENV['vass__tenant_id'] %>
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
-  scope: <%= ENV['vass__scope'] %>
-  api_url: <%= ENV['vass__api_url'] %>
-  subscription_key: <%= ENV['vass__subscription_key'] %>
-  service_name: VASS-API
-  redis_token_expiry: 3540
+  mock: <%= ENV['vass__mock'] %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
-  mock: <%= ENV['vass__mock'] %>
+  redis_token_expiry: 3540
+  scope: <%= ENV['vass__scope'] %>
+  service_name: VASS-API
+  subscription_key: <%= ENV['vass__subscription_key'] %>
+  tenant_id: <%= ENV['vass__tenant_id'] %>
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: ~
