@@ -26,9 +26,6 @@ module RepresentationManagement
     # Maximum number of retry attempts for address validation
     DEFAULT_MAX_RETRIES = 3
 
-    # Address line keys in the order they should be tried during retry validation
-    ADDRESS_LINE_KEYS = %w[address_line1 address_line2 address_line3].freeze
-
     # @param validation_service [VAProfile::AddressValidation::V3::Service, nil]
     #   Optional validation service instance (useful for testing)
     # @param max_retries [Integer] Maximum number of retry attempts
@@ -69,7 +66,7 @@ module RepresentationManagement
     # @return [VAProfile::Models::ValidationAddress]
     def build_validation_address(address_hash)
       VAProfile::Models::ValidationAddress.new(
-        address_pou: 'RESIDENCE/CHOICE',
+        address_pou: 'RESIDENCE',
         address_line1: address_hash['address_line1'],
         address_line2: address_hash['address_line2'],
         address_line3: address_hash['address_line3'],
@@ -250,23 +247,26 @@ module RepresentationManagement
     # @param address [Hash] First candidate address from API response
     # @return [Hash] Model attributes
     def build_v3_address(address)
+      lat = address.dig('geocode', 'latitude')
+      long = address.dig('geocode', 'longitude')
+
       {
         address_type: address['address_type'],
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
         city: address['city_name'],
-        province: address['state']['state_name'],
-        state_code: address['state']['state_code'],
+        province: address.dig('state', 'state_name'),
+        state_code: address.dig('state', 'state_code'),
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['country_name'],
+        country_code_iso3: address.dig('country', 'iso3_code'),
+        country_name: address.dig('country', 'country_name'),
         county_name: address.dig('county', 'county_name'),
         county_code: address.dig('county', 'county_code'),
-        lat: address['geocode']['latitude'],
-        long: address['geocode']['longitude'],
-        location: "POINT(#{address['geocode']['longitude']} #{address['geocode']['latitude']})"
+        lat:,
+        long:,
+        location: lat && long ? "POINT(#{long} #{lat})" : nil
       }
     end
   end

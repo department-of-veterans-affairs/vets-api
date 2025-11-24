@@ -16,7 +16,6 @@ module RepresentationManagement
 
     def initialize
       @slack_messages = []
-      @reps_update_data = []
     end
 
     # Processes address validation for AccreditedIndividuals by ID.
