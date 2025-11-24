@@ -15,6 +15,14 @@ module DependentsBenefits
       super(saved_claim_id, service_name: 'dependents_benefits')
     end
 
+    ##
+    # Sends a confirmation email to veteran after claim receipt
+    #
+    # Determines the appropriate email template based on which forms were submitted
+    # (686c, 674, or both) and delivers the confirmation email using VA Notify.
+    #
+    # @raise [StandardError] If email delivery fails
+    # @return [void]
     def send_received_notification
       # rubocop:disable Naming/VariableNumber
       received_key = if claim.submittable_686? && claim.submittable_674?
@@ -35,6 +43,14 @@ module DependentsBenefits
       raise e
     end
 
+    ##
+    # Sends an error notification email to veteran after submission failure
+    #
+    # Determines the appropriate error template based on which forms were submitted
+    # (686c, 674, or both) and delivers the error notification email using VA Notify.
+    #
+    # @raise [StandardError] If email delivery fails
+    # @return [void]
     def send_error_notification
       # rubocop:disable Naming/VariableNumber
       error_key = if claim.submittable_686? && claim.submittable_674?
