@@ -111,16 +111,38 @@ class FormProfiles::VA686c674v2 < FormProfile
   ##
   # This method retrieves the dependents from the BGS service and maps them to the DependentInformation model.
   # If no dependents are found or if they are not active for benefits, it returns an empty array.
-  def prefill_dependents_information
-    dependents = dependent_service.get_dependents
-    persons = if dependents.blank? || dependents[:persons].blank?
-                []
-              else
-                dependents[:persons]
-              end
-    @dependents_information = persons.filter_map do |person|
-      person_to_dependent_information(person)
+  def prefill_dependents_information # rubocop:disable Metrics/MethodLength REMOVE rubocop:disable AFTER DEBUGGING
+    # TEMPORARY RESCUES AND LOGS for debugging - remove when implementing fix for dependents prefill issue
+    begin
+      dependents = dependent_service.get_dependents
+    rescue => e
+      monitor.track_event('warn', 'Failure retrieving dependents from BGS', 'dependents.prefill.fetch_error',
+                          { error: e&.message })
+      raise e
     end
+
+    begin
+      persons = if dependents.blank? || dependents[:persons].blank?
+                  []
+                else
+                  dependents[:persons]
+                end
+    rescue => e
+      monitor.track_event('warn', "Failure accessing dependents persons in class: #{dependents.class} ",
+                          'dependents.prefill.persons_error', { error: e&.message })
+      raise e
+    end
+
+    begin
+      @dependents_information = persons.filter_map do |person|
+        person_to_dependent_information(person)
+      end
+    rescue => e
+      monitor.track_event('warn', "Failure mapping dependents to DependentInformation in class: #{persons.class} ",
+                          'dependents.prefill.map_error', { error: e&.message })
+      raise e
+    end
+
     if Flipper.enabled?(:va_dependents_v3, user)
       @dependents_information = { success: 'true', dependents: @dependents_information }
     else
@@ -137,7 +159,7 @@ class FormProfiles::VA686c674v2 < FormProfile
   #
   # @param person [Hash] The dependent's information as a hash
   # @return [DependentInformation] The dependent's information mapped to the model
-  def person_to_dependent_information(person)
+  def person_to_dependent_information(person) # rubocop:disable Metrics/MethodLength REMOVE rubocop:disable AFTER DEBUGGING
     first_name = person[:first_name]
     last_name = person[:last_name]
     middle_name = person[:middle_name]
@@ -159,6 +181,11 @@ class FormProfiles::VA686c674v2 < FormProfile
       relationship_to_veteran: relationship,
       award_indicator:
     )
+  rescue => e
+    # Remove rescue after debugging prefill issue
+    monitor.track_event('warn', "Failure mapping person to DependentInformation in class: #{person.class}",
+                        'dependents.prefill.person_map_error', { error: e&.message })
+    raise e
   end
 
   def dependent_service
