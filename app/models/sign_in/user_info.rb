@@ -12,6 +12,7 @@ module SignIn
     ].freeze
 
     attribute :sub, :string
+    attribute :person_types, :string
     attribute :email, :string
     attribute :full_name, :string
     attribute :first_name, :string
@@ -39,7 +40,7 @@ module SignIn
     class << self
       def from_user(user)
         new(
-          sub: user.uuid,
+          sub: user.uuid, person_types: person_types_string(user),
           email: user.user_verification&.user_credential_email&.credential_email || user.email,
           npi_id: user.npi_id, full_name: full_name(user),
           first_name: user.first_name, last_name: user.last_name,
@@ -89,6 +90,30 @@ module SignIn
         return nil if filtered.empty?
 
         filtered.join('|')
+      end
+
+      def person_types_string(user)
+        return nil if user.person_types.blank?
+
+        extract_display_name = lambda do |elem|
+          next unless elem.respond_to?(:attributes)
+
+          elem.attributes[:displayName] || elem.attributes['displayName']
+        end
+
+        person_types = []
+
+        user.person_types.each do |elem|
+          person_types << extract_display_name.call(elem)
+
+          next unless elem.respond_to?(:nodes)
+
+          elem.nodes.each do |child|
+            person_types << extract_display_name.call(child)
+          end
+        end
+
+        person_types.compact.join('|')
       end
 
       private
