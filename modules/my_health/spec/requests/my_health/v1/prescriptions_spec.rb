@@ -509,7 +509,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow(UniqueUserEvents).to receive(:log_event)
 
         VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
-          patch '/my_health/v1/prescriptions/refill_prescriptions', params: { ids: ['25567989', '25567990'] }
+          patch '/my_health/v1/prescriptions/refill_prescriptions', params: { ids: %w[25567989 25567990] }
         end
 
         expect(response).to be_successful
