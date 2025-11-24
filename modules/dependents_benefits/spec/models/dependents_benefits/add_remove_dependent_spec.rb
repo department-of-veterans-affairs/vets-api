@@ -15,4 +15,12 @@ RSpec.describe DependentsBenefits::AddRemoveDependent do
       expect { saved_claim.to_pdf }.not_to raise_error
     end
   end
+
+  describe '#form_id' do
+    it 'returns the correct form id' do
+      claim = DependentsBenefits::AddRemoveDependent.new(form: saved_claim.form)
+      claim.save!
+      expect(claim.form_id).to eq('21-686C')
+    end
+  end
 end
