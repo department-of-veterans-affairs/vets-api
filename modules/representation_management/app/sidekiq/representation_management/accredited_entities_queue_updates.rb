@@ -478,9 +478,7 @@ module RepresentationManagement
 
       # Check if address validation is needed
       raw_address = raw_address_for_representative(rep)
-      if record.raw_address != raw_address
-        @representative_ids_for_address_validation << record.id
-      end
+      @representative_ids_for_address_validation << record.id if record.raw_address != raw_address
 
       # Update record
       record.update(rep_hash)
@@ -658,9 +656,7 @@ module RepresentationManagement
 
       # Check if address validation is needed
       raw_address = send("raw_address_for_#{api_type}", entity)
-      if record.raw_address != raw_address
-        instance_variable_get(config[:validation_ids_var]) << record.id
-      end
+      instance_variable_get(config[:validation_ids_var]) << record.id if record.raw_address != raw_address
 
       # Update record and store ID
       record.update(entity_hash)

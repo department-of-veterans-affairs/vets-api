@@ -42,7 +42,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
     end
 
     context 'with non-existent record ID' do
-      let(:record_ids) { [999999] }
+      let(:record_ids) { [999_999] }
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
@@ -60,7 +60,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
     context 'with mixed valid and invalid IDs' do
       let!(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
-      let(:record_ids) { [individual.id, 999999] }
+      let(:record_ids) { [individual.id, 999_999] }
 
       before do
         allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(true)
@@ -99,9 +99,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
       end
 
       it 'logs the exception' do
-        expect(Rails.logger).to receive(:error).with(
-          /RepresentationManagement::AccreditedIndividualsUpdate: Error processing record #{individual.id}: Validation error/
-        )
+        expect(Rails.logger).to receive(:error)
+          .with(/Error processing record #{individual.id}: Validation error/)
         subject.perform(record_ids)
       end
 

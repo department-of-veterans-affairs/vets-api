@@ -136,9 +136,7 @@ module RepresentationManagement
       api_response = nil
 
       # Attempt 1: Use address_line1 only
-      if address_hash['address_line1'].present?
-        api_response = modified_validation(address_hash, 1)
-      end
+      api_response = modified_validation(address_hash, 1) if address_hash['address_line1'].present?
 
       # Attempt 2: Use address_line2 as address_line1
       if retriable?(api_response) && address_hash['address_line2'].present?
