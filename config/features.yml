@@ -304,6 +304,9 @@ features:
   champva_form_10_10d_2027:
     actor_type: user
     description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
+  champva_form_10_7959c_rev2025:
+    actor_type: user
+    description: If enabled uses the 2025 version of form 10-7959c with expiration 12/31/2025
   champva_form_10_7959f_2_2025:
     actor_type: user
     description: If enabled uses the 2025 version of form 10-7959f-2 with expiration 12/31/2027
@@ -606,7 +609,7 @@ features:
     description: Enables the Notice of Disagreement status update batch job
   decision_review_nod_feb2025_pdf_enabled:
     actor_type: user
-    description: Enables utilizing  Feb 2025 Notice of Disagreement pdf VA form  
+    description: Enables utilizing  Feb 2025 Notice of Disagreement pdf VA form
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
@@ -1346,6 +1349,9 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
+  mhv_secure_messaging_cerner_pilot_system_maintenance_banner:
+    actor_type: user
+    description: Enables/disables system maintenance banner for Secure Messaging Oracle Health Transition on VA.gov
   mhv_secure_messaging_filter_accordion:
     actor_type: user
     description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
