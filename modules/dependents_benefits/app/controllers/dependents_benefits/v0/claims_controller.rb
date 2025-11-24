@@ -58,7 +58,8 @@ module DependentsBenefits
         end
 
         monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
-                                 claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid)
+                                 parent_claim_id: claim.id, claim_id: claim.id,
+                                 user_account_uuid: current_user&.user_account_uuid)
 
         # Enqueue all proc jobs for the created claim.
         # Success triggers further submission jobs.
