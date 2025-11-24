@@ -105,33 +105,81 @@ RSpec.describe 'Logstop PII filtering' do
     end
   end
 
-  describe 'Logstop built-in patterns' do
-    # NOTE: These tests verify Logstop's built-in behavior
-    # They require Logstop to be properly initialized
+  describe 'integrated scrubber with VA custom patterns' do
+    # These tests verify our complete integrated scrubber catches all patterns
+    # (both Logstop built-in and VA custom patterns)
 
-    it 'filters SSN with dashes' do
-      # Logstop handles XXX-XX-XXXX format
-      result = Logstop.scrub('SSN: 123-45-6789')
-      expect(result).not_to include('123-45-6789')
-      expect(result).to include('[FILTERED]')
+    let(:integrated_scrubber) do
+      lambda do |msg|
+        # First apply Logstop built-in patterns
+        msg = Logstop.scrub(msg)
+
+        # Then apply VA custom patterns (same as in initializer)
+        msg = msg.gsub(/\bVA\s*(?:file\s*)?(?:number|#|no\.?)?:?\s*(\d{8,9})\b/i,
+                       'VA file number: [VA_FILE_NUMBER_FILTERED]')
+        msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
+        msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
+        msg = msg.gsub(/\b(?<!\d)(\d{10})(?!\d)\b/, '[EDIPI_FILTERED]')
+        msg
+      end
     end
 
-    it 'filters email addresses' do
-      result = Logstop.scrub('Email: test@example.com')
-      expect(result).not_to include('test@example.com')
-      expect(result).to include('[FILTERED]')
+    context 'Logstop built-in patterns' do
+      it 'filters SSN with dashes' do
+        result = integrated_scrubber.call('SSN: 123-45-6789')
+        expect(result).not_to include('123-45-6789')
+        expect(result).to include('[FILTERED]')
+      end
+
+      it 'filters email addresses' do
+        result = integrated_scrubber.call('Email: test@example.com')
+        expect(result).not_to include('test@example.com')
+        expect(result).to include('[FILTERED]')
+      end
+
+      it 'filters phone numbers' do
+        result = integrated_scrubber.call('Phone: 555-123-4567')
+        expect(result).not_to include('555-123-4567')
+        expect(result).to include('[FILTERED]')
+      end
+
+      it 'filters credit card numbers' do
+        result = integrated_scrubber.call('Card: 4111111111111111')
+        expect(result).not_to include('4111111111111111')
+        expect(result).to include('[FILTERED]')
+      end
     end
 
-    it 'filters phone numbers' do
-      result = Logstop.scrub('Phone: 555-123-4567')
-      expect(result).not_to include('555-123-4567')
-      expect(result).to include('[FILTERED]')
+    context 'VA custom patterns' do
+      it 'filters SSN without dashes' do
+        result = integrated_scrubber.call('SSN: 123456789')
+        expect(result).to eq('SSN: [SSN_FILTERED]')
+      end
+
+      it 'filters ICN' do
+        result = integrated_scrubber.call('ICN: 12345678901234567')
+        expect(result).to eq('ICN: [ICN_FILTERED]')
+      end
+
+      it 'filters EDIPI' do
+        result = integrated_scrubber.call('EDIPI: 1234567890')
+        expect(result).to eq('EDIPI: [EDIPI_FILTERED]')
+      end
+
+      it 'filters VA file numbers' do
+        result = integrated_scrubber.call('VA file #12345678')
+        expect(result).to eq('VA file number: [VA_FILE_NUMBER_FILTERED]')
+      end
     end
 
-    it 'filters credit card numbers' do
-      result = Logstop.scrub('Card: 4111111111111111')
-      expect(result).not_to include('4111111111111111')
-      expect(result).to include('[FILTERED]')
+    context 'combined patterns' do
+      it 'filters multiple PII types in one message' do
+        msg = 'User SSN 123-45-6789, email test@example.com, ICN 12345678901234567'
+        result = integrated_scrubber.call(msg)
+        expect(result).not_to include('123-45-6789')
+        expect(result).not_to include('test@example.com')
+        expect(result).not_to include('12345678901234567')
+      end
     end
   end
 
