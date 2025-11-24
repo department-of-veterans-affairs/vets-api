@@ -41,11 +41,11 @@ module SignIn
       def from_user(user)
         new(
           sub: user.uuid, person_types: person_types_string(user),
-          email: user.user_verification&.user_credential_email&.credential_email || user.email,
+          email: user.user_verification&.user_credential_email&.credential_email,
           npi_id: user.npi_id, full_name: full_name(user),
           first_name: user.first_name, last_name: user.last_name,
           csp_type: csp_type_from_mpi(user), csp_uuid: user.user_verification.credential_identifier,
-          ial: ial_level(user), aal: aal_level(user),
+          ial: ial_level(user), aal: AAL::LOGIN_GOV_AAL2,
           birth_date: user.birth_date, ssn: user.ssn,
           gender: user.gender, address: user.address, phone_number: user.home_phone,
           person_type: user.try(:person_type), icn: user.icn,
@@ -55,20 +55,18 @@ module SignIn
         )
       end
 
+      private
+
       def ial_level(user)
         user.user_verification.verified? ? Constants::Auth::IAL_TWO : Constants::Auth::IAL_ONE
-      end
-
-      def aal_level(user)
-        AAL::LOGIN_GOV_AAL2 if %w[idme logingov].include?(user.user_verification.credential_type)
       end
 
       def csp_type_from_mpi(user)
         case user.user_verification.credential_type
         when 'idme'
-          '200VIDM'
+          MPI::Constants::IDME_IDENTIFIER
         when 'logingov'
-          '200VLGN'
+          MPI::Constants::LOGINGOV_IDENTIFIER
         end
       end
 
@@ -115,8 +113,6 @@ module SignIn
 
         person_types.compact.join('|')
       end
-
-      private
 
       def full_name(user)
         user.full_name_normalized.values.compact.join(' ')
