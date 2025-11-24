@@ -88,24 +88,24 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
         end
 
         context 'when NDC is missing' do
-          it 'returns service unavailable error' do
+          it 'returns bad request error' do
             post '/my_health/v2/documentation/search', params: {}
 
-            expect(response).to have_http_status(:service_unavailable)
+            expect(response).to have_http_status(:bad_request)
             json_response = JSON.parse(response.body)
             expect(json_response).to have_key('error')
-            expect(json_response['error']).to include('Unable to fetch documentation')
+            expect(json_response['error']).to eq('NDC number is required')
           end
         end
 
         context 'when NDC is blank' do
-          it 'returns service unavailable error' do
+          it 'returns bad request error' do
             post '/my_health/v2/documentation/search', params: { ndc: '' }
 
-            expect(response).to have_http_status(:service_unavailable)
+            expect(response).to have_http_status(:bad_request)
             json_response = JSON.parse(response.body)
             expect(json_response).to have_key('error')
-            expect(json_response['error']).to include('Unable to fetch documentation')
+            expect(json_response['error']).to eq('NDC number is required')
           end
         end
 

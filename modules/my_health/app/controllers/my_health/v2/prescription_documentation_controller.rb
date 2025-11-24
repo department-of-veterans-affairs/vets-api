@@ -5,7 +5,10 @@ module MyHealth
     class PrescriptionDocumentationController < RxController
       def search
         ndc = params[:ndc]
-        raise StandardError, 'NDC number is required' if ndc.blank?
+        if ndc.blank?
+          render json: { error: 'NDC number is required' }, status: :bad_request
+          return
+        end
 
         # Fetch prescription documentation using the NDC number
         # https://api.krames.com/v3/content/search?ndc=<NDC>
