@@ -66,7 +66,7 @@ module MyHealth
 
         # Handles Common::Client::Errors::ClientError
         # @param use_dynamic_status [Boolean] If true, converts error status to appropriate HTTP status symbol
-        def handle_client_error(error, api_type = 'FHIR', use_dynamic_status = false)
+        def handle_client_error(error, api_type = 'FHIR', use_dynamic_status: false)
           status_symbol = if use_dynamic_status && error.status.is_a?(Integer)
                             Rack::Utils::SYMBOL_TO_STATUS_CODE.key(error.status) || :bad_gateway
                           else
@@ -90,4 +90,3 @@ module MyHealth
     end
   end
 end
-
