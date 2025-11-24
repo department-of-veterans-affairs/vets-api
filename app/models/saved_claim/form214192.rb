@@ -64,6 +64,14 @@ class SavedClaim::Form214192 < SavedClaim
     PdfFill::Forms::Va214192.stamp_signature(pdf_path, parsed_form)
   end
 
+  def metadata_for_benefits_intake
+    { veteranFirstName: parsed_form.dig('veteranInformation', 'fullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranInformation', 'fullName', 'last'),
+      fileNumber: parsed_form.dig('veteranInformation', 'vaFileNumber') || parsed_form.dig('veteranInformation', 'ssn'),
+      zipCode: parsed_form.dig('veteranInformation', 'address', 'postalCode') || SavedClaim::DEFAULT_ZIP_CODE,
+      businessLine: business_line }
+  end
+
   private
 
   def employer_name

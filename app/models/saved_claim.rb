@@ -18,6 +18,9 @@ require 'pdf_fill/filler'
 class SavedClaim < ApplicationRecord
   include SetGuid
 
+  # Default zip code for Lighthouse Benefits Intake API when address is unavailable
+  DEFAULT_ZIP_CODE = '00000'
+
   validates(:form, presence: true)
   validate(:form_matches_schema)
   validate(:form_must_be_string)

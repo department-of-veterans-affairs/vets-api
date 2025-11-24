@@ -161,6 +161,39 @@ RSpec.describe SavedClaim::Form214192, type: :model do
     end
   end
 
+  describe '#metadata_for_benefits_intake' do
+    it 'returns properly formatted metadata hash' do
+      metadata = claim.metadata_for_benefits_intake
+
+      expect(metadata).to be_a(Hash)
+      expect(metadata[:veteranFirstName]).to eq('John')
+      expect(metadata[:veteranLastName]).to eq('Doe')
+      expect(metadata[:fileNumber]).to eq('987654321')
+      expect(metadata[:zipCode]).to eq('62701')
+      expect(metadata[:businessLine]).to eq('CMP')
+    end
+
+    it 'uses SSN when VA file number is not present' do
+      form_data = valid_form_data.dup
+      form_data['veteranInformation'].delete('vaFileNumber')
+      claim_without_file_number = described_class.new(form: form_data.to_json)
+
+      metadata = claim_without_file_number.metadata_for_benefits_intake
+
+      expect(metadata[:fileNumber]).to eq('123456789')
+    end
+
+    it 'uses default zip code when veteran address is missing' do
+      form_data = valid_form_data.dup
+      form_data['veteranInformation'].delete('address')
+      claim_without_address = described_class.new(form: form_data.to_json)
+
+      metadata = claim_without_address.metadata_for_benefits_intake
+
+      expect(metadata[:zipCode]).to eq(SavedClaim::DEFAULT_ZIP_CODE)
+    end
+  end
+
   describe '#to_pdf' do
     let(:pdf_path) { '/tmp/test_form.pdf' }
     let(:stamped_pdf_path) { '/tmp/test_form_stamped.pdf' }
