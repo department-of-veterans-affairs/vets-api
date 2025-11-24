@@ -41,6 +41,7 @@ module BGS
 
       response = service.claimant.find_dependents_by_participant_id(participant_id, ssn)
       if response.presence && response[:persons]
+        response[:persons] = [response[:persons]] if response[:persons].is_a?(Hash)
         response
       else
         backup_response
