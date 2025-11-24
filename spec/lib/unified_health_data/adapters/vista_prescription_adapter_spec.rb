@@ -170,6 +170,26 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       end
     end
 
+    context 'with disp_status field' do
+      let(:vista_medication_with_disp_status) do
+        base_vista_medication.merge('dispStatus' => 'Active: Refill in Process')
+      end
+
+      it 'extracts the disp_status field' do
+        result = subject.parse(vista_medication_with_disp_status)
+
+        expect(result.disp_status).to eq('Active: Refill in Process')
+      end
+    end
+
+    context 'without disp_status field' do
+      it 'sets disp_status to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.disp_status).to be_nil
+      end
+    end
+
     context 'when medication includes RFC1123 date fields' do
       it 'converts them to ISO 8601 strings' do
         result = subject.parse(vista_medication_with_tracking)
@@ -510,33 +530,36 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
     context 'with rxRFRecords present' do
       let(:medication_with_dispenses) do
         base_vista_medication.merge(
-          'rxRFRecords' => [
-            {
-              'id' => 'dispense-1',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-              'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Salt Lake City VAMC',
-              'sig' => 'Take one tablet by mouth twice daily',
-              'quantity' => 60,
-              'prescriptionName' => 'METFORMIN HCL 500MG TAB',
-              'prescriptionNumber' => 'RX123456',
-              'cmopDivisionPhone' => '555-1234',
-              'cmopNdcNumber' => '00093-1058-01',
-              'remarks' => 'Test remarks',
-              'dialCmopDivisionPhone' => '5551234',
-              'disclaimer' => 'Test disclaimer'
-            },
-            {
-              'id' => 'dispense-2',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Salt Lake City VAMC',
-              'sig' => 'Take one tablet by mouth twice daily',
-              'quantity' => 60,
-              'prescriptionName' => 'METFORMIN HCL 500MG TAB'
-            }
-          ]
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'dispense-1',
+                'refillStatus' => 'dispensed',
+                'dispensedDate' => 'Sat, 12 Jul 2025 00:00:00 EDT',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Salt Lake City VAMC',
+                'sig' => 'Take one tablet by mouth twice daily',
+                'quantity' => 60,
+                'prescriptionName' => 'METFORMIN HCL 500MG TAB',
+                'prescriptionNumber' => 'RX123456',
+                'cmopDivisionPhone' => '555-1234',
+                'cmopNdcNumber' => '00093-1058-01',
+                'remarks' => 'Test remarks',
+                'dialCmopDivisionPhone' => '5551234',
+                'disclaimer' => 'Test disclaimer'
+              },
+              {
+                'id' => 'dispense-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Salt Lake City VAMC',
+                'sig' => 'Take one tablet by mouth twice daily',
+                'quantity' => 60,
+                'prescriptionName' => 'METFORMIN HCL 500MG TAB'
+              }
+            ]
+          }
         )
       end
 
@@ -549,6 +572,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         first_dispense = result.first
         expect(first_dispense).to include(
           status: 'dispensed',
+          dispensed_date: '2025-07-12T04:00:00.000Z',
           refill_date: '2025-07-14T04:00:00.000Z',
           refill_submit_date: '2025-07-13T04:00:00.000Z',
           facility_name: 'Salt Lake City VAMC',
@@ -575,6 +599,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           id: 'dispense-2'
         )
         # Verify new fields default to nil when not present
+        expect(second_dispense[:dispensed_date]).to be_nil
         expect(second_dispense[:refill_submit_date]).to be_nil
         expect(second_dispense[:prescription_number]).to be_nil
         expect(second_dispense[:cmop_division_phone]).to be_nil
@@ -597,8 +622,8 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to eq([])
       end
 
-      it 'returns empty array when rxRFRecords is empty array' do
-        medication_empty_dispenses = base_vista_medication.merge('rxRFRecords' => [])
+      it 'returns empty array when rxRFRecords.rfRecord is empty array' do
+        medication_empty_dispenses = base_vista_medication.merge('rxRFRecords' => { 'rfRecord' => [] })
         result = subject.send(:build_dispenses_information, medication_empty_dispenses)
         expect(result).to eq([])
       end
@@ -611,41 +636,43 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
 
     context 'with invalid rxRFRecords format' do
       let(:medication_invalid_dispenses) do
-        base_vista_medication.merge('rxRFRecords' => 'not-an-array')
+        base_vista_medication.merge('rxRFRecords' => { 'rfRecord' => 'not-an-array' })
       end
 
-      it 'returns empty array when rxRFRecords is not an array' do
+      it 'returns empty array when rfRecord is not an array' do
         result = subject.send(:build_dispenses_information, medication_invalid_dispenses)
         expect(result).to eq([])
       end
     end
 
-    context 'with non-hash elements in rxRFRecords' do
+    context 'with non-hash elements in rfRecord' do
       let(:medication_with_invalid_records) do
         base_vista_medication.merge(
-          'rxRFRecords' => [
-            {
-              'id' => 'valid-1',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Test Facility',
-              'sig' => 'Take as directed',
-              'quantity' => 30,
-              'prescriptionName' => 'Test Med'
-            },
-            'invalid-string-element',
-            nil,
-            123,
-            {
-              'id' => 'valid-2',
-              'refillStatus' => 'dispensed',
-              'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
-              'facilityName' => 'Test Facility',
-              'sig' => 'Take as directed',
-              'quantity' => 30,
-              'prescriptionName' => 'Test Med'
-            }
-          ]
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'valid-1',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Test Facility',
+                'sig' => 'Take as directed',
+                'quantity' => 30,
+                'prescriptionName' => 'Test Med'
+              },
+              'invalid-string-element',
+              nil,
+              123,
+              {
+                'id' => 'valid-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Test Facility',
+                'sig' => 'Take as directed',
+                'quantity' => 30,
+                'prescriptionName' => 'Test Med'
+              }
+            ]
+          }
         )
       end
 
