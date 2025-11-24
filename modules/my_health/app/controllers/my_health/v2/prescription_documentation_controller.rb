@@ -21,6 +21,12 @@ module MyHealth
         # PrescriptionDocumentation object with HTML content containing drug information
         prescription_documentation = PrescriptionDocumentation.new({ html: documentation[:data] })
         render json: MyHealth::V2::PrescriptionDocumentationSerializer.new(prescription_documentation)
+      rescue Common::Exceptions::BackendServiceException => e
+        if e.original_status == 404
+          render json: { error: 'Documentation not found for this NDC' }, status: :not_found
+        else
+          raise e
+        end
       rescue Common::Exceptions::BaseError => e
         raise e
       rescue => e

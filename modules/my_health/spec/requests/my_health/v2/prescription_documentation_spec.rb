@@ -109,6 +109,27 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
           end
         end
 
+        context 'when documentation is not found (404)' do
+          before do
+            backend_exception = Common::Exceptions::BackendServiceException.new(
+              'RX_404',
+              { status: 404, detail: 'Not found', code: 'RX_404' },
+              404,
+              'Not found'
+            )
+            allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation).and_raise(backend_exception)
+          end
+
+          it 'returns not found error' do
+            post '/my_health/v2/documentation/search', params: { ndc: '99999999999' }
+
+            expect(response).to have_http_status(:not_found)
+            json_response = JSON.parse(response.body)
+            expect(json_response).to have_key('error')
+            expect(json_response['error']).to eq('Documentation not found for this NDC')
+          end
+        end
+
         context 'when client raises an error' do
           before do
             allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation).and_raise(StandardError, 'API Error')
