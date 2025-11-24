@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require 'mhv/oh_facilities_helper/service'
+
 module Mobile
   module V0
     class AuthorizedServicesController < ApplicationController
       def index
+        options = { meta: get_metadata }
         render json: Mobile::V0::AuthorizedServicesSerializer.new(@current_user.uuid,
-                                                                  user_accessible_services.service_auth_map,
-                                                                  get_metadata)
+                                                                  user_accessible_services.service_auth_map, options)
       end
 
       private
@@ -16,12 +18,10 @@ module Mobile
       end
 
       def get_metadata
-        service = MHV::OhFacilitiesHelper::Service.new
+        service = MHV::OhFacilitiesHelper::Service.new(@current_user)
         {
-          meta: {
-            is_user_at_pretransitioned_oh_facility: service.user_at_pretransitioned_oh_facility?,
-            is_user_facility_ready_for_info_alert: service.user_facility_ready_for_info_alert?
-          }
+          is_user_at_pretransitioned_oh_facility: service.user_at_pretransitioned_oh_facility?,
+          is_user_facility_ready_for_info_alert: service.user_facility_ready_for_info_alert?
         }
       end
     end
