@@ -18,6 +18,16 @@
             ],
             "type": "text/javascript"
           }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "b2193383-2b28-4b59-9668-092e7d7c3761",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
         }
       ],
       "id": "1ee71946-5f33-4c91-9fda-1d627094d42b",
@@ -85,6 +95,16 @@
             "exec": [
               "var jsonData = JSON.parse(responseBody)",
               "pm.globals.set(\"BEARER_TOKEN\", jsonData.data.access_token)"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "aba3e667-2557-43d0-9857-7ab9ddc00370",
+            "exec": [
+              ""
             ],
             "type": "text/javascript"
           }
