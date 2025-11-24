@@ -18,7 +18,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
-
   end
 
   after { Timecop.return }
