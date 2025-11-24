@@ -64,6 +64,22 @@ class SavedClaim::Form214192 < SavedClaim
     PdfFill::Forms::Va214192.stamp_signature(pdf_path, parsed_form)
   end
 
+  # Provide metadata fields for Lighthouse Benefits Intake API
+  # Form 21-4192 has a different structure than the standard SavedClaim format
+  def metadata_fields
+    form = parsed_form
+    veteran_info = form['veteranInformation'] || {}
+    full_name = veteran_info['fullName'] || {}
+    address = veteran_info['address'] || {}
+
+    {
+      veteran_first_name: full_name['first'],
+      veteran_last_name: full_name['last'],
+      file_number: veteran_info['vaFileNumber'] || veteran_info['ssn'],
+      zip_code: address['postalCode']
+    }
+  end
+
   private
 
   def employer_name

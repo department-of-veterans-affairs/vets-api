@@ -67,6 +67,21 @@ module Lighthouse
     end
 
     def generate_metadata
+      # Check if the claim has a custom metadata_fields method
+      if @claim.respond_to?(:metadata_fields)
+        fields = @claim.metadata_fields
+        return ::BenefitsIntake::Metadata.generate(
+          fields[:veteran_first_name],
+          fields[:veteran_last_name],
+          fields[:file_number],
+          fields[:zip_code],
+          "#{@claim.class} va.gov",
+          @claim.form_id,
+          @claim.business_line
+        )
+      end
+
+      # Default behavior for standard form structure
       form = @claim.parsed_form
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
