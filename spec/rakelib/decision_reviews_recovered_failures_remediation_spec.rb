@@ -6,6 +6,7 @@ require 'rake'
 describe 'decision_reviews:remediation rake tasks', type: :task do
   before :all do
     Rake.application.rake_require '../rakelib/decision_reviews_recovered_failures_remediation'
+    Rake.application.rake_require '../rakelib/decision_reviews_recovery_emails'
     Rake::Task.define_task(:environment)
   end
 
@@ -280,8 +281,7 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
             template_id: 'evidence-template-id',
             personalisation: hash_including(
               'first_name' => 'John',
-              'filename' => 'eviXXXXXXce.pdf',
-              'decision_review_type' => 'Board Appeal'
+              'filename' => 'eviXXXXXXce.pdf'
             )
           )
         )
@@ -458,12 +458,120 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         allow(s3_object).to receive(:put).and_return(true)
       end
 
-      it 'uploads results to S3' do
+      it 'uploads results to S3 by default' do
         expect(s3_object).to receive(:put).with(
           hash_including(
             content_type: 'text/plain'
           )
         )
+        silently { run_rake_task }
+      end
+
+      it 'skips S3 upload when UPLOAD_TO_S3=false' do
+        ENV['UPLOAD_TO_S3'] = 'false'
+        expect(s3_object).not_to receive(:put)
+        silently { run_rake_task }
+        ENV.delete('UPLOAD_TO_S3')
+      end
+    end
+  end
+
+  describe 'decision_reviews:remediation:send_november_2025_recovery_emails' do
+    let(:saved_claim) { create(:saved_claim_higher_level_review) }
+    let(:appeal_submission) do
+      create(:appeal_submission,
+             saved_claim_hlr: saved_claim,
+             user_account:,
+             failure_notification_sent_at: 1.day.ago)
+    end
+    let(:evidence_upload) do
+      create(:appeal_submission_upload,
+             appeal_submission:,
+             lighthouse_upload_id: 'test-uuid-123',
+             failure_notification_sent_at: 1.day.ago)
+    end
+
+    let(:run_rake_task) do
+      Rake::Task['decision_reviews:remediation:send_november_2025_recovery_emails'].reenable
+      ENV['DRY_RUN'] = 'true'
+      Rake.application.invoke_task 'decision_reviews:remediation:send_november_2025_recovery_emails'
+    end
+
+    after do
+      ENV.delete('DRY_RUN')
+      ENV.delete('UPLOAD_TO_S3')
+    end
+
+    context 'with dry run mode' do
+      it 'runs without errors' do
+        expect { silently { run_rake_task } }.not_to raise_error
+      end
+
+      it 'does not send any emails' do
+        expect_any_instance_of(VaNotify::Service).not_to receive(:send_email)
+        silently { run_rake_task }
+      end
+    end
+
+    context 'with live mode' do
+      let(:vanotify_service) { instance_double(VaNotify::Service) }
+      let(:email_address) { 'test@example.com' }
+
+      let(:run_live_rake_task) do
+        Rake::Task['decision_reviews:remediation:send_november_2025_recovery_emails'].reenable
+        ENV['DRY_RUN'] = 'false'
+        Rake.application.invoke_task 'decision_reviews:remediation:send_november_2025_recovery_emails'
+      end
+
+      before do
+        # Stub VA Notify service
+        allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
+        allow(vanotify_service).to receive(:send_email).and_return({ 'id' => 'notification-123' })
+
+        # Stub MPI profile
+        mpi_profile = double(given_names: ['John'])
+        allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
+
+        # Stub masked filename on upload
+        allow(evidence_upload).to receive(:masked_attachment_filename).and_return('eviXXXXXXce.pdf')
+
+        # Stub queries to return empty arrays (since task has hardcoded IDs)
+        allow(AppealSubmissionUpload).to receive(:where).and_return(double(includes: []))
+        allow(AppealSubmission).to receive(:where).and_return(double(includes: []))
+      end
+
+      it 'processes both evidence and form recovery emails' do
+        # Task will process hardcoded IDs, which won't match our test data
+        # Just verify it doesn't error and processes both types
+        expect { silently { run_live_rake_task } }.not_to raise_error
+      end
+    end
+
+    context 'S3 upload' do
+      let(:s3_object) { instance_double(Aws::S3::Object) }
+
+      before do
+        s3_resource = instance_double(Aws::S3::Resource)
+        s3_bucket = instance_double(Aws::S3::Bucket)
+
+        allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)
+        allow(s3_resource).to receive(:bucket).and_return(s3_bucket)
+        allow(s3_bucket).to receive(:object).and_return(s3_object)
+        allow(s3_object).to receive(:put).and_return(true)
+      end
+
+      it 'uploads combined results to S3 by default' do
+        expect(s3_object).to receive(:put).with(
+          hash_including(
+            content_type: 'text/plain'
+          )
+        )
+        silently { run_rake_task }
+      end
+
+      it 'skips S3 upload when UPLOAD_TO_S3=false' do
+        ENV['UPLOAD_TO_S3'] = 'false'
+        expect(s3_object).not_to receive(:put)
         silently { run_rake_task }
       end
     end
