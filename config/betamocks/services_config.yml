@@ -1129,3 +1129,14 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'icn":"(\w+)"'
+
+# SOB/DGIB
+- :name: "SOB"
+  :base_uri: <%= "#{URI(Settings.dgi.sob.claimants.url).host}:#{URI(Settings.dgi.sob.claimants.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/claimants"
+      :file_path: "dgib/sob"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'ssn":"(\w+)"'

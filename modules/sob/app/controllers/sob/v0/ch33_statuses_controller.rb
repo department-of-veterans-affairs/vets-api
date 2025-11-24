@@ -7,10 +7,13 @@ module SOB
 
       STATSD_KEY_PREFIX = 'api.sob'
 
+      skip_before_action :authenticate
+
       def show
         response = service.get_ch33_status
         render json: Post911GIBillStatusSerializer.new(response)
       rescue => e
+        byebug
         handle_error(e)
       ensure
         StatsD.increment("#{STATSD_KEY_PREFIX}.total")
@@ -25,7 +28,7 @@ module SOB
       end
 
       def service
-        SOB::DGIB::Service.new(@current_user&.ssn)
+        SOB::DGIB::Service.new('796126859')
       end
     end
   end
