@@ -128,7 +128,7 @@
   "claimantEmail": "XXXXXXXXXXXXXXXXXXXX@XXXXXXXXXXXXXXXXXXXX.com",
   "veteranFullName": {
     "first": "XXXXXXXXXXXXXXXXXXXX",
-    "middleInitial": "middle",
+    "middle": "middle",
     "last": "XXXXXXXXXXXXXXXXXXXX",
     "suffix": "Sr."
   }
