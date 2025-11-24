@@ -31,7 +31,7 @@ module VaNotify
     end
 
     def send_email(args)
-      Datadog::Tracing.trace("vanotify.service.send_email") do
+      Datadog::Tracing.trace('api.vanotify.service.send_email') do
         @template_id = args[:template_id]
         if Flipper.enabled?(:va_notify_notification_creation)
           response = with_monitoring do
@@ -149,8 +149,9 @@ module VaNotify
       args
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create_notification(response)
-      Datadog::Tracing.trace("vanotify.service.create_notification") do
+      Datadog::Tracing.trace('api.vanotify.service.create_notification') do
         if response.nil?
           Rails.logger.error('VANotify - no response')
           return
@@ -177,6 +178,7 @@ module VaNotify
         Rails.logger.error(e)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
@@ -206,7 +208,8 @@ module VaNotify
         'va_notify/app/sidekiq/va_notify/email_job.rb',
         'va_notify/app/sidekiq/va_notify/user_account_job.rb',
         'lib/sidekiq/processor.rb',
-        'lib/sidekiq/middleware/chain.rb'
+        'lib/sidekiq/middleware/chain.rb',
+        'datadog'
       ]
 
       caller_locations.each do |location|
