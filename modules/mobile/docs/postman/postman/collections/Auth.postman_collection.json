@@ -11,7 +11,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "37c1d3fa-8712-4f9c-870b-536f6916615b",
+            "id": "b9e56e21-d006-400b-a5d2-3dca5fab209a",
             "exec": [
               "var jsonData = JSON.parse(responseBody)",
               "pm.globals.set(\"BEARER_TOKEN\", jsonData.access_token)"
@@ -68,7 +68,7 @@
           "variable": [
             {
               "key": "email",
-              "value": "vets.gov.user+54@gmail.com",
+              "value": "judy.morrison@id.me",
               "description": "judy.morrison@id.me"
             }
           ]
