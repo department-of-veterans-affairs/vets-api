@@ -30,7 +30,8 @@ module DependentsBenefits
     rescue => e
       # we cannot overwrite the monitor used in the base class so create a new one here
       monitor = DependentsBenefits::Monitor.new
-      monitor.track_error_event('Error sending received notification email', 'notification_failure', error: e)
+      monitor.track_error_event('Error sending received notification email', 'notification_failure', error: e,
+                                                                                                     claim_id: claim.id)
       raise e
     end
 
@@ -49,7 +50,8 @@ module DependentsBenefits
     rescue => e
       # we cannot overwrite the monitor used in the base class so create a new one here
       monitor = DependentsBenefits::Monitor.new
-      monitor.track_error_event('Error sending error notification email', 'notification_failure', error: e)
+      monitor.track_error_event('Error sending error notification email', 'notification_failure', error: e,
+                                                                                                  claim_id: claim.id)
       raise e
     end
 
