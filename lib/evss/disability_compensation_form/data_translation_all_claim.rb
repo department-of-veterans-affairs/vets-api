@@ -185,7 +185,7 @@ module EVSS
           )
         end
       end
-      
+
       def get_banking_info
         return {} unless @user.authorize :lighthouse, :direct_deposit_access?
 
