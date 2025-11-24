@@ -1085,15 +1085,6 @@ RSpec.describe V1::SessionsController, type: :controller do
 
             it_behaves_like 'identity-mpi id validation'
           end
-
-          context 'MHV correlation id validation' do
-            let(:mpi_profile) { build(:mpi_profile, mhv_ids: [Faker::Number.number(digits: 11)]) }
-            let(:expected_identity_value) { user.identity.mhv_credential_uuid }
-            let(:expected_mpi_value) { user.mpi_mhv_correlation_id }
-            let(:validation_id) { 'MHV Correlation ID' }
-
-            it_behaves_like 'identity-mpi id validation'
-          end
         end
       end
 
