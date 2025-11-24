@@ -93,15 +93,9 @@ RSpec.describe 'Logstop PII filtering' do
   describe 'integrated scrubber with VA custom patterns' do
     # These tests verify our complete integrated scrubber catches all patterns
     # (both Logstop built-in and VA custom patterns)
+    # The VAPiiScrubber.custom_scrubber now chains both internally
 
-    let(:integrated_scrubber) do
-      lambda do |msg|
-        # First apply Logstop built-in patterns
-        msg = Logstop.scrub(msg)
-        # Then apply VA custom patterns using the actual initializer module
-        VAPiiScrubber.custom_scrubber.call(msg)
-      end
-    end
+    let(:integrated_scrubber) { VAPiiScrubber.custom_scrubber }
 
     context 'Logstop built-in patterns' do
       it 'filters SSN with dashes' do

@@ -29,6 +29,11 @@ module VAPiiScrubber
   # These patterns are not covered by Logstop's built-in filters
   def self.custom_scrubber
     lambda do |msg|
+      # First apply Logstop's built-in patterns (SSN, email, phone, credit cards)
+      msg = Logstop.scrub(msg)
+
+      # Then apply VA-specific patterns
+
       # VA file numbers (8-9 digit numbers that could be veteran identifiers)
       # Using word boundaries to avoid matching other numeric sequences
       msg = msg.gsub(/\bVA\s*(?:file\s*)?(?:number|#|no\.?)?:?\s*(\d{8,9})\b/i,
