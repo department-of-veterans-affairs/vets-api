@@ -6,7 +6,6 @@ module V0
 
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
-    skip_before_action :verify_authenticity_token
     before_action :load_user, :check_feature_enabled
 
     def create
