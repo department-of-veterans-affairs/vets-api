@@ -23,34 +23,40 @@
 
 require 'logstop'
 
-# Custom scrubber for VA-specific PII patterns
-# These patterns are not covered by Logstop's built-in filters
-va_custom_scrubber = lambda do |msg|
-  # VA file numbers (8-9 digit numbers that could be veteran identifiers)
-  # Using word boundaries to avoid matching other numeric sequences
-  msg = msg.gsub(/\bVA\s*(?:file\s*)?(?:number|#|no\.?)?:?\s*(\d{8,9})\b/i, 'VA file number: [VA_FILE_NUMBER_FILTERED]')
+# Module to hold VA-specific PII scrubber for use in initializer and tests
+module VAPiiScrubber
+  # Returns the custom scrubber lambda for VA-specific PII patterns
+  # These patterns are not covered by Logstop's built-in filters
+  def self.custom_scrubber
+    lambda do |msg|
+      # VA file numbers (8-9 digit numbers that could be veteran identifiers)
+      # Using word boundaries to avoid matching other numeric sequences
+      msg = msg.gsub(/\bVA\s*(?:file\s*)?(?:number|#|no\.?)?:?\s*(\d{8,9})\b/i,
+                     'VA file number: [VA_FILE_NUMBER_FILTERED]')
 
-  # Standalone 9-digit numbers that look like SSNs without dashes
-  # (Logstop handles XXX-XX-XXXX format, this catches XXXXXXXXX)
-  msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
+      # Standalone 9-digit numbers that look like SSNs without dashes
+      # (Logstop handles XXX-XX-XXXX format, this catches XXXXXXXXX)
+      msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
 
-  # ICN (Integration Control Number) - 17 digit veteran identifier
-  msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
+      # ICN (Integration Control Number) - 17 digit veteran identifier
+      msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
 
-  # EDIPI (10 digit DoD identifier)
-  msg = msg.gsub(/\b(?<!\d)(\d{10})(?!\d)\b/, '[EDIPI_FILTERED]')
+      # EDIPI (10 digit DoD identifier)
+      msg = msg.gsub(/\b(?<!\d)(\d{10})(?!\d)\b/, '[EDIPI_FILTERED]')
 
-  msg
+      msg
+    end
+  end
 end
 
 # Guard all Rails loggers with Logstop
 # This applies filtering to all log outputs (file, stdout, CloudWatch, DataDog)
-Logstop.guard(Rails.logger, scrubber: va_custom_scrubber)
+Logstop.guard(Rails.logger, scrubber: VAPiiScrubber.custom_scrubber)
 
 # Also guard the tagged logger if present
 if Rails.logger.respond_to?(:broadcast_to)
   Rails.logger.broadcasts.each do |broadcast|
-    Logstop.guard(broadcast, scrubber: va_custom_scrubber) if broadcast.respond_to?(:info)
+    Logstop.guard(broadcast, scrubber: VAPiiScrubber.custom_scrubber) if broadcast.respond_to?(:info)
   end
 end
 

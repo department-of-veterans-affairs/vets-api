@@ -2,27 +2,12 @@
 
 require 'rails_helper'
 require 'logstop'
+require_relative '../../config/initializers/logstop'
 
 # rubocop:disable RSpec/DescribeClass
 RSpec.describe 'Logstop PII filtering' do
-  let(:va_custom_scrubber) do
-    lambda do |msg|
-      # VA file numbers
-      msg = msg.gsub(/\bVA\s*(?:file\s*)?(?:number|#|no\.?)?:?\s*(\d{8,9})\b/i,
-                     'VA file number: [VA_FILE_NUMBER_FILTERED]')
-
-      # Standalone 9-digit numbers (SSNs without dashes)
-      msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
-
-      # ICN (17 digit veteran identifier)
-      msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
-
-      # EDIPI (10 digit DoD identifier)
-      msg = msg.gsub(/\b(?<!\d)(\d{10})(?!\d)\b/, '[EDIPI_FILTERED]')
-
-      msg
-    end
-  end
+  # Use the actual scrubber from the initializer
+  let(:va_custom_scrubber) { VAPiiScrubber.custom_scrubber }
 
   describe 'VA custom scrubber' do
     context 'SSN formats' do
@@ -113,14 +98,8 @@ RSpec.describe 'Logstop PII filtering' do
       lambda do |msg|
         # First apply Logstop built-in patterns
         msg = Logstop.scrub(msg)
-
-        # Then apply VA custom patterns (same as in initializer)
-        msg = msg.gsub(/\bVA\s*(?:file\s*)?(?:number|#|no\.?)?:?\s*(\d{8,9})\b/i,
-                       'VA file number: [VA_FILE_NUMBER_FILTERED]')
-        msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
-        msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
-        msg = msg.gsub(/\b(?<!\d)(\d{10})(?!\d)\b/, '[EDIPI_FILTERED]')
-        msg
+        # Then apply VA custom patterns using the actual initializer module
+        VAPiiScrubber.custom_scrubber.call(msg)
       end
     end
 
