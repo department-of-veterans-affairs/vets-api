@@ -186,7 +186,7 @@ class SavedClaim < ApplicationRecord
     { veteranFirstName: parsed_form.dig('veteranFullName', 'first'),
       veteranLastName: parsed_form.dig('veteranFullName', 'last'),
       fileNumber: parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber'],
-      zipCode: address['postalCode'],
+      zipCode: address['postalCode'] || DEFAULT_ZIP_CODE,
       businessLine: business_line }
   end
 
