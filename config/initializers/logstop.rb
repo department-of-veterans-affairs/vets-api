@@ -45,6 +45,11 @@ module VAPiiScrubber
       msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
 
       # EDIPI (10 digit DoD identifier)
+      # Note: 10-digit numbers are more common (order numbers, tracking IDs, etc.)
+      # so this pattern has higher false positive risk. We accept this tradeoff
+      # because over-filtering is preferable to leaking PII. Phone numbers are
+      # already handled by Logstop's built-in patterns. If false positives become
+      # problematic, consider context-based matching (e.g., requiring "EDIPI:" prefix).
       msg = msg.gsub(/\b(?<!\d)(\d{10})(?!\d)\b/, '[EDIPI_FILTERED]')
 
       msg
