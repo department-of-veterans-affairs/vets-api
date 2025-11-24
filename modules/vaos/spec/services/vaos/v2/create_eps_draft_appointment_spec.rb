@@ -120,6 +120,19 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           expect(subject.error[:status]).to eq(:bad_request)
         end
       end
+
+      context 'metrics logging for parameter validation failures' do
+        let(:referral_id) { '' }
+
+        it 'logs failure metric when parameter validation fails' do
+          expect(StatsD).to receive(:increment).with(
+            described_class::APPT_DRAFT_CREATION_FAILURE_METRIC,
+            tags: [VAOS::CommunityCareConstants::COMMUNITY_CARE_SERVICE_TAG, 'type_of_care:no_value']
+          )
+
+          expect(subject.error).to be_present
+        end
+      end
     end
 
     context 'when all services return successfully' do

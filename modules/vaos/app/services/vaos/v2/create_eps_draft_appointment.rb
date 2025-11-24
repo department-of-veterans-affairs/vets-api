@@ -93,7 +93,10 @@ module VAOS
       #
       # @return [CreateEpsDraftAppointment] self with populated attributes or error
       def call
-        return self unless validate_params(@referral_id, @referral_consult_id)
+        unless validate_params(@referral_id, @referral_consult_id)
+          log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          return self
+        end
 
         build_appointment_draft(@referral_id, @referral_consult_id)
 
