@@ -212,7 +212,12 @@ module Vass
       resp = oauth_token_request
       token = resp.body['access_token']
       if token.blank?
-        Rails.logger.error('VassClient OAuth token response missing access_token', correlation_id: @correlation_id)
+        Rails.logger.error('VassClient OAuth token response missing access_token', {
+          correlation_id: @correlation_id,
+          status: resp.status,
+          has_body: resp.body.present?,
+          body_keys: resp.body&.keys
+        })
         raise Common::Exceptions::BackendServiceException.new('VA900',
                                                               { detail: 'OAuth auth missing access_token' }, 502)
       end
