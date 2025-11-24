@@ -29,7 +29,7 @@ module V0
     def download_pdf
       claim = saved_claim_class.find_by!(guid: params[:guid])
       source_file_path = with_retries('Generate 21-0779 PDF') do
-        source_file_path = claim.to_pdf
+        claim.to_pdf
       end
       raise Common::Exceptions::InternalServerError, 'Failed to generate PDF' unless source_file_path
 

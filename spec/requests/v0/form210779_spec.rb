@@ -23,10 +23,13 @@ RSpec.describe 'V0::Form210779',
           )
         end
         expect(response).to have_http_status(:ok)
-        expect(metrics.collect(&:source)).to include('saved_claim.create:1|c|#form_id:21-0779,doctype:222',
-                                                     'shared.sidekiq.default.Lighthouse_SubmitBenefitsIntakeClaim.enqueue:1|c',
-                                                     'api.form210779.success:1|c',
-                                                     'api.rack.request:1|c|#controller:v0/form210779,action:create,source_app:21-0779-nursing-home-information,status:200')
+        expect(metrics.collect(&:source)).to include(
+          'saved_claim.create:1|c|#form_id:21-0779,doctype:222',
+          'shared.sidekiq.default.Lighthouse_SubmitBenefitsIntakeClaim.enqueue:1|c',
+          'api.form210779.success:1|c',
+          'api.rack.request:1|c|#controller:v0/form210779,action:create,source_app:21-0779-nursing-home-information,' \
+          'status:200'
+        )
       end
     end
   end
@@ -40,8 +43,8 @@ RSpec.describe 'V0::Form210779',
             })
       end
       expect(metrics.collect(&:source)).to include(
-        'saved_claim.create:1|c|#form_id:21-0779,doctype:222',
-        'api.rack.request:1|c|#controller:v0/form210779,action:download_pdf,source_app:21-0779-nursing-home-information,status:200'
+        'api.rack.request:1|c|#controller:v0/form210779,action:download_pdf,' \
+        'source_app:21-0779-nursing-home-information,status:200'
       )
 
       expect(response).to have_http_status(:ok)
@@ -57,9 +60,9 @@ RSpec.describe 'V0::Form210779',
               'HTTP_SOURCE_APP_NAME' => '21-0779-nursing-home-information'
             })
       end
-      puts metrics.collect(&:source).inspect
       expect(metrics.collect(&:source)).to include(
-        'api.rack.request:1|c|#controller:v0/form210779,action:download_pdf,source_app:21-0779-nursing-home-information,status:500'
+        'api.rack.request:1|c|#controller:v0/form210779,action:download_pdf,' \
+        'source_app:21-0779-nursing-home-information,status:500'
       )
 
       expect(response).to have_http_status(:internal_server_error)
