@@ -39,6 +39,9 @@ module VAPiiScrubber
       msg = msg.gsub(/\b(?<!\d)(\d{9})(?!\d)\b/, '[SSN_FILTERED]')
 
       # ICN (Integration Control Number) - 17 digit veteran identifier
+      # Note: 17-digit numbers are uncommon, so false positive risk is low.
+      # ICNs are always exactly 17 digits. If false positives occur, consider
+      # adding context-based matching (e.g., requiring "ICN:" prefix).
       msg = msg.gsub(/\b(\d{17})\b/, '[ICN_FILTERED]')
 
       # EDIPI (10 digit DoD identifier)
