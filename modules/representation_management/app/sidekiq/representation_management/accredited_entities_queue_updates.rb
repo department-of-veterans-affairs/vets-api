@@ -65,9 +65,9 @@ module RepresentationManagement
       @attorney_ids = []
       @vso_ids = []
       @representative_ids = []
-      @agent_json_for_address_validation = []
-      @attorney_json_for_address_validation = []
-      @representative_json_for_address_validation = []
+      @agent_ids_for_address_validation = []
+      @attorney_ids_for_address_validation = []
+      @representative_ids_for_address_validation = []
       @rep_to_vso_associations = {}
       @accreditation_ids = []
       @processing_error_types = []
@@ -479,7 +479,7 @@ module RepresentationManagement
       # Check if address validation is needed
       raw_address = raw_address_for_representative(rep)
       if record.raw_address != raw_address
-        @representative_json_for_address_validation << individual_representative_json(record, rep)
+        @representative_ids_for_address_validation << record.id
       end
 
       # Update record
@@ -520,15 +520,6 @@ module RepresentationManagement
         'state_code' => rep['workState'],
         'zip_code' => rep['workZip']
       }
-    end
-
-    # Creates a JSON object for a representative's address, used for address validation
-    #
-    # @param record [AccreditedIndividual] The database record for the representative
-    # @param rep [Hash] Raw representative data from the GCLAWS API
-    # @return [Hash] JSON structure for address validation
-    def individual_representative_json(record, rep)
-      individual_entity_json(record, rep, :representative)
     end
 
     def processed_individual_types
@@ -668,8 +659,7 @@ module RepresentationManagement
       # Check if address validation is needed
       raw_address = send("raw_address_for_#{api_type}", entity)
       if record.raw_address != raw_address
-        json_method = "individual_#{api_type}_json"
-        instance_variable_get(config[:json_var]) << send(json_method, record, entity)
+        instance_variable_get(config[:validation_ids_var]) << record.id
       end
 
       # Update record and store ID
@@ -750,55 +740,14 @@ module RepresentationManagement
       raw_address_from_entity(attorney, city: 'workCity', state_code: 'workState')
     end
 
-    # Creates a JSON object for an agent's address, used for address validation
+    # Queues address validation jobs for a batch of record IDs
     #
-    # @param record [AccreditedIndividual] The database record for the agent
-    # @param agent [Hash] Raw agent data from the GCLAWS API
-    # @return [Hash] JSON structure for address validation
-    def individual_agent_json(record, agent)
-      individual_entity_json(record, agent, :agent)
-    end
-
-    # Creates a JSON object for an attorney's address, used for address validation
-    #
-    # @param record [AccreditedIndividual] The database record for the attorney
-    # @param attorney [Hash] Raw attorney data from the GCLAWS API
-    # @return [Hash] JSON structure for address validation
-    def individual_attorney_json(record, attorney)
-      individual_entity_json(record, attorney, :attorney)
-    end
-
-    # Base method to create a JSON object for entity address validation
-    #
-    # @param record [AccreditedIndividual] The database record for the entity
-    # @param entity [Hash] Raw entity data from the GCLAWS API
-    # @param entity_type [Symbol] The type of entity (:agent, :attorney, or :representative)
-    # @return [Hash] JSON structure for address validation
-    def individual_entity_json(record, entity, entity_type)
-      raw_address = send("raw_address_for_#{entity_type}", entity)
-
-      {
-        id: record.id,
-        address: {
-          address_pou: 'RESIDENCE/CHOICE',
-          address_line1: raw_address['address_line1'],
-          address_line2: raw_address['address_line2'],
-          address_line3: raw_address['address_line3'],
-          city: raw_address['city'],
-          state: { state_code: raw_address['state_code'] },
-          zip_code5: raw_address['zip_code']
-        }
-      }
-    end
-
-    # Queues address validation jobs for a batch of records
-    #
-    # @param records_for_validation [Array<Hash>] Records to validate
+    # @param record_ids_for_validation [Array<Integer>] Record IDs to validate
     # @param description [String] Description for the Sidekiq batch
     # @return [void]
-    def validate_addresses(records_for_validation,
+    def validate_addresses(record_ids_for_validation,
                            description = 'Batching address updates from GCLAWS Accreditation API')
-      return if records_for_validation.empty?
+      return if record_ids_for_validation.empty?
 
       delay = 0
       batch = Sidekiq::Batch.new
@@ -806,9 +755,8 @@ module RepresentationManagement
 
       begin
         batch.jobs do
-          records_for_validation.each_slice(SLICE_SIZE) do |individuals|
-            json_individuals = individuals.to_json
-            RepresentationManagement::AccreditedIndividualsUpdate.perform_in(delay.minutes, json_individuals)
+          record_ids_for_validation.uniq.each_slice(SLICE_SIZE) do |ids|
+            RepresentationManagement::AccreditedIndividualsUpdate.perform_in(delay.minutes, ids)
             delay += 1
           end
         end
@@ -844,11 +792,11 @@ module RepresentationManagement
     # @return [void]
     def validate_entity_addresses(entity_type)
       config = ENTITY_CONFIG[entity_type]
-      json_var = config[:json_var]
+      validation_ids_var = config[:validation_ids_var]
       description = config[:validation_description]
 
       validate_addresses(
-        instance_variable_get(json_var),
+        instance_variable_get(validation_ids_var),
         description
       )
     end
