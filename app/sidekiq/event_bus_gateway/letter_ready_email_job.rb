@@ -9,7 +9,12 @@ module EventBusGateway
 
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_email'
 
-    sidekiq_options Constants::SIDEKIQ_RETRY_OPTIONS
+    sidekiq_options retry: Constants::SIDEKIQ_RETRY_COUNT_FIRST_EMAIL
+
+    sidekiq_retry_in do |count, _exception|
+      # Sidekiq default exponential backoff with jitter, plus one hour
+      (count**4) + 15 + (rand(10) * (count + 1)) + 1.hour.to_i
+    end
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
