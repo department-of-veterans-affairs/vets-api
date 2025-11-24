@@ -20,6 +20,7 @@ module DependentsBenefits
 
       service_tag 'dependent-change'
 
+      # Returns a list of dependents for the current user
       def show
         dependents = create_dependent_service.get_dependents
         dependents[:diaries] = dependency_verification_service.read_diaries
@@ -69,6 +70,7 @@ module DependentsBenefits
 
       private
 
+      # Limits the allowed parameters for dependents benefits claim submissions
       def dependent_params
         params.permit(
           :add_spouse,
@@ -89,6 +91,7 @@ module DependentsBenefits
         )
       end
 
+      # Returns the stats key for dependents application events
       def stats_key
         'api.dependents_application'
       end
@@ -98,14 +101,17 @@ module DependentsBenefits
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:dependents_module_enabled, current_user)
       end
 
+      # Creates the BGS dependent service for the current user
       def create_dependent_service
         @dependent_service ||= BGS::DependentV2Service.new(current_user)
       end
 
+      # Creates the BGS dependency verification service for the current user
       def dependency_verification_service
         @dependency_verification_service ||= BGS::DependencyVerificationService.new(current_user)
       end
 
+      # Creates a new monitor instance for tracking events
       def monitor
         DependentsBenefits::Monitor.new
       end
