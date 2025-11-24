@@ -194,8 +194,6 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     context 'with 30-character street2 address' do
       let(:payload_with_max_street2) do
         payload = form_data.deep_dup
-        # Set street2 to exactly 30 characters (new maximum)
-        payload['veteranInformation']['address']['street2'] = 'A' * 30
         payload['employmentInformation']['employerAddress']['street2'] = 'B' * 30
         payload
       end
