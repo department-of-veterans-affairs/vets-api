@@ -2,9 +2,7 @@
   "info": {
     "_postman_id": "0efaa37e-0fa8-42a6-bb35-cbd4e9c88abe",
     "name": "Mobile Endpoints",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "27149652",
-    "_collection_link": "https://va-mobile.postman.co/workspace/88f8d0ac-78bb-43f7-a6d0-eb7d700ecb72/collection/27149652-0efaa37e-0fa8-42a6-bb35-cbd4e9c88abe?action=share&source=collection_link&creator=27149652"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
@@ -48,25 +46,10 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/appointments",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "7b10bc97-ea54-4358-97b2-1aa15b5bf03f",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "f3219931-e22a-4ac2-a530-5f802ea693bc",
           "request": {
             "method": "GET",
@@ -112,25 +95,10 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/awards",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "7b10bc97-ea54-4358-97b2-1aa15b5bf03f",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "96e5b22d-ebcf-429e-9a1a-c337f46f6b2b",
           "request": {
             "method": "GET",
@@ -152,25 +120,10 @@
                 "awards"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/appointments/check-in/demographics",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "7b10bc97-ea54-4358-97b2-1aa15b5bf03f",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "6dbff597-5fb0-4c60-9495-9c122978704a",
           "request": {
             "method": "GET",
@@ -200,8 +153,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/efolder/documents",
@@ -227,8 +179,7 @@
                 "documents"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/claim-letter/documents",
@@ -254,8 +205,7 @@
                 "documents"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/claim-letter/documents/{document_id}/download",
@@ -289,8 +239,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/claim/{id}",
@@ -322,8 +271,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/claims/decision-letters",
@@ -349,8 +297,7 @@
                 "decision-letters"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/claim-letter/documents/{document_id}/download Copy",
@@ -384,37 +331,10 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/claims-and-appeals-overview",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "id": "9f1ac28a-a4a1-4cbc-a29d-8a5689ed87d4",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "id": "92d3cc55-7181-4ef9-9d44-9142978fdf44",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "67998a39-473e-44ca-866d-2c5ff5e237e3",
           "request": {
             "method": "GET",
@@ -442,8 +362,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/community-care-providers",
@@ -474,8 +393,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/disability-rating",
@@ -500,8 +418,7 @@
                 "disability-rating"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/facilities-info",
@@ -526,25 +443,10 @@
                 "facilities-info"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/health/immunizations",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "12970cd4-0345-44a5-89fa-d3abfc8953a9",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "d55b3514-1341-46b6-9fda-0dc39e1d1bfd",
           "request": {
             "method": "GET",
@@ -567,8 +469,7 @@
                 "immunizations"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/health/locations/{id}",
@@ -601,29 +502,11 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/health/rx/prescriptions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "6ffa6f8f-8f56-4767-84ac-a6599f14e98f",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "8108ffb3-7387-4f77-9111-c256e3eb61eb",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "method": "GET",
             "header": [
@@ -656,25 +539,10 @@
                 "prescriptions"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/health/rx/prescriptions/{id}/tracking",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "3a3b3116-7a8a-451f-a54f-8a85dcb6359d",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "e9ff8cb9-9e9b-4f14-9652-74161ae7b09f",
           "request": {
             "method": "GET",
@@ -706,28 +574,11 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/letters",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "id": "a69bfaa9-54de-4313-aa4d-7009c5ba01a0"
-              }
-            }
-          ],
           "id": "5480d1c5-e1d8-4173-b26d-76b7429035ad",
-          "protocolProfileBehavior": {
-            "strictSSL": true
-          },
           "request": {
             "method": "GET",
             "header": [
@@ -748,8 +599,7 @@
                 "letters"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/letters/:type/download",
@@ -782,8 +632,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/letters/beneficiary",
@@ -809,8 +658,7 @@
                 "beneficiary"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/maintenance_windows",
@@ -835,25 +683,10 @@
                 "maintenance_windows"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/folders",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "21bdcf92-4649-498e-bf57-1fc4a5905712",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "d2b81c93-381d-463f-a5a2-5c099dd25564",
           "request": {
             "method": "GET",
@@ -877,8 +710,7 @@
                 "folders"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/folders/{id}",
@@ -912,25 +744,10 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/folders/{id}/messages",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "13eef04d-c0e8-448a-a0db-b8a35b7f2c0f",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "487b0e4d-aaa8-463a-bb08-c7aa7b3cb1d5",
           "request": {
             "method": "GET",
@@ -976,8 +793,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/messages/categories",
@@ -1005,8 +821,7 @@
                 "categories"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/messages/signature",
@@ -1034,8 +849,7 @@
                 "signature"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/messages/{id}",
@@ -1069,8 +883,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/messages/{id}/thread",
@@ -1105,8 +918,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/allrecipients",
@@ -1133,8 +945,7 @@
                 "allrecipients"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/messaging/health/recipients",
@@ -1161,8 +972,7 @@
                 "recipients"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/military-service-history",
@@ -1187,8 +997,7 @@
                 "military-service-history"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/payment-history",
@@ -1213,8 +1022,7 @@
                 "payment-history"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/pensions",
@@ -1239,8 +1047,7 @@
                 "payment-history"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/payment-information/benefits",
@@ -1266,8 +1073,7 @@
                 "benefits"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/push/prefs/{endpointSid}",
@@ -1300,8 +1106,7 @@
                 }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/user",
@@ -1326,8 +1131,7 @@
                 "user"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/user/authorized-services",
@@ -1353,8 +1157,7 @@
                 "authorized-services"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/user/demographics",
@@ -1380,8 +1183,7 @@
                 "demographics"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/user/gender_identity/edit",
@@ -1408,8 +1210,7 @@
                 "edit"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v0/user/gender_identity",
@@ -1435,8 +1236,7 @@
                 "gender_identity"
               ]
             }
-          },
-          "response": []
+          }
         }
       ],
       "id": "bdfbea66-45ca-4142-9b50-db56b433ec3c"
@@ -1468,25 +1268,10 @@
                 "immunizations"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
           "name": "/v1/user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "id": "37ffa0a8-71e0-47aa-a3de-105c988c71f9",
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "id": "ac5de8fe-7f64-4c4d-859b-c13aac02cd28",
           "request": {
             "method": "GET",
@@ -1508,8 +1293,7 @@
                 "user"
               ]
             }
-          },
-          "response": []
+          }
         }
       ],
       "id": "e2890419-e034-42ab-a931-564f53f6cfda"
@@ -1524,29 +1308,5 @@
         "type": "string"
       }
     ]
-  },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "id": "fbc5e740-3b42-4420-a611-c9982ad0a594",
-        "type": "text/javascript",
-        "packages": {},
-        "exec": [
-          ""
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "id": "73553661-a2ac-4b85-b980-b2c1d3c08f83",
-        "type": "text/javascript",
-        "packages": {},
-        "exec": [
-          ""
-        ]
-      }
-    }
-  ]
+  }
 }

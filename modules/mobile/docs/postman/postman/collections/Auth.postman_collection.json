@@ -14,12 +14,7 @@
             "id": "37c1d3fa-8712-4f9c-870b-536f6916615b",
             "exec": [
               "var jsonData = JSON.parse(responseBody)",
-              "pm.globals.set(\"BEARER_TOKEN\", jsonData.access_token)",
-              "",
-              "",
-              "",
-              "",
-              ""
+              "pm.globals.set(\"BEARER_TOKEN\", jsonData.access_token)"
             ],
             "type": "text/javascript"
           }
@@ -81,7 +76,7 @@
       }
     },
     {
-      "name": "Get Local Token from Code",
+      "name": "Get Local Token from Code (You probably don't need)",
       "event": [
         {
           "listen": "test",
@@ -89,12 +84,7 @@
             "id": "9f9be172-95b5-4ccd-b37d-80db97d93799",
             "exec": [
               "var jsonData = JSON.parse(responseBody)",
-              "pm.globals.set(\"BEARER_TOKEN\", jsonData.data.access_token)",
-              "",
-              "",
-              "",
-              "",
-              ""
+              "pm.globals.set(\"BEARER_TOKEN\", jsonData.data.access_token)"
             ],
             "type": "text/javascript"
           }
@@ -116,7 +106,7 @@
             },
             {
               "key": "code_verifier",
-              "value": "5787d673fb784c90f0e309883241803d",
+              "value": "CODE_VERIFIER_STRING",
               "type": "text"
             },
             {
@@ -159,7 +149,7 @@
           "urlencoded": [
             {
               "key": "refresh_token",
-              "value": "v1:insecure+data+A6ZXlKMWMyVnlYM1YxYVdRaU9pSm1aVFl6WXpaaU1DMWxPVGt6TFRSbE5ETXRZamxpTl\nMwMk5ESTVaR1ExTjJWbE5ERWlMQ0oxZFdsa0lqb2lZVEJoTTJFNU9UWXRNelV4WWkwME1tRTJMV0UzTXpBdFpUQTNOVGt4TldWak9UVTVJaXdpYzJWemMybHZibDlvWVc1a2JHVWlPaUpoT\nnpWa1lUSXdNeTAyTVRBNExUUTFNRGd0T1RWa01pMWxNemhrT1dWaE1EUXdNV0lpTENKd1lYSmxiblJmY21WbWNtVnphRjkwYjJ0bGJsOW9ZWE5vSWpvaVpUaGtPRGRoTW1Wak9UQTBOMk0x\nTVRrek1HSXlOVGMzWW1WaFpXUTNPVGxrTm1NellXVTFaalptTWpobU1EUTRNMlU1TnpBMU4yTmtOekJqT1dVME5DSXNJbUZ1ZEdsZlkzTnlabDkwYjJ0bGJpSTZJbU0wT0RSaVpHUTNaREJ\noTWpBNE9EQmhabU5oTTJNNVltTXlZamRtWW1FeUlpd2libTl1WTJVaU9pSTFNRFJoTUdVek5EVTBNR05pWWprNFlqRTJOMlV4T1dGalpUVTRNelZrWkNJc0luWmxjbk5wYjI0aU9pSldNQ0\nlzSW5aaGJHbGtZWFJwYjI1ZlkyOXVkR1Y0ZENJNmJuVnNiQ3dpWlhKeWIzSnpJanA3ZlgwPQ==.504a0e34540cbb98b167e19ace5835dd.V0",
+              "value": "YOUR_REFRESH_TOKEN_HERE",
               "type": "text"
             }
           ]

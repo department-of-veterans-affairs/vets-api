@@ -7,24 +7,24 @@
       "value": "",
       "enabled": true,
       "type": "any",
-      "description": ""
+      "description": "This is manually set by \"Set Bearer Token\" request/script"
     },
     {
       "key": "NGROK_URL",
       "value": "",
       "enabled": true,
       "type": "default",
-      "description": ""
+      "description": "See README for obtaining Ngrok URL for Local Auth"
     },
     {
       "key": "REQUESTER",
       "value": "",
       "enabled": true,
       "type": "default",
-      "description": "github username"
+      "description": "Your github username, used for identitfying your token records in DevTools"
     }
   ],
   "_postman_variable_scope": "globals",
-  "_postman_exported_at": "2025-11-24T21:32:31.822Z",
+  "_postman_exported_at": "2025-11-24T22:06:33.296Z",
   "_postman_exported_using": "Postman/11.0.0"
 }
