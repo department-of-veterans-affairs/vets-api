@@ -26,8 +26,7 @@ module MyHealth
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
              StandardError => e
-        log_error(e, resource_name: 'CCD', api_type: 'FHIR', include_backtrace: true)
-        handle_error(e, resource_name: 'CCD', api_type: 'FHIR', use_dynamic_status: true)
+        handle_error(e, resource_name: 'CCD', api_type: 'FHIR', use_dynamic_status: true, include_backtrace: true)
       end
 
       private

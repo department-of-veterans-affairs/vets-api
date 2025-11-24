@@ -13,12 +13,14 @@ module MyHealth
         # @param resource_name [String] The name of the resource (e.g., 'clinical notes', 'vitals')
         # @param api_type [String] The API type ('FHIR' or 'SCDF')
         # @param use_dynamic_status [Boolean] Whether to use dynamic HTTP status based on error status (default: false)
-        def handle_error(error, resource_name: nil, api_type: 'FHIR', use_dynamic_status: false)
-          log_error(error, resource_name:, api_type:)
+        # @param include_backtrace [Boolean] Whether to include backtrace in logs (default: false)
+        def handle_error(error, resource_name: nil, api_type: 'FHIR', use_dynamic_status: false,
+                         include_backtrace: false)
+          log_error(error, resource_name:, api_type:, include_backtrace:)
 
           case error
           when Common::Client::Errors::ClientError
-            handle_client_error(error, api_type, use_dynamic_status)
+            handle_client_error(error, api_type, use_dynamic_status:)
           when Common::Exceptions::BackendServiceException
             render json: { errors: error.errors }, status: :bad_gateway
           else
