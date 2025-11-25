@@ -103,8 +103,8 @@ module Openapi
                       },
                       aptOrUnitNumber: {
                         type: :string,
-                        maxLength: 30,
-                        description: 'Apartment or unit number (max 30 characters)',
+                        maxLength: 5,
+                        description: 'Apartment or unit number (max 5 characters)',
                         example: 'Suite'
                       },
                       city: {
