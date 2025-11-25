@@ -11,14 +11,13 @@ module RepresentationManagement
 
     def perform
       total_count = 0
-      offset = 0
 
       # Process Veteran::Service::Representative records
-      offset = enqueue_for_model(Veteran::Service::Representative, :representative_id, offset)
-      total_count += offset
+      veteran_count = enqueue_for_model(Veteran::Service::Representative, :representative_id, total_count)
+      total_count += veteran_count
 
       # Process AccreditedIndividual records
-      individual_count = enqueue_for_model(AccreditedIndividual, :id, offset)
+      individual_count = enqueue_for_model(AccreditedIndividual, :id, total_count)
       total_count += individual_count
 
       Rails.logger.info("Enqueued #{total_count} geocoding jobs")
@@ -37,6 +36,7 @@ module RepresentationManagement
                 .or(model_class.where(long: nil))
                 .or(model_class.where(location: nil))
 
+      count = 0
       records.find_each.with_index do |record, index|
         delay_seconds = (offset + index) * RATE_LIMIT_SECONDS
         GeocodeRepresentativeJob.perform_in(
@@ -44,9 +44,10 @@ module RepresentationManagement
           model_class.name,
           record.send(id_field)
         )
+        count += 1
       end
 
-      records.size
+      count
     end
   end
 end
