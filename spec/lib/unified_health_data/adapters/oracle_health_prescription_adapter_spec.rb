@@ -2054,10 +2054,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
+        expect(metadata[:refill_request_submit_date]).to eq('2025-06-24T21:05:53.000Z')
         expect(metadata[:refill_request_status]).to eq('in-progress')
-        expect(metadata[:task_id]).to eq('12345')
-        expect(metadata[:days_since_submission]).to be_a(Integer)
+        expect(metadata[:refill_request_task_id]).to eq('12345')
+        expect(metadata[:refill_request_days_since_submission]).to be_a(Integer)
       end
 
       it 'returns most recent task when multiple tasks exist' do
@@ -2076,7 +2076,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:task_id]).to eq('22222')
+        expect(metadata[:refill_request_task_id]).to eq('22222')
         expect(metadata[:refill_request_status]).to eq('in-progress')
       end
 
@@ -2092,9 +2092,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
         expect(metadata[:refill_request_status]).to eq('requested')
-        expect(metadata[:task_id]).to eq('12345')
-        expect(metadata[:refill_submit_date]).to be_nil
-        expect(metadata[:days_since_submission]).to be_nil
+        expect(metadata[:refill_request_task_id]).to eq('12345')
+        expect(metadata[:refill_request_submit_date]).to be_nil
+        expect(metadata[:refill_request_days_since_submission]).to be_nil
       end
 
       it 'handles invalid date format gracefully' do
@@ -2108,8 +2108,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_submit_date]).to eq('invalid-date')
-        expect(metadata[:days_since_submission]).to be_nil
+        expect(metadata[:refill_request_submit_date]).to eq('invalid-date')
+        expect(metadata[:refill_request_days_since_submission]).to be_nil
       end
     end
 

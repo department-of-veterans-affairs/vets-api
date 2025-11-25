@@ -2,9 +2,11 @@
 
 ## Overview
 
-Enhanced the `recently_requested` metadata in MyHealth V2 Prescriptions API to include Oracle Health-specific refill submission timing data extracted from FHIR Task resources. This provides the same refill status visibility for Oracle Health prescriptions that VistA prescriptions already have.
+Enhanced the Oracle Health prescription data path to extract and store refill submission timing data from FHIR Task resources. This provides the same refill status visibility for Oracle Health prescriptions that VistA prescriptions already have via the `refill_submit_date` field.
 
 **Data Source:** FHIR Task resources contained in MedicationRequest per FHIR standard (https://hl7.org/fhir/task.html)
+
+**Implementation:** Refill metadata is extracted during prescription parsing by the `OracleHealthPrescriptionAdapter` and stored as attributes on the `Prescription` model. This data is available for use by controllers (my_health and mobile) in subsequent PRs.
 
 ## API Response Structure
 
@@ -54,21 +56,25 @@ Enhanced the `recently_requested` metadata in MyHealth V2 Prescriptions API to i
 
 VistA prescriptions continue to work as before - no changes to their structure.
 
-## New Fields (Oracle Health Only)
+## New Prescription Model Attributes (Oracle Health Only)
 
-| Field | Type | Description | Source | Example |
-|-------|------|-------------|--------|---------|
-| `refill_submit_date` | String (ISO 8601) | Timestamp when the refill was submitted | Task.executionPeriod.start | `"2025-06-24T21:05:53.000Z"` |
+These attributes are populated during prescription parsing by the `OracleHealthPrescriptionAdapter`:
+
+| Attribute | Type | Description | Source | Example |
+|-----------|------|-------------|--------|---------|
+| `refill_request_submit_date` | String (ISO 8601) | Timestamp when the refill was submitted | Task.executionPeriod.start | `"2025-06-24T21:05:53.000Z"` |
 | `refill_request_status` | String | Current status of the refill request | Task.status | `"requested"`, `"in-progress"`, `"completed"`, `"failed"` |
-| `task_id` | String | Unique identifier of the Task resource | Task.id | `"1234567"` |
-| `days_since_submission` | Integer | Calculated days since submission (for timeout detection) | Calculated from Task.executionPeriod.start | `3` |
+| `refill_request_task_id` | String | Unique identifier of the Task resource | Task.id | `"1234567"` |
+| `refill_request_days_since_submission` | Integer | Calculated days since submission | Calculated from Task.executionPeriod.start | `3` |
 
-## Detection Logic
+## Implementation Details
 
-The system identifies Oracle Health prescriptions by:
-1. Prescription has `prescription_source: "VA"`
-2. Prescription lacks `refill_submit_date` at root level (not in FHIR standard)
-3. Prescription contains Task resources in the MedicationRequest's `contained` array
+**Adapter-Level Processing:**
+The `OracleHealthPrescriptionAdapter` automatically extracts refill metadata during prescription parsing:
+
+1. `build_task_resources(resource)` - Extracts Task resources from MedicationRequest's `contained` array
+2. `extract_refill_metadata_from_tasks(task_resources)` - Processes Task resources to extract metadata
+3. Metadata is merged into prescription attributes during `build_prescription_attributes(resource)`
 
 **FHIR Structure:**
 ```json
@@ -87,6 +93,13 @@ The system identifies Oracle Health prescriptions by:
   ]
 }
 ```
+
+**Result:**
+The parsed `Prescription` object will have:
+- `refill_request_submit_date`: `"2025-06-24T21:05:53.000Z"`
+- `refill_request_status`: `"in-progress"`
+- `refill_request_task_id`: `"1234567"`
+- `refill_request_days_since_submission`: `3` (calculated)
 
 ## Frontend Usage Examples
 
@@ -151,5 +164,22 @@ All existing tests pass, plus new test added:
 - Task resources follow FHIR standard: https://hl7.org/fhir/task.html
 - `Task.status` indicates refill request outcome (requested, in-progress, completed, failed, etc.)
 - `Task.executionPeriod.start` provides submission timestamp
-- `days_since_submission` is calculated at request time (not stored)
-- Fields only appear when Task resources exist in the prescription data
+- `refill_request_days_since_submission` is calculated during parsing (based on current time)
+- Attributes are `nil` when no Task resources exist in the prescription data
+
+## Controller Usage (Future PR)
+
+Controllers can access these attributes directly from the Prescription model:
+
+```ruby
+prescriptions.each do |prescription|
+  if prescription.refill_request_status.present?
+    # This prescription has an in-progress refill request
+    submit_date = prescription.refill_request_submit_date
+    status = prescription.refill_request_status
+    days_since = prescription.refill_request_days_since_submission
+  end
+end
+```
+
+This data can be used to enhance the `recently_requested` metadata or other controller responses.

@@ -629,39 +629,6 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
-      it 'includes Oracle Health refill metadata from Task resources in recently_requested' do
-        VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions', headers:)
-
-          json_response = JSON.parse(response.body)
-          recently_requested = json_response['meta']['recently_requested']
-
-          # Find Oracle Health prescriptions with Task-based refill metadata
-          oracle_health_rxs = recently_requested.select do |rx|
-            rx['refill_submit_date'].present? || rx['refill_request_status'].present?
-          end
-
-          # Verify Oracle Health-specific metadata is included when available
-          oracle_health_rxs.each do |rx|
-            expect(rx).to have_key('prescription_id')
-            expect(rx).to have_key('prescription_name')
-            expect(rx).to have_key('disp_status')
-
-            # Oracle Health-specific fields (only present when Task resources exist)
-            if rx['refill_submit_date'].present?
-              # Refill submission timestamp from Task.executionPeriod.start
-              expect(rx['refill_submit_date']).to match(/\d{4}-\d{2}-\d{2}/)
-              
-              # Refill request status from Task.status
-              expect(rx['refill_request_status']).to be_present if rx['refill_request_status']
-              
-              # Calculated days since submission
-              expect(rx['days_since_submission']).to be_a(Integer) if rx['days_since_submission'].present?
-            end
-          end
-        end
-      end
-
       it 'sorts PD prescriptions to the top when pending meds enabled' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # Enable pending meds flipper

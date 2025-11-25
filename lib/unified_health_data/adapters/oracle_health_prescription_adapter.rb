@@ -24,11 +24,13 @@ module UnifiedHealthData
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
         task_data = build_task_resources(resource)
+        refill_metadata = extract_refill_metadata_from_tasks(task_data)
 
         build_core_attributes(resource)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(resource))
           .merge(dispenses: dispenses_data, task_resources: task_data)
+          .merge(refill_metadata)
       end
 
       def build_core_attributes(resource)
@@ -152,14 +154,12 @@ module UnifiedHealthData
         end
       end
 
-      public
-
-      # Extracts refill submission metadata from Task resources for recently requested prescriptions
-      # This is used to populate metadata in the recently_requested array
+      # Extracts refill submission metadata from Task resources during prescription parsing
       # Task resources contain refill request information per FHIR standard
+      # Returns attributes that will be added to the Prescription model
       #
       # @param task_resources [Array<Hash>] Array of task resource hashes
-      # @return [Hash] Hash containing refill metadata from Task resources
+      # @return [Hash] Hash containing refill metadata attributes for the Prescription model
       def extract_refill_metadata_from_tasks(task_resources)
         metadata = {}
         return metadata unless task_resources.present?
@@ -185,14 +185,14 @@ module UnifiedHealthData
 
         # Extract submission timestamp from executionPeriod.start
         if most_recent_task[:execution_period_start]
-          metadata[:refill_submit_date] = most_recent_task[:execution_period_start]
+          metadata[:refill_request_submit_date] = most_recent_task[:execution_period_start]
 
           # Calculate days since submission for frontend display
           begin
             submit_time = Time.zone.parse(most_recent_task[:execution_period_start])
             if submit_time
               days_since = ((Time.zone.now - submit_time) / 1.day).floor
-              metadata[:days_since_submission] = days_since if days_since >= 0
+              metadata[:refill_request_days_since_submission] = days_since if days_since >= 0
             end
           rescue ArgumentError, TypeError
             # Invalid date format, skip calculation
@@ -202,8 +202,8 @@ module UnifiedHealthData
         # Extract refill request status from Task.status
         metadata[:refill_request_status] = most_recent_task[:status] if most_recent_task[:status]
 
-        # Include other relevant task fields if available
-        metadata[:task_id] = most_recent_task[:id] if most_recent_task[:id]
+        # Include task ID for reference
+        metadata[:refill_request_task_id] = most_recent_task[:id] if most_recent_task[:id]
 
         metadata
       end
