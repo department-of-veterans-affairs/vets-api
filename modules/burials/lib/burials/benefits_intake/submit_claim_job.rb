@@ -45,7 +45,7 @@ module Burials
 
         # generate and validate claim pdf documents
         @form_path = generate_form_pdf
-        @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+        @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, :burials_received_at) }
         @metadata = generate_metadata
 
         upload_document
@@ -103,7 +103,7 @@ module Burials
       # @param file_path [String] pdf file path
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path) # rubocop:disable Metrics/MethodLength
+      def process_document(file_path, stamp_set) # rubocop:disable Metrics/MethodLength
         document = PDFUtilities::DatestampPdf.new(file_path).run(
           text: 'VA.GOV',
           timestamp: @claim.created_at,
@@ -160,9 +160,10 @@ module Burials
       # @return [String] path to processed PDF document
       def generate_form_pdf
         if Flipper.enabled?(:burial_extras_redesign_enabled)
-          process_document(@claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true }))
+          pdf_path = @claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true })
+          process_document(pdf_path, :burials_generated_pdf)
         else
-          process_document(@claim.to_pdf)
+          process_document(@claim.to_pdf, :burials_generated_pdf)
         end
       end
 
