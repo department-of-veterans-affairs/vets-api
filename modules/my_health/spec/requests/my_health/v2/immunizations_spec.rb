@@ -98,7 +98,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
 
           # Expect logger to receive error
-          expect(Rails.logger).to receive(:error).with(/Immunizations FHIR API error/)
+          expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
 
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
@@ -217,7 +217,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
 
           # Expect logger to receive error
-          expect(Rails.logger).to receive(:error).with(/Immunizations FHIR API error/)
+          expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
 
           get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
         end

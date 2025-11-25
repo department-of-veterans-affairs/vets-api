@@ -505,6 +505,25 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         )
       end
 
+      it 'responds to PATCH #refill_prescriptions' do
+        allow(UniqueUserEvents).to receive(:log_event)
+
+        VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
+          patch '/my_health/v1/prescriptions/refill_prescriptions', params: { ids: %w[25567989 25567990] }
+        end
+
+        expect(response).to be_successful
+        response_body = JSON.parse(response.body)
+        expect(response_body).to have_key('successful_ids')
+        expect(response_body).to have_key('failed_ids')
+
+        # Verify event logging was called
+        expect(UniqueUserEvents).to have_received(:log_event).with(
+          user: anything,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+      end
+
       context 'prescription documentation' do
         it 'responds to GET #index of prescription documentation' do
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do

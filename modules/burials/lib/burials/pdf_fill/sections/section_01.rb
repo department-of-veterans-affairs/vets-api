@@ -29,13 +29,6 @@ module Burials
             question_num: 1,
             question_label: "Deceased Veteran's Last Name",
             question_text: "DECEASED VETERAN'S LAST NAME"
-          },
-          'suffix' => {
-            key: 'form1[0].#subform[82].Suffix[0]',
-            question_num: 1,
-            limit: 0,
-            question_label: "Deceased Veteran's Suffix",
-            question_text: "DECEASED VETERAN'S SUFFIX"
           }
         },
         'veteranSocialSecurityNumber' => {
