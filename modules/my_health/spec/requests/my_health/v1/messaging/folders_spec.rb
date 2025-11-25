@@ -66,16 +66,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('my_health/messaging/v1/folders')
       end
-
-      it 'responds to GET #index when requires_oh_messages param is provided' do
-        VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders_with_oh_messages') do
-          get '/my_health/v1/messaging/folders?requires_oh_messages=1', headers: inflection_header
-        end
-
-        expect(response).to be_successful
-        expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('my_health/messaging/v1/folders')
-      end
     end
 
     describe '#show' do
@@ -98,16 +88,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_camelized_response_schema('my_health/messaging/v1/folder')
-        end
-
-        it 'response to GET #show when requires_oh_messages parameter is provided' do
-          VCR.use_cassette('sm_client/folders/gets_a_single_folder_oh_messages') do
-            get "/my_health/v1/messaging/folders/#{inbox_id}?requires_oh_messages=1"
-          end
-
-          expect(response).to be_successful
-          expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('my_health/messaging/v1/folder')
         end
       end
     end
@@ -183,81 +163,50 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('my_health/messaging/v1/folder_search')
         end
-
-        it 'responds to POST #search when requires_oh_messages parameter is provided' do
-          VCR.use_cassette('sm_client/folders/searches_a_folder_oh_messages') do
-            post "/my_health/v1/messaging/folders/#{id}/search?requires_oh_messages=1", params: { subject: 'THREAD' }
-          end
-
-          expect(response).to be_successful
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('my_health/messaging/v1/folder_search')
-        end
       end
     end
+  end
 
-    describe 'nested resources' do
-      it 'gets messages#index' do
-        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          get "/my_health/v1/messaging/folders/#{inbox_id}/messages"
-        end
-
-        expect(response).to be_successful
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('my_health/messaging/v1/messages')
-      end
-
-      it 'gets messages#index with camel-inflection' do
-        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          get "/my_health/v1/messaging/folders/#{inbox_id}/messages", headers: inflection_header
-        end
-
-        expect(response).to be_successful
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_camelized_response_schema('my_health/messaging/v1/messages')
-      end
+  context 'with requires_oh flag enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_secure_messaging_cerner_pilot, anything)
+        .and_return(true)
+      VCR.insert_cassette('sm_client/session_require_oh')
     end
 
-    describe 'pagination' do
-      it 'provides pagination indicators' do
-        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          get "/my_health/v1/messaging/folders/#{inbox_id}/messages"
-        end
+    after do
+      VCR.eject_cassette
+    end
 
-        payload = JSON.parse(response.body)
-        pagination = payload['meta']['pagination']
-        expect(pagination['total_entries']).to eq(10)
+    it 'responds to GET #index when requires_oh_messages flipper is provided' do
+      VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders_with_oh_messages') do
+        get '/my_health/v1/messaging/folders', headers: inflection_header
       end
 
-      it 'respects pagination parameters' do
-        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          get "/my_health/v1/messaging/folders/#{inbox_id}/messages", params: { page: 2, per_page: 3 }
-        end
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('my_health/messaging/v1/folders')
+    end
 
-        payload = JSON.parse(response.body)
-        pagination = payload['meta']['pagination']
-        expect(pagination['current_page']).to eq(2)
-        expect(pagination['per_page']).to eq(3)
-        expect(pagination['total_pages']).to eq(4)
-        expect(pagination['total_entries']).to eq(10)
+    it 'response to GET #show when requires_oh_messages flipper is provided' do
+      VCR.use_cassette('sm_client/folders/gets_a_single_folder_oh_messages') do
+        get "/my_health/v1/messaging/folders/#{inbox_id}"
       end
 
-      it 'does not paginate if per_page pagination parameter is -1' do
-        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          get "/my_health/v1/messaging/folders/#{inbox_id}/messages", params: { per_page: -1 }
-        end
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('my_health/messaging/v1/folder')
+    end
 
-        payload = JSON.parse(response.body)
-        pagination = payload['meta']['pagination']
-        expect(pagination).to be_nil
+    it 'responds to POST #search when requires_oh_messages flipper is provided' do
+      VCR.use_cassette('sm_client/folders/searches_a_folder_oh_messages') do
+        post '/my_health/v1/messaging/folders/0/search', params: { subject: 'THREAD' }
       end
 
-      it 'generates a 4xx error for out of bounds pagination' do
-        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          get "/my_health/v1/messaging/folders/#{inbox_id}/messages", params: { page: 3, per_page: 10 }
-        end
-        expect(response).to have_http_status(:bad_request)
-      end
+      expect(response).to be_successful
+      expect(response).to have_http_status(:ok)
+      expect(response).to match_response_schema('my_health/messaging/v1/folder_search')
     end
   end
 end

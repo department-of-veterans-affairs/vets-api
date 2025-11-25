@@ -21,7 +21,8 @@
   "F[0].Page_1[0].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.ssn[2] %>",
 
   <%# 3. VA File Number %>
-  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('veteran_id', 'va_file_number') %>",
+  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('id_number', 'va_file_number') %>",
+
 
   <%# 4. Date of Birth (MM/DD/YYYY) %>
   "F[0].Page_1[0].DOBmonth[0]": "<%= form.dob[1] %>",
@@ -50,7 +51,7 @@
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.address.zip_code_suffix %>",
 
   <%# 10. Were you employed by VA, others or self employed at any time during the past 12 months? %>
-  "F[0].Page_1[0].RadioButtonList[0]": "<%= form.data.dig('RadioButtonList') %>",
+  "F[0].Page_1[0].RadioButtonList[0]": "<%= form.employed? ? 'YES' : 'NO' %>",
 
   <%# Section II - Employment Certification %>
   <%# 11A. Name and Address of Employer %>

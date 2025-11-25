@@ -87,12 +87,13 @@ module ClaimsApi
           country_code = phone['countryCode']
           area_code = phone['areaCode']
           phone_number = phone['phoneNumber']
+          number = []
 
-          if country_code.blank?
-            "#{area_code} #{phone_number}"
-          else
-            "+#{country_code} #{area_code} #{phone_number}"
-          end
+          number << "+#{country_code}" if country_code.present?
+          number << area_code.to_s if area_code.present?
+          number << phone_number.to_s if phone_number.present?
+
+          number.join(' ')
         end
 
         private

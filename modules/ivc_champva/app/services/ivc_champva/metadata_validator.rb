@@ -3,26 +3,28 @@
 module IvcChampva
   class MetadataValidator
     def self.validate(metadata)
-      validate_first_name(metadata)
-        .then { |m| validate_last_name(m) }
+      name_prefix = Flipper.enabled?(:champva_update_metadata_keys) ? 'sponsor' : 'veteran'
+
+      validate_first_name(metadata, name_prefix)
+        .then { |m| validate_last_name(m, name_prefix) }
         .then { |m| validate_file_number(m) }
         .then { |m| validate_zip_code(m) }
         .then { |m| validate_source(m) }
         .then { |m| validate_doc_type(m) }
     end
 
-    def self.validate_first_name(metadata)
-      validate_presence_and_stringiness(metadata['veteranFirstName'], 'veteran first name')
-      metadata['veteranFirstName'] =
-        I18n.transliterate(metadata['veteranFirstName']).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip.first(50)
+    def self.validate_first_name(metadata, name_prefix = 'veteran')
+      validate_presence_and_stringiness(metadata["#{name_prefix}FirstName"], "#{name_prefix} first name")
+      metadata["#{name_prefix}FirstName"] =
+        I18n.transliterate(metadata["#{name_prefix}FirstName"]).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
 
       metadata
     end
 
-    def self.validate_last_name(metadata)
-      validate_presence_and_stringiness(metadata['veteranLastName'], 'veteran last name')
-      metadata['veteranLastName'] =
-        I18n.transliterate(metadata['veteranLastName']).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip.first(50)
+    def self.validate_last_name(metadata, name_prefix = 'veteran')
+      validate_presence_and_stringiness(metadata["#{name_prefix}LastName"], "#{name_prefix} last name")
+      metadata["#{name_prefix}LastName"] =
+        I18n.transliterate(metadata["#{name_prefix}LastName"]).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
 
       metadata
     end

@@ -7,7 +7,6 @@ require 'identity/parsers/gc_ids'
 module SAML
   module UserAttributes
     class SSOe
-      include SentryLogging
       include Identity::Parsers::GCIds
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name gender ssn birth_date
                                    idme_uuid logingov_uuid verified_at sec_id mhv_icn
@@ -212,9 +211,8 @@ module SAML
         check_id_mismatch(edipi_ids[:edipis], :multiple_edipis)
         check_id_mismatch(mhv_iens, :multiple_mhv_ids, raise_error: false)
         if sec_id_mismatch?
-          log_message_to_sentry('User attributes contains multiple sec_id values',
-                                'warn',
-                                { sec_id: @attributes['va_eauth_secid'] })
+          Rails.logger.warn('[SAML][UserAttributes][SSOe] User attributes contains multiple sec_id values',
+                            sec_id: @attributes['va_eauth_secid'])
         end
       end
 

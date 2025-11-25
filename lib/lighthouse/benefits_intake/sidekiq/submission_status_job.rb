@@ -6,16 +6,22 @@ require 'logging/monitor'
 # Datadog Dashboard
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking
 module BenefitsIntake
+  # job for retrieving the status of submissions
+  # @see lib/periodic_jobs.rb
   class SubmissionStatusJob
     include Sidekiq::Job
 
     sidekiq_options retry: false
     attr_reader :pending_attempts
 
+    # tracking metric
     STATS_KEY = 'api.benefits_intake.submission_status'
+    # number of days before a 'stale' submission
     STALE_SLA = Settings.lighthouse.benefits_intake.report.stale_sla || 10
+    # batch size for each request
     BATCH_SIZE = Settings.lighthouse.benefits_intake.report.batch_size || 1000
 
+    # Lighthouse `status` mapped to the `result` sent to the handler
     # any status not listed will result in 'pending'
     STATUS_RESULT_MAP = {
       expired: 'failure', # Indicates that documents were not successfully uploaded within the 15-minute window
@@ -109,7 +115,6 @@ module BenefitsIntake
     #
     # @return [Array<Lighthouse::SubmissionAttempt and/or FormSubmissionAttempt>] list of
     # pending attempts for the specified form
-    #
     def pending_submission_attempts(form_type)
       # filter running this job to the specific form_id
       form_ids = FORM_HANDLERS.keys.map(&:to_s)
@@ -135,7 +140,7 @@ module BenefitsIntake
       @pah ||= pending_attempts.index_by(&:benefits_intake_uuid)
     end
 
-    # @see https://developer.va.gov/explore/api/benefits-intake/docs
+    # respond to the status for each submission
     def handle_response(response_data)
       response_data.each do |submission|
         uuid = submission['id']
@@ -160,10 +165,18 @@ module BenefitsIntake
     # @param submission [Hash] the full data hash returned for this record
     def update_attempt_record(uuid, status, submission)
       submission_attempt = pending_attempts_hash[uuid]
-      form_id = submission_attempt.submission.form_id
-      saved_claim_id = submission_attempt.submission.saved_claim_id
-      handler = FORM_HANDLERS[form_id].new(saved_claim_id)
-      handler.update_attempt_record(status, submission, submission_attempt)
+      if submission_attempt.is_a?(FormSubmissionAttempt)
+        form_id = submission_attempt.form_submission.form_type
+        saved_claim_id = submission_attempt.form_submission.saved_claim_id
+      else
+        form_id = submission_attempt.submission.form_id
+        saved_claim_id = submission_attempt.submission.saved_claim_id
+      end
+
+      # double check for valid handler, should have been filtered in `perform`
+      if (handler = FORM_HANDLERS[form_id])
+        handler.new(saved_claim_id)&.update_attempt_record(status, submission, submission_attempt)
+      end
     end
 
     # monitoring of the submission attempt status
@@ -231,6 +244,7 @@ module BenefitsIntake
       }
     end
 
+    # @return [Logging::Monitor] the monitor used for tracking
     def monitor
       @monitor ||= Logging::Monitor.new('benefits_intake_submission_status_job')
     end

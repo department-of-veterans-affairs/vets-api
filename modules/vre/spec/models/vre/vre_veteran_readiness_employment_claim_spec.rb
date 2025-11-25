@@ -65,6 +65,13 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       claim.add_claimant_info(user_object)
       expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
     end
+
+    it 'handles blank form' do
+      claim.form = nil
+      expect(Rails.logger).to receive(:info)
+        .with('VRE claim form is blank, skipping adding veteran info', { user_uuid: user.uuid })
+      expect(claim.add_claimant_info(user)).to be_nil
+    end
   end
 
   describe '#send_to_vre' do
@@ -144,6 +151,23 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
     end
   end
 
+  describe '#send_failure_email' do
+    context 'when email is nil' do
+      it 'only logs a warning' do
+        expect(Rails.logger).to receive(:warn)
+        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        claim.send_failure_email('')
+      end
+    end
+
+    context 'when email is present' do
+      it 'logs error and sends email' do
+        expect(VANotify::EmailJob).to receive(:perform_async)
+        claim.send_failure_email('test@example.com')
+      end
+    end
+  end
+
   describe '#regional_office' do
     it 'returns an empty array' do
       expect(claim.regional_office).to eq []
@@ -165,6 +189,12 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
 
       subject
     end
+
+    it 'handles missing email for VBMS confirmation' do
+      user_without_va_profile_email = OpenStruct.new(user.to_h.merge(va_profile_email: nil))
+      expect(Rails.logger).to receive(:warn)
+      claim.send_vbms_confirmation_email(user_without_va_profile_email)
+    end
   end
 
   describe '#send_lighthouse_confirmation_email' do
@@ -181,6 +211,27 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       )
 
       subject
+    end
+  end
+
+  describe '#process_attachments!' do
+    it 'processes attachments successfully' do
+      allow(claim).to receive_messages(
+        attachment_keys: ['some_key'],
+        open_struct_form: OpenStruct.new(some_key: [OpenStruct.new(confirmationCode: '123')])
+      )
+      allow(PersistentAttachment).to receive(:where).and_return(double(find_each: true))
+      allow_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).and_return(true)
+      expect(claim.process_attachments!).to be_truthy
+    end
+  end
+
+  describe '#upload_to_vbms' do
+    it 'updates form with VBMS document id' do
+      allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload!)
+        .and_return({ vbms_document_series_ref_id: '123' })
+      claim.upload_to_vbms(user: build(:user))
+      expect(claim.parsed_form['documentId']).to eq('123')
     end
   end
 end

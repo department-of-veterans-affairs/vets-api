@@ -40,20 +40,20 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     let(:transaction3) { create(:telephone_transaction, transaction_id: 3) }
 
     it 'are queryable from the parent', :aggregate_failures do
-      record1 = AsyncTransaction::Vet360::Base
+      record1 = AsyncTransaction::VAProfile::Base
                 .where(transaction_id: transaction1.transaction_id, source: transaction1.source).first
       expect(record1.id).to eq(transaction1.id)
-      expect(record1).to be_instance_of(AsyncTransaction::Vet360::AddressTransaction)
+      expect(record1).to be_instance_of(AsyncTransaction::VAProfile::AddressTransaction)
 
-      record2 = AsyncTransaction::Vet360::Base
+      record2 = AsyncTransaction::VAProfile::Base
                 .where(transaction_id: transaction2.transaction_id, source: transaction2.source).first
       expect(record2.id).to eq(transaction2.id)
-      expect(record2).to be_instance_of(AsyncTransaction::Vet360::EmailTransaction)
+      expect(record2).to be_instance_of(AsyncTransaction::VAProfile::EmailTransaction)
 
-      record3 = AsyncTransaction::Vet360::Base
+      record3 = AsyncTransaction::VAProfile::Base
                 .where(transaction_id: transaction3.transaction_id, source: transaction3.source).first
       expect(record3.id).to eq(transaction3.id)
-      expect(record3).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
+      expect(record3).to be_instance_of(AsyncTransaction::VAProfile::TelephoneTransaction)
     end
   end
 

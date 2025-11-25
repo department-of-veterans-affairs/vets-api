@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'dgi/claimant/service'
+require 'dgi/letters/service'
+require 'dgi/status/service'
 require 'dgi/eligibility/service'
 require 'dgi/automation/service'
 require 'dgi/submission/service'
@@ -20,7 +23,7 @@ module MebApi
 
       def eligibility
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.claimant_id
 
         eligibility_response = eligibility_service.get_eligibility(claimant_id)
 
@@ -32,7 +35,7 @@ module MebApi
 
       def claim_status
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.claimant_id
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
 
@@ -44,7 +47,7 @@ module MebApi
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.claimant_id
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = claim_letters_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
@@ -85,7 +88,7 @@ module MebApi
 
       def enrollment
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.claimant_id
         if claimant_id.nil?
           render json: {
             data: {
@@ -110,7 +113,7 @@ module MebApi
 
       def submit_enrollment_verification
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.claimant_id
 
         if claimant_id.to_i.zero?
           render json: {
@@ -133,7 +136,7 @@ module MebApi
 
       def exclusion_periods
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.claimant_id
         exclusion_response = exclusion_period_service.get_exclusion_periods(claimant_id)
 
         render json: ExclusionPeriodSerializer.new(exclusion_response)

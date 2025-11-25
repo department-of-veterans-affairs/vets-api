@@ -2,8 +2,6 @@
 
 module HCA
   class SOAPParser < Common::Client::Middleware::Response::SOAPParser
-    include SentryLogging
-
     class ValidationError < StandardError
     end
 

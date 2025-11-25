@@ -48,7 +48,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     end
 
     it 'contains the correct properties' do
-      expect(desired_stamps[0][:text]).to eq form.signature_employed
+      expect(desired_stamps[0][:text]).to eq data['statement_of_truth_signature']
       expect(desired_stamps[0][:page]).to eq 1
     end
   end
@@ -99,9 +99,16 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it 'returns an array of four EmploymentHistory instances' do
       expect(employment_history.length).to eq 4
       expect(employment_history[0]).to be_a FormEngine::EmploymentHistory
-      expect(employment_history[0].lost_time).to eq data['employers'][0]['lost_time']
+      expect(employment_history[0].lost_time).to eq data['employers'][0]['lost_time_from_illness']
       expect(employment_history[3]).to be_a FormEngine::EmploymentHistory
       expect(employment_history[3].lost_time).to be_nil
+    end
+
+    it 'correctly parses nested employmentDates structure' do
+      expect(employment_history[0].date_started).to eq '03/15/2018'
+      expect(employment_history[0].date_ended).to eq '06/30/2020'
+      expect(employment_history[1].date_started).to eq '07/01/2020'
+      expect(employment_history[1].date_ended).to eq '09/13/2022'
     end
   end
 
@@ -111,6 +118,37 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it('is limited to twelve characters') do
       expect(data.dig('full_name', 'first').length).to be > 12
       expect(subject.length).to eq 12
+    end
+  end
+
+  describe '#get_attachments' do
+    subject { form.get_attachments }
+
+    context 'when supporting_evidence exists' do
+      let(:attachment1) { instance_double(PersistentAttachment) }
+      let(:attachment2) { instance_double(PersistentAttachment) }
+      let(:pdf1) { 'pdf_content_1' }
+      let(:pdf2) { 'pdf_content_2' }
+
+      before do
+        allow(PersistentAttachment).to receive(:where).with(
+          guid: %w[guid1 guid2]
+        ).and_return([attachment1, attachment2])
+        allow(attachment1).to receive(:to_pdf).and_return(pdf1)
+        allow(attachment2).to receive(:to_pdf).and_return(pdf2)
+      end
+
+      it 'returns an array of PDFs' do
+        expect(subject).to eq([pdf1, pdf2])
+      end
+    end
+
+    context 'when supporting_evidence does not exist' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it 'returns an empty array' do
+        expect(subject).to eq([])
+      end
     end
   end
 
@@ -131,7 +169,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
         {
           'veteranFirstName' => data.dig('full_name', 'first'),
           'veteranLastName' => data.dig('full_name', 'last'),
-          'fileNumber' => data['va_file_number'],
+          'fileNumber' => data.dig('id_number', 'va_file_number') || data.dig('id_number', 'ssn'),
           'zipCode' => data.dig('address', 'postal_code'),
           'source' => 'VA Platform Digital Forms',
           'docType' => data['form_number'],
@@ -252,6 +290,61 @@ RSpec.describe SimpleFormsApi::VBA214140 do
         expect(first_three).to be_nil
         expect(second_two).to be_nil
         expect(last_four).to be_nil
+      end
+    end
+  end
+
+  describe '#track_user_identity' do
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    context 'when user is employed' do
+      let(:data) do
+        {
+          'employers' => [
+            {
+              'employer_name' => 'Test Company',
+              'employment_start_date' => '2020-01-01'
+            }
+          ],
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' }
+        }
+      end
+
+      it 'tracks employed identity and logs information' do
+        described_class.new(data).track_user_identity('ABC123')
+
+        expect(StatsD).to have_received(:increment).with('api.simple_forms_api.21_4140.employed')
+        expect(Rails.logger).to have_received(:info).with(
+          'Simple forms api - 21-4140 submission user identity',
+          identity: 'employed',
+          confirmation_number: 'ABC123'
+        )
+      end
+    end
+
+    context 'when user is unemployed' do
+      let(:data) do
+        {
+          'unemployment_certifications' => {
+            'unemployment_certification' => true,
+            'accuracy_certification' => true
+          },
+          'full_name' => { 'first' => 'Jane', 'last' => 'Smith' }
+        }
+      end
+
+      it 'tracks unemployed identity and logs information' do
+        described_class.new(data).track_user_identity('XYZ789')
+
+        expect(StatsD).to have_received(:increment).with('api.simple_forms_api.21_4140.unemployed')
+        expect(Rails.logger).to have_received(:info).with(
+          'Simple forms api - 21-4140 submission user identity',
+          identity: 'unemployed',
+          confirmation_number: 'XYZ789'
+        )
       end
     end
   end

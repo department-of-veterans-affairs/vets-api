@@ -2,14 +2,19 @@
 
 require_relative 'exceptions/bgs_errors'
 require 'common/client/concerns/monitoring'
+require 'logging/helper/data_scrubber'
+require 'logging/helper/parameter_filter'
+require 'vets/shared_logging'
 
 module BGSV2
   class Service
     STATSD_KEY_PREFIX = 'api.bgs'
 
     include BGSV2::Exceptions::BGSErrors
-    include SentryLogging
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
+    include Logging::Helper::DataScrubber
+    include Logging::Helper::ParameterFilter
 
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
@@ -43,8 +48,6 @@ module BGSV2
     end
 
     def create_proc_form(vnp_proc_id, form_type_code)
-      # Temporary log proc_id to sentry
-      log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
           log_and_return({ vnp_proc_id:, form_type_cd: form_type_code }.merge(bgs_auth))
@@ -232,7 +235,7 @@ module BGSV2
         # using Settings.vsp_environment to determine environment to filter in
         filtered_env = %w[test production].include?(Settings.vsp_environment)
         # Filter sensitive parameters in production or test environment
-        logged_params = filtered_env ? ParameterFilterHelper.filter_params(params) : params
+        logged_params = filtered_env ? scrub(filter_params(params)) : params
         Rails.logger.info('[BGSV2::Service] log_and_return called', { params: logged_params })
       end
       params

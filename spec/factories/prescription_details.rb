@@ -9,7 +9,7 @@ FactoryBot.define do
     refill_remaining                { 9 }
     facility_name                   { 'ABC1223' }
     ordered_date                    { 'Tue, 29 Mar 2016 00:00:00 EDT' }
-    quantity                        { 10 }
+    quantity                        { '10' }
     expiration_date                 { 'Thu, 30 Mar 2017 00:00:00 EDT' }
     prescription_number             { '2719324' }
     prescription_name               { 'Drug 1 250MG TAB' }

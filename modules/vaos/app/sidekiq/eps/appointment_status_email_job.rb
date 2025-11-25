@@ -14,18 +14,18 @@ module Eps
   #
   class AppointmentStatusEmailJob
     include Sidekiq::Job
-    include SentryLogging
+    include VAOS::CommunityCareConstants
 
     # 14 retries to span approximately 25 hours, this is to allow for unexpected outage of the
     # external messaging service. If the service is down for more than 25 hours, the job will
     # be sent to the dead queue where it can be manually retried once it is confirmed the service
     # is back up.
     sidekiq_options retry: 14
-    STATSD_KEY = 'api.vaos.appointment_status_email_job'
+    STATSD_KEY = "#{STATSD_PREFIX}.appointment_status_email_job".freeze
     STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
     STATSD_CC_SILENT_FAILURE_TAGS = [
-      'service:vaos',
-      'function: Community Care Appointment Status Notification Failure'
+      COMMUNITY_CARE_SERVICE_TAG,
+      'function:appointment_status_email_job'
     ].freeze
 
     ##
@@ -61,7 +61,7 @@ module Eps
       user_uuid = msg['args'][0]
       appointment_id_last4 = msg['args'][1]
 
-      message = 'Eps::AppointmentStatusEmailJob retries exhausted: ' \
+      message = "#{self.class} retries exhausted: " \
                 "#{error_class} - #{error_message}"
       log_failure(error: ex, message:, user_uuid:, appointment_id_last4:, permanent: true)
     end
@@ -70,7 +70,7 @@ module Eps
     # Logs job failures with appropriate error tracking and metrics.
     #
     # Handles both temporary failures (which allow retries) and permanent failures
-    # (which stop retry attempts). Logs to Rails logger, Sentry, and StatsD for
+    # (which stop retry attempts). Logs to Rails logger, and StatsD for
     # comprehensive error tracking.
     #
     # @param error [Exception] The exception that caused the failure
@@ -82,15 +82,17 @@ module Eps
     # @raise [Exception] Re-raises the original error if not permanent
     #
     def self.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: false)
-      Rails.logger.error(message, { user_uuid:, appointment_id_last4: })
-      SentryLogging.log_exception_to_sentry(
-        error,
-        { user_uuid:, appointment_id_last4: },
-        { error: :eps_appointment_email_job, team: 'vaos' }
-      )
+      error_data = {
+        error_class: error.class.name,
+        error_message: error.message,
+        user_uuid:,
+        appointment_id_last4:
+      }
+
+      Rails.logger.error("#{CC_APPOINTMENTS}: #{message}", error_data)
 
       if permanent
-        StatsD.increment("#{STATSD_KEY}.failure", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_KEY}.failure", tags: [COMMUNITY_CARE_SERVICE_TAG])
         StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
       else
         raise error
@@ -145,7 +147,7 @@ module Eps
 
       email
     rescue ArgumentError => e
-      message = "Eps::AppointmentStatusEmailJob #{e.message}: " \
+      message = "#{self.class} #{e.message}: " \
                 "User UUID: #{user_uuid} - Appointment ID: #{appointment_id_last4}"
       self.class.log_failure(error: e, message:, user_uuid:, appointment_id_last4:, permanent: true)
       nil
@@ -167,15 +169,15 @@ module Eps
     #
     def handle_exception(error:, user_uuid:, appointment_id_last4:)
       if error.respond_to?(:status_code) && error.status_code >= 400 && error.status_code < 500
-        message = 'Eps::AppointmentStatusEmailJob upstream error - will not retry: ' \
+        message = "#{self.class} upstream error - will not retry: " \
                   "#{error.status_code} - #{error.message}"
         self.class.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: true)
       elsif error.respond_to?(:status_code)
-        message = 'Eps::AppointmentStatusEmailJob upstream error - will retry: ' \
+        message = "#{self.class} upstream error - will retry: " \
                   "#{error.status_code} - #{error.message}"
         self.class.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: false)
       else
-        message = 'Eps::AppointmentStatusEmailJob unexpected error: ' \
+        message = "#{self.class} unexpected error: " \
                   "#{error.class.name} - #{error.message}"
         self.class.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: true)
       end
@@ -190,7 +192,7 @@ module Eps
           user_uuid:,
           appointment_id_last4:,
           statsd_tags: {
-            service: 'vaos',
+            service: 'community_care_appointments',
             function: 'appointment_submission_failure_notification'
           }
         }

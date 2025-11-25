@@ -4,6 +4,21 @@ require 'rails_helper'
 require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
+  let(:user) do
+    create(
+      :evss_user,
+      :loa3,
+      icn: '1012829228V424035',
+      birth_date: '1963-07-05',
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      suffix: 'Jr.',
+      ssn: '111111234',
+      gender: 'F'
+    )
+  end
+
   describe '#get_ezr_data' do
     let(:veteran_data) do
       data = JSON.parse(File.read('spec/fixtures/form1010_ezr/veteran_data.json'))
@@ -20,15 +35,15 @@ describe HCA::EnrollmentEligibility::Service do
       ) do
         expect(
           described_class.new.get_ezr_data(
-            '1012829228V424035'
+            user
           ).to_h.deep_stringify_keys
         ).to eq(veteran_data)
       end
     end
 
-    context "when 'ezr_prefill_contacts' flipper is disabled" do
+    context "when 'ezr_emergency_contacts_enabled' flipper is disabled" do
       before do
-        allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(false)
       end
 
       context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
@@ -54,9 +69,9 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when 'ezr_prefill_contacts' flipper is enabled" do
+    context "when 'ezr_emergency_contacts_enabled' flipper is enabled" do
       before do
-        allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(true)
       end
 
       context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do

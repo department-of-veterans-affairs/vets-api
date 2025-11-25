@@ -29,7 +29,7 @@ RSpec.describe DependentsVerification::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -52,7 +52,7 @@ RSpec.describe DependentsVerification::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -123,7 +123,7 @@ RSpec.describe DependentsVerification::Monitor do
           claim_id: claim.id,
           form_id: claim.form_id,
           errors: [],
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -194,7 +194,7 @@ RSpec.describe DependentsVerification::Monitor do
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 

@@ -27,13 +27,15 @@ module SM
 
           data =  parsed_threads_object ||
                   parsed_presigned_s3_url ||
+                  parsed_aws_s3_attachment_meta ||
                   parsed_all_triage ||
                   parsed_triage   ||
                   preferences     ||
                   parsed_folders  ||
                   normalize_message(parsed_messages) ||
                   parsed_categories ||
-                  parsed_signature
+                  parsed_signature ||
+                  parsed_status
           @parsed_json = {
             data:,
             errors: @errors,
@@ -43,7 +45,14 @@ module SM
         end
 
         def parsed_presigned_s3_url
-          @parsed_json if @parsed_json.is_a?(String) && @parsed_json.match?(%r{\Ahttps?://[\S]+\z})
+          @parsed_json if @parsed_json.is_a?(String) && @parsed_json.match?(%r{\Ahttps?://\S+\z})
+        end
+
+        def parsed_aws_s3_attachment_meta
+          if @parsed_json.is_a?(Hash) && @parsed_json.key?(:url) &&
+             @parsed_json.key?(:mime_type) && @parsed_json.key?(:name)
+            @parsed_json
+          end
         end
 
         def parsed_threads
@@ -94,6 +103,10 @@ module SM
 
         def parsed_signature
           @parsed_json.key?(:signature_name) ? @parsed_json : @parsed_json[:signature_name]
+        end
+
+        def parsed_status
+          @parsed_json.key?(:status) ? @parsed_json : nil
         end
 
         def split_errors!

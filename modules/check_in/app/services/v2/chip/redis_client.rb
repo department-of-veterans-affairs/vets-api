@@ -7,7 +7,7 @@ module V2
 
       attr_reader :settings
 
-      def_delegators :settings, :redis_session_prefix, :tmp_api_id
+      def_delegators :settings, :redis_session_prefix
 
       def self.build
         new
@@ -35,6 +35,14 @@ module V2
 
       def session_id
         @session_id ||= "#{redis_session_prefix}_#{tmp_api_id}"
+      end
+
+      def use_vaec_cie_endpoints?
+        Flipper.enabled?('check_in_experience_use_vaec_cie_endpoints') || false
+      end
+
+      def tmp_api_id
+        use_vaec_cie_endpoints? ? settings.tmp_api_id_v2 : settings.tmp_api_id
       end
     end
   end

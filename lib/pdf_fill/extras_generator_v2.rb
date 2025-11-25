@@ -2,6 +2,8 @@
 
 module PdfFill
   class ExtrasGeneratorV2 < ExtrasGenerator
+    attr_reader :section_coordinates, :use_hexapdf
+
     HEADER_FONT_SIZE = 14.5
     SUBHEADER_FONT_SIZE = 10.5
     FOOTER_FONT_SIZE = 9
@@ -11,6 +13,14 @@ module PdfFill
     MEAN_CHAR_WIDTH = 4.5
     HEADER_BODY_GAP = 25
     BODY_FOOTER_GAP = 27
+    # Constants for the back to section link text boxes
+    BOUNDING_BOX_X_OFFSET = 20
+    BOUNDING_BOX_Y_OFFSET = 5
+    BOUNDING_BOX_HEIGHT = 15
+    FORMATTED_TEXT_BOX_X = 0
+    FORMATTED_TEXT_BOX_Y = 7
+    TEXT_SIZE = 10.5
+    TEXT_COLOR = '005EA2'
 
     class Question
       attr_accessor :section_index, :overflow, :config, :index
@@ -353,8 +363,11 @@ module PdfFill
       @start_page             = options[:start_page] || 1
       @sections               = options[:sections]
       @default_label_width    = options[:label_width] || LABEL_WIDTH
+      @show_jumplinks         = options[:show_jumplinks] || false
+      @section_coordinates    = options[:section_coordinates] || []
+      @use_hexapdf            = options[:use_hexapdf] || false
       @questions              = {}
-      super()
+      super(options)
     end
 
     def placeholder_text
@@ -541,8 +554,7 @@ module PdfFill
     end
 
     def render_question(pdf, block, section_index, current_section_index, block_heights)
-      page_break_inserted = handle_regular_question_page_break(pdf, block, section_index, block_heights)
-      current_section_index = nil if page_break_inserted
+      handle_regular_question_page_break(pdf, block, section_index, block_heights)
       current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
       block.render(pdf)
 
@@ -550,8 +562,7 @@ module PdfFill
     end
 
     def render_list_question(pdf, block, section_index, current_section_index, block_heights)
-      page_break_inserted = handle_list_title_page_break(pdf, block, section_index, block_heights)
-      current_section_index = nil if page_break_inserted
+      handle_list_title_page_break(pdf, block, section_index, block_heights)
       current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
       block.render_title(pdf)
       render_list_items(pdf, block, block_heights)
@@ -571,10 +582,68 @@ module PdfFill
            end
     end
 
+    def calculate_text_box_position(pdf, section_label, start_y, section)
+      x_same_line_placement = pdf.width_of(section[:label].to_s) + BOUNDING_BOX_X_OFFSET
+      y_same_line_placement = start_y - BOUNDING_BOX_Y_OFFSET
+      {
+        width: pdf.width_of("Back to #{section_label}"),
+        x: section[:link_next_line] ? pdf.bounds.left - 10 : x_same_line_placement,
+        y: section[:link_next_line] ? start_y + 3 : y_same_line_placement
+      }
+    end
+
+    def create_formatted_text_options(return_text)
+      [{
+        text: return_text,
+        color: TEXT_COLOR,
+        size: TEXT_SIZE,
+        styles: [:underline]
+      }]
+    end
+
+    def render_back_to_section_text(pdf, section_index, start_y)
+      section = @sections[section_index]
+      return unless %i[page dest_name dest_y_coord].all? { |key| section.key?(key) }
+
+      short_section_label = section[:label].split(':')[0]
+      box_position = calculate_text_box_position(pdf, short_section_label, start_y, section)
+      pdf.bounding_box(
+        [box_position[:x], box_position[:y]],
+        width: box_position[:width],
+        height: BOUNDING_BOX_HEIGHT
+      ) do
+        pdf.formatted_text_box(
+          create_formatted_text_options("Back to #{short_section_label}"),
+          at: [FORMATTED_TEXT_BOX_X, FORMATTED_TEXT_BOX_Y],
+          width: box_position[:width],
+          height: BOUNDING_BOX_HEIGHT,
+          align: :right
+        )
+      end
+
+      store_section_coordinates(pdf, section_index, box_position)
+    end
+
+    def store_section_coordinates(pdf, section_index, box_position)
+      (@section_coordinates ||= []) << {
+        section: section_index,
+        page: pdf.page_count,
+        x: box_position[:x] + 45,
+        y: box_position[:y] + 40,
+        width: box_position[:width],
+        height: 20,
+        dest: @sections[section_index][:dest_name]
+      }
+    end
+
     def render_new_section(pdf, section_index)
       return if @sections.blank?
 
+      start_y = pdf.cursor # gets the starting position to align the return text with the section header
       pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
+      start_y = pdf.cursor if section_index == 2
+
+      render_back_to_section_text(pdf, section_index, start_y) if @show_jumplinks
     end
 
     def set_header(pdf)

@@ -3,7 +3,6 @@
 require_relative 'base'
 require_relative 'gender_identity'
 require_relative 'preferred_name'
-require 'common/models/attribute_types/iso8601_time'
 
 module VAProfile
   module Models

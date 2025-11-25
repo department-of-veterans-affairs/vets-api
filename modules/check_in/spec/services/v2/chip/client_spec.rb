@@ -144,7 +144,7 @@ describe V2::Chip::Client do
       end
 
       it 'returns success response' do
-        expect_any_instance_of(SentryLogging).not_to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_exception_to_sentry)
 
         expect(subject.set_precheckin_started(token:)).to eq(resp)
       end
@@ -152,7 +152,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -200,7 +200,7 @@ describe V2::Chip::Client do
       end
 
       it 'returns success response' do
-        expect_any_instance_of(SentryLogging).not_to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_exception_to_sentry)
 
         expect(subject.set_echeckin_started(token:, appointment_attributes:)).to eq(resp)
       end
@@ -208,7 +208,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -216,7 +216,7 @@ describe V2::Chip::Client do
       end
 
       it 'handles the exception and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry)
 
         expect { subject.set_echeckin_started(token:, appointment_attributes:) }
           .to raise_error Common::Exceptions::BackendServiceException
@@ -357,7 +357,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'Unknown error' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -365,11 +365,55 @@ describe V2::Chip::Client do
       end
 
       it 'handles the exception and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry)
 
         response = subject.delete(token:)
         expect(response.status).to eq(resp.status)
         expect(response.body).to eq(resp.body)
+      end
+    end
+  end
+
+  describe 'feature flag behavior' do
+    let(:chip_token_response) { Faraday::Response.new(body: { 'token' => 'abc123' }, status: 200) }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(chip_token_response)
+    end
+
+    context 'when check_in_experience_use_vaec_cie_endpoints flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_use_vaec_cie_endpoints').and_return(false)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+      end
+
+      it 'uses original settings' do
+        expect(subject.send(:url)).to eq(Settings.check_in.chip_api_v2.url)
+        expect(subject.send(:base_path)).to eq(Settings.check_in.chip_api_v2.base_path)
+        expect(subject.send(:tmp_api_id)).to eq(Settings.check_in.chip_api_v2.tmp_api_id)
+      end
+
+      it 'makes requests to original endpoints' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with('/dev/token')
+        subject.token
+      end
+    end
+
+    context 'when check_in_experience_use_vaec_cie_endpoints flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_use_vaec_cie_endpoints').and_return(true)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+      end
+
+      it 'uses v2 settings' do
+        expect(subject.send(:url)).to eq(Settings.check_in.chip_api_v2.url_v2)
+        expect(subject.send(:base_path)).to eq(Settings.check_in.chip_api_v2.base_path_v2)
+        expect(subject.send(:tmp_api_id)).to eq(Settings.check_in.chip_api_v2.tmp_api_id_v2)
+      end
+
+      it 'makes requests to v2 endpoints' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with('/dev/token')
+        subject.token
       end
     end
   end

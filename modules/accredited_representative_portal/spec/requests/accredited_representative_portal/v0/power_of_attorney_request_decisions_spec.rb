@@ -10,22 +10,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
 
-  let!(:accredited_individual) do
-    create(
-      :user_account_accredited_individual,
-      user_account_email: test_user.email,
-      user_account_icn: test_user.icn,
-      accredited_individual_registration_number: '357458',
-      poa_code:
-    )
-  end
-
   let!(:representative) do
     create(
       :representative,
       :vso,
       email: test_user.email,
-      representative_id: accredited_individual.accredited_individual_registration_number,
+      representative_id: Faker::Number.unique.number(digits: 6),
       poa_codes: [poa_code]
     )
   end
@@ -50,16 +40,46 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     allow(Auth::ClientCredentials::Service).to receive(:new).and_return(client_credentials_service)
     allow(client_credentials_service).to receive(:get_token).and_return('<TOKEN>')
 
-    allow(Flipper).to receive(:enabled?)
-      .with(:accredited_representative_portal_pilot,
-            instance_of(AccreditedRepresentativePortal::RepresentativeUser))
-      .and_return(true)
-
     poa_request.claimant.update!(icn: '1012666183V089914')
     login_as(test_user)
   end
 
-  after { Flipper.disable(:accredited_representative_portal_pilot) }
+  def stub_ar_monitoring(controller: 'power_of_attorney_request_decisions', action: 'create')
+    span_double = double('span', set_tag: true)
+    monitor = instance_double(
+      AccreditedRepresentativePortal::Monitoring,
+      track_duration: true,
+      track_count: true
+    )
+    allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_call_original
+    allow(AccreditedRepresentativePortal::Monitoring).to receive(:new)
+      .with(
+        'accredited-representative-portal',
+        default_tags: array_including("controller:#{controller}", "action:#{action}")
+      ).and_return(monitor)
+    allow(monitor).to receive(:trace) { |_, &blk| blk&.call(span_double) }
+    monitor
+  end
+
+  def expect_poa_metrics(monitor:, decision:, request:)
+    expected_tags = array_including("poa_code:#{request.power_of_attorney_holder_poa_code}",
+                                    "decision:#{decision}")
+    expect(monitor).to have_received(:track_duration).with(
+      'ar.poa.request.duration',
+      from: request.created_at,
+      tags: expected_tags
+    )
+    metric = if decision == 'accepted'
+               'ar.poa.request.accepted.duration'
+             else
+               'ar.poa.request.declined.duration'
+             end
+    expect(monitor).to have_received(:track_duration).with(
+      metric,
+      from: request.created_at,
+      tags: expected_tags
+    )
+  end
 
   describe 'POST /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
     context "when user's VSO does not accept digital POAs" do
@@ -70,6 +90,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
              params: { decision: { type: 'acceptance' } }
 
         expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when POA request is withdrawn' do
+      let!(:withdrawn_request) do
+        resolution = create(:power_of_attorney_request_resolution, :replacement)
+        resolution.power_of_attorney_request
+      end
+
+      it 'returns 404 Not Found and does not process a decision' do
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{withdrawn_request.id}/decision",
+             params: { decision: { type: 'acceptance' } }
+
+        expect(response).to have_http_status(:not_found)
+        expect(response.parsed_body).to eq({ 'errors' => ['Record not found'] })
       end
     end
 
@@ -107,18 +142,42 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     context 'with valid params' do
       it 'creates an acceptance decision' do
         expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
+        monitor = stub_ar_monitoring
 
         # Mock the service to handle the acceptance
         accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
           .to receive(:new)
-          .with(poa_request, anything)
+          .with(poa_request, anything, anything)
           .and_return(accept_service)
+
+        memberships =
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+            icn: '1234', emails: []
+          )
+
+        allow(memberships).to(
+          receive(:all).and_return(
+            [
+              AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+                registration_number: '1234',
+                power_of_attorney_holder:
+                  AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                    poa_code: poa_request.power_of_attorney_holder_poa_code,
+                    type: poa_request.power_of_attorney_holder_type,
+                    can_accept_digital_poa_requests: false,
+                    name: 'Org Name'
+                  )
+              )
+            ]
+          )
+        )
 
         allow(accept_service).to receive(:call) do
           # Create the decision directly as a side effect
           AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator: test_user.user_account,
+            creator_id: test_user.user_account_uuid,
+            power_of_attorney_holder_memberships: memberships,
             power_of_attorney_request: poa_request
           )
         end
@@ -133,11 +192,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(poa_request.resolution).to be_present
         expect(poa_request.resolution.resolving.type)
           .to eq('PowerOfAttorneyRequestAcceptance')
+        expect_poa_metrics(monitor:, decision: 'accepted', request: poa_request)
       end
 
       it 'creates a declination decision with both key and no free-form reason' do
         expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
           .to receive(:perform_async)
+        monitor = stub_ar_monitoring
+        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+          .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: {
@@ -151,11 +214,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         poa_request.reload
         expect(poa_request.resolution.resolving.type)
           .to eq('PowerOfAttorneyRequestDeclination')
+        expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
       end
 
       it 'creates a declination decision when no reason param is passed (declination only)' do
         expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
           .to receive(:perform_async)
+        monitor = stub_ar_monitoring
+        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+          .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: {
@@ -169,6 +236,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         poa_request.reload
         expect(poa_request.resolution.resolving.type)
           .to eq('PowerOfAttorneyRequestDeclination')
+        expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
       end
     end
 
@@ -184,7 +252,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
           .to receive(:new)
-          .with(poa_request, anything)
+          .with(poa_request, anything, anything)
           .and_return(accept_service)
 
         allow(accept_service).to receive(:call)
@@ -235,12 +303,35 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
       allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         .to receive(:new)
-        .with(poa_request, anything)
+        .with(poa_request, anything, anything)
         .and_return(accept_service)
+
+      memberships =
+        AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+          icn: '1234', emails: []
+        )
+
+      allow(memberships).to(
+        receive(:all).and_return(
+          [
+            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                  poa_code: poa_request.power_of_attorney_holder_poa_code,
+                  type: poa_request.power_of_attorney_holder_type,
+                  can_accept_digital_poa_requests: false,
+                  name: 'Org Name'
+                )
+            )
+          ]
+        )
+      )
 
       allow(accept_service).to receive(:call) do
         AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-          creator: test_user.user_account,
+          creator_id: test_user.user_account_uuid,
+          power_of_attorney_holder_memberships: memberships,
           power_of_attorney_request: poa_request
         )
       end
@@ -280,7 +371,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
       allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         .to receive(:new)
-        .with(poa_request, anything)
+        .with(poa_request, anything, anything)
         .and_return(accept_service)
 
       allow(accept_service).to receive(:call)
@@ -311,7 +402,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
       allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         .to receive(:new)
-        .with(poa_request, anything)
+        .with(poa_request, anything, anything)
         .and_return(accept_service)
 
       allow(accept_service).to receive(:call)

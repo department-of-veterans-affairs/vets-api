@@ -1,0 +1,1726 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
+    body:
+      encoding: UTF-8
+      string: '{"appId":1000,"appToken":"example token","subject":"VA.gov SCDF Proxy Client","userType":"SYSTEM"}'
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 02 Jun 2025 15:11:25 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-974331846", dtSInfo;desc="0"
+      Vary:
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - Origin
+      Authorization: Bearer <TOKEN>
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Frame-Options:
+      - DENY
+    body:
+      encoding: UTF-8
+      string: '{"id":702,"name":"VA.gov SCDF Proxy Client","permissions":["system/Practitioner.read","system/Condition.read","system/ServiceRequest.read","Patient","system/Immunization.read","system/Person.read","system/Location.read","system/Procedure.read","System","system/DiagnosticReport.read","system/AllergyIntolerance.read","system/Patient.read","system/Organization.read","system/RelatedPerson.read","system/DocumentReference.read","system/Observation.read","system/Binary.read","system/Encounter.read"]}'
+  recorded_at: Mon, 02 Jun 2025 15:11:24 GMT
+- request:
+    method: get
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/allergies?endDate=2025-06-02&patientId=1000123456V123456&startDate=1900-01-01"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Authorization: Bearer <TOKEN>
+      X-Api-Key:
+      - fakeapikey
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 02 Jun 2025 15:11:26 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '81542'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 70384c50-e1ab-4e0f-a9c0-acbfeb8c133d
+      X-Xss-Protection:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Amzn-Remapped-Content-Length:
+      - '81542'
+      X-Frame-Options:
+      - DENY
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - LirMyGJLPHMFVmw=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      Server-Timing:
+      - dtRpid;desc="-141260006", dtSInfo;desc="0"
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Mon, 02 Jun 2025 15:11:26 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "vista": {
+            "resourceType": "Bundle",
+            "type": "collection",
+            "entry": [
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.allergyIntolerance"
+                        ]
+                    },
+                    "extension": [
+                        {
+                        "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/allergyObservedHistoric",
+                        "valueCode": "h"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                        "use": "official",
+                        "system": "https://va.gov/systems/583_120.8",
+                        "value": "2678"
+                        }
+                    ],
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system": "https://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active"
+                        }
+                        ]
+                    },
+                    "category": [
+                        "medication"
+                    ],
+                    "code": {
+                        "text": "TRAZODONE"
+                    },
+                    "patient": { "reference": "Patient/1014042380V807862" }
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.allergyIntolerance"
+                        ]
+                    },
+                    "extension": [
+                        {
+                        "url":
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/allergyObservedHistoric",
+                        "valueCode": "h"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                        "use": "official",
+                        "system": "https://va.gov/systems/504_120.8",
+                        "value": "30624"
+                        }
+                    ],
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "https://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active"
+                        }
+                        ]
+                    },
+                    "category": [
+                        "medication"
+                    ],
+                    "code": {
+                        "text": "NKA (NO KNOWN ALLERGY)"
+                    },
+                    "patient": {
+                        "reference": "Patient/1014135410V826374"
+                    },
+                    "note": [
+                        {
+                        "time": "1994-10-05T15:54:34+00:00",
+                        "text": "PER PAN 10-5-94"
+                        }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.allergyIntolerance"
+                        ]
+                    },
+                    "extension": [
+                        {
+                        "url": 
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/allergyObservedHistoric",
+                        "valueCode": "h"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                        "use": "official",
+                        "system": "https://va.gov/systems/583_120.8",
+                        "value": "2679"
+                        }
+                    ],
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system": "https://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active"
+                        }
+                        ]
+                    },
+                    "category": [
+                        "medication"
+                    ],
+                    "code": {
+                        "text": "MAXZIDE"
+                    },
+                    "patient": {
+                        "reference": "Patient/1014042380V807862"
+                    }
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.allergyIntolerance"
+                        ]
+                    },
+                    "extension": [
+                        {
+                        "url":
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/allergyObservedHistoric",
+                        "valueCode": "h"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                        "use": "official",
+                        "system": "https://va.gov/systems/583_120.8",
+                        "value": "2677"
+                        }
+                    ],
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system": "https://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active"
+                        }
+                        ]
+                    },
+                    "category": [
+                        "medication"
+                    ],
+                    "code": {
+                        "text": "INDOMETHACIN"
+                    },
+                    "patient": {
+                        "reference": "Patient/1014042380V807862"
+                    }
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.allergyIntolerance"
+                        ]
+                    },
+                    "extension": [
+                        {
+                        "url":
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/allergyObservedHistoric",
+                        "valueCode": "h"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                        "use": "official",
+                        "system": "https://va.gov/systems/583_120.8",
+                        "value": "2676"
+                        }
+                    ],
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "https://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "entered-in-error"
+                        }
+                        ]
+                    },
+                    "category": [
+                        "medication"
+                    ],
+                    "code": {
+                        "text": "ASPIRIN"
+                    },
+                    "patient": {
+                        "reference": "Patient/1014042380V807862"
+                    }
+                    }
+                }
+            ]
+        },
+        "oracle-health": {
+            "resourceType": "Bundle",
+            "type": "collection",
+            "entry": [
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132892323",
+                    "meta": {
+                        "versionId": "132892333",
+                        "lastUpdated": "2025-02-25T17:51:06Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Allergy</b>: Penicillin</p><p><b>Verification Status</b>: Confirmed</p><p><b>Clinical Status</b>: Active</p><p><b>Criticality</b>: High Risk</p><p><b>Category</b>: Medication</p><p><b>Reactions</b>: Urticaria (Hives), Sneezing</p><p><b>Onset</b>: 2002</p><p><b>Note</b>: Patient reports adverse reaction to previously prescribed pencicillins - 2025-02-25T17:50:49Z - Borland, Victoria A</p></div>"
+                    },
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active",
+                            "display": "Active"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "confirmed",
+                            "display": "Confirmed"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "type": "allergy",
+                    "category": [
+                        "medication"
+                    ],
+                    "criticality": "high",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "764146007",
+                            "display": "Penicillin"
+                        }
+                        ],
+                        "text": "penicillins"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415180",
+                        "display": "SILVA, ALEXANDER RICARDO"
+                    },
+                    "encounter": {
+                        "reference": "Encounter/248295631"
+                    },
+                    "onsetDateTime": "2002",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639013",
+                                "display": "<not entered>",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "<not entered>"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2025-02-25T17:50:49Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "note": [
+                        {
+                        "id": "132892329",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2025-02-25T17:50:49Z",
+                        "text": "Patient reports adverse reaction to previously prescribed pencicillins"
+                        }
+                    ],
+                    "reaction": [
+                        {
+                        "id": "132892327",
+                        "manifestation": [
+                            {
+                            "text": "Urticaria (Hives)"
+                            }
+                        ]
+                        },
+                        {
+                        "id": "132892325",
+                        "manifestation": [
+                            {
+                            "text": "Sneezing"
+                            }
+                        ]
+                        }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "Patient",
+                    "id": "66415180",
+                    "meta": {
+                        "versionId": "23",
+                        "lastUpdated": "2025-06-14T15:47:57.000Z"
+                    },
+                    "text": {
+                        "status": "extensions",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Patient</b></p><p><b>Name</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Active</p><p><b>DOB</b>: Mar  1, 1990</p><p><b>Birth Sex</b>: Male</p><p><b>Administrative Gender</b>: Male</p></div>"
+                    },
+                    "extension": [
+                        {
+                        "url":
+                            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+                        "valueCode": "M"
+                        },
+                        {
+                        "url":
+                            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+                        "extension": [
+                            {
+                            "url": "ombCategory",
+                            "valueCoding": {
+                                "system": "urn:oid:2.16.840.1.113883.6.238",
+                                "code": "2054-5",
+                                "display": "Black or African American",
+                                "userSelected": false
+                            }
+                            },
+                            {
+                            "url": "text",
+                            "valueString": "Black or African American"
+                            }
+                        ]
+                        },
+                        {
+                        "url":
+                            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+                        "extension": [
+                            {
+                            "url": "ombCategory",
+                            "valueCoding": {
+                                "system": "urn:oid:2.16.840.1.113883.6.238",
+                                "code": "2186-5",
+                                "display": "Not Hispanic or Latino",
+                                "userSelected": false
+                            }
+                            },
+                            {
+                            "url": "text",
+                            "valueString": "Not Hispanic or Latino"
+                            }
+                        ]
+                        }
+                    ],
+                    "identifier": [
+                        {
+                        "id": "CI-7542266848-0",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "10",
+                                "display": "MRN",
+                                "userSelected": true
+                            },
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MR",
+                                "display": "Medical record number",
+                                "userSelected": false
+                            }
+                            ],
+                            "text": "MRN"
+                        },
+                        "_system": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                                "valueCode": "unknown"
+                            }
+                            ]
+                        },
+                        "value": "83617932000001",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "83617932000001"
+                            }
+                            ]
+                        },
+                        "period": {
+                            "start": "2024-12-11T14:34:10.000Z"
+                        }
+                        },
+                        {
+                        "id": "CI-7542266842-2",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "22",
+                                "display": "DOD ID",
+                                "userSelected": true
+                            }
+                            ],
+                            "text": "DOD ID"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.3.42.10001.100001.12",
+                        "value": "2116901415",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "2116901415"
+                            }
+                            ]
+                        },
+                        "period": {
+                            "start": "2024-12-11T14:34:10.000Z"
+                        }
+                        },
+                        {
+                        "id": "CI-7542948825-3",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "670843",
+                                "display": "Messaging",
+                                "userSelected": true
+                            },
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "U",
+                                "display": "Unspecified identifier",
+                                "userSelected": false
+                            }
+                            ],
+                            "text": "Messaging"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                        "value": "1014135410V826374",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "1014135410V826374"
+                            }
+                            ]
+                        }
+                        },
+                        {
+                        "id": "CI-7542948823-4",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "165915171",
+                                "display": "Federated Person Principal",
+                                "userSelected": true
+                            },
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "AN",
+                                "display": "Account number",
+                                "userSelected": false
+                            }
+                            ],
+                            "text": "Federated Person Principal"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.3.13.6",
+                        "value":
+                            "URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2116901415",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString":
+                                "URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2116901415"
+                            }
+                            ]
+                        }
+                        },
+                        {
+                        "id": "CI-7542948827-5",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "165915179",
+                                "display": "MIllennium Person Identifier",
+                                "userSelected": true
+                            }
+                            ],
+                            "text": "MIllennium Person Identifier"
+                        },
+                        "_system": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                                "valueCode": "unknown"
+                            }
+                            ]
+                        },
+                        "value": "3327253",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "3327253"
+                            }
+                            ]
+                        },
+                        "period": {
+                            "start": "2025-01-09T16:51:21.000Z"
+                        }
+                        },
+                        {
+                        "id": "CI-7542266844-6",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "246779987",
+                                "display": "Veteran ID",
+                                "userSelected": true
+                            }
+                            ],
+                            "text": "Veteran ID"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.4.349",
+                        "value": "1014135410V826374",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "1014135410V826374"
+                            }
+                            ]
+                        },
+                        "period": {
+                            "start": "2024-12-11T14:34:10.000Z"
+                        }
+                        }
+                    ],
+                    "active": true,
+                    "name": [
+                        {
+                        "id": "CI-66415180-0",
+                        "use": "official",
+                        "text": "SILVA, ALEXANDER RICARDO",
+                        "family": "SILVA",
+                        "given": ["ALEXANDER", "RICARDO"],
+                        "period": {
+                            "start": "2024-12-11T14:34:10.000Z"
+                        }
+                        }
+                    ],
+                    "telecom": [
+                        {
+                        "id": "CI-PH-707231590-0",
+                        "extension": [
+                            {
+                            "url":
+                                "http://hl7.org/fhir/StructureDefinition/iso21090-TEL-address",
+                            "valueUrl": "+3365521234"
+                            }
+                        ],
+                        "system": "phone",
+                        "value": "3365521234",
+                        "use": "home",
+                        "rank": 1,
+                        "period": {
+                            "start": "2025-03-12T15:42:38.000Z"
+                        }
+                        },
+                        {
+                        "id": "CI-EM-707309339-0",
+                        "system": "email",
+                        "value": "vagovohtestpatient+silva@gmail.com",
+                        "use": "home",
+                        "rank": 1,
+                        "period": {
+                            "start": "2025-06-14T15:46:50.000Z"
+                        }
+                        }
+                    ],
+                    "gender": "male",
+                    "birthDate": "1990-03-01",
+                    "address": [
+                        {
+                        "id": "CI-737335623-0",
+                        "use": "home",
+                        "text": "234 TESTING\nKANSAS CITY, MO 87944\nUS",
+                        "line": ["234 TESTING"],
+                        "city": "KANSAS CITY",
+                        "state": "MO",
+                        "postalCode": "87944",
+                        "country": "US",
+                        "period": {
+                            "start": "2025-03-12T15:42:38.000Z"
+                        }
+                        },
+                        {
+                        "id": "CI-737335625-1",
+                        "use": "billing",
+                        "text": "234 TESTING\nKansas City, MO 87944\nUS",
+                        "line": ["234 TESTING"],
+                        "city": "Kansas City",
+                        "state": "MO",
+                        "postalCode": "87944",
+                        "country": "US",
+                        "period": {
+                            "start": "2025-03-12T15:42:38.000Z"
+                        }
+                        }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132316417",
+                    "meta": {
+                        "versionId": "132316417",
+                        "lastUpdated": "2024-12-17T18:47:21Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: GUSTAV, HOOPER J</p><p><b>Allergy</b>: Oxymorphone</p><p><b>Verification Status</b>: Confirmed</p><p><b>Clinical Status</b>: Active</p><p><b>Criticality</b>: High Risk</p><p><b>Category</b>: Medication</p><p><b>Reactions</b>: Anaphylaxis</p><p><b>Onset</b>: 2019</p><p><b>Note</b>: Testing Contraindication type reaction - 2024-12-17T18:47:21Z - Borland, Victoria A - Secondary comment for contraindication - 2024-12-17T18:47:21Z - Borland, Victoria A</p></div>"
+                    },
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active",
+                            "display": "Active"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "confirmed",
+                            "display": "Confirmed"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "type": "intolerance",
+                    "category": ["medication"],
+                    "criticality": "high",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                            "code": "7814",
+                            "display": "Oxymorphone"
+                        }
+                        ],
+                        "text": "Opana"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "encounter": { "reference": "Encounter/248112845" },
+                    "onsetDateTime": "2019",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639013",
+                                "display": "<not entered>",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "<not entered>"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2024-12-17T18:47:21Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "note": [
+                        {
+                        "id": "132316421",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2024-12-17T18:47:21Z",
+                        "text": "Testing Contraindication type reaction"
+                        },
+                        {
+                        "id": "132316423",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2024-12-17T18:47:21Z",
+                        "text": "Secondary comment for contraindication"
+                        }
+                    ],
+                    "reaction": [
+                        { "id": "132316419", "manifestation": [{ "text": "Anaphylaxis" }] }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132320329",
+                    "meta": {
+                        "versionId": "132320329",
+                        "lastUpdated": "2024-12-17T16:42:57Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: GUSTAV, HOOPER J</p><p><b>Allergy</b>: Naproxen</p><p><b>Verification Status</b>: Confirmed</p><p><b>Clinical Status</b>: Active</p><p><b>Criticality</b>: High Risk</p><p><b>Category</b>: Medication</p><p><b>Reactions</b>: Sneezing, Syncope, free text reaction</p><p><b>Onset</b>: Dec 17, 2004</p><p><b>Note</b>: This is a secondary comment added to the naproxen allergy - 2024-12-17T16:42:57Z - Borland, Victoria A - This is an initial comment added to the naproxen allergy - 2024-12-17T16:42:57Z - Borland, Victoria A</p></div>"
+                    },
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active",
+                            "display": "Active"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "confirmed",
+                            "display": "Confirmed"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "type": "allergy",
+                    "category": ["medication"],
+                    "criticality": "high",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                            "code": "7258",
+                            "display": "Naproxen"
+                        }
+                        ],
+                        "text": "naproxen"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "encounter": { "reference": "Encounter/248112845" },
+                    "onsetDateTime": "2004-12-17",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639010",
+                                "display": "About",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "About"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2024-12-17T16:42:57Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "asserter": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "note": [
+                        {
+                        "id": "132320339",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2024-12-17T16:42:57Z",
+                        "text": "This is a secondary comment added to the naproxen allergy"
+                        },
+                        {
+                        "id": "132320337",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2024-12-17T16:42:57Z",
+                        "text": "This is an initial comment added to the naproxen allergy"
+                        }
+                    ],
+                    "reaction": [
+                        { "id": "132320331", "manifestation": [{ "text": "Sneezing" }] },
+                        { "id": "132320333", "manifestation": [{ "text": "Syncope" }] },
+                        {
+                        "id": "132320335",
+                        "manifestation": [{ "text": "free text reaction" }]
+                        }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132312405",
+                    "meta": {
+                        "versionId": "132312405",
+                        "lastUpdated": "2024-12-17T18:40:50Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: GUSTAV, HOOPER J</p><p><b>Allergy</b>: Grass pollen (substance)</p><p><b>Verification Status</b>: Confirmed</p><p><b>Clinical Status</b>: Resolved</p><p><b>Criticality</b>: High Risk</p><p><b>Category</b>: Environment</p><p><b>Reactions</b>: Sneezing, Urticaria (Hives)</p><p><b>Onset</b>: 2022</p><p><b>Note</b>: Testing whether alllergy with resolved status is still passed through !@\\#$%^&amp;*() - 2024-12-17T18:40:50Z - Borland, Victoria A</p></div>"
+                    },
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "resolved",
+                            "display": "Resolved"
+                        }
+                        ],
+                        "text": "Resolved"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "confirmed",
+                            "display": "Confirmed"
+                        }
+                        ],
+                        "text": "Resolved"
+                    },
+                    "type": "allergy",
+                    "category": ["environment"],
+                    "criticality": "high",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "256277009",
+                            "display": "Grass pollen (substance)"
+                        }
+                        ],
+                        "text": "Grass"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "encounter": { "reference": "Encounter/248112845" },
+                    "onsetDateTime": "2022",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639013",
+                                "display": "<not entered>",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "<not entered>"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2024-12-17T18:40:50Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "asserter": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "note": [
+                        {
+                        "id": "132312411",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2024-12-17T18:40:50Z",
+                        "text":
+                            "Testing whether alllergy with resolved status is still passed through !@\\#$%^&*()"
+                        }
+                    ],
+                    "reaction": [
+                        { "id": "132312409", "manifestation": [{ "text": "Sneezing" }] },
+                        {
+                        "id": "132312407",
+                        "manifestation": [{ "text": "Urticaria (Hives)" }]
+                        }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132320343",
+                    "meta": {
+                        "versionId": "132320343",
+                        "lastUpdated": "2024-12-17T18:37:23Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: GUSTAV, HOOPER J</p><p><b>Allergy</b>: Radish (substance)</p><p><b>Verification Status</b>: Confirmed</p><p><b>Clinical Status</b>: Active</p><p><b>Criticality</b>: Low Risk</p><p><b>Category</b>: Food</p><p><b>Reactions</b>: Depression</p><p><b>Onset</b>: 1966</p><p><b>Note</b>: Radish makes Hooper sad-ish :( - 2024-12-17T18:37:23Z - Borland, Victoria A</p></div>"
+                    },
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active",
+                            "display": "Active"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "confirmed",
+                            "display": "Confirmed"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "type": "allergy",
+                    "category": ["food"],
+                    "criticality": "low",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "256325000",
+                            "display": "Radish (substance)"
+                        }
+                        ],
+                        "text": "Radishes"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "encounter": { "reference": "Encounter/248112845" },
+                    "onsetDateTime": "1966",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639013",
+                                "display": "<not entered>",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "<not entered>"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2024-12-17T18:37:23Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "note": [
+                        {
+                        "id": "132320347",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2024-12-17T18:37:23Z",
+                        "text": "Radish makes Hooper sad-ish :("
+                        }
+                    ],
+                    "reaction": [
+                        { "id": "132320345", "manifestation": [{ "text": "Depression" }] }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132316411",
+                    "meta": {
+                        "versionId": "132316411",
+                        "lastUpdated": "2024-12-17T18:03:43Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: GUSTAV, HOOPER J</p><p><b>Allergy</b>: Sunlight (substance) (deprecated)</p><p><b>Verification Status</b>: Confirmed</p><p><b>Clinical Status</b>: Active</p><p><b>Criticality</b>: High Risk</p><p><b>Reactions</b>: Urticaria (Hives)</p><p><b>Onset</b>: 2024</p></div>"
+                    },
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active",
+                            "display": "Active"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "confirmed",
+                            "display": "Confirmed"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "type": "allergy",
+                    "criticality": "high",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "279045004",
+                            "display": "Sunlight (substance) (deprecated)"
+                        }
+                        ],
+                        "text": "Sunlight"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "encounter": { "reference": "Encounter/248112845" },
+                    "onsetDateTime": "2024",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639013",
+                                "display": "<not entered>",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "<not entered>"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2024-12-17T18:03:43Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "reaction": [
+                        {
+                        "id": "132316413",
+                        "manifestation": [{ "text": "Urticaria (Hives)" }]
+                        }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132312395",
+                    "meta": {
+                        "versionId": "132312395",
+                        "lastUpdated": "2024-12-17T18:34:46Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: GUSTAV, HOOPER J</p><p><b>Allergy</b>: Coconut (substance)</p><p><b>Verification Status</b>: Confirmed</p><p><b>Clinical Status</b>: Active</p><p><b>Criticality</b>: Unable to Assess Risk</p><p><b>Category</b>: Food</p><p><b>Reactions</b>: Pruritus, Delirium</p><p><b>Onset</b>: Nov  8, 2024</p><p><b>Note</b>: This allergy duplicates an allergy entered into VistA - 2024-12-17T18:34:45Z - Borland, Victoria A</p></div>"
+                    },
+                    "contained": [
+                        {
+                        "resourceType": "RelatedPerson",
+                        "id": "638996",
+                        "patient": {
+                            "reference": "Patient/66415177",
+                            "display": "GUSTAV, HOOPER J"
+                        },
+                        "relationship": [
+                            {
+                            "coding": [
+                                {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+                                "code": "O",
+                                "display": "Other"
+                                }
+                            ],
+                            "text": "Other"
+                            }
+                        ]
+                        }
+                    ],
+                    "clinicalStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                            "code": "active",
+                            "display": "Active"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "confirmed",
+                            "display": "Confirmed"
+                        }
+                        ],
+                        "text": "Active"
+                    },
+                    "type": "allergy",
+                    "category": ["food"],
+                    "criticality": "unable-to-assess",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "735211005",
+                            "display": "Coconut (substance)"
+                        }
+                        ],
+                        "text": "Coconuts"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "encounter": { "reference": "Encounter/248112845" },
+                    "onsetDateTime": "2024-11-08",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639013",
+                                "display": "<not entered>",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "<not entered>"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2024-12-17T18:34:46Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "asserter": { "reference": "#638996" },
+                    "note": [
+                        {
+                        "id": "132312401",
+                        "authorReference": {
+                            "reference": "Practitioner/63662034",
+                            "display": "Borland, Victoria A"
+                        },
+                        "time": "2024-12-17T18:34:45Z",
+                        "text": "This allergy duplicates an allergy entered into VistA"
+                        }
+                    ],
+                    "reaction": [
+                        { "id": "132312399", "manifestation": [{ "text": "Pruritus" }] },
+                        { "id": "132312397", "manifestation": [{ "text": "Delirium" }] }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "AllergyIntolerance",
+                    "id": "132316427",
+                    "meta": {
+                        "versionId": "132316427",
+                        "lastUpdated": "2024-12-17T18:49:38Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Allergy Intolerance</b></p><p><b>Patient</b>: GUSTAV, HOOPER J</p><p><b>Allergy</b>: Cashew nut (substance)</p><p><b>Verification Status</b>: Entered in Error</p><p><b>Criticality</b>: High Risk</p><p><b>Category</b>: Food</p><p><b>Reactions</b>: Oral Edema</p><p><b>Onset</b>: Dec 17, 2024</p></div>"
+                    },
+                    "verificationStatus": {
+                        "coding": [
+                        {
+                            "system":
+                            "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                            "code": "entered-in-error",
+                            "display": "Entered in Error"
+                        }
+                        ],
+                        "text": "Canceled"
+                    },
+                    "type": "allergy",
+                    "category": ["food"],
+                    "criticality": "high",
+                    "code": {
+                        "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "227493005",
+                            "display": "Cashew nut (substance)"
+                        }
+                        ],
+                        "text": "Cashews"
+                    },
+                    "patient": {
+                        "reference": "Patient/66415177",
+                        "display": "GUSTAV, HOOPER J"
+                    },
+                    "encounter": { "reference": "Encounter/248112845" },
+                    "onsetDateTime": "2024-12-17",
+                    "_onsetDateTime": {
+                        "extension": [
+                        {
+                            "url":
+                            "https://fhir-ehr.cerner.com/r4/StructureDefinition/precision",
+                            "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                "system":
+                                    "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/25320",
+                                "code": "639013",
+                                "display": "<not entered>",
+                                "userSelected": true
+                                }
+                            ],
+                            "text": "<not entered>"
+                            }
+                        }
+                        ]
+                    },
+                    "recordedDate": "2024-12-17T18:49:38Z",
+                    "recorder": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                    },
+                    "reaction": [
+                        { "id": "132316429", "manifestation": [{ "text": "Oral Edema" }] }
+                    ]
+                    }
+                },
+                {
+                    "resource": {
+                    "resourceType": "Patient",
+                    "id": "66415177",
+                    "meta": {
+                        "versionId": "108",
+                        "lastUpdated": "2025-02-06T19:12:38.000Z"
+                    },
+                    "text": {
+                        "status": "generated",
+                        "div":
+                        "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Patient</b></p><p><b>Name</b>: GUSTAV, HOOPER J</p><p><b>Status</b>: Active</p><p><b>DOB</b>: Aug 17, 1954</p><p><b>Administrative Gender</b>: Male</p></div>"
+                    },
+                    "identifier": [
+                        {
+                        "id": "CI-7542266709-0",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "10",
+                                "display": "MRN",
+                                "userSelected": true
+                            },
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MR",
+                                "display": "Medical record number",
+                                "userSelected": false
+                            }
+                            ],
+                            "text": "MRN"
+                        },
+                        "_system": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                                "valueCode": "unknown"
+                            }
+                            ]
+                        },
+                        "value": "83617926000001",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "83617926000001"
+                            }
+                            ]
+                        },
+                        "period": { "start": "2024-12-11T01:03:54.000Z" }
+                        },
+                        {
+                        "id": "CI-7542266703-2",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "22",
+                                "display": "DOD ID",
+                                "userSelected": true
+                            }
+                            ],
+                            "text": "DOD ID"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.3.42.10001.100001.12",
+                        "value": "2116879576",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "2116879576"
+                            }
+                            ]
+                        },
+                        "period": { "start": "2024-12-11T01:03:54.000Z" }
+                        },
+                        {
+                        "id": "CI-7543258248-3",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "670843",
+                                "display": "Messaging",
+                                "userSelected": true
+                            },
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "U",
+                                "display": "Unspecified identifier",
+                                "userSelected": false
+                            }
+                            ],
+                            "text": "Messaging"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                        "value": "1014117623V522681",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "1014117623V522681"
+                            }
+                            ]
+                        }
+                        },
+                        {
+                        "id": "CI-7543258246-4",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "165915171",
+                                "display": "Federated Person Principal",
+                                "userSelected": true
+                            },
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "AN",
+                                "display": "Account number",
+                                "userSelected": false
+                            }
+                            ],
+                            "text": "Federated Person Principal"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.3.13.6",
+                        "value":
+                            "URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2116879576",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString":
+                                "URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2116879576"
+                            }
+                            ]
+                        }
+                        },
+                        {
+                        "id": "CI-7543258250-5",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "165915179",
+                                "display": "MIllennium Person Identifier",
+                                "userSelected": true
+                            }
+                            ],
+                            "text": "MIllennium Person Identifier"
+                        },
+                        "_system": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                                "valueCode": "unknown"
+                            }
+                            ]
+                        },
+                        "value": "3327347",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "3327347"
+                            }
+                            ]
+                        },
+                        "period": { "start": "2025-01-13T18:55:11.000Z" }
+                        },
+                        {
+                        "id": "CI-7542266705-6",
+                        "use": "usual",
+                        "type": {
+                            "coding": [
+                            {
+                                "system":
+                                "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                                "code": "246779987",
+                                "display": "Veteran ID",
+                                "userSelected": true
+                            }
+                            ],
+                            "text": "Veteran ID"
+                        },
+                        "system": "urn:oid:2.16.840.1.113883.4.349",
+                        "value": "1014117623V522681",
+                        "_value": {
+                            "extension": [
+                            {
+                                "url":
+                                "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                                "valueString": "1014117623V522681"
+                            }
+                            ]
+                        },
+                        "period": { "start": "2024-12-11T01:03:54.000Z" }
+                        }
+                    ],
+                    "active": true,
+                    "name": [
+                        {
+                        "id": "CI-66415177-0",
+                        "use": "official",
+                        "text": "GUSTAV, HOOPER J",
+                        "family": "GUSTAV",
+                        "given": ["HOOPER", "J"],
+                        "period": { "start": "2024-12-11T01:03:54.000Z" }
+                        }
+                    ],
+                    "gender": "male",
+                    "birthDate": "1954-08-17"
+                    }
+                }
+            ]
+        }
+      }'
+  recorded_at: Mon, 02 Jun 2025 15:11:24 GMT
+recorded_with: VCR 6.3.1

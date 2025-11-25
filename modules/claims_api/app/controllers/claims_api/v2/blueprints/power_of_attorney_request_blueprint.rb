@@ -4,7 +4,7 @@ module ClaimsApi
   module V2
     module Blueprints
       class PowerOfAttorneyRequestBlueprint < Blueprinter::Base
-        view :index_or_show do
+        view :shared_response do
           field :id do |request|
             request['id']
           end

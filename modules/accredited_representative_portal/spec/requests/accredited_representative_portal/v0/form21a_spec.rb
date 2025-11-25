@@ -45,13 +45,34 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json' } }
 
   before do
-    Flipper.enable(:accredited_representative_portal_pilot)
     login_as(representative_user)
   end
 
-  after { Flipper.disable(:accredited_representative_portal_pilot) }
-
   describe 'POST /accredited_representative_portal/v0/form21a' do
+    context 'when the user is not LOA3' do
+      let(:non_loa3_user) { create(:representative_user) }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+
+        allow_any_instance_of(AccreditedRepresentativePortal::V0::Form21aController)
+          .to receive(:current_user)
+          .and_return(non_loa3_user)
+
+        allow(non_loa3_user).to receive(:loa).and_return({ current: 1, highest: 1 })
+
+        login_as(non_loa3_user)
+      end
+
+      it 'returns 404 and does not call the service' do
+        expect(AccreditationService).not_to receive(:submit_form21a)
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     context 'with valid JSON' do
       let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
 
@@ -259,6 +280,178 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         make_post_request
         expect(response).to have_http_status(:bad_request)
         expect(parsed_response['errors']).to include('Invalid JSON')
+      end
+    end
+
+    context 'when the Form 21a feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when nested form JSON is invalid' do
+      let(:payload) do
+        {
+          form21aSubmission: {
+            form: 'not-json' # will raise JSON::ParserError inside parse_request_body
+          }
+        }.to_json
+      end
+
+      it 'logs and returns a bad request for invalid nested JSON' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including(
+            "Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}"
+          )
+        )
+
+        make_post_request
+        expect(response).to have_http_status(:bad_request)
+        expect(parsed_response['errors']).to include('Invalid JSON')
+      end
+    end
+
+    context 'when a connection error occurs' do
+      it 'logs the error and returns a 503 (ConnectionFailed)' do
+        allow(AccreditationService).to receive(:submit_form21a)
+          .and_raise(Faraday::ConnectionFailed.new('connection down'))
+
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including('Form21aController: Network error: Faraday::ConnectionFailed')
+        )
+
+        make_post_request
+        expect(response).to have_http_status(:service_unavailable)
+        expect(parsed_response).to eq('errors' => 'Service temporarily unavailable')
+      end
+    end
+  end
+
+  describe 'POST /accredited_representative_portal/v0/form21a/:details_slug' do
+    subject(:make_post_request) do
+      post(path, params: { file: }, headers:)
+    end
+
+    let(:file) do
+      fixture_file_upload(
+        Rails.root.join('modules',
+                        'accredited_representative_portal',
+                        'spec',
+                        'fixtures',
+                        'files',
+                        '21_686c_empty_form.pdf'),
+        'application/pdf'
+      )
+    end
+
+    let(:slug) { 'conviction-details' }
+    let(:path) { "/accredited_representative_portal/v0/form21a/#{slug}" }
+
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:accredited_representative_portal_form_21a)
+        .and_return(true)
+      login_as(representative_user)
+    end
+
+    context 'when the user is not LOA3' do
+      let(:non_loa3_user) { create(:representative_user) }
+      let(:slug) { 'conviction-details' }
+      let(:path) { "/accredited_representative_portal/v0/form21a/#{slug}" }
+      let(:file) do
+        fixture_file_upload(
+          Rails.root.join('modules',
+                          'accredited_representative_portal',
+                          'spec',
+                          'fixtures',
+                          'files',
+                          '21_686c_empty_form.pdf'),
+          'application/pdf'
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+
+        allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+          .to receive(:loa)
+          .and_return({ current: 1, highest: 1 })
+
+        login_as(non_loa3_user)
+      end
+
+      it 'returns 404 and does not process the file' do
+        expect(Rails.logger).not_to receive(:info).with(
+          a_string_including('Received Form21a details submission')
+        )
+
+        post(path, params: { file: }, headers:)
+
+        expect(response).to have_http_status(:not_found)
+        expect(parsed_response).to match(
+          'errors' => [
+            hash_including(
+              'title' => 'Not found',
+              'status' => '404'
+            )
+          ]
+        )
+      end
+    end
+
+    context 'with a valid slug and file' do
+      it 'returns confirmation data and logs receipt' do
+        expect(Rails.logger).to receive(:info).with(
+          a_string_including("Received Form21a details submission for: #{slug}")
+        )
+
+        make_post_request
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response.dig('data', 'attributes', 'confirmationCode')).to be_present
+        expect(parsed_response.dig('data', 'attributes', 'name')).to eq('21_686c_empty_form.pdf')
+        expect(parsed_response.dig('data', 'attributes', 'fileType')).to eq('application/pdf')
+      end
+    end
+
+    context 'when file is missing' do
+      subject(:make_post_request) { post(path, params: {}, headers:) }
+
+      it 'returns a bad request' do
+        make_post_request
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'with an invalid slug' do
+      let(:slug) { 'not-a-real-slug' }
+      let(:path) { "/accredited_representative_portal/v0/form21a/#{slug}" }
+
+      it 'returns 404 due to routing constraint' do
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when the feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(false)
+      end
+
+      it 'returns 404' do
+        make_post_request
+        expect(response).to have_http_status(:not_found)
       end
     end
   end

@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module FacilitiesApi
   module V2
     module PPMS
-      class Response < Common::Base
-        attribute :body, String
+      class Response
+        include Vets::Model
+
+        attribute :body, Hash, array: true
         attribute :current_page, Integer
         attribute :per_page, Integer
         attribute :offset, Integer
@@ -15,11 +17,11 @@ module FacilitiesApi
         def initialize(response, params = {})
           super()
 
-          self.body = response.body.fetch('value')
+          @body = response.body.fetch('value')
 
-          self.current_page = Integer(response.body['PageNumber'] || params[:page] || 1)
-          self.per_page =     Integer(response.body['PageSize'] || params[:per_page] || 10)
-          self.total_entries = Integer(response.body['TotalResults'] || (current_page * per_page))
+          @current_page = Integer(response.body['PageNumber'] || params[:page] || 1)
+          @per_page =     Integer(response.body['PageSize'] || params[:per_page] || 10)
+          @total_entries = Integer(response.body['TotalResults'] || (current_page * per_page))
 
           trim_response_attributes!
         end

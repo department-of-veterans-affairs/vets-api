@@ -14,7 +14,7 @@ MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   def mobile_access?
     return false unless user.mhv_correlation_id && user.va_patient?
 
-    client = Mobile::V0::Messaging::Client.new(session: { user_id: user.mhv_correlation_id })
+    client = Mobile::V0::Messaging::Client.new(session: { user_id: user.mhv_correlation_id, user_uuid: user.uuid })
     validate_client(client)
   end
 

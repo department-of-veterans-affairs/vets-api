@@ -8,11 +8,6 @@ describe VAProfile::MilitaryPersonnel::Service do
 
   let(:user) { build(:user, :loa3) }
 
-  before do
-    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-    Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
-  end
-
   describe '#identity_path' do
     context 'when an edipi exists' do
       it 'returns a valid identity path' do
@@ -42,49 +37,20 @@ describe VAProfile::MilitaryPersonnel::Service do
         end
       end
 
-      context 'with vet_status_stage_1 enabled' do
-        before do
-          Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
-        end
+      it 'returns not eligible if character_of_discharge_codes are missing' do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+          response = subject.get_service_history
 
-        it 'returns not eligible if character_of_discharge_codes are missing' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-            response = subject.get_service_history
-
-            expect(response.vet_status_eligibility[:confirmed]).to be(false)
-            expect(response.vet_status_eligibility[:message]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
-            )
-            expect(response.vet_status_eligibility[:title]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
-            )
-            expect(response.vet_status_eligibility[:status]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
-            )
-          end
-        end
-      end
-
-      context 'with vet_status_stage_1 disabled' do
-        before do
-          Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
-        end
-
-        it 'returns not eligible if character_of_discharge_codes are missing' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-            response = subject.get_service_history
-
-            expect(response.vet_status_eligibility[:confirmed]).to be(false)
-            expect(response.vet_status_eligibility[:message]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
-            )
-            expect(response.vet_status_eligibility[:title]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
-            )
-            expect(response.vet_status_eligibility[:status]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
-            )
-          end
+          expect(response.vet_status_eligibility[:confirmed]).to be(false)
+          expect(response.vet_status_eligibility[:message]).to eq(
+            VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+          )
+          expect(response.vet_status_eligibility[:title]).to eq(
+            VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
+          )
+          expect(response.vet_status_eligibility[:status]).to eq(
+            VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
+          )
         end
       end
     end
@@ -102,7 +68,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
       it 'logs exception to sentry' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404') do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '384759483' },
             { va_profile: :service_history_not_found },

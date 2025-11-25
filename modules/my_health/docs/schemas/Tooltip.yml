@@ -1,0 +1,26 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+  user_account_id:
+    type: string
+    format: uuid
+  tooltip_name:
+    type: string
+    description: Name of the tooltip in the UI
+    example: mhv_medications_tooltip_filter_accordion
+  last_signed_in:
+    type: string
+    format: date-time
+  counter:
+    type: integer
+  hidden:
+    type: boolean
+    description: Hide the tooltip with tooltip_name when true
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time

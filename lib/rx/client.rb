@@ -39,7 +39,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_active_rxs
-      Vets::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
+      Vets::Collection.fetch(::Prescription) do
         perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
@@ -50,7 +50,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_active_rxs_with_details
-      Vets::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
+      Vets::Collection.fetch(::PrescriptionDetails) do
         perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
@@ -61,7 +61,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_history_rxs
-      Vets::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
+      Vets::Collection.fetch(::Prescription) do
         perform(:get, get_path('gethistoryrx'), nil, get_headers(token_headers)).body
       end
     end
@@ -73,7 +73,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_all_rxs
-      Vets::Collection.fetch(PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
+      Vets::Collection.fetch(PrescriptionDetails) do
         perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
       end
     end
@@ -155,8 +155,6 @@ module Rx
     #
     def post_refill_rx(id)
       if (result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers)))
-        keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
-        Vets::Collection.bust(keys) unless keys.empty?
         increment_refill
       end
       result

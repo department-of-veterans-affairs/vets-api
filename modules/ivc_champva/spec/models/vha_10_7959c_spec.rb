@@ -39,30 +39,62 @@ RSpec.describe IvcChampva::VHA107959c do
   end
 
   describe '#metadata' do
-    it 'returns metadata for the form' do
-      metadata = vha107959c.metadata
+    context 'when champva_update_metadata_keys flipper is enabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(true)
+        metadata = vha107959c.metadata
 
-      expect(metadata).to include(
-        'veteranFirstName' => 'John',
-        'veteranMiddleName' => 'P',
-        'veteranLastName' => 'Doe',
-        'fileNumber' => '123456789',
-        'zipCode' => '12345',
-        'ssn_or_tin' => '123456789',
-        'country' => 'USA',
-        'source' => 'VA Platform Digital Forms',
-        'docType' => '10-7959C',
-        'businessLine' => 'CMP',
-        'primaryContactInfo' => {
-          'name' => {
-            'first' => 'Veteran',
-            'last' => 'Surname'
+        expect(metadata).to include(
+          'sponsorFirstName' => 'John',
+          'sponsorMiddleName' => 'P',
+          'sponsorLastName' => 'Doe',
+          'fileNumber' => '123456789',
+          'zipCode' => '12345',
+          'ssn_or_tin' => '123456789',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959C',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => false
           },
-          'email' => false
-        },
-        'primaryContactEmail' => 'false',
-        'applicantEmail' => 'applicant@email.gov'
-      )
+          'primaryContactEmail' => 'false',
+          'beneficiaryEmail' => 'applicant@email.gov'
+        )
+      end
+    end
+
+    context 'when champva_update_metadata_keys flipper is disabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+        metadata = vha107959c.metadata
+
+        expect(metadata).to include(
+          'veteranFirstName' => 'John',
+          'veteranMiddleName' => 'P',
+          'veteranLastName' => 'Doe',
+          'fileNumber' => '123456789',
+          'zipCode' => '12345',
+          'ssn_or_tin' => '123456789',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959C',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => false
+          },
+          'primaryContactEmail' => 'false',
+          'applicantEmail' => 'applicant@email.gov'
+        )
+      end
     end
   end
 
@@ -105,6 +137,19 @@ RSpec.describe IvcChampva::VHA107959c do
         expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959C Email Used', email_used: 'no')
         vha_10_7959c.track_email_usage
       end
+    end
+  end
+
+  describe '#track_delegate_form' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_7959c' }
+    let(:vha_10_7959c) { described_class.new(data) }
+
+    it 'increments the StatsD for delegate form and logs the info' do
+      expect(StatsD).to receive(:increment).with("#{statsd_key}.delegate_form.vha_10_10d")
+      expect(Rails.logger)
+        .to receive(:info)
+        .with('IVC ChampVA Forms - 10-7959C Delegate Form', parent_form_id: 'vha_10_10d')
+      vha_10_7959c.track_delegate_form('vha_10_10d')
     end
   end
 

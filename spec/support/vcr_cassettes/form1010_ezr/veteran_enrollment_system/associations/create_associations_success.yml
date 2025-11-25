@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 17 Jun 2025 20:23:09 GMT
+      - Thu, 24 Jul 2025 15:30:34 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -37,7 +37,7 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       X-Envoy-Upstream-Service-Time:
-      - '45'
+      - '25'
       Ssl-Env:
       - 'On'
       X-Xss-Protection:
@@ -45,27 +45,23 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-1924406219"
+      - dtSInfo;desc="0", dtRpid;desc="-847376133"
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"data":{"associations":[{"role":"OTHER_EMERGENCY_CONTACT","relationType":"GRANDCHILD","name":{"givenName":"UPDATEDFIRSTECB","middleName":"UPDATEDMIDDLEECB","familyName":"UPDATEDLASTECB"},"address":{"line1":"875
-        West Blvd","line2":"Apt 3","line3":"Unit 6","city":"Wichita","state":"KS","zipCode":"67203","zipPlus4":"1234","country":"USA"},"primaryPhone":"6437432434","lastUpdateDate":"2025-06-17T15:10:58"},{"role":"OTHER_NEXT_OF_KIN","relationType":"CHILDINLAW","name":{"givenName":"UPDATEDFIRSTNOKB","middleName":"UPDATEDMIDDLENOKB","familyName":"UPDATEDLASTNOKB"},"address":{"line1":"875
-        Updated Blvd","line2":"Unit 532","city":"Tampa","state":"FL","zipCode":"33726","zipPlus4":"3942","country":"USA"},"primaryPhone":"1238835546","lastUpdateDate":"2025-06-17T15:10:58"},{"role":"PRIMARY_NEXT_OF_KIN","relationType":"NIECE_NEPHEW","name":{"givenName":"UPDATEDFIRSTNOKA","middleName":"UPDATEDMIDDLENOKA","familyName":"UPDATEDLASTNOKA","suffix":"JR."},"address":{"line1":"NE
-        54th St","line2":"Apt 7","line3":"Unit 1222","city":"guanajuato","provinceCode":"guanajuato","postalCode":"84754","country":"MEX"},"primaryPhone":"4449131234","lastUpdateDate":"2025-06-17T15:10:58"},{"role":"EMERGENCY_CONTACT","relationType":"EXTENDED_FAMILY_MEMBER","name":{"givenName":"UPDATEDFIRSTECA","middleName":"UPDATEDMIDDLEECA","familyName":"UPDATEDLASTECA"},"address":{"line1":"28
-        Parker St","city":"Los Angeles","state":"CA","zipCode":"90038","zipPlus4":"1234","country":"USA"},"primaryPhone":"7563627422","lastUpdateDate":"2025-06-17T15:10:58"}]},"messages":[]}'
-  recorded_at: Tue, 17 Jun 2025 20:23:09 GMT
+      string: '{"data":{"associations":[]},"messages":[]}'
+  recorded_at: Thu, 24 Jul 2025 15:30:34 GMT
 - request:
     method: put
     uri: "<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035"
     body:
       encoding: UTF-8
       string: '{"associations":[{"address":{"city":"Ontario","country":"CAN","line1":"834
-        NE 36th St","provinceCode":"ON","postalCode":"21534"},"name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"primaryPhone":"1239183546","relationType":"DAUGHTER","role":"OTHER_NEXT_OF_KIN","lastUpdateDate":"2025-06-17T20:23:09Z"},{"address":{"city":"Blacksburg","country":"USA","line1":"823
-        SE 2nd St","state":"VA","zipCode":"24060"},"name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"primaryPhone":"9564738265","relationType":"UNRELATED_FRIEND","role":"OTHER_EMERGENCY_CONTACT","lastUpdateDate":"2025-06-17T20:23:09Z"},{"address":{"city":"Dulles","country":"USA","line1":"476
-        Test Ave","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"primaryPhone":"1239131234","relationType":"SON","role":"PRIMARY_NEXT_OF_KIN","lastUpdateDate":"2025-06-17T20:23:09Z"},{"address":{"city":"Dulles","country":"USA","line1":"28
-        NW 78th St","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"primaryPhone":"7452743546","relationType":"BROTHER","role":"EMERGENCY_CONTACT","lastUpdateDate":"2025-06-17T20:23:09Z"}]}'
+        NE 36th St","provinceCode":"ON","postalCode":"21534"},"name":{"givenName":"FirstNoKB","middleName":"MiddleNoKB","familyName":"LastNoKB"},"primaryPhone":"1239183546","relationType":"DAUGHTER","role":"OTHER_NEXT_OF_KIN","lastUpdateDate":"2025-07-24T15:31:09Z"},{"address":{"city":"Blacksburg","country":"USA","line1":"823
+        SE 2nd St","state":"VA","zipCode":"24060"},"name":{"givenName":"FirstECB","middleName":"MiddleECB","familyName":"LastECB"},"primaryPhone":"9564738265","relationType":"UNRELATED_FRIEND","role":"OTHER_EMERGENCY_CONTACT","lastUpdateDate":"2025-07-24T15:31:13Z"},{"address":{"city":"Dulles","country":"USA","line1":"476
+        Test Ave","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FirstNoKA","middleName":"MiddleNoKA","familyName":"LastNoKA","suffix":"Jr."},"primaryPhone":"1239131234","relationType":"SON","role":"PRIMARY_NEXT_OF_KIN","lastUpdateDate":"2025-07-24T15:31:00Z"},{"address":{"city":"Dulles","country":"USA","line1":"28
+        NW 78th St","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FirstECA","middleName":"MiddleECA","familyName":"LastECA"},"primaryPhone":"7452743546","relationType":"BROTHER","role":"EMERGENCY_CONTACT","lastUpdateDate":"2025-07-24T15:31:11Z"}]}'
     headers:
       Accept:
       - application/json
@@ -81,7 +77,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 17 Jun 2025 20:23:11 GMT
+      - Thu, 24 Jul 2025 15:31:15 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -97,7 +93,7 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       X-Envoy-Upstream-Service-Time:
-      - '233'
+      - '117'
       Ssl-Env:
       - 'On'
       X-Xss-Protection:
@@ -105,12 +101,12 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-1057125952"
+      - dtSInfo;desc="0", dtRpid;desc="-1528152075"
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"data":{"associations":[{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"status":"INSERTED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"status":"INSERTED"},{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"status":"INSERTED"},{"role":"EMERGENCY_CONTACT","name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"status":"INSERTED"}]},"messages":[{"description":"The
+      string: '{"data":{"associations":[{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"FirstNoKB","middleName":"MiddleNoKB","familyName":"LastNoKB"},"status":"INSERTED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"FirstECB","middleName":"MiddleECB","familyName":"LastECB"},"status":"INSERTED"},{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"FirstNoKA","middleName":"MiddleNoKA","familyName":"LastNoKA","suffix":"Jr."},"status":"INSERTED"},{"role":"EMERGENCY_CONTACT","name":{"givenName":"FirstECA","middleName":"MiddleECA","familyName":"LastECA"},"status":"INSERTED"}]},"messages":[{"description":"The
         request was successfully processed.","code":"completed_success"}]}'
-  recorded_at: Tue, 17 Jun 2025 20:23:11 GMT
+  recorded_at: Thu, 24 Jul 2025 15:31:15 GMT
 recorded_with: VCR 6.3.1

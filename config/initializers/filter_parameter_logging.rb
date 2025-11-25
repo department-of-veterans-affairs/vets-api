@@ -2,79 +2,107 @@
 
 # Be sure to restart your server when you modify this file.
 
-# Configure sensitive parameters which will be filtered from the log file.
+# Adding a key here unfilters ALL params with that name across ALL of vets-api.
+# Do NOT add keys that can contain PII/PHI/secrets.
 ALLOWLIST = %w[
-  controller
   action
-  id
-  from_date
-  to_date
-  qqtotalfilesize
-  type
-  folder_id
-  startDate
+  benefits_intake_uuid
+  bpds_uuid
+  call_location
+  category
+  claim_id
+  class
+  code
+  confirmation_number
+  consumer_name
+  content_type
+  controller
+  cookie_id
+  document_id
+  doctype
+  document_type
   endDate
+  endpoint
+  endpoint_sid
+  error
+  errors
+  excludeProvidedMessage
+  file_uuid
+  filter
+  folder_id
+  form_id
+  from_date
+  grant_type
+  id
+  ids
+  in_progress_form_id
+  itf_type
   included
-  page
-  useCache
+  kafka_payload
+  line
+  lookup_service
+  message_id
+  method
   number
+  os_name
+  page
+  persistent_attachment_id
+  qqtotalfilesize
+  queue_time
+  reason
+  reply_id
+  result
+  root
+  saved_claim_id
+  service
+  showCompleted
   size
   sort
-  showCompleted
-  excludeProvidedMessage
-  document_id
-  document_type
-  category
-  cookie_id
-  reply_id
-  ids
-  code
-  grant_type
-  endpoint_sid
-  message_id
-  os_name
-  filter
+  stamp_set
+  startDate
   startedFormVersion
-  tempfile
-  content_type
-  user_account_uuid
-  confirmation_number
-  message
-  errors
-  claim_id
-  form_id
+  statsd
+  status
+  status_code
+  submission_id
   tags
-  in_progress_form_id
-  benefits_intake_uuid
-  call_location
-  service
+  tempfile
+  time_to_transition
+  to_date
+  to_state
+  type
+  useCache
   use_v2
-  line
+  user_account_uuid
 ].freeze
 
+# Configure sensitive parameters which will be filtered from the log file.
 Rails.application.config.filter_parameters = [
   lambda do |k, v|
     case v
     when Hash # Recursively iterate over each key value pair in hashes
-      v.each_with_object({}) do |(nested_key, nested_value), result|
-        key = nested_key.is_a?(String) ? nested_key : nested_key.to_sym
-        result[key] = if ALLOWLIST.include?(nested_key.to_s)
-                        nested_value
-                      else
-                        Rails.application.config.filter_parameters.first.call(nested_key, nested_value)
-                      end
+      v.each do |nested_key, nested_value|
+        v[nested_key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
       end
+      v
     when Array # Recursively map all elements in arrays
-      v.map { |element| Rails.application.config.filter_parameters.first.call(k, element) }
+      v.map! { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
+      v
     when ActionDispatch::Http::UploadedFile # Base case
       v.instance_variables.each do |var| # could put specific instance vars here, but made more generic
         var_name = var.to_s.delete_prefix('@')
         v.instance_variable_set(var, '[FILTERED!]') unless ALLOWLIST.include?(var_name)
       end
       v
-    when String # Base case
+    else # Base case for all other types (String, Integer, Symbol, Class, nil, etc.)
       # Apply filtering only if the key is NOT in the ALLOWLIST
-      v.replace('[FILTERED]') unless ALLOWLIST.include?(k.to_s)
+      if ALLOWLIST.include?(k.to_s)
+        v
+      elsif v.respond_to?(:replace) && v.is_a?(String)
+        v.replace('[FILTERED]')
+      else
+        '[FILTERED]'
+      end
     end
   end
 ]

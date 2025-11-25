@@ -2,6 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
   include JsonSchemaMatchers
@@ -33,8 +34,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         Timecop.return
       end
 
-      let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
-      let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
+      let(:start_date) { Time.zone.now.iso8601 } # 2022-01-01T19:25:00Z
+      let(:end_date) { 1.month.from_now.iso8601 }
       let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
       describe 'authorization' do
@@ -50,6 +51,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
         context 'when user has access' do
           it 'returns ok' do
+            allow(UniqueUserEvents).to receive(:log_event)
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
@@ -60,6 +62,12 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
             expect(response).to have_http_status(:ok)
             assert_schema_conform(200)
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+            )
           end
         end
       end
@@ -146,7 +154,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
           end
-          expect(response.parsed_body.dig('data', 0, 'attributes', 'vetextId')).to eq('442;3220827.043')
+          expect(response.parsed_body.dig('data', 0, 'attributes', 'vetextId')).to eq('442;3220127.033')
         end
       end
 
@@ -206,8 +214,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       end
 
       context 'travel pay claims' do
-        let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
-        let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
+        let(:start_date) { 4.months.ago.iso8601 }
+        let(:end_date) { Time.zone.now.iso8601 } # 2022-01-01T19:25:00Z
         let(:params) { { startDate: start_date, endDate: end_date, include: ['travel_pay_claims'] } }
         let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
@@ -312,6 +320,38 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           expect(response.parsed_body.dig('data', 1, 'attributes', 'travelPayClaim')).to be_nil
           expect(response.parsed_body.dig('data', 2, 'attributes', 'travelPayEligible')).to be_nil
         end
+
+        it 'successfully matches claims when local_start_time is valid' do
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_200_for_travel_pay',
+                               allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+                VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range',
+                                 match_requests_on: %i[method path]) do
+                  get '/mobile/v0/appointments', headers: sis_headers, params:
+                end
+              end
+            end
+          end
+
+          expect(response).to have_http_status(:ok)
+
+          # Confirm appt has successful claim data
+          appointments_with_valid_claims = response.parsed_body['data'].select do |appt|
+            appt['attributes']['travelPayClaim']&.dig('metadata', 'success') == true
+          end
+
+          expect(appointments_with_valid_claims).not_to be_empty
+
+          # Confirm successful claim with correct structure
+          successful_claim = appointments_with_valid_claims.first['attributes']['travelPayClaim']
+          expect(successful_claim['metadata']).to include(
+            'status' => 200,
+            'success' => true
+          )
+        end
       end
 
       context 'request telehealth onsite appointment' do
@@ -357,7 +397,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       end
 
       describe 'healthcare provider names' do
-        let(:erb_template_params) { { start_date: '2021-01-01T00:00:00Z', end_date: '2023-01-26T23:59:59Z' } }
+        let(:erb_template_params) { { start_date: '2022-01-01T19:25:00Z', end_date: '2022-02-01T23:59:59Z' } }
 
         context 'when provider id is formatted correctly' do
           it 'is set as expected' do
@@ -461,7 +501,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
-                               erb: { start_date: '2021-01-01T00:00:00Z', end_date: '2023-02-18T23:59:59Z' },
+                               erb: { start_date: '2022-01-24T00:00:00Z', end_date: '2022-02-24T23:59:59Z' },
                                match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
@@ -519,8 +559,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         Timecop.return
       end
 
-      let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
-      let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
+      let(:start_date) { Time.zone.now.iso8601 } # 2022-01-01T19:25:00Z
+      let(:end_date) { 1.month.from_now.iso8601 }
       let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
       describe 'authorization' do
@@ -733,7 +773,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       end
 
       describe 'healthcare provider names' do
-        let(:erb_template_params) { { start_date: '2021-01-01T00:00:00Z', end_date: '2023-01-26T23:59:59Z' } }
+        let(:erb_template_params) { { start_date: '2022-01-01T19:25:00Z', end_date: '2022-02-01T23:59:59Z' } }
 
         it 'is set as expected' do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
@@ -804,7 +844,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types_vpg',
-                               erb: { start_date: '2021-01-01T00:00:00Z', end_date: '2023-02-18T23:59:59Z' },
+                               erb: { start_date: '2022-01-24T00:00:00Z', end_date: '2022-02-24T23:59:59Z' },
                                match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do

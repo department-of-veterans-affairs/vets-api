@@ -11,8 +11,7 @@ module IvcChampva
     include Sidekiq::Job
 
     def perform
-      return unless Settings.ivc_forms.sidekiq.ves_retry_failures_job.enabled &&
-                    Settings.vsp_environment != 'production'
+      return unless Flipper.enabled?(:champva_ves_retry_failures_job)
 
       # Get all failed VES submissions
       failed_ves_submissions = IvcChampvaForm.where.not(ves_status: [nil, 'ok'])

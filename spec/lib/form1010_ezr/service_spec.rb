@@ -161,527 +161,452 @@ RSpec.describe Form1010Ezr::Service do
     end
   end
 
-  describe '#log_submission_failure_to_sentry' do
-    it 'logs a failure message to sentry' do
-      expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
-        '1010EZR failure',
-        :error,
-        {
-          first_initial: 'F',
-          middle_initial: 'M',
-          last_initial: 'Z'
-        },
-        ezr: :failure
-      )
-
-      described_class.log_submission_failure_to_sentry(form, '1010EZR failure', 'failure')
-    end
-  end
-
-  # Loop through the tests and run them once with the 'va1010_forms_enrollment_system_service_enabled'
-  # flipper enabled and then once disabled
-  [1, 2].each do |i|
-    describe '#submit_form' do
+  describe '#submit_form' do
+    context 'when no error occurs' do
       before do
-        Flipper.disable(:va1010_forms_enrollment_system_service_enabled) if i == 2
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                  instance_of(User)).and_return(false)
       end
 
-      context 'when no error occurs' do
+      it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit',
+          match_requests_on: %i[method uri body],
+          erb: true,
+          allow_unused_http_interactions: false
+        ) do
+          expect { submit_form(form) }.to change {
+            HCA::EzrSubmissionJob.jobs.size
+          }.by(1)
+
+          HCA::EzrSubmissionJob.drain
+        end
+      end
+
+      context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(false)
-        end
-
-        it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-          VCR.use_cassette(
-            'form1010_ezr/authorized_submit',
-            match_requests_on: %i[method uri body],
-            erb: true,
-            allow_unused_http_interactions: false
-          ) do
-            expect { submit_form(form) }.to change {
-              HCA::EzrSubmissionJob.jobs.size
-            }.by(1)
-
-            HCA::EzrSubmissionJob.drain
-          end
-        end
-
-        context "when the 'ezr_associations_api_enabled' flipper is enabled" do
-          before do
-            allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
-            allow_any_instance_of(
-              HCA::EnrollmentEligibility::Service
-            ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
-            allow_any_instance_of(
-              Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
-            ).to receive(:update_associations).and_return(
-              {
-                status: 'success',
-                message: 'All associations were updated successfully',
-                timestamp: '2025-06-08T18:00:00Z'
-              }
-            )
-            allow_any_instance_of(
-              VeteranEnrollmentSystem::Associations::Service
-            ).to receive(:get_associations).and_return(
-              get_fixture('/veteran_enrollment_system/associations/associations_maximum')
-            )
-            # Call the submit_sync method instead of submit_async so that we can ensure that
-            # the associations are removed from the form before it is submitted
-            allow_any_instance_of(
-              Form1010Ezr::Service
-            ).to receive(:submit_async) do |instance, parsed_form|
-              instance.submit_sync(parsed_form)
-            end
-          end
-
-          it 'removes the associations from the form and returns a success object',
-             run_at: 'Wed, 18 Jun 2025 16:12:43 GMT' do
-            VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_associations_removed',
-              match_requests_on: %i[method uri body],
-              erb: true
-            ) do
-              expect(service.submit_form(form_with_associations)).to eq(
-                {
-                  success: true,
-                  formSubmissionId: 443_145_123,
-                  timestamp: '2025-06-18T11:12:43.943-05:00'
-                }
-              )
-            end
-          end
-        end
-      end
-
-      context 'when an error occurs' do
-        let(:current_user) do
-          create(
-            :evss_user,
-            :loa3,
-            icn: '1013032368V065534',
-            birth_date: nil,
-            first_name: nil,
-            middle_name: nil,
-            last_name: 'test',
-            suffix: nil,
-            ssn: nil,
-            gender: nil
+          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                    instance_of(User)).and_return(true)
+          allow_any_instance_of(
+            HCA::EnrollmentEligibility::Service
+          ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
+          allow_any_instance_of(
+            Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
+          ).to receive(:update_associations).and_return(
+            {
+              status: 'success',
+              message: 'All associations were updated successfully',
+              timestamp: '2025-06-08T18:00:00Z'
+            }
           )
-        end
-
-        context 'schema validation failure' do
-          before do
-            allow_logger_to_receive_error
-            allow_any_instance_of(
-              HCA::EnrollmentEligibility::Service
-            ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
-          end
-
-          it 'logs and raises a schema validation error' do
-            form_sans_required_fields = form.except(
-              'privacyAgreementAccepted',
-              'veteranDateOfBirth',
-              'veteranFullName',
-              'veteranSocialSecurityNumber',
-              'gender'
-            )
-
-            allow(StatsD).to receive(:increment)
-
-            expect(StatsD).to receive(:increment).with('api.1010ezr.validation_error')
-            expect { submit_form(form_sans_required_fields) }.to raise_error do |e|
-              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
-              expect(e.errors.length).to eq(6)
-              e.errors.each do |error|
-                expect(error.title).to eq('Validation error')
-                expect(error.status).to eq('422')
-              end
-            end
-            expect_logger_errors(
-              [
-                '10-10EZR form validation failed. Form does not match schema.',
-                "The property '#/veteranFullName' did not contain a required property of 'first'",
-                "The property '#/veteranDateOfBirth' of type null did not match the following type: string",
-                "The property '#/veteranSocialSecurityNumber' of type null did not match the following type: string",
-                "The property '#/gender' of type null did not match the following type: string",
-                "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-              ]
-            )
-          end
-
-          # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
-          context "when the error pertains to the Veteran's DOB" do
-            before do
-              allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
-            end
-
-            it 'creates a PersonalInformationLog and saves the unprocessed DOB' do
-              expect { submit_form(form) }.to raise_error do |e|
-                personal_information_log =
-                  PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
-
-                expect(personal_information_log.present?).to be(true)
-                expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
-                expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
-              end
-            end
+          allow_any_instance_of(
+            VeteranEnrollmentSystem::Associations::Service
+          ).to receive(:get_associations).and_return(
+            get_fixture('/veteran_enrollment_system/associations/associations_maximum')
+          )
+          # Call the submit_sync method instead of submit_async so that we can ensure that
+          # the associations are removed from the form before it is submitted
+          allow_any_instance_of(
+            Form1010Ezr::Service
+          ).to receive(:submit_async) do |instance, parsed_form|
+            instance.submit_sync(parsed_form)
           end
         end
 
-        context "when the 'ezr_associations_api_enabled' flipper is enabled" do
-          before do
-            allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
-          end
-
-          context 'when an error occurs in the associations service' do
-            before do
-              allow_any_instance_of(
-                Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
-              ).to receive(:get_associations).and_raise(
-                Common::Exceptions::ResourceNotFound.new(
-                  detail: 'associations[0].relationType: Relation type is required'
-                )
-              )
-            end
-
-            it 'increments statsD, logs the error to sentry, and raises the error',
-               run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-              VCR.use_cassette(
-                'form1010_ezr/authorized_submit',
-                { match_requests_on: %i[method uri body], erb: true }
-              ) do
-                allow(StatsD).to receive(:increment)
-
-                expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-                expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
-                  '1010EZR failure',
-                  :error,
-                  {
-                    first_initial: 'F',
-                    middle_initial: 'M',
-                    last_initial: 'Z'
-                  },
-                  ezr: :failure
-                )
-                expect { submit_form(form_with_associations) }.to raise_error do |e|
-                  expect(e).to be_a(Common::Exceptions::ResourceNotFound)
-                  expect(e.errors.first.detail).to eq('associations[0].relationType: Relation type is required')
-                end
-              end
-            end
-          end
-        end
-
-        context 'any other error' do
-          before do
-            allow_any_instance_of(
-              Common::Client::Base
-            ).to receive(:perform).and_raise(
-              StandardError.new('Uh oh. Some bad error occurred.')
+        it 'creates a PII log, removes the associations from the form, and returns a success object',
+           run_at: 'Wed, 18 Jun 2025 16:12:43 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_associations_removed',
+            match_requests_on: %i[method uri body],
+            erb: true
+          ) do
+            expect(PersonalInformationLog).to receive(:create!).with(
+              data: form_with_associations,
+              error_class: 'Form1010Ezr handle associations'
             )
-            allow_logger_to_receive_error
-          end
 
-          it 'increments StatsD, logs the message to sentry, and raises the error' do
-            allow(StatsD).to receive(:increment)
-
-            expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
-              '1010EZR failure',
-              :error,
+            expect(service.submit_form(form_with_associations)).to eq(
               {
-                first_initial: 'F',
-                middle_initial: 'M',
-                last_initial: 'Z'
-              },
-              ezr: :failure
-            )
-
-            expect { submit_form(form) }.to raise_error(
-              StandardError, 'Uh oh. Some bad error occurred.'
+                success: true,
+                formSubmissionId: 443_145_123,
+                timestamp: '2025-06-18T11:12:43.943-05:00'
+              }
             )
           end
         end
       end
     end
 
-    describe '#submit_sync' do
-      context 'when an error occurs' do
-        it 'increments statsd' do
+    context 'when an error occurs' do
+      let(:current_user) do
+        create(
+          :evss_user,
+          :loa3,
+          icn: '1013032368V065534',
+          birth_date: nil,
+          first_name: nil,
+          middle_name: nil,
+          last_name: 'test',
+          suffix: nil,
+          ssn: nil,
+          gender: nil
+        )
+      end
+
+      context 'schema validation failure' do
+        before do
+          allow_logger_to_receive_error
+          allow_any_instance_of(
+            HCA::EnrollmentEligibility::Service
+          ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
+        end
+
+        it 'logs and raises a schema validation error' do
+          form_sans_required_fields = form.except(
+            'privacyAgreementAccepted',
+            'veteranDateOfBirth',
+            'veteranFullName',
+            'veteranSocialSecurityNumber',
+            'gender'
+          )
+
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with(
-            'api.1010ezr.submit_sync.fail',
-            tags: ['error:VCRErrorsUnhandledHTTPRequestError']
+          expect(StatsD).to receive(:increment).with('api.1010ezr.validation_error')
+          expect { submit_form(form_sans_required_fields) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            expect(e.errors.length).to eq(6)
+            e.errors.each do |error|
+              expect(error.title).to eq('Validation error')
+              expect(error.status).to eq('422')
+            end
+          end
+          expect_logger_errors(
+            [
+              '10-10EZR form validation failed. Form does not match schema.',
+              "The property '#/veteranFullName' did not contain a required property of 'first'",
+              "The property '#/veteranDateOfBirth' of type null did not match the following type: string",
+              "The property '#/veteranSocialSecurityNumber' of type null did not match the following type: string",
+              "The property '#/gender' of type null did not match the following type: string",
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            ]
           )
-          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.total')
-          expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+        end
+
+        # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        context "when the error pertains to the Veteran's DOB" do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
+          end
+
+          it 'creates a PersonalInformationLog and saves the unprocessed DOB' do
+            expect { submit_form(form) }.to raise_error do |e|
+              personal_information_log =
+                PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
+
+              expect(personal_information_log.present?).to be(true)
+              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
+              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            end
+          end
         end
       end
 
-      context 'when successful' do
+      context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
         before do
-          allow_logger_to_receive_info
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                    instance_of(User)).and_return(true)
         end
 
-        it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
-           run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-          VCR.use_cassette(
-            'form1010_ezr/authorized_submit',
-            { match_requests_on: %i[method uri body], erb: true }
-          ) do
-            submission_response = service.submit_sync(form_with_ves_fields)
-
-            expect(submission_response).to be_a(Object)
-            expect(submission_response).to eq(
-              {
-                success: true,
-                formSubmissionId: 436_462_561,
-                timestamp: '2024-08-23T13:00:11.005-05:00'
-              }
+        context 'when an error occurs in the associations service' do
+          before do
+            allow_any_instance_of(
+              Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
+            ).to receive(:get_associations).and_raise(
+              Common::Exceptions::ResourceNotFound.new(
+                detail: 'associations[0].relationType: Relation type is required'
+              )
             )
           end
-        end
 
-        context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
-          before do
-            allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
-          end
-
-          it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
-             'order (if applicable)',
-             run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
+          it 'increments statsD and raises the error',
+             run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
             VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_attachments_formatted_correctly',
+              'form1010_ezr/authorized_submit',
               { match_requests_on: %i[method uri body], erb: true }
             ) do
-              submission_response = service.submit_sync(ezr_form_with_attachments)
+              allow(StatsD).to receive(:increment)
 
-              expect(Rails.logger).to have_received(:info).with(
-                '1010EZR successfully submitted',
-                submission_id: submission_response[:formSubmissionId],
-                veteran_initials: {
+              expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+              expect { submit_form(form_with_associations) }.to raise_error do |e|
+                expect(e).to be_a(Common::Exceptions::ResourceNotFound)
+                expect(e.errors.first.detail).to eq('associations[0].relationType: Relation type is required')
+              end
+            end
+          end
+
+          it 'logs the error', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
+                '[10-10EZR] failure',
+                :error,
+                {
                   first_initial: 'F',
                   middle_initial: 'M',
                   last_initial: 'Z'
                 }
               )
+              expect { submit_form(form_with_associations) }.to raise_error(Common::Exceptions::ResourceNotFound)
+            end
+          end
+        end
+      end
+
+      context 'any other error' do
+        before do
+          allow_any_instance_of(
+            Common::Client::Base
+          ).to receive(:perform).and_raise(
+            StandardError.new('Uh oh. Some bad error occurred.')
+          )
+          allow_logger_to_receive_error
+        end
+
+        it 'increments StatsD and raises the error' do
+          allow(StatsD).to receive(:increment)
+
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+          expect { submit_form(form) }.to raise_error(
+            StandardError, 'Uh oh. Some bad error occurred.'
+          )
+        end
+
+        it 'logs the error' do
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
+            '[10-10EZR] failure',
+            :error,
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
+
+          expect { submit_form(form) }.to raise_error(
+            StandardError, 'Uh oh. Some bad error occurred.'
+          )
+        end
+      end
+    end
+  end
+
+  describe '#submit_sync' do
+    context 'when an error occurs' do
+      it 'increments statsd' do
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with(
+          'api.1010ezr.submit_sync.fail',
+          tags: ['error:VCRErrorsUnhandledHTTPRequestError']
+        )
+        expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.total')
+        expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+      end
+
+      it 'logs error' do
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
+          '[10-10EZR] failure',
+          :error,
+          {
+            first_initial: 'F',
+            middle_initial: 'M',
+            last_initial: 'Z'
+          }
+        )
+        expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+      end
+    end
+
+    context 'when successful' do
+      before do
+        allow_logger_to_receive_info
+      end
+
+      it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
+         run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          submission_response = service.submit_sync(form_with_ves_fields)
+
+          expect(submission_response).to be_a(Object)
+          expect(submission_response).to eq(
+            {
+              success: true,
+              formSubmissionId: 436_462_561,
+              timestamp: '2024-08-23T13:00:11.005-05:00'
+            }
+          )
+        end
+      end
+
+      it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
+         'order (if applicable)',
+         run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit_with_attachments_formatted_correctly',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          submission_response = service.submit_sync(ezr_form_with_attachments)
+
+          expect(Rails.logger).to have_received(:info).with(
+            '1010EZR successfully submitted',
+            submission_id: submission_response[:formSubmissionId],
+            veteran_initials: {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
+          expect(Rails.logger).to have_received(:info).with(
+            'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
+          )
+          expect(Rails.logger).to have_received(:info).with(
+            'Attachment sizes in descending order: 348 KB, 1.8 KB'
+          )
+        end
+      end
+
+      context 'when the form includes a Mexican province' do
+        let(:form) do
+          get_fixture('form1010_ezr/valid_form_with_mexican_province').merge!(ves_fields)
+        end
+
+        it 'returns a success object', run_at: 'Tue, 21 Nov 2023 22:29:52 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_mexican_province',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            overridden_form = HCA::OverridesParser.new(form).override
+
+            expect(service.submit_sync(overridden_form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 436_460_791,
+                timestamp: '2024-08-23T11:49:44.562-05:00'
+              }
+            )
+          end
+        end
+      end
+
+      context 'when the form includes next of kin and/or emergency contact info' do
+        it 'returns a success object', run_at: 'Thu, 24 Jul 2025 15:30:34 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_associations',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            expect(service.submit_sync(form_with_associations)).to eq(
+              {
+                success: true,
+                formSubmissionId: 443_830_966,
+                timestamp: '2025-07-24T13:10:42.638-05:00'
+              }
+            )
+          end
+        end
+      end
+
+      context 'when the form includes TERA info' do
+        let(:form) do
+          get_fixture('form1010_ezr/valid_form_with_tera').merge!(ves_fields)
+        end
+
+        it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_tera',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            expect(service.submit_sync(form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 436_462_892,
+                timestamp: '2024-08-23T13:22:59.196-05:00'
+              }
+            )
+          end
+        end
+      end
+
+      context 'submitting with attachments' do
+        let(:form) { get_fixture('form1010_ezr/valid_form') }
+
+        context 'with pdf attachments' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_attachments_formatted_correctly',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              expect(service.submit_sync(ezr_form_with_attachments)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 440_227_389,
+                  timestamp: '2025-02-12T12:40:53.043-06:00'
+                }
+              )
               expect(Rails.logger).to have_received(:info).with(
                 'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
               )
+            end
+          end
+        end
+
+        context 'with a non-pdf attachment' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 12 Feb 2025 19:00:16 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_non_pdf_attachment_formatted_correctly',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              ezr_attachment = build(:form1010_ezr_attachment)
+              ezr_attachment.set_file_data!(
+                Rack::Test::UploadedFile.new(
+                  'spec/fixtures/files/sm_file1.jpg',
+                  'image/jpeg'
+                )
+              )
+              ezr_attachment.save!
+
+              form_with_non_pdf_attachment = form_with_ves_fields.merge(
+                'attachments' => [
+                  {
+                    'confirmationCode' => ezr_attachment.guid
+                  }
+                ]
+              )
+
+              expect(service.submit_sync(form_with_non_pdf_attachment)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 440_227_675,
+                  timestamp: '2025-02-12T13:00:17.891-06:00'
+                }
+              )
               expect(Rails.logger).to have_received(:info).with(
-                'Attachment sizes in descending order: 348 KB, 1.8 KB'
+                'Payload for submitted 1010EZR: Body size of 12.8 KB with 1 attachment(s)'
               )
-            end
-          end
-        end
-
-        context 'when the form includes a Mexican province' do
-          let(:form) do
-            get_fixture('form1010_ezr/valid_form_with_mexican_province').merge!(ves_fields)
-          end
-
-          it 'returns a success object', run_at: 'Tue, 21 Nov 2023 22:29:52 GMT' do
-            VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_mexican_province',
-              { match_requests_on: %i[method uri body], erb: true }
-            ) do
-              overridden_form = HCA::OverridesParser.new(form).override
-
-              expect(service.submit_sync(overridden_form)).to eq(
-                {
-                  success: true,
-                  formSubmissionId: 436_460_791,
-                  timestamp: '2024-08-23T11:49:44.562-05:00'
-                }
-              )
-            end
-          end
-        end
-
-        context 'when the form includes next of kin and/or emergency contact info' do
-          it 'returns a success object', run_at: 'Wed, 18 Jun 2025 18:58:43 GMT' do
-            VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_associations',
-              { match_requests_on: %i[method uri body], erb: true }
-            ) do
-              expect(service.submit_sync(form_with_associations)).to eq(
-                {
-                  success: true,
-                  formSubmissionId: 443_148_464,
-                  timestamp: '2025-06-18T13:58:43.116-05:00'
-                }
-              )
-            end
-          end
-        end
-
-        context 'when the form includes TERA info' do
-          let(:form) do
-            get_fixture('form1010_ezr/valid_form_with_tera').merge!(ves_fields)
-          end
-
-          it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
-            VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_tera',
-              { match_requests_on: %i[method uri body], erb: true }
-            ) do
-              expect(service.submit_sync(form)).to eq(
-                {
-                  success: true,
-                  formSubmissionId: 436_462_892,
-                  timestamp: '2024-08-23T13:22:59.196-05:00'
-                }
-              )
-            end
-          end
-        end
-
-        context 'submitting with attachments' do
-          let(:form) { get_fixture('form1010_ezr/valid_form') }
-
-          context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
-            before do
-              allow(Flipper).to receive(:enabled?).and_call_original
-              allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
-            end
-
-            context 'with pdf attachments' do
-              it 'increments StatsD and returns a success object', run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
-                allow(StatsD).to receive(:increment)
-                expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
-
-                VCR.use_cassette(
-                  'form1010_ezr/authorized_submit_with_attachments_formatted_correctly',
-                  { match_requests_on: %i[method uri body], erb: true }
-                ) do
-                  expect(service.submit_sync(ezr_form_with_attachments)).to eq(
-                    {
-                      success: true,
-                      formSubmissionId: 440_227_389,
-                      timestamp: '2025-02-12T12:40:53.043-06:00'
-                    }
-                  )
-                  expect(Rails.logger).to have_received(:info).with(
-                    'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
-                  )
-                end
-              end
-            end
-
-            context 'with a non-pdf attachment' do
-              it 'increments StatsD and returns a success object', run_at: 'Wed, 12 Feb 2025 19:00:16 GMT' do
-                allow(StatsD).to receive(:increment)
-                expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
-
-                VCR.use_cassette(
-                  'form1010_ezr/authorized_submit_with_non_pdf_attachment_formatted_correctly',
-                  { match_requests_on: %i[method uri body], erb: true }
-                ) do
-                  ezr_attachment = build(:form1010_ezr_attachment)
-                  ezr_attachment.set_file_data!(
-                    Rack::Test::UploadedFile.new(
-                      'spec/fixtures/files/sm_file1.jpg',
-                      'image/jpeg'
-                    )
-                  )
-                  ezr_attachment.save!
-
-                  form_with_non_pdf_attachment = form_with_ves_fields.merge(
-                    'attachments' => [
-                      {
-                        'confirmationCode' => ezr_attachment.guid
-                      }
-                    ]
-                  )
-
-                  expect(service.submit_sync(form_with_non_pdf_attachment)).to eq(
-                    {
-                      success: true,
-                      formSubmissionId: 440_227_675,
-                      timestamp: '2025-02-12T13:00:17.891-06:00'
-                    }
-                  )
-                  expect(Rails.logger).to have_received(:info).with(
-                    'Payload for submitted 1010EZR: Body size of 12.8 KB with 1 attachment(s)'
-                  )
-                end
-              end
-            end
-          end
-        end
-
-        context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
-          before do
-            allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
-          end
-
-          context 'with pdf attachments' do
-            it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
-              allow(StatsD).to receive(:increment)
-              expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
-
-              VCR.use_cassette(
-                'form1010_ezr/authorized_submit_with_attachments',
-                { match_requests_on: %i[method uri body], erb: true }
-              ) do
-                expect(service.submit_sync(ezr_form_with_attachments)).to eq(
-                  {
-                    success: true,
-                    formSubmissionId: 436_462_804,
-                    timestamp: '2024-08-23T13:20:06.967-05:00'
-                  }
-                )
-                expect(Rails.logger).to have_received(:info).with(
-                  'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
-                )
-              end
-            end
-          end
-
-          context 'with a non-pdf attachment' do
-            it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
-              allow(StatsD).to receive(:increment)
-              expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
-
-              VCR.use_cassette(
-                'form1010_ezr/authorized_submit_with_non_pdf_attachment',
-                { match_requests_on: %i[method uri body], erb: true }
-              ) do
-                ezr_attachment = build(:form1010_ezr_attachment)
-                ezr_attachment.set_file_data!(
-                  Rack::Test::UploadedFile.new(
-                    'spec/fixtures/files/sm_file1.jpg',
-                    'image/jpeg'
-                  )
-                )
-                ezr_attachment.save!
-
-                form_with_non_pdf_attachment = form_with_ves_fields.merge(
-                  'attachments' => [
-                    {
-                      'confirmationCode' => ezr_attachment.guid
-                    }
-                  ]
-                )
-
-                expect(service.submit_sync(form_with_non_pdf_attachment)).to eq(
-                  {
-                    success: true,
-                    formSubmissionId: 436_462_905,
-                    timestamp: '2024-08-23T13:23:53.956-05:00'
-                  }
-                )
-                expect(Rails.logger).to have_received(:info).with(
-                  'Payload for submitted 1010EZR: Body size of 12.8 KB with 1 attachment(s)'
-                )
-              end
             end
           end
         end

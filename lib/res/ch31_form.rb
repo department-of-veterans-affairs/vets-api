@@ -2,11 +2,11 @@
 
 require_relative 'service'
 require_relative 'errors/ch31_errors'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module RES
   class Ch31Form < RES::Service
-    include SentryLogging
+    include Vets::SharedLogging
     configuration RES::Configuration
     STATSD_KEY_PREFIX = 'api.res'
 
@@ -48,6 +48,7 @@ module RES
         receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
         useTelecounseling: form_data['useTelecounseling'],
         appointmentTimePreferences: form_data['appointmentTimePreferences'],
+        privacyStatementAcknowledged: form_data['privacyAgreementAccepted'],
         yearsOfEducation: form_data['yearsOfEducation'],
         isMoving: form_data['isMoving'],
         mainPhone: form_data['mainPhone'],
