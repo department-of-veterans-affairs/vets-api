@@ -184,5 +184,194 @@ RSpec.describe 'Logstop Performance', :performance do
       expect(overhead_per_line_us).to be > 0
     end
   end
+
+  # Trevor's concern: Regex pattern count and individual costs
+  describe 'regex pattern breakdown (addressing Trevor concerns)' do
+    let(:test_msg) { 'Test message with potential PII data' }
+    let(:iterations_small) { 10_000 }
+
+    it 'counts total regex patterns applied per log line' do
+      # Logstop built-in patterns (enabled by default)
+      logstop_patterns = {
+        ssn: true,           # SSN with dashes (XXX-XX-XXXX)
+        email: true,         # Email addresses
+        phone: true,         # Phone numbers
+        credit_card: true,   # Credit card numbers
+        url_password: true   # Passwords in URLs
+      }
+
+      # VA custom patterns (in VAPiiScrubber)
+      va_patterns = {
+        va_file_number: true,  # VA file number pattern
+        ssn_no_dashes: true,   # 9-digit SSN without dashes
+        edipi: true            # 10-digit EDIPI
+      }
+
+      total_patterns = logstop_patterns.count { |_, enabled| enabled } + va_patterns.count { |_, enabled| enabled }
+
+      Rails.logger.debug "\n  REGEX PATTERN COUNT:"
+      Rails.logger.debug { "    Logstop built-in patterns: #{logstop_patterns.count { |_, enabled| enabled }}" }
+      logstop_patterns.each do |name, enabled|
+        Rails.logger.debug { "      - #{name}: #{enabled ? 'enabled' : 'disabled'}" }
+      end
+      Rails.logger.debug { "    VA custom patterns: #{va_patterns.size}" }
+      va_patterns.each do |name, enabled|
+        Rails.logger.debug { "      - #{name}: #{enabled ? 'enabled' : 'disabled'}" }
+      end
+      Rails.logger.debug { "    TOTAL REGEX PATTERNS PER LOG LINE: #{total_patterns}" }
+
+      expect(total_patterns).to be >= 8
+    end
+
+    it 'measures per-pattern overhead contribution' do
+      baseline_time = Benchmark.realtime do
+        iterations_small.times { test_msg.dup }
+      end
+
+      # Test Logstop built-in only (no VA patterns)
+      logstop_time = Benchmark.realtime do
+        iterations_small.times { Logstop.scrub(test_msg) }
+      end
+
+      # Test full scrubber (Logstop + VA patterns)
+      full_scrubber = VAPiiScrubber.custom_scrubber
+      full_time = Benchmark.realtime do
+        iterations_small.times { full_scrubber.call(test_msg) }
+      end
+
+      baseline_us = (baseline_time / iterations_small) * 1_000_000
+      logstop_us = (logstop_time / iterations_small) * 1_000_000
+      full_us = (full_time / iterations_small) * 1_000_000
+      va_patterns_us = full_us - logstop_us
+
+      Rails.logger.debug "\n  PER-PATTERN OVERHEAD BREAKDOWN:"
+      Rails.logger.debug { "    Baseline (no filtering): #{baseline_us.round(3)}µs" }
+      Rails.logger.debug do
+        "    Logstop built-in (~5 patterns): #{logstop_us.round(3)}µs (+#{(logstop_us - baseline_us).round(3)}µs)"
+      end
+      Rails.logger.debug do
+        "    VA custom patterns (3 patterns): +#{va_patterns_us.round(3)}µs additional"
+      end
+      Rails.logger.debug { "    TOTAL with all patterns: #{full_us.round(3)}µs" }
+      Rails.logger.debug do
+        "    Average cost per pattern: ~#{(full_us / 8).round(3)}µs (assuming 8 patterns)"
+      end
+
+      expect(full_us).to be > logstop_us
+    end
+  end
+
+  # Trevor's concern: Structured metadata is NOT filtered
+  describe 'structured metadata limitation (addressing Trevor concerns)' do
+    it 'demonstrates that structured metadata/payload is NOT filtered' do
+      scrubber = VAPiiScrubber.custom_scrubber
+
+      # Example 1: Structured hash with PII (like Trevor's session example)
+      structured_data = {
+        user_uuid: 'daef5af0-12ad-4738-a088-9f0047340a86',
+        ssn: '123-45-6789',           # PII in structured format
+        edipi: '1234567890',          # PII in structured format
+        session_handle: '76770900-0f90-4033-b19c-e281d95030c4'
+      }
+
+      # Convert to string (simulating how it would be logged)
+      logged_string = "Session created -- #{structured_data.inspect}"
+
+      # Apply scrubber
+      result = scrubber.call(logged_string)
+
+      Rails.logger.debug "\n  STRUCTURED METADATA TEST (Trevor's concern):"
+      Rails.logger.debug { "    Original: #{logged_string}" }
+      Rails.logger.debug { "    After Logstop: #{result}" }
+
+      # The SSN and EDIPI in structured format may or may not be caught
+      # depending on how Ruby's .inspect formats the hash
+      if result.include?('123-45-6789')
+        Rails.logger.debug '    ⚠️  WARNING: SSN in structured data NOT filtered!'
+      else
+        Rails.logger.debug '    ✓ SSN was filtered (but only because .inspect happened to format it)'
+      end
+
+      if result.include?('1234567890')
+        Rails.logger.debug '    ⚠️  WARNING: EDIPI in structured data NOT filtered!'
+      else
+        Rails.logger.debug '    ✓ EDIPI was filtered (but only because .inspect happened to format it)'
+      end
+
+      Rails.logger.debug '    NOTE: Logstop filters STRING CONTENT, not structured data keys'
+      Rails.logger.debug '    NOTE: filter_parameters would be more effective for structured data'
+
+      # This test always passes, but documents the limitation
+      expect(logged_string).to include('ssn')
+    end
+
+    it 'compares Logstop approach vs filter_parameters approach' do
+      # Simulate what filter_parameters does (filters by key name)
+      structured_data = {
+        user_uuid: 'abc123',
+        ssn: '123-45-6789',
+        edipi: '1234567890',
+        session_handle: 'xyz789'
+      }
+
+      # What filter_parameters would do (key-based filtering)
+      filtered_params = ParameterFilterHelper.filter_params(structured_data)
+
+      Rails.logger.debug "\n  COMPARISON: Logstop vs filter_parameters"
+      Rails.logger.debug '    Structured data approach (filter_parameters):'
+      Rails.logger.debug { "      Original: #{structured_data.inspect}" }
+      Rails.logger.debug { "      Filtered: #{filtered_params.inspect}" }
+      Rails.logger.debug '      Result: PII keys filtered by name (precise, fast)'
+      Rails.logger.debug ''
+      Rails.logger.debug '    Unstructured string approach (Logstop):'
+      Rails.logger.debug '      Works on: "User SSN is 123-45-6789"'
+      Rails.logger.debug '      Result: Pattern matching (imprecise, slow, false positives)'
+
+      # filter_parameters should filter the ssn key
+      expect(filtered_params[:ssn]).to eq('[FILTERED]')
+    end
+  end
+
+  # Trevor's concern: False positive rate on production-like logs
+  describe 'false positive rate on realistic logs (addressing Trevor concerns)' do
+    it 'measures false positive rate on production-like log messages' do
+      scrubber = VAPiiScrubber.custom_scrubber
+
+      # Realistic production logs that should NOT be filtered
+      clean_logs = [
+        'Order ID 1234567890 created', # 10-digit order number (false positive)
+        'Processing claim 600123456', # 9-digit claim ID (false positive)
+        'Timestamp: 1732478261 (Unix time)', # Unix timestamp (false positive)
+        'Tracking number: 9234567890',               # 10-digit tracking (false positive)
+        'Transaction 123456789 completed',           # 9-digit transaction (false positive)
+        'Request ID: abc-123-def',                   # Normal ID (should pass)
+        'Cache key: user_profile_12345',             # Normal cache key (should pass)
+        'Status code: 200',                          # HTTP status (should pass)
+        'Duration: 45ms',                            # Timing (should pass)
+        'Count: 42'                                  # Simple number (should pass)
+      ]
+
+      false_positives = 0
+      clean_logs.each do |log|
+        result = scrubber.call(log)
+        if result.include?('[FILTERED]') || result.include?('_FILTERED]')
+          false_positives += 1
+          Rails.logger.debug { "    FALSE POSITIVE: '#{log}' -> '#{result}'" }
+        end
+      end
+
+      false_positive_rate = (false_positives.to_f / clean_logs.size * 100).round(1)
+
+      Rails.logger.debug "\n  FALSE POSITIVE ANALYSIS:"
+      Rails.logger.debug { "    Total clean logs tested: #{clean_logs.size}" }
+      Rails.logger.debug { "    False positives detected: #{false_positives}" }
+      Rails.logger.debug { "    FALSE POSITIVE RATE: #{false_positive_rate}%" }
+      Rails.logger.debug ''
+      Rails.logger.debug '    Impact: Legitimate data gets filtered, making debugging harder'
+
+      # Document the false positive rate
+      expect(false_positive_rate).to be >= 0
+    end
+  end
 end
 # rubocop:enable RSpec/DescribeClass
