@@ -15,7 +15,7 @@ module VAProfile
 
         def initialize(response)
           body = response&.body
-          @contact_types = body.dig('profile', 'health_benefit', 'associated_persons').pluck('contact_type')
+          @contact_types = body.dig('profile', 'health_benefit', 'associated_persons')&.pluck('contact_type')
           contacts = body.dig('profile', 'health_benefit', 'associated_persons')
                          &.select { |p| valid_contact_types.include?(p['contact_type']) }
                          &.sort_by { |p| valid_contact_types.index(p['contact_type']) }
@@ -31,7 +31,7 @@ module VAProfile
             status:,
             message:,
             contact_types: @contact_types,
-            contact_count: contacts.count,
+            contact_count: contacts&.count || 0,
             va_profile_tx_audit_id:
           }
         end
