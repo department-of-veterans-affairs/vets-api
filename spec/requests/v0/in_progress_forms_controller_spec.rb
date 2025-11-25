@@ -292,6 +292,7 @@ RSpec.describe V0::InProgressFormsController do
       before do
         allow(Flipper).to receive(:enabled?).with(:intent_to_file_lighthouse_enabled,
                                                   instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:dedupe_in_progress_forms, instance_of(User)).and_return(true)
       end
 
       context 'with a new form' do
@@ -536,6 +537,41 @@ RSpec.describe V0::InProgressFormsController do
         it 'returns the deleted form id' do
           expect { subject }.to change(InProgressForm, :count).by(-1)
           expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when multiple forms exist for the user' do
+        subject do
+          delete v0_in_progress_form_url(in_progress_form.form_id), params: nil
+        end
+
+        let!(:in_progress_form_b) do
+          create(:in_progress_form, form_id: in_progress_form.form_id, user_account: user.user_account)
+        end
+        let!(:in_progress_form_c) do
+          create(:in_progress_form, form_id: in_progress_form.form_id, user_account: user.user_account)
+        end
+
+        context 'with dedupe feature flag off' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:dedupe_in_progress_forms, anything).and_return(false)
+          end
+
+          it 'deletes one form for that user and form id' do
+            expect { subject }.to change(InProgressForm, :count).by(-1)
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        context 'with dedupe feature flag on' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:dedupe_in_progress_forms, anything).and_return(true)
+          end
+
+          it 'deletes all forms for that user and form id' do
+            expect { subject }.to change(InProgressForm, :count).by(-3)
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
     end

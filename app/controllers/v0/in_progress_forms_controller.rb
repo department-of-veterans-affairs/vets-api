@@ -40,7 +40,15 @@ module V0
     def destroy
       raise Common::Exceptions::RecordNotFound, form_id if form_for_user.blank?
 
-      form_for_user.destroy
+      if Flipper.enabled?(:dedupe_in_progress_forms, @current_user)
+        InProgressForm.submission_pending
+                      .for_user(@current_user)
+                      .where(form_id:)
+                      .find_each(&:destroy)
+      else
+        form_for_user.destroy
+      end
+
       render json: InProgressFormSerializer.new(form_for_user)
     end
 

@@ -201,6 +201,44 @@ RSpec.describe InProgressForm, type: :model do
         end
       end
     end
+
+    context 'and in progress form exists for user_uuid and user_account' do
+      let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
+      let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+      it 'returns InProgressForm for user with given uuid' do
+        expect(subject).to eq(in_progress_form_user_uuid)
+      end
+    end
+
+    context 'and multiple in progress forms exist for user_account' do
+      let!(:older_in_progress_form) do
+        create(:in_progress_form, user_account: user.user_account, updated_at: 2.days.ago)
+      end
+      let!(:newer_in_progress_form) do
+        create(:in_progress_form, user_account: user.user_account, updated_at: 1.day.ago)
+      end
+
+      context 'with dedupe feature flag off' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:dedupe_in_progress_forms, anything).and_return(false)
+        end
+
+        it 'returns any in progress form for user_account' do
+          expect(subject).to eq(older_in_progress_form).or eq(newer_in_progress_form)
+        end
+      end
+
+      context 'with dedupe feature flag on' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:dedupe_in_progress_forms, anything).and_return(true)
+        end
+
+        it 'returns the most recently updated in progress form for user_account' do
+          expect(subject).to eq(newer_in_progress_form)
+        end
+      end
+    end
   end
 
   describe '.for_user' do
