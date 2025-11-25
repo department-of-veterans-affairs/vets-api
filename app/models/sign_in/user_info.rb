@@ -24,9 +24,8 @@ module SignIn
     attribute :birth_date, :string
     attribute :ssn, :string
     attribute :gender, :string
-    attribute :address, :string
+    attribute :address
     attribute :phone_number, :string
-    attribute :person_type, :string
     attribute :icn, :string
     attribute :sec_id, :string
     attribute :edipi, :string
@@ -47,8 +46,8 @@ module SignIn
           csp_type: csp_type_from_mpi(user), csp_uuid: user.user_verification.credential_identifier,
           ial: ial_level(user), aal: AAL::LOGIN_GOV_AAL2,
           birth_date: user.birth_date, ssn: user.ssn,
-          gender: user.gender, address: user.address, phone_number: user.home_phone,
-          person_type: user.try(:person_type), icn: user.icn,
+          gender: user.gender, address: user.address,
+          phone_number: user.home_phone, icn: user.icn,
           sec_id: user.sec_id, edipi: user.try(:edipi),
           mhv_ien: user.try(:mhv_ien), cerner_id: user.try(:cerner_id),
           corp_id: user.participant_id, birls: user.birls_id, gcids: validate_and_parse_gcids(user.mpi_gcids)
