@@ -6,6 +6,7 @@ module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
     class Representative < ApplicationRecord
+      include RepresentationManagement::Geocodable
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id
@@ -115,46 +116,11 @@ module Veteran
         user_types.first
       end
 
-      #
-      # Geocodes the representative's address and updates lat, long, and location fields.
-      # Uses partial address information with fallback strategy.
-      # @return [Boolean] true if geocoding succeeded, false otherwise
-      def geocode_and_update_location!
-        address = build_geocodable_address
-        return false if address.blank?
-
-        result = Geocoder.search(address).first
-        return false if result.blank?
-
-        self.lat = result.latitude
-        self.long = result.longitude
-        # PostGIS expects POINT(longitude latitude) - note the order!
-        self.location = "POINT(#{result.longitude} #{result.latitude})"
-
-        save!
-        true
-      rescue => e
-        Rails.logger.error("Geocoding error for #{self.class.name}##{representative_id}: #{e.message}")
-        false
-      end
-
       private
 
-      #
-      # Builds a geocodable address string from available address fields.
-      # Tries full address first, then city/state, then zip code only.
-      # @return [String, nil] Address string suitable for geocoding, or nil if insufficient data
-      def build_geocodable_address
-        # Try full address first
-        if address_line1.present? && city.present? && state_code.present?
-          return [address_line1, city, state_code, zip_code].compact.join(', ')
-        end
-
-        # Fall back to city/state
-        return [city, state_code].compact.join(', ') if city.present? && state_code.present?
-
-        # Last resort: zip code only
-        zip_code.presence
+      # Override from Geocodable concern to use representative_id instead of id
+      def geocoding_record_id
+        representative_id
       end
 
       #
