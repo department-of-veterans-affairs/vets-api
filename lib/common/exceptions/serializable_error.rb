@@ -20,19 +20,19 @@ module Common
       attribute :status, :string
       attribute :meta
 
-      validates :source, inclusion: { in: ->(_record) { [String, Hash, NilClass] } }, if: -> { source.present? }
-
       def initialize(attributes = {})
         attributes ||= {}
-        # nullifies blank values
-        attributes = attributes.transform_values(&:presence) if attributes.present?
+        # nullifies blank values like Virtus
+        attributes = attributes.reject { |_, v| v.to_s.empty? } if attributes.present?
 
-        # set default value for detail
-        attributes[:detail] = attributes[:detail] || attributes[:title]
+        # set default value for detail only if not provided
+        unless attributes.key?(:detail) || attributes.key?('detail')
+          attributes[:detail] = attributes[:title]
+        end
 
         # filters unknown attributes from the attributes hash
-        filtered_attributes = attributes.slice(*self.class.attribute_names.map(&:to_s))
-                                        .merge(attributes.slice(*self.class.attribute_names.map(&:to_sym)))
+        normalized_attributes = attributes.transform_keys(&:to_sym)
+        filtered_attributes = normalized_attributes.slice(*self.class.attribute_names.map(&:to_sym))
 
         super(filtered_attributes)
       end
@@ -72,9 +72,9 @@ module Common
         super.symbolize_keys
       end
 
-      # return only those attributes that have non nil values
+      # return only those attributes that have present values
       def to_hash
-        attributes.compact_blank
+        attributes.map { |k,_| [k, send(k)] if send(k).present? }.compact.to_h
       end
       alias to_h to_hash
     end
