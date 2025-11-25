@@ -120,16 +120,19 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
     let(:submitted_claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
     let(:submission) { instance_double(Form526Submission, id: 67_890) }
 
-    shared_examples 'logs changes event' do |removed_keys:, completely_removed:|
+    shared_examples 'logs changes event' do |removed_keys:, completely_removed:, orphaned_data_removed: false|
       it 'logs with correct keys' do
         expect(monitor).to receive(:submit_event).with(
           :info,
-          'Form526Submission toxic exposure orphaned dates purged',
+          'Form526Submission toxic exposure data purged',
           "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_changes",
           hash_including(
             submission_id: submission.id,
             removed_keys:,
-            completely_removed:
+            completely_removed:,
+            orphaned_data_removed:,
+            purge_reasons: kind_of(Hash),
+            conditions_state: kind_of(String)
           )
         )
         monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
@@ -178,12 +181,15 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       it 'distinguishes empty object from nil' do
         expect(monitor).to receive(:submit_event).with(
           :info,
-          'Form526Submission toxic exposure orphaned dates purged',
+          'Form526Submission toxic exposure data purged',
           "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_changes",
           hash_including(
             submission_id: submission.id,
             removed_keys: %w[conditions gulfWar1990],
-            completely_removed: false
+            completely_removed: false,
+            orphaned_data_removed: false,
+            purge_reasons: kind_of(Hash),
+            conditions_state: kind_of(String)
           )
         )
         monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
@@ -249,14 +255,17 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
       end
 
-      # NOTE: submission_id, completely_removed, removed_keys, and tags are allowlisted
-      # in DisabilityCompensation::Loggers::Monitor#initialize to ensure they are not filtered
-      # when written to Rails.logger. This test verifies the allowlist is working correctly.
+      # NOTE: submission_id, completely_removed, removed_keys, purge_reasons, conditions_state,
+      # orphaned_data_removed, and tags are allowlisted in DisabilityCompensation::Loggers::Monitor#initialize
+      # to ensure they are not filtered when written to Rails.logger. This test verifies the allowlist is working correctly.
       it 'does not filter out allowlisted toxic exposure tracking keys when writing to Rails logger' do
         expect(Rails.logger).to receive(:info) do |_, payload|
           expect(payload[:context][:submission_id]).to eq(submission.id)
           expect(payload[:context][:completely_removed]).to be(false)
           expect(payload[:context][:removed_keys]).to eq(['gulfWar1990'])
+          expect(payload[:context][:purge_reasons]).to be_a(Hash)
+          expect(payload[:context][:conditions_state]).to be_a(String)
+          expect(payload[:context][:orphaned_data_removed]).to be_in([true, false])
           expect(payload[:context][:tags]).to eq(['form_id:21-526EZ-ALLCLAIMS'])
         end
 

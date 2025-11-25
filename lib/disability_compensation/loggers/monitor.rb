@@ -20,7 +20,7 @@ module DisabilityCompensation
       SUBMISSION_STATS_KEY = 'api.disability_compensation.submission'
 
       def initialize
-        super(SERVICE_NAME, allowlist: %w[completely_removed removed_keys submission_id tags])
+        super(SERVICE_NAME, allowlist: %w[completely_removed conditions_state orphaned_data_removed purge_reasons removed_keys submission_id tags])
       end
 
       # Logs SavedClaim ActiveRecord save errors
@@ -159,23 +159,26 @@ module DisabilityCompensation
 
       # Log the toxic exposure changes with metadata
       #
-      # Submits a logging event to DataDog with minimal metadata about
-      # which toxic exposure keys were removed during submission.
-      # Uses minimal data to reduce fingerprinting risk.
+      # Submits a logging event to DataDog with metadata about which toxic
+      # exposure keys were removed and why. Includes enough detail to verify
+      # purges were appropriate without logging PII/PHI.
       #
       # @param submission [Form526Submission] The Form526Submission record
-      # @param change_metadata [Hash] Hash containing removed_keys and removal flags
+      # @param change_metadata [Hash] Hash containing removed_keys, purge_reasons, and conditions_state
       # @return [void]
       def log_toxic_exposure_changes(submission:, change_metadata:)
         log_data = {
           submission_id: submission.id,
           completely_removed: change_metadata[:completely_removed],
-          removed_keys: change_metadata[:removed_keys]
+          removed_keys: change_metadata[:removed_keys],
+          purge_reasons: change_metadata[:purge_reasons],
+          conditions_state: change_metadata[:conditions_state],
+          orphaned_data_removed: change_metadata[:orphaned_data_removed]
         }
 
         submit_event(
           :info,
-          'Form526Submission toxic exposure orphaned dates purged',
+          'Form526Submission toxic exposure data purged',
           "#{self.class::CLAIM_STATS_KEY}.toxic_exposure_changes",
           **log_data
         )
@@ -184,11 +187,12 @@ module DisabilityCompensation
       # Calculate removed keys from toxic exposure changes
       #
       # Analyzes differences between save-in-progress and submitted toxic exposure data
-      # to identify which keys were removed. Filters out empty hash values to reduce noise.
+      # to identify which keys were removed and why. Distinguishes between orphaned data
+      # (removed to prevent 422 errors) and user opt-outs (explicit user action).
       #
       # @param in_progress_toxic_exposure [Hash] InProgressForm data (snake_case)
       # @param submitted_toxic_exposure [Hash, nil] SavedClaim data (camelCase)
-      # @return [Hash] Metadata with completely_removed and removed_keys
+      # @return [Hash] Metadata with completely_removed, removed_keys, purge_reasons, conditions_state, orphaned_data_removed
       def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
         in_progress_camelized = OliveBranch::Transformations.transform(
           in_progress_toxic_exposure,
@@ -198,52 +202,126 @@ module DisabilityCompensation
         in_progress_camel_keys = in_progress_camelized.keys
         submitted_camel_keys = submitted_toxic_exposure&.keys || []
 
-        all_removed_keys = in_progress_camel_keys - submitted_camel_keys
-
-        # Filter out empty hashes to reduce noise
-        removed_keys = all_removed_keys.reject do |camel_key|
-          in_progress_camelized[camel_key].is_a?(Hash) && in_progress_camelized[camel_key].empty?
-        end
-
+        removed_keys = (in_progress_camel_keys - submitted_camel_keys).sort
         completely_removed = submitted_toxic_exposure.nil?
+
+        # Determine why each key was removed and detect orphaned data
+        purge_analysis = analyze_purge_reasons(
+          removed_keys,
+          in_progress_camelized,
+          submitted_toxic_exposure
+        )
+
+        conditions_state = determine_conditions_state(submitted_toxic_exposure)
 
         {
           completely_removed:,
-          removed_keys: removed_keys.sort
+          removed_keys:,
+          purge_reasons: purge_analysis[:purge_reasons],
+          conditions_state:,
+          orphaned_data_removed: purge_analysis[:orphaned_data_removed]
         }
       end
 
-      ##
-      # Module application name used for logging
-      # @return [String]
+      # Analyze purge reasons and detect orphaned data
+      #
+      # Maps each removed key to specific reason, distinguishing between:
+      # - Orphaned data (no parent, causes 422 errors)
+      # - User opt-outs (explicit false values, 'none' selected)
+      #
+      # @param removed_keys [Array<String>] Keys that were removed
+      # @param in_progress_data [Hash] InProgressForm data (camelCase)
+      # @param submitted_toxic_exposure [Hash, nil] The submitted toxic exposure data
+      # @return [Hash] { purge_reasons: Hash, orphaned_data_removed: Boolean }
+      def analyze_purge_reasons(removed_keys, in_progress_data, submitted_toxic_exposure)
+        if submitted_toxic_exposure.nil?
+          return {
+            purge_reasons: { all: 'user_opted_out_of_conditions' },
+            orphaned_data_removed: false
+          }
+        end
+
+        conditions = submitted_toxic_exposure['conditions'] || {}
+        has_none_selected = conditions['none'] == true
+        orphaned_data_detected = false
+
+        purge_reasons = removed_keys.each_with_object({}) do |key, reasons|
+          if has_none_selected
+            reasons[key] = 'user_selected_none_for_conditions'
+          elsif key.end_with?('Details')
+            # Determine if details removed due to orphaned parent or user opt-out
+            parent_key = key.sub('Details', '')
+            parent_in_submitted = submitted_toxic_exposure[parent_key]
+
+            if parent_in_submitted.nil? || !parent_in_submitted.is_a?(Hash)
+              # Parent missing or invalid - details are orphaned (prevents 422)
+              reasons[key] = 'orphaned_details_no_parent'
+              orphaned_data_detected = true
+            else
+              # Parent exists - user deselected all locations
+              reasons[key] = 'user_deselected_all_locations'
+            end
+          elsif %w[otherHerbicideLocations specifyOtherExposures].include?(key)
+            # Check if otherKey removed due to orphaned parent or user opt-out
+            parent_key = key == 'otherHerbicideLocations' ? 'herbicide' : 'otherExposures'
+            parent_in_submitted = submitted_toxic_exposure[parent_key]
+
+            if parent_in_submitted.nil? || !parent_in_submitted.is_a?(Hash)
+              # Parent missing or invalid - otherKey is orphaned (prevents 422)
+              reasons[key] = 'orphaned_other_field_no_parent'
+              orphaned_data_detected = true
+            else
+              # Parent exists - user opted out of section or has no valid selections
+              reasons[key] = 'user_opted_out_of_other_field'
+            end
+          else
+            # Section removed (gulfWar1990, gulfWar2001, herbicide, otherExposures)
+            reasons[key] = 'user_deselected_section'
+          end
+        end
+
+        {
+          purge_reasons:,
+          orphaned_data_removed: orphaned_data_detected
+        }
+      end
+
+      # Determine the final state of toxic exposure conditions
+      #
+      # @param submitted_toxic_exposure [Hash, nil] The submitted toxic exposure data
+      # @return [String] One of: 'none', 'has_selections', 'empty', 'removed'
+      def determine_conditions_state(submitted_toxic_exposure)
+        return 'removed' if submitted_toxic_exposure.nil?
+
+        conditions = submitted_toxic_exposure['conditions']
+        return 'empty' if conditions.nil? || conditions.empty?
+        return 'none' if conditions['none'] == true
+
+        has_selections = conditions.any? { |k, v| k != 'none' && v == true }
+        has_selections ? 'has_selections' : 'empty'
+      end
+
+      # @return [String] Module application name for logging
       def service_name
         SERVICE_NAME
       end
 
-      ##
-      # Stats key for DD
-      # @return [String]
+      # @return [String] Stats key for DataDog
       def claim_stats_key
         CLAIM_STATS_KEY
       end
 
-      ##
-      # Stats key for Sidekiq DD logging
-      # @return [String]
+      # @return [String] Stats key for Sidekiq DataDog logging
       def submission_stats_key
         SUBMISSION_STATS_KEY
       end
 
-      ##
-      # Class name for log messages
-      # @return [String]
+      # @return [String] Class name for log messages
       def name
         self.class.name
       end
 
-      ##
-      # Form ID for the application
-      # @return [String]
+      # @return [String] Form ID
       def form_id
         FORM_ID
       end
