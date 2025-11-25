@@ -27,11 +27,7 @@ module VAProfile
         def get_health_benefit_bio
           oid = MPI::Constants::VA_ROOT_OID
           unless icn_with_aaid
-            Rails.logger.error(
-              event: 'va_profile.health_benefit_bio.missing_icn_with_aaid',
-              user_uuid: user.uuid,
-              icn_present: user.icn.present?
-            )
+            log_missing_icn_with_aaid
             raise Common::Exceptions::BackendServiceException.new('VET360_502', self.class)
           end
 
@@ -40,31 +36,17 @@ module VAProfile
           request_body = { bios: [{ bioPath: 'healthBenefit' }] }
 
           start_ms = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
-          Rails.logger.info(
-            event: 'va_profile.health_benefit_bio.request',
-            path_hash:,
-            bios_requested: request_body[:bios].size
-          )
+          log_health_benefit_bio_request(path_hash, request_body[:bios].size)
           service_response = perform(:post, path, request_body)
           latency = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start_ms
           response = VAProfile::Profile::V3::HealthBenefitBioResponse.new(service_response)
 
-          Rails.logger.info(
-            event: 'va_profile.health_benefit_bio.response',
-            path_hash:,
-            upstream_status: response.status,
-            contacts_present: response.contacts&.any?,
-            latency_ms: latency
-          )
+          log_health_benefit_bio_response(path_hash, response, latency)
           StatsD.measure('va_profile.health_benefit_bio.latency', latency)
 
           code = response.code || 502
           if response.server_error?
-            Rails.logger.error(
-              event: 'va_profile.health_benefit_bio.server_error',
-              upstream_status: code,
-              path_hash:
-            )
+            log_health_benefit_bio_server_error(code, path_hash)
             raise_backend_exception("VET360_#{code}", self.class)
           end
           response
@@ -117,6 +99,40 @@ module VAProfile
 
         def path(edipi)
           "#{OID}/#{ERB::Util.url_encode("#{edipi}#{AAID}")}"
+        end
+
+        def log_missing_icn_with_aaid
+          Rails.logger.error(
+            event: 'va_profile.health_benefit_bio.missing_icn_with_aaid',
+            user_uuid: user.uuid,
+            icn_present: user.icn.present?
+          )
+        end
+
+        def log_health_benefit_bio_request(path_hash, bios_requested)
+          Rails.logger.info(
+            event: 'va_profile.health_benefit_bio.request',
+            path_hash:,
+            bios_requested:
+          )
+        end
+
+        def log_health_benefit_bio_response(path_hash, response, latency)
+          Rails.logger.info(
+            event: 'va_profile.health_benefit_bio.response',
+            path_hash:,
+            upstream_status: response.status,
+            contacts_present: response.contacts&.any?,
+            latency_ms: latency
+          )
+        end
+
+        def log_health_benefit_bio_server_error(code, path_hash)
+          Rails.logger.error(
+            event: 'va_profile.health_benefit_bio.server_error',
+            upstream_status: code,
+            path_hash:
+          )
         end
       end
     end

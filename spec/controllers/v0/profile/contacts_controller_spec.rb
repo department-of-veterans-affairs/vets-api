@@ -34,8 +34,9 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
         subject
 
         expect(Rails.logger).to have_received(:info).with(hash_including(event: 'profile.contacts.request.start'))
-        expect(Rails.logger).to have_received(:info).with(hash_including(event: 'profile.contacts.request.finish',
-                                                                         contact_count: 4, upstream_status: 200))
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(event: 'profile.contacts.request.finish', contact_count: 4, upstream_status: 200)
+        )
         expect(StatsD).to have_received(:measure).with('profile.contacts.latency', kind_of(Numeric))
         expect(StatsD).to have_received(:increment).with('profile.contacts.success')
       end
@@ -94,7 +95,8 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       it 'logs empty metrics when contacts array is empty' do
         # Stub service to return empty contacts while status 200
         sign_in_as user
-        allow_any_instance_of(VAProfile::Profile::V3::Service).to receive(:get_health_benefit_bio).and_wrap_original do |orig|
+        allow_any_instance_of(VAProfile::Profile::V3::Service)
+          .to receive(:get_health_benefit_bio).and_wrap_original do |orig|
           response = orig.call
           allow(response).to receive(:contacts).and_return([])
           response
@@ -105,8 +107,9 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
 
         subject
 
-        expect(Rails.logger).to have_received(:info).with(hash_including(event: 'profile.contacts.request.finish',
-                                                                         contact_count: 0, upstream_status: 200))
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(event: 'profile.contacts.request.finish', contact_count: 0, upstream_status: 200)
+        )
         expect(StatsD).to have_received(:increment).with('profile.contacts.empty')
       end
     end
