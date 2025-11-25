@@ -111,7 +111,9 @@ module Pensions
         end
       end
 
-      # Generate the claim attachment pdfs
+      # Generate the form attachment pdfs
+      #
+      # @return [Array<String>] path to processed PDF document
       def generate_attachment_pdfs
         @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, :pensions_received_at) }
       end
