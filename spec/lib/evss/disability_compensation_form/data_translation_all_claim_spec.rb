@@ -584,10 +584,29 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'bankName' => 'test'
         }
       end
+
+      it 'logs the submission was made with banking info' do
+        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+          .to receive(:track_526_submission_with_banking_info)
+          .with(user.uuid)
+
+        subject.send(:translate_banking_info)
+      end
     end
 
     context 'when the banking info is redacted' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+
+      let(:form_content) do
+        {
+          'form526' => {
+            'bankName' => 'WELLS FARGO BANK',
+            'bankAccountType' => 'CHECKING',
+            'bankAccountNumber' => '1234567890',
+            'bankRoutingNumber' => '031000503'
+          }
+        }
+      end
 
       it 'gathers the banking info from Lighthouse DirectDeposit' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
@@ -599,7 +618,127 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           }
         end
       end
+
+      context 'when Lighthouse does not have banking info for the user' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'bankAccountNumber' => '******7890',
+              'bankRoutingNumber' => '*****0503'
+            }
+          }
+        end
+
+        before do
+          allow_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info)
+            .and_return(Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil))
+        end
+
+        it 'logs the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
+      end
+
+      context 'when Lighthouse returns banking info for the user' do
+        it 'logs the submission was made with banking info' do
+          # This expectation should come BEFORE the method call
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_with_banking_info)
+            .with(user.uuid)
+
+          # Use the pre-recorded API response
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+            subject.send(:translate_banking_info)
+          end
+        end
+      end
     end
+
+    context 'when not provided banking info' do
+      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+
+      context 'when banking info retrieval has an issue' do
+        it 'does not make a call to Lighthouse to retrieve banking information' do
+          expect_any_instance_of(DirectDeposit::Client).not_to receive(:get_payment_info)
+          subject.send(:translate_banking_info)
+        end
+
+        it 'does not set payment information' do
+          expect(subject.send(:translate_banking_info)).to eq({})
+        end
+
+        it 'logs the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
+      end
+
+      context 'when banking info retrieval is allowed' do
+        context 'and the Lighthouse DirectDeposit service has the account info' do
+          let(:form_content) do
+              {
+                'form526' => {
+                  'bankName' => 'WELLS FARGO BANK',
+                  'bankAccountType' => 'CHECKING',
+                  'bankAccountNumber' => '1234567890',
+                  'bankRoutingNumber' => '031000503'
+                }
+              }
+          end
+
+          it 'gathers the banking info from the LH DirectDeposit endpoint' do
+            VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+              expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
+                'accountType' => 'CHECKING',
+                'accountNumber' => '1234567890',
+                'routingNumber' => '031000503',
+                'bankName' => 'WELLS FARGO BANK'
+              }
+            end
+          end
+        end
+
+        context 'and the Lighthouse DirectDeposit service does not have the account info' do
+          let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
+
+          before do
+            allow_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
+          end
+
+          it 'does not set payment information' do
+            expect(subject.send(:translate_banking_info)).to eq({})
+          end
+
+          it 'logs the submission was made without banking info' do
+            expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+              .to receive(:track_526_submission_without_banking_info)
+              .with(user.uuid)
+
+            subject.send(:translate_banking_info)
+          end
+
+        end
+
+        it 'does not log the submission was made without banking info' do
+          allow_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info)
+            .and_return(Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil))
+
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
+      end
+    end
+
   end
 
   describe '#translate_service_pay' do
