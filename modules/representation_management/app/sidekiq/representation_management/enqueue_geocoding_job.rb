@@ -46,7 +46,7 @@ module RepresentationManagement
         )
       end
 
-      records.count
+      records.size
     end
   end
 end
