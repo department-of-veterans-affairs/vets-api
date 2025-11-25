@@ -134,14 +134,6 @@ VAPiiLogger.filtered.error("Validation failed: #{exception.message}")
 
 **The opt-in model eliminates the performance concerns** raised during PR review while still providing PII filtering capability where needed.
 
-### Key Takeaways
-
-1. **99% of logs run at baseline speed** (zero overhead)
-2. **1% of logs** (sensitive contexts) accept 2.5µs overhead
-3. **100x improvement** in production CPU time vs global filtering
-4. **Developer control** enables strategic use in high-risk areas
-5. **Gradual adoption** allows teams to opt-in as needed
-
 ---
 
 **Run benchmark:** `bundle exec rspec spec/lib/logstop_performance_spec.rb`
