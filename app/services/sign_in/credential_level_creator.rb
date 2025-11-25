@@ -53,13 +53,12 @@ module SignIn
                           credential_type: type,
                           current_ial:,
                           max_ial:,
-                          auto_uplevel:)
+                          auto_uplevel: false)
     rescue ActiveModel::ValidationError => e
       Rails.logger.info("[SignIn][CredentialLevelCreator] error: #{e.message}", credential_type: type,
                                                                                 requested_acr:,
                                                                                 current_ial:,
                                                                                 max_ial:,
-                                                                                auto_uplevel:,
                                                                                 credential_uuid:)
       raise Errors::InvalidCredentialLevelError.new message: 'Unsupported credential authorization levels'
     end
@@ -67,7 +66,7 @@ module SignIn
     def max_ial
       case type
       when Constants::Auth::LOGINGOV
-        verified_ial_level(verified_at)
+        verified_ial_level(verified_at || previously_verified?(:logingov_uuid))
       when Constants::Auth::MHV
         verified_ial_level(Constants::Auth::MHV_PREMIUM_VERIFIED.include?(mhv_assurance))
       when Constants::Auth::DSLOGON
@@ -75,21 +74,21 @@ module SignIn
                           "credential_uuid: #{credential_uuid}")
         verified_ial_level(Constants::Auth::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance))
       else
-        verified_ial_level(level_of_assurance == Constants::Auth::LOA_THREE)
+        verified_ial_level(level_of_assurance == Constants::Auth::LOA_THREE || previously_verified?(:idme_uuid))
       end
     end
 
     def current_ial
       case type
       when Constants::Auth::LOGINGOV
-        verified_ial_level(logingov_acr == Constants::Auth::LOGIN_GOV_IAL2 || previously_verified?(:logingov_uuid))
+        verified_ial_level(logingov_acr == Constants::Auth::LOGIN_GOV_IAL2)
       when Constants::Auth::MHV
         verified_ial_level(requested_verified_account? && Constants::Auth::MHV_PREMIUM_VERIFIED.include?(mhv_assurance))
       when Constants::Auth::DSLOGON
         verified_ial_level(requested_verified_account? &&
                            Constants::Auth::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance))
       else
-        verified_ial_level(credential_ial == Constants::Auth::IDME_CLASSIC_LOA3 || previously_verified?(:idme_uuid))
+        verified_ial_level([Constants::Auth::IDME_CLASSIC_LOA3, Constants::Auth::IAL_TWO].include?(credential_ial))
       end
     end
 
@@ -106,21 +105,8 @@ module SignIn
     end
 
     def previously_verified?(identifier_type)
-      return false unless IdentitySettings.sign_in.auto_uplevel && requested_verified_account?
-
       user_verification = UserVerification.find_by(identifier_type => credential_uuid)
       user_verification&.verified?
-    end
-
-    def auto_uplevel
-      case type
-      when Constants::Auth::LOGINGOV
-        logingov_acr != Constants::Auth::LOGIN_GOV_IAL2 && previously_verified?(:logingov_uuid)
-      when Constants::Auth::IDME
-        credential_ial != Constants::Auth::IDME_CLASSIC_LOA3 && previously_verified?(:idme_uuid)
-      else
-        false
-      end
     end
   end
 end
