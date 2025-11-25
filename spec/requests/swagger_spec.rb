@@ -2881,54 +2881,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'form 21-0779 nursing home information' do
-      let(:saved_claim) { create(:va210779) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
-      end
-
-      it 'supports submitting a form 21-0779' do
-        expect(subject).to validate(
-          :post,
-          '/v0/form210779',
-          200,
-          json_headers.merge('_data' => VetsJsonSchema::EXAMPLES['21-0779'].to_json)
-        )
-      end
-
-      it 'handles 422' do
-        expect(subject).to validate(
-          :post,
-          '/v0/form210779',
-          422,
-          json_headers.merge('_data' => { foo: :bar }.to_json)
-        )
-      end
-
-      it 'successfully downloads form210779 pdf', skip: 'swagger validation cannot handle binary PDF response' do
-        expect(subject).to validate(
-          :get,
-          '/v0/form210779/download_pdf/{guid}',
-          200,
-          'guid' => saved_claim.guid
-        )
-      end
-
-      context 'when feature toggle is disabled' do
-        before { allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false) }
-
-        it 'handles 404' do
-          expect(subject).to validate(
-            :get,
-            '/v0/form210779/download_pdf/{guid}',
-            404,
-            'guid' => saved_claim.guid
-          )
-        end
-      end
-    end
-
     describe 'va file number' do
       it 'supports checking if a user has a veteran number' do
         expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 401)

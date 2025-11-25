@@ -25,7 +25,8 @@ RSpec.describe 'V0::Form212680', type: :request do
         expect(metrics.collect(&:source)).to include(
           'saved_claim.create:1|c|#form_id:21-2680,doctype:540',
           'api.form212680.success:1|c',
-          'api.rack.request:1|c|#controller:v0/form212680,action:create,source_app:21-2680-house-bound-status,status:200'
+          'api.rack.request:1|c|#controller:v0/form212680,action:create,' \
+          'source_app:21-2680-house-bound-status,status:200'
         )
       end
     end
@@ -41,7 +42,8 @@ RSpec.describe 'V0::Form212680', type: :request do
       end
       expect(metrics.collect(&:source)).to include(
         'saved_claim.create:1|c|#form_id:21-2680,doctype:540',
-        'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,source_app:21-2680-house-bound-status,status:200'
+        'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,' \
+        'source_app:21-2680-house-bound-status,status:200'
       )
 
       expect(response).to have_http_status(:ok)
@@ -58,7 +60,8 @@ RSpec.describe 'V0::Form212680', type: :request do
             })
       end
       expect(metrics.collect(&:source)).to include(
-        'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,source_app:21-2680-house-bound-status,status:500'
+        'api.rack.request:1|c|#controller:v0/form212680,action:download_pdf,' \
+        'source_app:21-2680-house-bound-status,status:500'
       )
 
       expect(response).to have_http_status(:internal_server_error)

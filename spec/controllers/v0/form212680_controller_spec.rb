@@ -29,8 +29,12 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       expect(confirmation_number).to be_present
       expect(parsed_response['data']['attributes']['submitted_at']).to be_present
       expect(parsed_response['data']['attributes']['guid']).to be_present
-      expect(parsed_response['data']['attributes']['regional_office']).to eq(['Department of Veterans Affairs',
-                                                                              'Pension Management Center', 'P.O. Box 5365', 'Janesville, WI 53547-5365'])
+      expect(parsed_response['data']['attributes']['regional_office']).to eq(
+        [
+          'Department of Veterans Affairs',
+          'Pension Management Center', 'P.O. Box 5365', 'Janesville, WI 53547-5365'
+        ]
+      )
     end
 
     it 'returns a unique confirmation number for each request' do
