@@ -15,17 +15,10 @@ module DependentsBenefits
     # veteran's eFolder. Detects permanent VEFS errors for appropriate retry behavior.
     #
     class Claims674Job < DependentSubmissionJob
-      # Exception raised when 674 claim validation fails
-      class Invalid674Claim < StandardError; end
-
       ##
       # Service-specific submission logic for Claims Evidence API
       # @return [ServiceResponse] Must respond to success? and error methods
       def submit_to_service
-        saved_claim.add_veteran_info(user_data)
-
-        raise Invalid674Claim unless saved_claim.valid?(:run_686_form_jobs)
-
         file_path = lighthouse_submission.process_pdf(
           saved_claim.to_pdf(form_id: SCHOOL_ATTENDANCE_APPROVAL),
           saved_claim.created_at,
@@ -42,6 +35,14 @@ module DependentsBenefits
         DependentsBenefits::ServiceResponse.new(status: true)
       rescue => e
         DependentsBenefits::ServiceResponse.new(status: false, error: e)
+      end
+
+      ##
+      # Returns the error class for invalid 686c claims
+      #
+      # @return [Class] Invalid686cClaim error class
+      def invalid_claim_error_class
+        Invalid674Claim
       end
 
       # Use .find_or_create to generate/return memoized service-specific form submission record
