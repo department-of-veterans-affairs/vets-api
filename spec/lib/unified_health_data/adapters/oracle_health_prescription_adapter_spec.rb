@@ -2037,4 +2037,112 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
   end
+
+  describe '#extract_refill_metadata_from_tasks' do
+    context 'when task_resources are present' do
+      it 'extracts refill metadata from most recent Task resource' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'in-progress',
+            execution_period_start: '2025-06-24T21:05:53.000Z',
+            execution_period_end: nil,
+            authored_on: '2025-06-24T20:00:00.000Z',
+            last_modified: '2025-06-24T21:00:00.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
+        expect(metadata[:refill_request_status]).to eq('in-progress')
+        expect(metadata[:task_id]).to eq('12345')
+        expect(metadata[:days_since_submission]).to be_a(Integer)
+      end
+
+      it 'returns most recent task when multiple tasks exist' do
+        task_resources = [
+          {
+            id: '11111',
+            status: 'completed',
+            execution_period_start: '2025-06-20T10:00:00.000Z'
+          },
+          {
+            id: '22222',
+            status: 'in-progress',
+            execution_period_start: '2025-06-24T21:05:53.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+
+        expect(metadata[:task_id]).to eq('22222')
+        expect(metadata[:refill_request_status]).to eq('in-progress')
+      end
+
+      it 'handles tasks without execution_period_start gracefully' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'requested',
+            execution_period_start: nil
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+
+        expect(metadata[:refill_request_status]).to eq('requested')
+        expect(metadata[:task_id]).to eq('12345')
+        expect(metadata[:refill_submit_date]).to be_nil
+        expect(metadata[:days_since_submission]).to be_nil
+      end
+
+      it 'handles invalid date format gracefully' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'in-progress',
+            execution_period_start: 'invalid-date'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+
+        expect(metadata[:refill_submit_date]).to eq('invalid-date')
+        expect(metadata[:days_since_submission]).to be_nil
+      end
+    end
+
+    context 'when task_resources are empty' do
+      it 'returns empty metadata hash' do
+        metadata = subject.send(:extract_refill_metadata_from_tasks, [])
+
+        expect(metadata).to eq({})
+      end
+    end
+
+    context 'when task_resources are nil' do
+      it 'returns empty metadata hash' do
+        metadata = subject.send(:extract_refill_metadata_from_tasks, nil)
+
+        expect(metadata).to eq({})
+      end
+    end
+
+    context 'when tasks have no status' do
+      it 'returns empty metadata hash' do
+        task_resources = [
+          {
+            id: '12345',
+            status: nil,
+            execution_period_start: '2025-06-24T21:05:53.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+
+        expect(metadata).to eq({})
+      end
+    end
+  end
 end

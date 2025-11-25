@@ -152,6 +152,62 @@ module UnifiedHealthData
         end
       end
 
+      public
+
+      # Extracts refill submission metadata from Task resources for recently requested prescriptions
+      # This is used to populate metadata in the recently_requested array
+      # Task resources contain refill request information per FHIR standard
+      #
+      # @param task_resources [Array<Hash>] Array of task resource hashes
+      # @return [Hash] Hash containing refill metadata from Task resources
+      def extract_refill_metadata_from_tasks(task_resources)
+        metadata = {}
+        return metadata unless task_resources.present?
+
+        # Find the most recent refill request task
+        refill_tasks = task_resources.select { |task| task[:status].present? }
+        return metadata unless refill_tasks.any?
+
+        # Sort by executionPeriod.start to find most recent submission
+        most_recent_task = refill_tasks.max_by do |task|
+          if task[:execution_period_start]
+            begin
+              Time.zone.parse(task[:execution_period_start])
+            rescue ArgumentError
+              Time.zone.at(0)
+            end
+          else
+            Time.zone.at(0)
+          end
+        end
+
+        return metadata unless most_recent_task
+
+        # Extract submission timestamp from executionPeriod.start
+        if most_recent_task[:execution_period_start]
+          metadata[:refill_submit_date] = most_recent_task[:execution_period_start]
+
+          # Calculate days since submission for frontend display
+          begin
+            submit_time = Time.zone.parse(most_recent_task[:execution_period_start])
+            if submit_time
+              days_since = ((Time.zone.now - submit_time) / 1.day).floor
+              metadata[:days_since_submission] = days_since if days_since >= 0
+            end
+          rescue ArgumentError, TypeError
+            # Invalid date format, skip calculation
+          end
+        end
+
+        # Extract refill request status from Task.status
+        metadata[:refill_request_status] = most_recent_task[:status] if most_recent_task[:status]
+
+        # Include other relevant task fields if available
+        metadata[:task_id] = most_recent_task[:id] if most_recent_task[:id]
+
+        metadata
+      end
+
       def extract_sig_from_dispense(dispense)
         dosage_instructions = dispense['dosageInstruction'] || []
         return nil if dosage_instructions.empty?

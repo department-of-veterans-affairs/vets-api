@@ -146,7 +146,7 @@ module MyHealth
         end
 
         # Enhance with Oracle Health-specific refill submission metadata
-        # Logic is in the Prescription model to be shared across my_health and mobile controllers
+        # Logic is in the Oracle Health adapter to follow UHD architecture patterns
         recently_requested.map do |prescription|
           enhanced_data = {
             prescription_id: prescription.prescription_id,
@@ -156,12 +156,24 @@ module MyHealth
           }
 
           # Add Oracle Health-specific refill submission timing data from Task resources
-          if prescription.respond_to?(:oracle_health_prescription?) && prescription.oracle_health_prescription?
-            enhanced_data.merge!(prescription.refill_metadata_from_tasks)
+          # Oracle Health prescriptions lack refill_submit_date (not in FHIR standard)
+          if oracle_health_prescription?(prescription)
+            enhanced_data.merge!(oracle_health_adapter.extract_refill_metadata_from_tasks(prescription.task_resources))
           end
 
           enhanced_data
         end
+      end
+
+      # Checks if a prescription originated from Oracle Health system
+      def oracle_health_prescription?(prescription)
+        prescription.respond_to?(:refill_submit_date) && prescription.refill_submit_date.nil? &&
+          prescription.respond_to?(:prescription_source) && prescription.prescription_source == 'VA'
+      end
+
+      # Lazy-load Oracle Health adapter for extracting refill metadata
+      def oracle_health_adapter
+        @oracle_health_adapter ||= UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter.new
       end
 
       def apply_filters_to_list(prescriptions)
