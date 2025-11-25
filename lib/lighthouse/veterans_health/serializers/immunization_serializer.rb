@@ -102,7 +102,7 @@ module Lighthouse
         def self.extract_cvx_code(vaccine_code)
           coding = vaccine_code['coding']&.first
           code = coding && coding['code']
-          (code.presence&.to_i)
+          code.presence&.to_i
         end
 
         def self.extract_dose_number(protocol_applied)
