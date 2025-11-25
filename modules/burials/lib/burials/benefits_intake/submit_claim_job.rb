@@ -104,8 +104,8 @@ module Burials
       # @param stamp_set [String|Symbol] the stamps to apply
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path, stamp_set) # rubocop:disable Metrics/MethodLength
-        document = Burials::PDFStamoer.new(stamp_set).run(file_path, timestamp: @claim.created_at)
+      def process_document(file_path, stamp_set)
+        document = Burials::PDFStamper.new(stamp_set).run(file_path, timestamp: @claim.created_at)
 
         @intake_service.valid_document?(document:)
       end
@@ -143,6 +143,7 @@ module Burials
         end
       end
 
+      # Generate the claim attachment pdfs
       def generate_attachment_pdfs
         @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, :burials_received_at) }
       end
