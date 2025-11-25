@@ -24,7 +24,7 @@ module V0
         meta = response.meta
         render json: { **serialized_data, meta: }, status: response.status
       rescue => e
-        log_exception(start_ms:, e:)
+        log_exception(start_ms:, e:, meta:)
         raise
       end
 
@@ -59,7 +59,7 @@ module V0
         StatsD.increment('profile.contacts.success') if response_ok
       end
 
-      def log_exception(start_ms:, e:)
+      def log_exception(start_ms:, e:, meta:)
         elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start_ms
         event = if e.is_a?(Common::Exceptions::BackendServiceException)
                   'profile.contacts.backend_error'
@@ -70,7 +70,8 @@ module V0
           event:,
           request_id: request.request_id,
           error_class: e.class.name,
-          message: e.message,
+          error_message: e.message,
+          upstream_message: meta&.dig(:message),
           latency_ms: elapsed
         )
         StatsD.increment('profile.contacts.error')
