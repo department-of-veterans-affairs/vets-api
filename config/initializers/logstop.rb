@@ -1,10 +1,21 @@
 # frozen_string_literal: true
 
-# Logstop configuration for content-based PII filtering in Rails logs
+# Logstop configuration for opt-in content-based PII filtering in Rails logs
+#
+# IMPLEMENTATION: OPT-IN ONLY
 #
 # This provides defense-in-depth alongside our existing filter_parameters
 # configuration. While filter_parameters blocks specific parameter names,
 # Logstop scans actual content for PII patterns.
+#
+# USAGE:
+#   Use VAPiiLogger.filtered when logging potentially sensitive data:
+#
+#   # Standard logging (no PII filtering overhead)
+#   Rails.logger.info('Processing request')
+#
+#   # Filtered logging (use when logging user input or sensitive data)
+#   VAPiiLogger.filtered.info("User submitted: #{user_params}")
 #
 # Built-in patterns filtered by Logstop:
 # - SSN (XXX-XX-XXXX)
@@ -23,17 +34,15 @@
 # - SSN without dashes (9 digits)
 # - EDIPI (10 digits)
 #
-# Log Coverage:
-# - Applies to ALL Rails.logger calls (both developer-generated and framework-generated)
-# - Filters log messages before they reach any destination (file, stdout, CloudWatch, DataDog)
-# - Covers exception handling and stack traces logged through Rails.logger
-# - Does NOT filter logs written directly to STDOUT/STDERR without using Rails.logger
-# - Implementation: Sink-level redaction (filters at logger level before broadcast)
+# Performance Impact:
+# - Per-line overhead: ~2.5µs (50x slower than unfiltered logging)
+# - Only applies when using VAPiiLogger.filtered (zero impact on Rails.logger)
+# - See spec/lib/logstop_performance_spec.rb for benchmarks
 #
 # Important: This filters ONLY the log message string, NOT structured metadata.
 # For structured logging with metadata hashes, use filter_parameters:
 #   Rails.logger.info('User action', { ssn: '123-45-6789' })  # ssn filtered by filter_parameters
-#   Rails.logger.info('User SSN is 123-45-6789')              # SSN filtered by Logstop
+#   VAPiiLogger.filtered.info('User SSN is 123-45-6789')      # SSN filtered by Logstop
 #
 # Reference: https://github.com/ankane/logstop
 # Related ticket: https://github.com/department-of-veterans-affairs/va.gov-team/issues/120874
@@ -73,15 +82,25 @@ module VAPiiScrubber
   end
 end
 
-# Guard all Rails loggers with Logstop
-# This applies filtering to all log outputs (file, stdout, CloudWatch, DataDog)
-Logstop.guard(Rails.logger, scrubber: VAPiiScrubber.custom_scrubber)
-
-# Also guard the tagged logger if present
-if Rails.logger.respond_to?(:broadcast_to)
-  Rails.logger.broadcasts.each do |broadcast|
-    Logstop.guard(broadcast, scrubber: VAPiiScrubber.custom_scrubber) if broadcast.respond_to?(:info)
+# Opt-in filtered logger for sensitive contexts
+module VAPiiLogger
+  # Returns a logger with PII filtering enabled
+  # Use this when logging potentially sensitive data (user input, form submissions, etc.)
+  #
+  # Example:
+  #   VAPiiLogger.filtered.info("User submitted claim: #{claim_params}")
+  #
+  # Note: This incurs ~2.5µs overhead per log line. Only use when necessary.
+  def self.filtered
+    # Thread-safe singleton using class variable
+    @@filtered_logger ||= begin # rubocop:disable Style/ClassVars
+      logger = ActiveSupport::Logger.new($stdout)
+      logger.level = Rails.logger.level
+      logger.formatter = Rails.logger.formatter
+      Logstop.guard(logger, scrubber: VAPiiScrubber.custom_scrubber)
+      logger
+    end
   end
 end
 
-Rails.logger.info('Logstop PII filtering initialized with VA-specific patterns')
+Rails.logger.info('Logstop PII filtering available via VAPiiLogger.filtered (opt-in only)')

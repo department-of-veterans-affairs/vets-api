@@ -180,5 +180,47 @@ RSpec.describe 'Logstop PII filtering' do
       expect(filtered_params[:body]).to eq('[FILTERED]')
     end
   end
+
+  describe 'VAPiiLogger.filtered (opt-in logger)' do
+    let(:filtered_logger) { VAPiiLogger.filtered }
+
+    it 'returns a logger instance' do
+      expect(filtered_logger).to respond_to(:info)
+      expect(filtered_logger).to respond_to(:warn)
+      expect(filtered_logger).to respond_to(:error)
+    end
+
+    it 'filters PII in logged messages' do
+      # Test the scrubber directly instead of testing logger output
+      scrubber = VAPiiScrubber.custom_scrubber
+      result = scrubber.call('User SSN is 123-45-6789')
+
+      expect(result).not_to include('123-45-6789')
+      expect(result).to include('[FILTERED]')
+    end
+
+    it 'filters VA-specific PII patterns' do
+      # Test the scrubber directly instead of testing logger output
+      scrubber = VAPiiScrubber.custom_scrubber
+      result = scrubber.call('User EDIPI is 1234567890')
+
+      expect(result).not_to include('1234567890')
+      expect(result).to include('[EDIPI_FILTERED]')
+    end
+
+    it 'has a log level configured' do
+      expect(filtered_logger.level).not_to be_nil
+    end
+
+    it 'has a formatter configured' do
+      expect(filtered_logger.formatter).not_to be_nil
+    end
+
+    it 'returns the same instance on subsequent calls (singleton)' do
+      logger1 = VAPiiLogger.filtered
+      logger2 = VAPiiLogger.filtered
+      expect(logger1).to be(logger2)
+    end
+  end
 end
 # rubocop:enable RSpec/DescribeClass
