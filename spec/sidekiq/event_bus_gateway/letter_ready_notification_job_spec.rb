@@ -375,6 +375,43 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
           end.to raise_error(EventBusGateway::Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
         end
       end
+
+      context 'when an unexpected error occurs during data fetching' do
+        before do
+          allow_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_person_by_ptcpnt_id)
+            .and_raise(StandardError, 'Unexpected BGS error')
+        end
+
+        it 'records failure because instance variables are nil' do
+          expect_any_instance_of(described_class).to receive(:record_notification_send_failure)
+            .with(instance_of(StandardError), 'Notification')
+
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id)
+          end.to raise_error(StandardError, 'Unexpected BGS error')
+        end
+      end
+
+      context 'when error occurs after data fetching completes' do
+        before do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job enqueue failed')
+        end
+
+        it 'does not record notification send failure' do
+          expect_any_instance_of(described_class).not_to receive(:record_notification_send_failure)
+
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id)
+          end.not_to raise_error
+        end
+
+        it 'returns error in the errors array' do
+          result = subject.new.perform(participant_id, email_template_id, push_template_id)
+          expect(result).to eq([{ type: 'email', error: 'Email job enqueue failed' }])
+        end
+      end
     end
   end
 

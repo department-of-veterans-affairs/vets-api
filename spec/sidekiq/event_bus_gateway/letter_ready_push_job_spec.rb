@@ -163,7 +163,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
           .and_raise(StandardError, 'Service initialization failed')
       end
 
-      include_examples 'letter ready job va notify error handling', 'Push', 'push notification'
+      include_examples 'letter ready job va notify error handling', 'Push'
 
       it 'does not send push notification' do
         expect(va_notify_service).not_to receive(:send_push)

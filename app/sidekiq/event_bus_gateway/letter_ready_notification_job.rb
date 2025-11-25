@@ -30,7 +30,6 @@ module EventBusGateway
 
     def perform(participant_id, email_template_id = nil, push_template_id = nil)
       # Fetch participant data upfront
-      get_mpi_profile(participant_id)
       icn = get_icn(participant_id)
 
       errors = []
@@ -44,7 +43,11 @@ module EventBusGateway
       errors
     rescue => e
       # Only catch errors from the initial BGS/MPI lookups
-      record_notification_send_failure(e, 'Notification') if @bgs_person.nil? || @mpi_profile.nil?
+      if e.is_a?(Errors::BgsPersonNotFoundError) ||
+         e.is_a?(Errors::MpiProfileNotFoundError) ||
+         @bgs_person.nil? || @mpi_profile.nil?
+        record_notification_send_failure(e, 'Notification')
+      end
       raise
     end
 

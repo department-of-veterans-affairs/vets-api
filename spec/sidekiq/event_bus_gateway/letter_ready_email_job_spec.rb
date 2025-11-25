@@ -111,6 +111,49 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
       end.to change(EventBusGatewayNotification, :count).by(1)
     end
+
+    context 'when notification record fails to save' do
+      let(:invalid_notification) do
+        instance_double(EventBusGatewayNotification, persisted?: false,
+                                                     errors: double(full_messages: ['Validation failed']))
+      end
+
+      before do
+        allow(EventBusGatewayNotification).to receive(:create).and_return(invalid_notification)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'logs a warning with error details' do
+        job_instance = subject.new
+
+        expect(Rails.logger).to receive(:warn).with(
+          'LetterReadyEmailJob notification record failed to save',
+          {
+            errors: ['Validation failed'],
+            template_id:,
+            va_notify_id: notification_id
+          }
+        )
+
+        job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
+      end
+
+      it 'still sends the email successfully' do
+        job_instance = subject.new
+
+        expect(va_notify_service).to receive(:send_email).with(expected_email_args)
+
+        job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
+      end
+
+      it 'does not raise an error' do
+        job_instance = subject.new
+
+        expect do
+          job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
+        end.not_to raise_error
+      end
+    end
   end
 
   describe '#hostname_for_template' do
@@ -174,30 +217,98 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         subject.new.perform(participant_id, template_id)
       end.not_to change(EventBusGatewayNotification, :count)
     end
+
+    it 'logs the skipped notification' do
+      expect(Rails.logger).to receive(:error).with(
+        'LetterReadyEmailJob email skipped',
+        {
+          notification_type: 'email',
+          reason: 'ICN not available',
+          template_id:
+        }
+      )
+
+      subject.new.perform(participant_id, template_id)
+    end
+
+    it 'increments the skipped metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::STATSD_METRIC_PREFIX}.skipped",
+        tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email', 'reason:icn_not_available']
+      )
+
+      subject.new.perform(participant_id, template_id)
+    end
   end
 
-  describe 'edge cases' do
-    context 'when first_name is nil' do
-      let(:bgs_profile) do
+  describe 'when first_name is not present' do
+    let(:bgs_profile) do
+      {
+        first_nm: nil,
+        last_nm: 'Smith',
+        brthdy_dt: 30.years.ago,
+        ssn_nbr: '123456789'
+      }
+    end
+
+    it 'returns early without sending email' do
+      expect(va_notify_service).not_to receive(:send_email)
+      expect(StatsD).not_to receive(:increment).with(
+        "#{described_class::STATSD_METRIC_PREFIX}.success",
+        tags: EventBusGateway::Constants::DD_TAGS
+      )
+
+      result = subject.new.perform(participant_id, template_id)
+      expect(result).to be_nil
+    end
+
+    it 'does not create notification record' do
+      expect do
+        subject.new.perform(participant_id, template_id)
+      end.not_to change(EventBusGatewayNotification, :count)
+    end
+
+    it 'logs the skipped notification' do
+      expect(Rails.logger).to receive(:error).with(
+        'LetterReadyEmailJob email skipped',
         {
-          first_nm: nil,
-          last_nm: 'Smith',
-          brthdy_dt: 30.years.ago,
-          ssn_nbr: '123456789'
+          notification_type: 'email',
+          reason: 'First Name not available',
+          template_id:
         }
+      )
+
+      subject.new.perform(participant_id, template_id)
+    end
+
+    it 'increments the skipped metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::STATSD_METRIC_PREFIX}.skipped",
+        tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email', 'reason:first_name_not_available']
+      )
+
+      subject.new.perform(participant_id, template_id)
+    end
+
+    context 'when first_name is empty string' do
+      it 'also returns early without sending email' do
+        expect(va_notify_service).not_to receive(:send_email)
+
+        result = subject.new.perform(participant_id, template_id, '', icn)
+        expect(result).to be_nil
       end
 
-      it 'handles nil first_name gracefully' do
-        expect(va_notify_service).to receive(:send_email).with(
-          recipient_identifier: { id_value: participant_id, id_type: 'PID' },
-          template_id:,
-          personalisation: {
-            host: EventBusGateway::Constants::HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
-            first_name: nil
+      it 'logs the skipped notification' do
+        expect(Rails.logger).to receive(:error).with(
+          'LetterReadyEmailJob email skipped',
+          {
+            notification_type: 'email',
+            reason: 'First Name not available',
+            template_id:
           }
         )
 
-        subject.new.perform(participant_id, template_id, nil, icn)
+        subject.new.perform(participant_id, template_id, '', icn)
       end
     end
   end
@@ -208,7 +319,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         allow(VaNotify::Service).to receive(:new).and_raise(StandardError, 'Service initialization failed')
       end
 
-      include_examples 'letter ready job va notify error handling', 'Email', 'email'
+      include_examples 'letter ready job va notify error handling', 'Email'
 
       it 'does not send email and does not change notification count' do
         expect(va_notify_service).not_to receive(:send_email)
