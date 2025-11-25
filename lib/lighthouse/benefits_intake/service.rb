@@ -126,6 +126,11 @@ module BenefitsIntake
       result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
       raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?
 
+      # When mocks are enabled we skip the remote Lighthouse validation call and
+      # rely on the local PDF checks above so local development does not require
+      # Betamocks fixtures.
+      return document if config.use_mocks?
+
       doc = File.read(document, mode: 'rb')
       headers = { 'Content-Type': Marcel::MimeType.for(doc) }
       response = perform :post, 'uploads/validate_document', doc, headers
