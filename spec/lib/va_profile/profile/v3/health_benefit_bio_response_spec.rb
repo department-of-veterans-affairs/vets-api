@@ -78,7 +78,7 @@ describe VAProfile::Profile::V3::HealthBenefitBioResponse do
     let(:contact_type) { 'Other Next of Kin' }
 
     it 'includes the code from the upstream system' do
-      expect(subject.meta[:code]).to equal('MVI201')
+      expect(subject.meta[:code]).to eq('MVI201')
     end
 
     it 'includes the response HTTP status code from the upstream system' do
