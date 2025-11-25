@@ -151,14 +151,6 @@ VAPiiLogger.filtered.error("Validation failed: #{exception.message}")
 4. **Developer control** enables strategic use in high-risk areas
 5. **Gradual adoption** allows teams to opt-in as needed
 
-### Recommended Next Steps
-
-1. ✅ Merge opt-in implementation
-2. Document usage guidelines for VFS teams
-3. Identify high-risk controllers/services for initial adoption
-4. Monitor DataDog for PII leaks to validate effectiveness
-5. Expand usage based on findings
-
 ---
 
 **Run benchmark:** `bundle exec rspec spec/lib/logstop_performance_spec.rb`
