@@ -23,11 +23,13 @@ module MHV
       private
 
       def pretransitioned_oh_facilities
-        @pretransitioned_oh_facilities ||= Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities.split(',').map(&:strip)
+        @pretransitioned_oh_facilities ||=
+          Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities.split(',').map(&:strip)
       end
 
       def facilities_ready_for_info_alert
-        @facilities_ready_for_info_alert ||= Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert.split(',').map(&:strip)
+        @facilities_ready_for_info_alert ||=
+          Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert.split(',').map(&:strip)
       end
     end
   end
