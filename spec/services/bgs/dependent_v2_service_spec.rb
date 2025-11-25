@@ -367,11 +367,12 @@ RSpec.describe BGS::DependentV2Service do
 
     it 'handles a single dependent response' do
       allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
-        .with(user.participant_id, user.ssn).and_return(single_dependent_response)
+        .with(user.participant_id, user.ssn).and_return(single_dependent_response.deep_dup)
       response = service.get_dependents
 
       expect(response).to include(persons: Array)
       expect(response[:persons].size).to eq(1)
+      expect(response[:persons][0]).to eq(single_dependent_response[:persons])
     end
   end
 
