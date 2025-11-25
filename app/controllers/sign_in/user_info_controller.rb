@@ -8,7 +8,7 @@ module SignIn
       authorize access_token, policy_class: SignIn::UserInfoPolicy
       user_info = SignIn::UserInfo.from_user(current_user)
 
-      render json: user_info.serializable_hash.compact, status: :ok
+      render json: user_info.serializable_hash, status: :ok
     end
 
     private

@@ -33,6 +33,13 @@ describe SignIn::UserInfoController do
   let(:email) { 'some-email' }
   let(:client_id) { 'some-client-id' }
   let(:user_info_clients) { [client_id] }
+  let(:edipi) { 'some-edipi' }
+  let(:mhv_ien) { '111222333' }
+  let(:cerner_id) { 'CER12345' }
+  let(:corp_id) { 'CORP67890' }
+  let(:birls) { 'BIRL12345' }
+  let(:gcids) { '200ENPI^somecode^200ENPI^VA^active|200VETS^somecode^200VETS^VA^active' }
+  let(:npi_id) { 'NPI1234567' }
 
   let(:access_token) { create(:access_token, user_uuid: user.uuid, client_id:, session_handle: session.handle) }
   let(:encoded_access_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
@@ -44,6 +51,37 @@ describe SignIn::UserInfoController do
 
   describe 'GET #show' do
     context 'when the client_id is in the list of valid clients' do
+      before do
+        allow(SignIn::UserInfo).to receive(:from_user).and_return(
+          SignIn::UserInfo.new(
+            sub: user.uuid,
+            person_types: 'PAT',
+            email:,
+            full_name: "#{first_name} #{last_name}",
+            first_name:,
+            last_name:,
+            csp_type: '200VIDM',
+            csp_uuid: credential_uuid,
+            ial: '2',
+            aal: '2',
+            birth_date: '1990-01-01',
+            ssn: '123456789',
+            gender: 'M',
+            address: '123 Main St',
+            phone_number: mpi_profile.home_phone,
+            icn:,
+            sec_id:,
+            edipi:,
+            mhv_ien:,
+            cerner_id:,
+            corp_id:,
+            birls:,
+            gcids:,
+            npi_id:
+          )
+        )
+      end
+
       it 'returns the key user info fields' do
         get :show
 
@@ -61,6 +99,15 @@ describe SignIn::UserInfoController do
         expect(body['csp_type']).to eq('200VIDM')
         expect(body['csp_uuid']).to eq(credential_uuid)
         expect(body['ial']).to eq('2')
+        expect(body['phone_number']).to eq(mpi_profile.home_phone)
+        expect(body['person_types']).to eq('PAT')
+        expect(body['edipi']).to eq(edipi)
+        expect(body['mhv_ien']).to eq(mhv_ien)
+        expect(body['cerner_id']).to eq(cerner_id)
+        expect(body['corp_id']).to eq(corp_id)
+        expect(body['birls']).to eq(birls)
+        expect(body['gcids']).to eq('200ENPI^somecode^200ENPI^VA^active|200VETS^somecode^200VETS^VA^active')
+        expect(body['npi_id']).to eq(npi_id)
       end
     end
 
