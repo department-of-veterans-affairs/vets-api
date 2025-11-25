@@ -65,6 +65,16 @@ module DependentsBenefits
 
     private
 
+    ##
+    # Delivers a status email based on the claim type and form combination
+    #
+    # @param status [String] The status type for logging purposes (e.g., 'received', 'error', 'submitted')
+    # @param claim_type_options [Hash<String, Symbol>] Mapping of claim constants to email template keys:
+    #   - FORM_ID: Template key for both 686c and 674 forms
+    #   - ADD_REMOVE_DEPENDENT: Template key for 686c only
+    #   - SCHOOL_ATTENDANCE_APPROVAL: Template key for 674 only
+    # @raise [StandardError] If email delivery fails, logs error to monitor and re-raises
+    # @return [void]
     def deliver_status_email_by_claim_type(status, claim_type_options)
       key = if claim.submittable_686? && claim.submittable_674?
               claim_type_options[FORM_ID]
