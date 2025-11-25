@@ -49,6 +49,30 @@ RSpec.describe 'Logstop PII filtering' do
         result = va_custom_scrubber.call(msg)
         expect(result).to eq('VA file number: [VA_FILE_NUMBER_FILTERED]')
       end
+
+      it 'filters VA file no. format (covers no\. part of regex)' do
+        msg = 'VA file no. 12345678'
+        result = va_custom_scrubber.call(msg)
+        expect(result).to eq('VA file number: [VA_FILE_NUMBER_FILTERED]')
+      end
+
+      it 'filters VA file no.: format with colon' do
+        msg = 'VA file no.: 123456789'
+        result = va_custom_scrubber.call(msg)
+        expect(result).to eq('VA file number: [VA_FILE_NUMBER_FILTERED]')
+      end
+
+      it 'filters case insensitive VA Number without file keyword' do
+        msg = 'va Number: 12345678'
+        result = va_custom_scrubber.call(msg)
+        expect(result).to eq('VA file number: [VA_FILE_NUMBER_FILTERED]')
+      end
+
+      it 'filters VA with tabs and no file/number keywords' do
+        msg = "Va\t\t:\t01234567"
+        result = va_custom_scrubber.call(msg)
+        expect(result).to eq('VA file number: [VA_FILE_NUMBER_FILTERED]')
+      end
     end
 
     context 'EDIPI (DoD identifier)' do

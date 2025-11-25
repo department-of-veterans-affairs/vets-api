@@ -11,11 +11,29 @@
 # - Email addresses
 # - Phone numbers
 # - Credit card numbers
+# - IPv4 addresses (NOT filtered - Logstop does not support IP filtering by default)
+# - IPv6 addresses (NOT filtered - Logstop does not support IP filtering by default)
+#
+# Note: IP addresses (IPv4/IPv6) are NOT filtered by default. Logstop does not
+# include IP address patterns in its built-in filters. If IP address filtering
+# is required, custom patterns would need to be added to the scrubber below.
 #
 # Custom VA-specific patterns added below:
 # - VA file numbers (8-9 digit numbers)
 # - SSN without dashes (9 digits)
 # - EDIPI (10 digits)
+#
+# Log Coverage:
+# - Applies to ALL Rails.logger calls (both developer-generated and framework-generated)
+# - Filters log messages before they reach any destination (file, stdout, CloudWatch, DataDog)
+# - Covers exception handling and stack traces logged through Rails.logger
+# - Does NOT filter logs written directly to STDOUT/STDERR without using Rails.logger
+# - Implementation: Sink-level redaction (filters at logger level before broadcast)
+#
+# Important: This filters ONLY the log message string, NOT structured metadata.
+# For structured logging with metadata hashes, use filter_parameters:
+#   Rails.logger.info('User action', { ssn: '123-45-6789' })  # ssn filtered by filter_parameters
+#   Rails.logger.info('User SSN is 123-45-6789')              # SSN filtered by Logstop
 #
 # Reference: https://github.com/ankane/logstop
 # Related ticket: https://github.com/department-of-veterans-affairs/va.gov-team/issues/120874

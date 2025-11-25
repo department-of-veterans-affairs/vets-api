@@ -8,6 +8,7 @@ require_relative '../../config/initializers/logstop'
 # Performance tests for Logstop PII filtering
 # These tests document the performance characteristics and help leadership
 # make informed decisions about deployment strategy (opt-in vs global)
+# rubocop:disable RSpec/DescribeClass
 RSpec.describe 'Logstop Performance', :performance do
   # Sample realistic vets-api log messages
   let(:sample_logs) do
@@ -26,20 +27,20 @@ RSpec.describe 'Logstop Performance', :performance do
   end
 
   let(:iterations) { 10_000 }
-  let(:large_payload) { '{"data":' + ('{"id":"12345","type":"claim"},' * 100) + '}' }
+  let(:large_payload) { "{\"data\":#{'{"id":"12345","type":"claim"},' * 100}}" }
 
   describe 'overhead measurements' do
     it 'measures baseline (no filtering) performance' do
       time = Benchmark.realtime do
         iterations.times do
-          sample_logs.each { |msg| msg.dup }
+          sample_logs.each(&:dup)
         end
       end
 
       per_line_us = (time / (iterations * sample_logs.size)) * 1_000_000
 
-      puts "\n  Baseline: #{(time * 1000).round(2)}ms total"
-      puts "  Per line: #{per_line_us.round(2)}µs"
+      Rails.logger.debug { "\n  Baseline: #{(time * 1000).round(2)}ms total" }
+      Rails.logger.debug { "  Per line: #{per_line_us.round(2)}µs" }
 
       # This is our baseline - should be very fast
       expect(per_line_us).to be < 0.5 # Less than 0.5 microseconds
@@ -54,8 +55,8 @@ RSpec.describe 'Logstop Performance', :performance do
 
       per_line_us = (time / (iterations * sample_logs.size)) * 1_000_000
 
-      puts "\n  Logstop built-in: #{(time * 1000).round(2)}ms total"
-      puts "  Per line: #{per_line_us.round(2)}µs"
+      Rails.logger.debug { "\n  Logstop built-in: #{(time * 1000).round(2)}ms total" }
+      Rails.logger.debug { "  Per line: #{per_line_us.round(2)}µs" }
 
       # Document expected overhead (typically 1-3µs per line)
       expect(per_line_us).to be > 0.5 # Has measurable overhead
@@ -72,8 +73,8 @@ RSpec.describe 'Logstop Performance', :performance do
 
       per_line_us = (time / (iterations * sample_logs.size)) * 1_000_000
 
-      puts "\n  VA custom scrubber: #{(time * 1000).round(2)}ms total"
-      puts "  Per line: #{per_line_us.round(2)}µs"
+      Rails.logger.debug { "\n  VA custom scrubber: #{(time * 1000).round(2)}ms total" }
+      Rails.logger.debug { "  Per line: #{per_line_us.round(2)}µs" }
 
       # Document expected overhead (typically 2-4µs per line)
       expect(per_line_us).to be > 1.0 # More overhead than Logstop alone
@@ -92,13 +93,13 @@ RSpec.describe 'Logstop Performance', :performance do
       end
 
       per_payload_ms = (filtered_time / small_iterations) * 1000
-      overhead_percent = ((filtered_time / baseline_time - 1) * 100).round(2)
+      overhead_percent = (((filtered_time / baseline_time) - 1) * 100).round(2)
 
-      puts "\n  Large payload (5KB):"
-      puts "    Baseline: #{(baseline_time * 1000).round(2)}ms"
-      puts "    Filtered: #{(filtered_time * 1000).round(2)}ms"
-      puts "    Per payload: #{per_payload_ms.round(2)}ms"
-      puts "    Overhead: #{overhead_percent}%"
+      Rails.logger.debug "\n  Large payload (5KB):"
+      Rails.logger.debug { "    Baseline: #{(baseline_time * 1000).round(2)}ms" }
+      Rails.logger.debug { "    Filtered: #{(filtered_time * 1000).round(2)}ms" }
+      Rails.logger.debug { "    Per payload: #{per_payload_ms.round(2)}ms" }
+      Rails.logger.debug { "    Overhead: #{overhead_percent}%" }
 
       # Large payloads have significant overhead
       expect(per_payload_ms).to be > 0.05 # More than 0.05ms per 5KB payload
@@ -114,9 +115,9 @@ RSpec.describe 'Logstop Performance', :performance do
 
       result = scrubber.call(msg)
 
-      puts "\n  WARNING: Unix timestamp filtered as EDIPI"
-      puts "    Input:  '#{msg}'"
-      puts "    Output: '#{result}'"
+      Rails.logger.debug "\n  WARNING: Unix timestamp filtered as EDIPI"
+      Rails.logger.debug { "    Input:  '#{msg}'" }
+      Rails.logger.debug { "    Output: '#{result}'" }
 
       # This is a known false positive
       expect(result).to include('[EDIPI_FILTERED]')
@@ -128,9 +129,9 @@ RSpec.describe 'Logstop Performance', :performance do
 
       result = scrubber.call(msg)
 
-      puts "\n  WARNING: 9-digit claim ID filtered as SSN"
-      puts "    Input:  '#{msg}'"
-      puts "    Output: '#{result}'"
+      Rails.logger.debug "\n  WARNING: 9-digit claim ID filtered as SSN"
+      Rails.logger.debug { "    Input:  '#{msg}'" }
+      Rails.logger.debug { "    Output: '#{result}'" }
 
       # This is a known false positive
       expect(result).to include('[SSN_FILTERED]')
@@ -143,7 +144,7 @@ RSpec.describe 'Logstop Performance', :performance do
 
       # Measure overhead per line
       baseline = Benchmark.realtime do
-        iterations.times { sample_logs.each { |msg| msg.dup } }
+        iterations.times { sample_logs.each(&:dup) }
       end
 
       filtered = Benchmark.realtime do
@@ -151,7 +152,7 @@ RSpec.describe 'Logstop Performance', :performance do
       end
 
       overhead_per_line_us = ((filtered - baseline) / (iterations * sample_logs.size)) * 1_000_000
-      overhead_percent = ((filtered / baseline - 1) * 100).round(2)
+      overhead_percent = (((filtered / baseline) - 1) * 100).round(2)
 
       # Estimate for different volumes
       logs_per_day = {
@@ -160,23 +161,23 @@ RSpec.describe 'Logstop Performance', :performance do
         '100M logs/day' => 100_000_000
       }
 
-      puts "\n  Performance Impact Estimates:"
-      puts "    Per line overhead: #{overhead_per_line_us.round(2)}µs"
-      puts "    Relative overhead: #{overhead_percent}%"
-      puts
+      Rails.logger.debug "\n  Performance Impact Estimates:"
+      Rails.logger.debug { "    Per line overhead: #{overhead_per_line_us.round(2)}µs" }
+      Rails.logger.debug { "    Relative overhead: #{overhead_percent}%" }
+      Rails.logger.debug
 
       logs_per_day.each do |label, count|
         extra_seconds = (overhead_per_line_us * count) / 1_000_000
-        puts "    #{label}: +#{extra_seconds.round(2)} seconds/day CPU time"
+        Rails.logger.debug { "    #{label}: +#{extra_seconds.round(2)} seconds/day CPU time" }
       end
 
-      puts "\n  Recommendation:"
+      Rails.logger.debug "\n  Recommendation:"
       if overhead_percent < 500
-        puts "    ✓ LOW IMPACT: Acceptable for global filtering"
+        Rails.logger.debug '    ✓ LOW IMPACT: Acceptable for global filtering'
       elsif overhead_percent < 2000
-        puts "    ⚠ MODERATE IMPACT: Consider opt-in approach"
+        Rails.logger.debug '    ⚠ MODERATE IMPACT: Consider opt-in approach'
       else
-        puts "    ✗ HIGH IMPACT: Strongly recommend opt-in only"
+        Rails.logger.debug '    ✗ HIGH IMPACT: Strongly recommend opt-in only'
       end
 
       # Document the overhead for review
@@ -184,3 +185,4 @@ RSpec.describe 'Logstop Performance', :performance do
     end
   end
 end
+# rubocop:enable RSpec/DescribeClass
