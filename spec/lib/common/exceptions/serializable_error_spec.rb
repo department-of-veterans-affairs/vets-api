@@ -16,7 +16,6 @@ describe Common::Exceptions::SerializableError do
   context 'with arbitrary attributes' do
     let(:attributes) { { cat: 1, dog: 2 } }
     it 'responds to #to_hash' do
-      binding.pry
       expect(subject.to_hash).to eq({})
     end
   end
@@ -24,7 +23,7 @@ describe Common::Exceptions::SerializableError do
   context 'with some blank attribute' do
     let(:attributes) { { title: 'title', detail: ' ', source: [] } }
 
-    it 'responds to #to_hash' do
+    it 'to_hash removes non-present values' do
       expect(subject.to_hash).to eq({title: 'title'})
     end
   end
