@@ -158,8 +158,13 @@ RSpec.describe RepresentationManagement::EnqueueGeocodingJob, type: :job do
     context 'when there are no records missing geocoding data' do
       before do
         # Update all records to have complete geocoding data
-        Veteran::Service::Representative.update_all(lat: 38.0, long: -77.0, location: 'POINT(-77.0 38.0)')
-        AccreditedIndividual.update_all(lat: 38.0, long: -77.0, location: 'POINT(-77.0 38.0)')
+        Veteran::Service::Representative.find_each do |rep|
+          rep.update(lat: 38.0, long: -77.0, location: 'POINT(-77.0 38.0)')
+        end
+
+        AccreditedIndividual.find_each do |individual|
+          individual.update(lat: 38.0, long: -77.0, location: 'POINT(-77.0 38.0)')
+        end
       end
 
       it 'does not enqueue any jobs' do
