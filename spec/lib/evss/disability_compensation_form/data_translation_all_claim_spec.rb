@@ -683,14 +683,14 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       context 'when banking info retrieval is allowed' do
         context 'and the Lighthouse DirectDeposit service has the account info' do
           let(:form_content) do
-              {
-                'form526' => {
-                  'bankName' => 'WELLS FARGO BANK',
-                  'bankAccountType' => 'CHECKING',
-                  'bankAccountNumber' => '1234567890',
-                  'bankRoutingNumber' => '031000503'
-                }
+            {
+              'form526' => {
+                'bankName' => 'WELLS FARGO BANK',
+                'bankAccountType' => 'CHECKING',
+                'bankAccountNumber' => '1234567890',
+                'bankRoutingNumber' => '031000503'
               }
+            }
           end
 
           it 'gathers the banking info from the LH DirectDeposit endpoint' do
@@ -723,7 +723,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
             subject.send(:translate_banking_info)
           end
-
         end
 
         it 'does not log the submission was made without banking info' do
@@ -738,7 +737,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
       end
     end
-
   end
 
   describe '#translate_service_pay' do
