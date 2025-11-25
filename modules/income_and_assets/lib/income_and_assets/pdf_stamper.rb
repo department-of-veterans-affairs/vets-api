@@ -5,7 +5,6 @@ require 'pdf_utilities/pdf_stamper'
 module IncomeAndAssets
   # @see ::VeteranFacingServices::NotificationCallback::SavedClaim
   class PDFStamper < ::PDFUtilities::PDFStamper
-
     # defined stamp sets to be used
     # override `timestamp` when calling `run` with the claim/attachment `created_at`
     STAMP_SETS = {
@@ -28,6 +27,5 @@ module IncomeAndAssets
         text_only: true
       }]
     }.freeze
-
   end
 end

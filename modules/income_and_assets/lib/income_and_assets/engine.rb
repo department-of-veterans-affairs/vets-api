@@ -36,9 +36,9 @@ module IncomeAndAssets
         require 'pdf_utilities/pdf_stamper'
         require 'income_and_assets/pdf_stamper'
 
-        IncomeAndAssets::PDFStamper::STAMP_SETS.each { |identifier, stamps|
+        IncomeAndAssets::PDFStamper::STAMP_SETS.each do |identifier, stamps|
           ::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)
-        }
+        end
       end
     end
   end

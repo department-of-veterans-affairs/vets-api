@@ -5,7 +5,6 @@ require 'pdf_utilities/pdf_stamper'
 module Burials
   # @see ::VeteranFacingServices::NotificationCallback::SavedClaim
   class PDFStamper < ::PDFUtilities::PDFStamper
-
     # defined stamp sets to be used
     # override `timestamp` when calling `run` with the claim/attachment `created_at`
     STAMP_SETS = {
@@ -38,6 +37,5 @@ module Burials
         multistamp: true
       }]
     }.freeze
-
   end
 end
