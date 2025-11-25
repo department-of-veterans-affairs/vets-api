@@ -14,8 +14,7 @@ module AccreditedRepresentativePortal
           has_one(
             :form_attachment,
             -> { where(type: 'PersistentAttachments::VAForm') },
-            class_name: 'PersistentAttachment',
-            required: true
+            class_name: 'PersistentAttachment'
           )
 
           has_many(
@@ -25,7 +24,7 @@ module AccreditedRepresentativePortal
         end
 
         validates :form_id, inclusion: [FORM_ID]
-        after_initialize do |saved_claim|
+        after_initialize do |_saved_claim|
           self.form_id = FORM_ID
         end
 
