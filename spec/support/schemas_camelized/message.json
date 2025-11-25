@@ -144,6 +144,17 @@
               "type": "string"
             }
           }
+        },
+        "meta": {
+          "type": "object",
+          "required": [
+            "isUserInTriageTeam"
+          ],
+          "properties": {
+            "isUserInTriageTeam": {
+              "type": "boolean"
+            }
+          }
         }
       }
     }
