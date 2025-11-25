@@ -44,6 +44,7 @@ module UnifiedHealthData
     attribute :refill_request_status, String
     attribute :refill_request_task_id, String
     attribute :refill_request_days_since_submission, Integer
+    attribute :refill_request_notes, String
 
     # Method aliases to match serializer expectations
     def prescription_id

@@ -2060,6 +2060,26 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(metadata[:refill_request_days_since_submission]).to be_a(Integer)
       end
 
+      it 'extracts notes from failed Task resource' do
+        task_resources = [
+          {
+            id: '20848812135',
+            status: 'failed',
+            execution_period_start: '2025-11-18T23:18:20+00:00',
+            notes: 'java.lang.Exception: Failed to send HL7 message after 3 attempts',
+            owner: 'ORACLE_HEALTH',
+            station_number: '668'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+
+        expect(metadata[:refill_request_submit_date]).to eq('2025-11-18T23:18:20+00:00')
+        expect(metadata[:refill_request_status]).to eq('failed')
+        expect(metadata[:refill_request_task_id]).to eq('20848812135')
+        expect(metadata[:refill_request_notes]).to eq('java.lang.Exception: Failed to send HL7 message after 3 attempts')
+      end
+
       it 'returns most recent task when multiple tasks exist' do
         task_resources = [
           {

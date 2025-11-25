@@ -64,8 +64,9 @@ These attributes are populated during prescription parsing by the `OracleHealthP
 |-----------|------|-------------|--------|---------|
 | `refill_request_submit_date` | String (ISO 8601) | Timestamp when the refill was submitted | Task.executionPeriod.start | `"2025-06-24T21:05:53.000Z"` |
 | `refill_request_status` | String | Current status of the refill request | Task.status | `"requested"`, `"in-progress"`, `"completed"`, `"failed"` |
-| `refill_request_task_id` | String | Unique identifier of the Task resource | Task.id | `"1234567"` |
+| `refill_request_task_id` | String | Unique identifier of the Task resource | Task.id | `"20848812135"` |
 | `refill_request_days_since_submission` | Integer | Calculated days since submission | Calculated from Task.executionPeriod.start | `3` |
+| `refill_request_notes` | String | Error/status notes for the refill request | Task.meta.extension[url='http://va.gov/mhv/rx/notes'].valueString | `"java.lang.Exception: Failed to send HL7 message after 3 attempts"` |
 
 ## Implementation Details
 
@@ -76,18 +77,41 @@ The `OracleHealthPrescriptionAdapter` automatically extracts refill metadata dur
 2. `extract_refill_metadata_from_tasks(task_resources)` - Processes Task resources to extract metadata
 3. Metadata is merged into prescription attributes during `build_prescription_attributes(resource)`
 
-**FHIR Structure:**
+**FHIR Structure (Example - Failed Refill):**
 ```json
 {
   "resourceType": "MedicationRequest",
-  "id": "15214174591",
+  "id": "20848812135",
   "contained": [
     {
       "resourceType": "Task",
-      "id": "1234567",
-      "status": "in-progress",
+      "id": "20848812135",
+      "meta": {
+        "extension": [
+          {
+            "url": "http://va.gov/mhv/rx/notes",
+            "valueString": "java.lang.Exception: Failed to send HL7 message after 3 attempts"
+          },
+          {
+            "url": "http://va.gov/mhv/rx/owner",
+            "valueString": "ORACLE_HEALTH"
+          },
+          {
+            "url": "http://va.gov/mhv/rx/station-number",
+            "valueString": "668"
+          }
+        ]
+      },
+      "status": "failed",
+      "intent": "order",
+      "focus": {
+        "reference": "MedicationRequest/20848812135"
+      },
       "executionPeriod": {
-        "start": "2025-06-24T21:05:53.000Z"
+        "start": "2025-11-18T23:18:20+00:00"
+      },
+      "requester": {
+        "reference": "Patient/1606730850"
       }
     }
   ]
@@ -96,10 +120,11 @@ The `OracleHealthPrescriptionAdapter` automatically extracts refill metadata dur
 
 **Result:**
 The parsed `Prescription` object will have:
-- `refill_request_submit_date`: `"2025-06-24T21:05:53.000Z"`
-- `refill_request_status`: `"in-progress"`
-- `refill_request_task_id`: `"1234567"`
-- `refill_request_days_since_submission`: `3` (calculated)
+- `refill_request_submit_date`: `"2025-11-18T23:18:20+00:00"`
+- `refill_request_status`: `"failed"`
+- `refill_request_task_id`: `"20848812135"`
+- `refill_request_days_since_submission`: `7` (calculated)
+- `refill_request_notes`: `"java.lang.Exception: Failed to send HL7 message after 3 attempts"`
 
 ## Frontend Usage Examples
 
@@ -164,7 +189,12 @@ All existing tests pass, plus new test added:
 - Task resources follow FHIR standard: https://hl7.org/fhir/task.html
 - `Task.status` indicates refill request outcome (requested, in-progress, completed, failed, etc.)
 - `Task.executionPeriod.start` provides submission timestamp
+- `Task.meta.extension` contains VA-specific metadata:
+  - `http://va.gov/mhv/rx/notes` - Error/status notes (extracted as `refill_request_notes`)
+  - `http://va.gov/mhv/rx/owner` - Owner system identifier (e.g., "ORACLE_HEALTH")
+  - `http://va.gov/mhv/rx/station-number` - VA station number
 - `refill_request_days_since_submission` is calculated during parsing (based on current time)
+- `refill_request_notes` is particularly useful for debugging failed refill requests
 - Attributes are `nil` when no Task resources exist in the prescription data
 
 ## Controller Usage (Future PR)

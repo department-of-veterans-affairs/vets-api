@@ -138,25 +138,48 @@ module UnifiedHealthData
       # Task resources contain refill request information per FHIR standard
       # Task.status indicates the refill request outcome (requested, in-progress, completed, failed, etc.)
       # Task.executionPeriod.start indicates when the refill request was submitted
+      # Task.meta.extension contains additional VA-specific metadata (notes, owner, station-number)
       def build_task_resources(resource)
         contained_resources = resource['contained'] || []
         tasks = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'Task' }
 
         tasks.map do |task|
-          {
+          task_hash = {
             id: task['id'],
             status: task['status'],
+            intent: task['intent'],
             execution_period_start: task.dig('executionPeriod', 'start'),
             execution_period_end: task.dig('executionPeriod', 'end'),
             authored_on: task['authoredOn'],
             last_modified: task['lastModified']
           }
+
+          # Extract VA-specific extension data from meta.extension
+          extensions = task.dig('meta', 'extension') || []
+          extensions.each do |ext|
+            case ext['url']
+            when 'http://va.gov/mhv/rx/notes'
+              task_hash[:notes] = ext['valueString']
+            when 'http://va.gov/mhv/rx/owner'
+              task_hash[:owner] = ext['valueString']
+            when 'http://va.gov/mhv/rx/station-number'
+              task_hash[:station_number] = ext['valueString']
+            end
+          end
+
+          task_hash
         end
       end
 
       # Extracts refill submission metadata from Task resources during prescription parsing
       # Task resources contain refill request information per FHIR standard
       # Returns attributes that will be added to the Prescription model
+      #
+      # Task fields extracted:
+      # - id: Unique task identifier
+      # - status: Refill request status (requested, in-progress, completed, failed, etc.)
+      # - executionPeriod.start: When the refill request was submitted
+      # - meta.extension[notes]: Error/status notes (e.g., "Failed to send HL7 message after 3 attempts")
       #
       # @param task_resources [Array<Hash>] Array of task resource hashes
       # @return [Hash] Hash containing refill metadata attributes for the Prescription model
@@ -200,10 +223,15 @@ module UnifiedHealthData
         end
 
         # Extract refill request status from Task.status
+        # Examples: "requested", "in-progress", "completed", "failed"
         metadata[:refill_request_status] = most_recent_task[:status] if most_recent_task[:status]
 
         # Include task ID for reference
         metadata[:refill_request_task_id] = most_recent_task[:id] if most_recent_task[:id]
+
+        # Include notes if available (useful for debugging failed requests)
+        # Example: "java.lang.Exception: Failed to send HL7 message after 3 attempts"
+        metadata[:refill_request_notes] = most_recent_task[:notes] if most_recent_task[:notes]
 
         metadata
       end
