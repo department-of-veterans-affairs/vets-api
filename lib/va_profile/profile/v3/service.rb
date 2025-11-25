@@ -52,7 +52,7 @@ module VAProfile
           Rails.logger.info(
             event: 'va_profile.health_benefit_bio.response',
             path_hash:,
-            upstream_status: response.code,
+            upstream_status: response.status,
             contacts_present: response.contacts&.any?,
             latency_ms: latency
           )
