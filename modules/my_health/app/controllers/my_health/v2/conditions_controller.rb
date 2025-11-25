@@ -8,10 +8,11 @@ module MyHealth
   module V2
     class ConditionsController < ApplicationController
       include MyHealth::V2::Concerns::ErrorHandler
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       def index
-        conditions = service.get_conditions
+        conditions = sort_records(service.get_conditions, params[:sort])
 
         # Log unique user events for conditions accessed
         UniqueUserEvents.log_events(
