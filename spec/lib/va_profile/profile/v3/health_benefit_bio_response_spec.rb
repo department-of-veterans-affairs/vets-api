@@ -82,7 +82,7 @@ describe VAProfile::Profile::V3::HealthBenefitBioResponse do
     end
 
     it 'includes the response HTTP status code from the upstream system' do
-      expect(subject.meta[:status]).to equal(200)
+      expect(subject.meta[:status]).to eq(200)
     end
 
     it 'includes the first message returned from the response body' do
