@@ -101,7 +101,7 @@ describe VAProfile::Profile::V3::HealthBenefitBioResponse do
     end
 
     it 'includes an audit id from the upstream system' do
-      expect(subject.meta[:va_profile_tx_audit_id]).to equal('abc123')
+      expect(subject.meta[:va_profile_tx_audit_id]).to eq('abc123')
     end
   end
 end
