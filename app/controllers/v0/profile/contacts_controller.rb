@@ -18,7 +18,7 @@ module V0
         @meta = response.meta
         log_upstream_request_finish(response)
 
-        render json: { **ContactSerializer.new(response.contacts), meta: @meta }, status: response.status
+        render json: ContactSerializer.new(response.contacts, meta: @meta), status: response.status
       rescue => e
         log_exception(e)
         raise
