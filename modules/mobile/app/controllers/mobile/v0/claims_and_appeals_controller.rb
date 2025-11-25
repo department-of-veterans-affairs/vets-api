@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
 require 'mini_magick'

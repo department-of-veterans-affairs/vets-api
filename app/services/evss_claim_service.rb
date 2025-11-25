@@ -5,10 +5,11 @@ require 'evss/documents_service'
 require 'evss/auth_headers'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
+require 'vets/shared_logging'
 
 # EVSS Claims Status Tool
 class EVSSClaimService
-  include SentryLogging
+  include Vets::SharedLogging
   EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
 
   def initialize(user)
@@ -76,6 +77,8 @@ class EVSSClaimService
     job_id
   rescue CarrierWave::IntegrityError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
+
+    log_exception_to_rails(e)
     raise Common::Exceptions::UnprocessableEntity.new(
       detail: e.message, source: 'EVSSClaimService.upload_document'
     )

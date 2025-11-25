@@ -132,6 +132,7 @@ PATH
     va_notify (0.1.0)
     vaos (0.1.0)
       sidekiq
+    vass (0.0.1)
     vba_documents (1.0.0)
       aws-sdk-s3 (~> 1)
       sidekiq
@@ -705,7 +706,7 @@ GEM
     libddwaf (1.25.1.1.0-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.10.0)
+    liquid (5.11.0)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -1448,6 +1449,7 @@ DEPENDENCIES
   utf8-cleaner
   va_notify!
   vaos!
+  vass!
   vba_documents!
   vcr
   veteran!

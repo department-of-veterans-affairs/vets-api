@@ -21,6 +21,10 @@ RSpec.describe EmploymentQuestionnaires::SavedClaim do
 
   describe '#email' do
     it 'returns the users email' do
+      # no user so its nil
+      expect(instance.email).to be_nil
+
+      allow(instance).to receive(:parsed_form).and_return({ 'veteranContact' => { 'email' => 'test@example.com' } })
       expect(instance.email).to eq('test@example.com')
     end
   end
