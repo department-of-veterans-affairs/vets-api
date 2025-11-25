@@ -44,6 +44,7 @@ module AccreditedRepresentativePortal
 
       def veteran_form
         {
+          benefitType: params[:benefitType],
           veteran: {
             ssn: params[:veteranSsn],
             dateOfBirth: params[:veteranDateOfBirth],
@@ -101,7 +102,6 @@ module AccreditedRepresentativePortal
       end
 
       def validate_file_type
-        Rails.logger.info("benefitType=#{params[:benefitType]}")
         unless INTENT_TO_FILE_TYPES.include? params[:benefitType]
           raise ActionController::BadRequest, <<~MSG.squish
             Invalid type parameter.
