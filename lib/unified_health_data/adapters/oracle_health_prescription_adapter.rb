@@ -23,11 +23,12 @@ module UnifiedHealthData
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
+        task_data = build_task_resources(resource)
 
         build_core_attributes(resource)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(resource))
-          .merge(dispenses: dispenses_data)
+          .merge(dispenses: dispenses_data, task_resources: task_data)
       end
 
       def build_core_attributes(resource)
@@ -127,6 +128,26 @@ module UnifiedHealthData
             remarks: nil,
             dial_cmop_division_phone: nil,
             disclaimer: nil
+          }
+        end
+      end
+
+      # Extracts Task resources from contained array
+      # Task resources contain refill request information per FHIR standard
+      # Task.status indicates the refill request outcome (requested, in-progress, completed, failed, etc.)
+      # Task.executionPeriod.start indicates when the refill request was submitted
+      def build_task_resources(resource)
+        contained_resources = resource['contained'] || []
+        tasks = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'Task' }
+
+        tasks.map do |task|
+          {
+            id: task['id'],
+            status: task['status'],
+            execution_period_start: task.dig('executionPeriod', 'start'),
+            execution_period_end: task.dig('executionPeriod', 'end'),
+            authored_on: task['authoredOn'],
+            last_modified: task['lastModified']
           }
         end
       end

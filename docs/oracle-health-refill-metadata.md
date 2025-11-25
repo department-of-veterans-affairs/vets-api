@@ -2,7 +2,9 @@
 
 ## Overview
 
-Enhanced the `recently_requested` metadata in MyHealth V2 Prescriptions API to include Oracle Health-specific refill submission timing data. This provides the same refill status visibility for Oracle Health prescriptions that VistA prescriptions already have.
+Enhanced the `recently_requested` metadata in MyHealth V2 Prescriptions API to include Oracle Health-specific refill submission timing data extracted from FHIR Task resources. This provides the same refill status visibility for Oracle Health prescriptions that VistA prescriptions already have.
+
+**Data Source:** FHIR Task resources contained in MedicationRequest per FHIR standard (https://hl7.org/fhir/task.html)
 
 ## API Response Structure
 
@@ -37,10 +39,10 @@ Enhanced the `recently_requested` metadata in MyHealth V2 Prescriptions API to i
         "disp_status": "Active: Refill in Process",
         "station_number": "556",
         
-        // Oracle Health-specific fields (only present when in-progress dispenses exist):
+        // Oracle Health-specific fields (from FHIR Task resources):
         "refill_submit_date": "2025-06-24T21:05:53.000Z",
-        "dispense_status": "in-progress",
-        "facility_name": "556-RX-MAIN-OP",
+        "refill_request_status": "in-progress",
+        "task_id": "1234567",
         "days_since_submission": 3
       }
     ]
@@ -54,19 +56,37 @@ VistA prescriptions continue to work as before - no changes to their structure.
 
 ## New Fields (Oracle Health Only)
 
-| Field | Type | Description | Example |
-|-------|------|-------------|---------|
-| `refill_submit_date` | String (ISO 8601) | Timestamp when the refill was submitted (from most recent in-progress dispense) | `"2025-06-24T21:05:53.000Z"` |
-| `dispense_status` | String | Current status of the dispense record | `"in-progress"`, `"preparation"`, `"on-hold"` |
-| `facility_name` | String | Facility processing the refill | `"556-RX-MAIN-OP"` |
-| `days_since_submission` | Integer | Calculated days since submission (for timeout detection) | `3` |
+| Field | Type | Description | Source | Example |
+|-------|------|-------------|--------|---------|
+| `refill_submit_date` | String (ISO 8601) | Timestamp when the refill was submitted | Task.executionPeriod.start | `"2025-06-24T21:05:53.000Z"` |
+| `refill_request_status` | String | Current status of the refill request | Task.status | `"requested"`, `"in-progress"`, `"completed"`, `"failed"` |
+| `task_id` | String | Unique identifier of the Task resource | Task.id | `"1234567"` |
+| `days_since_submission` | Integer | Calculated days since submission (for timeout detection) | Calculated from Task.executionPeriod.start | `3` |
 
 ## Detection Logic
 
 The system identifies Oracle Health prescriptions by:
 1. Prescription has `prescription_source: "VA"`
 2. Prescription lacks `refill_submit_date` at root level (not in FHIR standard)
-3. Prescription has in-progress MedicationDispense records with status: `preparation`, `in-progress`, or `on-hold`
+3. Prescription contains Task resources in the MedicationRequest's `contained` array
+
+**FHIR Structure:**
+```json
+{
+  "resourceType": "MedicationRequest",
+  "id": "15214174591",
+  "contained": [
+    {
+      "resourceType": "Task",
+      "id": "1234567",
+      "status": "in-progress",
+      "executionPeriod": {
+        "start": "2025-06-24T21:05:53.000Z"
+      }
+    }
+  ]
+}
+```
 
 ## Frontend Usage Examples
 
@@ -80,7 +100,7 @@ recentlyRequested.forEach(rx => {
     // Show alert: "Your refill is taking longer than expected"
     showAlert({
       title: `Refill for ${rx.prescription_name} is processing`,
-      message: `Submitted ${rx.days_since_submission} days ago at ${rx.facility_name}. Status: ${rx.dispense_status}`
+      message: `Submitted ${rx.days_since_submission} days ago. Status: ${rx.refill_request_status}`
     });
   }
 });
@@ -99,7 +119,7 @@ function canRequestRefill(prescriptionId) {
     return {
       canRefill: false,
       reason: `Refill submitted ${existingRequest.days_since_submission} days ago`,
-      status: existingRequest.dispense_status
+      status: existingRequest.refill_request_status
     };
   }
   
@@ -127,6 +147,9 @@ All existing tests pass, plus new test added:
 ## Notes
 
 - This enhancement is **Oracle Health-specific** - VistA prescriptions are not affected
-- Metadata is extracted from MedicationDispense `whenHandedOver` field (most recent in-progress dispense)
+- Metadata is extracted from FHIR Task resources contained in MedicationRequest
+- Task resources follow FHIR standard: https://hl7.org/fhir/task.html
+- `Task.status` indicates refill request outcome (requested, in-progress, completed, failed, etc.)
+- `Task.executionPeriod.start` provides submission timestamp
 - `days_since_submission` is calculated at request time (not stored)
-- Fields only appear when relevant data exists in the dispense records
+- Fields only appear when Task resources exist in the prescription data

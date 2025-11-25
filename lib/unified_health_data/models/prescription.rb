@@ -37,6 +37,7 @@ module UnifiedHealthData
     attribute :cmop_ndc_number, String
     attribute :grouped_medications, Array, default: nil
     attribute :disp_status, String
+    attribute :task_resources, Array, default: []
 
     # Method aliases to match serializer expectations
     def prescription_id

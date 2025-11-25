@@ -170,36 +170,55 @@ module MyHealth
           prescription.respond_to?(:prescription_source) && prescription.prescription_source == 'VA'
       end
 
-      # Extracts refill submission metadata from Oracle Health MedicationDispense records
+      # Extracts refill submission metadata from Oracle Health Task resources
+      # Task resources contain refill request information per FHIR standard
       # This provides timing information to help users understand refill processing status
       def extract_oracle_health_refill_metadata(prescription)
         metadata = {}
 
-        # Find most recent in-progress dispense
-        if prescription.respond_to?(:dispenses) && prescription.dispenses.present?
-          in_progress_dispenses = prescription.dispenses.select do |dispense|
-            %w[preparation in-progress on-hold].include?(dispense[:status])
+        # Look for Task resources in the prescription's contained resources
+        # Task.status indicates the refill request outcome (requested, in-progress, completed, failed, etc.)
+        # Task.executionPeriod.start indicates when the refill request was submitted
+        if prescription.respond_to?(:task_resources) && prescription.task_resources.present?
+          # Find the most recent refill request task
+          refill_tasks = prescription.task_resources.select do |task|
+            task[:status].present?
           end
 
-          if in_progress_dispenses.any?
-            # Sort by refill_date to find most recent
-            most_recent = in_progress_dispenses.max_by do |dispense|
-              dispense[:refill_date] ? Time.zone.parse(dispense[:refill_date]) : Time.zone.at(0)
+          if refill_tasks.any?
+            # Sort by executionPeriod.start to find most recent submission
+            most_recent_task = refill_tasks.max_by do |task|
+              if task[:execution_period_start]
+                begin
+                  Time.zone.parse(task[:execution_period_start])
+                rescue ArgumentError
+                  Time.zone.at(0)
+                end
+              else
+                Time.zone.at(0)
+              end
             end
 
-            if most_recent && most_recent[:refill_date]
-              metadata[:refill_submit_date] = most_recent[:refill_date]
-              metadata[:dispense_status] = most_recent[:status]
-              metadata[:facility_name] = most_recent[:facility_name] if most_recent[:facility_name]
+            if most_recent_task
+              # Extract submission timestamp from executionPeriod.start
+              if most_recent_task[:execution_period_start]
+                metadata[:refill_submit_date] = most_recent_task[:execution_period_start]
 
-              # Calculate days since submission for frontend display
-              begin
-                submit_time = Time.zone.parse(most_recent[:refill_date])
-                days_since = ((Time.zone.now - submit_time) / 1.day).floor
-                metadata[:days_since_submission] = days_since if days_since >= 0
-              rescue ArgumentError
-                # Invalid date format, skip calculation
+                # Calculate days since submission for frontend display
+                begin
+                  submit_time = Time.zone.parse(most_recent_task[:execution_period_start])
+                  days_since = ((Time.zone.now - submit_time) / 1.day).floor
+                  metadata[:days_since_submission] = days_since if days_since >= 0
+                rescue ArgumentError
+                  # Invalid date format, skip calculation
+                end
               end
+
+              # Extract refill request status from Task.status
+              metadata[:refill_request_status] = most_recent_task[:status] if most_recent_task[:status]
+
+              # Include other relevant task fields if available
+              metadata[:task_id] = most_recent_task[:id] if most_recent_task[:id]
             end
           end
         end
