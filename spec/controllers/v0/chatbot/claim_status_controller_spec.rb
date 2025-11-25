@@ -177,12 +177,6 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
     context 'authorized' do
       before do
-        # user.user_account_uuid = user_account.id
-        # user.save!
-        # sign_in_as(user)
-
-        # allow(Rails.logger).to receive(:info)
-        # allow(Rails.logger).to receive(:error)
         allow(Flipper).to receive(:enabled?).and_call_original
         @mock_cxi_reporting_service = instance_double(Chatbot::ReportToCxi)
         allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
