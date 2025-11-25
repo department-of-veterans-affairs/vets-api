@@ -2774,7 +2774,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
-      it 'handles 422' do
+      it 'handles 400' do
         expect(subject).to validate(
           :post,
           '/v0/form212680',
@@ -2783,7 +2783,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
-      it 'handles 400' do
+      it 'handles 422' do
         expect(subject).to validate(
           :post,
           '/v0/form212680',
@@ -2813,7 +2813,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when feature toggle is disabled' do
         before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
 
-        it 'handles 403 for create' do
+        it 'handles 404 for create' do
           expect(subject).to validate(
             :post,
             '/v0/form212680',
@@ -2822,7 +2822,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           )
         end
 
-        it 'handles 403 for download_pdf' do
+        it 'handles 404 for download_pdf' do
           expect(subject).to validate(
             :get,
             '/v0/form212680/download_pdf/{guid}',

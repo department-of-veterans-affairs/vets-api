@@ -15,11 +15,12 @@ module Swagger
           extend Swagger::Responses::ValidationError
 
           key :description,
-              "Generate and download a pre-filled #{FORM_ID} PDF form " \
-              '(Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)'
-          key :operationId, 'downloadForm212680Pdf'
+              "Create a SavedClaim for #{FORM_ID}" \
+              '(Examination for Housebound Status or Permanent Need for Regular Aid and Attendance),' \
+              'to be used later for PDF generation'
+          key :operationId, 'createForm212680Pdf'
           key :tags, %w[benefits_forms]
-          key :produces, ['application/pdf', 'application/json']
+          key :produces, ['application/json']
           parameter :optional_authorization
 
           parameter do

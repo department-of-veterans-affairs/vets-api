@@ -62,6 +62,8 @@ class SavedClaim::Form212680 < SavedClaim
 
   def veteran_first_last_name
     full_name = parsed_form.dig('veteranInformation', 'fullName')
+    return 'Veteran' unless full_name.is_a?(Hash)
+
     "#{full_name['first']} #{full_name['last']}"
   end
 
