@@ -97,7 +97,7 @@ describe VAProfile::Profile::V3::HealthBenefitBioResponse do
     end
 
     it 'includes the number of relevant contacts surfaced' do
-      expect(subject.meta[:contact_count]).to equal(1)
+      expect(subject.meta[:contact_count]).to eq(1)
     end
 
     it 'includes an audit id from the upstream system' do
