@@ -31,7 +31,7 @@ module SOB
         @claimant['date_of_birth'] = parse_date(@claimant['date_of_birth'])
         @claimant['regional_processing_office'] = parse_rpo(@claimant['station'])
         benefit = find_benefit(@claimant['benefits'])
-        return unless benefit
+        return @claimant unless benefit
 
         parse_eligibility(benefit['eligibility_results'])
         parse_entitlement(benefit['entitlement_results'])
@@ -63,10 +63,10 @@ module SOB
       # is eligibility results list sorted by most recent? don't understand why list
       def parse_eligibility(eligibilities)
         eligibility = eligibilities.first
-        return nil unless eligibility
+        return unless eligibility
 
         @claimant.merge!(eligibility.slice('active_duty',
-                                           'veteran_is_eligilble',
+                                           'veteran_is_eligible',
                                            'percentage_benefit'))
         @claimant.merge!(
           eligibility['eligibility_period']
@@ -83,7 +83,7 @@ module SOB
 
       def parse_entitlement(entitlements)
         entitlement = find_benefit(entitlements)
-        return nil unless entitlement
+        return unless entitlement
 
         ENTITLEMENT_KEY_MAP.each do |res_key, vets_key|
           days = entitlement[res_key]
@@ -93,7 +93,7 @@ module SOB
 
       def parse_toe(transfers)
         transfer = find_benefit(transfers)
-        return nil unless transfer
+        return unless transfer
 
         @claimant['entitlement_transferred_out'] = parse_months(
           transfer['transferred_days']
@@ -101,6 +101,8 @@ module SOB
       end
 
       def parse_months(days)
+        return unless days
+
         {
           months: days / 30,
           days: days % 30
