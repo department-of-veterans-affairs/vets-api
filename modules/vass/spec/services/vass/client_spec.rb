@@ -188,7 +188,7 @@ describe Vass::Client do
     context 'when OAuth response is missing access_token' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
-          double('response', env: double('env', body: {}))
+          double('response', env: double('env', body: {}, status: 200))
         )
       end
 
@@ -196,6 +196,48 @@ describe Vass::Client do
         expect do
           subject.send(:ensure_oauth_token!)
         end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+
+    context 'server_url option' do
+      let(:auth_url) { 'https://login.microsoftonline.com' }
+      let(:api_url) { 'https://api.vass.va.gov' }
+
+      before do
+        allow(Settings.vass).to receive_messages(auth_url:, api_url:)
+      end
+
+      it 'uses auth_url for OAuth requests' do
+        expect(subject.config).to receive(:connection).with(server_url: auth_url).and_call_original
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+          double('response', env: double('env', body: { 'access_token' => oauth_token, 'expires_in' => 3600 }))
+        )
+
+        subject.send(:oauth_token_request)
+      end
+
+      it 'uses base_path for regular API requests' do
+        expect(subject.config).to receive(:connection).and_call_original
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+          double('response', env: double('env', body: { 'appointments' => [] }))
+        )
+        subject.instance_variable_set(:@current_oauth_token, oauth_token)
+
+        subject.get_veteran_appointments(edipi:, veteran_id:)
+      end
+
+      it 'connection method uses connection pooling for different URLs' do
+        conn1 = subject.config.connection(server_url: auth_url)
+        conn2 = subject.config.connection(server_url: auth_url)
+        conn3 = subject.config.connection(server_url: api_url)
+
+        # Same URL should return same connection instance (pooling)
+        expect(conn1).to be(conn2)
+
+        # Different URL should return different connection instance
+        expect(conn1).not_to be(conn3)
       end
     end
   end

@@ -194,7 +194,6 @@ module Vass
       cached_token = redis_client.token
       if cached_token.present?
         @current_oauth_token = cached_token
-        Rails.logger.debug('VassClient OAuth token from cache', correlation_id: @correlation_id)
       else
         @current_oauth_token = mint_oauth_token
         redis_client.save_token(token: @current_oauth_token)
@@ -213,11 +212,11 @@ module Vass
       token = resp.body['access_token']
       if token.blank?
         Rails.logger.error('VassClient OAuth token response missing access_token', {
-          correlation_id: @correlation_id,
-          status: resp.status,
-          has_body: resp.body.present?,
-          body_keys: resp.body&.keys
-        })
+                             correlation_id: @correlation_id,
+                             status: resp.status,
+                             has_body: resp.body.present?,
+                             body_keys: resp.body&.keys
+                           })
         raise Common::Exceptions::BackendServiceException.new('VA900',
                                                               { detail: 'OAuth auth missing access_token' }, 502)
       end
@@ -293,6 +292,24 @@ module Vass
                            error_type:,
                            status_code:
                          })
+    end
+
+    ##
+    # Override perform method to support server_url option for OAuth authentication
+    # at different endpoints than the main API.
+    #
+    def perform(method, path, params, headers = nil, options = nil)
+      server_url = options&.delete(:server_url)
+
+      if server_url
+        custom_connection = config.connection(server_url:)
+        custom_connection.send(method.to_sym, path, params || {}) do |request|
+          request.headers.update(headers || {})
+          (options || {}).each { |option, value| request.options.send("#{option}=", value) }
+        end.env
+      else
+        super
+      end
     end
   end
 end

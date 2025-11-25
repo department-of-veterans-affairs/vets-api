@@ -7,7 +7,7 @@ module Vass
   # Configuration class for VASS API clients.
   #
   # Singleton class providing Faraday connection setup with circuit breaker integration
-  # and mock response support. Supports dynamic URL switching via server_url accessor.
+  # and mock response support.
   #
   class Configuration < Common::Client::Configuration::REST
     include Singleton
@@ -17,13 +17,7 @@ module Vass
     self.read_timeout = 30  # Response timeout for external API calls
 
     ##
-    # @!attribute [w] server_url
-    #   @return [String, nil] Custom server URL that overrides the default base_path
-    attr_writer :server_url
-
-    ##
     # Returns the base URL for VASS API requests.
-    # Uses server_url if set, otherwise defaults to the configured API URL.
     #
     # @return [String] The base URL for API requests
     #
