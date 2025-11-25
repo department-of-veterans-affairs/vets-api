@@ -9,10 +9,14 @@ module DebtsApi
       FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
       self.table_name = 'digital_dispute_submissions'
       belongs_to :user_account, dependent: nil, optional: false
+      has_many :debt_transaction_logs, as: :transactionable, primary_key: :guid, dependent: :destroy
       has_many_attached :files
       has_kms_key
       has_encrypted :form_data, :metadata, key: :kms_key
       validates :user_uuid, presence: true
+      validates :guid, presence: true, uniqueness: true
+
+      before_validation :set_guid, on: :create
       validate :files_present
       validate :files_are_pdfs
       validate :files_size_within_limit
@@ -80,6 +84,10 @@ module DebtsApi
       end
 
       private
+
+      def set_guid
+        self.guid ||= SecureRandom.uuid
+      end
 
       def files_present
         errors.add(:files, 'at least one file is required') unless files.attached?
@@ -153,7 +161,7 @@ module DebtsApi
           'first_name' => user.first_name,
           'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
           'updated_at' => updated_at,
-          'confirmation_number' => id
+          'confirmation_number' => guid
         }
       end
     end

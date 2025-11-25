@@ -21,7 +21,7 @@ module DebtsApi
           submission.save!
           DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
 
-          render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
+          render json: { message: 'Submission received', submission_id: submission.guid }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
           errors_hash = e.record.errors.to_hash

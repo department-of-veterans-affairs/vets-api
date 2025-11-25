@@ -8,7 +8,11 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
   let(:form_submission) { create(:debts_api_digital_dispute_submission) }
 
   describe 'validations' do
+    subject { form_submission }
+
     it { is_expected.to validate_presence_of(:user_uuid) }
+    it { is_expected.to validate_presence_of(:guid) }
+    it { is_expected.to validate_uniqueness_of(:guid).ignoring_case_sensitivity }
   end
 
   describe 'associations' do

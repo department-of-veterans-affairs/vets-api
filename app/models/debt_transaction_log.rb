@@ -5,6 +5,15 @@ class DebtTransactionLog < ApplicationRecord
 
   enum :state, pending: 'pending', submitted: 'submitted', completed: 'completed', failed: 'failed'
 
+  # DigitalDisputeSubmission uses guid for transactionable_id
+  def transactionable
+    if transactionable_type == 'DebtsApi::V0::DigitalDisputeSubmission'
+      DebtsApi::V0::DigitalDisputeSubmission.find_by(guid: transactionable_id)
+    else
+      super
+    end
+  end
+
   validates :transaction_type, presence: true, inclusion: { in: %w[dispute payment waiver] }
   validates :user_uuid, presence: true
   validates :debt_identifiers, presence: true
