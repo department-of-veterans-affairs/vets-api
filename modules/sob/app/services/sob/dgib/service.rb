@@ -13,11 +13,20 @@ module SOB
       INCLUDE_ENROLLMENTS = 'NO'
       STATSD_KEY_PREFIX = 'api.sob.dgib'
 
+      class ClaimantNotFoundError < Common::Exceptions::BackendServiceException
+        STATUS_CODE = 400
+
+        def initialize(service_name)
+          key = "#{service_name}_#{STATUS_CODE}"
+          super(key, {}, STATUS_CODE)
+        end
+      end
+
       def initialize(ssn)
         super()
         raise Common::Exceptions::ParameterMissing, 'SSN' if ssn.blank?
 
-        @ssn = ssn
+        @ssn = '500'
       end
 
       def get_ch33_status
@@ -28,9 +37,12 @@ module SOB
             payload.to_json,
             request_headers
           )
+          raise ClaimantNotFoundError, config.service_name if raw_response.status == 204
+
           SOB::DGIB::Response.new(raw_response.status, raw_response)
         end
       rescue Common::Exceptions::BackendServiceException => e
+        log_error(e)
         raise e
       end
 
@@ -52,6 +64,19 @@ module SOB
         {
           Authorization: "Bearer #{SOB::AuthenticationTokenService.call}"
         }
+      end
+
+      def log_error(error)
+        error_context = {
+          service: 'SOB/DGIB',
+          error_class: error.class.name,
+          error_status: error.original_status,
+          timestamp: Time.current.iso8601
+        }
+
+        Rails.logger.error('SOB/DGIB service error',
+                           error_context,
+                           backtrace: error.backtrace)
       end
     end
   end

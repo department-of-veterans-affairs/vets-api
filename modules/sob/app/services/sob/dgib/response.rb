@@ -60,7 +60,6 @@ module SOB
         list.find { |item| item['benefit_type'] == SOB::DGIB::Service::BENEFIT_TYPE }
       end
 
-      # is eligibility results list sorted by most recent? don't understand why list
       def parse_eligibility(eligibilities)
         eligibility = eligibilities.first
         return unless eligibility
@@ -82,7 +81,7 @@ module SOB
       }.freeze
 
       def parse_entitlement(entitlements)
-        entitlement = find_benefit(entitlements)
+        entitlement = entitlements.first
         return unless entitlement
 
         ENTITLEMENT_KEY_MAP.each do |res_key, vets_key|

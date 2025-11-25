@@ -15,7 +15,7 @@ module SOB
       private
 
       def service
-        SOB::DGIB::Service.new('796126859')
+        SOB::DGIB::Service.new('204')
       end
     end
   end
