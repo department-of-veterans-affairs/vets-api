@@ -87,9 +87,9 @@ describe VAProfile::Profile::V3::HealthBenefitBioResponse do
 
     it 'includes the first message returned from the response body' do
       message = subject.meta[:message]
-      expect(message).to match /^MVI201/
-      expect(message).to match /MviNotFound/
-      expect(message).to match /not found in MVI.$/
+      expect(message).to match(/^MVI201/)
+      expect(message).to match(/MviNotFound/)
+      expect(message).to match(/not found in MVI.$/)
     end
 
     it 'includes the contact_type names' do

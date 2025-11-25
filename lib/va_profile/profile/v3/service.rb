@@ -25,30 +25,15 @@ module VAProfile
         end
 
         def get_health_benefit_bio
-          oid = MPI::Constants::VA_ROOT_OID
-          unless icn_with_aaid
-            log_missing_icn_with_aaid
-            raise Common::Exceptions::BackendServiceException.new('VET360_502', self.class)
-          end
+          validate_icn_with_aaid
+          path, path_hash, request_body = build_request_params
 
-          path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
-          path_hash = Digest::SHA256.hexdigest(path)
-          request_body = { bios: [{ bioPath: 'healthBenefit' }] }
-
-          start_ms = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+          start_ms = current_time_ms
           log_health_benefit_bio_request(path_hash, request_body[:bios].size)
           service_response = perform(:post, path, request_body)
-          latency = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start_ms
-          response = VAProfile::Profile::V3::HealthBenefitBioResponse.new(service_response)
+          response = build_response(service_response, path_hash, start_ms)
 
-          log_health_benefit_bio_response(path_hash, response, latency)
-          StatsD.measure('va_profile.health_benefit_bio.latency', latency)
-
-          code = response.code || 502
-          if response.server_error?
-            log_health_benefit_bio_server_error(code, path_hash)
-            raise_backend_exception("VET360_#{code}", self.class)
-          end
+          handle_server_error(response, path_hash) if response.server_error?
           response
         end
 
@@ -99,6 +84,39 @@ module VAProfile
 
         def path(edipi)
           "#{OID}/#{ERB::Util.url_encode("#{edipi}#{AAID}")}"
+        end
+
+        def validate_icn_with_aaid
+          return if icn_with_aaid
+
+          log_missing_icn_with_aaid
+          raise Common::Exceptions::BackendServiceException.new('VET360_502', self.class)
+        end
+
+        def build_request_params
+          oid = MPI::Constants::VA_ROOT_OID
+          path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
+          path_hash = Digest::SHA256.hexdigest(path)
+          request_body = { bios: [{ bioPath: 'healthBenefit' }] }
+          [path, path_hash, request_body]
+        end
+
+        def build_response(service_response, path_hash, start_ms)
+          latency = current_time_ms - start_ms
+          response = VAProfile::Profile::V3::HealthBenefitBioResponse.new(service_response)
+          log_health_benefit_bio_response(path_hash, response, latency)
+          StatsD.measure('va_profile.health_benefit_bio.latency', latency)
+          response
+        end
+
+        def handle_server_error(response, path_hash)
+          code = response.code || 502
+          log_health_benefit_bio_server_error(code, path_hash)
+          raise_backend_exception("VET360_#{code}", self.class)
+        end
+
+        def current_time_ms
+          Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
         end
 
         def log_missing_icn_with_aaid
