@@ -35,7 +35,7 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
 
         expect(Rails.logger).to have_received(:info).with(hash_including(event: 'profile.contacts.request.start'))
         expect(Rails.logger).to have_received(:info).with(hash_including(event: 'profile.contacts.request.finish',
-                                                                         contacts_count: 4, empty: false))
+                                                                         contact_count: 4, upstream_status: 200))
         expect(StatsD).to have_received(:measure).with('profile.contacts.latency', kind_of(Numeric))
         expect(StatsD).to have_received(:increment).with('profile.contacts.success')
       end
@@ -106,7 +106,7 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
         subject
 
         expect(Rails.logger).to have_received(:info).with(hash_including(event: 'profile.contacts.request.finish',
-                                                                         empty: true, contacts_count: 0))
+                                                                         contact_count: 0, upstream_status: 200))
         expect(StatsD).to have_received(:increment).with('profile.contacts.empty')
       end
     end

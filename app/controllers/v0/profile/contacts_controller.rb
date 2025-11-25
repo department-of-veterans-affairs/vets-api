@@ -15,11 +15,14 @@ module V0
 
         response = service.get_health_benefit_bio
 
-        contacts_count = response.contacts&.length || 0
+        contact_count = response.meta[:contact_count]
         response_ok = response.ok?
-        log_upstream_request_finish(start_ms:, contacts_count:, response_ok:)
+        response_status = response.status
+        log_upstream_request_finish(start_ms:, contact_count:, response_ok:, response_status:)
 
-        render json: ContactSerializer.new(response.contacts), status: response.status
+        serialized_data = ContactSerializer.new(response.contacts)
+        meta = response.meta
+        render json: { **serialized_data, meta: }, status: response.status
       rescue => e
         log_exception(start_ms:, e:)
         raise
@@ -42,20 +45,18 @@ module V0
         )
       end
 
-      def log_upstream_request_finish(start_ms:, contacts_count:, response_ok:)
+      def log_upstream_request_finish(start_ms:, contact_count:, response_ok:, response_status:)
         elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start_ms
         Rails.logger.info(
           event: 'profile.contacts.request.finish',
           request_id: request.request_id,
-          upstream_status: response.status,
-          contacts_count:,
-          ok: response_ok,
-          empty: contacts_count.zero?,
+          upstream_status: response_status,
+          contact_count:,
           latency_ms: elapsed
         )
         StatsD.measure('profile.contacts.latency', elapsed)
-        StatsD.increment('profile.contacts.empty') if contacts_count.zero?
-        StatsD.increment('profile.contacts.success') if response.ok?
+        StatsD.increment('profile.contacts.empty') if contact_count.zero?
+        StatsD.increment('profile.contacts.success') if response_ok
       end
 
       def log_exception(start_ms:, e:)
