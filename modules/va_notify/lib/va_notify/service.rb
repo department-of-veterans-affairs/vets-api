@@ -7,6 +7,7 @@ require_relative 'configuration'
 require_relative 'error'
 require_relative 'client'
 require 'vets/shared_logging'
+require 'datadog'
 
 module VaNotify
   class Service < Common::Client::Base
@@ -30,24 +31,26 @@ module VaNotify
     end
 
     def send_email(args)
-      @template_id = args[:template_id]
-      if Flipper.enabled?(:va_notify_notification_creation)
-        response = with_monitoring do
-          if Flipper.enabled?(:va_notify_request_level_callbacks)
-            notify_client.send_email(append_callback_url(args))
-          else
+      Datadog::Tracing.trace('api.vanotify.service.send_email') do
+        @template_id = args[:template_id]
+        if Flipper.enabled?(:va_notify_notification_creation)
+          response = with_monitoring do
+            if Flipper.enabled?(:va_notify_request_level_callbacks)
+              notify_client.send_email(append_callback_url(args))
+            else
+              notify_client.send_email(args)
+            end
+          end
+          create_notification(response)
+          response
+        else
+          with_monitoring do
             notify_client.send_email(args)
           end
         end
-        create_notification(response)
-        response
-      else
-        with_monitoring do
-          notify_client.send_email(args)
-        end
+      rescue => e
+        handle_error(e)
       end
-    rescue => e
-      handle_error(e)
     end
 
     def send_sms(args)
@@ -146,32 +149,36 @@ module VaNotify
       args
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create_notification(response)
-      if response.nil?
-        Rails.logger.error('VANotify - no response')
-        return
-      end
+      Datadog::Tracing.trace('api.vanotify.service.create_notification') do
+        if response.nil?
+          Rails.logger.error('VANotify - no response')
+          return
+        end
 
-      # when the class is used directly we can pass symbols as keys
-      # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
-      notification = VANotify::Notification.new(
-        notification_id: response.id,
-        source_location: find_caller_locations,
-        callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
-        callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
-        template_id:,
-        service_api_key_path: retrieve_service_api_key_path
-      )
+        # when the class is used directly we can pass symbols as keys
+        # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
+        notification = VANotify::Notification.new(
+          notification_id: response.id,
+          source_location: find_caller_locations,
+          callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
+          callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
+          template_id:,
+          service_api_key_path: retrieve_service_api_key_path
+        )
 
-      if notification.save
-        log_notification_success(notification, template_id)
-        notification
-      else
-        log_notification_failed_to_save(notification, template_id)
+        if notification.save
+          log_notification_success(notification, template_id)
+          notification
+        else
+          log_notification_failed_to_save(notification, template_id)
+        end
+      rescue => e
+        Rails.logger.error(e)
       end
-    rescue => e
-      Rails.logger.error(e)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
@@ -201,7 +208,8 @@ module VaNotify
         'va_notify/app/sidekiq/va_notify/email_job.rb',
         'va_notify/app/sidekiq/va_notify/user_account_job.rb',
         'lib/sidekiq/processor.rb',
-        'lib/sidekiq/middleware/chain.rb'
+        'lib/sidekiq/middleware/chain.rb',
+        'datadog'
       ]
 
       caller_locations.each do |location|
