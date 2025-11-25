@@ -20,11 +20,11 @@ module AccreditedRepresentativePortal
       end
 
       def create
-        # parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
+        parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
 
-        # if parsed_response['errors'].present?
-        #   raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
-        # else
+        if parsed_response['errors'].present?
+          raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
+        else
           icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
           saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create(form: form.to_json)
           claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
@@ -34,8 +34,8 @@ module AccreditedRepresentativePortal
             power_of_attorney_holder_poa_code: claimant_representative.power_of_attorney_holder.poa_code,
             accredited_individual_registration_number: claimant_representative.accredited_individual_registration_number
           )
-          # render json: parsed_response, status: :created
-        # end
+          render json: parsed_response, status: :created
+        end
       rescue ArgumentError => e
         render json: { error: e.message }, status: :bad_request
       end
@@ -99,8 +99,6 @@ module AccreditedRepresentativePortal
           params[:veteranDateOfBirth]
         )
       end
-
-      private
 
       def validate_file_type
         Rails.logger.info("benefitType=#{params[:benefitType]}")
