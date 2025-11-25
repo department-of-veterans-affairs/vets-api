@@ -1268,7 +1268,7 @@
           "street2": {
             "type": "string",
             "example": "4B",
-            "maxLength": 5
+            "maxLength": 30
           },
           "city": {
             "type": "string",
