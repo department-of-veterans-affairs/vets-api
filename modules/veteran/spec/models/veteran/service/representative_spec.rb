@@ -420,7 +420,7 @@ describe Veteran::Service::Representative, type: :model do
 
       it 'logs the error and returns false' do
         expect(representative.geocode_and_update_location!).to be false
-        expect(Rails.logger).to have_received(:error).with(/Geocoding error/)
+        expect(Rails.logger).to have_received(:error).with(/Geocoding unexpected error/)
       end
 
       it 'does not update any fields' do
