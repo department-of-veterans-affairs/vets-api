@@ -11,6 +11,7 @@ describe VAOS::V2::MobileFacilityService do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration).and_return(true)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear

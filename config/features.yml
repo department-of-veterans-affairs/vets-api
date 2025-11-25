@@ -2033,6 +2033,10 @@ features:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
     enable_in_development: true
+  va_online_scheduling_cscs_migration:
+    actor_type: user
+    description: swaps the scheduling configurations endpoint from MFS to CSCS
+    enable_in_development: true
   va_online_scheduling_direct:
     actor_type: user
     description: Allows veterans to directly schedule VA appointments
