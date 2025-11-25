@@ -15,6 +15,7 @@ describe Common::Exceptions::SerializableError do
 
   context 'with arbitrary attributes' do
     let(:attributes) { { cat: 1, dog: 2 } }
+
     it 'responds to #to_hash' do
       expect(subject.to_hash).to eq({})
     end
@@ -24,10 +25,9 @@ describe Common::Exceptions::SerializableError do
     let(:attributes) { { title: 'title', detail: ' ', source: [] } }
 
     it 'to_hash removes non-present values' do
-      expect(subject.to_hash).to eq({title: 'title'})
+      expect(subject.to_hash).to eq({ title: 'title' })
     end
   end
-
 
   context 'with actual attributes' do
     let(:attributes) do

@@ -26,9 +26,7 @@ module Common
         attributes = attributes.reject { |_, v| v.to_s.empty? } if attributes.present?
 
         # set default value for detail only if not provided
-        unless attributes.key?(:detail) || attributes.key?('detail')
-          attributes[:detail] = attributes[:title]
-        end
+        attributes[:detail] = attributes[:title] unless attributes.key?(:detail) || attributes.key?('detail')
 
         # filters unknown attributes from the attributes hash
         normalized_attributes = attributes.transform_keys(&:to_sym)
@@ -74,7 +72,7 @@ module Common
 
       # return only those attributes that have present values
       def to_hash
-        attributes.map { |k,_| [k, send(k)] if send(k).present? }.compact.to_h
+        attributes.map { |k, _| [k, send(k)] if send(k).present? }.compact.to_h
       end
       alias to_h to_hash
     end
