@@ -13,7 +13,7 @@ RSpec.describe DependentsBenefits::NotificationEmail do
       api_key = Settings.vanotify.services.dependents_benefits.api_key
       callback_options = { callback_klass: DependentsBenefits::NotificationCallback.to_s, callback_metadata: be_a(Hash) }
 
-      expect(DependentsBenefits::SavedClaim).to receive(:find).with(23).and_return saved_claim
+      expect(DependentsBenefits::PrimaryDependencyClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:dependents_benefits).and_call_original
       expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
       expect(vanotify).to receive(:send_email).with(
@@ -43,8 +43,10 @@ RSpec.describe DependentsBenefits::NotificationEmail do
 
     context 'when only 686c is submitted' do
       before do
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_686?).and_return(true)
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_674?).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_686?).and_return(true)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_674?
+        ).and_return(false)
       end
 
       it 'sends the 686c only received notification email' do
@@ -56,8 +58,10 @@ RSpec.describe DependentsBenefits::NotificationEmail do
 
     context 'when only 674 is submitted' do
       before do
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_686?).and_return(false)
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_674?).and_return(true)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_686?
+        ).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_674?).and_return(true)
       end
 
       it 'sends the 674 only received notification email' do
@@ -81,8 +85,10 @@ RSpec.describe DependentsBenefits::NotificationEmail do
 
     context 'when only 686c is submitted' do
       before do
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_686?).and_return(true)
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_674?).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_686?).and_return(true)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_674?
+        ).and_return(false)
       end
 
       it 'sends the 686c only error notification email' do
@@ -94,8 +100,10 @@ RSpec.describe DependentsBenefits::NotificationEmail do
 
     context 'when only 674 is submitted' do
       before do
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_686?).and_return(false)
-        allow_any_instance_of(DependentsBenefits::SavedClaim).to receive(:submittable_674?).and_return(true)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(
+          :submittable_686?
+        ).and_return(false)
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim).to receive(:submittable_674?).and_return(true)
       end
 
       it 'sends the 674 only error notification email' do

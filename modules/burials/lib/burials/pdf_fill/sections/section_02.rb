@@ -25,13 +25,6 @@ module Burials
             question_num: 7,
             question_label: "Claimant's Last Name",
             question_text: "CLAIMANT'S LAST NAME"
-          },
-          'suffix' => {
-            key: 'form1[0].#subform[82].ClaimantSuffix[0]',
-            question_num: 7,
-            limit: 0,
-            question_label: "Claimant's Suffix",
-            question_text: "CLAIMANT'S SUFFIX"
           }
         },
         'claimantSocialSecurityNumber' => {
@@ -124,7 +117,6 @@ module Burials
           }
         },
         'claimantIntPhone' => {
-          key: 'form1[0].#subform[82].IntTelephoneNumber[0]',
           question_num: 11,
           question_label: "Claimant's International Phone Number",
           question_text: "CLAIMANT'S INTERNATIONAL PHONE NUMBER",
@@ -167,7 +159,20 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        # Add expansion logic here
+        split_postal_code(form_data) # ['claimantAddress']['postalCode']
+        extract_middle_i(form_data, 'claimantFullName')
+        form_data['claimantDateOfBirth'] = split_date(form_data['claimantDateOfBirth'])
+        split_phone(form_data, 'claimantPhone')
+        form_data['claimantSocialSecurityNumber'] = split_ssn(form_data['claimantSocialSecurityNumber'])
+        relationship_to_veteran = form_data['relationshipToVeteran']
+        form_data['relationshipToVeteran'] = {
+          'spouse' => select_checkbox(relationship_to_veteran == 'spouse'),
+          'child' => select_checkbox(relationship_to_veteran == 'child'),
+          'executor' => select_checkbox(relationship_to_veteran == 'executor'),
+          'parent' => select_checkbox(relationship_to_veteran == 'parent'),
+          'funeralDirector' => select_checkbox(relationship_to_veteran == 'funeralDirector'),
+          'otherFamily' => select_checkbox(relationship_to_veteran == 'otherFamily')
+        }
       end
     end
   end
