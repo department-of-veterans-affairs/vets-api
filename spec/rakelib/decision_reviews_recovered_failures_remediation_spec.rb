@@ -282,7 +282,8 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
             template_id: 'evidence-template-id',
             personalisation: hash_including(
               'first_name' => 'John',
-              'filename' => 'eviXXXXXXce.pdf'
+              'filename' => 'eviXXXXXXce.pdf',
+              'date_submitted' => kind_of(String)
             )
           )
         )
@@ -376,7 +377,10 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
 
         # Stub AppealSubmission.where to return our stubbed submission
-        allow(AppealSubmission).to receive(:where).and_return([appeal_submission])
+        # Need to stub the full chain: where().includes()
+        submission_relation = double('AppealSubmission::ActiveRecord_Relation')
+        allow(submission_relation).to receive_messages(includes: [appeal_submission], count: 1)
+        allow(AppealSubmission).to receive(:where).and_return(submission_relation)
       end
 
       it 'sends email via VA Notify with correct personalization' do
@@ -387,7 +391,8 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
             personalisation: hash_including(
               'first_name' => 'John',
               'decision_review_type' => 'Notice of Disagreement (Board Appeal)',
-              'decision_review_form_id' => 'VA Form 10182'
+              'decision_review_form_id' => 'VA Form 10182',
+              'date_submitted' => kind_of(String)
             )
           )
         )
