@@ -62,53 +62,46 @@ These attributes are populated during prescription parsing by the `OracleHealthP
 
 | Attribute | Type | Description | Source | Example |
 |-----------|------|-------------|--------|---------|
-| `refill_request_submit_date` | String (ISO 8601) | Timestamp when the refill was submitted | Task.executionPeriod.start | `"2025-06-24T21:05:53.000Z"` |
-| `refill_request_status` | String | Current status of the refill request | Task.status | `"requested"`, `"in-progress"`, `"completed"`, `"failed"` |
-| `refill_request_task_id` | String | Unique identifier of the Task resource | Task.id | `"20848812135"` |
+| `refill_status` | String | Prescription refill status - set to `"submitted"` for successful recent refill requests | Derived from Task.status + timing + dispenses | `"submitted"`, `"active"`, `"refillinprocess"`, `"expired"` |
+| `refill_submit_date` | String (ISO 8601) | Timestamp when the refill was submitted (Oracle Health only - populated from Task resources) | Task.executionPeriod.start | `"2025-06-24T21:05:53.000Z"` |
 | `refill_request_days_since_submission` | Integer | Calculated days since submission | Calculated from Task.executionPeriod.start | `3` |
-| `refill_request_notes` | String | Error/status notes for the refill request | Task.meta.extension[url='http://va.gov/mhv/rx/notes'].valueString | `"java.lang.Exception: Failed to send HL7 message after 3 attempts"` |
+| `disp_status` | String | User-friendly display status | Mapped from refill_status | `"Active: Submitted"`, `"Active"`, `"Active: Refill in Process"` |
 
 ## Implementation Details
 
 **Adapter-Level Processing:**
-The `OracleHealthPrescriptionAdapter` automatically extracts refill metadata during prescription parsing:
+The `OracleHealthPrescriptionAdapter` automatically extracts refill metadata and determines status during prescription parsing:
 
 1. `build_task_resources(resource)` - Extracts Task resources from MedicationRequest's `contained` array
-2. `extract_refill_metadata_from_tasks(task_resources)` - Processes Task resources to extract metadata
-3. Metadata is merged into prescription attributes during `build_prescription_attributes(resource)`
+2. `extract_refill_status(resource, task_data, dispenses_data)` - Determines refill_status, checking for successful submitted refills
+3. `extract_refill_metadata_from_tasks(task_resources, dispenses_data)` - Processes Task resources to extract submission metadata
+4. Metadata is merged into prescription attributes during `build_prescription_attributes(resource)`
 
-**FHIR Structure (Example - Failed Refill):**
+**Successful Submitted Refill Detection:**
+A prescription's `refill_status` is set to `"submitted"` when ALL conditions are met:
+1. Most recent Task has `status = "requested"` (not `"failed"`)
+2. Task `executionPeriod.start` is within the last 30 days
+3. No subsequent MedicationDispense was created after the task submission
+
+This results in `disp_status = "Active: Submitted"` for user-friendly display.
+
+**FHIR Structure (Example - Successful Submitted Refill):**
 ```json
 {
   "resourceType": "MedicationRequest",
   "id": "20848812135",
+  "status": "active",
   "contained": [
     {
       "resourceType": "Task",
       "id": "20848812135",
-      "meta": {
-        "extension": [
-          {
-            "url": "http://va.gov/mhv/rx/notes",
-            "valueString": "java.lang.Exception: Failed to send HL7 message after 3 attempts"
-          },
-          {
-            "url": "http://va.gov/mhv/rx/owner",
-            "valueString": "ORACLE_HEALTH"
-          },
-          {
-            "url": "http://va.gov/mhv/rx/station-number",
-            "valueString": "668"
-          }
-        ]
-      },
-      "status": "failed",
+      "status": "requested",
       "intent": "order",
       "focus": {
         "reference": "MedicationRequest/20848812135"
       },
       "executionPeriod": {
-        "start": "2025-11-18T23:18:20+00:00"
+        "start": "2025-11-20T15:30:00+00:00"
       },
       "requester": {
         "reference": "Patient/1606730850"
@@ -118,13 +111,12 @@ The `OracleHealthPrescriptionAdapter` automatically extracts refill metadata dur
 }
 ```
 
-**Result:**
+**Result (if within 30 days and no subsequent dispense):**
 The parsed `Prescription` object will have:
-- `refill_request_submit_date`: `"2025-11-18T23:18:20+00:00"`
-- `refill_request_status`: `"failed"`
-- `refill_request_task_id`: `"20848812135"`
-- `refill_request_days_since_submission`: `7` (calculated)
-- `refill_request_notes`: `"java.lang.Exception: Failed to send HL7 message after 3 attempts"`
+- `refill_status`: `"submitted"`
+- `disp_status`: `"Active: Submitted"`
+- `refill_submit_date`: `"2025-11-20T15:30:00+00:00"`
+- `refill_request_days_since_submission`: `5` (calculated)
 
 ## Frontend Usage Examples
 
@@ -189,12 +181,8 @@ All existing tests pass, plus new test added:
 - Task resources follow FHIR standard: https://hl7.org/fhir/task.html
 - `Task.status` indicates refill request outcome (requested, in-progress, completed, failed, etc.)
 - `Task.executionPeriod.start` provides submission timestamp
-- `Task.meta.extension` contains VA-specific metadata:
-  - `http://va.gov/mhv/rx/notes` - Error/status notes (extracted as `refill_request_notes`)
-  - `http://va.gov/mhv/rx/owner` - Owner system identifier (e.g., "ORACLE_HEALTH")
-  - `http://va.gov/mhv/rx/station-number` - VA station number
+- `Task.meta.extension` contains VA-specific metadata (owner, station-number, notes)
 - `refill_request_days_since_submission` is calculated during parsing (based on current time)
-- `refill_request_notes` is particularly useful for debugging failed refill requests
 - Attributes are `nil` when no Task resources exist in the prescription data
 
 ## Controller Usage (Future PR)
@@ -205,7 +193,7 @@ Controllers can access these attributes directly from the Prescription model:
 prescriptions.each do |prescription|
   if prescription.refill_request_status.present?
     # This prescription has an in-progress refill request
-    submit_date = prescription.refill_request_submit_date
+    submit_date = prescription.refill_submit_date
     status = prescription.refill_request_status
     days_since = prescription.refill_request_days_since_submission
   end

@@ -2040,11 +2040,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
   describe '#extract_refill_metadata_from_tasks' do
     context 'when task_resources are present' do
-      it 'extracts refill metadata from most recent Task resource' do
+      it 'extracts refill metadata from most recent successful Task resource' do
         task_resources = [
           {
             id: '12345',
-            status: 'in-progress',
+            status: 'requested',
             execution_period_start: '2025-06-24T21:05:53.000Z',
             execution_period_end: nil,
             authored_on: '2025-06-24T20:00:00.000Z',
@@ -2054,13 +2054,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_request_submit_date]).to eq('2025-06-24T21:05:53.000Z')
-        expect(metadata[:refill_request_status]).to eq('in-progress')
-        expect(metadata[:refill_request_task_id]).to eq('12345')
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
         expect(metadata[:refill_request_days_since_submission]).to be_a(Integer)
       end
 
-      it 'extracts notes from failed Task resource' do
+      it 'ignores failed Task resources' do
         task_resources = [
           {
             id: '20848812135',
@@ -2074,30 +2072,26 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_request_submit_date]).to eq('2025-11-18T23:18:20+00:00')
-        expect(metadata[:refill_request_status]).to eq('failed')
-        expect(metadata[:refill_request_task_id]).to eq('20848812135')
-        expect(metadata[:refill_request_notes]).to eq('java.lang.Exception: Failed to send HL7 message after 3 attempts')
+        expect(metadata).to eq({})
       end
 
-      it 'returns most recent task when multiple tasks exist' do
+      it 'returns most recent successful task when multiple tasks exist' do
         task_resources = [
           {
             id: '11111',
-            status: 'completed',
+            status: 'requested',
             execution_period_start: '2025-06-20T10:00:00.000Z'
           },
           {
             id: '22222',
-            status: 'in-progress',
+            status: 'requested',
             execution_period_start: '2025-06-24T21:05:53.000Z'
           }
         ]
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_request_task_id]).to eq('22222')
-        expect(metadata[:refill_request_status]).to eq('in-progress')
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
       end
 
       it 'handles tasks without execution_period_start gracefully' do
@@ -2111,9 +2105,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_request_status]).to eq('requested')
-        expect(metadata[:refill_request_task_id]).to eq('12345')
-        expect(metadata[:refill_request_submit_date]).to be_nil
+        expect(metadata[:refill_submit_date]).to be_nil
         expect(metadata[:refill_request_days_since_submission]).to be_nil
       end
 
@@ -2121,14 +2113,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         task_resources = [
           {
             id: '12345',
-            status: 'in-progress',
+            status: 'requested',
             execution_period_start: 'invalid-date'
           }
         ]
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_request_submit_date]).to eq('invalid-date')
+        expect(metadata[:refill_submit_date]).to eq('invalid-date')
         expect(metadata[:refill_request_days_since_submission]).to be_nil
       end
     end
@@ -2149,12 +2141,26 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'when tasks have no status' do
-      it 'returns empty metadata hash' do
+    context 'when tasks have no requested status' do
+      it 'returns empty metadata hash when status is nil' do
         task_resources = [
           {
             id: '12345',
             status: nil,
+            execution_period_start: '2025-06-24T21:05:53.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+
+        expect(metadata).to eq({})
+      end
+
+      it 'returns empty metadata hash when status is not requested' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'in-progress',
             execution_period_start: '2025-06-24T21:05:53.000Z'
           }
         ]

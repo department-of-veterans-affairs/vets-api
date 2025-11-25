@@ -24,21 +24,21 @@ module UnifiedHealthData
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
         task_data = build_task_resources(resource)
-        refill_metadata = extract_refill_metadata_from_tasks(task_data)
+        refill_metadata = extract_refill_metadata_from_tasks(task_data, dispenses_data)
 
-        build_core_attributes(resource)
+        build_core_attributes(resource, task_data, dispenses_data)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(resource))
           .merge(dispenses: dispenses_data, task_resources: task_data)
           .merge(refill_metadata)
       end
 
-      def build_core_attributes(resource)
+      def build_core_attributes(resource, task_data = [], dispenses_data = [])
         {
           id: resource['id'],
           type: 'Prescription',
-          refill_status: extract_refill_status(resource),
-          refill_submit_date: nil, # Not available in FHIR
+          refill_status: extract_refill_status(resource, task_data, dispenses_data),
+          refill_submit_date: nil, # Set by extract_refill_metadata_from_tasks if Task resources present
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
           facility_name: extract_facility_name(resource),
@@ -176,23 +176,22 @@ module UnifiedHealthData
       # Returns attributes that will be added to the Prescription model
       #
       # Task fields extracted:
-      # - id: Unique task identifier
-      # - status: Refill request status (requested, in-progress, completed, failed, etc.)
       # - executionPeriod.start: When the refill request was submitted
-      # - meta.extension[notes]: Error/status notes (e.g., "Failed to send HL7 message after 3 attempts")
+      # - refill_request_days_since_submission: Calculated days since submission
       #
       # @param task_resources [Array<Hash>] Array of task resource hashes
+      # @param dispenses_data [Array<Hash>] Array of dispense data for checking subsequent dispenses
       # @return [Hash] Hash containing refill metadata attributes for the Prescription model
-      def extract_refill_metadata_from_tasks(task_resources)
+      def extract_refill_metadata_from_tasks(task_resources, dispenses_data = [])
         metadata = {}
         return metadata unless task_resources.present?
 
-        # Find the most recent refill request task
-        refill_tasks = task_resources.select { |task| task[:status].present? }
-        return metadata unless refill_tasks.any?
+        # Find the most recent successful refill request task (status = 'requested', not 'failed')
+        successful_refill_tasks = task_resources.select { |task| task[:status] == 'requested' }
+        return metadata unless successful_refill_tasks.any?
 
         # Sort by executionPeriod.start to find most recent submission
-        most_recent_task = refill_tasks.max_by do |task|
+        most_recent_task = successful_refill_tasks.max_by do |task|
           if task[:execution_period_start]
             begin
               Time.zone.parse(task[:execution_period_start])
@@ -208,7 +207,7 @@ module UnifiedHealthData
 
         # Extract submission timestamp from executionPeriod.start
         if most_recent_task[:execution_period_start]
-          metadata[:refill_request_submit_date] = most_recent_task[:execution_period_start]
+          metadata[:refill_submit_date] = most_recent_task[:execution_period_start]
 
           # Calculate days since submission for frontend display
           begin
@@ -221,17 +220,6 @@ module UnifiedHealthData
             # Invalid date format, skip calculation
           end
         end
-
-        # Extract refill request status from Task.status
-        # Examples: "requested", "in-progress", "completed", "failed"
-        metadata[:refill_request_status] = most_recent_task[:status] if most_recent_task[:status]
-
-        # Include task ID for reference
-        metadata[:refill_request_task_id] = most_recent_task[:id] if most_recent_task[:id]
-
-        # Include notes if available (useful for debugging failed requests)
-        # Example: "java.lang.Exception: Failed to send HL7 message after 3 attempts"
-        metadata[:refill_request_notes] = most_recent_task[:notes] if most_recent_task[:notes]
 
         metadata
       end
@@ -284,11 +272,91 @@ module UnifiedHealthData
       end
 
       # Extracts and normalizes MedicationRequest status to VistA-compatible values
+      # Checks for successful submitted refills based on Task resources
       #
       # @param resource [Hash] FHIR MedicationRequest resource
+      # @param task_data [Array<Hash>] Array of task resource hashes
+      # @param dispenses_data [Array<Hash>] Array of dispense data
       # @return [String] VistA-compatible status value
-      def extract_refill_status(resource)
+      def extract_refill_status(resource, task_data = [], dispenses_data = [])
+        # Check if there's a successful submitted refill
+        if has_recent_submitted_refill?(task_data, dispenses_data)
+          return 'submitted'
+        end
+
         normalize_to_legacy_vista_status(resource)
+      end
+
+      # Checks if prescription has a recent successful refill submission
+      # Conditions:
+      # 1. Most recent task status = 'requested' (not 'failed')
+      # 2. Task executionPeriod.start within last 30 days
+      # 3. No subsequent MedicationDispense created (check meta.lastUpdated and versionId)
+      #
+      # @param task_data [Array<Hash>] Array of task resource hashes
+      # @param dispenses_data [Array<Hash>] Array of dispense data
+      # @return [Boolean] True if has recent submitted refill
+      def has_recent_submitted_refill?(task_data, dispenses_data)
+        return false unless task_data.present?
+
+        # Find successful refill tasks (status = 'requested', not 'failed')
+        successful_tasks = task_data.select { |task| task[:status] == 'requested' }
+        return false unless successful_tasks.any?
+
+        # Get most recent successful task
+        most_recent_task = successful_tasks.max_by do |task|
+          if task[:execution_period_start]
+            begin
+              Time.zone.parse(task[:execution_period_start])
+            rescue ArgumentError
+              Time.zone.at(0)
+            end
+          else
+            Time.zone.at(0)
+          end
+        end
+
+        return false unless most_recent_task && most_recent_task[:execution_period_start]
+
+        # Check if task is within last 30 days
+        begin
+          task_date = Time.zone.parse(most_recent_task[:execution_period_start])
+          return false unless task_date > 30.days.ago
+        rescue ArgumentError
+          return false
+        end
+
+        # Check if there's a subsequent dispense created after the task
+        # A dispense is "subsequent" if it was created after the task submission
+        # We check: dispense was created after task AND dispense versionId suggests it's new (versionId present)
+        return false if has_subsequent_dispense?(dispenses_data, task_date)
+
+        true
+      end
+
+      # Checks if any dispense was created after the task submission date
+      # Indicates the refill request has been fulfilled
+      #
+      # @param dispenses_data [Array<Hash>] Array of dispense data
+      # @param task_date [Time] Task submission date
+      # @return [Boolean] True if subsequent dispense exists
+      def has_subsequent_dispense?(dispenses_data, task_date)
+        return false unless dispenses_data.present?
+
+        dispenses_data.any? do |dispense|
+          # Check if dispense has a refill_date that's after the task submission
+          if dispense[:refill_date]
+            begin
+              dispense_date = Time.zone.parse(dispense[:refill_date])
+              # If dispense date is after task date, this refill has been fulfilled
+              return true if dispense_date > task_date
+            rescue ArgumentError
+              # Invalid date, skip this dispense
+            end
+          end
+        end
+
+        false
       end
 
       # Maps refill_status to user-friendly disp_status for display
@@ -305,6 +373,8 @@ module UnifiedHealthData
         case refill_status
         when 'active'
           'Active'
+        when 'submitted'
+          'Active: Submitted'
         when 'refillinprocess'
           'Active: Refill in Process'
         when 'providerHold'
