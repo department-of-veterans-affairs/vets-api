@@ -15,8 +15,8 @@ module PdfFill
         'bill_type_chapter_30' => {
           key: 'bill_type_chapter_30'
         },
-        'bill_type_chapter_32' => {
-          key: 'bill_type_chapter_32'
+        'bill_type_chapter_33' => {
+          key: 'bill_type_chapter_33'
         },
         'bill_type_chapter_35' => {
           key: 'bill_type_chapter_35'
