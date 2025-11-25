@@ -304,6 +304,9 @@ features:
   champva_form_10_10d_2027:
     actor_type: user
     description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
+  champva_form_10_7959c_rev2025:
+    actor_type: user
+    description: If enabled uses the 2025 version of form 10-7959c with expiration 12/31/2025
   champva_form_10_7959f_2_2025:
     actor_type: user
     description: If enabled uses the 2025 version of form 10-7959f-2 with expiration 12/31/2027
@@ -319,6 +322,9 @@ features:
   champva_stamper_logging:
     actor_type: user
     description: Enables logging of the desired stamp text
+  champva_update_metadata_keys:
+    actor_type: user
+    description: Enables the use of updated JSON key names in the Pega submission metadata
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -603,7 +609,7 @@ features:
     description: Enables the Notice of Disagreement status update batch job
   decision_review_nod_feb2025_pdf_enabled:
     actor_type: user
-    description: Enables utilizing  Feb 2025 Notice of Disagreement pdf VA form  
+    description: Enables utilizing  Feb 2025 Notice of Disagreement pdf VA form
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
@@ -680,10 +686,6 @@ features:
   decision_review_sc_redesign_nov2025:
     actor_type: user
     description: Enables the Nov 2025 Supplemental Claims redesign
-  dependency_verification:
-    actor_type: user
-    description: Feature gates the dependency verification modal for updating the diaries service.
-    enable_in_development: true
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -730,9 +732,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_claims_evidence_api_upload:
-    actor_type: user
-    description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
   dependents_bypass_schema_validation:
     actor_type: user
     description: Bypasses vets_json_schema validation for dependency claims
@@ -1346,6 +1345,9 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
+  mhv_secure_messaging_cerner_pilot_system_maintenance_banner:
+    actor_type: user
+    description: Enables/disables system maintenance banner for Secure Messaging Oracle Health Transition on VA.gov
   mhv_secure_messaging_filter_accordion:
     actor_type: user
     description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
@@ -1409,7 +1411,7 @@ features:
     enable_in_development: true
   mhv_medical_records_ccd_extended_file_types:
     actor_type: user
-    description: Allows users to download CCD (health summary) in PDF and HTML formats
+    description: Enables CCD downloads in XML, HTML, PDF w/ support for OH and VistA facilities
     enable_in_development: true
   mhv_medical_records_display_conditions:
     actor_type: user

@@ -7,12 +7,13 @@ require 'unique_user_events'
 module MyHealth
   module V2
     class LabsAndTestsController < ApplicationController
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       def index
         start_date = params[:start_date]
         end_date = params[:end_date]
-        labs = service.get_labs(start_date:, end_date:)
+        labs = sort_records(service.get_labs(start_date:, end_date:), params[:sort])
         serialized_labs = UnifiedHealthData::LabOrTestSerializer.new(labs).serializable_hash[:data]
 
         # Log unique user events for labs accessed

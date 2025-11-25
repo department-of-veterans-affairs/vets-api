@@ -299,8 +299,6 @@ RSpec.describe BGS::DependentService do
     let(:stats_key) { BGS::DependentService::STATS_KEY }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(true)
-
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
       allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true, process_pdf: pdf_path)
 

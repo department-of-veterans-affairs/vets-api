@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'ssoe/configuration'
+require 'ssoe/errors'
 
 module SSOe
   class Service < Common::Client::Base
@@ -14,7 +15,6 @@ module SSOe
     CONNECTION_ERRORS = [
       Faraday::ConnectionFailed,
       Faraday::TimeoutError,
-      Common::Client::Errors::ClientError,
       Common::Exceptions::GatewayTimeout,
       Breakers::OutageException
     ].freeze
@@ -30,28 +30,16 @@ module SSOe
         parse_response(raw_response.body)
       end
     rescue Common::Client::Errors::ClientError => e
-      error_response(e, :client, e.status)
+      raise SSOe::Errors::RequestError, "#{e.class} - #{e.message}"
     rescue *CONNECTION_ERRORS => e
-      return parse_response(e.response.body) if e.respond_to?(:response) && e.response&.body
-
-      error_response(e, :connection, 502)
+      raise SSOe::Errors::ServerError, "#{e.class} - #{e.message}"
+    rescue SSOe::Errors::Error
+      raise
     rescue => e
-      error_response(e, :unknown, 500)
+      raise SSOe::Errors::Error, "#{e.class} - #{e.message}"
     end
 
     private
-
-    def error_response(e, type, code)
-      Rails.logger.error("[SSOe::Service::get_traits] #{type} error: #{e.class} - #{e.message}")
-
-      {
-        success: false,
-        error: {
-          code:,
-          message: e.message
-        }
-      }
-    end
 
     def build_message(credential_method, credential_id, user, address)
       SSOe::GetSSOeTraitsByCspidMessage.new(
@@ -72,23 +60,21 @@ module SSOe
 
     def parse_response(response_body)
       parsed = Hash.from_xml(Ox.dump(response_body))
+      check_for_fault(parsed)
+
       icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
       return { success: true, icn: } if icn.present?
 
+      raise SSOe::Errors::ParsingError, 'Unable to parse SOAP response'
+    end
+
+    def check_for_fault(parsed)
       if parsed.dig('Envelope', 'Body', 'Fault')
         fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
         fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
 
-        return {
-          success: false,
-          error: {
-            code: fault_code,
-            message: fault_string
-          }
-        }
+        raise SSOe::Errors::ParsingError, "SOAP Fault: #{fault_code} - #{fault_string}"
       end
-
-      raise StandardError, 'Unable to parse SOAP response'
     end
   end
 end
