@@ -620,7 +620,7 @@ module PdfFill
           end
         end
 
-        (agency_or_program.presence&.[]=('date_payments_began', split_date(agency_or_program['date_payments_began'])))
+        agency_or_program.presence&.[]=('date_payments_began', split_date(agency_or_program['date_payments_began']))
       end
       # rubocop:enable Metrics/MethodLength
 

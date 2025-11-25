@@ -321,7 +321,8 @@ module Pensions
                     'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
                   })
         dependent.fetch('fullName', {})['middle'] = dependent.dig('fullName', 'middle')&.first
-        (dependent['personWhoLivesWithChild'].presence&.[]=('middle', dependent.dig('personWhoLivesWithChild', 'middle')&.first))
+        dependent['personWhoLivesWithChild'].presence&.[]=('middle',
+                                                           dependent.dig('personWhoLivesWithChild', 'middle')&.first)
         dependent
       end
     end

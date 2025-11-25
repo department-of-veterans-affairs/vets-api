@@ -227,7 +227,7 @@ module ClaimsApi
     end
 
     def clean_phone_number!(phone_number)
-      (phone_number.presence&.gsub!(/\D/, ''))
+      phone_number.presence&.gsub!(/\D/, '')
     end
 
     def add_overflow_text(text)
