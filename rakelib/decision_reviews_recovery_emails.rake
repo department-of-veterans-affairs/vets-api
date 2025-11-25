@@ -191,6 +191,7 @@ namespace :decision_reviews do
       log.call "Template ID: #{template_id}"
 
       form_submissions = AppealSubmission.where(id: appeal_submission_ids)
+                                         .includes(:saved_claim_sc, :saved_claim_hlr, :saved_claim_nod, :user_account)
 
       log.call "\nFound #{form_submissions.count} AppealSubmission records"
 
@@ -228,13 +229,15 @@ namespace :decision_reviews do
                                                           else ['Decision Review', 'Decision Review Form']
                                                           end
 
-          # Format date
+          # Format dates
           failure_notification_date = submission.failure_notification_sent_at.strftime('%B %d, %Y')
+          date_submitted = submission.created_at.strftime('%B %d, %Y')
 
           log.call "\n  Processing Submission ##{submission.id}"
           log.call "    First name: #{first_name}"
           log.call "    Decision review type: #{decision_review_type}"
           log.call "    Form ID: #{decision_review_form_id}"
+          log.call "    Date submitted: #{date_submitted}"
           log.call "    Failure notification sent: #{failure_notification_date}"
 
           if dry_run
@@ -271,7 +274,7 @@ namespace :decision_reviews do
                 'first_name' => first_name,
                 'decision_review_type' => decision_review_type,
                 'decision_review_form_id' => decision_review_form_id,
-                'failure_notification_sent_at' => failure_notification_date
+                'date_submitted' => date_submitted
               }
             )
 

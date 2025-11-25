@@ -21,6 +21,8 @@ describe Pensions::PdfFill::Va21p527ez do
     use_vets_json_schema: true,
     input_data_fixture_dir: 'modules/pensions/spec/fixtures',
     output_pdf_fixture_dir: 'modules/pensions/spec/fixtures',
+    use_ocr: true,
+    ocr_end_page: 7,
     fill_options: { extras_redesign: true, omit_esign_stamp: true }
   }
 
