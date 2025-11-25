@@ -100,15 +100,6 @@ VAPiiLogger.filtered.info("Sensitive: #{data}")  # Filtered - 2.5µs overhead
 | **CPU time (10M logs/day)** | +25.31 sec | +0.25 sec (1% usage) | **101x faster** |
 | **CPU time (100M logs/day)** | +253 sec (4.2 min) | +2.53 sec (1% usage) | **100x faster** |
 
-### Developer Experience
-
-| Aspect | Global (BEFORE) | Opt-In (AFTER) |
-|--------|-----------------|----------------|
-| **Control** | No choice - all logs filtered | Full control - choose when to filter |
-| **Debugging** | False positives affect all logs | False positives only in opt-in contexts |
-| **Performance cost** | Paid on every log line | Paid only when needed |
-| **Adoption** | Forced on all code | Gradual adoption in sensitive areas |
-
 ---
 
 ## Usage Guidelines (Opt-In Model)
