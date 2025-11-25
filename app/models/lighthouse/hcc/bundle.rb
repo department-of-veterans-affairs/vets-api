@@ -74,7 +74,7 @@ module Lighthouse
           sum + BigDecimal(entry.current_balance.to_s)
         end
         copay_bill_count = @entries.size
-        last_updated_on = @entries.map(&:last_updated_at).compact.max
+        last_updated_on = @entries.maximum(:last_updated_at)
 
         {
           copay_summary: {
