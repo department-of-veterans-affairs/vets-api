@@ -134,7 +134,7 @@ RSpec.describe RepresentationManagement::EnqueueGeocodingJob, type: :job do
 
       # Verify the time spacing is correct
       calls = []
-      allow(RepresentationManagement::GeocodeRepresentativeJob).to receive(:perform_in) do |delay, *args|
+      allow(RepresentationManagement::GeocodeRepresentativeJob).to receive(:perform_in) do |delay, *_args|
         calls << delay
       end
 
@@ -209,7 +209,7 @@ RSpec.describe RepresentationManagement::EnqueueGeocodingJob, type: :job do
         veteran_rep_calls = []
         accredited_individual_calls = []
 
-        allow(RepresentationManagement::GeocodeRepresentativeJob).to receive(:perform_in) do |delay, model, id|
+        allow(RepresentationManagement::GeocodeRepresentativeJob).to receive(:perform_in) do |delay, model, _id|
           if model == 'Veteran::Service::Representative'
             veteran_rep_calls << delay.to_i
           else

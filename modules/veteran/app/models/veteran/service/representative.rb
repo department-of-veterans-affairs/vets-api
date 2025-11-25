@@ -151,9 +151,7 @@ module Veteran
         end
 
         # Fall back to city/state
-        if city.present? && state_code.present?
-          return [city, state_code].compact.join(', ')
-        end
+        return [city, state_code].compact.join(', ') if city.present? && state_code.present?
 
         # Last resort: zip code only
         zip_code.presence

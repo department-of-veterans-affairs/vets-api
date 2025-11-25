@@ -10,41 +10,43 @@ module RepresentationManagement
     RATE_LIMIT_SECONDS = 2
 
     def perform
+      total_count = 0
       offset = 0
 
       # Process Veteran::Service::Representative records
-      veteran_reps = Veteran::Service::Representative
-                     .where(lat: nil)
-                     .or(Veteran::Service::Representative.where(long: nil))
-                     .or(Veteran::Service::Representative.where(location: nil))
-
-      veteran_reps.find_each.with_index do |rep, index|
-        delay_seconds = (offset + index) * RATE_LIMIT_SECONDS
-        GeocodeRepresentativeJob.perform_in(
-          delay_seconds.seconds,
-          'Veteran::Service::Representative',
-          rep.representative_id
-        )
-      end
-
-      offset += veteran_reps.count
+      offset = enqueue_for_model(Veteran::Service::Representative, :representative_id, offset)
+      total_count += offset
 
       # Process AccreditedIndividual records
-      accredited_individuals = AccreditedIndividual
-                               .where(lat: nil)
-                               .or(AccreditedIndividual.where(long: nil))
-                               .or(AccreditedIndividual.where(location: nil))
+      individual_count = enqueue_for_model(AccreditedIndividual, :id, offset)
+      total_count += individual_count
 
-      accredited_individuals.find_each.with_index do |individual, index|
+      Rails.logger.info("Enqueued #{total_count} geocoding jobs")
+    end
+
+    private
+
+    # Enqueues geocoding jobs for a specific model class
+    # @param model_class [Class] The ActiveRecord model class to process
+    # @param id_field [Symbol] The primary key field name for the model
+    # @param offset [Integer] The starting offset for job scheduling
+    # @return [Integer] The number of records processed
+    def enqueue_for_model(model_class, id_field, offset)
+      records = model_class
+                .where(lat: nil)
+                .or(model_class.where(long: nil))
+                .or(model_class.where(location: nil))
+
+      records.find_each.with_index do |record, index|
         delay_seconds = (offset + index) * RATE_LIMIT_SECONDS
         GeocodeRepresentativeJob.perform_in(
           delay_seconds.seconds,
-          'AccreditedIndividual',
-          individual.id
+          model_class.name,
+          record.send(id_field)
         )
       end
 
-      Rails.logger.info("Enqueued #{veteran_reps.count + accredited_individuals.count} geocoding jobs")
+      records.count
     end
   end
 end
