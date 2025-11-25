@@ -26,7 +26,10 @@ module AskVAApi
       ENDPOINT = 'inquiries/new'
       SAFE_INQUIRY_FIELDS = %i[
         about_your_relationship_to_family_member
+        category_id
         contact_preference
+        family_members_location_of_residence
+        family_member_postal_code
         is_question_about_veteran_or_someone_else
         more_about_your_relationship_to_veteran
         relationship_to_veteran
@@ -34,8 +37,13 @@ module AskVAApi
         select_category
         select_subtopic
         select_topic
+        state_of_property
+        subtopic_id
         their_relationship_to_veteran
         they_have_relationship_not_listed
+        topic_id
+        veterans_postal_code
+        veterans_location_of_residence
         who_is_your_question_about
         your_location_of_residence
         your_role
