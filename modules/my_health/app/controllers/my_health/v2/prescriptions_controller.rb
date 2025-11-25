@@ -146,6 +146,7 @@ module MyHealth
         end
 
         # Enhance with Oracle Health-specific refill submission metadata
+        # Logic is in the Prescription model to be shared across my_health and mobile controllers
         recently_requested.map do |prescription|
           enhanced_data = {
             prescription_id: prescription.prescription_id,
@@ -154,76 +155,13 @@ module MyHealth
             station_number: prescription.station_number
           }
 
-          # Add Oracle Health-specific refill submission timing data
-          if is_oracle_health_prescription?(prescription)
-            enhanced_data.merge!(extract_oracle_health_refill_metadata(prescription))
+          # Add Oracle Health-specific refill submission timing data from Task resources
+          if prescription.respond_to?(:oracle_health_prescription?) && prescription.oracle_health_prescription?
+            enhanced_data.merge!(prescription.refill_metadata_from_tasks)
           end
 
           enhanced_data
         end
-      end
-
-      # Checks if a prescription originated from Oracle Health system
-      # Oracle Health prescriptions lack refill_submit_date (not in FHIR standard)
-      def is_oracle_health_prescription?(prescription)
-        prescription.respond_to?(:refill_submit_date) && prescription.refill_submit_date.nil? &&
-          prescription.respond_to?(:prescription_source) && prescription.prescription_source == 'VA'
-      end
-
-      # Extracts refill submission metadata from Oracle Health Task resources
-      # Task resources contain refill request information per FHIR standard
-      # This provides timing information to help users understand refill processing status
-      def extract_oracle_health_refill_metadata(prescription)
-        metadata = {}
-
-        # Look for Task resources in the prescription's contained resources
-        # Task.status indicates the refill request outcome (requested, in-progress, completed, failed, etc.)
-        # Task.executionPeriod.start indicates when the refill request was submitted
-        if prescription.respond_to?(:task_resources) && prescription.task_resources.present?
-          # Find the most recent refill request task
-          refill_tasks = prescription.task_resources.select do |task|
-            task[:status].present?
-          end
-
-          if refill_tasks.any?
-            # Sort by executionPeriod.start to find most recent submission
-            most_recent_task = refill_tasks.max_by do |task|
-              if task[:execution_period_start]
-                begin
-                  Time.zone.parse(task[:execution_period_start])
-                rescue ArgumentError
-                  Time.zone.at(0)
-                end
-              else
-                Time.zone.at(0)
-              end
-            end
-
-            if most_recent_task
-              # Extract submission timestamp from executionPeriod.start
-              if most_recent_task[:execution_period_start]
-                metadata[:refill_submit_date] = most_recent_task[:execution_period_start]
-
-                # Calculate days since submission for frontend display
-                begin
-                  submit_time = Time.zone.parse(most_recent_task[:execution_period_start])
-                  days_since = ((Time.zone.now - submit_time) / 1.day).floor
-                  metadata[:days_since_submission] = days_since if days_since >= 0
-                rescue ArgumentError
-                  # Invalid date format, skip calculation
-                end
-              end
-
-              # Extract refill request status from Task.status
-              metadata[:refill_request_status] = most_recent_task[:status] if most_recent_task[:status]
-
-              # Include other relevant task fields if available
-              metadata[:task_id] = most_recent_task[:id] if most_recent_task[:id]
-            end
-          end
-        end
-
-        metadata
       end
 
       def apply_filters_to_list(prescriptions)
