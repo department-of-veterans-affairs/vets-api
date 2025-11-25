@@ -186,6 +186,96 @@ RSpec.describe SavedClaim::Form214192, type: :model do
     end
   end
 
+  describe '#metadata_for_benefits_intake' do
+    context 'with all fields present' do
+      it 'returns correct metadata hash' do
+        metadata = claim.metadata_for_benefits_intake
+
+        expect(metadata).to eq(
+          veteranFirstName: 'John',
+          veteranLastName: 'Doe',
+          fileNumber: '987654321',
+          zipCode: '54321',
+          businessLine: 'CMP'
+        )
+      end
+    end
+
+    context 'when vaFileNumber is present' do
+      it 'prefers vaFileNumber over ssn' do
+        form_data = valid_form_data.dup
+        form_data['veteranInformation']['vaFileNumber'] = 'VA123456'
+        form_data['veteranInformation']['ssn'] = '999999999'
+        claim_with_both = described_class.new(form: form_data.to_json)
+
+        metadata = claim_with_both.metadata_for_benefits_intake
+
+        expect(metadata[:fileNumber]).to eq('VA123456')
+      end
+    end
+
+    context 'when vaFileNumber is missing' do
+      it 'falls back to ssn' do
+        form_data = valid_form_data.dup
+        form_data['veteranInformation'].delete('vaFileNumber')
+        form_data['veteranInformation']['ssn'] = '111223333'
+        claim_without_va_file = described_class.new(form: form_data.to_json)
+
+        metadata = claim_without_va_file.metadata_for_benefits_intake
+
+        expect(metadata[:fileNumber]).to eq('111223333')
+      end
+    end
+
+    context 'when zipCode is missing' do
+      it 'defaults to 00000 when employerAddress postalCode is missing' do
+        form_data = valid_form_data.dup
+        form_data['employmentInformation']['employerAddress'].delete('postalCode')
+        claim_without_zip = described_class.new(form: form_data.to_json)
+
+        metadata = claim_without_zip.metadata_for_benefits_intake
+
+        expect(metadata[:zipCode]).to eq('00000')
+      end
+
+      it 'defaults to 00000 when employerAddress is missing' do
+        form_data = valid_form_data.dup
+        form_data['employmentInformation'].delete('employerAddress')
+        claim_without_address = described_class.new(form: form_data.to_json)
+
+        metadata = claim_without_address.metadata_for_benefits_intake
+
+        expect(metadata[:zipCode]).to eq('00000')
+      end
+    end
+
+    context 'when some fields are missing' do
+      it 'handles nil values gracefully' do
+        form_data = valid_form_data.dup
+        form_data['veteranInformation']['fullName'].delete('first')
+        form_data['veteranInformation']['fullName'].delete('last')
+        form_data['veteranInformation'].delete('vaFileNumber')
+        form_data['veteranInformation'].delete('ssn')
+        claim_with_missing_fields = described_class.new(form: form_data.to_json)
+
+        metadata = claim_with_missing_fields.metadata_for_benefits_intake
+
+        expect(metadata[:veteranFirstName]).to be_nil
+        expect(metadata[:veteranLastName]).to be_nil
+        expect(metadata[:fileNumber]).to be_nil
+        expect(metadata[:zipCode]).to eq('54321') # Still gets zipCode from employerAddress
+        expect(metadata[:businessLine]).to eq('CMP')
+      end
+    end
+
+    it 'always includes businessLine from business_line method' do
+      metadata = claim.metadata_for_benefits_intake
+
+      expect(metadata[:businessLine]).to eq('CMP')
+      expect(metadata[:businessLine]).to eq(claim.business_line)
+    end
+  end
+
   describe 'FORM constant' do
     it 'is set to 21-4192' do
       expect(described_class::FORM).to eq('21-4192')
