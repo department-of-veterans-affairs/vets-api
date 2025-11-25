@@ -20,18 +20,63 @@ module AccreditedRepresentativePortal
       end
 
       def create
-        parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
+        # parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
 
-        if parsed_response['errors'].present?
-          raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
-        else
-          render json: parsed_response, status: :created
-        end
+        # if parsed_response['errors'].present?
+        #   raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
+        # else
+          icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
+          saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create(form: form.to_json)
+          claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
+          SavedClaimClaimantRepresentative.create(
+            saved_claim:, claimant_type:, claimant_id: icn_temporary_identifier.id,
+            power_of_attorney_holder_type: claimant_representative.power_of_attorney_holder.type,
+            power_of_attorney_holder_poa_code: claimant_representative.power_of_attorney_holder.poa_code,
+            accredited_individual_registration_number: claimant_representative.accredited_individual_registration_number
+          )
+          # render json: parsed_response, status: :created
+        # end
       rescue ArgumentError => e
         render json: { error: e.message }, status: :bad_request
       end
 
       private
+
+      def veteran_form
+        {
+          veteran: {
+            ssn: params[:veteranSsn],
+            dateOfBirth: params[:veteranDateOfBirth],
+            postalCode: params[:postalCode],
+            vaFileNumber: params[:vaFileNumber],
+            name: {
+              first: params[:veteranFullName][:first],
+              last: params[:veteranFullName][:last]
+            }
+          }
+        }
+      end
+
+      def claimant_form
+        {
+          dependent: {
+            ssn: params[:claimantSsn],
+            dateOfBirth: params[:claimantDateOfBirth],
+            name: {
+              first: params[:claimantFullName][:first],
+              last: params[:claimantFullName][:last]
+            }
+          }
+        }
+      end
+
+      def form
+        if params[:benefitType] == 'survivor'
+          veteran_form.merge(claimant_form)
+        else
+          veteran_form.merge(dependent: nil)
+        end
+      end
 
       def check_feature_toggle
         unless Flipper.enabled?(:accredited_representative_portal_intent_to_file, @current_user)
@@ -65,6 +110,14 @@ module AccreditedRepresentativePortal
             Must be one of (#{INTENT_TO_FILE_TYPES.join(', ')})
           MSG
         end
+      end
+
+      def claimant_representative
+        @claimant_representative ||= ClaimantRepresentative.find(
+          claimant_icn: icn,
+          power_of_attorney_holder_memberships:
+            @current_user.power_of_attorney_holder_memberships
+        )
       end
     end
   end
