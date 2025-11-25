@@ -281,6 +281,26 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
       end
 
+      context 'list_refillable_prescriptions response structure' do
+        it 'returns filtered prescriptions with recently_requested in metadata' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_refillable_prescriptions') do
+            get '/my_health/v1/prescriptions/list_refillable_prescriptions'
+          end
+
+          expect(response).to be_successful
+          response_body = JSON.parse(response.body)
+
+          # Verify the response contains data
+          expect(response_body['data']).to be_present
+          expect(response_body['data']).to be_an(Array)
+
+          # Verify metadata structure
+          expect(response_body['meta']).to be_present
+          expect(response_body['meta']).to include('recently_requested')
+          expect(response_body['meta']['recently_requested']).to be_an(Array)
+        end
+      end
+
       it 'responds to GET #index with filter metadata for specific disp_status' do
         VCR.use_cassette('rx_client/prescriptions/index_with_disp_status_filter') do
           get '/my_health/v1/prescriptions?filter[[disp_status][eq]]=Active,Expired',
