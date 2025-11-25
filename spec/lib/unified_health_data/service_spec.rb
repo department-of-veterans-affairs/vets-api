@@ -26,6 +26,23 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      it 'returns labs sorted by date_completed in descending order' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30').sort
+
+          labs_with_dates = labs.select { |lab| lab.date_completed.present? }
+          dates = labs_with_dates.map { |lab| Time.zone.parse(lab.date_completed) }
+          expect(dates).to eq(dates.sort.reverse)
+
+          last_labs = labs.last(5)
+          if last_labs.any? { |lab| lab.date_completed.nil? }
+            expect(labs.select { |lab| lab.date_completed.nil? }).to eq(last_labs.select { |lab|
+              lab.date_completed.nil?
+            })
+          end
+        end
+      end
+
       it 'logs test code distribution from parsed records' do
         allow(Rails.logger).to receive(:info)
 
@@ -163,7 +180,9 @@ describe UnifiedHealthData::Service, type: :service do
             ['food'],
             ['food']
           )
-          expect(allergies[0]).to have_attributes(
+          # Verify specific allergy exists (not checking position due to sorting)
+          trazodone_allergy = allergies.find { |a| a.id == '2678' }
+          expect(trazodone_allergy).to have_attributes(
             {
               'id' => '2678',
               'name' => 'TRAZODONE',
@@ -189,6 +208,24 @@ describe UnifiedHealthData::Service, type: :service do
                                        'provider' => be_a(String).or(be_nil)
                                      }
                                    ))
+        end
+
+        it 'returns allergies sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(sample_client_response)
+
+          allergies = service.get_allergies.sort
+
+          allergies_with_dates = allergies.select { |allergy| allergy.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = allergies_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          allergies_without_dates = allergies.select { |allergy| allergy.date.nil? }
+          if allergies_without_dates.any?
+            expect(allergies.last(allergies_without_dates.size)).to eq(allergies_without_dates)
+          end
         end
       end
 
@@ -588,7 +625,9 @@ describe UnifiedHealthData::Service, type: :service do
             'discharge_summary',
             'other'
           )
-          expect(notes[0]).to have_attributes(
+          # Verify specific note exists (not checking position due to sorting)
+          telehealth_note = notes.find { |n| n.id == 'F253-7227761-1834074' }
+          expect(telehealth_note).to have_attributes(
             {
               'id' => 'F253-7227761-1834074',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
@@ -620,6 +659,14 @@ describe UnifiedHealthData::Service, type: :service do
                                    'note' => be_a(String)
                                  }
                                ))
+        end
+
+        it 'returns clinical notes sorted by date in descending order' do
+          notes = service.get_care_summaries_and_notes.sort
+
+          dates = notes.map { |note| Time.zone.parse(note.date) }
+          expect(dates).to eq(dates.sort.reverse)
+          expect(notes.first.date).to eq(notes.map(&:date).max)
         end
       end
 
@@ -1647,6 +1694,19 @@ describe UnifiedHealthData::Service, type: :service do
       expect(conditions.size).to eq(18)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns conditions sorted by date in descending order' do
+      conditions = service.get_conditions.sort
+
+      conditions_with_dates = conditions.select { |condition| condition.date.present? }
+      dates = conditions_with_dates.map { |condition| Time.zone.parse(condition.date) }
+      expect(dates).to eq(dates.sort.reverse)
+
+      conditions_without_dates = conditions.select { |condition| condition.date.nil? }
+      if conditions_without_dates.any?
+        expect(conditions.last(conditions_without_dates.size)).to eq(conditions_without_dates)
+      end
     end
 
     it 'returns conditions from both VistA and Oracle Health with real sample data' do
