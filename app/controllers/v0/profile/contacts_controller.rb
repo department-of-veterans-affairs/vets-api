@@ -60,7 +60,7 @@ module V0
       end
 
       def log_exception(e)
-        elapsed = current_time_ms - @start_ms
+        elapsed = @start_ms ? current_time_ms - @start_ms : nil
         event = if e.is_a?(Common::Exceptions::BackendServiceException)
                   'profile.contacts.backend_error'
                 else
