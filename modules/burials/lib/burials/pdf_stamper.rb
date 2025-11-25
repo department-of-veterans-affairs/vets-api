@@ -15,7 +15,7 @@ module Burials
         x: 5,
         y: 5
       }],
-      burials_generated_pdf: [{
+      burials_generated_claim: [{
         text: 'VA.GOV',
         timestamp: nil,
         x: 5,
@@ -24,12 +24,12 @@ module Burials
         text: 'FDC Reviewed - VA.gov Submission',
         timestamp: nil,
         x: 400,
-        y: 770,
+        y: 815,
         text_only: true
       }, {
         text: 'Application Submitted on va.gov',
         x: 425,
-        y: 675,
+        y: 720,
         text_only: true, # passing as text only because we override how the date is stamped in this instance
         timestamp: nil,
         page_number: 5,
