@@ -17,10 +17,14 @@ RSpec.describe TravelPay::MealExpense, type: :model do
       expect(meal_expense.errors[:purchase_date]).to include("can't be blank")
     end
 
-    it 'requires a description to be present' do
+    it 'allows description to be nil (inherited allow_blank: true from BaseExpense)' do
       meal_expense.description = nil
-      expect(meal_expense).not_to be_valid
-      expect(meal_expense.errors[:description]).to include("can't be blank")
+      expect(meal_expense).to be_valid
+    end
+
+    it 'allows description to be blank/empty string (inherited allow_blank: true from BaseExpense)' do
+      meal_expense.description = ''
+      expect(meal_expense).to be_valid
     end
 
     it 'requires cost_requested to be present' do
@@ -67,6 +71,30 @@ RSpec.describe TravelPay::MealExpense, type: :model do
     it 'includes the correct expense_type' do
       hash = meal_expense.to_h
       expect(hash['expense_type']).to eq(TravelPay::Constants::EXPENSE_TYPES[:meal])
+    end
+  end
+
+  describe '.permitted_params' do
+    it 'extends base expense permitted parameters with meal-specific fields' do
+      params = described_class.permitted_params
+      expect(params).to include(:vendor_name)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        description: 'Lunch expense',
+        cost_requested: 25.00,
+        vendor_name: 'Restaurant ABC',
+        claim_id: 'claim-uuid-meal'
+      )
+    end
+
+    it 'includes meal-specific fields' do
+      params = subject.to_service_params
+      expect(params['vendor_name']).to eq('Restaurant ABC')
     end
   end
 end
