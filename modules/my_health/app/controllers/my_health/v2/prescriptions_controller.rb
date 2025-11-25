@@ -140,10 +140,71 @@ module MyHealth
       end
 
       def get_recently_requested_prescriptions(prescriptions)
-        prescriptions.select do |item|
+        recently_requested = prescriptions.select do |item|
           item.respond_to?(:disp_status) && ['Active: Refill in Process',
                                              'Active: Submitted'].include?(item.disp_status)
         end
+
+        # Enhance with Oracle Health-specific refill submission metadata
+        recently_requested.map do |prescription|
+          enhanced_data = {
+            prescription_id: prescription.prescription_id,
+            prescription_name: prescription.prescription_name,
+            disp_status: prescription.disp_status,
+            station_number: prescription.station_number
+          }
+
+          # Add Oracle Health-specific refill submission timing data
+          if is_oracle_health_prescription?(prescription)
+            enhanced_data.merge!(extract_oracle_health_refill_metadata(prescription))
+          end
+
+          enhanced_data
+        end
+      end
+
+      # Checks if a prescription originated from Oracle Health system
+      # Oracle Health prescriptions lack refill_submit_date (not in FHIR standard)
+      def is_oracle_health_prescription?(prescription)
+        prescription.respond_to?(:refill_submit_date) && prescription.refill_submit_date.nil? &&
+          prescription.respond_to?(:prescription_source) && prescription.prescription_source == 'VA'
+      end
+
+      # Extracts refill submission metadata from Oracle Health MedicationDispense records
+      # This provides timing information to help users understand refill processing status
+      def extract_oracle_health_refill_metadata(prescription)
+        metadata = {}
+
+        # Find most recent in-progress dispense
+        if prescription.respond_to?(:dispenses) && prescription.dispenses.present?
+          in_progress_dispenses = prescription.dispenses.select do |dispense|
+            %w[preparation in-progress on-hold].include?(dispense[:status])
+          end
+
+          if in_progress_dispenses.any?
+            # Sort by refill_date to find most recent
+            most_recent = in_progress_dispenses.max_by do |dispense|
+              dispense[:refill_date] ? Time.zone.parse(dispense[:refill_date]) : Time.zone.at(0)
+            end
+
+            if most_recent && most_recent[:refill_date]
+              metadata[:refill_submit_date] = most_recent[:refill_date]
+              metadata[:dispense_status] = most_recent[:status]
+              metadata[:facility_name] = most_recent[:facility_name] if most_recent[:facility_name]
+
+              # Calculate days since submission for frontend display
+              begin
+                submit_time = Time.zone.parse(most_recent[:refill_date])
+                days_since = ((Time.zone.now - submit_time) / 1.day).floor
+                metadata[:days_since_submission] = days_since if days_since >= 0
+              rescue ArgumentError
+                # Invalid date format, skip calculation
+              end
+            end
+          end
+        end
+
+        metadata
       end
 
       def apply_filters_to_list(prescriptions)

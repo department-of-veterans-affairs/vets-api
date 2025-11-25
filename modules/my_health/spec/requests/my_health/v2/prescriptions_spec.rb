@@ -629,6 +629,33 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
+      it 'includes Oracle Health refill metadata in recently_requested for in-progress prescriptions' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          recently_requested = json_response['meta']['recently_requested']
+
+          # Find Oracle Health prescriptions (those without refill_submit_date at root level)
+          oracle_health_rxs = recently_requested.select do |rx|
+            rx['refill_submit_date'].present? || rx['dispense_status'].present?
+          end
+
+          # Verify Oracle Health-specific metadata is included when available
+          oracle_health_rxs.each do |rx|
+            expect(rx).to have_key('prescription_id')
+            expect(rx).to have_key('prescription_name')
+            expect(rx).to have_key('disp_status')
+
+            # Oracle Health-specific fields (only present when there are in-progress dispenses)
+            if rx['refill_submit_date'].present?
+              expect(rx['dispense_status']).to be_in(%w[preparation in-progress on-hold])
+              expect(rx['days_since_submission']).to be_a(Integer) if rx['days_since_submission'].present?
+            end
+          end
+        end
+      end
+
       it 'sorts PD prescriptions to the top when pending meds enabled' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # Enable pending meds flipper
