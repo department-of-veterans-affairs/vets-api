@@ -77,8 +77,8 @@ module Vass
       }
 
       response = client.get_appointment_availability(
-        edipi: edipi,
-        availability_request: availability_request
+        edipi:,
+        availability_request:
       )
 
       parse_response(response)
@@ -119,8 +119,8 @@ module Vass
       }.compact
 
       response = client.save_appointment(
-        edipi: edipi,
-        appointment_data: appointment_data
+        edipi:,
+        appointment_data:
       )
 
       parse_response(response)
@@ -140,8 +140,8 @@ module Vass
     #
     def cancel_appointment(appointment_id:)
       response = client.cancel_appointment(
-        edipi: edipi,
-        appointment_id: appointment_id
+        edipi:,
+        appointment_id:
       )
 
       parse_response(response)
@@ -161,8 +161,8 @@ module Vass
     #
     def get_appointment(appointment_id:)
       response = client.get_veteran_appointment(
-        edipi: edipi,
-        appointment_id: appointment_id
+        edipi:,
+        appointment_id:
       )
 
       parse_response(response)
@@ -182,8 +182,8 @@ module Vass
     #
     def get_appointments(veteran_id:)
       response = client.get_veteran_appointments(
-        edipi: edipi,
-        veteran_id: veteran_id
+        edipi:,
+        veteran_id:
       )
 
       parse_response(response)
@@ -203,8 +203,8 @@ module Vass
     #
     def get_veteran_info(veteran_id:)
       response = client.get_veteran(
-        edipi: edipi,
-        veteran_id: veteran_id
+        edipi:,
+        veteran_id:
       )
 
       parse_response(response)
@@ -306,10 +306,9 @@ module Vass
         service: 'vass_appointments_service',
         method: method_name,
         error_class: error.class.name,
-        correlation_id: correlation_id,
+        correlation_id:,
         timestamp: Time.current.iso8601
       }.to_json)
     end
   end
 end
-

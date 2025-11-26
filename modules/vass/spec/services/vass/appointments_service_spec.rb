@@ -4,14 +4,14 @@ require 'rails_helper'
 require_relative '../../../app/services/vass/appointments_service'
 
 describe Vass::AppointmentsService do
+  subject { described_class.build(edipi:, correlation_id:) }
+
   let(:edipi) { '1234567890' }
   let(:correlation_id) { 'test-correlation-id' }
   let(:veteran_id) { 'vet-123' }
   let(:appointment_id) { 'appt-abc123' }
 
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-
-  subject { described_class.build(edipi:, correlation_id:) }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -70,9 +70,7 @@ describe Vass::AppointmentsService do
           expect(result['data']['appointmentDuration']).to eq(30)
         end
       end
-
     end
-
   end
 
   describe '#save_appointment' do
@@ -81,7 +79,7 @@ describe Vass::AppointmentsService do
         veteran_id:,
         time_start_utc: Time.zone.parse('2025-11-27T10:00:00Z'),
         time_end_utc: Time.zone.parse('2025-11-27T10:30:00Z'),
-        selected_agent_skills: ['skill-1', 'skill-2']
+        selected_agent_skills: %w[skill-1 skill-2]
       }
     end
 
@@ -94,7 +92,6 @@ describe Vass::AppointmentsService do
           expect(result['data']['appointmentId']).to eq('appt-abc123')
         end
       end
-
     end
   end
 
@@ -108,7 +105,6 @@ describe Vass::AppointmentsService do
           expect(result['message']).to eq('Appointment cancelled successfully')
         end
       end
-
     end
 
     context 'when appointment not found' do
@@ -133,7 +129,6 @@ describe Vass::AppointmentsService do
           expect(result['data']['agentNickname']).to eq('Dr. Smith')
         end
       end
-
     end
   end
 
@@ -149,7 +144,6 @@ describe Vass::AppointmentsService do
           expect(result['data']['appointments'].length).to eq(2)
         end
       end
-
     end
   end
 
@@ -165,7 +159,6 @@ describe Vass::AppointmentsService do
           expect(result['data']['edipi']).to eq(edipi)
         end
       end
-
     end
   end
 
@@ -181,7 +174,6 @@ describe Vass::AppointmentsService do
           expect(result['data']['agentSkills'].first['skillName']).to eq('Mental Health Counseling')
         end
       end
-
     end
   end
 
@@ -219,4 +211,3 @@ describe Vass::AppointmentsService do
     end
   end
 end
-
