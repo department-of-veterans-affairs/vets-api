@@ -302,7 +302,7 @@ dgi:
   sob:
     claimants:
       mock: ~
-      url: https://dgi-int-mtls.np.afsp.io/afs06
+      url: https://fake.sob.com
     jwt:
       private_key_path: modules/sob/spec/fixtures/test_private_key.pem
       public_key_path: modules/sob/spec/fixtures/test_public_key.pem
