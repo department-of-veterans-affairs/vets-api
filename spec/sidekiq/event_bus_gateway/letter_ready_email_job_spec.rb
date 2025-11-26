@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_notify/service'
+require 'sidekiq/attr_package'
 require_relative '../../../app/sidekiq/event_bus_gateway/constants'
 require_relative 'shared_examples_letter_ready_job'
 
@@ -65,6 +66,8 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       .and_return(bgs_profile)
     allow(StatsD).to receive(:increment)
     allow(Rails.logger).to receive(:error)
+    allow(Sidekiq::AttrPackage).to receive(:find).and_return(nil)
+    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   describe 'successful email notification' do
@@ -156,6 +159,57 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
     end
   end
 
+  describe 'PII protection with AttrPackage' do
+    let(:cache_key) { 'test_cache_key_123' }
+
+    context 'when cache_key is provided' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(
+          first_name:,
+          icn: mpi_profile.icn
+        )
+      end
+
+      it 'retrieves PII from Redis' do
+        expect(Sidekiq::AttrPackage).to receive(:find).with(cache_key)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'sends email with PII from cache' do
+        expect(va_notify_service).to receive(:send_email).with(expected_email_args)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'cleans up cache_key after successful processing' do
+        expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'does not call BGS or MPI services' do
+        expect_any_instance_of(described_class).not_to receive(:get_first_name_from_participant_id)
+        expect_any_instance_of(described_class).not_to receive(:get_icn)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+    end
+
+    context 'when cache_key retrieval fails' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
+      end
+
+      it 'falls back to fetching PII from services' do
+        expect_any_instance_of(described_class).to receive(:get_first_name_from_participant_id).and_call_original
+        expect_any_instance_of(described_class).to receive(:get_icn).and_call_original
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'still sends email successfully' do
+        expect(va_notify_service).to receive(:send_email).with(expected_email_args)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+    end
+  end
+
   describe '#hostname_for_template' do
     let(:job_instance) { subject.new }
 
@@ -181,20 +235,6 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         result = job_instance.send(:hostname_for_template)
         expect(result).to eq('unmapped-hostname')
       end
-    end
-  end
-
-  describe 'pre-provided data' do
-    it 'uses provided data instead of fetching from BGS and MPI' do
-      expect_any_instance_of(described_class).not_to receive(:get_bgs_person)
-      expect_any_instance_of(described_class).not_to receive(:get_mpi_profile)
-
-      subject.new.perform(participant_id, template_id, first_name, icn)
-    end
-
-    it 'sends email with provided first_name' do
-      expect(va_notify_service).to receive(:send_email).with(expected_email_args)
-      subject.new.perform(participant_id, template_id, first_name, icn)
     end
   end
 
@@ -288,28 +328,6 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       )
 
       subject.new.perform(participant_id, template_id)
-    end
-
-    context 'when first_name is empty string' do
-      it 'also returns early without sending email' do
-        expect(va_notify_service).not_to receive(:send_email)
-
-        result = subject.new.perform(participant_id, template_id, '', icn)
-        expect(result).to be_nil
-      end
-
-      it 'logs the skipped notification' do
-        expect(Rails.logger).to receive(:error).with(
-          'LetterReadyEmailJob email skipped',
-          {
-            notification_type: 'email',
-            reason: 'First Name not available',
-            template_id:
-          }
-        )
-
-        subject.new.perform(participant_id, template_id, '', icn)
-      end
     end
   end
 

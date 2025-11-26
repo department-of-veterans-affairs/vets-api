@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/attr_package'
 require_relative 'constants'
 require_relative 'errors'
 require_relative 'letter_ready_job_concern'
@@ -87,7 +88,9 @@ module EventBusGateway
     end
 
     def send_email_async(participant_id, email_template_id, first_name, icn)
-      LetterReadyEmailJob.perform_async(participant_id, email_template_id, first_name, icn)
+      # Store PII in Redis and pass only cache key to avoid PII exposure in logs
+      cache_key = Sidekiq::AttrPackage.create(first_name:, icn:)
+      LetterReadyEmailJob.perform_async(participant_id, email_template_id, cache_key)
       nil
     rescue => e
       log_notification_failure('email', email_template_id, e)
@@ -95,7 +98,9 @@ module EventBusGateway
     end
 
     def send_push_async(participant_id, push_template_id, icn)
-      LetterReadyPushJob.perform_async(participant_id, push_template_id, icn)
+      # Store PII in Redis and pass only cache key to avoid PII exposure in logs
+      cache_key = Sidekiq::AttrPackage.create(icn:)
+      LetterReadyPushJob.perform_async(participant_id, push_template_id, cache_key)
       nil
     rescue => e
       log_notification_failure('push', push_template_id, e)

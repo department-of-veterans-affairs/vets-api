@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/attr_package'
 require_relative '../../../app/sidekiq/event_bus_gateway/constants'
 require_relative 'shared_examples_letter_ready_job'
 
@@ -62,6 +63,8 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:warn)
+    allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key_123')
+    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   describe '#perform' do
@@ -128,6 +131,37 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
           )
 
           subject.new.perform(participant_id, email_template_id)
+        end
+      end
+
+      context 'PII protection with AttrPackage' do
+        it 'stores PII in Redis and passes only cache_key to email job' do
+          expect(Sidekiq::AttrPackage).to receive(:create).with(
+            first_name: 'Joe',
+            icn: mpi_profile_response.profile.icn
+          ).and_return('email_cache_key')
+
+          expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with(
+            participant_id,
+            email_template_id,
+            'email_cache_key'
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'stores PII in Redis and passes only cache_key to push job' do
+          expect(Sidekiq::AttrPackage).to receive(:create).with(
+            icn: mpi_profile_response.profile.icn
+          ).and_return('push_cache_key')
+
+          expect(EventBusGateway::LetterReadyPushJob).to receive(:perform_async).with(
+            participant_id,
+            push_template_id,
+            'push_cache_key'
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
         end
       end
 

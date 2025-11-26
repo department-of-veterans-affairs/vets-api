@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/attr_package'
 require_relative 'constants'
 require_relative 'letter_ready_job_concern'
 
@@ -25,8 +26,20 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
     end
 
-    def perform(participant_id, template_id, first_name = nil, icn = nil)
-      # Use pre-fetched data if provided, otherwise fetch it
+    def perform(participant_id, template_id, cache_key = nil)
+      first_name = nil
+      icn = nil
+
+      # Retrieve PII from Redis if cache_key provided (avoids PII exposure in logs)
+      if cache_key
+        attributes = Sidekiq::AttrPackage.find(cache_key)
+        if attributes
+          first_name = attributes[:first_name]
+          icn = attributes[:icn]
+        end
+      end
+
+      # Fallback to fetching if cache_key not provided or failed
       first_name ||= get_first_name_from_participant_id(participant_id)
       icn ||= get_icn(participant_id)
 
@@ -34,6 +47,9 @@ module EventBusGateway
 
       send_email_notification(participant_id, template_id, first_name, icn)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
+
+      # Clean up PII from Redis if cache_key was used
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue => e
       record_notification_send_failure(e, 'Email')
       raise
