@@ -9,8 +9,20 @@ require_relative 'shared_examples_letter_ready_job'
 RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
   subject { described_class }
 
-  it 'configures sidekiq retry count' do
-    expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_PUSH)
+  # Shared setup for most test scenarios
+  before do
+    allow(VaNotify::Service).to receive(:new)
+      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
+      .and_return(va_notify_service)
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+      .and_return(mpi_profile_response)
+    allow_any_instance_of(BGS::PersonWebService)
+      .to receive(:find_person_by_ptcpnt_id)
+      .and_return(bgs_profile)
+    allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:error)
+    allow(Sidekiq::AttrPackage).to receive(:find).and_return(nil)
+    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   let(:participant_id) { '1234' }
@@ -44,22 +56,6 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       template_id:,
       personalisation: {}
     }
-  end
-
-  # Shared setup for most test scenarios
-  before do
-    allow(VaNotify::Service).to receive(:new)
-      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
-      .and_return(va_notify_service)
-    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-      .and_return(mpi_profile_response)
-    allow_any_instance_of(BGS::PersonWebService)
-      .to receive(:find_person_by_ptcpnt_id)
-      .and_return(bgs_profile)
-    allow(StatsD).to receive(:increment)
-    allow(Rails.logger).to receive(:error)
-    allow(Sidekiq::AttrPackage).to receive(:find).and_return(nil)
-    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   describe 'successful push notification' do
@@ -306,6 +302,10 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       )
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
+    end
+
+    it 'configures sidekiq retry count' do
+      expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_PUSH)
     end
 
     it 'increments exhausted metric with error message tag' do

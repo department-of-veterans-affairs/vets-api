@@ -8,8 +8,20 @@ require_relative 'shared_examples_letter_ready_job'
 RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
   subject { described_class }
 
-  it 'configures sidekiq retry count' do
-    expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_NOTIFICATION)
+  # Shared setup for most test scenarios
+  before do
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+      .and_return(mpi_profile_response)
+    allow_any_instance_of(BGS::PersonWebService)
+      .to receive(:find_person_by_ptcpnt_id)
+      .and_return(bgs_profile)
+    allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
+    allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+    allow(Rails.logger).to receive(:warn)
+    allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key_123')
+    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   let(:participant_id) { '1234' }
@@ -53,22 +65,6 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
       template_id: push_template_id,
       personalisation: {}
     }
-  end
-
-  # Shared setup for most test scenarios
-  before do
-    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-      .and_return(mpi_profile_response)
-    allow_any_instance_of(BGS::PersonWebService)
-      .to receive(:find_person_by_ptcpnt_id)
-      .and_return(bgs_profile)
-    allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
-    allow(StatsD).to receive(:increment)
-    allow(Rails.logger).to receive(:info)
-    allow(Rails.logger).to receive(:error)
-    allow(Rails.logger).to receive(:warn)
-    allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key_123')
-    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   describe '#perform' do
@@ -198,6 +194,10 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           subject.new.perform(participant_id, nil, push_template_id)
         end
+      end
+
+      it 'configures sidekiq retry count' do
+        expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_NOTIFICATION)
       end
     end
 
