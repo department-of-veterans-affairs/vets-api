@@ -36,13 +36,22 @@ module AskVAApi
             DependentDOB: family_member_field(:date_of_birth), DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
+          # Log Request Context
           context = {
             level_of_authentication: inquiry_details[:level_of_authentication],
             user_loa: user&.loa&.fetch(:current, nil),
-            category: inquiry_details_obj.category, topic: inquiry_details_obj.topic,
-            user_is_authenticated: user.present?
+            user_is_authenticated: user.present?,
+            category: inquiry_params[:select_category], 
+            topic: inquiry_params[:select_topic],
+            subtopic: inquiry_params[:select_subtopic],
+            who: inquiry_params[:who_is_your_question_about],
+            relationship_to_veteran: inquiry_params[:relationship_to_veteran],
+            is_question_about_veteran_or_someone_else: inquiry_params[:is_question_about_veteran_or_someone_else],
+            your_role: inquiry_params[:your_role],
+            attachments: inquiry_params[:files].first.present?
           }
-          Rails.logger.info('Education Inquiry Context', context)
+          Rails.logger.info('Inquiry Context', context)
+
           if user.nil? && inquiry_details_obj.inquiry_education_related?
             raise InquiryPayloadError, 'Unauthenticated Education inquiry submitted'
           end
