@@ -32,7 +32,7 @@ module SimpleFormsApi
         '40-10007' => 'vba_40_10007'
       }.freeze
 
-      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007 21P-0537 21P-601].freeze
 
       def submit
         # Temporarily gate submissions to 21P-0537 while in development

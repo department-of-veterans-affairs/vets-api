@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::Form210779Controller, type: :controller do
   let(:form_id) { '21-0779' }
-  let(:form_data) { VetsJsonSchema::EXAMPLES[form_id].to_json }
+  let(:form_data) { { form: VetsJsonSchema::EXAMPLES[form_id].to_json }.to_json }
 
   def parsed_response
     JSON.parse(response.body)
@@ -61,7 +61,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     end
 
     it 'returns bad_request when json is invalid' do
-      post(:create, body: '}', as: :json)
+      post(:create, body: { no_form: 'missing form attribute' }.to_json, as: :json)
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -82,8 +82,6 @@ RSpec.describe V0::Form210779Controller, type: :controller do
   end
 
   describe 'get #download_pdf' do
-    let(:pdf_content) { 'PDF_BINARY_CONTENT' }
-
     let(:claim) { create(:va210779) }
     let(:temp_file_path) { "tmp/pdfs/21-0779_#{claim.id}.pdf" }
 
@@ -103,7 +101,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
       expect(response.headers['Content-Disposition']).to include('attachment')
       expect(response.headers['Content-Disposition']).to include('21-0779_')
-      expect(response.headers['Content-Disposition']).to match(/21-0779_[a-f0-9-]+\.pdf/)
+      expect(response.headers['Content-Disposition']).to include('21-0779_John_Doe.pdf')
     end
 
     it 'deletes temporary PDF file after sending' do
