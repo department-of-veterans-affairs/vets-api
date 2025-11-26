@@ -105,6 +105,9 @@
           "attributes"
         ]
       }
+    },
+    "meta": {
+      "type": "object"
     }
   },
   "required": [

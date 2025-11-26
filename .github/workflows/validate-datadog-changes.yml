@@ -11,7 +11,7 @@ jobs:
     name: Validate changes to DataDog Service Catalog Files
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
       - name: setup python env

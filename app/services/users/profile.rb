@@ -83,6 +83,7 @@ module Users
         authn_context: user.authn_context,
         claims:,
         icn: user.icn,
+        npi_id: user.npi_id,
         birls_id: user.birls_id,
         edipi: user.edipi,
         sec_id: user.sec_id,

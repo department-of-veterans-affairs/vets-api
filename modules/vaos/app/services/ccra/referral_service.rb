@@ -83,6 +83,17 @@ module Ccra
       start_time
     end
 
+    # Retrieves cached referral data
+    #
+    # @param id [String] The unique identifier of the referral
+    # @param icn [String] The Internal Control Number (ICN) of the patient
+    #
+    # @return [ReferralDetail, nil] The cached referral object or nil if not found in cache
+    # @raise [Redis::BaseError] if Redis connection fails
+    def get_cached_referral_data(id, icn)
+      referral_cache.fetch_referral_data(id:, icn:)
+    end
+
     private
 
     # Stores the provided referral data in the cache for future retrieval.

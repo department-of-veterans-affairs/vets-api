@@ -190,5 +190,64 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         expect(json['errors'].first['status']).to eq('500')
       end
     end
+
+    context 'with 30-character street2 address' do
+      let(:payload_with_max_street2) do
+        payload = form_data.deep_dup
+        payload['employmentInformation']['employerAddress']['street2'] = 'B' * 30
+        payload
+      end
+
+      it 'accepts street2 with exactly 30 characters' do
+        post(:download_pdf, body: payload_with_max_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+    end
+  end
+
+  describe 'address field validation' do
+    context 'with extended street2 values' do
+      let(:payload_with_long_street2) do
+        payload = valid_payload.deep_dup
+        # Set street2 to a value longer than old 5-char limit but within new 30-char limit
+        payload['veteranInformation']['address']['street2'] = 'Apartment Suite 10B'
+        payload['employmentInformation']['employerAddress']['street2'] = 'Building A, Floor 3'
+        payload
+      end
+
+      it 'accepts street2 values up to 30 characters for form submission' do
+        post(:create, body: payload_with_long_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['confirmation_number']).to be_present
+      end
+
+      it 'accepts street2 values up to 30 characters for PDF generation' do
+        post(:download_pdf, body: payload_with_long_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+    end
+
+    context 'with street2 values exceeding 30 characters' do
+      let(:payload_with_too_long_street2) do
+        payload = valid_payload.deep_dup
+        # Set street2 to 31 characters (exceeds new maximum)
+        payload['veteranInformation']['address']['street2'] = 'A' * 31
+        payload
+      end
+
+      it 'rejects street2 values exceeding 30 characters for form submission' do
+        post(:create, body: payload_with_too_long_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+      end
+    end
   end
 end

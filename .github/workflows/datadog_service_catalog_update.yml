@@ -17,7 +17,7 @@ jobs:
       files: ${{steps.one.outputs.files}}
     steps:
       - name: 'Checkout repo'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - id: one
@@ -37,7 +37,7 @@ jobs:
         file: ${{fromJSON(needs.get_files.outputs.files)}}
     steps:
       - name: 'Checkout repo'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - id: read_yaml
         name: 'Read in the Service Catalog data'
         uses: mikefarah/yq@master
