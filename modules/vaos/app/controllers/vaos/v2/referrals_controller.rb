@@ -39,7 +39,7 @@ module VAOS
         response = referral_service.get_referral(decrypted_id, current_user.icn)
         response.uuid = referral_uuid
 
-        log_referral_provider_metrics(response)
+        log_referral_metrics(response)
         add_appointment_data_to_referral(response)
 
         render json: Ccra::ReferralDetailSerializer.new(response)
@@ -147,16 +147,17 @@ module VAOS
 
       # Logs referral provider metrics and errors for missing provider IDs
       # @param response [Ccra::ReferralDetail] the referral response object
-      def log_referral_provider_metrics(response)
+      def log_referral_metrics(response)
         referring_facility_code = sanitize_log_value(response&.referring_facility_code)
         provider_npi = sanitize_log_value(response&.provider_npi)
         station_id = sanitize_log_value(response&.station_id)
+        type_of_care = sanitize_log_value(response&.category_of_care)
 
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
                            COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "referral_provider_npi:#{provider_npi}",
-                           "station_id:#{station_id}"
+                           "station_id:#{station_id}",
+                           "type_of_care:#{type_of_care}"
                          ])
 
         log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
