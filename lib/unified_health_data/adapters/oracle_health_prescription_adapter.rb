@@ -139,15 +139,20 @@ module UnifiedHealthData
 
       # Extracts Task resources from contained array
       # Task resources contain refill request information per FHIR standard
-      # Only extracts Tasks with intent='refill' as these represent refill requests
+      # Only extracts Tasks with intent='order' as these represent refill requests
       # Task.status indicates the refill request outcome (requested, in-progress, completed, failed, etc.)
       # Task.executionPeriod.start indicates when the refill request was submitted
+      # Also validates that Task.focus.reference matches the parent MedicationRequest.id
       def build_task_resources(resource)
         contained_resources = resource['contained'] || []
+        medication_request_id = resource['id']
         tasks = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'Task' }
 
-        # Only include tasks with intent='refill' as those are refill requests
-        refill_tasks = tasks.select { |task| task['intent'] == 'refill' }
+        # Only include tasks with intent='order' as those are refill requests
+        # Also validate Task.focus.reference matches MedicationRequest/<id>
+        refill_tasks = tasks.select do |task|
+          task['intent'] == 'order' && task_references_medication_request?(task, medication_request_id)
+        end
 
         refill_tasks.map do |task|
           {
@@ -158,10 +163,26 @@ module UnifiedHealthData
         end
       end
 
+      # Validates that Task.focus.reference matches the parent MedicationRequest.id
+      #
+      # @param task [Hash] FHIR Task resource
+      # @param medication_request_id [String] Parent MedicationRequest ID
+      # @return [Boolean] True if Task references the parent MedicationRequest
+      def task_references_medication_request?(task, medication_request_id)
+        return false unless medication_request_id
+
+        focus_reference = task.dig('focus', 'reference')
+        return false unless focus_reference
+
+        # Task.focus.reference should be in format "MedicationRequest/<id>"
+        expected_reference = "MedicationRequest/#{medication_request_id}"
+        focus_reference == expected_reference
+      end
+
       # Extracts refill submission metadata from Task resources during prescription parsing
       # Sets refill_submit_date based on successful refill requests
       #
-      # @param task_resources [Array<Hash>] Array of task resource hashes (filtered to intent='refill')
+      # @param task_resources [Array<Hash>] Array of task resource hashes (filtered to intent='order')
       # @param dispenses_data [Array<Hash>] Array of dispense data for checking subsequent dispenses
       # @return [Hash] Hash containing refill_submit_date if applicable
       def extract_refill_metadata_from_tasks(task_resources, dispenses_data = [])
@@ -280,11 +301,11 @@ module UnifiedHealthData
 
       # Checks if prescription has a recent successful refill submission
       # Conditions:
-      # 1. Most recent task with intent='refill' and status='requested'
+      # 1. Most recent task with intent='order' and status='requested'
       # 2. Task executionPeriod.start within last 30 days
       # 3. No subsequent MedicationDispense created (check meta.lastUpdated with versionId=1)
       #
-      # @param task_data [Array<Hash>] Array of task resource hashes (already filtered to intent='refill')
+      # @param task_data [Array<Hash>] Array of task resource hashes (already filtered to intent='order')
       # @param dispenses_data [Array<Hash>] Array of dispense data
       # @return [Boolean] True if has recent submitted refill
       def has_recent_submitted_refill?(task_data, dispenses_data)

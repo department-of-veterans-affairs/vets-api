@@ -2038,6 +2038,161 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
+  describe '#build_task_resources' do
+    context 'with Task resources having intent=order and matching focus reference' do
+      let(:resource_with_order_task) do
+        base_resource.merge(
+          'id' => '20848812135',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'id' => '12345',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => {
+                'reference' => 'MedicationRequest/20848812135'
+              },
+              'executionPeriod' => {
+                'start' => '2025-11-18T23:18:20+00:00'
+              }
+            }
+          ]
+        )
+      end
+
+      it 'extracts Task resources with intent=order and matching focus reference' do
+        result = subject.send(:build_task_resources, resource_with_order_task)
+        expect(result.length).to eq(1)
+        expect(result.first[:id]).to eq('12345')
+        expect(result.first[:status]).to eq('requested')
+        expect(result.first[:execution_period_start]).to eq('2025-11-18T23:18:20+00:00')
+      end
+    end
+
+    context 'with Task resource having intent=refill' do
+      let(:resource_with_refill_intent) do
+        base_resource.merge(
+          'id' => '20848812135',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'id' => '12345',
+              'status' => 'requested',
+              'intent' => 'refill',
+              'focus' => {
+                'reference' => 'MedicationRequest/20848812135'
+              },
+              'executionPeriod' => {
+                'start' => '2025-11-18T23:18:20+00:00'
+              }
+            }
+          ]
+        )
+      end
+
+      it 'does not extract Task resources with intent=refill' do
+        result = subject.send(:build_task_resources, resource_with_refill_intent)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'with Task resource having non-matching focus reference' do
+      let(:resource_with_wrong_focus) do
+        base_resource.merge(
+          'id' => '20848812135',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'id' => '12345',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => {
+                'reference' => 'MedicationRequest/99999999'
+              },
+              'executionPeriod' => {
+                'start' => '2025-11-18T23:18:20+00:00'
+              }
+            }
+          ]
+        )
+      end
+
+      it 'does not extract Task resources with non-matching focus reference' do
+        result = subject.send(:build_task_resources, resource_with_wrong_focus)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'with Task resource missing focus reference' do
+      let(:resource_without_focus) do
+        base_resource.merge(
+          'id' => '20848812135',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'id' => '12345',
+              'status' => 'requested',
+              'intent' => 'order',
+              'executionPeriod' => {
+                'start' => '2025-11-18T23:18:20+00:00'
+              }
+            }
+          ]
+        )
+      end
+
+      it 'does not extract Task resources missing focus reference' do
+        result = subject.send(:build_task_resources, resource_without_focus)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'with no Task resources in contained' do
+      it 'returns empty array' do
+        result = subject.send(:build_task_resources, base_resource)
+        expect(result).to eq([])
+      end
+    end
+  end
+
+  describe '#task_references_medication_request?' do
+    it 'returns true when Task.focus.reference matches MedicationRequest/<id>' do
+      task = {
+        'focus' => {
+          'reference' => 'MedicationRequest/12345'
+        }
+      }
+      result = subject.send(:task_references_medication_request?, task, '12345')
+      expect(result).to be true
+    end
+
+    it 'returns false when Task.focus.reference does not match' do
+      task = {
+        'focus' => {
+          'reference' => 'MedicationRequest/99999'
+        }
+      }
+      result = subject.send(:task_references_medication_request?, task, '12345')
+      expect(result).to be false
+    end
+
+    it 'returns false when focus reference is missing' do
+      task = {}
+      result = subject.send(:task_references_medication_request?, task, '12345')
+      expect(result).to be false
+    end
+
+    it 'returns false when medication_request_id is nil' do
+      task = {
+        'focus' => {
+          'reference' => 'MedicationRequest/12345'
+        }
+      }
+      result = subject.send(:task_references_medication_request?, task, nil)
+      expect(result).to be false
+    end
+  end
+
   describe '#extract_refill_metadata_from_tasks' do
     context 'when task_resources are present' do
       it 'extracts refill_submit_date from most recent successful Task resource' do
