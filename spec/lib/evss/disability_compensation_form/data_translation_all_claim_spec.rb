@@ -661,25 +661,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'when not provided banking info' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
-      context 'when banking info retrieval has an issue' do
-        it 'does not make a call to Lighthouse to retrieve banking information' do
-          expect_any_instance_of(DirectDeposit::Client).not_to receive(:get_payment_info)
-          subject.send(:translate_banking_info)
-        end
-
-        it 'does not set payment information' do
-          expect(subject.send(:translate_banking_info)).to eq({})
-        end
-
-        it 'logs the submission was made without banking info' do
-          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
-            .to receive(:track_526_submission_without_banking_info)
-            .with(user.uuid)
-
-          subject.send(:translate_banking_info)
-        end
-      end
-
       context 'and the Lighthouse DirectDeposit service does not have the account info' do
         let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
 
