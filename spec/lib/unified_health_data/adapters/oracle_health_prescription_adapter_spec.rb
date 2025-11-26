@@ -2038,123 +2038,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#build_task_resources' do
-    context 'with Task resources having intent=order and matching focus reference' do
-      let(:resource_with_order_task) do
-        base_resource.merge(
-          'id' => '20848812135',
-          'contained' => [
-            {
-              'resourceType' => 'Task',
-              'id' => '12345',
-              'status' => 'requested',
-              'intent' => 'order',
-              'focus' => {
-                'reference' => 'MedicationRequest/20848812135'
-              },
-              'executionPeriod' => {
-                'start' => '2025-11-18T23:18:20+00:00'
-              }
-            }
-          ]
-        )
-      end
-
-      it 'extracts Task resources with intent=order and matching focus reference' do
-        result = subject.send(:build_task_resources, resource_with_order_task)
-        expect(result.length).to eq(1)
-        expect(result.first[:id]).to eq('12345')
-        expect(result.first[:status]).to eq('requested')
-        expect(result.first[:execution_period_start]).to eq('2025-11-18T23:18:20+00:00')
-      end
-    end
-
-    context 'with Task resource having intent=refill' do
-      let(:resource_with_refill_intent) do
-        base_resource.merge(
-          'id' => '20848812135',
-          'contained' => [
-            {
-              'resourceType' => 'Task',
-              'id' => '12345',
-              'status' => 'requested',
-              'intent' => 'refill',
-              'focus' => {
-                'reference' => 'MedicationRequest/20848812135'
-              },
-              'executionPeriod' => {
-                'start' => '2025-11-18T23:18:20+00:00'
-              }
-            }
-          ]
-        )
-      end
-
-      it 'does not extract Task resources with intent=refill' do
-        result = subject.send(:build_task_resources, resource_with_refill_intent)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with Task resource having non-matching focus reference' do
-      let(:resource_with_wrong_focus) do
-        base_resource.merge(
-          'id' => '20848812135',
-          'contained' => [
-            {
-              'resourceType' => 'Task',
-              'id' => '12345',
-              'status' => 'requested',
-              'intent' => 'order',
-              'focus' => {
-                'reference' => 'MedicationRequest/99999999'
-              },
-              'executionPeriod' => {
-                'start' => '2025-11-18T23:18:20+00:00'
-              }
-            }
-          ]
-        )
-      end
-
-      it 'does not extract Task resources with non-matching focus reference' do
-        result = subject.send(:build_task_resources, resource_with_wrong_focus)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with Task resource missing focus reference' do
-      let(:resource_without_focus) do
-        base_resource.merge(
-          'id' => '20848812135',
-          'contained' => [
-            {
-              'resourceType' => 'Task',
-              'id' => '12345',
-              'status' => 'requested',
-              'intent' => 'order',
-              'executionPeriod' => {
-                'start' => '2025-11-18T23:18:20+00:00'
-              }
-            }
-          ]
-        )
-      end
-
-      it 'does not extract Task resources missing focus reference' do
-        result = subject.send(:build_task_resources, resource_without_focus)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with no Task resources in contained' do
-      it 'returns empty array' do
-        result = subject.send(:build_task_resources, base_resource)
-        expect(result).to eq([])
-      end
-    end
-  end
-
   describe '#task_references_medication_request?' do
     it 'returns true when Task.focus.reference matches MedicationRequest/<id>' do
       task = {
@@ -2194,92 +2077,161 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#extract_refill_metadata_from_tasks' do
-    context 'when task_resources are present' do
+    context 'when Task resources are present in MedicationRequest' do
       it 'extracts refill_submit_date from most recent successful Task resource with status=requested' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'requested',
-            execution_period_start: '2025-06-24T21:05:53.000Z'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
       end
 
       it 'ignores failed Task resources' do
-        task_resources = [
-          {
-            id: '20848812135',
-            status: 'failed',
-            execution_period_start: '2025-11-18T23:18:20+00:00'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '20848812135',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'failed',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/20848812135' },
+              'executionPeriod' => { 'start' => '2025-11-18T23:18:20+00:00' }
+            }
+          ]
+        )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
 
       it 'ignores in-progress Task resources (only requested status is valid)' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'in-progress',
-            execution_period_start: '2025-06-24T21:05:53.000Z'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'in-progress',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'ignores Task resources with intent=refill' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'refill',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'ignores Task resources with non-matching focus reference' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/99999' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
 
       it 'returns most recent successful task when multiple tasks exist' do
-        task_resources = [
-          {
-            id: '11111',
-            status: 'requested',
-            execution_period_start: '2025-06-20T10:00:00.000Z'
-          },
-          {
-            id: '22222',
-            status: 'requested',
-            execution_period_start: '2025-06-24T21:05:53.000Z'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-20T10:00:00.000Z' }
+            },
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
       end
 
       it 'handles tasks without execution_period_start gracefully' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'requested',
-            execution_period_start: nil
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' }
+            }
+          ]
+        )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
 
       it 'handles invalid date format gracefully' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'requested',
-            execution_period_start: 'invalid-date'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => 'invalid-date' }
+            }
+          ]
+        )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata[:refill_submit_date]).to eq('invalid-date')
       end
@@ -2287,13 +2239,18 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     context 'when a subsequent dispense exists' do
       it 'returns empty metadata when dispense whenPrepared is after task submit date' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'requested',
-            execution_period_start: '2025-06-24T10:00:00.000Z'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
         dispenses_data = [
           {
             when_prepared: '2025-06-24T12:00:00.000Z',
@@ -2301,19 +2258,24 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata).to eq({})
       end
 
       it 'returns empty metadata when dispense whenHandedOver is after task submit date' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'requested',
-            execution_period_start: '2025-06-24T10:00:00.000Z'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
         dispenses_data = [
           {
             when_prepared: nil,
@@ -2321,19 +2283,24 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata).to eq({})
       end
 
       it 'returns refill_submit_date when dispense dates are before task submit date' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'requested',
-            execution_period_start: '2025-06-24T10:00:00.000Z'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
         dispenses_data = [
           {
             when_prepared: '2025-06-20T12:00:00.000Z',
@@ -2341,19 +2308,24 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
       end
 
       it 'returns refill_submit_date when no dispenses have dates' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'requested',
-            execution_period_start: '2025-06-24T10:00:00.000Z'
-          }
-        ]
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
         dispenses_data = [
           {
             when_prepared: nil,
@@ -2361,53 +2333,25 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
       end
     end
 
-    context 'when task_resources are empty' do
-      it 'returns empty metadata hash' do
-        metadata = subject.send(:extract_refill_metadata_from_tasks, [], [])
+    context 'when no Task resources are present' do
+      it 'returns empty metadata hash when contained is empty' do
+        resource = base_resource.merge('contained' => [])
 
-        expect(metadata).to eq({})
-      end
-    end
-
-    context 'when task_resources are nil' do
-      it 'returns empty metadata hash' do
-        metadata = subject.send(:extract_refill_metadata_from_tasks, nil, [])
-
-        expect(metadata).to eq({})
-      end
-    end
-
-    context 'when tasks have no requested status' do
-      it 'returns empty metadata hash when status is nil' do
-        task_resources = [
-          {
-            id: '12345',
-            status: nil,
-            execution_period_start: '2025-06-24T21:05:53.000Z'
-          }
-        ]
-
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
 
-      it 'returns empty metadata hash when status is not requested' do
-        task_resources = [
-          {
-            id: '12345',
-            status: 'in-progress',
-            execution_period_start: '2025-06-24T21:05:53.000Z'
-          }
-        ]
+      it 'returns empty metadata hash when contained is nil' do
+        resource = base_resource.merge('contained' => nil)
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
@@ -2501,61 +2445,4 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#has_submitted_refill_without_subsequent_dispense?' do
-    it 'returns true when task status is submitted and no subsequent dispense' do
-      task_data = [
-        {
-          id: '12345',
-          status: 'requested',
-          execution_period_start: '2025-06-24T10:00:00.000Z'
-        }
-      ]
-      dispenses_data = []
-
-      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, task_data, dispenses_data)
-
-      expect(result).to be true
-    end
-
-    it 'returns false when task status is submitted but subsequent dispense exists' do
-      task_data = [
-        {
-          id: '12345',
-          status: 'requested',
-          execution_period_start: '2025-06-24T10:00:00.000Z'
-        }
-      ]
-      dispenses_data = [
-        {
-          when_prepared: '2025-06-25T12:00:00.000Z',
-          when_handed_over: nil
-        }
-      ]
-
-      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, task_data, dispenses_data)
-
-      expect(result).to be false
-    end
-
-    it 'returns false when task status is not requested' do
-      task_data = [
-        {
-          id: '12345',
-          status: 'in-progress',
-          execution_period_start: '2025-06-24T10:00:00.000Z'
-        }
-      ]
-      dispenses_data = []
-
-      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, task_data, dispenses_data)
-
-      expect(result).to be false
-    end
-
-    it 'returns false when task_data is empty' do
-      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, [], [])
-
-      expect(result).to be false
-    end
-  end
 end

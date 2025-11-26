@@ -23,21 +23,20 @@ module UnifiedHealthData
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
-        task_data = build_task_resources(resource)
-        refill_metadata = extract_refill_metadata_from_tasks(task_data, dispenses_data)
+        refill_metadata = extract_refill_metadata_from_tasks(resource, dispenses_data)
 
-        build_core_attributes(resource, task_data, dispenses_data)
+        build_core_attributes(resource, dispenses_data)
           .merge(build_tracking_attributes(tracking_data))
           .merge(build_contact_and_source_attributes(resource))
-          .merge(dispenses: dispenses_data, task_resources: task_data)
+          .merge(dispenses: dispenses_data)
           .merge(refill_metadata)
       end
 
-      def build_core_attributes(resource, task_data = [], dispenses_data = [])
+      def build_core_attributes(resource, dispenses_data = [])
         {
           id: resource['id'],
           type: 'Prescription',
-          refill_status: extract_refill_status(resource, task_data, dispenses_data),
+          refill_status: extract_refill_status(resource, dispenses_data),
           refill_submit_date: nil, # Set by extract_refill_metadata_from_tasks if Task resources present
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
@@ -136,30 +135,41 @@ module UnifiedHealthData
         end
       end
 
-      # Extracts Task resources from contained array
-      # Task resources contain refill request information per FHIR standard
-      # Only extracts Tasks with intent='order' as these represent refill requests
-      # Task.status indicates the refill request outcome (requested, in-progress, completed, failed, etc.)
-      # Task.executionPeriod.start indicates when the refill request was submitted
-      # Also validates that Task.focus.reference matches the parent MedicationRequest.id
-      def build_task_resources(resource)
+      # Extracts refill submission metadata from Task resources during prescription parsing
+      # Sets refill_submit_date based on successful refill requests
+      #
+      # Conditions for a valid submitted refill:
+      # 1. Task with intent='order', status='requested', and matching focus.reference exists
+      # 2. No MedicationDispense with whenPrepared or whenHandedOver date after Task.executionPeriod.start
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param dispenses_data [Array<Hash>] Array of dispense data for checking subsequent dispenses
+      # @return [Hash] Hash containing refill_submit_date if applicable
+      def extract_refill_metadata_from_tasks(resource, dispenses_data = [])
         contained_resources = resource['contained'] || []
         medication_request_id = resource['id']
-        tasks = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'Task' }
 
-        # Only include tasks with intent='order' as those are refill requests
-        # Also validate Task.focus.reference matches MedicationRequest/<id>
-        refill_tasks = tasks.select do |task|
-          task['intent'] == 'order' && task_references_medication_request?(task, medication_request_id)
+        # Find refill tasks: intent='order', status='requested', matching focus reference
+        refill_tasks = contained_resources.select do |c|
+          c.is_a?(Hash) &&
+            c['resourceType'] == 'Task' &&
+            c['intent'] == 'order' &&
+            c['status'] == 'requested' &&
+            task_references_medication_request?(c, medication_request_id)
         end
 
-        refill_tasks.map do |task|
-          {
-            id: task['id'],
-            status: task['status'],
-            execution_period_start: task.dig('executionPeriod', 'start')
-          }
+        return {} if refill_tasks.empty?
+
+        # Get most recent task by executionPeriod.start
+        most_recent_task = refill_tasks.max_by do |task|
+          parse_date_or_epoch(task.dig('executionPeriod', 'start'))
         end
+
+        task_submit_date = most_recent_task.dig('executionPeriod', 'start')
+        return {} unless task_submit_date
+        return {} if has_subsequent_dispense?(task_submit_date, dispenses_data)
+
+        { refill_submit_date: task_submit_date }
       end
 
       # Validates that Task.focus.reference matches the parent MedicationRequest.id
@@ -176,31 +186,6 @@ module UnifiedHealthData
         # Task.focus.reference should be in format "MedicationRequest/<id>"
         expected_reference = "MedicationRequest/#{medication_request_id}"
         focus_reference == expected_reference
-      end
-
-      # Extracts refill submission metadata from Task resources during prescription parsing
-      # Sets refill_submit_date based on successful refill requests
-      #
-      # @param task_resources [Array<Hash>] Array of task resource hashes (filtered to intent='order')
-      # @param dispenses_data [Array<Hash>] Array of dispense data for checking subsequent dispenses
-      # @return [Hash] Hash containing refill_submit_date if applicable
-      def extract_refill_metadata_from_tasks(task_resources, dispenses_data = [])
-        return {} unless task_resources.present?
-
-        # Find successful refill tasks (status = 'requested')
-        successful_tasks = task_resources.select { |task| task[:status] == 'requested' }
-        return {} unless successful_tasks.any?
-
-        # Get most recent successful task
-        most_recent_task = find_most_recent_task(successful_tasks)
-        return {} unless most_recent_task && most_recent_task[:execution_period_start]
-
-        # Check if there's a subsequent dispense that nullifies the task
-        task_submit_date = most_recent_task[:execution_period_start]
-        return {} if has_subsequent_dispense?(task_submit_date, dispenses_data)
-
-        # Set refill_submit_date from the task's execution period start
-        { refill_submit_date: task_submit_date }
       end
 
       # Checks if there's a MedicationDispense with whenPrepared or whenHandedOver
@@ -222,14 +207,6 @@ module UnifiedHealthData
           (when_prepared.present? && parse_date_or_epoch(when_prepared) > task_time) ||
             (when_handed_over.present? && parse_date_or_epoch(when_handed_over) > task_time)
         end
-      end
-
-      # Finds the most recent task by execution_period_start
-      #
-      # @param tasks [Array<Hash>] Array of task hashes
-      # @return [Hash, nil] Most recent task or nil
-      def find_most_recent_task(tasks)
-        tasks.max_by { |task| parse_date_or_epoch(task[:execution_period_start]) }
       end
 
       # Parses a date string or returns epoch if invalid/missing
@@ -311,40 +288,35 @@ module UnifiedHealthData
       # Checks for successful submitted refills based on Task resources
       #
       # @param resource [Hash] FHIR MedicationRequest resource
-      # @param task_data [Array<Hash>] Array of task resource hashes
       # @param dispenses_data [Array<Hash>] Array of dispense data for checking subsequent dispenses
       # @return [String] VistA-compatible status value
-      def extract_refill_status(resource, task_data = [], dispenses_data = [])
+      def extract_refill_status(resource, dispenses_data = [])
         # Check if there's a successful submitted refill (no subsequent dispense)
-        if has_submitted_refill_without_subsequent_dispense?(task_data, dispenses_data)
-          return 'submitted'
+        contained_resources = resource['contained'] || []
+        medication_request_id = resource['id']
+
+        # Find refill tasks: intent='order', status='requested', matching focus reference
+        refill_tasks = contained_resources.select do |c|
+          c.is_a?(Hash) &&
+            c['resourceType'] == 'Task' &&
+            c['intent'] == 'order' &&
+            c['status'] == 'requested' &&
+            task_references_medication_request?(c, medication_request_id)
+        end
+
+        if refill_tasks.any?
+          # Get most recent task by executionPeriod.start
+          most_recent_task = refill_tasks.max_by do |task|
+            parse_date_or_epoch(task.dig('executionPeriod', 'start'))
+          end
+
+          task_submit_date = most_recent_task.dig('executionPeriod', 'start')
+          if task_submit_date && !has_subsequent_dispense?(task_submit_date, dispenses_data)
+            return 'submitted'
+          end
         end
 
         normalize_to_legacy_vista_status(resource)
-      end
-
-      # Checks if prescription has a successful refill submission without a subsequent dispense
-      # Conditions:
-      # 1. Task with intent='order' and status='requested' exists
-      # 2. No MedicationDispense with whenPrepared or whenHandedOver date after Task.executionPeriod.start
-      #
-      # @param task_data [Array<Hash>] Array of task resource hashes (already filtered to intent='order')
-      # @param dispenses_data [Array<Hash>] Array of dispense data with when_prepared and when_handed_over
-      # @return [Boolean] True if has submitted refill without subsequent dispense
-      def has_submitted_refill_without_subsequent_dispense?(task_data, dispenses_data)
-        return false unless task_data.present?
-
-        # Find successful refill tasks (status = 'requested')
-        successful_tasks = task_data.select { |task| task[:status] == 'requested' }
-        return false unless successful_tasks.any?
-
-        # Get most recent successful task
-        most_recent_task = find_most_recent_task(successful_tasks)
-        return false unless most_recent_task && most_recent_task[:execution_period_start]
-
-        # Check if there's a subsequent dispense that nullifies the task
-        task_submit_date = most_recent_task[:execution_period_start]
-        !has_subsequent_dispense?(task_submit_date, dispenses_data)
       end
 
       # Maps refill_status to user-friendly disp_status for display
