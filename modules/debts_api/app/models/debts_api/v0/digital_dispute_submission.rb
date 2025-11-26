@@ -14,9 +14,7 @@ module DebtsApi
       has_kms_key
       has_encrypted :form_data, :metadata, key: :kms_key
       validates :user_uuid, presence: true
-      validates :guid, presence: true, uniqueness: true
-
-      before_validation :set_guid, on: :create
+      validates :guid, uniqueness: true
       validate :files_present
       validate :files_are_pdfs
       validate :files_size_within_limit
@@ -84,10 +82,6 @@ module DebtsApi
       end
 
       private
-
-      def set_guid
-        self.guid ||= SecureRandom.uuid
-      end
 
       def files_present
         errors.add(:files, 'at least one file is required') unless files.attached?

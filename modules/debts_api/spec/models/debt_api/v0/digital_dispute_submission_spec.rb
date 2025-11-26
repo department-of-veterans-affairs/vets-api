@@ -11,12 +11,18 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     subject { form_submission }
 
     it { is_expected.to validate_presence_of(:user_uuid) }
-    it { is_expected.to validate_presence_of(:guid) }
     it { is_expected.to validate_uniqueness_of(:guid).ignoring_case_sensitivity }
   end
 
   describe 'associations' do
     it { is_expected.to belong_to(:user_account).optional(false) }
+
+    it 'retrieves debt_transaction_logs by guid' do
+      log = create(:debt_transaction_log,
+                   transactionable_type: 'DebtsApi::V0::DigitalDisputeSubmission',
+                   transactionable_id: form_submission.guid)
+      expect(form_submission.debt_transaction_logs).to include(log)
+    end
   end
 
   describe '#register_failure' do
