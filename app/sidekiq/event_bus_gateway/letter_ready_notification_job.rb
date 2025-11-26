@@ -142,7 +142,7 @@ module EventBusGateway
       ]
       StatsD.increment("#{STATSD_METRIC_PREFIX}.skipped", tags:)
     end
-
+    
     def log_completion(email_template_id, push_template_id, errors)
       successful_notifications = []
       successful_notifications << 'email' if email_template_id.present? && errors.none? { |e| e[:type] == 'email' }
