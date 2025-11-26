@@ -2,10 +2,13 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api_submission/metadata_validator'
+require 'logging/helper/parameter_filter'
 
 module SimpleFormsApi
   module V1
     class ScannedFormUploadsController < ApplicationController
+      include Logging::Helper::ParameterFilter
+
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
         check_for_changes
@@ -77,7 +80,10 @@ module SimpleFormsApi
 
         Rails.logger.info(
           'Simple forms api - scanned form uploaded',
-          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+          filter_params(
+            { form_number: params[:form_number], status:, confirmation_number:, file_size: },
+            allowlist: %w[form_number status confirmation_number file_size]
+          )
         )
         [status, confirmation_number]
       end
@@ -140,7 +146,13 @@ module SimpleFormsApi
 
       def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Simple forms api - preparing to upload scanned PDF to benefits intake', { location:, uuid: })
+        Rails.logger.info(
+          'Simple forms api - preparing to upload scanned PDF to benefits intake',
+          filter_params(
+            { location:, uuid: },
+            allowlist: %w[uuid]
+          )
+        )
       end
 
       def perform_pdf_upload(location, file_path, metadata)

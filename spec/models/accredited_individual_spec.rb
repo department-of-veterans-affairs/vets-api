@@ -347,4 +347,186 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
     end
   end
+
+  describe '#validate_address' do
+    let(:raw_address_data) do
+      {
+        'address_line1' => '123 Main St',
+        'address_line2' => 'Suite 100',
+        'city' => 'Brooklyn',
+        'state_code' => 'NY',
+        'zip_code' => '11249'
+      }
+    end
+
+    let(:validated_attributes) do
+      {
+        address_line1: '123 Main St',
+        address_line2: 'Suite 100',
+        city: 'Brooklyn',
+        state_code: 'NY',
+        zip_code: '11249',
+        lat: 40.717029,
+        long: -73.964956,
+        location: 'POINT(-73.964956 40.717029)'
+      }
+    end
+
+    let(:mock_service) { instance_double(RepresentationManagement::AddressValidationService) }
+
+    context 'with valid raw_address' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).with(raw_address_data).and_return(validated_attributes)
+      end
+
+      it 'delegates to the validation service' do
+        expect(RepresentationManagement::AddressValidationService).to receive(:new)
+        expect(mock_service).to receive(:validate_address).with(raw_address_data)
+
+        individual.validate_address
+      end
+
+      it 'saves validated attributes to the record' do
+        expect(individual.validate_address).to be true
+        individual.reload
+
+        expect(individual.address_line1).to eq('123 Main St')
+        expect(individual.city).to eq('Brooklyn')
+        expect(individual.state_code).to eq('NY')
+        expect(individual.lat).to eq(40.717029)
+        expect(individual.long).to eq(-73.964956)
+      end
+
+      it 'returns true when validation succeeds' do
+        expect(individual.validate_address).to be true
+      end
+    end
+
+    context 'with blank raw_address' do
+      let(:individual) { create(:accredited_individual, raw_address: nil) }
+
+      it 'skips validation service' do
+        expect(RepresentationManagement::AddressValidationService).not_to receive(:new)
+        expect(individual.validate_address).to be false
+      end
+
+      it 'leaves the record unchanged' do
+        original_address = individual.address_line1
+        individual.validate_address
+        expect(individual.reload.address_line1).to eq(original_address)
+      end
+    end
+
+    context 'with empty hash raw_address' do
+      let(:individual) { create(:accredited_individual, raw_address: {}) }
+
+      it 'bails out early' do
+        expect(RepresentationManagement::AddressValidationService).not_to receive(:new)
+        expect(individual.validate_address).to be false
+      end
+    end
+
+    context 'when validation service returns nil' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_return(nil)
+      end
+
+      it 'handles failed validation gracefully' do
+        expect(individual.validate_address).to be false
+      end
+
+      it 'keeps original address intact' do
+        original_address = individual.address_line1
+        individual.validate_address
+        expect(individual.reload.address_line1).to eq(original_address)
+      end
+    end
+
+    context 'when validation service raises an error' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_raise(StandardError.new('Service error'))
+      end
+
+      it 'catches and logs the error' do
+        expect(Rails.logger).to receive(:error).with(/Address validation failed for AccreditedIndividual/)
+        individual.validate_address
+      end
+
+      it 'returns false on exception' do
+        allow(Rails.logger).to receive(:error)
+        expect(individual.validate_address).to be false
+      end
+
+      it 'rolls back changes' do
+        allow(Rails.logger).to receive(:error)
+        original_address = individual.address_line1
+        individual.validate_address
+        expect(individual.reload.address_line1).to eq(original_address)
+      end
+    end
+
+    context 'when update fails' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_return(validated_attributes)
+        allow(individual).to receive(:update).and_return(false)
+      end
+
+      it 'returns false when update fails' do
+        expect(individual.validate_address).to be false
+      end
+    end
+
+    context 'idempotency' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).with(raw_address_data).and_return(validated_attributes)
+      end
+
+      it 'handles repeated calls without issues' do
+        expect(individual.validate_address).to be true
+        first_lat = individual.reload.lat
+
+        expect(individual.validate_address).to be true
+        second_lat = individual.reload.lat
+
+        expect(first_lat).to eq(second_lat)
+      end
+    end
+
+    context 'with different individual types' do
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_return(validated_attributes)
+      end
+
+      it 'validates attorneys' do
+        attorney = create(:accredited_individual, :attorney, raw_address: raw_address_data)
+        expect(attorney.validate_address).to be true
+      end
+
+      it 'validates claims agents' do
+        agent = create(:accredited_individual, :claims_agent, raw_address: raw_address_data)
+        expect(agent.validate_address).to be true
+      end
+
+      it 'validates representatives' do
+        rep = create(:accredited_individual, :representative, raw_address: raw_address_data)
+        expect(rep.validate_address).to be true
+      end
+    end
+  end
 end

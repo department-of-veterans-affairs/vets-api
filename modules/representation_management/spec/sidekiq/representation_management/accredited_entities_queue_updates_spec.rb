@@ -282,7 +282,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     before do
       # Initialize instance variables that the method expects
       job.instance_variable_set(:@agent_ids, [])
-      job.instance_variable_set(:@agent_json_for_address_validation, [])
+      job.instance_variable_set(:@agent_ids_for_address_validation, [])
       job.instance_variable_set(:@processing_error_types, [])
 
       # Only stub external dependencies, not methods on the object under test
@@ -375,7 +375,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.send(:update_agents)
 
       # The real implementation should add to the validation array
-      expect(job.instance_variable_get(:@agent_json_for_address_validation)).not_to be_empty
+      expect(job.instance_variable_get(:@agent_ids_for_address_validation)).not_to be_empty
     end
   end
 
@@ -426,7 +426,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     before do
       # Initialize instance variables
       job.instance_variable_set(:@attorney_ids, [])
-      job.instance_variable_set(:@attorney_json_for_address_validation, [])
+      job.instance_variable_set(:@attorney_ids_for_address_validation, [])
       job.instance_variable_set(:@processing_error_types, [])
 
       # Mock external dependencies only
@@ -513,7 +513,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       job.send(:update_attorneys)
 
-      expect(job.instance_variable_get(:@attorney_json_for_address_validation))
+      expect(job.instance_variable_get(:@attorney_ids_for_address_validation))
         .not_to be_empty
     end
   end
@@ -626,17 +626,14 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   describe '#validate_agent_addresses' do
     before do
       # Set up the instance variable that the method will use
-      agent_data = [
-        { id: 1, address: { address_line1: '123 Main St' } },
-        { id: 2, address: { address_line1: '456 Oak Ave' } }
-      ]
-      job.instance_variable_set(:@agent_json_for_address_validation, agent_data)
+      agent_ids = [1, 2]
+      job.instance_variable_set(:@agent_ids_for_address_validation, agent_ids)
     end
 
     it 'queues address validation jobs for agents' do
       # Verify that the job is scheduled with the correct parameters
       expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
-        .with(0.minutes, job.instance_variable_get(:@agent_json_for_address_validation).to_json)
+        .with(0.minutes, [1, 2])
 
       # Call the method
       job.send(:validate_agent_addresses)
@@ -651,7 +648,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
 
     it 'does nothing when there are no agent addresses to validate' do
-      job.instance_variable_set(:@agent_json_for_address_validation, [])
+      job.instance_variable_set(:@agent_ids_for_address_validation, [])
 
       # Should not create a batch
       expect(Sidekiq::Batch).not_to receive(:new)
@@ -663,17 +660,14 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   describe '#validate_attorney_addresses' do
     before do
       # Set up the instance variable that the method will use
-      attorney_data = [
-        { id: 3, address: { address_line1: '789 Pine St', city: 'Anytown' } },
-        { id: 4, address: { address_line1: '321 Elm St', city: 'Somewhere' } }
-      ]
-      job.instance_variable_set(:@attorney_json_for_address_validation, attorney_data)
+      attorney_ids = [3, 4]
+      job.instance_variable_set(:@attorney_ids_for_address_validation, attorney_ids)
     end
 
     it 'queues address validation jobs for attorneys' do
       # Verify that the job is scheduled with the correct parameters
       expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
-        .with(0.minutes, job.instance_variable_get(:@attorney_json_for_address_validation).to_json)
+        .with(0.minutes, [3, 4])
 
       # Call the method
       job.send(:validate_attorney_addresses)
@@ -688,7 +682,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
 
     it 'does nothing when there are no attorney addresses to validate' do
-      job.instance_variable_set(:@attorney_json_for_address_validation, [])
+      job.instance_variable_set(:@attorney_ids_for_address_validation, [])
 
       # Should not create a batch
       expect(Sidekiq::Batch).not_to receive(:new)
@@ -698,7 +692,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   end
 
   describe '#validate_addresses' do
-    let(:records) { [{ id: 1 }, { id: 2 }, { id: 3 }] }
+    let(:record_ids) { [1, 2, 3] }
     let(:description) { 'Test description' }
 
     before do
@@ -710,18 +704,18 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
 
     it 'sets batch description' do
-      job.send(:validate_addresses, records, description)
+      job.send(:validate_addresses, record_ids, description)
       expect(batch).to have_received(:description=).with(description)
     end
 
-    it 'queues jobs with individual slices' do
-      job.send(:validate_addresses, records, description)
+    it 'queues jobs with individual IDs' do
+      job.send(:validate_addresses, record_ids, description)
       expect(RepresentationManagement::AccreditedIndividualsUpdate)
         .to have_received(:perform_in)
-        .with(0.minutes, records.to_json)
+        .with(0.minutes, record_ids)
     end
 
-    context 'when records are empty' do
+    context 'when record IDs are empty' do
       it 'does not create a batch' do
         job.send(:validate_addresses, [], description)
         expect(batch).not_to have_received(:description=)
@@ -739,7 +733,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect(Rails.logger).to receive(:error)
           .with("#{error_text_heading} #{error_text_message}")
 
-        job.send(:validate_addresses, records, description)
+        job.send(:validate_addresses, record_ids, description)
       end
     end
   end
@@ -896,7 +890,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.instance_variable_set(:@force_update_types, [])
       job.instance_variable_set(:@vso_ids, [])
       job.instance_variable_set(:@representative_ids, [])
-      job.instance_variable_set(:@representative_json_for_address_validation, [])
+      job.instance_variable_set(:@representative_ids_for_address_validation, [])
       job.instance_variable_set(:@rep_to_vso_associations, {})
       job.instance_variable_set(:@accreditation_ids, [])
       job.instance_variable_set(:@report, String.new)
@@ -1157,7 +1151,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       job.instance_variable_set(:@representative_ids, [])
-      job.instance_variable_set(:@representative_json_for_address_validation, [])
+      job.instance_variable_set(:@representative_ids_for_address_validation, [])
       job.instance_variable_set(:@rep_to_vso_associations, {})
       job.instance_variable_set(:@processing_error_types, [])
 
@@ -1207,7 +1201,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       job.send(:update_reps)
 
-      expect(job.instance_variable_get(:@representative_json_for_address_validation)).not_to be_empty
+      expect(job.instance_variable_get(:@representative_ids_for_address_validation)).not_to be_empty
     end
 
     context 'when an error occurs' do
@@ -1478,16 +1472,13 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
   describe '#validate_rep_addresses' do
     before do
-      rep_data = [
-        { id: 1, address: { address_line1: '123 Rep St' } },
-        { id: 2, address: { address_line1: '456 Rep Ave' } }
-      ]
-      job.instance_variable_set(:@representative_json_for_address_validation, rep_data)
+      rep_ids = [1, 2]
+      job.instance_variable_set(:@representative_ids_for_address_validation, rep_ids)
     end
 
     it 'queues address validation jobs for representatives' do
       expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
-        .with(0.minutes, job.instance_variable_get(:@representative_json_for_address_validation).to_json)
+        .with(0.minutes, [1, 2])
 
       job.send(:validate_rep_addresses)
     end
@@ -1628,7 +1619,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       before do
         job.instance_variable_set(:@agent_ids, [])
-        job.instance_variable_set(:@agent_json_for_address_validation, [])
+        job.instance_variable_set(:@agent_ids_for_address_validation, [])
 
         allow(client).to receive(:get_accredited_entities)
           .with(type: RepresentationManagement::AGENTS, page: 1)
@@ -1710,7 +1701,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       before do
         job.instance_variable_set(:@attorney_ids, [])
-        job.instance_variable_set(:@attorney_json_for_address_validation, [])
+        job.instance_variable_set(:@attorney_ids_for_address_validation, [])
 
         allow(client).to receive(:get_accredited_entities)
           .with(type: RepresentationManagement::ATTORNEYS, page: 1)
@@ -1800,7 +1791,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       before do
         job.instance_variable_set(:@representative_ids, [])
-        job.instance_variable_set(:@representative_json_for_address_validation, [])
+        job.instance_variable_set(:@representative_ids_for_address_validation, [])
         job.instance_variable_set(:@rep_to_vso_associations, {})
 
         allow(client).to receive(:get_accredited_entities)
@@ -1895,180 +1886,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
   end
 
-  describe '#individual_representative_json' do
-    let(:record) { instance_double(AccreditedIndividual, id: 42) }
-    let(:rep) do
-      {
-        'id' => 'ea154c64-bf20-47e0-9866-86ae988776a8',
-        'veteransServiceOrganization' => {
-          'name' => 'Less Law Firm',
-          'poa' => 'JQ8',
-          'number' => 210,
-          'id' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
-        },
-        'lastName' => 'aalaam',
-        'firstName' => 'judy',
-        'middleName' => 'M',
-        'workAddress1' => '123 Work St',
-        'workAddress2' => 'Apt 2',
-        'workAddress3' => '',
-        'workCity' => 'Work City',
-        'workState' => 'CA',
-        'workZip' => '12345'
-      }
-    end
-
-    it 'creates a JSON object for representative address validation' do
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result).to eq({
-                             id: 42,
-                             address: {
-                               address_pou: 'RESIDENCE/CHOICE',
-                               address_line1: '123 Work St',
-                               address_line2: 'Apt 2',
-                               address_line3: '',
-                               city: 'Work City',
-                               state: { state_code: 'CA' },
-                               zip_code5: '12345'
-                             }
-                           })
-    end
-
-    it 'handles nil address fields gracefully' do
-      rep['workAddress2'] = nil
-      rep['workAddress3'] = nil
-
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address][:address_line2]).to be_nil
-      expect(result[:address][:address_line3]).to be_nil
-    end
-
-    it 'handles empty string address fields' do
-      rep['workAddress2'] = ''
-      rep['workAddress3'] = ''
-
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address][:address_line2]).to eq('')
-      expect(result[:address][:address_line3]).to eq('')
-    end
-
-    it 'uses the record ID in the output' do
-      different_record = instance_double(AccreditedIndividual, id: 999)
-
-      result = job.send(:individual_representative_json, different_record, rep)
-
-      expect(result[:id]).to eq(999)
-    end
-
-    it 'structures state as a nested hash with state_code' do
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address][:state]).to eq({ state_code: 'CA' })
-    end
-
-    it 'handles missing address fields gracefully' do
-      rep['workCity'] = nil
-      rep['workState'] = nil
-      rep['workZip'] = nil
-
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address]).to include(
-        city: nil,
-        state: { state_code: nil },
-        zip_code5: nil
-      )
-    end
-  end
-
-  describe '#individual_agent_json' do
-    let(:record) { instance_double(AccreditedIndividual, id: 42) }
-    let(:agent) do
-      {
-        'id' => '123',
-        'number' => 'A123',
-        'poa' => 'ABC',
-        'firstName' => 'John',
-        'middleName' => 'A',
-        'lastName' => 'Doe',
-        'workAddress1' => '123 Main St',
-        'workAddress2' => 'Apt 456',
-        'workAddress3' => '',
-        'workZip' => '12345',
-        'workCountry' => 'USA',
-        'workPhoneNumber' => '555-1234',
-        'workEmailAddress' => 'john@example.com'
-      }
-    end
-
-    it 'creates a JSON object for agent address validation' do
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result).to eq({
-                             id: 42,
-                             address: {
-                               address_pou: 'RESIDENCE/CHOICE',
-                               address_line1: '123 Main St',
-                               address_line2: 'Apt 456',
-                               address_line3: '',
-                               city: nil,
-                               state: { state_code: nil },
-                               zip_code5: '12345'
-                             }
-                           })
-    end
-
-    it 'handles nil address fields gracefully' do
-      agent['workAddress2'] = nil
-      agent['workAddress3'] = nil
-
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address][:address_line2]).to be_nil
-      expect(result[:address][:address_line3]).to be_nil
-    end
-
-    it 'handles empty string address fields' do
-      agent['workAddress2'] = ''
-      agent['workAddress3'] = ''
-
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address][:address_line2]).to eq('')
-      expect(result[:address][:address_line3]).to eq('')
-    end
-
-    it 'uses the record ID in the output' do
-      different_record = instance_double(AccreditedIndividual, id: 999)
-
-      result = job.send(:individual_agent_json, different_record, agent)
-
-      expect(result[:id]).to eq(999)
-    end
-
-    it 'structures state as a nested hash with state_code' do
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address][:state]).to eq({ state_code: nil })
-    end
-
-    it 'handles missing address fields gracefully' do
-      agent['workAddress1'] = nil
-      agent['workZip'] = nil
-
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address]).to include(
-        address_line1: nil,
-        city: nil,
-        state: { state_code: nil },
-        zip_code5: nil
-      )
-    end
-  end
+  # These methods were removed as part of address validation refactoring
+  # Address validation now uses IDs instead of JSON objects
 
   describe 'deletion safeguards for processing errors' do
     let!(:current_agent) { create(:accredited_individual, :claims_agent) }
@@ -2493,90 +2312,5 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
   end
 
-  describe '#individual_attorney_json' do
-    let(:record) { instance_double(AccreditedIndividual, id: 42) }
-    let(:attorney) do
-      {
-        'id' => '789',
-        'number' => 'B789',
-        'poa' => 'GHI',
-        'firstName' => 'Bob',
-        'middleName' => 'C',
-        'lastName' => 'Johnson',
-        'workAddress1' => '321 Pine St',
-        'workAddress2' => 'Suite 789',
-        'workAddress3' => '',
-        'workCity' => 'Anytown',
-        'workState' => 'CA',
-        'workZip' => '98765',
-        'workNumber' => '555-9876',
-        'emailAddress' => 'bob@example.com'
-      }
-    end
-
-    it 'creates a JSON object for attorney address validation' do
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result).to eq({
-                             id: 42,
-                             address: {
-                               address_pou: 'RESIDENCE/CHOICE',
-                               address_line1: '321 Pine St',
-                               address_line2: 'Suite 789',
-                               address_line3: '',
-                               city: 'Anytown',
-                               state: { state_code: 'CA' },
-                               zip_code5: '98765'
-                             }
-                           })
-    end
-
-    it 'handles nil address fields gracefully' do
-      attorney['workAddress2'] = nil
-      attorney['workAddress3'] = nil
-
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address][:address_line2]).to be_nil
-      expect(result[:address][:address_line3]).to be_nil
-    end
-
-    it 'handles empty string address fields' do
-      attorney['workAddress2'] = ''
-      attorney['workAddress3'] = ''
-
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address][:address_line2]).to eq('')
-      expect(result[:address][:address_line3]).to eq('')
-    end
-
-    it 'uses the record ID in the output' do
-      different_record = instance_double(AccreditedIndividual, id: 999)
-
-      result = job.send(:individual_attorney_json, different_record, attorney)
-
-      expect(result[:id]).to eq(999)
-    end
-
-    it 'structures state as a nested hash with state_code' do
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address][:state]).to eq({ state_code: 'CA' })
-    end
-
-    it 'handles missing address fields gracefully' do
-      attorney['workCity'] = nil
-      attorney['workState'] = nil
-      attorney['workZip'] = nil
-
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address]).to include(
-        city: nil,
-        state: { state_code: nil },
-        zip_code5: nil
-      )
-    end
-  end
+  # Method removed - see comment on individual_representative_json
 end

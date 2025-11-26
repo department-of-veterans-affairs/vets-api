@@ -41,6 +41,9 @@ module BGS
 
       response = service.claimant.find_dependents_by_participant_id(participant_id, ssn)
       if response.presence && response[:persons]
+        # When only one dependent exists, BGS returns a Hash instead of an Array
+        # Ensure persons is always an array for consistent processing
+        response[:persons] = [response[:persons]] if response[:persons].is_a?(Hash)
         response
       else
         backup_response
