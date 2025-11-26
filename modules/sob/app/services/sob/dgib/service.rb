@@ -11,22 +11,14 @@ module SOB
 
       BENEFIT_TYPE = 'CH33'
       INCLUDE_ENROLLMENTS = 'NO'
+      NOT_FOUND = 404
       STATSD_KEY_PREFIX = 'api.sob.dgib'
-
-      class ClaimantNotFoundError < Common::Exceptions::BackendServiceException
-        STATUS_CODE = 400
-
-        def initialize(service_name)
-          key = "#{service_name}_#{STATUS_CODE}"
-          super(key, {}, STATUS_CODE)
-        end
-      end
 
       def initialize(ssn)
         super()
         raise Common::Exceptions::ParameterMissing, 'SSN' if ssn.blank?
 
-        @ssn = '500'
+        @ssn = ssn
       end
 
       def get_ch33_status
@@ -37,7 +29,7 @@ module SOB
             payload.to_json,
             request_headers
           )
-          raise ClaimantNotFoundError, config.service_name if raw_response.status == 204
+          raise_claimant_not_found if raw_response.status == 204
 
           SOB::DGIB::Response.new(raw_response.status, raw_response)
         end
@@ -64,6 +56,11 @@ module SOB
         {
           Authorization: "Bearer #{SOB::AuthenticationTokenService.call}"
         }
+      end
+
+      def raise_claimant_not_found
+        msg = "#{config.service_name}_#{NOT_FOUND}"
+        raise Common::Exceptions::BackendServiceException.new(msg, {}, NOT_FOUND)
       end
 
       def log_error(error)

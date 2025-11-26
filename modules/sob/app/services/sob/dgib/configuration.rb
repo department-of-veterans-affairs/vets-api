@@ -3,6 +3,7 @@
 module SOB
   module DGIB
     class Configuration < ::Common::Client::Configuration::REST
+      API_ROOT_PATH = '/external-api-service/api/v1'
       CERT_PATH = Settings.dgi.sob.jwt.public_key_path
       KEY_PATH = Settings.dgi.sob.jwt.private_key_path
 
@@ -24,7 +25,7 @@ module SOB
       end
 
       def base_path
-        Settings.dgi.sob.claimants.url
+        "#{Settings.dgi.sob.claimants.url}#{API_ROOT_PATH}"
       end
 
       def mock_enabled?
