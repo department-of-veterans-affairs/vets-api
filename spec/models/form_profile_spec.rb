@@ -775,7 +775,8 @@ RSpec.describe FormProfile, type: :model do
         state: 'DC',
         country: 'USA',
         postalCode: '20011'
-      }
+      },
+      veteranSsn: '796111863'
     } }
   end
 

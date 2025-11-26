@@ -4,3 +4,4 @@ veteranInformation:
   phoneNumber: [contact_information, us_phone]
   email: [contact_information, email]
   veteranAddress: [contact_information, address]
+  veteranSsn:  [identity_information, ssn]
