@@ -26,7 +26,7 @@ RSpec.shared_examples 'letter ready job bgs error handling' do |job_type|
     expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
     expect do
       described_class.new.perform(participant_id, template_id)
-    end.to raise_error(StandardError, message_detail)
+    end.to raise_error(EventBusGateway::Errors::BgsPersonNotFoundError, message_detail)
   end
 end
 
@@ -62,7 +62,7 @@ RSpec.shared_examples 'letter ready job mpi error handling' do |job_type|
     expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
     expect do
       described_class.new.perform(participant_id, template_id)
-    end.to raise_error(RuntimeError, message_detail)
+    end.to raise_error(EventBusGateway::Errors::MpiProfileNotFoundError, message_detail)
   end
 end
 
@@ -98,15 +98,15 @@ RSpec.shared_examples 'letter ready job sidekiq retries exhausted' do |job_type|
               })
 
       expect(StatsD).to receive(:increment)
-                    .with("#{described_class::STATSD_METRIC_PREFIX}.exhausted",
-                          tags: EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"])
+        .with("#{described_class::STATSD_METRIC_PREFIX}.exhausted",
+              tags: EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"])
 
       retries_exhausted_callback.call(msg, exception)
     end
   end
 end
 
-RSpec.shared_examples 'letter ready job va notify error handling' do |job_type, notification_method|
+RSpec.shared_examples 'letter ready job va notify error handling' do |job_type|
   let(:participant_id) { '1234' }
   let(:template_id) { '5678' }
   let(:bgs_profile) do
@@ -134,7 +134,7 @@ RSpec.shared_examples 'letter ready job va notify error handling' do |job_type, 
     let(:message_detail) { 'Service initialization failed' }
     let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
-    it "does not send a #{notification_method}, logs the error, and increments the statsd metric" do
+    it 'raises and logs the error, and increments the statsd metric' do
       expect(Rails.logger)
         .to receive(:error)
         .with(error_message, { message: message_detail })

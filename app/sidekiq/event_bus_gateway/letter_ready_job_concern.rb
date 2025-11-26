@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'errors'
+
 module EventBusGateway
   module LetterReadyJobConcern
     extend ActiveSupport::Concern
@@ -10,7 +12,7 @@ module EventBusGateway
       @bgs_person ||= begin
         bgs = BGS::Services.new(external_uid: participant_id, external_key: participant_id)
         person = bgs.people.find_person_by_ptcpnt_id(participant_id)
-        raise StandardError, 'Participant ID cannot be found in BGS' if person.nil?
+        raise Errors::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS' if person.nil?
 
         person
       end
@@ -26,10 +28,25 @@ module EventBusGateway
           ssn: person[:ssn_nbr]
         )
 
-        profile = mpi_response&.profile
-        raise 'Failed to fetch MPI profile' if profile.nil?
+        handle_mpi_response(mpi_response)
+      end
+    end
 
-        profile
+    def handle_mpi_response(mpi_response)
+      raise Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile' if mpi_response.nil?
+
+      return mpi_response.profile if mpi_response.ok? && mpi_response.profile.present?
+
+      if mpi_response.server_error?
+        raise Common::Exceptions::BackendServiceException.new(
+          'MPI_502',
+          detail: 'MPI service returned a server error'
+        )
+      elsif mpi_response.not_found?
+        raise Errors::MpiProfileNotFoundError, 'MPI profile not found for participant'
+      else
+        # Unexpected state
+        raise Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile'
       end
     end
 

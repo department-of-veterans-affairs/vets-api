@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/attr_package'
 require_relative 'constants'
+require_relative 'errors'
 require_relative 'letter_ready_job_concern'
 
 module EventBusGateway
@@ -25,13 +27,25 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
     end
 
-    def perform(participant_id, template_id, icn = nil)
+    def perform(participant_id, template_id, cache_key = nil)
+      icn = nil
+
+      # Retrieve PII from Redis if cache_key provided (avoids PII exposure in logs)
+      if cache_key
+        attributes = Sidekiq::AttrPackage.find(cache_key)
+        icn = attributes[:icn] if attributes
+      end
+
+      # Fallback to fetching if cache_key not provided or failed
       icn ||= get_icn(participant_id)
 
-      raise 'Failed to fetch ICN' if icn.blank?
+      raise Errors::IcnNotFoundError, 'Failed to fetch ICN' if icn.blank?
 
       send_push_notification(icn, template_id)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
+
+      # Clean up PII from Redis if cache_key was used
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue => e
       record_notification_send_failure(e, 'Push')
       raise
@@ -54,7 +68,6 @@ module EventBusGateway
     end
 
     def notify_client
-      # TODO: Determine if this api key is different
       @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.api_key)
     end
   end

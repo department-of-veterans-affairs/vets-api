@@ -17,8 +17,9 @@ module Mobile
         resource = resource.sort(params[:sort])
 
         links = pagination_links(resource)
-        resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
+        # Add total_entries to metadata for backwards compatibility
+        resource.metadata.merge!(total_entries(resource.size))
 
         # Log unique user event for inbox accessed
         UniqueUserEvents.log_event(
@@ -33,13 +34,13 @@ module Mobile
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)
-
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
-        user_triage_teams = client.get_triage_teams(@current_user.uuid, use_cache?)
-        user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
+        user_triage_teams = client.get_all_triage_teams(@current_user.uuid, use_cache?)
+        active_teams = user_triage_teams.data.reject(&:blocked_status)
+        user_in_triage_team = active_teams.any? { |team| team.triage_team_id == response.recipient_id }
 
-        meta = response.metadata.merge(user_in_triage_team?: user_in_triage_team)
+        meta = response.metadata.merge(user_in_triage_team:)
         options = { meta: }
         options[:include] = [:attachments] if response.attachment
         render json: Mobile::V0::MessageSerializer.new(response, options)
@@ -172,6 +173,14 @@ module Mobile
               hash[:unread] += 1
             end
           end
+        }
+      end
+
+      def total_entries(count)
+        {
+          pagination: {
+            total_entries: count
+          }
         }
       end
 

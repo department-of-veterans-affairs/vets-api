@@ -7,13 +7,23 @@ require 'pdf_fill/hash_converter'
 # rubocop:disable Metrics/ClassLength
 module DependentsBenefits
   module PdfFill
+    ##
+    # PDF form filler for VA Form 21-674 (School Attendance Approval)
+    #
+    # Handles the transformation of JSON form data into the PDF field format required
+    # for VA Form 21-674, which is used to request approval of school attendance for
+    # dependents receiving VA benefits.
+    #
     class Va21674 < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
 
+      # Iterator constant from PdfFill::HashConverter
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
+      # Path to the 21-674 PDF template
       TEMPLATE = DependentsBenefits::PDF_PATH_21_674
 
+      # Field mapping hash defining all PDF form fields and their constraints
       KEY = {
         'veteran_information' => {
           'full_name' => {
@@ -822,6 +832,9 @@ module DependentsBenefits
           @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
         end
 
+        # We add the user data to the form data in some jobs. It should always be present here.
+        raise DependentsBenefits::MissingVeteranInfoError unless @form_data['veteran_information']
+
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
@@ -884,6 +897,14 @@ module DependentsBenefits
         }
       end
 
+      ##
+      # Merges and transforms student-related data for PDF form fields
+      #
+      # Processes student information including name, SSN, address, earnings, net worth,
+      # and program information. Extracts middle initials, splits complex fields, and
+      # formats checkbox values.
+      #
+      # @return [void]
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
         students_information = @form_data['dependents_application']['student_information']
@@ -907,6 +928,16 @@ module DependentsBenefits
         format_checkboxes(dependents_application)
       end
 
+      ##
+      # Converts program type codes to human-readable program names
+      #
+      # @param parent_object [Hash] Hash with program type keys (ch35, fry, feca, other)
+      # @return [String, nil] Comma-separated list of program names, or nil if no programs selected
+      #
+      # @example
+      #   get_program({ 'ch35' => true, 'fry' => true })
+      #   # => "Chapter 35, Fry Scholarship"
+      #
       def get_program(parent_object)
         type_mapping = {
           'ch35' => 'Chapter 35',
@@ -926,10 +957,23 @@ module DependentsBenefits
         value ? 'On' : nil
       end
 
+      ##
+      # Converts boolean value to PDF radio button format
+      #
+      # @param value [Boolean] The boolean value to convert
+      # @return [Integer, nil] 0 if true, nil if false (PDF radio button selected state)
       def select_radio_button(value)
         value ? 0 : nil
       end
 
+      ##
+      # Splits earnings values into PDF field format segments
+      #
+      # Converts numeric earnings values into the format required by the PDF form,
+      # splitting each value into first (2 digits), second (3 digits), and third (2 digits) segments.
+      #
+      # @param parent_object [Hash] Hash containing earnings keys to process
+      # @return [Hash, nil] Modified parent object with split values, or nil if blank
       def split_earnings(parent_object)
         return if parent_object.blank?
 
@@ -951,6 +995,15 @@ module DependentsBenefits
         parent_object
       end
 
+      ##
+      # Splits net worth values into PDF field format segments
+      #
+      # Converts numeric net worth values (savings, securities, real estate, etc.) into
+      # the format required by the PDF form, splitting each into 4 segments for different
+      # magnitude ranges.
+      #
+      # @param parent_object [Hash] Hash containing net worth keys to process
+      # @return [Hash, nil] Modified parent object with split values, or nil if blank
       def split_networth_information(parent_object)
         return if parent_object.blank?
 

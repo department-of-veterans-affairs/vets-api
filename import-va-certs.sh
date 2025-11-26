@@ -15,11 +15,11 @@ set -euo pipefail
         # Primary: HTTPS with timeout and retries
         if curl --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -o unclass-certificates_pkcs7_ECA.zip https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
             echo "✓ DoD ECA downloaded via HTTPS"
+        # Fallback 1: HTTP with timeout and retries
         ## Uncomment in case the https call fails again
         ## Last time we got this error: Failed to connect to dl.dod.cyber.mil port 443
-        # Fallback 1: HTTP with timeout and retries
-        # elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
-        #     echo "✓ DoD ECA downloaded via HTTP fallback"
+        elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
+            echo "✓ DoD ECA downloaded via HTTP fallback"
         else
             echo "✗ All DoD ECA download attempts failed"
         fi
@@ -47,8 +47,22 @@ set -euo pipefail
         --accept="VA*.cer" \
         http://aia.pki.va.gov/PKI/AIA/VA/
 
+    # Check if any certificate files exist before processing
+    shopt -s nullglob
+    cert_files=(*.cer *.pem)
+    shopt -u nullglob
+    
+    if [ ${#cert_files[@]} -eq 0 ]; then
+        echo "Warning: No certificate files found to process"
+    else
+        echo "Processing ${#cert_files[@]} certificate files..."
+    fi
+
     for cert in *.{cer,pem}
     do
+        # Process certificate file
+        [ ! -f "$cert" ] && continue
+        
         if file "${cert}" | grep -q 'PEM'
         then
             cp "${cert}" "${cert}.crt"

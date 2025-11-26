@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/attr_package'
 require_relative '../../../app/sidekiq/event_bus_gateway/constants'
 require_relative 'shared_examples_letter_ready_job'
 
@@ -62,6 +63,8 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:warn)
+    allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key_123')
+    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   describe '#perform' do
@@ -116,13 +119,49 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
                                                             .and not_change(EventBusGatewayPushNotification, :count)
         end
 
-        it 'increments only email success metric' do
+        it 'increments email success metric and push skipped metric' do
           expect(StatsD).to receive(:increment).with(
             'event_bus_gateway.letter_ready_email.success',
             tags: EventBusGateway::Constants::DD_TAGS
           )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:push',
+                                                         'reason:icn_or_template_not_available']
+          )
 
           subject.new.perform(participant_id, email_template_id)
+        end
+      end
+
+      context 'PII protection with AttrPackage' do
+        it 'stores PII in Redis and passes only cache_key to email job' do
+          expect(Sidekiq::AttrPackage).to receive(:create).with(
+            first_name: 'Joe',
+            icn: mpi_profile_response.profile.icn
+          ).and_return('email_cache_key')
+
+          expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with(
+            participant_id,
+            email_template_id,
+            'email_cache_key'
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'stores PII in Redis and passes only cache_key to push job' do
+          expect(Sidekiq::AttrPackage).to receive(:create).with(
+            icn: mpi_profile_response.profile.icn
+          ).and_return('push_cache_key')
+
+          expect(EventBusGateway::LetterReadyPushJob).to receive(:perform_async).with(
+            participant_id,
+            push_template_id,
+            'push_cache_key'
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
         end
       end
 
@@ -142,10 +181,15 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
             .and change(EventBusGatewayPushNotification, :count).by(1)
         end
 
-        it 'increments only push success metric' do
+        it 'increments push success metric and email skipped metric' do
           expect(StatsD).to receive(:increment).with(
             'event_bus_gateway.letter_ready_push.success',
             tags: EventBusGateway::Constants::DD_TAGS
+          )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email',
+                                                         'reason:icn_or_template_not_available']
           )
 
           subject.new.perform(participant_id, nil, push_template_id)
@@ -167,6 +211,42 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           result = subject.new.perform(participant_id, email_template_id, push_template_id)
           expect(result).to eq([])
+        end
+
+        it 'logs skipped notifications for both email and push' do
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob email skipped',
+            {
+              notification_type: 'email',
+              reason: 'ICN or template not available',
+              template_id: email_template_id
+            }
+          )
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob push skipped',
+            {
+              notification_type: 'push',
+              reason: 'ICN or template not available',
+              template_id: push_template_id
+            }
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'increments skipped metrics for both email and push' do
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email',
+                                                         'reason:icn_or_template_not_available']
+          )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:push',
+                                                         'reason:icn_or_template_not_available']
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
         end
       end
 
@@ -192,26 +272,27 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
           end.to not_change(EventBusGatewayNotification, :count)
             .and change(EventBusGatewayPushNotification, :count).by(1)
         end
-      end
-    end
 
-    describe 'private methods' do
-      let(:job_instance) { subject.new }
+        it 'logs skipped email notification due to missing first_name' do
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob email skipped',
+            {
+              notification_type: 'email',
+              reason: 'first_name not present',
+              template_id: email_template_id
+            }
+          )
 
-      describe '#should_send_push?' do
-        it 'returns true when all requirements are met' do
-          result = job_instance.send(:should_send_push?, 'template_123', 'icn_456')
-          expect(result).to be true
+          subject.new.perform(participant_id, email_template_id, push_template_id)
         end
 
-        it 'returns false when push_template_id is missing' do
-          result = job_instance.send(:should_send_push?, nil, 'icn_456')
-          expect(result).to be false
-        end
+        it 'increments skipped metric for email' do
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email', 'reason:first_name_not_present']
+          )
 
-        it 'returns false when icn is missing' do
-          result = job_instance.send(:should_send_push?, 'template_123', nil)
-          expect(result).to be false
+          subject.new.perform(participant_id, email_template_id, push_template_id)
         end
       end
     end
@@ -293,7 +374,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
         it 'raises error with combined failure message' do
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(StandardError, /All notifications failed/)
+          end.to raise_error(EventBusGateway::Errors::NotificationEnqueueError, /All notifications failed/)
             .and not_change(EventBusGatewayNotification, :count)
             .and not_change(EventBusGatewayPushNotification, :count)
         end
@@ -311,7 +392,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(StandardError, 'Participant ID cannot be found in BGS')
+          end.to raise_error(EventBusGateway::Errors::BgsPersonNotFoundError, 'Participant ID cannot be found in BGS')
         end
       end
 
@@ -325,7 +406,44 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
-          end.to raise_error(RuntimeError, 'Failed to fetch MPI profile')
+          end.to raise_error(EventBusGateway::Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
+        end
+      end
+
+      context 'when an unexpected error occurs during data fetching' do
+        before do
+          allow_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_person_by_ptcpnt_id)
+            .and_raise(StandardError, 'Unexpected BGS error')
+        end
+
+        it 'records failure because instance variables are nil' do
+          expect_any_instance_of(described_class).to receive(:record_notification_send_failure)
+            .with(instance_of(StandardError), 'Notification')
+
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id)
+          end.to raise_error(StandardError, 'Unexpected BGS error')
+        end
+      end
+
+      context 'when error occurs after data fetching completes' do
+        before do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job enqueue failed')
+        end
+
+        it 'does not record notification send failure' do
+          expect_any_instance_of(described_class).not_to receive(:record_notification_send_failure)
+
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id)
+          end.not_to raise_error
+        end
+
+        it 'returns error in the errors array' do
+          result = subject.new.perform(participant_id, email_template_id, push_template_id)
+          expect(result).to eq([{ type: 'email', error: 'Email job enqueue failed' }])
         end
       end
     end

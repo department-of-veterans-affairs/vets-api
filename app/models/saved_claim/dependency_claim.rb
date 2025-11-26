@@ -78,25 +78,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     end
   end
 
-  def upload_pdf(form_id, doc_type: '148')
-    uploaded_forms ||= []
-    return if uploaded_forms.include? form_id
-
-    processed_pdfs = []
-    if form_id == '21-674-V2'
-      parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
-        processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
-      end
-    else
-      processed_pdfs << process_pdf(to_pdf(form_id:), created_at, form_id)
-    end
-    processed_pdfs.each do |processed_pdf|
-      upload_to_vbms(path: processed_pdf, doc_type:)
-      uploaded_forms << form_id
-      save
-    end
-  end
-
   def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on site',
@@ -169,21 +150,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   def document_type
     148
-  end
-
-  def upload_to_vbms(path:, doc_type: nil)
-    doc_type ||= document_type
-    uploader = ClaimsApi::VBMSUploader.new(
-      filepath: path,
-      file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
-      doc_type: doc_type.to_s
-    )
-
-    uploader.upload! unless Rails.env.development?
-  rescue
-    # Do not directly expose the error message in case it contains PII (despite PII scrubbing efforts).
-    monitor.track_pdf_upload_error
-    raise StandardError, 'VBMS Upload Error'
   end
 
   def form_matches_schema

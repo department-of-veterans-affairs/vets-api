@@ -10,6 +10,7 @@ on: # `on` parses to `true` in ruby
       - lib/veteran_facing_services/**/*.rb
       - modules/burials/**/*.rb
       - modules/claims_evidence_api/**/*.rb
+      - modules/dependents_benefits/**/*.rb
       - modules/income_and_assets/**/*.rb
       - modules/medical_expense_reports/**/*.rb
       - modules/pensions/**/*.rb
@@ -30,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 

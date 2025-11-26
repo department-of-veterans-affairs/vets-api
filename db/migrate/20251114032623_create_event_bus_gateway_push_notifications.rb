@@ -8,7 +8,5 @@ class CreateEventBusGatewayPushNotifications < ActiveRecord::Migration[7.2]
 
       t.timestamps
     end
-
-    add_index :event_bus_gateway_push_notifications, :user_account_id, if_not_exists: true
   end
 end

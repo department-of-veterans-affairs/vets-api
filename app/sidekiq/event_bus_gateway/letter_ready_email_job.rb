@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/attr_package'
 require_relative 'constants'
 require_relative 'letter_ready_job_concern'
 
@@ -11,7 +12,12 @@ module EventBusGateway
 
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_email'
 
-    sidekiq_options Constants::SIDEKIQ_RETRY_OPTIONS
+    sidekiq_options retry: Constants::SIDEKIQ_RETRY_COUNT_FIRST_EMAIL
+
+    sidekiq_retry_in do |count, _exception|
+      # Sidekiq default exponential backoff with jitter, plus one hour
+      (count**4) + 15 + (rand(10) * (count + 1)) + 1.hour.to_i
+    end
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -25,21 +31,63 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
     end
 
-    def perform(participant_id, template_id, first_name = nil, icn = nil)
-      # Use pre-fetched data if provided, otherwise fetch it
+    def perform(participant_id, template_id, cache_key = nil)
+      first_name = nil
+      icn = nil
+
+      # Retrieve PII from Redis if cache_key provided (avoids PII exposure in logs)
+      if cache_key
+        attributes = Sidekiq::AttrPackage.find(cache_key)
+        if attributes
+          first_name = attributes[:first_name]
+          icn = attributes[:icn]
+        end
+      end
+
+      # Fallback to fetching if cache_key not provided or failed
       first_name ||= get_first_name_from_participant_id(participant_id)
       icn ||= get_icn(participant_id)
 
-      return if icn.blank?
+      return unless validate_email_prerequisites(template_id, first_name, icn)
 
       send_email_notification(participant_id, template_id, first_name, icn)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
+
+      # Clean up PII from Redis if cache_key was used
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue => e
       record_notification_send_failure(e, 'Email')
       raise
     end
 
     private
+
+    def validate_email_prerequisites(template_id, first_name, icn)
+      if icn.blank?
+        log_email_skipped('ICN not available', template_id)
+        return false
+      end
+
+      if first_name.blank?
+        log_email_skipped('First Name not available', template_id)
+        return false
+      end
+
+      true
+    end
+
+    def log_email_skipped(reason, template_id)
+      ::Rails.logger.error(
+        'LetterReadyEmailJob email skipped',
+        {
+          notification_type: 'email',
+          reason:,
+          template_id:
+        }
+      )
+      tags = Constants::DD_TAGS + ['notification_type:email', "reason:#{reason.parameterize.underscore}"]
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.skipped", tags:)
+    end
 
     def send_email_notification(participant_id, template_id, first_name, icn)
       response = notify_client.send_email(
@@ -51,10 +99,25 @@ module EventBusGateway
         }
       )
 
-      EventBusGatewayNotification.create(
+      create_notification_record(template_id, icn, response&.id)
+    end
+
+    def create_notification_record(template_id, icn, va_notify_id)
+      notification = EventBusGatewayNotification.create(
         user_account: user_account(icn),
         template_id:,
-        va_notify_id: response.id
+        va_notify_id:
+      )
+
+      return if notification.persisted?
+
+      ::Rails.logger.warn(
+        'LetterReadyEmailJob notification record failed to save',
+        {
+          errors: notification.errors.full_messages,
+          template_id:,
+          va_notify_id:
+        }
       )
     end
 
