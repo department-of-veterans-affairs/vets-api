@@ -16,27 +16,24 @@ module DebtsApi
 
       def create_via_dmc!
         submission = initialize_submission
+        send_submission_email(submission) if email_notifications_enabled?
+        DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
 
-        begin
-          submission.save!
-          DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
+        render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
+      rescue ActiveRecord::RecordInvalid => e
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+        errors_hash = e.record.errors.to_hash
+        Rails.logger.error(
+          "DigitalDisputeController#create validation error: #{errors_hash.values.flatten.to_sentence}"
+        )
+        render json: { errors: errors_hash }, status: :unprocessable_entity
+      rescue => e
+        submission.clean_up_failure
 
-          render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
-        rescue ActiveRecord::RecordInvalid => e
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
-          errors_hash = e.record.errors.to_hash
-          Rails.logger.error(
-            "DigitalDisputeController#create validation error: #{errors_hash.values.flatten.to_sentence}"
-          )
-          render json: { errors: errors_hash }, status: :unprocessable_entity
-        rescue => e
-          submission.clean_up_failure
+        Rails.logger.error("DigitalDisputeController#create error: #{e.message} #{e.backtrace&.take(12)&.join("\n")}")
 
-          Rails.logger.error("DigitalDisputeController#create error: #{e.message} #{e.backtrace&.take(12)&.join("\n")}")
-
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
-          render json: { errors: { base: [e.message] } }, status: :unprocessable_entity
-        end
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+        render json: { errors: { base: [e.message] } }, status: :unprocessable_entity
       end
 
       def create_legacy!
@@ -50,12 +47,16 @@ module DebtsApi
       end
 
       def initialize_submission
-        DebtsApi::V0::DigitalDisputeSubmission.new(
+        submission = DebtsApi::V0::DigitalDisputeSubmission.new(
           user_uuid: current_user.uuid,
           user_account: current_user.user_account,
           state: :pending,
           metadata: submission_params[:metadata]
-        ).tap { |s| s.files.attach(submission_params[:files]) }
+        )
+        submission.save(validate: false)
+        submission.files.attach(submission_params[:files]) if submission_params[:files].present?
+        submission.save!
+        submission
       end
 
       def render_validation_error(record)
@@ -82,6 +83,23 @@ module DebtsApi
         params.permit(
           :metadata,
           files: []
+        )
+      end
+
+      def email_notifications_enabled?
+        Flipper.enabled?(:digital_dispute_email_notifications) && current_user.email.present?
+      end
+
+      def send_submission_email(_submission)
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
+          5.minutes,
+          {
+            'submission_type' => 'digital_dispute',
+            'email' => current_user.email,
+            'first_name' => current_user.first_name,
+            'user_uuid' => current_user.uuid,
+            'template_id' => DebtsApi::V0::DigitalDisputeSubmission::SUBMISSION_TEMPLATE
+          }
         )
       end
     end

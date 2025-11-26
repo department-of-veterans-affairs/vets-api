@@ -8,6 +8,7 @@ module DebtsApi
 
     sidekiq_retries_exhausted do |job, ex|
       StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.retries_exhausted")
+      StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
       submission_id = job['args'][0]
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
       submission&.register_failure("DigitalDisputeJob#perform: #{ex.message}")
@@ -25,10 +26,17 @@ module DebtsApi
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
       user_account = submission.user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
+
+      profile = mpi_response.profile
+      common_name = [profile.given_names&.first, profile.family_name].compact.join(' ')
+
       user = OpenStruct.new(
-        participant_id: mpi_response.profile.participant_id,
-        ssn: mpi_response.profile.ssn,
-        user_uuid: submission.user_uuid
+        icn: profile.icn,
+        common_name:,
+        ssn: profile.ssn,
+        email: nil,
+        participant_id: profile.participant_id,
+        uuid: submission.user_uuid
       )
 
       DebtsApi::V0::DigitalDisputeDmcService.new(user, submission).call!
