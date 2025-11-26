@@ -5,6 +5,8 @@ require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/snakecase'
 require 'faraday/multipart'
+require_relative '../../modules/vaos/app/services/vaos/middleware/response/errors'
+require_relative '../../modules/vaos/app/services/eps/middleware/response/errors'
 
 module Eps
   class Configuration < Common::Client::Configuration::REST
