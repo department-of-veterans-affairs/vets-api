@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require_relative 'facility_name_resolver'
+require_relative 'fhir_helpers'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
+      include FhirHelpers
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -23,7 +25,7 @@ module UnifiedHealthData
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
-        refill_metadata = extract_refill_metadata_from_tasks(resource, dispenses_data)
+        refill_metadata = extract_refill_submission_metadata_from_tasks(resource, dispenses_data)
 
         build_core_attributes(resource, dispenses_data)
           .merge(build_tracking_attributes(tracking_data))
@@ -37,7 +39,7 @@ module UnifiedHealthData
           id: resource['id'],
           type: 'Prescription',
           refill_status: extract_refill_status(resource, dispenses_data),
-          refill_submit_date: nil, # Set by extract_refill_metadata_from_tasks if Task resources present
+          refill_submit_date: nil, # Set by extract_refill_submission_metadata_from_tasks if Task resources present
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
           facility_name: extract_facility_name(resource),
@@ -126,13 +128,22 @@ module UnifiedHealthData
             id: dispense['id'],
             refill_submit_date: nil,
             prescription_number: nil,
-            cmop_division_phone: nil,
-            cmop_ndc_number: nil,
             remarks: nil,
-            dial_cmop_division_phone: nil,
             disclaimer: nil
-          }
+          }.merge(cmop_dispense_fields)
         end
+      end
+
+      # CMOP-related fields not available in Oracle Health yet
+      # Extracted to separate method to keep build_dispenses_information under line limit
+      #
+      # @return [Hash] Hash of CMOP-related nil fields
+      def cmop_dispense_fields
+        {
+          cmop_division_phone: nil,
+          cmop_ndc_number: nil,
+          dial_cmop_division_phone: nil
+        }
       end
 
       # Extracts refill submission metadata from Task resources during prescription parsing
@@ -145,7 +156,7 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR MedicationRequest resource
       # @param dispenses_data [Array<Hash>] Array of dispense data for checking subsequent dispenses
       # @return [Hash] Hash containing refill_submit_date if applicable
-      def extract_refill_metadata_from_tasks(resource, dispenses_data = [])
+      def extract_refill_submission_metadata_from_tasks(resource, dispenses_data = [])
         contained_resources = resource['contained'] || []
         medication_request_id = resource['id']
 
@@ -167,7 +178,7 @@ module UnifiedHealthData
 
         task_submit_date = most_recent_task.dig('executionPeriod', 'start')
         return {} unless task_submit_date
-        return {} if has_subsequent_dispense?(task_submit_date, dispenses_data)
+        return {} if subsequent_dispense?(task_submit_date, dispenses_data)
 
         { refill_submit_date: task_submit_date }
       end
@@ -194,7 +205,7 @@ module UnifiedHealthData
       # @param task_submit_date [String] ISO 8601 date string from Task.executionPeriod.start
       # @param dispenses_data [Array<Hash>] Array of dispense data with when_prepared and when_handed_over
       # @return [Boolean] True if a subsequent dispense exists
-      def has_subsequent_dispense?(task_submit_date, dispenses_data)
+      def subsequent_dispense?(task_submit_date, dispenses_data)
         return false unless dispenses_data.present? && task_submit_date.present?
 
         task_time = parse_date_or_epoch(task_submit_date)
@@ -207,57 +218,6 @@ module UnifiedHealthData
           (when_prepared.present? && parse_date_or_epoch(when_prepared) > task_time) ||
             (when_handed_over.present? && parse_date_or_epoch(when_handed_over) > task_time)
         end
-      end
-
-      # Parses a date string or returns epoch if invalid/missing
-      #
-      # @param date_string [String, nil] Date string to parse
-      # @return [Time] Parsed time or epoch
-      def parse_date_or_epoch(date_string)
-        return Time.zone.at(0) unless date_string
-
-        Time.zone.parse(date_string)
-      rescue ArgumentError
-        Time.zone.at(0)
-      end
-
-      # Calculates days since a given date
-      #
-      # @param date_string [String] ISO 8601 date string
-      # @return [Integer, nil] Days since the date or nil if invalid
-      def days_since(date_string)
-        return nil unless date_string
-
-        submit_time = Time.zone.parse(date_string)
-        return nil unless submit_time
-
-        days = ((Time.zone.now - submit_time) / 1.day).floor
-        days >= 0 ? days : nil
-      rescue ArgumentError, TypeError
-        nil
-      end
-
-      def extract_sig_from_dispense(dispense)
-        dosage_instructions = dispense['dosageInstruction'] || []
-        return nil if dosage_instructions.empty?
-
-        # Concatenate all dosage instruction texts
-        texts = dosage_instructions.filter_map do |instruction|
-          instruction['text'] if instruction.is_a?(Hash)
-        end
-
-        texts.empty? ? nil : texts.join(' ')
-      end
-
-      def find_identifier_value(identifiers, type_text)
-        identifier = identifiers.find { |id| id.dig('type', 'text') == type_text }
-        identifier&.dig('value')
-      end
-
-      def extract_ndc_number(dispense)
-        coding = dispense.dig('medicationCodeableConcept', 'coding') || []
-        ndc_coding = coding.find { |c| c['system'] == 'http://hl7.org/fhir/sid/ndc' }
-        ndc_coding&.dig('code')
       end
 
       def extract_refill_date(resource)
@@ -311,9 +271,7 @@ module UnifiedHealthData
           end
 
           task_submit_date = most_recent_task.dig('executionPeriod', 'start')
-          if task_submit_date && !has_subsequent_dispense?(task_submit_date, dispenses_data)
-            return 'submitted'
-          end
+          return 'submitted' if task_submit_date && !subsequent_dispense?(task_submit_date, dispenses_data)
         end
 
         normalize_to_legacy_vista_status(resource)
@@ -639,10 +597,6 @@ module UnifiedHealthData
         note_texts.join(' ')
       end
 
-      def non_va_med?(resource)
-        resource['reportedBoolean'] == true
-      end
-
       def prescription_not_expired?(resource)
         expiration_date = extract_expiration_date(resource)
         return false unless expiration_date # No expiration date = not refillable for safety
@@ -657,38 +611,6 @@ module UnifiedHealthData
         rescue ArgumentError
           log_invalid_expiration_date(resource, expiration_date)
           false
-        end
-      end
-
-      def log_invalid_expiration_date(resource, expiration_date)
-        Rails.logger.warn("Invalid expiration date for prescription #{resource['id']}: #{expiration_date}")
-      end
-
-      def build_instruction_text(instruction)
-        parts = []
-        parts << instruction.dig('timing', 'code', 'text') if instruction.dig('timing', 'code', 'text')
-        parts << instruction.dig('route', 'text') if instruction.dig('route', 'text')
-
-        dose_and_rate = instruction.dig('doseAndRate', 0)
-        if dose_and_rate
-          dose_quantity = dose_and_rate.dig('doseQuantity', 'value')
-          dose_unit = dose_and_rate.dig('doseQuantity', 'unit')
-          parts << "#{dose_quantity} #{dose_unit}" if dose_quantity
-        end
-
-        parts.join(' ')
-      end
-
-      def find_most_recent_medication_dispense(contained_resources)
-        return nil unless contained_resources.is_a?(Array)
-
-        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
-        return nil if dispenses.empty?
-
-        # Sort by whenHandedOver date, most recent first
-        dispenses.max_by do |dispense|
-          when_handed_over = dispense['whenHandedOver']
-          when_handed_over ? Time.zone.parse(when_handed_over) : Time.zone.at(0)
         end
       end
 

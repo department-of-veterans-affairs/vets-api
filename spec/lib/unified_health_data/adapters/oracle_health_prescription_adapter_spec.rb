@@ -2076,7 +2076,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#extract_refill_metadata_from_tasks' do
+  describe '#extract_refill_submission_metadata_from_tasks' do
     context 'when Task resources are present in MedicationRequest' do
       it 'extracts refill_submit_date from most recent successful Task resource with status=requested' do
         resource = base_resource.merge(
@@ -2092,7 +2092,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
       end
@@ -2111,7 +2111,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
@@ -2130,7 +2130,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
@@ -2149,7 +2149,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
@@ -2168,7 +2168,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
@@ -2194,7 +2194,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
       end
@@ -2212,7 +2212,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
@@ -2231,7 +2231,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata[:refill_submit_date]).to eq('invalid-date')
       end
@@ -2258,7 +2258,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata).to eq({})
       end
@@ -2283,7 +2283,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata).to eq({})
       end
@@ -2308,7 +2308,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
       end
@@ -2333,7 +2333,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, dispenses_data)
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
       end
@@ -2343,7 +2343,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns empty metadata hash when contained is empty' do
         resource = base_resource.merge('contained' => [])
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
@@ -2351,14 +2351,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns empty metadata hash when contained is nil' do
         resource = base_resource.merge('contained' => nil)
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, resource, [])
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
         expect(metadata).to eq({})
       end
     end
   end
 
-  describe '#has_subsequent_dispense?' do
+  describe '#subsequent_dispense?' do
     it 'returns true when dispense whenPrepared is after task date' do
       task_submit_date = '2025-06-24T10:00:00.000Z'
       dispenses_data = [
@@ -2368,7 +2368,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         }
       ]
 
-      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
 
       expect(result).to be true
     end
@@ -2382,7 +2382,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         }
       ]
 
-      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
 
       expect(result).to be true
     end
@@ -2396,7 +2396,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         }
       ]
 
-      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
 
       expect(result).to be false
     end
@@ -2410,7 +2410,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         }
       ]
 
-      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
 
       expect(result).to be false
     end
@@ -2418,7 +2418,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     it 'returns false when dispenses_data is empty' do
       task_submit_date = '2025-06-24T10:00:00.000Z'
 
-      result = subject.send(:has_subsequent_dispense?, task_submit_date, [])
+      result = subject.send(:subsequent_dispense?, task_submit_date, [])
 
       expect(result).to be false
     end
@@ -2426,7 +2426,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     it 'returns false when dispenses_data is nil' do
       task_submit_date = '2025-06-24T10:00:00.000Z'
 
-      result = subject.send(:has_subsequent_dispense?, task_submit_date, nil)
+      result = subject.send(:subsequent_dispense?, task_submit_date, nil)
 
       expect(result).to be false
     end
@@ -2439,10 +2439,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         }
       ]
 
-      result = subject.send(:has_subsequent_dispense?, nil, dispenses_data)
+      result = subject.send(:subsequent_dispense?, nil, dispenses_data)
 
       expect(result).to be false
     end
   end
-
 end
