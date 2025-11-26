@@ -83,7 +83,7 @@ module SignIn
       end
 
       def log_credential
-        false
+        true
       end
 
       def sign_up_operation
