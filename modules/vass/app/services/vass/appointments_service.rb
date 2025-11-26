@@ -77,12 +77,12 @@ module Vass
       }
 
       response = client.get_appointment_availability(
-        edipi:,
-        availability_request:
+        edipi: edipi,
+        availability_request: availability_request
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_availability')
     end
 
@@ -119,12 +119,12 @@ module Vass
       }.compact
 
       response = client.save_appointment(
-        edipi:,
-        appointment_data:
+        edipi: edipi,
+        appointment_data: appointment_data
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'save_appointment')
     end
 
@@ -140,12 +140,12 @@ module Vass
     #
     def cancel_appointment(appointment_id:)
       response = client.cancel_appointment(
-        edipi:,
-        appointment_id:
+        edipi: edipi,
+        appointment_id: appointment_id
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'cancel_appointment')
     end
 
@@ -161,12 +161,12 @@ module Vass
     #
     def get_appointment(appointment_id:)
       response = client.get_veteran_appointment(
-        edipi:,
-        appointment_id:
+        edipi: edipi,
+        appointment_id: appointment_id
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_appointment')
     end
 
@@ -182,12 +182,12 @@ module Vass
     #
     def get_appointments(veteran_id:)
       response = client.get_veteran_appointments(
-        edipi:,
-        veteran_id:
+        edipi: edipi,
+        veteran_id: veteran_id
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_appointments')
     end
 
@@ -203,12 +203,12 @@ module Vass
     #
     def get_veteran_info(veteran_id:)
       response = client.get_veteran(
-        edipi:,
-        veteran_id:
+        edipi: edipi,
+        veteran_id: veteran_id
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_veteran_info')
     end
 
@@ -224,7 +224,7 @@ module Vass
       response = client.get_agent_skills
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_agent_skills')
     end
 
@@ -249,11 +249,10 @@ module Vass
     ##
     # Formats a date/time object to ISO8601 format for VASS API.
     #
-    # @param datetime [Time, String, nil] DateTime to format
-    # @return [String, nil] ISO8601 formatted datetime string, or nil if input is nil
+    # @param datetime [Time, String] DateTime to format
+    # @return [String] ISO8601 formatted datetime string
     #
     def format_datetime(datetime)
-      return nil if datetime.nil?
       return datetime if datetime.is_a?(String)
 
       datetime.utc.iso8601
@@ -283,7 +282,7 @@ module Vass
       log_error(error, method_name)
 
       case error
-      when Vass::ServiceException
+      when Common::Exceptions::BackendServiceException
         if error.original_status == 401
           raise Vass::Errors::AuthenticationError, 'Authentication failed'
         elsif error.original_status == 404
@@ -307,9 +306,10 @@ module Vass
         service: 'vass_appointments_service',
         method: method_name,
         error_class: error.class.name,
-        correlation_id:,
+        correlation_id: correlation_id,
         timestamp: Time.current.iso8601
       }.to_json)
     end
   end
 end
+
