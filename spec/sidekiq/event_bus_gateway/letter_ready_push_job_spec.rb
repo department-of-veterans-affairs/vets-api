@@ -9,6 +9,10 @@ require_relative 'shared_examples_letter_ready_job'
 RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
   subject { described_class }
 
+  it 'configures sidekiq retry count' do
+    expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_PUSH)
+  end
+
   let(:participant_id) { '1234' }
   let(:template_id) { '5678' }
   let(:icn) { '1234567890V123456' }
