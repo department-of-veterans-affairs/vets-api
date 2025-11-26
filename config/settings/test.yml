@@ -299,8 +299,12 @@ dgi:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
   sob:
-    mock: ~
-    url: ~
+    claimants:
+      mock: ~
+      url: ~
+    jwt:
+      private_key_path: modules/sob/spec/fixtures/test_private_key.pem
+      public_key_path: ~
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -1750,9 +1754,18 @@ vaos:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vass:
-  redis_otc_expiry: 600            # 10 minutes (One-Time Codes)
-  redis_session_expiry: 7200       # 2 hours (Session data after OTC verification)
-  redis_token_expiry: 3540        # 59 minutes (OAuth token from Microsoft)
+  api_url: <%= ENV['vass__api_url'] %>
+  auth_url: https://login.microsoftonline.us
+  client_id: <%= ENV['vass__client_id'] %>
+  client_secret: <%= ENV['vass__client_secret'] %>
+  mock: <%= ENV['vass__mock'] %>
+  redis_otc_expiry: 600
+  redis_session_expiry: 7200
+  redis_token_expiry: 3540
+  scope: <%= ENV['vass__scope'] %>
+  service_name: VASS-API
+  subscription_key: <%= ENV['vass__subscription_key'] %>
+  tenant_id: <%= ENV['vass__tenant_id'] %>
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: true
