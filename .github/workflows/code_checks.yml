@@ -29,11 +29,11 @@ jobs:
     steps:
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Checkout PR HEAD ref
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -77,11 +77,11 @@ jobs:
     steps:
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Checkout PR HEAD ref
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -146,11 +146,11 @@ jobs:
     steps:
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Checkout PR HEAD ref
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -308,7 +308,7 @@ jobs:
 
       - name: Checkout code for Docker setup
         if: needs.tests.result == 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: vets-api
 

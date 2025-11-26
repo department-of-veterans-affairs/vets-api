@@ -99,6 +99,11 @@ class MPIData < Common::RedisStore
   # @return [Array[String]] multiple mhv ien ids
   delegate :mhv_iens, to: :profile, allow_nil: true
 
+  # NPI Correlation ID
+  #
+  # @return [String] the NPI id
+  delegate :npi_id, to: :profile, allow_nil: true
+
   # A Vet360 Correlation ID
   #
   # @return [String] the Vet360 id

@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
+RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
   include ActiveSupport::Testing::TimeHelpers
-  subject { described_class.new(current_user, referral_id, referral_consult_id) }
+  subject { described_class.call(current_user, referral_id, referral_consult_id) }
 
   let(:current_user) { build(:user, :vaos) }
 
@@ -21,7 +21,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       expiration_date: '2024-04-15',
       provider_specialty: 'Cardiology',
       treating_facility_address: { city: 'Denver', state: 'CO' },
-      referring_facility_code: 'FAC123'
+      referring_facility_code: 'FAC123',
+      category_of_care: 'CARDIOLOGY',
+      station_id: '528A6'
     )
   end
   let(:provider_data) do
@@ -118,6 +120,19 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           expect(subject.error[:status]).to eq(:bad_request)
         end
       end
+
+      context 'metrics logging for parameter validation failures' do
+        let(:referral_id) { '' }
+
+        it 'logs failure metric when parameter validation fails' do
+          expect(StatsD).to receive(:increment).with(
+            described_class::APPT_DRAFT_CREATION_FAILURE_METRIC,
+            tags: [VAOS::CommunityCareConstants::COMMUNITY_CARE_SERVICE_TAG, 'type_of_care:no_value']
+          )
+
+          expect(subject.error).to be_present
+        end
+      end
     end
 
     context 'when all services return successfully' do
@@ -208,7 +223,14 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_raise(Redis::BaseError, 'Connection refused')
         end
 
-        include_examples 'returns error response', 'Redis connection error', :bad_gateway
+        it 'logs failure metric and re-raises the error' do
+          expect(StatsD).to receive(:increment).with(
+            described_class::APPT_DRAFT_CREATION_FAILURE_METRIC,
+            tags: [VAOS::CommunityCareConstants::COMMUNITY_CARE_SERVICE_TAG, 'type_of_care:no_value']
+          )
+
+          expect { subject }.to raise_error(Redis::BaseError, 'Connection refused')
+        end
       end
     end
 
@@ -397,11 +419,16 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     context 'metrics and logging validation' do
       it 'logs referral metrics with correct tags' do
         expect(StatsD).to receive(:increment).with(
+          'api.vaos.appointment_draft_creation.success',
+          tags: ['service:community_care_appointments', 'type_of_care:CARDIOLOGY']
+        )
+        expect(StatsD).to receive(:increment).with(
           'api.vaos.referral_draft_station_id.access',
           tags: [
             'service:community_care_appointments',
             'referring_facility_code:FAC123',
-            'station_id:no_value'
+            'station_id:528A6',
+            'type_of_care:CARDIOLOGY'
           ]
         )
         expect(StatsD).to receive(:increment).with(
@@ -427,7 +454,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             user_uuid: current_user.uuid,
             controller: expected_controller_name,
             station_number: expected_station_number,
-            eps_trace_id: nil
+            eps_trace_id: a_kind_of(String).or(be_nil)
           }
         )
         expect(subject.error).to be_present
@@ -543,7 +570,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
               user_uuid: current_user.uuid,
               controller: expected_controller_name,
               station_number: expected_station_number,
-              eps_trace_id: nil
+              eps_trace_id: a_kind_of(String).or(be_nil)
             }
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')

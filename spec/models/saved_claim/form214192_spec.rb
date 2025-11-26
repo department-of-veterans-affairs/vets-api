@@ -67,6 +67,30 @@ RSpec.describe SavedClaim::Form214192, type: :model do
         expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
+      it 'accepts veteran address street2 up to 30 characters' do
+        form['veteranInformation']['address']['street2'] = 'A' * 30
+        expect(claim).to be_valid
+      end
+
+      it 'rejects veteran address street2 longer than 30 characters' do
+        form['veteranInformation']['address']['street2'] = 'A' * 31
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('string length')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
+      end
+
+      it 'accepts employer address street2 up to 30 characters' do
+        form['employmentInformation']['employerAddress']['street2'] = 'A' * 30
+        expect(claim).to be_valid
+      end
+
+      it 'rejects employer address street2 longer than 30 characters' do
+        form['employmentInformation']['employerAddress']['street2'] = 'A' * 31
+        expect(claim).not_to be_valid
+        expect(claim.errors.full_messages.join).to include('string length')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
+      end
+
       it 'requires country field in address' do
         form['veteranInformation']['address'].delete('country')
         expect(claim).not_to be_valid

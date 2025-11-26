@@ -19,6 +19,7 @@ module MPI
         attribute :mhv_ids,             array: true, default: []
         attribute :mhv_ien,             :string
         attribute :mhv_iens,            array: true, default: []
+        attribute :npi_id,              :string
         attribute :participant_id,      :string
         attribute :participant_ids,     array: true, default: []
         attribute :sec_id,              :string
