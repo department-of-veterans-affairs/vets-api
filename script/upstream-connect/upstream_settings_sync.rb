@@ -577,6 +577,16 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
   def format_yaml_value(value) # rubocop:disable Metrics/MethodLength
     case value
     when String
+      # Check if it's a JSON array string and convert to YAML array format
+      if value.match(/^\[.*\]$/)
+        begin
+          parsed_array = JSON.parse(value)
+          return "\n" + parsed_array.map { |item| "  - #{item}" }.join("\n") if parsed_array.is_a?(Array) # rubocop:disable Style/StringConcatenation
+        rescue JSON::ParserError
+          # Fall through to normal string handling
+        end
+      end
+
       # Convert string representations of booleans to actual booleans (weird, but it works)
       case value.downcase
       when 'true'
@@ -586,9 +596,9 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
       when 'null', ''
         'null'
       else
-        # Quote if contains special characters or looks like other types, except URLs
+        # Quote if contains special characters or looks like other types, except URLs and arrays
         if (value.match(/[\[\]{}|>@`]/) || value.start_with?('#') || value =~ /^\d+$/) &&
-           !value.match(%r{^https?://}) && !value.match(/^[\w.-]+:\d+$/)
+           !value.match(%r{^https?://}) && !value.match(/^[\w.-]+:\d+$/) && !value.match(/^\[.*\]$/)
           value.inspect
         else
           value
