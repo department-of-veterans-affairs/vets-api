@@ -41,7 +41,7 @@ module DependentsBenefits
       # Returns the form identifier for this submission type
       #
       # @abstract Subclasses must implement this method
-      # @return [String] Form ID (e.g., '686C-674', '21-686C')
+      # @return [String] Form ID (e.g., '21-686C', '21-674')
       # @raise [NotImplementedError] if not implemented by subclass
       def form_id
         raise NotImplementedError, 'Subclasses must implement form_id method'
@@ -51,10 +51,8 @@ module DependentsBenefits
       # Service-specific submission logic for BGS
       #
       # Performs the following steps:
-      # 1. Adds veteran information to the saved claim
-      # 2. Validates the claim with the :run_686_form_jobs context
-      # 3. Normalizes names and addresses in the claim data
-      # 4. Submits the form via the subclass-implemented {#submit_form} method
+      # 1. Normalizes names and addresses in the claim data
+      # 2. Submits the form via the subclass-implemented {#submit_form} method
       #
       # @return [DependentsBenefits::ServiceResponse] Response object with status and error
       # @raise [StandardError] via invalid_claim_error_class if claim validation fails

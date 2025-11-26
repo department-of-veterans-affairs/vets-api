@@ -38,9 +38,9 @@ module DependentsBenefits
       end
 
       ##
-      # Returns the error class for invalid 686c claims
+      # Returns the error class for invalid 674 claims
       #
-      # @return [Class] Invalid686cClaim error class
+      # @return [Class] Invalid674Claim error class
       def invalid_claim_error_class
         Invalid674Claim
       end

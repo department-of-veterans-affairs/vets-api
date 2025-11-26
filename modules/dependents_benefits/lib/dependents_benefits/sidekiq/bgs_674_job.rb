@@ -35,7 +35,7 @@ module DependentsBenefits
       ##
       # Returns the form identifier for 674 submissions
       #
-      # @return [String] 'SCHOOL_ATTENDANCE_APPROVAL' constant value
+      # @return [String] Form ID string '21-674'
       def form_id
         SCHOOL_ATTENDANCE_APPROVAL
       end

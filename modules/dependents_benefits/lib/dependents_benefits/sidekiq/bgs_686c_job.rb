@@ -34,7 +34,7 @@ module DependentsBenefits
       ##
       # Returns the form identifier for 686c submissions
       #
-      # @return [String] 'ADD_REMOVE_DEPENDENT' constant value
+      # @return [String] Form ID string '21-686C'
       def form_id
         ADD_REMOVE_DEPENDENT
       end
