@@ -38,9 +38,6 @@ module UnifiedHealthData
     attribute :grouped_medications, Array, default: nil
     attribute :disp_status, String
     attribute :task_resources, Array, default: []
-    
-    # Oracle Health refill metadata attributes (computed from Task resources during parsing)
-    attribute :refill_request_days_since_submission, Integer
 
     # Method aliases to match serializer expectations
     def prescription_id

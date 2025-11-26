@@ -2040,22 +2040,18 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
   describe '#extract_refill_metadata_from_tasks' do
     context 'when task_resources are present' do
-      it 'extracts refill metadata from most recent successful Task resource' do
+      it 'extracts refill_submit_date from most recent successful Task resource' do
         task_resources = [
           {
             id: '12345',
             status: 'requested',
-            execution_period_start: '2025-06-24T21:05:53.000Z',
-            execution_period_end: nil,
-            authored_on: '2025-06-24T20:00:00.000Z',
-            last_modified: '2025-06-24T21:00:00.000Z'
+            execution_period_start: '2025-06-24T21:05:53.000Z'
           }
         ]
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
-        expect(metadata[:refill_request_days_since_submission]).to be_a(Integer)
       end
 
       it 'ignores failed Task resources' do
@@ -2063,10 +2059,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           {
             id: '20848812135',
             status: 'failed',
-            execution_period_start: '2025-11-18T23:18:20+00:00',
-            notes: 'java.lang.Exception: Failed to send HL7 message after 3 attempts',
-            owner: 'ORACLE_HEALTH',
-            station_number: '668'
+            execution_period_start: '2025-11-18T23:18:20+00:00'
           }
         ]
 
@@ -2105,8 +2098,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
-        expect(metadata[:refill_submit_date]).to be_nil
-        expect(metadata[:refill_request_days_since_submission]).to be_nil
+        expect(metadata).to eq({})
       end
 
       it 'handles invalid date format gracefully' do
@@ -2121,7 +2113,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
 
         expect(metadata[:refill_submit_date]).to eq('invalid-date')
-        expect(metadata[:refill_request_days_since_submission]).to be_nil
       end
     end
 

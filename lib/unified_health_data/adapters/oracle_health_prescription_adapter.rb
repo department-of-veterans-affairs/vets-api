@@ -129,99 +129,90 @@ module UnifiedHealthData
             cmop_ndc_number: nil,
             remarks: nil,
             dial_cmop_division_phone: nil,
-            disclaimer: nil
+            disclaimer: nil,
+            # FHIR meta fields for tracking dispense creation
+            meta_last_updated: dispense.dig('meta', 'lastUpdated'),
+            meta_version_id: dispense.dig('meta', 'versionId')
           }
         end
       end
 
       # Extracts Task resources from contained array
       # Task resources contain refill request information per FHIR standard
+      # Only extracts Tasks with intent='refill' as these represent refill requests
       # Task.status indicates the refill request outcome (requested, in-progress, completed, failed, etc.)
       # Task.executionPeriod.start indicates when the refill request was submitted
-      # Task.meta.extension contains additional VA-specific metadata (notes, owner, station-number)
       def build_task_resources(resource)
         contained_resources = resource['contained'] || []
         tasks = contained_resources.select { |c| c.is_a?(Hash) && c['resourceType'] == 'Task' }
 
-        tasks.map do |task|
-          task_hash = {
+        # Only include tasks with intent='refill' as those are refill requests
+        refill_tasks = tasks.select { |task| task['intent'] == 'refill' }
+
+        refill_tasks.map do |task|
+          {
             id: task['id'],
             status: task['status'],
-            intent: task['intent'],
-            execution_period_start: task.dig('executionPeriod', 'start'),
-            execution_period_end: task.dig('executionPeriod', 'end'),
-            authored_on: task['authoredOn'],
-            last_modified: task['lastModified']
+            execution_period_start: task.dig('executionPeriod', 'start')
           }
-
-          # Extract VA-specific extension data from meta.extension
-          extensions = task.dig('meta', 'extension') || []
-          extensions.each do |ext|
-            case ext['url']
-            when 'http://va.gov/mhv/rx/notes'
-              task_hash[:notes] = ext['valueString']
-            when 'http://va.gov/mhv/rx/owner'
-              task_hash[:owner] = ext['valueString']
-            when 'http://va.gov/mhv/rx/station-number'
-              task_hash[:station_number] = ext['valueString']
-            end
-          end
-
-          task_hash
         end
       end
 
       # Extracts refill submission metadata from Task resources during prescription parsing
-      # Task resources contain refill request information per FHIR standard
-      # Returns attributes that will be added to the Prescription model
+      # Sets refill_submit_date based on successful refill requests
       #
-      # Task fields extracted:
-      # - executionPeriod.start: When the refill request was submitted
-      # - refill_request_days_since_submission: Calculated days since submission
-      #
-      # @param task_resources [Array<Hash>] Array of task resource hashes
+      # @param task_resources [Array<Hash>] Array of task resource hashes (filtered to intent='refill')
       # @param dispenses_data [Array<Hash>] Array of dispense data for checking subsequent dispenses
-      # @return [Hash] Hash containing refill metadata attributes for the Prescription model
+      # @return [Hash] Hash containing refill_submit_date if applicable
       def extract_refill_metadata_from_tasks(task_resources, dispenses_data = [])
-        metadata = {}
-        return metadata unless task_resources.present?
+        return {} unless task_resources.present?
 
-        # Find the most recent successful refill request task (status = 'requested', not 'failed')
-        successful_refill_tasks = task_resources.select { |task| task[:status] == 'requested' }
-        return metadata unless successful_refill_tasks.any?
+        # Find successful refill tasks (status = 'requested', not 'failed')
+        successful_tasks = task_resources.select { |task| task[:status] == 'requested' }
+        return {} unless successful_tasks.any?
 
-        # Sort by executionPeriod.start to find most recent submission
-        most_recent_task = successful_refill_tasks.max_by do |task|
-          if task[:execution_period_start]
-            begin
-              Time.zone.parse(task[:execution_period_start])
-            rescue ArgumentError
-              Time.zone.at(0)
-            end
-          else
-            Time.zone.at(0)
-          end
-        end
+        # Get most recent successful task
+        most_recent_task = find_most_recent_task(successful_tasks)
+        return {} unless most_recent_task && most_recent_task[:execution_period_start]
 
-        return metadata unless most_recent_task
+        # Set refill_submit_date from the task's execution period start
+        { refill_submit_date: most_recent_task[:execution_period_start] }
+      end
 
-        # Extract submission timestamp from executionPeriod.start
-        if most_recent_task[:execution_period_start]
-          metadata[:refill_submit_date] = most_recent_task[:execution_period_start]
+      # Finds the most recent task by execution_period_start
+      #
+      # @param tasks [Array<Hash>] Array of task hashes
+      # @return [Hash, nil] Most recent task or nil
+      def find_most_recent_task(tasks)
+        tasks.max_by { |task| parse_date_or_epoch(task[:execution_period_start]) }
+      end
 
-          # Calculate days since submission for frontend display
-          begin
-            submit_time = Time.zone.parse(most_recent_task[:execution_period_start])
-            if submit_time
-              days_since = ((Time.zone.now - submit_time) / 1.day).floor
-              metadata[:refill_request_days_since_submission] = days_since if days_since >= 0
-            end
-          rescue ArgumentError, TypeError
-            # Invalid date format, skip calculation
-          end
-        end
+      # Parses a date string or returns epoch if invalid/missing
+      #
+      # @param date_string [String, nil] Date string to parse
+      # @return [Time] Parsed time or epoch
+      def parse_date_or_epoch(date_string)
+        return Time.zone.at(0) unless date_string
 
-        metadata
+        Time.zone.parse(date_string)
+      rescue ArgumentError
+        Time.zone.at(0)
+      end
+
+      # Calculates days since a given date
+      #
+      # @param date_string [String] ISO 8601 date string
+      # @return [Integer, nil] Days since the date or nil if invalid
+      def days_since(date_string)
+        return nil unless date_string
+
+        submit_time = Time.zone.parse(date_string)
+        return nil unless submit_time
+
+        days = ((Time.zone.now - submit_time) / 1.day).floor
+        days >= 0 ? days : nil
+      rescue ArgumentError, TypeError
+        nil
       end
 
       def extract_sig_from_dispense(dispense)
@@ -289,11 +280,11 @@ module UnifiedHealthData
 
       # Checks if prescription has a recent successful refill submission
       # Conditions:
-      # 1. Most recent task status = 'requested' (not 'failed')
+      # 1. Most recent task with intent='refill' and status='requested'
       # 2. Task executionPeriod.start within last 30 days
-      # 3. No subsequent MedicationDispense created (check meta.lastUpdated and versionId)
+      # 3. No subsequent MedicationDispense created (check meta.lastUpdated with versionId=1)
       #
-      # @param task_data [Array<Hash>] Array of task resource hashes
+      # @param task_data [Array<Hash>] Array of task resource hashes (already filtered to intent='refill')
       # @param dispenses_data [Array<Hash>] Array of dispense data
       # @return [Boolean] True if has recent submitted refill
       def has_recent_submitted_refill?(task_data, dispenses_data)
@@ -304,38 +295,19 @@ module UnifiedHealthData
         return false unless successful_tasks.any?
 
         # Get most recent successful task
-        most_recent_task = successful_tasks.max_by do |task|
-          if task[:execution_period_start]
-            begin
-              Time.zone.parse(task[:execution_period_start])
-            rescue ArgumentError
-              Time.zone.at(0)
-            end
-          else
-            Time.zone.at(0)
-          end
-        end
-
+        most_recent_task = find_most_recent_task(successful_tasks)
         return false unless most_recent_task && most_recent_task[:execution_period_start]
 
         # Check if task is within last 30 days
-        begin
-          task_date = Time.zone.parse(most_recent_task[:execution_period_start])
-          return false unless task_date > 30.days.ago
-        rescue ArgumentError
-          return false
-        end
+        task_date = parse_date_or_epoch(most_recent_task[:execution_period_start])
+        return false unless task_date > 30.days.ago
 
         # Check if there's a subsequent dispense created after the task
-        # A dispense is "subsequent" if it was created after the task submission
-        # We check: dispense was created after task AND dispense versionId suggests it's new (versionId present)
-        return false if has_subsequent_dispense?(dispenses_data, task_date)
-
-        true
+        !has_subsequent_dispense?(dispenses_data, task_date)
       end
 
       # Checks if any dispense was created after the task submission date
-      # Indicates the refill request has been fulfilled
+      # Uses meta.lastUpdated for timing and checks versionId=1 for new dispenses
       #
       # @param dispenses_data [Array<Hash>] Array of dispense data
       # @param task_date [Time] Task submission date
@@ -344,19 +316,26 @@ module UnifiedHealthData
         return false unless dispenses_data.present?
 
         dispenses_data.any? do |dispense|
-          # Check if dispense has a refill_date that's after the task submission
-          if dispense[:refill_date]
-            begin
-              dispense_date = Time.zone.parse(dispense[:refill_date])
-              # If dispense date is after task date, this refill has been fulfilled
-              return true if dispense_date > task_date
-            rescue ArgumentError
-              # Invalid date, skip this dispense
-            end
-          end
-        end
+          # Check meta_last_updated for when dispense was created
+          last_updated = dispense[:meta_last_updated]
+          version_id = dispense[:meta_version_id]
 
-        false
+          # For a subsequent dispense:
+          # - must have meta.lastUpdated after task date
+          # - should be versionId=1 to indicate it's a new dispense (not an update to old one)
+          if last_updated && version_id == '1'
+            dispense_date = parse_date_or_epoch(last_updated)
+            return true if dispense_date > task_date
+          end
+
+          # Fallback: check refill_date if meta data not available
+          if dispense[:refill_date]
+            dispense_date = parse_date_or_epoch(dispense[:refill_date])
+            return true if dispense_date > task_date
+          end
+
+          false
+        end
       end
 
       # Maps refill_status to user-friendly disp_status for display
