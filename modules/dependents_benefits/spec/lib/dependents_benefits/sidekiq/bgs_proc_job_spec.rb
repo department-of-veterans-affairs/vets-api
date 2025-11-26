@@ -132,7 +132,8 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
           expect(monitor).to receive(:track_submission_error).with(
             'Error handling job success',
             'success_failure',
-            error:
+            error:,
+            parent_claim_id: parent_claim.id
           )
 
           job.send(:handle_job_success)
