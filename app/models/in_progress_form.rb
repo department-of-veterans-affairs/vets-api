@@ -60,6 +60,13 @@ class InProgressForm < ApplicationRecord
   def self.form_for_user(form_id, user)
     user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
     user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
+    if Flipper.enabled?(:dedupe_in_progress_forms, user) && user.user_account
+      forms_for_user = InProgressForm.where(form_id:, user_account: user.user_account)
+      if forms_for_user.count > 1
+        Rails.logger.warn("Multiple InProgressForms for form_id #{form_id} and user_account_id #{user.user_account.id}")
+        user_account_form = forms_for_user.order(created_at: :desc).first
+      end
+    end
     user_uuid_form || user_account_form
   end
 
