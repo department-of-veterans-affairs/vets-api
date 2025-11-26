@@ -2195,7 +2195,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
   describe '#extract_refill_metadata_from_tasks' do
     context 'when task_resources are present' do
-      it 'extracts refill_submit_date from most recent successful Task resource' do
+      it 'extracts refill_submit_date from most recent successful Task resource with status=requested' do
         task_resources = [
           {
             id: '12345',
@@ -2204,7 +2204,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
       end
@@ -2218,7 +2218,21 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'ignores in-progress Task resources (only requested status is valid)' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'in-progress',
+            execution_period_start: '2025-06-24T21:05:53.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
 
         expect(metadata).to eq({})
       end
@@ -2237,7 +2251,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
 
         expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
       end
@@ -2251,7 +2265,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
 
         expect(metadata).to eq({})
       end
@@ -2265,15 +2279,97 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
 
         expect(metadata[:refill_submit_date]).to eq('invalid-date')
       end
     end
 
+    context 'when a subsequent dispense exists' do
+      it 'returns empty metadata when dispense whenPrepared is after task submit date' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'requested',
+            execution_period_start: '2025-06-24T10:00:00.000Z'
+          }
+        ]
+        dispenses_data = [
+          {
+            when_prepared: '2025-06-24T12:00:00.000Z',
+            when_handed_over: nil
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+
+        expect(metadata).to eq({})
+      end
+
+      it 'returns empty metadata when dispense whenHandedOver is after task submit date' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'requested',
+            execution_period_start: '2025-06-24T10:00:00.000Z'
+          }
+        ]
+        dispenses_data = [
+          {
+            when_prepared: nil,
+            when_handed_over: '2025-06-25T12:00:00.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+
+        expect(metadata).to eq({})
+      end
+
+      it 'returns refill_submit_date when dispense dates are before task submit date' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'requested',
+            execution_period_start: '2025-06-24T10:00:00.000Z'
+          }
+        ]
+        dispenses_data = [
+          {
+            when_prepared: '2025-06-20T12:00:00.000Z',
+            when_handed_over: '2025-06-21T12:00:00.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
+      end
+
+      it 'returns refill_submit_date when no dispenses have dates' do
+        task_resources = [
+          {
+            id: '12345',
+            status: 'requested',
+            execution_period_start: '2025-06-24T10:00:00.000Z'
+          }
+        ]
+        dispenses_data = [
+          {
+            when_prepared: nil,
+            when_handed_over: nil
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, dispenses_data)
+
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
+      end
+    end
+
     context 'when task_resources are empty' do
       it 'returns empty metadata hash' do
-        metadata = subject.send(:extract_refill_metadata_from_tasks, [])
+        metadata = subject.send(:extract_refill_metadata_from_tasks, [], [])
 
         expect(metadata).to eq({})
       end
@@ -2281,7 +2377,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     context 'when task_resources are nil' do
       it 'returns empty metadata hash' do
-        metadata = subject.send(:extract_refill_metadata_from_tasks, nil)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, nil, [])
 
         expect(metadata).to eq({})
       end
@@ -2297,7 +2393,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
 
         expect(metadata).to eq({})
       end
@@ -2311,10 +2407,155 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         ]
 
-        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources)
+        metadata = subject.send(:extract_refill_metadata_from_tasks, task_resources, [])
 
         expect(metadata).to eq({})
       end
+    end
+  end
+
+  describe '#has_subsequent_dispense?' do
+    it 'returns true when dispense whenPrepared is after task date' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: '2025-06-24T12:00:00.000Z',
+          when_handed_over: nil
+        }
+      ]
+
+      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be true
+    end
+
+    it 'returns true when dispense whenHandedOver is after task date' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: nil,
+          when_handed_over: '2025-06-25T12:00:00.000Z'
+        }
+      ]
+
+      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be true
+    end
+
+    it 'returns false when all dispense dates are before task date' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: '2025-06-20T12:00:00.000Z',
+          when_handed_over: '2025-06-21T12:00:00.000Z'
+        }
+      ]
+
+      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when dispenses have no dates' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: nil,
+          when_handed_over: nil
+        }
+      ]
+
+      result = subject.send(:has_subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when dispenses_data is empty' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+
+      result = subject.send(:has_subsequent_dispense?, task_submit_date, [])
+
+      expect(result).to be false
+    end
+
+    it 'returns false when dispenses_data is nil' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+
+      result = subject.send(:has_subsequent_dispense?, task_submit_date, nil)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when task_submit_date is nil' do
+      dispenses_data = [
+        {
+          when_prepared: '2025-06-24T12:00:00.000Z',
+          when_handed_over: nil
+        }
+      ]
+
+      result = subject.send(:has_subsequent_dispense?, nil, dispenses_data)
+
+      expect(result).to be false
+    end
+  end
+
+  describe '#has_submitted_refill_without_subsequent_dispense?' do
+    it 'returns true when task status is submitted and no subsequent dispense' do
+      task_data = [
+        {
+          id: '12345',
+          status: 'requested',
+          execution_period_start: '2025-06-24T10:00:00.000Z'
+        }
+      ]
+      dispenses_data = []
+
+      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, task_data, dispenses_data)
+
+      expect(result).to be true
+    end
+
+    it 'returns false when task status is submitted but subsequent dispense exists' do
+      task_data = [
+        {
+          id: '12345',
+          status: 'requested',
+          execution_period_start: '2025-06-24T10:00:00.000Z'
+        }
+      ]
+      dispenses_data = [
+        {
+          when_prepared: '2025-06-25T12:00:00.000Z',
+          when_handed_over: nil
+        }
+      ]
+
+      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, task_data, dispenses_data)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when task status is not requested' do
+      task_data = [
+        {
+          id: '12345',
+          status: 'in-progress',
+          execution_period_start: '2025-06-24T10:00:00.000Z'
+        }
+      ]
+      dispenses_data = []
+
+      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, task_data, dispenses_data)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when task_data is empty' do
+      result = subject.send(:has_submitted_refill_without_subsequent_dispense?, [], [])
+
+      expect(result).to be false
     end
   end
 end
