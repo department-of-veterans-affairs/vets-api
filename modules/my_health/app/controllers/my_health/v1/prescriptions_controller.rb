@@ -101,7 +101,7 @@ module MyHealth
         resource.records = filter_data_by_refill_and_renew(resource.data)
 
         options = { meta: resource.metadata.merge(recently_requested:) }
-        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
 
       def get_prescription_image
