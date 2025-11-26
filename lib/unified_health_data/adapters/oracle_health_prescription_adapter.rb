@@ -129,10 +129,7 @@ module UnifiedHealthData
             cmop_ndc_number: nil,
             remarks: nil,
             dial_cmop_division_phone: nil,
-            disclaimer: nil,
-            # FHIR meta fields for tracking dispense creation
-            meta_last_updated: dispense.dig('meta', 'lastUpdated'),
-            meta_version_id: dispense.dig('meta', 'versionId')
+            disclaimer: nil
           }
         end
       end
@@ -288,11 +285,11 @@ module UnifiedHealthData
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       # @param task_data [Array<Hash>] Array of task resource hashes
-      # @param dispenses_data [Array<Hash>] Array of dispense data
+      # @param dispenses_data [Array<Hash>] Array of dispense data (unused, kept for interface compatibility)
       # @return [String] VistA-compatible status value
       def extract_refill_status(resource, task_data = [], dispenses_data = [])
         # Check if there's a successful submitted refill
-        if has_recent_submitted_refill?(task_data, dispenses_data)
+        if has_recent_submitted_refill?(task_data)
           return 'submitted'
         end
 
@@ -303,12 +300,15 @@ module UnifiedHealthData
       # Conditions:
       # 1. Most recent task with intent='order' and status='requested'
       # 2. Task executionPeriod.start within last 30 days
-      # 3. No subsequent MedicationDispense created (check meta.lastUpdated with versionId=1)
+      #
+      # Note: We no longer check for subsequent dispenses because:
+      # - MMR will not accept additional refill requests until the previous fill is completed/picked up
+      # - PR #25333 prevents additional refill requests if there's already a MedicationDispense in progress
+      # - This means there's no situation where we need to determine if a new dispense invalidates the 'submitted' status
       #
       # @param task_data [Array<Hash>] Array of task resource hashes (already filtered to intent='order')
-      # @param dispenses_data [Array<Hash>] Array of dispense data
       # @return [Boolean] True if has recent submitted refill
-      def has_recent_submitted_refill?(task_data, dispenses_data)
+      def has_recent_submitted_refill?(task_data)
         return false unless task_data.present?
 
         # Find successful refill tasks (status = 'requested', not 'failed')
@@ -321,42 +321,7 @@ module UnifiedHealthData
 
         # Check if task is within last 30 days
         task_date = parse_date_or_epoch(most_recent_task[:execution_period_start])
-        return false unless task_date > 30.days.ago
-
-        # Check if there's a subsequent dispense created after the task
-        !has_subsequent_dispense?(dispenses_data, task_date)
-      end
-
-      # Checks if any dispense was created after the task submission date
-      # Uses meta.lastUpdated for timing and checks versionId=1 for new dispenses
-      #
-      # @param dispenses_data [Array<Hash>] Array of dispense data
-      # @param task_date [Time] Task submission date
-      # @return [Boolean] True if subsequent dispense exists
-      def has_subsequent_dispense?(dispenses_data, task_date)
-        return false unless dispenses_data.present?
-
-        dispenses_data.any? do |dispense|
-          # Check meta_last_updated for when dispense was created
-          last_updated = dispense[:meta_last_updated]
-          version_id = dispense[:meta_version_id]
-
-          # For a subsequent dispense:
-          # - must have meta.lastUpdated after task date
-          # - should be versionId=1 to indicate it's a new dispense (not an update to old one)
-          if last_updated && version_id == '1'
-            dispense_date = parse_date_or_epoch(last_updated)
-            return true if dispense_date > task_date
-          end
-
-          # Fallback: check refill_date if meta data not available
-          if dispense[:refill_date]
-            dispense_date = parse_date_or_epoch(dispense[:refill_date])
-            return true if dispense_date > task_date
-          end
-
-          false
-        end
+        task_date > 30.days.ago
       end
 
       # Maps refill_status to user-friendly disp_status for display
