@@ -17,7 +17,7 @@ module BGSV2
   class Form686c
     include Vets::SharedLogging
 
-    attr_reader :user, :saved_claim, :proc_id
+    attr_reader :user, :saved_claim, :proc_id, :claim_type_end_product
 
     REMOVE_CHILD_OPTIONS = %w[report_child18_or_older_is_not_attending_school
                               report_stepchild_not_in_household
@@ -25,21 +25,22 @@ module BGSV2
     MARRIAGE_TYPES = %w[COMMON-LAW TRIBAL PROXY OTHER].freeze
     RELATIONSHIPS = %w[CHILD DEPENDENT_PARENT].freeze
 
-    def initialize(user, saved_claim, proc_id = nil)
+    def initialize(user, saved_claim, options = {})
       @user = user
       @saved_claim = saved_claim
       @end_product_name = '130 - Automated Dependency 686c'
       @end_product_code = '130DPNEBNADJ'
       @proc_state = 'Ready'
       @note_text = nil
-      @proc_id = proc_id
+      @proc_id = options[:proc_id] if options.present?
+      @claim_type_end_product = options[:claim_type_end_product]
     end
 
     # rubocop:disable Metrics/MethodLength
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
       @proc_id = create_proc_id_and_form(vnp_proc_state_type_cd) if @proc_id.nil?
-      veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130DPNEBNADJ').create
+      veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130DPNEBNADJ', claim_type_end_product:).create
 
       process_relationships(@proc_id, veteran, payload)
 

@@ -31,6 +31,209 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSFormJob, type: :job do
     job.instance_variable_set(:@claim_id, saved_claim.id)
   end
 
+  describe '#active_sibling_ep_codes' do
+    let(:sibling_claim1) { create(:add_remove_dependents_claim) }
+    let(:sibling_claim2) { create(:add_remove_dependents_claim) }
+    let(:sibling_claim3) { create(:add_remove_dependents_claim) }
+
+    let!(:sibling_group1) { create(:saved_claim_group, saved_claim: sibling_claim1, parent_claim:) }
+    let!(:sibling_group2) { create(:saved_claim_group, saved_claim: sibling_claim2, parent_claim:) }
+    let!(:sibling_group3) { create(:saved_claim_group, saved_claim: sibling_claim3, parent_claim:) }
+
+    let(:submission1) { create(:bgs_submission, saved_claim: sibling_claim1, form_id: '21-686C') }
+    let(:submission2) { create(:bgs_submission, saved_claim: sibling_claim2, form_id: '21-686C') }
+    let(:submission3) { create(:bgs_submission, saved_claim: sibling_claim3, form_id: '21-686C') }
+
+    context 'when no sibling claims have pending submission attempts' do
+      it 'returns empty array' do
+        # Create only submitted attempts
+        create(:bgs_submission_attempt, submission: submission1, status: 'submitted',
+                                        metadata: { claim_type_end_product: '130' }.to_json)
+        create(:bgs_submission_attempt, submission: submission2, status: 'failure',
+                                        metadata: { claim_type_end_product: '131' }.to_json)
+
+        result = job.send(:active_sibling_ep_codes)
+
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when sibling claims have pending submission attempts with EP codes' do
+      it 'returns unique EP codes from pending attempts' do
+        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
+                                        metadata: { claim_type_end_product: '130' }.to_json)
+        create(:bgs_submission_attempt, submission: submission2, status: 'pending',
+                                        metadata: { claim_type_end_product: '131' }.to_json)
+        create(:bgs_submission_attempt, submission: submission3, status: 'pending',
+                                        metadata: { claim_type_end_product: '132' }.to_json)
+
+        result = job.send(:active_sibling_ep_codes)
+
+        expect(result).to contain_exactly('130', '131', '132')
+      end
+    end
+
+    context 'when multiple pending attempts have the same EP code' do
+      it 'returns unique EP codes (no duplicates)' do
+        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
+                                        metadata: { claim_type_end_product: '130' }.to_json)
+        create(:bgs_submission_attempt, submission: submission2, status: 'pending',
+                                        metadata: { claim_type_end_product: '130' }.to_json)
+        create(:bgs_submission_attempt, submission: submission3, status: 'pending',
+                                        metadata: { claim_type_end_product: '131' }.to_json)
+
+        result = job.send(:active_sibling_ep_codes)
+
+        expect(result).to contain_exactly('130', '131')
+      end
+    end
+
+    context 'when pending attempts have nil or missing claim_type_end_product' do
+      it 'excludes nil values and returns only valid EP codes' do
+        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
+                                        metadata: { claim_type_end_product: '130' }.to_json)
+        create(:bgs_submission_attempt, submission: submission2, status: 'pending',
+                                        metadata: { other_field: 'value' }.to_json)
+        create(:bgs_submission_attempt, submission: submission3, status: 'pending', metadata: nil)
+
+        result = job.send(:active_sibling_ep_codes)
+
+        expect(result).to contain_exactly('130')
+      end
+    end
+
+    context 'when mixing pending and non-pending attempts' do
+      it 'returns only EP codes from pending attempts' do
+        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
+                                        metadata: { claim_type_end_product: '130' }.to_json)
+        create(:bgs_submission_attempt, submission: submission2, status: 'submitted',
+                                        metadata: { claim_type_end_product: '131' }.to_json)
+        create(:bgs_submission_attempt, submission: submission3, status: 'failure',
+                                        metadata: { claim_type_end_product: '132' }.to_json)
+
+        result = job.send(:active_sibling_ep_codes)
+
+        expect(result).to eq(['130'])
+      end
+    end
+
+    context 'when parent claim has no child claims' do
+      let(:orphan_claim) { create(:dependents_claim) }
+      let(:orphan_saved_claim) { create(:add_remove_dependents_claim) }
+      let!(:orphan_parent_group) { create(:parent_claim_group, parent_claim: orphan_claim, user_data:) }
+      let!(:orphan_current_group) do
+        create(:saved_claim_group, saved_claim: orphan_saved_claim, parent_claim: orphan_claim)
+      end
+
+      before do
+        job.instance_variable_set(:@claim_id, orphan_saved_claim.id)
+      end
+
+      it 'returns empty array' do
+        result = job.send(:active_sibling_ep_codes)
+
+        expect(result).to eq([])
+      end
+    end
+  end
+
+  describe '#claim_type_end_product' do
+    let(:bgs_service) { instance_double(BGSV2::Service) }
+
+    before do
+      allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+    end
+
+    context 'when claim_type_end_product is already set' do
+      it 'returns memoized value' do
+        job.instance_variable_set(:@claim_type_end_product, '130')
+
+        expect(bgs_service).not_to receive(:find_active_benefit_claim_type_increments)
+        expect(job.send(:claim_type_end_product)).to eq('130')
+      end
+    end
+
+    context 'when selecting from available EP codes' do
+      let(:sibling_claim) { create(:add_remove_dependents_claim) }
+      let!(:sibling_group) { create(:saved_claim_group, saved_claim: sibling_claim, parent_claim:) }
+      let(:sibling_submission) { create(:bgs_submission, saved_claim: sibling_claim, form_id: '21-686C') }
+
+      before do
+        # Mock active claim EP codes from BGS
+        allow(bgs_service).to receive(:find_active_benefit_claim_type_increments).and_return(%w[131 134])
+      end
+
+      it 'excludes active claim EP codes and active sibling EP codes' do
+        # Sibling has pending attempt with '130'
+        create(:bgs_submission_attempt, submission: sibling_submission, status: 'pending',
+                                        metadata: { claim_type_end_product: '130' }.to_json)
+
+        result = job.send(:claim_type_end_product)
+
+        # Should exclude: 130 (sibling), 131 (active), 134 (active)
+        # Available: 132, 136, 137, 138, 139
+        expect(result).to eq('132')
+      end
+
+      it 'returns first available EP code when all are available' do
+        allow(bgs_service).to receive(:find_active_benefit_claim_type_increments).and_return([])
+
+        result = job.send(:claim_type_end_product)
+
+        expect(result).to eq('130')
+      end
+
+      it 'returns nil when no EP codes are available' do
+        # All codes are active
+        allow(bgs_service).to receive(:find_active_benefit_claim_type_increments)
+          .and_return(%w[130 131 132 134 136 137 138 139])
+
+        result = job.send(:claim_type_end_product)
+
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#record_ep_code_in_submission_attempt' do
+    let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
+    let(:submission_attempt) { create(:bgs_submission_attempt, submission:, metadata: nil) }
+
+    before do
+      job.instance_variable_set(:@submission_attempt, submission_attempt)
+      job.instance_variable_set(:@claim_type_end_product, '130')
+    end
+
+    context 'when metadata is nil' do
+      it 'creates metadata with claim_type_end_product' do
+        job.send(:record_ep_code_in_submission_attempt)
+        submission_attempt.reload
+
+        metadata = JSON.parse(submission_attempt.metadata, symbolize_names: true)
+        expect(metadata[:claim_type_end_product]).to eq('130')
+      end
+    end
+
+    context 'when metadata already exists' do
+      before do
+        submission_attempt.update(metadata: { other_field: 'value' }.to_json)
+      end
+
+      it 'adds claim_type_end_product to existing metadata' do
+        job.send(:record_ep_code_in_submission_attempt)
+        submission_attempt.reload
+        metadata = JSON.parse(submission_attempt.metadata, symbolize_names: true)
+        expect(metadata[:claim_type_end_product]).to eq('130')
+        expect(metadata[:other_field]).to eq('value')
+      end
+    end
+
+    it 'persists the metadata to the database' do
+      expect { job.send(:record_ep_code_in_submission_attempt) }
+        .to(change { submission_attempt.reload.metadata })
+    end
+  end
+
   describe '#find_or_create_form_submission' do
     it 'creates a new BGS::Submission if one does not exist' do
       expect do
