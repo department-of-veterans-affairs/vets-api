@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'English'
+require_relative 'constants'
 require_relative 'inspector'
 
 module VcrMcp
   # Validates VCR cassettes for sensitive data
   class Validator
-    VETS_API_ROOT = File.expand_path('../..', __dir__)
-    CASSETTE_ROOT = File.join(VETS_API_ROOT, 'spec', 'support', 'vcr_cassettes')
+    VETS_API_ROOT = Constants::VETS_API_ROOT
+    CASSETTE_ROOT = Constants::CASSETTE_ROOT
 
     # Sensitive data patterns with severity levels
     SENSITIVE_PATTERNS = {

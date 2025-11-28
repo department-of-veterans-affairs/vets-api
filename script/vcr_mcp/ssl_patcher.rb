@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require_relative 'constants'
+
 # rubocop:disable Rails/Delegate
 module VcrMcp
   # Temporarily patches Faraday configurations to disable SSL verification
   # for VCR cassette re-recording through local tunnels
   class SslPatcher
-    VETS_API_ROOT = File.expand_path('../..', __dir__)
+    VETS_API_ROOT = Constants::VETS_API_ROOT
 
     # Known configuration files and their Faraday connection patterns
     CONFIGURATION_PATTERNS = {
@@ -176,9 +178,14 @@ module VcrMcp
     private
 
     def resolve_path(path)
-      return path if path.start_with?('/')
+      resolved = path.start_with?('/') ? path : File.join(VETS_API_ROOT, path)
+      # Resolve symlinks and normalize path to prevent directory traversal
+      resolved = File.expand_path(resolved)
+      unless resolved.start_with?(VETS_API_ROOT)
+        raise ArgumentError, "Path '#{path}' resolves outside the vets-api directory"
+      end
 
-      File.join(VETS_API_ROOT, path)
+      resolved
     end
 
     def relative_path(path)

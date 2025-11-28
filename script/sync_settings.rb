@@ -325,7 +325,7 @@ class SettingsSync
   def save_test_settings(settings)
     # Load existing test settings if present
     test_settings = if File.exist?(TEST_SETTINGS_LOCAL_PATH)
-                      YAML.load_file(TEST_SETTINGS_LOCAL_PATH) || {}
+                      YAML.safe_load_file(TEST_SETTINGS_LOCAL_PATH, permitted_classes: [Symbol]) || {}
                     else
                       {}
                     end

@@ -5,11 +5,12 @@ require 'json'
 require 'yaml'
 require 'base64'
 
+require_relative 'constants'
 require_relative 'cassette_parser'
 
 module VcrMcp
   module Inspector
-    CASSETTE_ROOT = File.expand_path('../../spec/support/vcr_cassettes', __dir__)
+    CASSETTE_ROOT = Constants::CASSETTE_ROOT
 
     def self.find_cassette(query)
       return query if File.exist?(query)

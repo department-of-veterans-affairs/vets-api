@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'constants'
 require_relative 'inspector'
 require_relative 'spec_finder'
 require_relative 'service_config'
@@ -7,8 +8,8 @@ require_relative 'service_config'
 module VcrMcp
   # Generates instructions for re-recording a VCR cassette
   class PreparationGuide
-    VETS_API_ROOT = File.expand_path('../..', __dir__)
-    CASSETTE_ROOT = File.join(VETS_API_ROOT, 'spec', 'support', 'vcr_cassettes')
+    VETS_API_ROOT = Constants::VETS_API_ROOT
+    CASSETTE_ROOT = Constants::CASSETTE_ROOT
 
     def self.generate(cassette_path, environment: 'staging')
       new(cassette_path, environment).generate

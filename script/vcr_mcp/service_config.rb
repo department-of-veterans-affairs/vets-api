@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'concurrent'
+require_relative 'constants'
 
 module VcrMcp
   # Service configuration and detection for VCR cassettes
@@ -10,10 +11,8 @@ module VcrMcp
     PORT_RANGE_START = 4480
     PORT_RANGE_END = 4499
 
-    AWS_REGION = 'us-gov-west-1'
-
     # Path to VCR configuration file (source of truth for placeholder mappings)
-    VCR_CONFIG_PATH = File.expand_path('../../spec/support/vcr.rb', __dir__)
+    VCR_CONFIG_PATH = File.join(Constants::VETS_API_ROOT, 'spec', 'support', 'vcr.rb')
 
     # Services that can be accessed directly (no tunnel needed)
     DIRECT_ACCESS_NAMESPACES = %w[lighthouse].freeze
@@ -155,7 +154,7 @@ module VcrMcp
       end
 
       def aws_region
-        AWS_REGION
+        Constants::AWS_REGION
       end
 
       # List all known placeholders from vcr.rb

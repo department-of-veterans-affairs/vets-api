@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'constants'
+
 module VcrMcp
   # Finds spec files that use a given VCR cassette
   class SpecFinder
-    VETS_API_ROOT = File.expand_path('../..', __dir__)
+    VETS_API_ROOT = Constants::VETS_API_ROOT
 
     SPEC_DIRS = [
       'spec',

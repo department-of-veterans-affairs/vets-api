@@ -608,6 +608,11 @@ end
 
 TOOL_HANDLERS = {
   'vcr_inspect_cassette' => ->(args) { handle_vcr_inspect(args['cassette_path'], args['query']) },
+  'vcr_json_structure' => lambda { |args|
+    handle_vcr_json_structure(
+      args['cassette_path'], args['interaction_index'], args['max_depth'], args['include_request']
+    )
+  },
   'vcr_find_specs' => ->(args) { handle_vcr_find_specs(args['cassette_path']) },
   'vcr_prepare_rerecord' => ->(args) { handle_vcr_prepare_rerecord(args['cassette_path'], args['environment']) },
   'vcr_validate_cassette' => ->(args) { handle_vcr_validate_cassette(args['cassette_path']) },
@@ -617,13 +622,6 @@ TOOL_HANDLERS = {
 }.freeze
 
 def handle_call_tool(name, arguments)
-  if name == 'vcr_json_structure'
-    return handle_vcr_json_structure(
-      arguments['cassette_path'], arguments['interaction_index'],
-      arguments['max_depth'], arguments['include_request']
-    )
-  end
-
   handler = TOOL_HANDLERS[name]
   raise "Unknown tool: #{name}" unless handler
 
