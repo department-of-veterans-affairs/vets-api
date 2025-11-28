@@ -5,7 +5,8 @@ class DebtTransactionLog < ApplicationRecord
 
   enum :state, pending: 'pending', submitted: 'submitted', completed: 'completed', failed: 'failed'
 
-  # DigitalDisputeSubmission uses guid for transactionable_id
+  # Override polymorphic lookup for DigitalDisputeSubmission which stores guid (not id)
+  # in transactionable_id to avoid exposing sequential IDs externally
   def transactionable
     if transactionable_type == 'DebtsApi::V0::DigitalDisputeSubmission'
       DebtsApi::V0::DigitalDisputeSubmission.find_by(guid: transactionable_id)

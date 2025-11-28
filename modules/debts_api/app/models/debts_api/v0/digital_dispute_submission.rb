@@ -161,4 +161,3 @@ module DebtsApi
     end
   end
 end
-# rubocop:enable Rails/Pluck
