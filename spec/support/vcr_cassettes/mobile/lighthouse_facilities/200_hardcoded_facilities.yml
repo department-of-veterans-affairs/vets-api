@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities?facilityIds=vha_977,vha_612,vha_978,vha_979"
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities?facilityIds=vha_977,vha_612,vha_978,vha_979,vha_528,vha_620,vha_657,vha_589,vha_626,vha_636"
     body:
       encoding: US-ASCII
       string: ''
