@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "vets-api-vcr": {
+      "command": "ruby",
+      "args": [
+        "./script/vcr_mcp/server.rb"
+      ],
+      "env": {
+        "vets_api_path": "${workspaceFolder}"
+      }
+    }
+  }
+}
