@@ -603,7 +603,7 @@ RSpec.describe Representatives::Update do
             {
               id: 'rep-1',
               address: {
-                address_pou: 'RESIDENCE/CHOICE',
+                address_pou: 'RESIDENCE',
                 address_line1: 'Unmatched Place',
                 address_line2: nil,
                 address_line3: nil,
@@ -662,7 +662,7 @@ RSpec.describe Representatives::Update do
           {
             id:,
             address: {
-              address_pou: 'RESIDENCE/CHOICE',
+              address_pou: 'RESIDENCE',
               address_line1: 'DAV- VARO PO Box 25126',
               address_line2: nil,
               address_line3: nil,
