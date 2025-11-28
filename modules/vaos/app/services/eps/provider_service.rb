@@ -623,7 +623,7 @@ module Eps
           failure_reason: data[:failure_reason]
         }.compact
       )
-    rescue => e
+    rescue StandardError => e
       # Log the logging failure but don't let it break the main flow
       Rails.logger.error("#{CC_APPOINTMENTS}: Failed to log personal information error", {
         original_error_class: error_class,

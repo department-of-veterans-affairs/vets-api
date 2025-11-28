@@ -713,7 +713,7 @@ module VAOS
             failure_reason: data[:failure_reason]
           }.compact
         )
-      rescue
+      rescue StandardError
         Rails.logger.error("#{CC_APPOINTMENTS}: Failed to log personal information error", {
           original_error_class: error_class
         }.merge(common_logging_context))
