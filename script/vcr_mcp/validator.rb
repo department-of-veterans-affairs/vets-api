@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'English'
-require 'shellwords'
+require 'open3'
 require_relative 'constants'
 require_relative 'inspector'
 
@@ -293,12 +293,14 @@ module VcrMcp
     end
 
     def fetch_git_original(rel_path)
-      escaped_path = Shellwords.escape(rel_path)
-      git_status = `cd #{VETS_API_ROOT} && git status --porcelain #{escaped_path} 2>/dev/null`.strip
-      return nil if git_status.empty?
+      git_status, _stderr, _status = Open3.capture3('git', 'status', '--porcelain', rel_path, chdir: VETS_API_ROOT)
+      return nil if git_status.strip.empty?
 
-      content = `cd #{VETS_API_ROOT} && git show HEAD:#{escaped_path} 2>/dev/null`
-      return nil if content.empty? || $CHILD_STATUS.exitstatus != 0
+      # rel_path is derived from relative_path() which only removes the VETS_API_ROOT prefix
+      # from validated file paths within the cassette directory - not user input
+      blob_ref = "HEAD:#{rel_path}"
+      content, _stderr, status = Open3.capture3('git', 'cat-file', '-p', blob_ref, chdir: VETS_API_ROOT)
+      return nil if content.empty? || !status.success?
 
       content
     end
