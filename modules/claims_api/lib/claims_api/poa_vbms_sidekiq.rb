@@ -30,21 +30,17 @@ module ClaimsApi
         status: ClaimsApi::PowerOfAttorney::ERRORED,
         vbms_error_message: error_message
       )
-      if process.present?
-        process.update!(step_status: 'FAILED',
-                        error_messages: [{ title: 'VBMS Error',
-                                           detail: error_message }])
-      end
+      process.presence&.update!(step_status: 'FAILED',
+                                error_messages: [{ title: 'VBMS Error',
+                                                   detail: error_message }])
     end
 
     def rescue_vbms_error(power_of_attorney, process: nil)
       power_of_attorney.vbms_upload_failure_count = power_of_attorney.vbms_upload_failure_count + 1
       power_of_attorney.vbms_error_message = 'An unknown error has occurred when uploading document'
-      if process.present?
-        process.update!(step_status: 'FAILED',
-                        error_messages: [{ title: 'VBMS Error',
-                                           detail: power_of_attorney.vbms_error_message }])
-      end
+      process.presence&.update!(step_status: 'FAILED',
+                                error_messages: [{ title: 'VBMS Error',
+                                                   detail: power_of_attorney.vbms_error_message }])
       if power_of_attorney.vbms_upload_failure_count < 5
         self.class.perform_in(30.minutes, power_of_attorney.id)
       else
