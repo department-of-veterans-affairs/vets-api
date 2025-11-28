@@ -43,32 +43,42 @@ end
 def vcr_json_structure_tool_schema
   {
     name: 'vcr_json_structure',
-    description: 'Extract the key structure (schema) of JSON responses from a VCR cassette. ' \
-                 'Useful for understanding the shape of data and constructing JMESPath queries. ' \
-                 'Shows keys, types, and array item structures without actual values.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        cassette_path: {
-          type: 'string',
-          description: 'The path or partial name of the cassette to analyze ' \
-                       "(e.g., 'mhv_account_type_service/premium')."
-        },
-        interaction_index: {
-          type: 'integer',
-          description: 'Optional index of specific interaction to analyze (0-based). ' \
-                       'If omitted, analyzes all interactions.'
-        },
-        max_depth: {
-          type: 'integer',
-          description: 'Maximum depth to traverse (default: 10). Use to limit output for deeply nested structures.'
-        },
-        include_request: {
-          type: 'boolean',
-          description: 'Include request body structure (default: false, only response is shown).'
-        }
-      },
-      required: ['cassette_path']
+    description: vcr_json_structure_description,
+    inputSchema: vcr_json_structure_input_schema
+  }
+end
+
+def vcr_json_structure_description
+  'Extract the key structure (schema) of JSON responses from a VCR cassette. ' \
+    'Useful for understanding the shape of data and constructing JMESPath queries. ' \
+    'Shows keys, types, and array item structures without actual values.'
+end
+
+def vcr_json_structure_input_schema
+  {
+    type: 'object',
+    properties: vcr_json_structure_properties,
+    required: ['cassette_path']
+  }
+end
+
+def vcr_json_structure_properties
+  {
+    cassette_path: {
+      type: 'string',
+      description: "The path or partial name of the cassette to analyze (e.g., 'mhv_account_type_service/premium')."
+    },
+    interaction_index: {
+      type: 'integer',
+      description: 'Optional index of specific interaction to analyze (0-based). If omitted, analyzes all.'
+    },
+    max_depth: {
+      type: 'integer',
+      description: 'Maximum depth to traverse (default: 10). Use to limit output for deeply nested structures.'
+    },
+    include_request: {
+      type: 'boolean',
+      description: 'Include request body structure (default: false, only response is shown).'
     }
   }
 end
@@ -93,24 +103,32 @@ end
 def vcr_prepare_rerecord_tool_schema
   {
     name: 'vcr_prepare_rerecord',
-    description: 'Analyze a VCR cassette and generate step-by-step instructions for re-recording. ' \
-                 'Outputs commands to run - does not execute them or handle credentials directly. ' \
-                 'Detects the service, finds specs, and generates tunnel/settings configuration.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        cassette_path: {
-          type: 'string',
-          description: 'The cassette to prepare for re-recording.'
-        },
-        environment: {
-          type: 'string',
-          enum: %w[staging dev prod],
-          description: 'Target environment for settings/credentials (default: staging).'
-        }
+    description: vcr_prepare_rerecord_description,
+    inputSchema: vcr_prepare_rerecord_input_schema
+  }
+end
+
+def vcr_prepare_rerecord_description
+  'Analyze a VCR cassette and generate step-by-step instructions for re-recording. ' \
+    'Outputs commands to run - does not execute them or handle credentials directly. ' \
+    'Detects the service, finds specs, and generates tunnel/settings configuration.'
+end
+
+def vcr_prepare_rerecord_input_schema
+  {
+    type: 'object',
+    properties: {
+      cassette_path: {
+        type: 'string',
+        description: 'The cassette to prepare for re-recording.'
       },
-      required: ['cassette_path']
-    }
+      environment: {
+        type: 'string',
+        enum: %w[staging dev prod],
+        description: 'Target environment for settings/credentials (default: staging).'
+      }
+    },
+    required: ['cassette_path']
   }
 end
 
@@ -273,162 +291,196 @@ def extract_json_structure(obj, depth = 0, max_depth = 10)
 
   case obj
   when Hash
-    return '{}' if obj.empty?
-
-    structure = obj.each_with_object({}) do |(key, value), result|
-      result[key] = extract_json_structure(value, depth + 1, max_depth)
-    end
-    structure
+    extract_hash_structure(obj, depth, max_depth)
   when Array
-    return '[]' if obj.empty?
-
-    # Sample first few items to detect consistent structure
-    sample_structures = obj.take(3).map { |item| extract_json_structure(item, depth + 1, max_depth) }
-
-    # If all samples have same structure, show as single array item
-    if sample_structures.uniq.length == 1
-      ["#{sample_structures.first} (#{obj.length} items)"]
-    else
-      # Show varied structures
-      ["(#{obj.length} items, varied structure)", *sample_structures.uniq]
-    end
-  when String
-    'String'
-  when Integer
-    'Integer'
-  when Float
-    'Float'
-  when TrueClass, FalseClass
-    'Boolean'
-  when NilClass
-    'null'
+    extract_array_structure(obj, depth, max_depth)
   else
-    obj.class.to_s
+    extract_primitive_type(obj)
+  end
+end
+
+def extract_hash_structure(obj, depth, max_depth)
+  return '{}' if obj.empty?
+
+  obj.transform_values { |value| extract_json_structure(value, depth + 1, max_depth) }
+end
+
+def extract_array_structure(obj, depth, max_depth)
+  return '[]' if obj.empty?
+
+  sample_structures = obj.take(3).map { |item| extract_json_structure(item, depth + 1, max_depth) }
+
+  if sample_structures.uniq.length == 1
+    ["#{sample_structures.first} (#{obj.length} items)"]
+  else
+    ["(#{obj.length} items, varied structure)", *sample_structures.uniq]
+  end
+end
+
+def extract_primitive_type(obj)
+  case obj
+  when String then 'String'
+  when Integer then 'Integer'
+  when Float then 'Float'
+  when TrueClass, FalseClass then 'Boolean'
+  when NilClass then 'null'
+  else obj.class.to_s
   end
 end
 
 def format_structure(structure, indent = 0)
   case structure
   when Hash
-    return '{}' if structure.empty?
-
-    lines = ['{']
-    structure.each do |key, value|
-      formatted_value = format_structure(value, indent + 2)
-      if formatted_value.include?("\n")
-        lines << "#{' ' * (indent + 2)}#{key.to_s.inspect}: #{formatted_value}"
-      else
-        lines << "#{' ' * (indent + 2)}#{key.to_s.inspect}: #{formatted_value}"
-      end
-    end
-    lines << "#{' ' * indent}}"
-    lines.join("\n")
+    format_hash_structure(structure, indent)
   when Array
-    return '[]' if structure.empty?
-
-    if structure.length == 1
-      "[#{format_structure(structure.first, indent)}]"
-    else
-      lines = ['[']
-      structure.each do |item|
-        formatted = format_structure(item, indent + 2)
-        lines << "#{' ' * (indent + 2)}#{formatted}"
-      end
-      lines << "#{' ' * indent}]"
-      lines.join("\n")
-    end
+    format_array_structure(structure, indent)
   else
     structure.to_s
   end
 end
 
+def format_hash_structure(structure, indent)
+  return '{}' if structure.empty?
+
+  lines = ['{']
+  structure.each do |key, value|
+    formatted_value = format_structure(value, indent + 2)
+    lines << "#{' ' * (indent + 2)}#{key.to_s.inspect}: #{formatted_value}"
+  end
+  lines << "#{' ' * indent}}"
+  lines.join("\n")
+end
+
+def format_array_structure(structure, indent)
+  return '[]' if structure.empty?
+
+  if structure.length == 1
+    "[#{format_structure(structure.first, indent)}]"
+  else
+    lines = ['[']
+    structure.each do |item|
+      formatted = format_structure(item, indent + 2)
+      lines << "#{' ' * (indent + 2)}#{formatted}"
+    end
+    lines << "#{' ' * indent}]"
+    lines.join("\n")
+  end
+end
+
 def handle_vcr_json_structure(path, interaction_index, max_depth, include_request)
   result = VcrMcp::Inspector.inspect(path, json: true)
-
   return handle_error_result(result) if result[:error]
 
   max_depth ||= 10
-  interactions = result[:interactions]
+  interactions = validate_and_filter_interactions(result[:interactions], interaction_index)
+  return interactions if interactions.is_a?(Hash) && interactions[:isError]
 
-  if interaction_index
-    if interaction_index < 0 || interaction_index >= interactions.length
-      return {
-        isError: true,
-        content: [{ type: 'text', text: "Invalid interaction index: #{interaction_index}. " \
-                                        "Cassette has #{interactions.length} interactions (0-#{interactions.length - 1})." }]
-      }
-    end
-    interactions = [interactions[interaction_index]]
-  end
-
-  text_output = "JSON Structure for: #{path}\n"
-  text_output += "Total interactions: #{result[:interactions].length}\n"
-  text_output += "Max depth: #{max_depth}\n\n"
-
-  interactions.each_with_index do |interaction, idx|
-    actual_idx = interaction_index || idx
-    req = interaction[:request]
-    res = interaction[:response]
-
-    text_output += "#{'=' * 80}\n"
-    text_output += "INTERACTION #{actual_idx + 1}: #{req[:method].upcase} #{req[:uri]}\n"
-    text_output += "Status: #{res[:status][:code]} #{res[:status][:message]}\n"
-    text_output += "#{'=' * 80}\n\n"
-
-    if include_request && req[:body] && req[:body][:is_json]
-      text_output += "REQUEST BODY STRUCTURE:\n"
-      structure = extract_json_structure(req[:body][:json], 0, max_depth)
-      text_output += format_structure(structure, 0)
-      text_output += "\n\n"
-    end
-
-    if res[:body] && res[:body][:is_json]
-      text_output += "RESPONSE BODY STRUCTURE:\n"
-      structure = extract_json_structure(res[:body][:json], 0, max_depth)
-      text_output += format_structure(structure, 0)
-      text_output += "\n\n"
-
-      # Add helpful JMESPath hints
-      text_output += "JMESPATH HINTS:\n"
-      text_output += generate_jmespath_hints(res[:body][:json], actual_idx)
-      text_output += "\n"
-    elsif res[:body]
-      text_output += "RESPONSE: Not JSON (#{res[:body][:is_image] ? 'Image' : 'Other format'})\n\n"
-    else
-      text_output += "RESPONSE: No body\n\n"
-    end
-  end
+  text_output = build_json_structure_header(path, result[:interactions].length, max_depth)
+  text_output += build_interactions_output(interactions, interaction_index, max_depth, include_request)
 
   { content: [{ type: 'text', text: text_output }] }
 end
 
-def generate_jmespath_hints(json, interaction_idx)
-  hints = []
-  prefix = "interactions[#{interaction_idx}].response.body.json"
+def validate_and_filter_interactions(interactions, interaction_index)
+  return interactions unless interaction_index
 
-  case json
-  when Hash
-    json.each_key do |key|
-      hints << "  #{prefix}.#{key}"
-      if json[key].is_a?(Array) && !json[key].empty?
-        hints << "  #{prefix}.#{key}[]"
-        if json[key].first.is_a?(Hash)
-          json[key].first.keys.take(3).each do |subkey|
-            hints << "  #{prefix}.#{key}[].#{subkey}"
-          end
-        end
-      end
-    end
-  when Array
-    hints << "  #{prefix}[]"
-    if json.first.is_a?(Hash)
-      json.first.keys.take(5).each do |key|
-        hints << "  #{prefix}[].#{key}"
-      end
-    end
+  if interaction_index.negative? || interaction_index >= interactions.length
+    msg = "Invalid interaction index: #{interaction_index}. " \
+          "Cassette has #{interactions.length} interactions (0-#{interactions.length - 1})."
+    return { isError: true, content: [{ type: 'text', text: msg }] }
   end
 
+  [interactions[interaction_index]]
+end
+
+def build_json_structure_header(path, total_interactions, max_depth)
+  "JSON Structure for: #{path}\n" \
+    "Total interactions: #{total_interactions}\n" \
+    "Max depth: #{max_depth}\n\n"
+end
+
+def build_interactions_output(interactions, interaction_index, max_depth, include_request)
+  interactions.each_with_index.map do |interaction, idx|
+    actual_idx = interaction_index || idx
+    build_single_interaction_output(interaction, actual_idx, max_depth, include_request)
+  end.join
+end
+
+def build_single_interaction_output(interaction, actual_idx, max_depth, include_request)
+  req = interaction[:request]
+  res = interaction[:response]
+
+  output = build_interaction_header(req, res, actual_idx)
+  output += build_request_structure(req, max_depth) if include_request
+  output += build_response_structure(res, max_depth, actual_idx)
+  output
+end
+
+def build_interaction_header(req, res, actual_idx)
+  "#{'=' * 80}\n" \
+    "INTERACTION #{actual_idx + 1}: #{req[:method].upcase} #{req[:uri]}\n" \
+    "Status: #{res[:status][:code]} #{res[:status][:message]}\n" \
+    "#{'=' * 80}\n\n"
+end
+
+def build_request_structure(req, max_depth)
+  return '' unless req[:body]&.dig(:is_json)
+
+  structure = extract_json_structure(req[:body][:json], 0, max_depth)
+  "REQUEST BODY STRUCTURE:\n#{format_structure(structure, 0)}\n\n"
+end
+
+def build_response_structure(res, max_depth, actual_idx)
+  if res[:body]&.dig(:is_json)
+    structure = extract_json_structure(res[:body][:json], 0, max_depth)
+    "RESPONSE BODY STRUCTURE:\n#{format_structure(structure, 0)}\n\n" \
+      "JMESPATH HINTS:\n#{generate_jmespath_hints(res[:body][:json], actual_idx)}\n"
+  elsif res[:body]
+    "RESPONSE: Not JSON (#{res[:body][:is_image] ? 'Image' : 'Other format'})\n\n"
+  else
+    "RESPONSE: No body\n\n"
+  end
+end
+
+def generate_jmespath_hints(json, interaction_idx)
+  prefix = "interactions[#{interaction_idx}].response.body.json"
+  hints = build_jmespath_hints_for_type(json, prefix)
   hints.take(10).join("\n")
+end
+
+def build_jmespath_hints_for_type(json, prefix)
+  case json
+  when Hash then build_hash_jmespath_hints(json, prefix)
+  when Array then build_array_jmespath_hints(json, prefix)
+  else []
+  end
+end
+
+def build_hash_jmespath_hints(json, prefix)
+  hints = []
+  json.each_key do |key|
+    hints << "  #{prefix}.#{key}"
+    hints.concat(build_nested_array_hints(json[key], prefix, key))
+  end
+  hints
+end
+
+def build_nested_array_hints(value, prefix, key)
+  return [] unless value.is_a?(Array) && !value.empty?
+
+  hints = ["  #{prefix}.#{key}[]"]
+  return hints unless value.first.is_a?(Hash)
+
+  value.first.keys.take(3).each { |subkey| hints << "  #{prefix}.#{key}[].#{subkey}" }
+  hints
+end
+
+def build_array_jmespath_hints(json, prefix)
+  hints = ["  #{prefix}[]"]
+  return hints unless json.first.is_a?(Hash)
+
+  json.first.keys.take(5).each { |key| hints << "  #{prefix}[].#{key}" }
+  hints
 end
 
 def handle_vcr_inspect(path, query)
@@ -455,16 +507,14 @@ def handle_vcr_find_specs(cassette_path)
     end
   end
 
-  { content: [{ type: 'text', text: text }] }
+  { content: [{ type: 'text', text: }] }
 end
 
 def handle_vcr_prepare_rerecord(cassette_path, environment)
   environment ||= 'staging'
-  result = VcrMcp::PreparationGuide.generate(cassette_path, environment: environment)
+  result = VcrMcp::PreparationGuide.generate(cassette_path, environment:)
 
-  if result[:error]
-    return handle_error_result(result)
-  end
+  return handle_error_result(result) if result[:error]
 
   { content: [{ type: 'text', text: result[:guide] }] }
 end
@@ -472,62 +522,63 @@ end
 def handle_vcr_validate_cassette(cassette_path)
   result = VcrMcp::Validator.validate(cassette_path)
 
-  if result[:error]
-    return { isError: true, content: [{ type: 'text', text: result[:error] }] }
-  end
+  return { isError: true, content: [{ type: 'text', text: result[:error] }] } if result[:error]
 
   { content: [{ type: 'text', text: result[:report] }] }
 end
 
 def handle_vcr_patch_ssl(file_path, cassette_path)
-  if file_path
-    result = VcrMcp::SslPatcher.patch_file(file_path)
-  elsif cassette_path
-    result = VcrMcp::SslPatcher.patch_for_cassette(cassette_path)
-  else
-    return {
-      isError: true,
-      content: [{ type: 'text', text: 'Either file_path or cassette_path is required.' }]
-    }
-  end
+  result = execute_ssl_patch(file_path, cassette_path)
+  return result if result[:isError]
 
+  format_ssl_patch_result(result[:result])
+end
+
+def execute_ssl_patch(file_path, cassette_path)
+  if file_path
+    { result: VcrMcp::SslPatcher.patch_file(file_path) }
+  elsif cassette_path
+    { result: VcrMcp::SslPatcher.patch_for_cassette(cassette_path) }
+  else
+    { isError: true, content: [{ type: 'text', text: 'Either file_path or cassette_path is required.' }] }
+  end
+end
+
+def format_ssl_patch_result(result)
   if result[:error]
     text = "Error: #{result[:error]}"
     text += "\nSuggestion: #{result[:suggestion]}" if result[:suggestion]
-    return { isError: !result[:already_patched], content: [{ type: 'text', text: text }] }
+    return { isError: !result[:already_patched], content: [{ type: 'text', text: }] }
   end
 
-  if result[:results]
-    # Multiple files patched (from cassette detection)
-    text = "SSL patches applied for service: #{result[:service]}\n\n"
-    text += "Patched files:\n"
-    result[:patched_files].each { |f| text += "  ✓ #{f}\n" }
-    text += "\nTo restore after recording:\n"
-    text += "  Use vcr_unpatch_ssl tool\n"
-    text += "  Or: git checkout #{result[:patched_files].join(' ')}\n"
-  else
-    text = "✓ #{result[:message]}\n\n"
-    text += "Backup saved to: #{result[:backup]}\n\n"
-    text += "To restore after recording:\n"
-    text += "  Use vcr_unpatch_ssl tool\n"
-    text += "  Or: git checkout #{result[:file]}\n"
-  end
+  text = result[:results] ? format_multiple_patches(result) : format_single_patch(result)
+  { content: [{ type: 'text', text: }] }
+end
 
-  { content: [{ type: 'text', text: text }] }
+def format_multiple_patches(result)
+  text = "SSL patches applied for service: #{result[:service]}\n\nPatched files:\n"
+  result[:patched_files].each { |f| text += "  ✓ #{f}\n" }
+  text += "\nTo restore after recording:\n  Use vcr_unpatch_ssl tool\n"
+  text += "  Or: git checkout #{result[:patched_files].join(' ')}\n"
+  text
+end
+
+def format_single_patch(result)
+  "✓ #{result[:message]}\n\nBackup saved to: #{result[:backup]}\n\n" \
+    "To restore after recording:\n  Use vcr_unpatch_ssl tool\n" \
+    "  Or: git checkout #{result[:file]}\n"
 end
 
 def handle_vcr_unpatch_ssl(file_path)
   if file_path
     result = VcrMcp::SslPatcher.unpatch_file(file_path)
-    if result[:error]
-      return { isError: true, content: [{ type: 'text', text: "Error: #{result[:error]}" }] }
-    end
+    return { isError: true, content: [{ type: 'text', text: "Error: #{result[:error]}" }] } if result[:error]
 
     text = "✓ #{result[:message]}"
   else
     result = VcrMcp::SslPatcher.unpatch_all
     if result[:unpatched].empty? && result[:errors].empty?
-      text = "No patched files found."
+      text = 'No patched files found.'
     else
       text = "Unpatched files:\n"
       result[:unpatched].each { |f| text += "  ✓ #{f}\n" }
@@ -538,49 +589,45 @@ def handle_vcr_unpatch_ssl(file_path)
     end
   end
 
-  { content: [{ type: 'text', text: text }] }
+  { content: [{ type: 'text', text: }] }
 end
 
 def handle_vcr_list_ssl_patches
   result = VcrMcp::SslPatcher.list_patched_files
 
   if result[:count].zero?
-    text = "No configuration files are currently patched for SSL bypass."
+    text = 'No configuration files are currently patched for SSL bypass.'
   else
     text = "Currently patched files (#{result[:count]}):\n\n"
     result[:files].each { |f| text += "  • #{f}\n" }
     text += "\nUse vcr_unpatch_ssl to restore these files."
   end
 
-  { content: [{ type: 'text', text: text }] }
+  { content: [{ type: 'text', text: }] }
 end
 
+TOOL_HANDLERS = {
+  'vcr_inspect_cassette' => ->(args) { handle_vcr_inspect(args['cassette_path'], args['query']) },
+  'vcr_find_specs' => ->(args) { handle_vcr_find_specs(args['cassette_path']) },
+  'vcr_prepare_rerecord' => ->(args) { handle_vcr_prepare_rerecord(args['cassette_path'], args['environment']) },
+  'vcr_validate_cassette' => ->(args) { handle_vcr_validate_cassette(args['cassette_path']) },
+  'vcr_patch_ssl' => ->(args) { handle_vcr_patch_ssl(args['file_path'], args['cassette_path']) },
+  'vcr_unpatch_ssl' => ->(args) { handle_vcr_unpatch_ssl(args['file_path']) },
+  'vcr_list_ssl_patches' => ->(_args) { handle_vcr_list_ssl_patches }
+}.freeze
+
 def handle_call_tool(name, arguments)
-  case name
-  when 'vcr_inspect_cassette'
-    handle_vcr_inspect(arguments['cassette_path'], arguments['query'])
-  when 'vcr_json_structure'
-    handle_vcr_json_structure(
-      arguments['cassette_path'],
-      arguments['interaction_index'],
-      arguments['max_depth'],
-      arguments['include_request']
+  if name == 'vcr_json_structure'
+    return handle_vcr_json_structure(
+      arguments['cassette_path'], arguments['interaction_index'],
+      arguments['max_depth'], arguments['include_request']
     )
-  when 'vcr_find_specs'
-    handle_vcr_find_specs(arguments['cassette_path'])
-  when 'vcr_prepare_rerecord'
-    handle_vcr_prepare_rerecord(arguments['cassette_path'], arguments['environment'])
-  when 'vcr_validate_cassette'
-    handle_vcr_validate_cassette(arguments['cassette_path'])
-  when 'vcr_patch_ssl'
-    handle_vcr_patch_ssl(arguments['file_path'], arguments['cassette_path'])
-  when 'vcr_unpatch_ssl'
-    handle_vcr_unpatch_ssl(arguments['file_path'])
-  when 'vcr_list_ssl_patches'
-    handle_vcr_list_ssl_patches
-  else
-    raise "Unknown tool: #{name}"
   end
+
+  handler = TOOL_HANDLERS[name]
+  raise "Unknown tool: #{name}" unless handler
+
+  handler.call(arguments)
 end
 
 log 'Starting VCR MCP Server...'

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'set'
-
 module VcrMcp
   # Finds spec files that use a given VCR cassette
   class SpecFinder
@@ -54,37 +52,40 @@ module VcrMcp
 
     def find_in_file(file_path, cassette_name)
       content = File.read(file_path)
+      return [] unless content.include?(cassette_name)
+
       matches = []
       seen_lines = Set.new
 
-      # Check if file contains the cassette name at all (fast check)
-      return matches unless content.include?(cassette_name)
-
       content.each_line.with_index(1) do |line, line_num|
-        CASSETTE_PATTERNS.each do |pattern|
-          match = line.match(pattern)
-          next unless match
-
-          found_cassette = match[1]
-          # Check if the cassette matches (exact or partial)
-          next unless cassette_matches?(found_cassette, cassette_name)
-
-          # Deduplicate by file:line (multiple patterns might match same line)
+        find_cassette_matches_in_line(line, line_num, file_path, cassette_name) do |match_result|
           key = "#{file_path}:#{line_num}"
           next if seen_lines.include?(key)
 
           seen_lines.add(key)
-
-          matches << {
-            file: relative_path(file_path),
-            line: line_num,
-            content: line.strip,
-            cassette_in_file: found_cassette
-          }
+          matches << match_result
         end
       end
 
       matches
+    end
+
+    def find_cassette_matches_in_line(line, line_num, file_path, cassette_name)
+      CASSETTE_PATTERNS.each do |pattern|
+        match = line.match(pattern)
+        next unless match && cassette_matches?(match[1], cassette_name)
+
+        yield build_match_result(file_path, line_num, line, match[1])
+      end
+    end
+
+    def build_match_result(file_path, line_num, line, cassette_in_file)
+      {
+        file: relative_path(file_path),
+        line: line_num,
+        content: line.strip,
+        cassette_in_file:
+      }
     end
 
     def cassette_matches?(found, search)

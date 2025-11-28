@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Rails/Delegate
 module VcrMcp
   # Temporarily patches Faraday configurations to disable SSL verification
   # for VCR cassette re-recording through local tunnels
@@ -26,10 +27,10 @@ module VcrMcp
     # The SSL disable line we inject
     SSL_DISABLE_MARKER = '# VCR_SSL_PATCH_START'
     SSL_DISABLE_END_MARKER = '# VCR_SSL_PATCH_END'
-    SSL_DISABLE_CODE = <<~RUBY
-      %{indent}#{SSL_DISABLE_MARKER}
-      %{indent}%{conn}.ssl.verify = false  # Temporary: disable SSL for VCR re-recording
-      %{indent}#{SSL_DISABLE_END_MARKER}
+    SSL_DISABLE_CODE = <<~RUBY.freeze
+      %<indent>s#{SSL_DISABLE_MARKER}
+      %<indent>s%<conn>s.ssl.verify = false  # Temporary: disable SSL for VCR re-recording
+      %<indent>s#{SSL_DISABLE_END_MARKER}
     RUBY
 
     class << self
@@ -62,9 +63,7 @@ module VcrMcp
       content = File.read(full_path)
       patched_content = apply_patch(content)
 
-      if patched_content == content
-        return { error: "No Faraday.new block found to patch in #{file_path}" }
-      end
+      return { error: "No Faraday.new block found to patch in #{file_path}" } if patched_content == content
 
       # Create backup
       backup_path = "#{full_path}.vcr_ssl_backup"
@@ -86,27 +85,33 @@ module VcrMcp
       backup_path = "#{full_path}.vcr_ssl_backup"
 
       if File.exist?(backup_path)
-        # Restore from backup
-        File.write(full_path, File.read(backup_path))
-        File.delete(backup_path)
-        {
-          success: true,
-          file: relative_path(full_path),
-          message: "Restored #{relative_path(full_path)} from backup"
-        }
+        restore_from_backup(full_path, backup_path)
       elsif File.exist?(full_path) && file_patched?(full_path)
-        # Remove patch markers manually
-        content = File.read(full_path)
-        unpatched = remove_patch_markers(content)
-        File.write(full_path, unpatched)
-        {
-          success: true,
-          file: relative_path(full_path),
-          message: "Removed SSL patch from #{relative_path(full_path)}"
-        }
+        remove_patch_from_file(full_path)
       else
         { error: "No backup or patch found for #{file_path}" }
       end
+    end
+
+    def restore_from_backup(full_path, backup_path)
+      File.write(full_path, File.read(backup_path))
+      File.delete(backup_path)
+      {
+        success: true,
+        file: relative_path(full_path),
+        message: "Restored #{relative_path(full_path)} from backup"
+      }
+    end
+
+    def remove_patch_from_file(full_path)
+      content = File.read(full_path)
+      unpatched = remove_patch_markers(content)
+      File.write(full_path, unpatched)
+      {
+        success: true,
+        file: relative_path(full_path),
+        message: "Removed SSL patch from #{relative_path(full_path)}"
+      }
     end
 
     def patch_for_cassette(cassette_path)
@@ -114,9 +119,7 @@ module VcrMcp
       require_relative 'service_config'
       service = ServiceConfig.detect_from_cassette(cassette_path, [])
 
-      unless service
-        return { error: "Could not detect service for cassette: #{cassette_path}" }
-      end
+      return { error: "Could not detect service for cassette: #{cassette_path}" } unless service
 
       # Find configuration files for this service
       config_files = find_config_files_for_service(service)
@@ -125,7 +128,7 @@ module VcrMcp
         return {
           error: "No configuration files found for service: #{service[:name]}",
           service: service[:name],
-          suggestion: "Try patching manually with vcr_patch_ssl tool"
+          suggestion: 'Try patching manually with vcr_patch_ssl tool'
         }
       end
 
@@ -133,9 +136,11 @@ module VcrMcp
 
       {
         service: service[:name],
-        results: results,
+        results:,
         patched_files: results.select { |r| r[:success] }.map { |r| r[:file] },
-        command_to_unpatch: "Use vcr_unpatch_ssl tool or run: git checkout #{config_files.map { |f| relative_path(f) }.join(' ')}"
+        command_to_unpatch: "Use vcr_unpatch_ssl tool or run: git checkout #{config_files.map do |f|
+          relative_path(f)
+        end.join(' ')}"
       }
     end
 
@@ -159,15 +164,13 @@ module VcrMcp
       end
 
       # Also check for files with patch markers but no backup
-      CONFIGURATION_PATTERNS.keys.each do |pattern|
+      CONFIGURATION_PATTERNS.each_key do |pattern|
         Dir.glob(File.join(VETS_API_ROOT, pattern)).each do |file|
-          if file_patched?(file) && !files.include?(relative_path(file))
-            files << relative_path(file)
-          end
+          files << relative_path(file) if file_patched?(file) && files.exclude?(relative_path(file))
         end
       end
 
-      { files: files, count: files.length }
+      { files:, count: files.length }
     end
 
     private
@@ -196,7 +199,7 @@ module VcrMcp
           indent = Regexp.last_match(1)
           conn_var = Regexp.last_match(3)
 
-          ssl_code = format(SSL_DISABLE_CODE, indent: indent + '  ', conn: conn_var)
+          ssl_code = format(SSL_DISABLE_CODE, indent: "#{indent}  ", conn: conn_var)
 
           "#{match}\n#{ssl_code}"
         end
@@ -207,14 +210,29 @@ module VcrMcp
 
     def remove_patch_markers(content)
       # Remove everything between (and including) the markers
-      content.gsub(/^.*#{Regexp.escape(SSL_DISABLE_MARKER)}.*$\n(.*\n)*?^.*#{Regexp.escape(SSL_DISABLE_END_MARKER)}.*$\n/, '')
+      content.gsub(
+        /^.*#{Regexp.escape(SSL_DISABLE_MARKER)}.*$\n(.*\n)*?^.*#{Regexp.escape(SSL_DISABLE_END_MARKER)}.*$\n/, ''
+      )
     end
 
     def find_config_files_for_service(service)
-      files = []
+      files = find_files_from_service_hints(service)
 
-      # Map service keys to likely configuration file locations
-      service_file_hints = {
+      files = find_files_from_namespace(service[:settings_namespace]) if files.empty? && service[:settings_namespace]
+
+      files.uniq
+    end
+
+    def find_files_from_service_hints(service)
+      hints = service_file_hints[service[:key]] || []
+      hints.filter_map do |hint|
+        full_path = File.join(VETS_API_ROOT, hint)
+        full_path if File.exist?(full_path)
+      end
+    end
+
+    def service_file_hints
+      {
         'mhv_sm' => ['lib/sm/configuration.rb'],
         'mhv_rx' => ['lib/rx/configuration.rb'],
         'mhv_mr' => ['lib/medical_records/configuration.rb'],
@@ -222,28 +240,18 @@ module VcrMcp
         'lighthouse_health' => ['lib/lighthouse/veterans_health/configuration.rb'],
         'mobile' => ['modules/mobile/app/services/mobile/v0/messaging/client.rb']
       }
+    end
 
-      hints = service_file_hints[service[:key]] || []
-      hints.each do |hint|
-        full_path = File.join(VETS_API_ROOT, hint)
-        files << full_path if File.exist?(full_path)
-      end
+    def find_files_from_namespace(namespace)
+      namespace_parts = namespace.split('.')
+      search_patterns = [
+        "lib/#{namespace_parts.join('/')}/configuration.rb",
+        "lib/#{namespace_parts.join('_')}/configuration.rb",
+        "lib/#{namespace_parts.last}/configuration.rb"
+      ]
 
-      # If no hints matched, search by settings namespace
-      if files.empty? && service[:settings_namespace]
-        namespace_parts = service[:settings_namespace].split('.')
-        search_patterns = [
-          "lib/#{namespace_parts.join('/')}/configuration.rb",
-          "lib/#{namespace_parts.join('_')}/configuration.rb",
-          "lib/#{namespace_parts.last}/configuration.rb"
-        ]
-
-        search_patterns.each do |pattern|
-          Dir.glob(File.join(VETS_API_ROOT, pattern)).each { |f| files << f }
-        end
-      end
-
-      files.uniq
+      search_patterns.flat_map { |pattern| Dir.glob(File.join(VETS_API_ROOT, pattern)) }
     end
   end
 end
+# rubocop:enable Rails/Delegate

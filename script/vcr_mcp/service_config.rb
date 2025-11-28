@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'concurrent'
+
 module VcrMcp
   # Service configuration and detection for VCR cassettes
   # Dynamically parses spec/support/vcr.rb to extract placeholder-to-settings mappings
@@ -16,90 +18,85 @@ module VcrMcp
     # Services that can be accessed directly (no tunnel needed)
     DIRECT_ACCESS_NAMESPACES = %w[lighthouse].freeze
 
+    # Thread-safe cache storage using Concurrent::Map
+    CACHE = Concurrent::Map.new
+
     class << self
       # Parse vcr.rb to extract placeholder -> Settings path mappings
       # Returns hash like: { 'MHV_UHD_HOST' => 'mhv.uhd.host', 'MHV_SM_HOST' => 'mhv.api_gateway.hosts.sm_patient' }
       def parse_vcr_placeholders
-        @vcr_placeholders ||= begin
-          return {} unless File.exist?(VCR_CONFIG_PATH)
+        cached_fetch(:vcr_placeholders) { load_placeholders_from_config }
+      end
 
-          content = File.read(VCR_CONFIG_PATH)
-          placeholders = {}
+      def load_placeholders_from_config
+        return {} unless File.exist?(VCR_CONFIG_PATH)
 
-          # Match patterns like: c.filter_sensitive_data('<MHV_UHD_HOST>') { Settings.mhv.uhd.host }
-          # Also handles multi-line blocks
-          content.scan(/filter_sensitive_data\(['"]<([^>]+)>['"]\)\s*(?:\{\s*([^}]+)\s*\}|do\s*\n?\s*([^e]+?)\s*end)/m) do |match|
-            placeholder_name = match[0]
-            settings_expr = (match[1] || match[2])&.strip
+        content = File.read(VCR_CONFIG_PATH)
+        extract_placeholders_from_content(content)
+      end
 
-            next unless settings_expr&.start_with?('Settings.')
+      def extract_placeholders_from_content(content)
+        placeholders = {}
+        pattern = /filter_sensitive_data\(['"]<([^>]+)>['"]\)\s*(?:\{\s*([^}]+)\s*\}|do\s*\n?\s*([^e]+?)\s*end)/m
 
-            # Extract the settings path: Settings.mhv.uhd.host -> mhv.uhd.host
-            settings_path = settings_expr.sub(/^Settings\./, '').strip
-            placeholders[placeholder_name] = settings_path
-          end
+        content.scan(pattern) do |match|
+          placeholder_name = match[0]
+          settings_expr = (match[1] || match[2])&.strip
 
-          placeholders
+          next unless settings_expr&.start_with?('Settings.')
+
+          settings_path = settings_expr.sub(/^Settings\./, '').strip
+          placeholders[placeholder_name] = settings_path
         end
+
+        placeholders
       end
 
       # Derive settings namespace from a full settings path
       # e.g., 'mhv.uhd.host' -> 'mhv.uhd', 'mhv.uhd.security_host' -> 'mhv.uhd'
       def settings_namespace_from_path(settings_path)
         parts = settings_path.split('.')
-        # Remove the last part (usually 'host', 'url', 'api_key', etc.)
-        # But handle special cases like 'mhv.api_gateway.hosts.sm_patient'
-        if parts.length >= 2
-          # Check if it looks like a host/url/key path
-          if %w[host url api_key app_token security_host x_api_key].include?(parts.last)
-            parts[0..-2].join('.')
-          elsif parts[-2] == 'hosts'
-            # Handle mhv.api_gateway.hosts.sm_patient -> mhv.sm (special case)
-            derive_namespace_from_special_path(parts)
-          else
-            parts[0..-2].join('.')
-          end
-        else
-          settings_path
-        end
+        return settings_path if parts.length < 2
+        return derive_namespace_from_special_path(parts) if parts[-2] == 'hosts'
+
+        parts[0..-2].join('.')
       end
 
       # Handle special path patterns
       def derive_namespace_from_special_path(parts)
         # mhv.api_gateway.hosts.sm_patient -> mhv.sm
-        if parts.include?('api_gateway') && parts.include?('hosts')
-          service_hint = parts.last # e.g., 'sm_patient'
-          if service_hint.include?('sm')
-            'mhv.sm'
-          else
-            parts[0..-2].join('.')
-          end
-        else
-          parts[0..-2].join('.')
-        end
+        return 'mhv.sm' if parts.include?('api_gateway') &&
+                           parts.include?('hosts') &&
+                           parts.last.include?('sm')
+
+        parts[0..-2].join('.')
       end
 
       # Build a mapping of placeholder names to their settings namespaces
       def placeholder_to_namespace
-        @placeholder_to_namespace ||= begin
-          mapping = {}
-          parse_vcr_placeholders.each do |placeholder, settings_path|
-            namespace = settings_namespace_from_path(settings_path)
-            mapping[placeholder] = namespace
-          end
-          mapping
+        cached_fetch(:placeholder_to_namespace) { build_placeholder_to_namespace_mapping }
+      end
+
+      def build_placeholder_to_namespace_mapping
+        mapping = {}
+        parse_vcr_placeholders.each do |placeholder, settings_path|
+          namespace = settings_namespace_from_path(settings_path)
+          mapping[placeholder] = namespace
         end
+        mapping
       end
 
       # Group placeholders by their settings namespace
       def namespaces_to_placeholders
-        @namespaces_to_placeholders ||= begin
-          grouped = Hash.new { |h, k| h[k] = [] }
-          placeholder_to_namespace.each do |placeholder, namespace|
-            grouped[namespace] << placeholder
-          end
-          grouped
+        cached_fetch(:namespaces_to_placeholders) { build_namespaces_to_placeholders_mapping }
+      end
+
+      def build_namespaces_to_placeholders_mapping
+        grouped = Hash.new { |h, k| h[k] = [] }
+        placeholder_to_namespace.each do |placeholder, namespace|
+          grouped[namespace] << placeholder
         end
+        grouped
       end
 
       def detect_from_cassette(_cassette_path, interactions = [])
@@ -111,7 +108,7 @@ module VcrMcp
       # Detects service based on VCR placeholder names in URIs
       # Dynamically reads from spec/support/vcr.rb
       def detect_by_placeholders(interactions)
-        return nil if interactions.nil? || interactions.empty?
+        return nil if interactions.blank?
 
         uris = interactions.map { |i| i.dig(:request, :uri) }.compact
         return nil if uris.empty?
@@ -120,9 +117,7 @@ module VcrMcp
         placeholder_to_namespace.each do |placeholder, namespace|
           # Match placeholders like <MHV_UHD_HOST> in URIs
           pattern = /<#{Regexp.escape(placeholder)}>/
-          if uris.any? { |uri| uri.match?(pattern) }
-            return build_service_result(namespace, placeholder)
-          end
+          return build_service_result(namespace, placeholder) if uris.any? { |uri| uri.match?(pattern) }
         end
 
         nil
@@ -138,9 +133,9 @@ module VcrMcp
           key: namespace.tr('.', '_'),
           name: humanize_namespace(namespace),
           settings_namespace: namespace,
-          connection_method: connection_method,
-          placeholders: placeholders,
-          detected_placeholder: detected_placeholder,
+          connection_method:,
+          placeholders:,
+          detected_placeholder:,
           local_port: assign_port(namespace)
         }
       end
@@ -175,9 +170,13 @@ module VcrMcp
 
       # Clear cached data (useful for testing or after vcr.rb changes)
       def reset_cache!
-        @vcr_placeholders = nil
-        @placeholder_to_namespace = nil
-        @namespaces_to_placeholders = nil
+        CACHE.clear
+      end
+
+      private
+
+      def cached_fetch(key, &)
+        CACHE.compute_if_absent(key, &)
       end
     end
   end

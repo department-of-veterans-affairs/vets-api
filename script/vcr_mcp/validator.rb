@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'English'
 require_relative 'inspector'
 
 module VcrMcp
@@ -14,7 +15,7 @@ module VcrMcp
       icn: {
         name: 'ICN (Integration Control Number)',
         patterns: [
-          /\b\d{10}V\d{6}\b/,              # Standard ICN: 10 digits + V + 6 digits
+          /\b\d{10}V\d{6}\b/, # Standard ICN: 10 digits + V + 6 digits
           /"icn"\s*:\s*"[^"]+"/i,           # JSON key "icn": "value"
           /icn[=:]\s*["']?\d+V\d+/i         # Query param or assignment
         ],
@@ -37,7 +38,7 @@ module VcrMcp
       bearer_token: {
         name: 'Bearer/Access Token',
         patterns: [
-          /Bearer\s+[A-Za-z0-9\-_\.]{20,}/i,
+          /Bearer\s+[A-Za-z0-9\-_.]{20,}/i,
           /"access_token"\s*:\s*"[^"]{20,}"/i,
           /"token"\s*:\s*"[^"]{20,}"/i,
           /Authorization:\s*Bearer\s+[^\s"]+/i
@@ -195,9 +196,9 @@ module VcrMcp
       {
         cassette: @cassette_path,
         full_path: relative_path(full_path),
-        findings: findings,
+        findings:,
         summary: generate_summary(findings),
-        git_comparison: git_comparison,
+        git_comparison:,
         report: generate_report(findings, git_comparison)
       }
     end
@@ -271,120 +272,146 @@ module VcrMcp
       medium = findings.count { |f| f[:severity] == :medium }
 
       {
-        critical: critical,
-        high: high,
-        medium: medium,
+        critical:,
+        high:,
+        medium:,
         total: findings.length,
         safe_to_commit: critical.zero? && high.zero?
       }
     end
 
     def compare_with_git(full_path)
-      # Compare with git HEAD version if file has uncommitted changes
       rel_path = relative_path(full_path)
 
-      # Check if file has uncommitted changes
+      original_content = fetch_git_original(rel_path)
+      return nil unless original_content
+
+      new_content = File.read(full_path)
+      build_git_comparison(original_content, new_content)
+    end
+
+    def fetch_git_original(rel_path)
       git_status = `cd #{VETS_API_ROOT} && git status --porcelain "#{rel_path}" 2>/dev/null`.strip
       return nil if git_status.empty?
 
-      # Get the git HEAD version
-      original_content = `cd #{VETS_API_ROOT} && git show HEAD:"#{rel_path}" 2>/dev/null`
-      return nil if original_content.empty? || $?.exitstatus != 0
+      content = `cd #{VETS_API_ROOT} && git show HEAD:"#{rel_path}" 2>/dev/null`
+      return nil if content.empty? || $CHILD_STATUS.exitstatus != 0
 
-      new_content = File.read(full_path)
+      content
+    end
 
-      # Count interactions in each
-      original_yaml = YAML.safe_load(original_content) rescue nil
-      new_yaml = YAML.safe_load(new_content) rescue nil
-
-      original_count = original_yaml&.dig('http_interactions')&.length || 0
-      new_count = new_yaml&.dig('http_interactions')&.length || 0
-
-      # Simple diff stats
-      original_lines = original_content.lines.length
-      new_lines = new_content.lines.length
+    def build_git_comparison(original_content, new_content)
+      original_count = count_interactions(original_content)
+      new_count = count_interactions(new_content)
 
       {
         comparison_source: 'git HEAD',
         original_interactions: original_count,
         new_interactions: new_count,
-        original_lines: original_lines,
-        new_lines: new_lines,
-        lines_changed: (new_lines - original_lines).abs,
+        original_lines: original_content.lines.length,
+        new_lines: new_content.lines.length,
+        lines_changed: (new_content.lines.length - original_content.lines.length).abs,
         interaction_count_changed: original_count != new_count
       }
     end
 
+    def count_interactions(content)
+      yaml = YAML.safe_load(content)
+      yaml&.dig('http_interactions')&.length || 0
+    rescue
+      0
+    end
+
     def generate_report(findings, git_comparison)
       report = []
+      report.concat(report_header)
+      report.concat(report_sensitivity_scan(findings))
+      report.concat(report_summary(findings))
+      report.concat(report_git_comparison(git_comparison)) if git_comparison
+      report << ''
+      report << ('=' * 80)
+      report.join("\n")
+    end
 
-      report << '=' * 80
-      report << 'CASSETTE VALIDATION REPORT'
-      report << '=' * 80
-      report << ''
-      report << "Cassette: #{@cassette_path}"
-      report << ''
+    def report_header
+      [
+        '=' * 80,
+        'CASSETTE VALIDATION REPORT',
+        '=' * 80,
+        '',
+        "Cassette: #{@cassette_path}",
+        ''
+      ]
+    end
 
-      # Group findings by severity
-      report << 'SENSITIVE DATA SCAN:'
-      report << ''
+    def report_sensitivity_scan(findings)
+      report = ['SENSITIVE DATA SCAN:', '']
 
       %i[critical high medium].each do |severity|
-        severity_findings = findings.select { |f| f[:severity] == severity }
-        severity_label = severity.to_s.upcase
-
-        if severity_findings.empty?
-          icon = '✓'
-          report << "  #{icon} #{severity_label}: None found"
-        else
-          icon = severity == :medium ? '⚠️ ' : '❌'
-          report << "  #{icon} #{severity_label}:"
-          severity_findings.each do |finding|
-            lines_str = finding[:lines].empty? ? '' : " (lines: #{finding[:lines].join(', ')})"
-            report << "     - #{finding[:name]}: #{finding[:match]}#{lines_str}"
-            report << "       → #{finding[:description]}"
-          end
-        end
+        report.concat(report_severity_section(findings, severity))
         report << ''
       end
 
-      # Summary
+      report
+    end
+
+    def report_severity_section(findings, severity)
+      severity_findings = findings.select { |f| f[:severity] == severity }
+      severity_label = severity.to_s.upcase
+
+      return ["  ✓ #{severity_label}: None found"] if severity_findings.empty?
+
+      icon = severity == :medium ? '⚠️ ' : '❌'
+      lines = ["  #{icon} #{severity_label}:"]
+      severity_findings.each { |finding| lines.concat(format_finding(finding)) }
+      lines
+    end
+
+    def format_finding(finding)
+      lines_str = finding[:lines].empty? ? '' : " (lines: #{finding[:lines].join(', ')})"
+      [
+        "     - #{finding[:name]}: #{finding[:match]}#{lines_str}",
+        "       → #{finding[:description]}"
+      ]
+    end
+
+    def report_summary(findings)
       summary = generate_summary(findings)
-      report << '-' * 80
-      report << 'SUMMARY:'
-      report << "  Critical: #{summary[:critical]}"
-      report << "  High: #{summary[:high]}"
-      report << "  Medium: #{summary[:medium]}"
-      report << ''
+      safe_message = if summary[:safe_to_commit]
+                       '  ✓ SAFE TO COMMIT (no critical or high severity findings)'
+                     else
+                       '  ❌ NOT SAFE TO COMMIT - Address critical/high findings first'
+                     end
 
-      if summary[:safe_to_commit]
-        report << '  ✓ SAFE TO COMMIT (no critical or high severity findings)'
-      else
-        report << '  ❌ NOT SAFE TO COMMIT - Address critical/high findings first'
-      end
+      [
+        '-' * 80,
+        'SUMMARY:',
+        "  Critical: #{summary[:critical]}",
+        "  High: #{summary[:high]}",
+        "  Medium: #{summary[:medium]}",
+        '',
+        safe_message
+      ]
+    end
 
-      # Git comparison
-      if git_comparison
-        report << ''
-        report << '-' * 80
-        report << 'COMPARISON WITH GIT HEAD:'
-        report << "  Interactions: #{git_comparison[:original_interactions]} → #{git_comparison[:new_interactions]}"
-        report << "  Lines: #{git_comparison[:original_lines]} → #{git_comparison[:new_lines]}"
+    def report_git_comparison(git_comparison)
+      interaction_msg = if git_comparison[:interaction_count_changed]
+                          '  ⚠️  Interaction count changed - verify this is expected'
+                        else
+                          '  ✓ Interaction count unchanged'
+                        end
 
-        if git_comparison[:interaction_count_changed]
-          report << '  ⚠️  Interaction count changed - verify this is expected'
-        else
-          report << '  ✓ Interaction count unchanged'
-        end
-        report << ''
-        report << '  To see full diff: git diff <cassette_path>'
-        report << '  To restore original: git checkout <cassette_path>'
-      end
-
-      report << ''
-      report << '=' * 80
-
-      report.join("\n")
+      [
+        '',
+        '-' * 80,
+        'COMPARISON WITH GIT HEAD:',
+        "  Interactions: #{git_comparison[:original_interactions]} → #{git_comparison[:new_interactions]}",
+        "  Lines: #{git_comparison[:original_lines]} → #{git_comparison[:new_lines]}",
+        interaction_msg,
+        '',
+        '  To see full diff: git diff <cassette_path>',
+        '  To restore original: git checkout <cassette_path>'
+      ]
     end
   end
 end

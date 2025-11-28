@@ -23,9 +23,7 @@ module VcrMcp
       # Inspect the cassette
       inspect_result = Inspector.inspect(@cassette_path)
 
-      if inspect_result[:error]
-        return { error: inspect_result[:error], matches: inspect_result[:matches] }
-      end
+      return { error: inspect_result[:error], matches: inspect_result[:matches] } if inspect_result[:error]
 
       # Find the full path
       full_path = find_full_path
@@ -41,7 +39,7 @@ module VcrMcp
         cassette: @cassette_path,
         full_path: relative_path(full_path),
         interactions: inspect_result[:interactions].length,
-        service: service,
+        service:,
         specs: spec_result[:specs],
         guide: build_guide(full_path, service, spec_result, inspect_result)
       }
@@ -98,40 +96,56 @@ module VcrMcp
 
     def build_service_section(service, inspect_result)
       if service
-        connection = service[:connection_method] == :direct ? 'Direct (may not need tunnel)' : 'Forward Proxy Tunnel'
-
-        <<~SERVICE
-
-          #{'=' * 80}
-          SERVICE DETECTION
-          #{'=' * 80}
-
-          Detected: #{service[:name]}
-          Service Key: #{service[:key]}
-          Settings Namespace: #{service[:settings_namespace]}
-          Connection Method: #{connection}
-        SERVICE
+        build_detected_service_section(service)
       else
-        uris = inspect_result[:interactions].map { |i| i.dig(:request, :uri) }.compact
-        hosts = uris.map { |u| URI.parse(u).host rescue nil }.compact.uniq
-
-        <<~SERVICE
-
-          #{'=' * 80}
-          SERVICE DETECTION
-          #{'=' * 80}
-
-          ⚠️  Could not auto-detect service from cassette path or URIs.
-
-          Hosts found in cassette:
-          #{hosts.map { |h| "  - #{h}" }.join("\n")}
-
-          You may need to manually determine:
-          1. Which settings namespace to use
-          2. What remote host to tunnel to
-          3. How to authenticate
-        SERVICE
+        build_undetected_service_section(inspect_result)
       end
+    end
+
+    def build_detected_service_section(service)
+      connection = service[:connection_method] == :direct ? 'Direct (may not need tunnel)' : 'Forward Proxy Tunnel'
+
+      <<~SERVICE
+
+        #{'=' * 80}
+        SERVICE DETECTION
+        #{'=' * 80}
+
+        Detected: #{service[:name]}
+        Service Key: #{service[:key]}
+        Settings Namespace: #{service[:settings_namespace]}
+        Connection Method: #{connection}
+      SERVICE
+    end
+
+    def build_undetected_service_section(inspect_result)
+      hosts = extract_hosts_from_interactions(inspect_result)
+
+      <<~SERVICE
+
+        #{'=' * 80}
+        SERVICE DETECTION
+        #{'=' * 80}
+
+        ⚠️  Could not auto-detect service from cassette path or URIs.
+
+        Hosts found in cassette:
+        #{hosts.map { |h| "  - #{h}" }.join("\n")}
+
+        You may need to manually determine:
+        1. Which settings namespace to use
+        2. What remote host to tunnel to
+        3. How to authenticate
+      SERVICE
+    end
+
+    def extract_hosts_from_interactions(inspect_result)
+      uris = inspect_result[:interactions].map { |i| i.dig(:request, :uri) }.compact
+      uris.filter_map do |u|
+        URI.parse(u).host
+      rescue
+        nil
+      end.uniq
     end
 
     def build_settings_section(service)
