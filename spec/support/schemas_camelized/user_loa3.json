@@ -358,6 +358,12 @@
                     "facilities": {
                       "type": "array"
                     },
+                    "userAtPretransitionedOhFacility": {
+                      "type": "boolean"
+                    },
+                    "userFacilityReadyForInfoAlert": {
+                      "type": "boolean"
+                    },
                     "givenNames": {
                       "type": "array"
                     },

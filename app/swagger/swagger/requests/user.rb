@@ -108,6 +108,16 @@ module Swagger
                                         'NONE: user has no active MHV ids; ' \
                                         'MULTIPLE: user has multiple active MHV ids; ' \
                                         'OK: user has one MHV id and its active'
+                  property :user_at_pretransitioned_oh_facility,
+                           type: :boolean,
+                           example: true,
+                           description: 'Indicates whether the user is associated with a facility that is ' \
+                                        'pre-transitioned to Oracle Health.'
+                  property :user_facility_ready_for_info_alert,
+                           type: :boolean,
+                           example: false,
+                           description: 'Indicates whether the user\'s facility is ready for the blue ' \
+                                        'informational alert about Oracle Health.'
                 end
                 property :veteran_status, type: :object do
                   key :required, [:status]
