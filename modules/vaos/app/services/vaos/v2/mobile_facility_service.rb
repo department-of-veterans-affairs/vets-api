@@ -289,6 +289,7 @@ module VAOS
       end
 
       def scheduling_url
+        # binding.pry
         if Flipper.enabled?(:va_online_scheduling_cscs_migration, user)
           '/cscs/v1/configurations'
         else
