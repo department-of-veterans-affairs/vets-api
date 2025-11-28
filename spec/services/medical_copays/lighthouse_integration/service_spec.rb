@@ -31,7 +31,16 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
         expect(response.entries).to be_empty
         expect(response.page).to be_zero
-        expect(response.meta).to eq({ total: 0, page: 0, per_page: 10 })
+        expect(response.meta).to eq(
+          {
+            total: 0, page: 0, per_page: 10,
+            copay_summary: {
+              total_current_balance: 0.0,
+              copay_bill_count: 0,
+              last_updated_on: nil
+            }
+          }
+        )
       end
     end
 
