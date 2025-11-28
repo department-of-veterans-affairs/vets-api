@@ -59,7 +59,7 @@ module DebtsApi
       confirmation_number = if submission_type == 'fsr'
                               submissions_data.map(&:id)
                             else
-                              submissions_data.id
+                              submissions_data.guid
                             end
 
       {

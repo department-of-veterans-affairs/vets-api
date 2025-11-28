@@ -106,7 +106,7 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
             {
               'first_name' => job_params['first_name'],
               'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
-              'confirmation_number' => digital_dispute_submission.id
+              'confirmation_number' => digital_dispute_submission.guid
             },
             { id_type: 'email' }
           )
