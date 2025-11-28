@@ -21,7 +21,7 @@ module DependentsBenefits
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#claim_class
       def claim_class
-        DependentsBenefits::SavedClaim
+        DependentsBenefits::PrimaryDependencyClaim
       end
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#monitor
