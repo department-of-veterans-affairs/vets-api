@@ -101,25 +101,28 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
-    let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:stamp_pdf_double) { instance_double(IncomeAndAssets::PDFStamper) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
-      run_count = 0
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      allow(datestamp_pdf_double).to receive(:run) {
-        run_count += 1
-        pdf_path
-      }
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      allow(File).to receive(:exist?).with(pdf_path).and_return(true)
-      new_path = job.send(:process_document, 'test/path')
+      allow(IncomeAndAssets::PDFStamper).to receive(:new).and_return(stamp_pdf_double)
+
+      expect(stamp_pdf_double).to receive(:run).with('test/path', timestamp: claim.created_at)
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+
+      new_path = job.send(:process_document, 'test/path', :test)
 
       expect(new_path).to eq(pdf_path)
-      expect(run_count).to eq(2)
+    end
+
+    it 'successfully stamps the generated pdf' do
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+      new_path = job.send(:process_document, claim.to_pdf, :income_and_assets_generated_claim)
+      expect(new_path).to eq(pdf_path)
     end
     # process_document
   end
