@@ -738,7 +738,24 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
               get(:show, params: { id: claim_id })
             end
             parsed_body = JSON.parse(response.body)
-            expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions').size).to eq(1)
+            evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
+
+            expect(evidence_submissions.size).to eq(1)
+
+            submission = evidence_submissions[0]
+
+            expect(submission['claim_id']).to eq(claim_id)
+            expect(submission['document_type']).to eq('Birth Certificate')
+            expect(submission['file_name']).to eq('testfile.txt')
+            expect(submission['upload_status']).to eq('SUCCESS')
+            expect(submission['lighthouse_upload']).to be(false)
+            expect(submission['tracked_item_id']).to be_nil # because no tracked item
+            expect(submission['tracked_item_display_name']).to be_nil # because no tracked item
+            expect(submission['tracked_item_friendly_name']).to be_nil # because no tracked item
+            expect(submission['acknowledgement_date']).to be_nil
+            expect(submission['failed_date']).to be_nil
+            expect(submission['id']).to be_present
+
             expect_metric('show', 'SUCCESS')
           end
         end
@@ -756,8 +773,25 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             end
             parsed_body = JSON.parse(response.body)
             evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
+
             expect(evidence_submissions.size).to eq(1)
-            expect(evidence_submissions[0]['tracked_item_id']).to eq(tracked_item_id)
+
+            submission = evidence_submissions[0]
+
+            expect(submission['claim_id']).to eq(claim_id)
+            expect(submission['document_type']).to eq('Birth Certificate')
+            expect(submission['file_name']).to eq('testfile.txt')
+            expect(submission['upload_status']).to eq('SUCCESS')
+            expect(submission['lighthouse_upload']).to be(false)
+            expect(submission['tracked_item_id']).to eq(tracked_item_id)
+            expect(submission['tracked_item_display_name']).to eq('Submit buddy statement(s)')
+            expect(submission['tracked_item_friendly_name']).to eq('Witness or corroboration statements')
+            expect(submission['created_at']).to be_present
+            expect(submission['delete_date']).to be_present
+            expect(submission['acknowledgement_date']).to be_nil
+            expect(submission['failed_date']).to be_nil
+            expect(submission['id']).to be_present
+
             expect_metric('show', 'SUCCESS')
           end
         end
@@ -1333,8 +1367,17 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(response).to have_http_status(:ok)
           parsed_response = JSON.parse(response.body)
           expect(parsed_response['data'].size).to eq(2)
-          expect(parsed_response['data'].first['document_type']).to eq('Birth Certificate')
-          expect(parsed_response['data'].second['document_type']).to eq('Birth Certificate')
+          parsed_response['data'].each do |submission|
+            expect(submission['document_type']).to eq('Birth Certificate')
+            expect(submission['file_name']).to eq('test.txt')
+            expect(submission['upload_status']).to eq('FAILED')
+            expect(submission['claim_id']).to eq(claim_id)
+            expect(submission['lighthouse_upload']).to be(false)
+            expect(submission['failed_date']).to be_present
+            expect(submission['acknowledgement_date']).to be_present
+            expect(submission['created_at']).to be_present
+            expect(submission['id']).to be_present
+          end
         end
 
         context 'when multiple claims are returned for the evidence submission records' do
@@ -1352,6 +1395,24 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             expect(response).to have_http_status(:ok)
             parsed_response = JSON.parse(response.body)
             expect(parsed_response['data'].size).to eq(3)
+
+            # Verify all submissions have required fields
+            parsed_response['data'].each do |submission|
+              expect(submission['document_type']).to eq('Birth Certificate')
+              expect(submission['file_name']).to eq('test.txt')
+              expect(submission['upload_status']).to eq('FAILED')
+              expect(submission['lighthouse_upload']).to be(false)
+              expect(submission['failed_date']).to be_present
+              expect(submission['acknowledgement_date']).to be_present
+              expect(submission['created_at']).to be_present
+              expect(submission['id']).to be_present
+              expect(submission['claim_id']).to be_present
+            end
+
+            # Verify submissions are from different claims
+            claim_ids = parsed_response['data'].map { |s| s['claim_id'] }.uniq
+            expect(claim_ids.size).to eq(2)
+            expect(claim_ids).to include(claim_id, 600_229_972)
           end
         end
 
