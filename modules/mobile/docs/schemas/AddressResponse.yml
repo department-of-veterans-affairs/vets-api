@@ -34,7 +34,7 @@ properties:
             example: null
           addressPou:
             type: string
-            example: "RESIDENCE/CHOICE"
+            example: "RESIDENCE"
           addressType:
             type: string
             example: "DOMESTIC"
