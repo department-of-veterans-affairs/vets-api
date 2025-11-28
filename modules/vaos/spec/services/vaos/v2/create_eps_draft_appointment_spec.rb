@@ -47,7 +47,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     allow(Eps::AppointmentService).to receive(:new).and_return(eps_appointment_service)
     allow(Eps::ProviderService).to receive(:new).and_return(eps_provider_service)
     allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
-    allow(PersonalInformationLog).to receive(:create!)
+    allow(PersonalInformationLog).to receive(:create)
     # Set up RequestStore for controller name logging
     RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
     setup_successful_services
@@ -200,7 +200,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         end
 
         it 'logs personal information error' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_draft_referral_validation_failed',
             data: hash_including(
               referral_number: 'REF-123',
@@ -270,7 +270,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         end
 
         it 'logs personal information error' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_draft_existing_appointment_check_failed',
             data: hash_including(
               referral_number: referral_id,
@@ -290,7 +290,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         end
 
         it 'logs personal information error' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_draft_referral_already_used',
             data: hash_including(
               referral_number: referral_id,
@@ -371,7 +371,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         end
 
         it 'logs personal information error and raises BackendServiceException' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_draft_appointment_types_missing',
             data: hash_including(
               referral_number: referral_data.referral_number,
@@ -395,7 +395,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         end
 
         it 'logs personal information error and raises BackendServiceException' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_draft_appointment_types_missing',
             data: hash_including(
               referral_number: referral_data.referral_number,

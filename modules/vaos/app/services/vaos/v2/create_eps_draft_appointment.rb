@@ -703,7 +703,8 @@ module VAOS
       # @param data [Hash] The data to log (will be encrypted)
       # @return [void]
       def log_personal_information_error(error_class, data)
-        PersonalInformationLog.create!(
+        # Use create (not create!) so logging failures don't break the main flow
+        PersonalInformationLog.create(
           error_class:,
           data: {
             npi: data[:npi],
@@ -713,10 +714,6 @@ module VAOS
             failure_reason: data[:failure_reason]
           }.compact
         )
-      rescue StandardError
-        Rails.logger.error("#{CC_APPOINTMENTS}: Failed to log personal information error", {
-          original_error_class: error_class
-        }.merge(common_logging_context))
       end
 
       ##

@@ -20,7 +20,7 @@ describe Eps::ProviderService do
     # Clear eps_trace_id to ensure test isolation
     RequestStore.store['eps_trace_id'] = nil
     # Mock PersonalInformationLog to avoid database interactions during tests
-    allow(PersonalInformationLog).to receive(:create!)
+    allow(PersonalInformationLog).to receive(:create)
   end
 
   describe '#get_provider_service' do
@@ -715,7 +715,7 @@ describe Eps::ProviderService do
 
     context 'when required parameters are missing or blank' do
       it 'raises ArgumentError and logs personal information when npi is nil' do
-        expect(PersonalInformationLog).to receive(:create!).with(
+        expect(PersonalInformationLog).to receive(:create).with(
           error_class: 'eps_provider_npi_missing',
           data: hash_including(
             search_params: hash_including(specialty:),
@@ -741,7 +741,7 @@ describe Eps::ProviderService do
       end
 
       it 'raises ArgumentError and logs personal information when specialty is nil' do
-        expect(PersonalInformationLog).to receive(:create!).with(
+        expect(PersonalInformationLog).to receive(:create).with(
           error_class: 'eps_provider_specialty_missing',
           data: hash_including(
             npi:,
@@ -767,7 +767,7 @@ describe Eps::ProviderService do
       end
 
       it 'raises ArgumentError and logs personal information when address is nil' do
-        expect(PersonalInformationLog).to receive(:create!).with(
+        expect(PersonalInformationLog).to receive(:create).with(
           error_class: 'eps_provider_address_missing',
           data: hash_including(
             npi:,
@@ -809,7 +809,7 @@ describe Eps::ProviderService do
         end
 
         it 'returns nil and logs personal information' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_provider_specialty_mismatch',
             data: hash_including(
               npi:,
@@ -841,7 +841,7 @@ describe Eps::ProviderService do
         end
 
         it 'returns nil and logs personal information' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_provider_no_providers_found',
             data: hash_including(
               npi:,
@@ -941,7 +941,7 @@ describe Eps::ProviderService do
             'api.vaos.provider_service.no_self_schedulable',
             tags: ['service:community_care_appointments']
           )
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_provider_no_self_schedulable',
             data: hash_including(
               npi:,
@@ -1261,7 +1261,7 @@ describe Eps::ProviderService do
         end
 
         it 'returns nil, logs warning, and logs personal information' do
-          expect(PersonalInformationLog).to receive(:create!).with(
+          expect(PersonalInformationLog).to receive(:create).with(
             error_class: 'eps_provider_address_mismatch',
             data: hash_including(
               npi:,

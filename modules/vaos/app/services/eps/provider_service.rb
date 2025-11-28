@@ -613,7 +613,8 @@ module Eps
     # @param data [Hash] Personal data to log (npi, referral_number, etc.)
     #
     def log_personal_information_error(error_class, data)
-      PersonalInformationLog.create!(
+      # Use create (not create!) so logging failures don't break the main flow
+      PersonalInformationLog.create(
         error_class:,
         data: {
           npi: data[:npi],
@@ -623,12 +624,6 @@ module Eps
           failure_reason: data[:failure_reason]
         }.compact
       )
-    rescue StandardError => e
-      # Log the logging failure but don't let it break the main flow
-      Rails.logger.error("#{CC_APPOINTMENTS}: Failed to log personal information error", {
-        original_error_class: error_class,
-        logging_error: e.message
-      }.merge(common_logging_context))
     end
 
     ##
