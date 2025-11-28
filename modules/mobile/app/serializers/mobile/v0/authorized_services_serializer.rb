@@ -8,10 +8,9 @@ module Mobile
       set_type :authorized_services
       attributes :authorized_services
 
-      def initialize(user_id, authorized_services)
-        resource = AuthorizedServicesStruct.new(id: user_id,
-                                                authorized_services:)
-        super(resource)
+      def initialize(user_id, authorized_services, options = {})
+        resource = AuthorizedServicesStruct.new(id: user_id, authorized_services:)
+        super(resource, options)
       end
     end
 
