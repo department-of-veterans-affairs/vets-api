@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'English'
+require 'shellwords'
 require_relative 'constants'
 require_relative 'inspector'
 
@@ -292,10 +293,11 @@ module VcrMcp
     end
 
     def fetch_git_original(rel_path)
-      git_status = `cd #{VETS_API_ROOT} && git status --porcelain "#{rel_path}" 2>/dev/null`.strip
+      escaped_path = Shellwords.escape(rel_path)
+      git_status = `cd #{VETS_API_ROOT} && git status --porcelain #{escaped_path} 2>/dev/null`.strip
       return nil if git_status.empty?
 
-      content = `cd #{VETS_API_ROOT} && git show HEAD:"#{rel_path}" 2>/dev/null`
+      content = `cd #{VETS_API_ROOT} && git show HEAD:#{escaped_path} 2>/dev/null`
       return nil if content.empty? || $CHILD_STATUS.exitstatus != 0
 
       content
