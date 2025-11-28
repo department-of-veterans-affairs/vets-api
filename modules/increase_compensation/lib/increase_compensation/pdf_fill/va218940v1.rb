@@ -33,10 +33,12 @@ module IncreaseCompensation
 
       # Map question numbers to descriptive titles for overflow attachments
       QUESTION_KEY = [
-        { question_number: '10', question_text: 'DATE(S) OF TREATMENT BY DOCTOR(S)' },
-        { question_number: '13', question_text: 'DATE(S) OF HOSPITALIZATION' },
-        { question_number: '21A', question_text: 'SCHOOLING AND OTHER TRAINING' },
-        { question_number: '26', question_text: 'REMARKS' }
+        # { question_number: '10', question_text: 'DATE(S) OF TREATMENT BY DOCTOR(S)' },
+        # { question_number: '13', question_text: 'DATE(S) OF HOSPITALIZATION' },
+        # { question_number: '21A', question_text: 'SCHOOLING AND OTHER TRAINING' },
+        # { question_number: '24B', question_text: 'SCHOOLING AND OTHER TRAINING' },
+        # { question_number: '25B', question_text: 'SCHOOLING AND OTHER TRAINING' }
+        # { question_number: '26', question_text: 'REMARKS' }
       ].freeze
 
       # V2-style sections grouping question numbers for overflow pages
