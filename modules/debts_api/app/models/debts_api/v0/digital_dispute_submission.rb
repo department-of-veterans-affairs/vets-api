@@ -113,7 +113,7 @@ module DebtsApi
 
       def send_success_email
         StatsD.increment("#{STATS_KEY}.send_success_email.enqueue")
-        user = User.find(user_uuid)
+        user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(
@@ -133,7 +133,7 @@ module DebtsApi
 
       def send_failure_email
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
-        user = User.find(user_uuid)
+        user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
         submission_email = user.email.downcase

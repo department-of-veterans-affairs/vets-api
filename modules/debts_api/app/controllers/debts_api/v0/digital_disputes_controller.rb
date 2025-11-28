@@ -19,6 +19,7 @@ module DebtsApi
 
         begin
           submission.save!
+          send_submission_email if email_notifications_enabled?
           DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
 
           render json: { message: 'Submission received', submission_id: submission.guid }, status: :ok
@@ -82,6 +83,23 @@ module DebtsApi
         params.permit(
           :metadata,
           files: []
+        )
+      end
+
+      def email_notifications_enabled?
+        Flipper.enabled?(:digital_dispute_email_notifications) && current_user.email.present?
+      end
+
+      def send_submission_email
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
+          5.minutes,
+          {
+            'submission_type' => 'digital_dispute',
+            'email' => current_user.email,
+            'first_name' => current_user.first_name,
+            'user_uuid' => current_user.uuid,
+            'template_id' => DebtsApi::V0::DigitalDisputeSubmission::SUBMISSION_TEMPLATE
+          }
         )
       end
     end
