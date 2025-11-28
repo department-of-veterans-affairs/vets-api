@@ -40,18 +40,19 @@ module MyHealth
         }
         client.get_folder_threads(params[:folder_id].to_s, options)
       rescue => e
-        StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
         handle_error(e)
       end
 
       def handle_error(e)
-        log_exception_to_rails(e)
         error = e.errors.first
         if error.status.to_i == 400 && error.detail == 'No messages in the requested folder'
+          log_exception_to_rails(error, 'info')
           Common::Collection.new(
             MessageThread, data: []
           )
         else
+          log_exception_to_rails(e)
+          StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
           raise e
         end
       end

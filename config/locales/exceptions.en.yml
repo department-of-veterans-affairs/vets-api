@@ -531,6 +531,11 @@ en:
         code: 'SM904'
         detail: 'Message requested could not be found'
         status: 404
+      SM915: # 'No messages in the requested folder'
+        <<: *external_defaults
+        code: 'SM915'
+        detail: 'No messages in the requested folder'
+        status: 400
       SM99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'SM99'
