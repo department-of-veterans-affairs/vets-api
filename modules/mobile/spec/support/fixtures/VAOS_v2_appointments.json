@@ -1211,6 +1211,17 @@
     "past": true,
     "future": false,
     "show_schedule_link": false,
-    "is_cerner": true
+    "is_cerner": true,
+    "avs_pdf": [
+      {
+        "appt_id": "12345",
+        "id": "15249638961",
+        "name": "Ambulatory Visit Summary",
+        "loinc_codes": ["4189669", "96345-4"],
+        "note_type": "ambulatory_patient_summary",
+        "content_type": "application/pdf",
+        "binary": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e"
+      }
+    ]
   }
 ]
