@@ -57,7 +57,6 @@ class SimpleCovHelper
     add_filter 'lib/clamav'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/gibft/configuration.rb'
-    add_filter 'lib/ihub/appointments/response.rb'
     add_filter 'lib/salesforce/configuration.rb'
     add_filter 'lib/search/response.rb'
     add_filter 'lib/search_gsa/response.rb'

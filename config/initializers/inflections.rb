@@ -19,7 +19,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'GI'
   inflect.acronym 'HCA'
   inflect.acronym 'IAM'
-  inflect.acronym 'IHub'
   inflect.acronym 'LCPE' # Licenses, Certifications, Prep Courses & Exams
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV' # My HealtheVet
