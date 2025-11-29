@@ -9,10 +9,10 @@ class DebtTransactionLog < ApplicationRecord
   # in transactionable_id to avoid exposing sequential IDs externally
   def transactionable
     if transactionable_type == 'DebtsApi::V0::DigitalDisputeSubmission'
-      DebtsApi::V0::DigitalDisputeSubmission.find_by(guid: transactionable_id)
-    else
-      super
+      return DebtsApi::V0::DigitalDisputeSubmission.find_by(guid: transactionable_id)
     end
+
+    super
   end
 
   validates :transaction_type, presence: true, inclusion: { in: %w[dispute payment waiver] }
