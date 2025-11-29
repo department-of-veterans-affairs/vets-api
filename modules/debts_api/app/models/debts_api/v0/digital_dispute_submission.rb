@@ -15,6 +15,7 @@ module DebtsApi
       has_encrypted :form_data, :metadata, key: :kms_key
       validates :user_uuid, presence: true
       validates :guid, uniqueness: true
+      before_create :set_new_id
       validate :files_present
       validate :files_are_pdfs
       validate :files_size_within_limit
@@ -157,6 +158,14 @@ module DebtsApi
           'updated_at' => updated_at,
           'confirmation_number' => guid
         }
+      end
+
+      def set_new_id
+        return unless self.class.column_names.include?('new_id')
+
+        self.new_id ||= self.class.connection.select_value(
+          "SELECT nextval('digital_dispute_submissions_new_id_seq')"
+        )
       end
     end
   end
