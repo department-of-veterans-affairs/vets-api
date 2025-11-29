@@ -9,10 +9,13 @@ module DebtsApi
       FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
       self.table_name = 'digital_dispute_submissions'
       belongs_to :user_account, dependent: nil, optional: false
+      has_many :debt_transaction_logs, as: :transactionable, primary_key: :guid, dependent: :destroy
       has_many_attached :files
       has_kms_key
       has_encrypted :form_data, :metadata, key: :kms_key
       validates :user_uuid, presence: true
+      validates :guid, uniqueness: true
+      before_create :set_new_id
       validate :files_present
       validate :files_are_pdfs
       validate :files_size_within_limit
@@ -111,7 +114,7 @@ module DebtsApi
 
       def send_success_email
         StatsD.increment("#{STATS_KEY}.send_success_email.enqueue")
-        user = User.find(user_uuid)
+        user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(
@@ -131,7 +134,7 @@ module DebtsApi
 
       def send_failure_email
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
-        user = User.find(user_uuid)
+        user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
         submission_email = user.email.downcase
@@ -153,10 +156,17 @@ module DebtsApi
           'first_name' => user.first_name,
           'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
           'updated_at' => updated_at,
-          'confirmation_number' => id
+          'confirmation_number' => guid
         }
+      end
+
+      def set_new_id
+        return unless self.class.column_names.include?('new_id')
+
+        self.new_id ||= self.class.connection.select_value(
+          "SELECT nextval('digital_dispute_submissions_new_id_seq')"
+        )
       end
     end
   end
 end
-# rubocop:enable Rails/Pluck
