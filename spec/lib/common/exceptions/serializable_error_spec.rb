@@ -21,6 +21,14 @@ describe Common::Exceptions::SerializableError do
     end
   end
 
+  context 'with some blank attribute' do
+    let(:attributes) { { title: 'title', detail: ' ', source: [] } }
+
+    it 'to_hash removes non-present values' do
+      expect(subject.to_hash).to eq({ title: 'title' })
+    end
+  end
+
   context 'with actual attributes' do
     let(:attributes) do
       {
