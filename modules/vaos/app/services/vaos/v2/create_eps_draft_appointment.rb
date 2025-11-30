@@ -183,13 +183,14 @@ module VAOS
       # @return [Boolean] true if validation passed, false if validation failed (error set)
       def validate_params(referral_id, referral_consult_id)
         if @current_user.nil?
-          set_error('User authentication required', :unauthorized)
+          set_error('User authentication required', :unauthorized, code: 'DRAFT_AUTHENTICATION_REQUIRED')
           return false
         end
 
         missing_params = get_missing_parameters(referral_id, referral_consult_id, @current_user.icn)
         if missing_params.any?
-          set_error("Missing required parameters: #{missing_params.join(', ')}", :bad_request)
+          set_error("Missing required parameters: #{missing_params.join(', ')}", :bad_request,
+                    code: 'DRAFT_MISSING_PARAMETERS')
           return false
         end
 
@@ -234,7 +235,8 @@ module VAOS
           log_referral_validation_failure(referral, validation_result[:missing_attributes])
           return set_error(
             "Required referral data is missing or incomplete: #{validation_result[:missing_attributes]}",
-            :unprocessable_entity
+            :unprocessable_entity,
+            code: 'DRAFT_REFERRAL_INVALID'
           )
         end
 
@@ -262,13 +264,15 @@ module VAOS
                                            referral_number: referral_id,
                                            failure_reason: "Error checking existing appointments: #{check[:failures]}"
                                          })
-          set_error("Error checking existing appointments: #{check[:failures]}", :bad_gateway)
+          set_error("Error checking existing appointments: #{check[:failures]}", :bad_gateway,
+                    code: 'DRAFT_APPOINTMENT_CHECK_FAILED')
         elsif check[:exists]
           log_personal_information_error('eps_draft_referral_already_used', {
                                            referral_number: referral_id,
                                            failure_reason: 'Referral is already used for an existing appointment'
                                          })
-          set_error('No new appointment created: referral is already used', :unprocessable_entity)
+          set_error('No new appointment created: referral is already used', :unprocessable_entity,
+                    code: 'DRAFT_REFERRAL_ALREADY_USED')
         end
       end
 
@@ -286,7 +290,7 @@ module VAOS
         provider = find_provider(referral)
         if provider&.id.blank?
           log_provider_not_found_error(referral)
-          return set_error('Provider not found', :not_found)
+          return set_error('Provider not found', :not_found, code: 'DRAFT_PROVIDER_NOT_FOUND')
         end
 
         log_provider_metrics(provider)
@@ -304,7 +308,10 @@ module VAOS
       # @return [OpenStruct, nil] The created draft appointment object, or nil if error occurred
       def create_draft_appointment(referral_id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        return set_error('Could not create draft appointment', :unprocessable_entity) if draft.id.blank?
+        if draft.id.blank?
+          return set_error('Could not create draft appointment', :unprocessable_entity,
+                           code: 'DRAFT_CREATION_FAILED')
+        end
 
         draft
       end
@@ -633,9 +640,10 @@ module VAOS
       #
       # @param message [String] Human-readable error description
       # @param status [Symbol] HTTP status symbol (e.g., :bad_request, :not_found)
+      # @param code [String, nil] Machine-readable error code (e.g., 'DRAFT_PROVIDER_NOT_FOUND')
       # @return [nil] Always returns nil to support early return pattern
-      def set_error(message, status)
-        @error = { message:, status: }
+      def set_error(message, status, code: nil)
+        @error = { message:, status:, code: }
         nil # Metric logging happens at end of initialize
       end
 
