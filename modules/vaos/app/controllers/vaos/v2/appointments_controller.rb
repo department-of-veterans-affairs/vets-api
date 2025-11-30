@@ -85,16 +85,21 @@ module VAOS
         draft_appt = VAOS::V2::CreateEpsDraftAppointment.call(current_user, referral_id, referral_consult_id)
 
         if draft_appt.error
-          render json: { errors: [{ title: 'Appointment creation failed', detail: draft_appt.error[:message] }] },
-                 status: draft_appt.error[:status]
+          error_response = VAOS::V2::CommunityCareAppointmentErrorHandler.handle(
+            draft_appt.error,
+            context: { operation: 'create_draft', referral_id: }
+          )
+          render json: error_response[:response], status: error_response[:status]
         else
           ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
           render json: Eps::DraftAppointmentSerializer.new(draft_appt), status: :created
         end
-      rescue Redis::BaseError => e
-        handle_redis_error(e)
       rescue => e
-        handle_appointment_creation_error(e)
+        error_response = VAOS::V2::CommunityCareAppointmentErrorHandler.handle(
+          e,
+          context: { operation: 'create_draft', referral_id: }
+        )
+        render json: error_response[:response], status: error_response[:status]
       end
 
       def update
@@ -118,27 +123,17 @@ module VAOS
       # @raise [StandardError] For any unexpected errors during submission
       #
       def submit_referral_appointment
-        type_of_care = 'no_value'
-        begin
-          type_of_care = get_type_of_care_for_metrics(submit_params[:referral_number])
-        rescue
-          Rails.logger.error('Failed to retrieve type of care for metrics')
-        end
-
+        type_of_care = fetch_type_of_care_for_metrics
         submit_args = build_submit_args
         appointment = eps_appointment_service.submit_appointment(submit_params[:id], submit_args)
 
         if appointment[:error]
-          record_appt_metric(APPT_CREATION_FAILURE_METRIC, type_of_care)
-          return render(json: submission_error_response(appointment[:error]), status: :conflict)
+          handle_submit_error(appointment[:error], type_of_care)
+        else
+          handle_submit_success(appointment, type_of_care)
         end
-
-        log_referral_booking_duration(submit_params[:referral_number])
-        record_appt_metric(APPT_CREATION_SUCCESS_METRIC, type_of_care)
-        render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        record_appt_metric(APPT_CREATION_FAILURE_METRIC, type_of_care)
-        handle_appointment_creation_error(e)
+        handle_submit_exception(e, type_of_care)
       end
 
       private
@@ -458,17 +453,6 @@ module VAOS
       # @param error [Redis::BaseError] The Redis exception that was raised
       # @return [void]
       # @see Redis::BaseError
-      def handle_redis_error(error)
-        error_data = {
-          error_class: error.class.name,
-          error_message: error.message,
-          user_uuid: current_user&.uuid
-        }
-        Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
-        render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
-               status: :bad_gateway
-      end
-
       ##
       # Gets a CCRA referral service instance
       #
@@ -478,100 +462,60 @@ module VAOS
       end
 
       ##
-      # Maps appointment error codes to appropriate HTTP status codes
-      # This method handles string error codes from appointment responses
+      # Fetches type of care for metrics, with error handling
       #
-      # @param error_code [String] The error code from the appointment response
-      # @return [Symbol] The corresponding HTTP status code symbol
+      # @return [String] Type of care or 'no_value' if fetch fails
       #
-      def appointment_error_status(error_code)
-        case error_code
-        when 'not-found', 404
-          :not_found # 404
-        when 'conflict', 409
-          :conflict # 409
-        when 'bad-request', 400
-          :bad_request # 400
-        when 'internal-error', 500, 502
-          :bad_gateway # 502
-        else
-          # too-far-in-the-future, already-canceled, too-late-to-cancel, etc.
-          :unprocessable_entity # 422
-        end
+      def fetch_type_of_care_for_metrics
+        get_type_of_care_for_metrics(submit_params[:referral_number])
+      rescue
+        Rails.logger.error('Failed to retrieve type of care for metrics')
+        'no_value'
       end
 
       ##
-      # Handles appointment-related errors throughout the controller.
-      # Maps error codes to appropriate HTTP status codes and renders
-      # standardized error responses.
+      # Handles successful appointment submission
       #
-      # @param e [Exception] The exception that was raised
-      # @return [void] Renders JSON error response with appropriate HTTP status
+      # @param appointment [Object] The created appointment
+      # @param type_of_care [String] Type of care for metrics
+      # @return [void] Renders success response
       #
-      def handle_appointment_creation_error(e)
-        error_data = {
-          error_class: e.class.name,
-          error_message: e.message,
-          user_uuid: current_user&.uuid
-        }
-
-        Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error", error_data)
-
-        if e.is_a?(ActionController::ParameterMissing)
-          status_code = :bad_request
-        else
-          original_status = e.respond_to?(:original_status) ? e.original_status : nil
-          status_code = appointment_error_status(original_status)
-        end
-        render(json: appt_creation_failed_error(error: e, status: status_code), status: status_code)
+      def handle_submit_success(appointment, type_of_care)
+        log_referral_booking_duration(submit_params[:referral_number])
+        record_appt_metric(APPT_CREATION_SUCCESS_METRIC, type_of_care)
+        render json: { data: { id: appointment.id } }, status: :created
       end
 
       ##
-      # Formats a standardized error response for appointment creation failures.
-      # Extracts error details from exception objects and builds a consistent
-      # error structure with metadata for debugging and monitoring.
+      # Handles appointment submission error
       #
-      # @param error [Exception, nil] The exception that caused the failure
-      # @param title [String, nil] Custom error title (defaults to 'Appointment creation failed')
-      # @param detail [String, nil] Custom error detail (defaults to 'Could not create appointment')
-      # @param status [String, Integer, nil] Status code for error metadata
-      # @return [Hash] Formatted error response with title, detail, and metadata
+      # @param error [Hash] Error hash from appointment service
+      # @param type_of_care [String] Type of care for metrics
+      # @return [void] Renders error response
       #
-      def appt_creation_failed_error(error: nil, title: nil, detail: nil, status: nil)
-        default_title = 'Appointment creation failed'
-        default_detail = 'Could not create appointment'
-        status_code = error.respond_to?(:original_status) ? error.original_status : status
-        {
-          errors: [{
-            title: title || default_title,
-            detail: detail || default_detail,
-            meta: {
-              original_detail: error.try(:response_values)&.dig(:detail),
-              original_error: error.try(:message) || 'Unknown error',
-              code: status_code,
-              backend_response: error.try(:original_body)
-            }
-          }]
-        }
+      def handle_submit_error(error, type_of_care)
+        record_appt_metric(APPT_CREATION_FAILURE_METRIC, type_of_care)
+        error_response = VAOS::V2::CommunityCareAppointmentErrorHandler.handle(
+          error,
+          context: { operation: 'submit', referral_number: submit_params[:referral_number] }
+        )
+        render json: error_response[:response], status: error_response[:status]
       end
 
       ##
-      # Builds a standardized error response for appointment submission errors.
-      # Used specifically for EPS appointment errors that contain error codes
-      # in the appointment response data.
+      # Handles exceptions during appointment submission
       #
-      # @param error_code [String] The error code from the appointment response,
-      #   defaults to 'unknown EPS error' if nil
-      # @return [Hash] Formatted error response with title, detail, and error code
+      # @param exception [Exception] The raised exception
+      # @param type_of_care [String] Type of care for metrics
+      # @return [void] Renders error response
       #
-      def submission_error_response(error_code)
-        {
-          errors: [{
-            title: 'Appointment submission failed',
-            detail: "An error occurred: #{error_code}",
-            code: error_code
-          }]
-        }
+      def handle_submit_exception(exception, type_of_care)
+        record_appt_metric(APPT_CREATION_FAILURE_METRIC, type_of_care)
+        error_response = VAOS::V2::CommunityCareAppointmentErrorHandler.handle(
+          exception,
+          context: { operation: 'submit', referral_number: submit_params[:referral_number] }
+        )
+        render json: error_response[:response], status: error_response[:status]
       end
 
       # Records the duration between when a referral booking was started and when it completes

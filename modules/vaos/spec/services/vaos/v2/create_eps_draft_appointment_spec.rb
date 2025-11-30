@@ -17,6 +17,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
   let(:referral_data) do
     OpenStruct.new(
       provider_npi: '1234567890',
+      referral_number: 'REF-456',
       referral_date: '2024-01-15',
       expiration_date: '2024-04-15',
       provider_specialty: 'Cardiology',
@@ -46,6 +47,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     allow(Eps::AppointmentService).to receive(:new).and_return(eps_appointment_service)
     allow(Eps::ProviderService).to receive(:new).and_return(eps_provider_service)
     allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+    allow(PersonalInformationLog).to receive(:create)
     # Set up RequestStore for controller name logging
     RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
     setup_successful_services
@@ -152,7 +154,12 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         expect(appointments_service).to have_received(:referral_appointment_already_exists?)
           .with(referral_id)
         expect(eps_provider_service).to have_received(:search_provider_services)
-          .with(npi: '1234567890', specialty: 'Cardiology', address: { city: 'Denver', state: 'CO' })
+          .with(
+            npi: '1234567890',
+            specialty: 'Cardiology',
+            address: { city: 'Denver', state: 'CO' },
+            referral_number: 'REF-456'
+          )
         expect(eps_appointment_service).to have_received(:create_draft_appointment)
           .with(referral_id:)
       end
@@ -183,8 +190,25 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     context 'referral data validation errors' do
       context 'when referral data is invalid' do
         before do
-          invalid_referral = OpenStruct.new(provider_npi: nil, referral_date: nil, expiration_date: nil)
+          invalid_referral = OpenStruct.new(
+            provider_npi: nil,
+            referral_date: nil,
+            expiration_date: nil,
+            referral_number: 'REF-123'
+          )
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_referral)
+        end
+
+        it 'logs personal information error' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_draft_referral_validation_failed',
+            data: hash_including(
+              referral_number: 'REF-123',
+              user_uuid: current_user.uuid,
+              failure_reason: match(/Required referral data is missing or incomplete/)
+            )
+          )
+          subject
         end
 
         include_examples 'returns error response', /Required referral data is missing/, :unprocessable_entity
@@ -245,6 +269,17 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             .and_return({ error: true, failures: 'Service unavailable' })
         end
 
+        it 'logs personal information error' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_draft_existing_appointment_check_failed',
+            data: hash_including(
+              referral_number: referral_id,
+              failure_reason: 'Error checking existing appointments: Service unavailable'
+            )
+          )
+          subject
+        end
+
         include_examples 'returns error response', /Error checking existing appointments/, :bad_gateway
       end
 
@@ -252,6 +287,17 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         before do
           allow(appointments_service).to receive(:referral_appointment_already_exists?)
             .and_return({ error: false, exists: true })
+        end
+
+        it 'logs personal information error' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_draft_referral_already_used',
+            data: hash_including(
+              referral_number: referral_id,
+              failure_reason: 'Referral is already used for an existing appointment'
+            )
+          )
+          subject
         end
 
         include_examples 'returns error response', 'No new appointment created: referral is already used',
@@ -324,7 +370,16 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_without_types)
         end
 
-        it 'raises BackendServiceException' do
+        it 'logs personal information error and raises BackendServiceException' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_draft_appointment_types_missing',
+            data: hash_including(
+              referral_number: referral_data.referral_number,
+              npi: referral_data.provider_npi,
+              failure_reason: 'Provider appointment types data is not available'
+            )
+          )
+
           expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
             expect(error.key).to eq('PROVIDER_APPOINTMENT_TYPES_MISSING')
             expect(error.original_status).to eq(502)
@@ -339,7 +394,16 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_with_nil_types)
         end
 
-        it 'raises BackendServiceException' do
+        it 'logs personal information error and raises BackendServiceException' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_draft_appointment_types_missing',
+            data: hash_including(
+              referral_number: referral_data.referral_number,
+              npi: referral_data.provider_npi,
+              failure_reason: 'Provider appointment types data is not available'
+            )
+          )
+
           expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
             expect(error.key).to eq('PROVIDER_APPOINTMENT_TYPES_MISSING')
             expect(error.original_status).to eq(502)
