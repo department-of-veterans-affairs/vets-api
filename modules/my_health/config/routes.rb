@@ -18,6 +18,10 @@ MyHealth::Engine.routes.draw do
       post :refill, on: :collection
       get :list_refillable_prescriptions, on: :collection
     end
+
+    scope :documentation do
+      post :search, to: 'prescription_documentation#search', defaults: { format: :json }
+    end
   end
 
   namespace :v1 do
