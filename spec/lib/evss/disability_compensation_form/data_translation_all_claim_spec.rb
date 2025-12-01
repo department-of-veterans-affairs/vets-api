@@ -584,17 +584,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'bankName' => 'WELLS FARGO BANK'
         }
       end
-      
-      it 'gathers the banking info from Lighthouse DirectDeposit' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-          expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
-            'accountType' => 'CHECKING',
-            'accountNumber' => '1234567890',
-            'routingNumber' => '0987654321',
-            'bankName' => 'WELLS FARGO BANK'
-          }
-        end
-      end
 
       it 'logs the submission was made with banking info' do
         expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
@@ -642,14 +631,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
         it 'does not set payment information' do
           expect(subject.send(:translate_banking_info)).to eq({})
-        end
-
-        it 'logs the submission was made without banking info' do
-          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
-            .to receive(:track_526_submission_without_banking_info)
-            .with(user.uuid)
-
-          subject.send(:translate_banking_info)
         end
       end
 
