@@ -14,7 +14,7 @@ module EducationForm
     }.freeze
 
     FORM_TYPES = EducationBenefitsClaim::FORM_TYPES.reject do |form_type|
-      %w[10282 10216 10215 10297 1919 0839 10275 8794 0976 1990e].include?(form_type)
+      %w[10282 10216 10215 10297 1919 0839 10275 8794 0976 1990e 0803].include?(form_type)
     end.freeze
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|

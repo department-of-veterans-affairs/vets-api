@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require_relative '../models/condition'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
     class ConditionsAdapter
+      include DateNormalizer
       def parse(records)
         return [] if records.blank?
 
@@ -19,10 +21,12 @@ module UnifiedHealthData
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
+        date_value = resource['onsetDateTime'] || resource['recordedDate']
 
         UnifiedHealthData::Condition.new(
           id: resource['id'],
-          date: resource['onsetDateTime'] || resource['recordedDate'],
+          date: date_value,
+          sort_date: normalize_date_for_sorting(date_value),
           name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
           provider: extract_condition_provider(resource),
           facility: extract_condition_facility(resource),

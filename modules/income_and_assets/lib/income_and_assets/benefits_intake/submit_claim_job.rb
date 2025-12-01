@@ -116,6 +116,7 @@ module IncomeAndAssets
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+          nil.to_s, # => '00000'; zipcode is not present on the 0969 form
           self.class.to_s,
           @claim.form_id,
           @claim.business_line

@@ -7,10 +7,19 @@ require 'claims_evidence_api/uploader'
 
 module DependentsBenefits
   module Sidekiq
+    ##
+    # Submission job for 686c claims via Claims Evidence API
+    #
+    # Handles the submission of 686c (Add/Remove Dependent) forms to the Claims
+    # Evidence API. Processes the claim PDF, validates it, and uploads to the
+    # veteran's eFolder. Detects permanent VEFS errors for appropriate retry behavior.
+    #
     class Claims686cJob < DependentSubmissionJob
-      FORM_ID = DependentsBenefits::ADD_REMOVE_DEPENDENT.freeze
+      # Exception raised when 686c claim validation fails
+      class Invalid686cClaim < StandardError; end
+
       ##
-      # Service-specific submission logic - BGS vs Lighthouse vs Fax
+      # Service-specific submission logic for Claims Evidence API
       # @return [ServiceResponse] Must respond to success? and error methods
       def submit_to_service
         saved_claim.add_veteran_info(user_data)
@@ -18,15 +27,15 @@ module DependentsBenefits
         raise Invalid686cClaim unless saved_claim.valid?(:run_686_form_jobs)
 
         file_path = lighthouse_submission.process_pdf(
-          saved_claim.to_pdf(form_id: FORM_ID),
+          saved_claim.to_pdf(form_id: ADD_REMOVE_DEPENDENT),
           saved_claim.created_at,
-          FORM_ID
+          ADD_REMOVE_DEPENDENT
         )
 
         claims_evidence_uploader.upload_evidence(
           saved_claim.id,
           file_path:,
-          form_id: FORM_ID,
+          form_id: ADD_REMOVE_DEPENDENT,
           doctype: saved_claim.document_type
         )
 
@@ -39,43 +48,68 @@ module DependentsBenefits
       # @return [LighthouseFormSubmission, BGSFormSubmission] instance
       def find_or_create_form_submission
         @submission ||= ClaimsEvidenceApi::Submission.find_or_create_by(
-          form_id: DependentsBenefits::ADD_REMOVE_DEPENDENT,
+          form_id: ADD_REMOVE_DEPENDENT,
           saved_claim_id: saved_claim.id
         )
       end
 
+      # Returns the memoized Claims Evidence API submission record
+      #
+      # @return [ClaimsEvidenceApi::Submission] The submission record
       def submission
         @submission ||= find_or_create_form_submission
       end
 
       # Generate a new form submission attempt record
       # Each retry gets its own attempt record for debugging
-      # @return [LighthouseFormSubmissionAttempt, BGSFormSubmissionAttempt] instance
+      # @return [ClaimsEvidenceApi::SubmissionAttempt] instance
       def create_form_submission_attempt
         @submission_attempt ||= ClaimsEvidenceApi::SubmissionAttempt.create(submission:)
       end
 
+      # Returns the memoized Claims Evidence API submission attempt record
+      #
+      # @return [ClaimsEvidenceApi::SubmissionAttempt] The attempt record
       def submission_attempt
         @submission_attempt ||= create_form_submission_attempt
       end
 
-      # Service-specific success logic
-      # Update submission attempt and form submission records
+      # Marks the submission attempt as accepted
+      #
+      # Service-specific success logic - updates submission attempt record to accepted status.
+      #
+      # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
       def mark_submission_succeeded
         submission_attempt&.accepted!
       end
 
-      # Service-specific failure logic
-      # Update submission attempt record only with failure and error details
+      # Marks the submission attempt as failed with error details
+      #
+      # Service-specific failure logic - updates submission attempt record with
+      # failure status and stores the exception details.
+      #
+      # @param exception [Exception] The exception that caused the failure
+      # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
       def mark_submission_attempt_failed(exception)
         submission_attempt&.fail!(error: exception)
       end
 
+      # No-op for Claims Evidence API submissions
       #
-      # BGS::Submission has no status update, so no-op here
+      # ClaimsEvidenceApi::Submission has no status update, so this is a no-op.
       # This differs from other submission types, which may require status updates on failure.
+      #
+      # @param _exception [Exception] The exception that caused the failure (unused)
+      # @return [nil]
       def mark_submission_failed(_exception) = nil
 
+      # Determines if an error represents a permanent VEFS failure
+      #
+      # Checks for Claims Evidence API VEFS errors and identifies specific error codes
+      # that should not be retried (authentication, authorization, schema validation, etc.).
+      #
+      # @param error [Exception, nil] The error to check
+      # @return [Boolean] true if error is a permanent VEFS failure, false if transient
       def permanent_failure?(error)
         return false if error.nil?
 
@@ -101,10 +135,19 @@ module DependentsBenefits
         false
       end
 
+      # Returns a memoized Claims Evidence API uploader instance
+      #
+      # @return [ClaimsEvidenceApi::Uploader] Uploader configured with claim's folder identifier
       def claims_evidence_uploader
         @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(saved_claim.folder_identifier)
       end
 
+      # Returns a memoized Lighthouse submission helper instance
+      #
+      # Used for PDF processing utilities (stamping, dating) rather than actual Lighthouse
+      # submission. The Claims Evidence API is the submission destination.
+      #
+      # @return [DependentsBenefits::BenefitsIntake::LighthouseSubmission] Submission helper
       def lighthouse_submission
         @lighthouse_submission ||= DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(saved_claim, user_data)
       end

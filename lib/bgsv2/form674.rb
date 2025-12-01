@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require_relative 'benefit_claim'
 require_relative 'dependents'
 require_relative 'service'
@@ -12,7 +14,7 @@ require_relative '../bid/awards/service'
 
 module BGSV2
   class Form674
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :user, :saved_claim, :proc_id
 
@@ -38,9 +40,6 @@ module BGSV2
         set_claim_type('MANUAL_VAGOV')
         @proc_state = 'MANUAL_VAGOV'
       end
-
-      # temporary logging to troubleshoot
-      log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
       log_if_ready('21-674 Automatic Claim Prior to submission', "#{stats_key}.automatic.begin")
       benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create

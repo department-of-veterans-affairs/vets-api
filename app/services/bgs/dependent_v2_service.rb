@@ -2,10 +2,11 @@
 
 require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class DependentV2Service
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :first_name,
                 :middle_name,
@@ -46,6 +47,9 @@ module BGS
 
       response = service.claimant.find_dependents_by_participant_id(participant_id, ssn)
       if response.presence && response[:persons]
+        # When only one dependent exists, BGS returns a Hash instead of an Array
+        # Ensure persons is always an array for consistent processing
+        response[:persons] = [response[:persons]] if response[:persons].is_a?(Hash)
         response
       else
         backup_response
@@ -66,7 +70,7 @@ module BGS
       InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
 
       encrypted_vet_info = setup_vet_info(claim)
-      submit_pdf_job(claim:, encrypted_vet_info:)
+      submit_pdf_job(claim:)
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
@@ -146,20 +150,12 @@ module BGS
       @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
     end
 
-    def submit_pdf_job(claim:, encrypted_vet_info:)
+    def submit_pdf_job(claim:)
       @monitor = init_monitor(claim&.id)
-      if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        form_id = submit_claim_via_claims_evidence(claim)
-        submit_attachments_via_claims_evidence(form_id, claim)
-      else
-        @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
-        VBMS::SubmitDependentsPdfV2Job.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
-                                                    claim.submittable_674?)
-      end
+      @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+                           "#{STATS_KEY}.submit_pdf.begin")
+      form_id = submit_claim_via_claims_evidence(claim)
+      submit_attachments_via_claims_evidence(form_id, claim)
 
       @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
@@ -257,7 +253,15 @@ module BGS
     def get_form_hash_686c
       begin
         #  include ssn in call to BGS for mocks
-        bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+        bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+        if bgs_person.present?
+          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+                               "#{STATS_KEY}.find_by_participant_id")
+        else
+          bgs_person = service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+                               "#{STATS_KEY}.find_by_ssn")
+        end
         @file_number = bgs_person[:file_nbr]
         # BGS's file number is supposed to be an eight or nine-digit string, and
         # our code is built upon the assumption that this is the case. However,
