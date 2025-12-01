@@ -4,9 +4,8 @@ require 'rails_helper'
 
 RSpec.describe V0::Form210779Controller, type: :controller do
   let(:form_id) { '21-0779' }
-  let(:example_hash) { VetsJsonSchema::EXAMPLES[form_id] }
-  let(:form_data) { example_hash.to_json }
-  let(:invalid_data) { build(:va210779_invalid).form }
+  let(:form_data) { { form: VetsJsonSchema::EXAMPLES[form_id].to_json }.to_json }
+  let(:invalid_data) { { form: build(:va210779_invalid).form }.to_json }
 
   def parsed_response
     JSON.parse(response.body)

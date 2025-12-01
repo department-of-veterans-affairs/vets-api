@@ -31,6 +31,12 @@ class SavedClaim::Form210779 < SavedClaim
     # )
   end
 
+  def veteran_name
+    first = parsed_form.dig('veteranInformation', 'fullName', 'first')
+    last = parsed_form.dig('veteranInformation', 'fullName', 'last')
+    "#{first} #{last}".strip.presence || 'Veteran'
+  end
+
   def metadata_for_benefits_intake
     { veteranFirstName: parsed_form.dig('veteranInformation', 'fullName', 'first'),
       veteranLastName: parsed_form.dig('veteranInformation', 'fullName', 'last'),
