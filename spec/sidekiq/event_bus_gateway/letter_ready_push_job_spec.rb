@@ -9,6 +9,22 @@ require_relative 'shared_examples_letter_ready_job'
 RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
   subject { described_class }
 
+  # Shared setup for most test scenarios
+  before do
+    allow(VaNotify::Service).to receive(:new)
+      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
+      .and_return(va_notify_service)
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+      .and_return(mpi_profile_response)
+    allow_any_instance_of(BGS::PersonWebService)
+      .to receive(:find_person_by_ptcpnt_id)
+      .and_return(bgs_profile)
+    allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:error)
+    allow(Sidekiq::AttrPackage).to receive(:find).and_return(nil)
+    allow(Sidekiq::AttrPackage).to receive(:delete)
+  end
+
   let(:participant_id) { '1234' }
   let(:template_id) { '5678' }
   let(:icn) { '1234567890V123456' }
@@ -42,22 +58,6 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
     }
   end
 
-  # Shared setup for most test scenarios
-  before do
-    allow(VaNotify::Service).to receive(:new)
-      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.push_api_key)
-      .and_return(va_notify_service)
-    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-      .and_return(mpi_profile_response)
-    allow_any_instance_of(BGS::PersonWebService)
-      .to receive(:find_person_by_ptcpnt_id)
-      .and_return(bgs_profile)
-    allow(StatsD).to receive(:increment)
-    allow(Rails.logger).to receive(:error)
-    allow(Sidekiq::AttrPackage).to receive(:find).and_return(nil)
-    allow(Sidekiq::AttrPackage).to receive(:delete)
-  end
-
   describe 'successful push notification' do
     it 'sends push notification with correct arguments' do
       expect(va_notify_service).to receive(:send_push).with(expected_push_args)
@@ -84,7 +84,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
 
     it 'configures VaNotify::Service with correct API key' do
       expect(VaNotify::Service).to receive(:new)
-        .with(EventBusGateway::Constants::NOTIFY_SETTINGS.push_api_key)
+        .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
         .and_return(va_notify_service)
       subject.new.perform(participant_id, template_id)
     end
@@ -187,7 +187,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
     context 'when VA Notify service initialization fails' do
       before do
         allow(VaNotify::Service).to receive(:new)
-          .with(EventBusGateway::Constants::NOTIFY_SETTINGS.push_api_key)
+          .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
           .and_raise(StandardError, 'Service initialization failed')
       end
 
@@ -302,6 +302,10 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       )
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
+    end
+
+    it 'configures sidekiq retry count' do
+      expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_PUSH)
     end
 
     it 'increments exhausted metric with error message tag' do
