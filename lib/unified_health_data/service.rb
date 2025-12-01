@@ -112,7 +112,6 @@ module UnifiedHealthData
 
     def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
-        # NOTE: we must pass in a startDate and endDate to SCDF
         # Validate user-provided dates BEFORE applying defaults
         validate_date_param(start_date, 'start_date') if start_date
         validate_date_param(end_date, 'end_date') if end_date
@@ -154,6 +153,20 @@ module UnifiedHealthData
       end
     end
 
+    def get_vitals
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        vitals_adapter.parse(combined_records)
+      end
+    end
+
     def get_allergies
       with_monitoring do
         # NOTE: we must pass in a startDate and endDate to SCDF
@@ -186,20 +199,6 @@ module UnifiedHealthData
         return nil unless filtered
 
         allergy_adapter.parse_single_allergy(filtered)
-      end
-    end
-
-    def get_vitals
-      with_monitoring do
-        # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = default_start_date
-        end_date = default_end_date
-
-        response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = response.body
-        combined_records = fetch_combined_records(body)
-
-        vitals_adapter.parse(combined_records)
       end
     end
 
