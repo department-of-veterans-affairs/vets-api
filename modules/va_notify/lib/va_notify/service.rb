@@ -30,6 +30,7 @@ module VaNotify
       handle_error(e)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def send_email(args)
       Datadog::Tracing.trace('api.vanotify.service.send_email', service: 'va-notify') do |span|
         span.set_tag('template_id', args[:template_id])
@@ -54,6 +55,7 @@ module VaNotify
         handle_error(e)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def send_sms(args)
       @template_id = args[:template_id]
@@ -152,6 +154,7 @@ module VaNotify
     end
 
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Lint/NonLocalExitFromIterator
     def create_notification(response)
       Datadog::Tracing.trace('api.vanotify.service.create_notification', service: 'va-notify') do |span|
         span.set_tag('notification_id', response.id)
@@ -183,6 +186,7 @@ module VaNotify
       end
     end
     # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Lint/NonLocalExitFromIterator
 
     def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
