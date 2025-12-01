@@ -104,6 +104,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
         allow(controller).to receive_messages(current_user:, ccra_referral_service:)
+        allow(ccra_referral_service).to receive(:get_cached_referral_data).and_return(nil)
       end
 
       it 'renders created status with appointment id and logs duration' do
@@ -121,7 +122,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
           )
           expect(StatsD).to have_received(:increment).with(
             described_class::APPT_CREATION_SUCCESS_METRIC,
-            tags: ['service:community_care_appointments']
+            tags: ['service:community_care_appointments', 'type_of_care:no_value']
           )
           expect(StatsD).to have_received(:histogram).with(
             described_class::APPT_CREATION_DURATION_METRIC,
@@ -134,10 +135,14 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
     context 'when appointment has an error field' do
       let(:appointment) { { error: 'conflict' } }
+      let(:current_user) { OpenStruct.new(icn: '123V456') }
+      let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
         allow(controller).to receive(:submission_error_response).and_return({ errors: [{ detail: 'Error' }] })
+        allow(controller).to receive_messages(current_user:, ccra_referral_service:)
+        allow(ccra_referral_service).to receive(:get_cached_referral_data).and_return(nil)
       end
 
       it 'renders conflict status with error response' do
@@ -149,17 +154,21 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         )
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
-          tags: ['service:community_care_appointments']
+          tags: ['service:community_care_appointments', 'type_of_care:no_value']
         )
       end
     end
 
     context 'when an exception is raised' do
       let(:error) { StandardError.new('Service unavailable') }
+      let(:current_user) { OpenStruct.new(icn: '123V456') }
+      let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_raise(error)
         allow(controller).to receive(:handle_appointment_creation_error)
+        allow(controller).to receive_messages(current_user:, ccra_referral_service:)
+        allow(ccra_referral_service).to receive(:get_cached_referral_data).and_return(nil)
       end
 
       it 'calls handle_appointment_creation_error' do
@@ -168,7 +177,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         expect(controller).to have_received(:handle_appointment_creation_error).with(error)
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
-          tags: ['service:community_care_appointments']
+          tags: ['service:community_care_appointments', 'type_of_care:no_value']
         )
       end
     end
