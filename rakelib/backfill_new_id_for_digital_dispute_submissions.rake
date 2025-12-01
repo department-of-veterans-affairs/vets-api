@@ -7,14 +7,19 @@ task backfill_new_id_for_digital_dispute_submissions: :environment do
   initial_count = DebtsApi::V0::DigitalDisputeSubmission.where(new_id: nil).count
   Rails.logger.info("[BackfillNewIdForDigitalDisputeSubmissions] Records to backfill: #{initial_count}")
 
-  updated_count = ActiveRecord::Base.connection.update(<<~SQL.squish)
-    UPDATE digital_dispute_submissions
-    SET new_id = nextval('digital_dispute_submissions_new_id_seq')
-    WHERE new_id IS NULL
-  SQL
+  updated_count = 0
+  DebtsApi::V0::DigitalDisputeSubmission.where(new_id: nil).find_in_batches(batch_size: 1000) do |batch|
+    batch.each do |submission|
+      new_id_value = ActiveRecord::Base.connection.select_value(
+        "SELECT nextval('digital_dispute_submissions_new_id_seq')"
+      )
+      submission.update_column(:new_id, new_id_value) # rubocop:disable Rails/SkipsModelValidations
+      updated_count += 1
+    end
+  end
 
   Rails.logger.info("[BackfillNewIdForDigitalDisputeSubmissions] Finished - updated #{updated_count} records")
 
   remaining_count = DebtsApi::V0::DigitalDisputeSubmission.where(new_id: nil).count
-  Rails.logger.info("[BackfillNewIdForDigitalDisputeSubmissions] Remaining records with null new_id: #{remaining_count}")
+  Rails.logger.info("[BackfillNewIdForDigitalDisputeSubmissions] Remaining null new_id: #{remaining_count}")
 end
