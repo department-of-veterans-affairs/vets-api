@@ -29,12 +29,12 @@ module Lighthouse
       private
 
       def assign_attributes
-        @external_id = @invoice_data.dig('id')
+        @external_id = @invoice_data['id']
         @facility = @invoice_data.dig('issuer', 'display')
         @bill_number = @invoice_data.dig('identifier', 0, 'value')
-        @status = @invoice_data.dig('status')
+        @status = @invoice_data['status']
         @status_description = @invoice_data.dig('_status', 'valueCodeableConcept', 'text')
-        @invoice_date = @invoice_data.dig('date')
+        @invoice_date = @invoice_data['date']
         @payment_due_date = calculate_payment_due_date
 
         assign_balances
