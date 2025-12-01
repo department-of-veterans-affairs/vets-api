@@ -306,6 +306,69 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(subject.send(:extract_is_refillable, one_refill_resource)).to be true
       end
     end
+
+    context 'with in-progress dispense' do
+      let(:in_progress_dispense_resource) do
+        base_refillable_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'status' => 'in-progress',
+              'whenHandedOver' => '2025-01-20T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'returns false when most recent dispense is in-progress' do
+        expect(subject.send(:extract_is_refillable, in_progress_dispense_resource)).to be false
+      end
+    end
+
+    context 'with preparation status dispense' do
+      let(:preparation_dispense_resource) do
+        base_refillable_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'preparation',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'returns false when most recent dispense is preparation' do
+        expect(subject.send(:extract_is_refillable, preparation_dispense_resource)).to be false
+      end
+    end
+
+    context 'with on-hold status dispense' do
+      let(:on_hold_dispense_resource) do
+        base_refillable_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'on-hold',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'returns false when most recent dispense is on-hold' do
+        expect(subject.send(:extract_is_refillable, on_hold_dispense_resource)).to be false
+      end
+    end
   end
 
   describe '#extract_station_number' do

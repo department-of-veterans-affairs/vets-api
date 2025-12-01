@@ -517,6 +517,8 @@ module UnifiedHealthData
         refillable = false unless extract_refill_remaining(resource).positive?
         # must have at least one dispense record
         refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
+        # must not have an in-progress dispense
+        refillable = false if most_recent_dispense_in_progress?(resource)
 
         refillable
       end
