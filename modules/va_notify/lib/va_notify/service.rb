@@ -31,7 +31,9 @@ module VaNotify
     end
 
     def send_email(args)
-      Datadog::Tracing.trace('api.vanotify.service.send_email') do
+      Datadog::Tracing.trace('api.vanotify.service.send_email', service: 'va-notify') do |span|
+        span.set_tag('template_id', args[:template_id])
+
         @template_id = args[:template_id]
         if Flipper.enabled?(:va_notify_notification_creation)
           response = with_monitoring do
@@ -151,7 +153,9 @@ module VaNotify
 
     # rubocop:disable Metrics/MethodLength
     def create_notification(response)
-      Datadog::Tracing.trace('api.vanotify.service.create_notification') do
+      Datadog::Tracing.trace('api.vanotify.service.create_notification', service: 'va-notify') do |span|
+        span.set_tag('notification_id', response.id)
+
         if response.nil?
           Rails.logger.error('VANotify - no response')
           return
