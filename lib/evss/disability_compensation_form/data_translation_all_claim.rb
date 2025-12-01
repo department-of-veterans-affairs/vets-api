@@ -175,8 +175,6 @@ module EVSS
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
         if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
-          # Respect the fact the Veteran left banking information blank on purpose
-          # by not retrieving their existing banking info from Lighthouse
           monitor.track_526_submission_without_banking_info(@user.uuid)
           {}
         else
