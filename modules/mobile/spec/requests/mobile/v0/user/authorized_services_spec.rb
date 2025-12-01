@@ -8,11 +8,13 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
 
   let!(:user) { sis_user(vha_facility_ids: [402, 555]) }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
+  let(:meta) { response.parsed_body['meta'] }
 
   describe 'GET /mobile/v0/user/authorized-services' do
     before do
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot,
+                                                instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                                 instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
@@ -49,12 +51,49 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'medicationsOracleHealthEnabled' => false }
       )
     end
+
+    it 'includes properly set meta flags for user not at pretransitioned oh facility' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '456, 789'
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+      expect(meta).to eq({ 'isUserAtPretransitionedOhFacility' => false,
+                           'isUserFacilityReadyForInfoAlert' => false })
+    end
+
+    it 'includes properly set meta flags for user at pretransitioned oh facility but not ready for info alert' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '456, 789'
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(meta).to eq({
+                           'isUserAtPretransitionedOhFacility' => true,
+                           'isUserFacilityReadyForInfoAlert' => false
+                         })
+    end
+
+    it 'includes properly set meta flags for user at pretransitioned oh facility and ready for info alert' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612, 555'
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(meta).to eq({
+                           'isUserAtPretransitionedOhFacility' => true,
+                           'isUserFacilityReadyForInfoAlert' => true
+                         })
+    end
   end
 
   describe 'when OH flippers are enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot,
+                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                                 instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,

@@ -198,6 +198,7 @@ app/models/education_benefits_submission.rb @department-of-veterans-affairs/back
 app/models/education_stem_automated_decision.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 app/models/eligible_data_class.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 app/models/event_bus_gateway_notification.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
+app/models/event_bus_gateway_push_notification.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
 app/models/evidence_submission.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/models/evss_claim_document.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/models/evss_claim.rb @department-of-veterans-affairs/backend-review-group
@@ -946,6 +947,7 @@ lib/medical_records @department-of-veterans-affairs/vfs-mhv-integration @departm
 lib/mhv_ac @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/mhv/aal @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/mhv/account_creation @department-of-veterans-affairs/octo-identity
+lib/mhv/oh_facilities_helper @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/mpi @department-of-veterans-affairs/octo-identity
 lib/okta/directory_service.rb @department-of-veterans-affairs/lighthouse-pivot
 lib/olive_branch_patch.rb @department-of-veterans-affairs/backend-review-group
@@ -996,7 +998,6 @@ lib/search @department-of-veterans-affairs/backend-review-group
 lib/search_gsa @department-of-veterans-affairs/backend-review-group
 lib/search_typeahead @department-of-veterans-affairs/backend-review-group
 lib/sentry @department-of-veterans-affairs/backend-review-group
-lib/sentry_logging.rb @department-of-veterans-affairs/backend-review-group
 lib/sftp_writer @department-of-veterans-affairs/backend-review-group
 lib/shrine @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/attr_package.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/backend-review-group
