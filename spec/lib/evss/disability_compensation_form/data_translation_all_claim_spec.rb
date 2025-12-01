@@ -597,25 +597,12 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'when the banking info is redacted' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
-      let(:form_content) do
-        {
-          'form526' => {
-            'bankName' => 'WELLS FARGO BANK',
-            'bankAccountType' => 'CHECKING',
-            'bankAccountNumber' => '1234567890',
-            'bankRoutingNumber' => '031000503'
-          }
-        }
-      end
-
       context 'when Lighthouse returns banking info for the user' do
         it 'logs the submission was made with banking info' do
-          # This expectation should come BEFORE the method call
           expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
             .to receive(:track_526_submission_with_banking_info)
             .with(user.uuid)
 
-          # Use the pre-recorded API response
           VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
             subject.send(:translate_banking_info)
           end
