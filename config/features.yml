@@ -107,6 +107,11 @@ features:
     description: >
       Use preprod CRM environment to facilitate end to end testing by AVA testers.
     enable_in_development: false
+  ask_va_inquiry_context_logging_disabled:
+    actor_type: user
+    description: >
+      Enables enhanced logging of inquiry context data within the Ask VA API.
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance

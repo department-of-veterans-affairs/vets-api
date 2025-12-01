@@ -48,6 +48,7 @@ module AskVAApi
         private
 
         def log_inquiry_context
+          return unless not Flipper.enabled?(:ask_va_inquiry_context_logging_disabled) 
           context = {
             level_of_authentication: inquiry_details[:level_of_authentication],
             user_loa: user&.loa&.fetch(:current, nil),
@@ -59,7 +60,7 @@ module AskVAApi
             relationship_to_veteran: inquiry_params[:relationship_to_veteran],
             is_question_about_veteran_or_someone_else: inquiry_params[:is_question_about_veteran_or_someone_else],
             your_role: inquiry_params[:your_role],
-            attachments: !(inquiry_params[:files].first.nil? || inquiry_params[:files].first[:file_name].nil?)
+            attachments: attachment_present?
           }
           Rails.logger.info('Inquiry Context', context)
         end
