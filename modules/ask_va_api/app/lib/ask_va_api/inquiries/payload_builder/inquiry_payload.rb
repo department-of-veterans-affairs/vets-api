@@ -48,7 +48,8 @@ module AskVAApi
         private
 
         def log_inquiry_context
-          return unless !Flipper.enabled?(:ask_va_inquiry_context_logging_disabled) 
+          return if Flipper.enabled?(:ask_va_inquiry_context_logging_disabled)
+
           context = {
             level_of_authentication: inquiry_details[:level_of_authentication],
             user_loa: user&.loa&.fetch(:current, nil),
