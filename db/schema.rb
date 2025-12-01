@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_21_181958) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_25_141602) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -795,7 +795,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_181958) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.uuid "guid", default: -> { "gen_random_uuid()" }
+    t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
     t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
