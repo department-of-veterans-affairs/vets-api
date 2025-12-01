@@ -141,6 +141,7 @@ class SourceAppMiddleware
     'secure-messaging',
     'secure-messaging-pilot',
     'sign-in-changes',
+    'sign-in-health-portal',
     'Survivor and Dependent Benefits 22-5490',
     'survivor-dependent-education-benefit-22-5490',
     'static-pages',
