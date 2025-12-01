@@ -152,4 +152,47 @@ RSpec.describe VcrMcp::ServiceConfig do
       expect(result).to eq({})
     end
   end
+
+  describe 'caching without deadlock' do
+    # Regression test for recursive locking issue
+    # Previously, calling placeholder_to_namespace would deadlock because
+    # it called cached_fetch, which then called parse_vcr_placeholders
+    # inside the block, which also called cached_fetch with the same lock
+
+    it 'does not deadlock when calling placeholder_to_namespace' do
+      # This would previously raise: deadlock; recursive locking
+      expect { described_class.placeholder_to_namespace }.not_to raise_error
+    end
+
+    it 'does not deadlock when calling namespaces_to_placeholders' do
+      # This depends on placeholder_to_namespace, which depends on parse_vcr_placeholders
+      expect { described_class.namespaces_to_placeholders }.not_to raise_error
+    end
+
+    it 'does not deadlock when calling detect_from_cassette with placeholder URIs' do
+      interactions = [
+        { request: { uri: 'https://<MHV_SM_HOST>/api/v1/messages' } }
+      ]
+      # This calls placeholder_to_namespace internally
+      expect { described_class.detect_from_cassette('test/cassette', interactions) }.not_to raise_error
+    end
+
+    it 'caches results correctly across multiple calls' do
+      # First call populates cache
+      result1 = described_class.placeholder_to_namespace
+      # Second call should use cache
+      result2 = described_class.placeholder_to_namespace
+
+      expect(result1).to eq(result2)
+    end
+
+    it 'allows sequential access to dependent cached methods' do
+      # These methods have dependencies:
+      # namespaces_to_placeholders -> placeholder_to_namespace -> parse_vcr_placeholders
+      # Ensure they can all be called in sequence without deadlock
+      expect { described_class.parse_vcr_placeholders }.not_to raise_error
+      expect { described_class.placeholder_to_namespace }.not_to raise_error
+      expect { described_class.namespaces_to_placeholders }.not_to raise_error
+    end
+  end
 end

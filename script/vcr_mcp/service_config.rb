@@ -72,13 +72,16 @@ module VcrMcp
       end
 
       # Build a mapping of placeholder names to their settings namespaces
+      # Note: Fetches placeholders first to avoid recursive locking in cached_fetch
       def placeholder_to_namespace
-        cached_fetch(:placeholder_to_namespace) { build_placeholder_to_namespace_mapping }
+        # Fetch placeholders outside the cache block to avoid deadlock
+        placeholders = parse_vcr_placeholders
+        cached_fetch(:placeholder_to_namespace) { build_placeholder_to_namespace_mapping(placeholders) }
       end
 
-      def build_placeholder_to_namespace_mapping
+      def build_placeholder_to_namespace_mapping(placeholders)
         mapping = {}
-        parse_vcr_placeholders.each do |placeholder, settings_path|
+        placeholders.each do |placeholder, settings_path|
           namespace = settings_namespace_from_path(settings_path)
           mapping[placeholder] = namespace
         end
@@ -86,13 +89,16 @@ module VcrMcp
       end
 
       # Group placeholders by their settings namespace
+      # Note: Fetches placeholder_to_namespace first to avoid recursive locking
       def namespaces_to_placeholders
-        cached_fetch(:namespaces_to_placeholders) { build_namespaces_to_placeholders_mapping }
+        # Fetch mapping outside the cache block to avoid deadlock
+        mapping = placeholder_to_namespace
+        cached_fetch(:namespaces_to_placeholders) { build_namespaces_to_placeholders_mapping(mapping) }
       end
 
-      def build_namespaces_to_placeholders_mapping
+      def build_namespaces_to_placeholders_mapping(mapping)
         grouped = Hash.new { |h, k| h[k] = [] }
-        placeholder_to_namespace.each do |placeholder, namespace|
+        mapping.each do |placeholder, namespace|
           grouped[namespace] << placeholder
         end
         grouped
