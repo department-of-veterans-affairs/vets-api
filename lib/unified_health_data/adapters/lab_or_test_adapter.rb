@@ -2,10 +2,12 @@
 
 require_relative '../models/lab_or_test'
 require_relative '../reference_range_formatter'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
     class LabOrTestAdapter
+      include DateNormalizer
       def parse_labs(records)
         return [] if records.blank?
 
@@ -32,12 +34,15 @@ module UnifiedHealthData
       private
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
+        date_completed_value = get_date_completed(record['resource'])
+
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
-          date_completed: get_date_completed(record['resource']),
+          date_completed: date_completed_value,
+          sort_date: normalize_date_for_sorting(date_completed_value),
           sample_tested: get_sample_tested(record['resource'], contained),
           encoded_data:,
           location: get_location(record),
