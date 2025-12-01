@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'benefits_claims/title_generator'
+
 module Mobile
   module V0
     module Adapters
       class ClaimsOverview
+        FEATURE_USE_TITLE_GENERATOR_MOBILE = 'cst_use_claim_title_generator_mobile'
+
         APPEALS_TYPES = {
           legacy: 'legacyAppeal',
           supplemental_claim: 'supplementalClaim',
@@ -40,20 +44,31 @@ module Mobile
 
         def parse_claim(entry)
           attributes = entry['attributes']
+          claim_type = attributes['claimType']
+          claim_type_code = attributes['claimTypeCode']
+
+          titles = BenefitsClaims::TitleGenerator.generate_titles(claim_type, claim_type_code)
+
+          build_claim(entry['id'], attributes, claim_type_code, titles)
+        end
+
+        def build_claim(id, attributes, claim_type_code, titles)
+          use_generated_titles = Flipper.enabled?(FEATURE_USE_TITLE_GENERATOR_MOBILE)
           Mobile::V0::ClaimOverview.new(
             {
-              id: entry['id'],
+              id:,
               type: 'claim',
               subtype: attributes['claimType'],
               completed: attributes['status'] == 'COMPLETE',
               date_filed: date(attributes['claimDate']),
               updated_at: date(attributes['claimPhaseDates']['phaseChangeDate']),
-              display_title: attributes['claimType'],
+              display_title: use_generated_titles ? titles[:display_title] : attributes['claimType'],
               decision_letter_sent: attributes['decisionLetterSent'],
               phase: Mobile::ClaimsHelper.phase_to_number(attributes['claimPhaseDates']['phaseType']),
               documents_needed: documents_needed(attributes),
               development_letter_sent: attributes['developmentLetterSent'],
-              claim_type_code: attributes['claimTypeCode']
+              claim_type_code:,
+              claim_type_base: titles[:claim_type_base]
             }
           )
         end

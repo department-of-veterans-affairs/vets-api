@@ -164,6 +164,7 @@ module SM
 
         loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+          path = append_requires_oh_messages_query(path)
           page_data = perform(:get, path, nil, token_headers).body
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
@@ -340,11 +341,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message(args = {})
+    def post_create_message(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
-
       json = perform(:post, 'message', args.to_h, token_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -354,13 +358,16 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_with_attachment(args = {})
+    def post_create_message_with_attachment(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
-
       Rails.logger.info('MESSAGING: post_create_message_with_attachments')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -389,10 +396,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_with_lg_attachments(args = {})
+    def post_create_message_with_lg_attachments(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
       Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
-      create_message_with_lg_attachments_request('message/attach', args)
+      message = create_message_with_lg_attachments_request('message/attach', args)
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -402,13 +413,16 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply_with_attachment(id, args = {})
+    def post_create_message_reply_with_attachment(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
-
       Rails.logger.info('MESSAGING: post_create_message_reply_with_attachment')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -420,10 +434,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_reply_with_lg_attachment(id, args = {})
+    def post_create_message_reply_with_lg_attachment(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
       Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
-      create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
+      message = create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -433,11 +451,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply(id, args = {})
+    def post_create_message_reply(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
-
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      message = Message.new(json[:data].merge(json[:metadata]))
+      return poll_status(message) if poll_for_status
+
+      message
     end
 
     ##
@@ -552,7 +573,6 @@ module SM
         data
       end
     end
-    # @!endgroup
 
     ##
     # Update preferredTeam value for a patient's list of triage teams
@@ -721,6 +741,61 @@ module SM
     end
 
     ##
+    # @!group Message Status
+    ##
+    # Poll OH message status until terminal state or timeout
+    #
+    def get_message_status(message_id)
+      path = "message/#{message_id}/status"
+      json = perform(:get, path, nil, token_headers).body
+      data = json.is_a?(Hash) && json[:data].present? ? json[:data] : json
+      {
+        message_id: data[:message_id] || data[:id] || message_id,
+        status: data[:status]&.to_s&.upcase,
+        is_oh_message: data.key?(:is_oh_message) ? data[:is_oh_message] : data[:oh_message],
+        oh_secure_message_id: data[:oh_secure_message_id]
+      }
+    end
+
+    def poll_message_status(message_id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
+      terminal_statuses = %w[SENT FAILED INVALID UNKNOWN NOT_SUPPORTED]
+      deadline = Time.zone.now + timeout_seconds
+      consecutive_errors = 0
+
+      loop do
+        raise Common::Exceptions::GatewayTimeout if Time.zone.now >= deadline
+
+        begin
+          result = get_message_status(message_id)
+          status = result[:status]
+          return result if status && terminal_statuses.include?(status)
+        rescue Common::Exceptions::GatewayTimeout
+          # Immediately re-raise upstream timeouts
+          raise
+        rescue => e
+          consecutive_errors += 1
+          raise e if consecutive_errors > max_errors
+        end
+
+        sleep interval_seconds
+      end
+    end
+
+    # Polling integration for OH messages on send/reply
+    def poll_status(message)
+      if %w[staging production].include?(Settings.vsp_environment)
+        Rails.logger.info("MHV SM: message id #{message.id} is in the OH polling path")
+      end
+      result = poll_message_status(message.id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
+      status = result && result[:status]
+      raise Common::Exceptions::UnprocessableEntity if %w[FAILED INVALID].include?(status)
+
+      message
+    end
+
+    # @!endgroup
+
+    ##
     # @!group StatsD
     ##
     # Report stats of secure messaging events
@@ -733,6 +808,7 @@ module SM
     def statsd_cache_miss
       StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
     end
+
     # @!endgroup
   end
 end

@@ -58,6 +58,8 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       get 'access_token_auth' => 'sign_in/application#access_token_auth'
       get 'test_logging' => 'sign_in/application#test_logging'
     end
+
+    allow(Rails.logger).to receive(:warn)
   end
 
   describe '#authentication' do
@@ -94,18 +96,20 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
 
     shared_context 'user fingerprint validation' do
+      let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
+
       context 'user.fingerprint matches request IP' do
-        it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+        it 'passes fingerprint validation and does not warn' do
           expect(subject.request.remote_ip).to eq(user.fingerprint)
+          expect(Rails.logger).not_to have_received(:warn).with(expected_error, anything)
         end
       end
 
       context 'user.fingerprint does not match request IP' do
         let!(:user) do
-          create(:user, :loa3, uuid: access_token_object.user_uuid, session_handle: access_token_object.session_handle)
+          create(:user, :loa3, uuid: access_token_object.user_uuid,
+                               session_handle: access_token_object.session_handle)
         end
-        let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
         let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
         it 'fails fingerprint validation and creates a log' do
@@ -289,7 +293,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'user fingerprint validation' do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry).with(:warn)
           expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end
@@ -721,26 +725,24 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
   end
 
-  describe 'controller name logging' do
+  describe 'origin logging' do
     let(:expected_result) { 'Test log message' }
 
     context 'when controller has a name' do
-      it 'adds controller name to logs within around_action' do
-        expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'application').and_call_original
+      it 'adds controller class name as origin to logs within around_action' do
+        expect(SemanticLogger).to receive(:named_tagged).with(origin: 'sign_in/application_controller')
+                                                        .and_call_original
         expect(Rails.logger).to receive(:info).with(expected_result)
         get :test_logging
         expect(response).to have_http_status :ok
       end
     end
 
-    context 'when controller has no name' do
-      before { allow(controller).to receive(:controller_name).and_return('') }
-
-      it 'does not call SemanticLogger.named_tagged' do
+    context 'when controller class name is blank' do
+      it 'does not call SemanticLogger.named_tagged when class name is blank' do
+        allow(controller.class).to receive(:name).and_return('')
         expect(SemanticLogger).not_to receive(:named_tagged)
-        expect(Rails.logger).to receive(:info).with(expected_result)
-        get :test_logging
-        expect(response).to have_http_status :ok
+        controller.send(:tag_with_controller_name) { 'test' }
       end
     end
   end

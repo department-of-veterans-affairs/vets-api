@@ -33,6 +33,14 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
+  let(:json_headers) do
+    {
+      '_headers' => {
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json'
+      }
+    }
+  end
 
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
@@ -1523,42 +1531,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    context 'with a loa1 user' do
-      let(:mhv_user) { build(:user, :loa1) }
-
-      it 'rejects getting EVSS Letters for loa1 users' do
-        expect(subject).to validate(:get, '/v0/letters', 403, headers)
-      end
-
-      it 'rejects getting EVSS benefits Letters for loa1 users' do
-        expect(subject).to validate(:get, '/v0/letters/beneficiary', 403, headers)
-      end
-    end
-
-    context 'without EVSS mock' do
-      before do
-        allow(Settings.evss).to receive_messages(mock_gi_bill_status: false, mock_letters: false)
-      end
-
-      it 'supports getting EVSS Letters' do
-        expect(subject).to validate(:get, '/v0/letters', 401)
-        VCR.use_cassette('evss/letters/letters') do
-          expect(subject).to validate(:get, '/v0/letters', 200, headers)
-        end
-      end
-
-      it 'supports getting EVSS Letters Beneficiary' do
-        expect(subject).to validate(:get, '/v0/letters/beneficiary', 401)
-        VCR.use_cassette('evss/letters/beneficiary') do
-          expect(subject).to validate(:get, '/v0/letters/beneficiary', 200, headers)
-        end
-      end
-
-      it 'supports posting EVSS Letters' do
-        expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
-      end
-    end
-
     it 'supports getting the 200 user data' do
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
                                                                                   allow_playback_repeats: true) do
@@ -1574,10 +1546,19 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     context '/v0/user endpoint with some external service errors' do
-      let(:user) { build(:user, middle_name: 'Lee') }
+      let(:user) do
+        build(:user, middle_name: 'Lee', edipi: '1234567890', loa: { current: 3, highest: 3 })
+      end
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
       it 'supports getting user with some external errors', :skip_mvi do
+        expect(subject).to validate(:get, '/v0/user', 296, headers)
+      end
+
+      it 'returns 296 when VAProfile returns an error', :skip_mvi do
+        allow_any_instance_of(VAProfile::VeteranStatus::Service)
+          .to receive(:get_veteran_status)
+          .and_raise(StandardError.new('VAProfile error'))
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
     end
@@ -2457,93 +2438,29 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'Form 21-4192' do
-      context 'submitting a 21-4192 form' do
-        let(:valid_form_data) do
-          {
-            form214192: {
-              veteranInformation: {
-                fullName: {
-                  first: 'John',
-                  middle: 'M',
-                  last: 'Doe'
-                },
-                ssn: '123456789',
-                vaFileNumber: '987654321',
-                dateOfBirth: '1980-01-01',
-                address: {
-                  street: '123 Main St',
-                  city: 'Springfield',
-                  state: 'IL',
-                  postalCode: '62701',
-                  country: 'USA'
-                },
-                phoneNumber: '555-123-4567',
-                emailAddress: 'veteran@example.com'
-              },
-              employmentInformation: {
-                employerName: 'Acme Corporation',
-                employerAddress: {
-                  street: '456 Business Blvd',
-                  city: 'Chicago',
-                  state: 'IL',
-                  postalCode: '60601',
-                  country: 'USA'
-                },
-                employerPhone: '555-987-6543',
-                employerEmail: 'hr@acme.com',
-                contactPerson: {
-                  name: 'Jane Smith',
-                  title: 'HR Manager',
-                  phone: '555-987-6544',
-                  email: 'jane.smith@acme.com'
-                },
-                typeOfWorkPerformed: 'Software Developer',
-                beginningDateOfEmployment: '2015-01-15',
-                endingDateOfEmployment: '2023-06-30',
-                amountEarnedLast12MonthsOfEmployment: 75_000,
-                timeLostLast12MonthsOfEmployment: '2 weeks',
-                hoursWorkedDaily: 8,
-                hoursWorkedWeekly: 40,
-                concessions: 'Flexible hours, ergonomic desk',
-                terminationReason: 'Medical disability',
-                dateLastWorked: '2023-06-30',
-                lastPaymentDate: '2023-07-15',
-                lastPaymentGrossAmount: 6250,
-                lumpSumPaymentMade: false
-              }
-            }
-          }
-        end
-
-        it 'successfully submits a 21-4192 form' do
-          expect(subject).to validate(
-            :post,
-            '/v0/form214192',
-            200,
-            '_data' => valid_form_data
-          )
-        end
-      end
-    end
-
     describe '1095-B' do
-      let(:user) { build(:user, :loa3, icn: '3456787654324567') }
+      let(:user) { build(:user, :loa3, icn: '1012667145V762142') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
       let(:bad_headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
       before do
-        create(:form1095_b, tax_year: Form1095B.current_tax_year)
+        allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
+        Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z'))
       end
+
+      after { Timecop.return }
 
       context 'available forms' do
         it 'supports getting available forms' do
-          expect(subject).to validate(
-            :get,
-            '/v0/form1095_bs/available_forms',
-            200,
-            headers
-          )
+          VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
+                           { match_requests_on: %i[method uri] }) do
+            expect(subject).to validate(
+              :get,
+              '/v0/form1095_bs/available_forms',
+              200,
+              headers
+            )
+          end
         end
 
         it 'requires authorization' do
@@ -2841,57 +2758,135 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'form 21-0779 nursing home information' do
-      let(:valid_form210779) do
+    describe '21-2680' do
+      let(:headers) do
         {
-          veteranInformation: {
-            first: 'John',
-            last: 'Doe',
-            dateOfBirth: '1950-01-01',
-            veteranId: {
-              ssn: '123456789'
-            }
-          },
-          claimantInformation: {
-            first: 'Jane',
-            last: 'Doe',
-            dateOfBirth: '1952-05-15',
-            veteranId: {
-              ssn: '987654321'
-            }
-          },
-          nursingHomeInformation: {
-            nursingHomeName: 'Sunrise Senior Living',
-            nursingHomeAddress: {
-              street: '123 Care Lane',
-              city: 'Springfield',
-              state: 'IL',
-              country: 'USA',
-              postalCode: '62701'
-            }
-          },
-          generalInformation: {
-            admissionDate: '2024-01-01',
-            medicaidFacility: true,
-            medicaidApplication: true,
-            patientMedicaidCovered: true,
-            medicaidStartDate: '2024-02-01',
-            monthlyCosts: '3000.00',
-            certificationLevelOfCare: true,
-            nursingOfficialName: 'Dr. Sarah Smith',
-            nursingOfficialTitle: 'Director of Nursing',
-            nursingOfficialPhoneNumber: '555-789-0123'
+          '_headers' => {
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
           }
         }
       end
 
-      it 'supports submitting a form 21-0779 (stub endpoint)' do
+      context 'submitting form212680 claim form' do
+        it 'successfully downloads form212680 pdf', skip: 'need apivore update to accept binary response' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form212680/download_pdf',
+            200,
+            headers.merge('_data' => {
+              'form' => VetsJsonSchema::EXAMPLES['21-2680']
+            }.to_json)
+          )
+        end
+
+        it 'handles 422' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form212680/download_pdf',
+            422,
+            headers.merge('_data' => { 'form' => { foo: :bar } }.to_json)
+          )
+        end
+
+        it 'handles 400' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form212680/download_pdf',
+            400,
+            headers.merge('_data' => {})
+          )
+        end
+
+        context 'when feature toggle is disabled' do
+          before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
+
+          it 'handles 404' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form212680/download_pdf',
+              404,
+              headers.merge('_data' => {
+                'form' => VetsJsonSchema::EXAMPLES['21-2680']
+              }.to_json)
+            )
+          end
+        end
+      end
+    end
+
+    describe 'form 21-0779 nursing home information' do
+      let(:saved_claim) { create(:va210779) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
+      end
+
+      it 'supports submitting a form 21-0779' do
         expect(subject).to validate(
           :post,
           '/v0/form210779',
           200,
-          '_data' => valid_form210779
+          json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-0779'].to_json }.to_json)
         )
+      end
+
+      it 'handles 422' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779',
+          422,
+          json_headers.merge('_data' => { form: { foo: :bar }.to_json }.to_json)
+        )
+      end
+
+      it 'handles 400' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779',
+          400,
+          json_headers.merge('_data' => { foo: :bar }.to_json)
+        )
+      end
+
+      it 'successfully downloads form210779 pdf', skip: 'swagger validation cannot handle binary PDF response' do
+        expect(subject).to validate(
+          :get,
+          '/v0/form210779/download_pdf/{guid}',
+          200,
+          'guid' => saved_claim.guid
+        )
+      end
+
+      it 'handles 404' do
+        expect(subject).to validate(
+          :get,
+          '/v0/form210779/download_pdf/{guid}',
+          404,
+          'guid' => 'bad-id'
+        )
+      end
+
+      context 'when feature toggle is disabled' do
+        before { allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(false) }
+
+        it 'supports submitting a form 21-0779' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form210779',
+            404,
+            json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-0779'].to_json }.to_json)
+          )
+        end
+
+        it 'handles 404' do
+          expect(subject).to validate(
+            :get,
+            '/v0/form210779/download_pdf/{guid}',
+            404,
+            'guid' => saved_claim.guid
+          )
+        end
       end
     end
 
@@ -3366,10 +3361,11 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
-      subject.untested_mappings.delete('/v0/form214192/download_pdf')
+      subject.untested_mappings['/v0/form210779/download_pdf/{guid}']['get'].delete('200')
+
       subject.untested_mappings.delete('/v0/form0969')
-      subject.untested_mappings.delete('/v0/form210779/download_pdf')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
+      subject.untested_mappings.delete('/v0/form212680/download_pdf')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')

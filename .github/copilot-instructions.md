@@ -1,8 +1,20 @@
 # Copilot Instructions for `vets-api`
 
+## 📚 Additional Resources
+
+### Path-Specific Instructions
+**Path-specific custom instructions automatically apply when working on specific modules:**
+
+- **[instructions/my-health-messaging.instructions.md](./instructions/my-health-messaging.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/sm/` - Secure Messaging specific patterns, models, and API client usage
+- **[instructions/my-health-medical-records.instructions.md](./instructions/my-health-medical-records.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/medical_records/` - Medical Records specific patterns, FHIR integration, and multi-client architecture
+- **[instructions/my-health-prescriptions.instructions.md](./instructions/my-health-prescriptions.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/rx/` - Prescriptions specific patterns, refill workflows, and pharmacy API client usage
+
+These path-specific instructions are automatically loaded by GitHub Copilot when you work on files matching their `applyTo` patterns. You can create additional path-specific instruction files in `.github/instructions/` for other modules or features.
+
 ## Repository Context
 `vets-api` is a Ruby on Rails API serving veterans via VA.gov. Large codebase (400K+ lines) with modules for appeals, claims, healthcare, and benefits processing.
 
+**Default Branch:** `master` - All code reviews and comparisons should be against the `master` branch
 **Key External Services:** BGS, MVI, Lighthouse APIs
 **Architecture:** Rails engines in `modules/`, background jobs via Sidekiq Enterprise
 
@@ -28,7 +40,7 @@
 - Controllers in `modules/[name]/app/controllers` or `app/controllers`
 - Background jobs in `app/sidekiq/` - use for operations >2 seconds
 - External service clients in `lib/` with Faraday configuration
-- Feature flags via Flipper for gradual rollouts and A/B testing
+- Feature flags via Flipper for gradual rollouts and A/B testing `config/features.yml`
 - Strong parameters required - never use `params` directly
 - Error responses use envelope: `{ error: { code, message } }`
 - Service objects return `{ data: result, error: nil }` pattern
@@ -47,12 +59,22 @@
 - VCR cassettes for external service tests
 - Settings: `config/settings.yml` (alphabetical order required)
 
+### Gemfile and Dependency Management
+- **DO NOT commit Gemfile or Gemfile.lock changes** unless they are necessary for the feature/fix you are implementing
+- **DO NOT commit local Gemfile modifications** that remove the `sidekiq-ent` and `sidekiq-pro` gems (these may be removed locally if you don't have a Sidekiq Enterprise license, but should never be committed)
+- Gemfile.lock changes from running `bundle install` to get your local dev environment working should NOT be committed
+- Only commit Gemfile changes when adding, removing, or updating gems as part of your feature work
+- Ruby and gem versions are defined in `Gemfile` and locked in `Gemfile.lock`
+- If you need a newer version of a gem, submit a draft PR with just the gem updated and passing tests
+
 ### VA Service Integration
 - **BGS**: Benefits data, often slow/unreliable
 - **MVI**: Veteran identity, use ICN for lookups
 - **Lighthouse**: Modern REST APIs for claims, health records, veteran verification
 
 ## For PR Reviews - Human Judgment Issues
+
+**Note:** This repository uses `master` as the default branch. All PR reviews should compare changes against the `master` branch.
 
 ### ⚠️ NO DUPLICATE COMMENTS - Consolidate Similar Issues
 
@@ -74,6 +96,7 @@
 - **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
 - **Wrong identifier usage**: Using User ID instead of ICN for MVI/BGS lookups
 - **Form handling**: Complex forms not using form objects for serialization
+- **Unnecessary Gemfile changes**: Committing Gemfile/Gemfile.lock changes that are not required for the feature (e.g., local dev environment setup changes, removal of sidekiq-ent/sidekiq-pro gems)
 
 ### Architecture Concerns
 - **N+1 queries**: Loading associations in loops without includes

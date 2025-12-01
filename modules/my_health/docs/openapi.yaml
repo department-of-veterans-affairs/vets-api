@@ -117,39 +117,68 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
       summary: /v1/medical_records/ccd/generate
-  /v1/medical_records/ccd/download:
+  /v1/medical_records/ccd/download.{format}:
     get:
-      description: Download the Continuity of Care Document specified by the date parameter.
+      summary: Download Continuity of Care Document (CCD)
+      description: |
+        Download the Continuity of Care Document (CCD) specified by the `date` parameter.
+
+        The response format is indicated by the path extension — for example:
+        - `/v1/medical_records/ccd/download.xml`
+        - `/v1/medical_records/ccd/download.html`
+        - `/v1/medical_records/ccd/download.pdf`
+
+        If the format extension is not included, the default is XML.
       operationId: download_ccd
       parameters:
         - name: date
           in: query
           required: true
-          description: Date of the desired study, as pulled verbatim from the generate endpoint response
+          description: >
+            Date of the desired CCD, as pulled verbatim from the `generate` endpoint response.
           schema:
             type: string
+            format: date
+        - name: format
+          in: path
+          description: >
+            The format of the returned CCD document. Can be `xml`, `html`, or `pdf`.
+          schema:
+            type: string
+            enum: [xml, html, pdf]
+            default: xml
       responses:
         "200":
+          description: Successful download
           content:
             application/xml:
               schema:
-                type: object
+                type: string
                 description: >
-                  The returned document is an XML file representing the patient's Continuity of Care Document.
-          description: OK
+                  XML-formatted Continuity of Care Document (CCD).
+            text/html:
+              schema:
+                type: string
+                description: >
+                  HTML-formatted Continuity of Care Document (CCD).
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                description: >
+                  PDF-formatted Continuity of Care Document (CCD).
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
           description: Unauthorized
-        "403":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
+        "403":
           description: Forbidden
-      summary: /v1/medical_records/ccd/download
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
   /v1/medical_records/clinical_notes:
     get:
       description: List patient clinical notes
@@ -1967,7 +1996,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas/TooltipParams.yml'
+              $ref: "./schemas/TooltipParams.yml"
       responses:
         "201":
           description: Created
@@ -2004,7 +2033,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas/TooltipParams.yml'
+              $ref: "./schemas/TooltipParams.yml"
       responses:
         "200":
           description: OK
@@ -2157,6 +2186,192 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: No lab results found
       summary: /v2/labs_and_tests
+  /v2/prescriptions:
+    get:
+      description: |
+        List medications for the current user. This endpoint uses the Unified Health Data (Oracle Health) backend
+        and requires the `mhv_medications_cerner_pilot` feature flag to be enabled.
+        
+        Supports filtering, sorting, and pagination. Results can be filtered by prescription status and sorted
+        by various attributes. Pending (PD) prescriptions are included based on the `mhv_medications_display_pending_meds`
+        feature flag.
+      operationId: get_v2_prescriptions
+      parameters:
+        - description: Filter prescriptions by disp_status (comma-separated for multiple values, e.g., "Active,Expired")
+          in: query
+          name: filter[disp_status][eq]
+          required: false
+          schema:
+            type: string
+            example: "Active"
+        - description: The page number for pagination
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - description: The number of items per page
+          in: query
+          name: per_page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 20
+        - description: |
+            The attribute to sort by. Prefix with "-" for descending order. 
+            Supported values: "alphabetical-rx-name", "last-fill-date", or field names like "disp_status", "prescription_name", "dispensed_date"
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            example: "alphabetical-rx-name"
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden - Feature not available or user not authorized
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Internal Server Error
+      summary: /v2/prescriptions
+  /v2/prescriptions/list_refillable_prescriptions:
+    get:
+      description: |
+        List refillable medications for the current user. This endpoint returns prescriptions that can be refilled,
+        including those marked as refillable or renewable (Active/Expired within 120 days).
+        
+        Uses the Unified Health Data (Oracle Health) backend and requires the `mhv_medications_cerner_pilot` feature flag.
+      operationId: get_v2_list_refillable_prescriptions
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ./schemas/PrescriptionDetail.yml
+                  meta:
+                    type: object
+                    required:
+                      - recently_requested
+                    properties:
+                      recently_requested:
+                        type: array
+                        description: >
+                          List of prescriptions with status "Active: Refill in Process" 
+                          or "Active: Submitted"
+                        items:
+                          type: object
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden - Feature not available or user not authorized
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Internal Server Error
+      summary: /v2/prescriptions/list_refillable_prescriptions
+  /v2/prescriptions/refill:
+    post:
+      description: |
+        Refill one or more prescriptions in a batch operation. This endpoint accepts an array of prescription orders,
+        each containing a station number and prescription ID. Returns detailed results for each refill attempt,
+        including successful refills and any errors encountered.
+        
+        Uses the Unified Health Data (Oracle Health) backend and requires the `mhv_medications_cerner_pilot` feature flag.
+        
+        <strong>NOTES:</strong>
+        <ul>
+          <li>All orders are processed in a single batch operation</li>
+          <li>Partial failures are allowed - some prescriptions may succeed while others fail</li>
+          <li>Each order must include both stationNumber and id fields</li>
+          <li>At least one order must be provided</li>
+          <li>Results include separate lists for successful and failed refills</li>
+        </ul>
+      operationId: post_v2_refill_prescriptions
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/PrescriptionRefillRequest.yml
+        description: Array of prescription orders to refill
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionRefillResponse.yml
+          description: OK - Refill operation completed (may include partial failures)
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request - Invalid request format or missing required fields
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden - Feature not available or user not authorized
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Internal Server Error
+      summary: /v2/prescriptions/refill
 
 components:
   securitySchemes:
@@ -2180,19 +2395,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: './schemas/Errors.yml'
+            $ref: "./schemas/Errors.yml"
     Forbidden:
       description: Forbidden
       content:
         application/json:
           schema:
-            $ref: './schemas/Errors.yml'
+            $ref: "./schemas/Errors.yml"
     UnprocessableEntity:
       description: Unprocessable Entity
       content:
         application/json:
           schema:
-            $ref: './schemas/Errors.yml'
+            $ref: "./schemas/Errors.yml"
 
 security:
   - CookieAuth: []

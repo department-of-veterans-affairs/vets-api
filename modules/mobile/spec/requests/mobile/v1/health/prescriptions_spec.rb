@@ -2,6 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 require 'unified_health_data/service'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   include JsonSchemaMatchers
@@ -64,6 +65,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
       context 'when UHD service returns prescriptions successfully' do
         it 'returns prescriptions with mobile-specific metadata' do
+          allow(UniqueUserEvents).to receive(:log_event)
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
 
@@ -81,6 +83,12 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               expect(first_prescription['attributes']).to have_key('tracking')
               expect(first_prescription['attributes']['tracking']).to eq([])
             end
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+            )
           end
         end
 
@@ -237,6 +245,23 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       end
     end
 
+    context 'when response count does not match request count' do
+      it 'returns an error for each order id when response count does not match request count' do
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [
+                { stationNumber: '123', id: '25804851' },
+                { stationNumber: '124', id: '25804852' },
+                { stationNumber: '125', id: '25804853' }
+              ].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data']['attributes']['failedPrescriptionIds'].length).to eq(3)
+      end
+    end
+
     context 'with feature flag enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
@@ -244,10 +269,14 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
       context 'when refill is successful' do
         it 'returns success response for batch refill' do
+          allow(UniqueUserEvents).to receive(:log_event)
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             VCR.use_cassette('unified_health_data/refill_prescription_success') do
               put '/mobile/v1/health/rx/prescriptions/refill',
-                  params: [{ stationNumber: '358', id: '25804851' }].to_json,
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
                   headers: sis_headers.merge('Content-Type' => 'application/json')
 
               expect(response).to have_http_status(:ok)
@@ -263,6 +292,12 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               expect(data['attributes']).to have_key('failedPrescriptionIds')
               expect(data['attributes']).to have_key('errors')
               expect(data['attributes']).to have_key('infoMessages')
+
+              # Verify event logging was called
+              expect(UniqueUserEvents).to have_received(:log_event).with(
+                user: anything,
+                event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+              )
             end
           end
         end
@@ -275,9 +310,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
                 params: [{ stationNumber: '123', id: '99999999999999' }].to_json,
                 headers: sis_headers.merge('Content-Type' => 'application/json')
 
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response.parsed_body['errors'][0]['code']).to eq('MOBL_502_upstream_error')
-            expect(response.parsed_body['errors'][0]['detail']).to include('invalid response from the upstream server')
+            expect(response).to have_http_status(:bad_request)
+            expect(response.parsed_body['errors'][0]['code']).to eq('VA900')
+            expect(response.parsed_body['errors'][0]['detail']).to include('Operation failed')
           end
         end
       end

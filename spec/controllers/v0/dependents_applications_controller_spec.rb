@@ -49,8 +49,6 @@ RSpec.describe V0::DependentsApplicationsController do
   describe 'POST create' do
     context 'with valid params v1' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:confirmation_number).and_return('')
@@ -58,13 +56,17 @@ RSpec.describe V0::DependentsApplicationsController do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
       end
 
+      let(:vanotify) { double(send_email: true) }
+
       it 'validates successfully' do
-        expect(VANotify::EmailJob).to receive(:perform_async) do |email, template_id, personalization, secret|
-          expect(email).to_be(user.va_profile_email)
-          expect(template_id).to_be('fake_submitted686c674')
-          expect(personalization).to_have.keys(%w[date_submitted first_name confirmation_number])
-          expect(secret).to_be('fake_secret')
-        end
+        expect(VaNotify::Service).to receive(:new).and_return(vanotify)
+        expect(vanotify).to receive(:send_email).with(
+          {
+            email_address: user.va_profile_email,
+            template_id: 'fake_submitted686c674',
+            personalisation: hash_including('date_submitted', 'first_name', 'confirmation_number')
+          }.compact
+        )
 
         expect(BGS::DependentService).to receive(:new)
           .with(instance_of(User))
@@ -76,14 +78,13 @@ RSpec.describe V0::DependentsApplicationsController do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post(:create, params: test_form)
         end
+
         expect(response).to have_http_status(:ok)
       end
     end
 
     context 'with valid params v2' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
@@ -107,8 +108,6 @@ RSpec.describe V0::DependentsApplicationsController do
 
     context 'with v1 submitting with a v2 user' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)

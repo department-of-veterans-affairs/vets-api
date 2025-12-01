@@ -68,17 +68,20 @@ module MedicalExpenseReports
         }
       }.freeze
 
+      # expand care expenses
       def expand(form_data = {})
-        form_data['primaryCareExpenses'] ||= []
+        form_data['careExpenses'] ||= []
         form_data['primaryCareExpenses'] =
           form_data['careExpenses'].take(2).map { |r| expand_recipient(r) } # the rest go on Addendum A
         form_data
       end
 
+      # expand recipient care
       def expand_recipient(recipient)
         recipient['recipient'] = Constants::RECIPIENTS[recipient['recipient']] || 'Off'
-        recipient['startDate'] = split_date(recipient['startDate'])
-        recipient['endDate'] = split_date(recipient['endDate'])
+        recipient['careDate'] ||= {}
+        recipient['startDate'] = split_date(recipient['careDate']['from'])
+        recipient['endDate'] = split_date(recipient['careDate']['to'])
         recipient['monthlyAmount'] = split_currency_amount_sm(recipient['monthlyAmount'], { 'thousands' => 3 })
         recipient
       end

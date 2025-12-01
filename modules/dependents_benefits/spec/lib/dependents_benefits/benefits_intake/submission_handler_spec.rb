@@ -11,7 +11,7 @@ Rspec.describe DependentsBenefits::BenefitsIntake::SubmissionHandler do
   let(:instance) { handler.new('fake-claim-id') }
 
   before do
-    allow(DependentsBenefits::SavedClaim).to receive(:find).and_return claim
+    allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:find).and_return claim
     allow(DependentsBenefits::Monitor).to receive(:new).and_return monitor
   end
 

@@ -1,0 +1,48 @@
+{
+  "careExpenses": [
+    {
+      "recipient": "OTHER",
+      "careType": "IN_HOME_CARE_ATTENDANT",
+      "noCareEndDate": false,
+      "paymentFrequency": "ANNUALLY"
+    },
+    {
+      "recipient": "OTHER",
+      "careType": "IN_HOME_CARE_ATTENDANT",
+      "noCareEndDate": false,
+      "paymentFrequency": "ANNUALLY"
+    },
+    {
+      "recipient": "OTHER",
+      "careType": "IN_HOME_CARE_ATTENDANT",
+      "noCareEndDate": false,
+      "paymentFrequency": "ANNUALLY"
+    }
+  ],
+  "medicalExpenses": [
+    {
+      "recipients": "VETERAN",
+      "paymentFrequency": "ANNUALLY"
+    },
+    {
+      "recipients": "VETERAN",
+      "paymentFrequency": "ANNUALLY"
+    },
+    {
+      "recipients": "VETERAN",
+      "paymentFrequency": "ANNUALLY"
+    },
+    {
+      "recipients": "VETERAN",
+      "paymentFrequency": "ANNUALLY"
+    },
+    {
+      "recipients": "VETERAN",
+      "paymentFrequency": "ANNUALLY"
+    },
+    {
+      "recipients": "VETERAN",
+      "paymentFrequency": "ANNUALLY"
+    }
+  ]
+}

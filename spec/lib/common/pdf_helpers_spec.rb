@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 require 'common/pdf_helpers'
-require './lib/sentry_logging'
 
 describe Common::PdfHelpers do
   describe '#unlock_pdf' do
@@ -35,7 +34,7 @@ describe Common::PdfHelpers do
 
         expect(subject).not_to receive(:log_message_to_sentry) # rubocop:disable RSpec/SubjectStub
         expect { subject.unlock_pdf(input_file, password, output_file) }
-          .not_to raise_error(Common::Exceptions::UnprocessableEntity)
+          .not_to raise_error
       end
     end
   end

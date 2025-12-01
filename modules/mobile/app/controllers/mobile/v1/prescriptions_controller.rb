@@ -4,6 +4,7 @@ require 'unified_health_data/service'
 require 'unified_health_data/serializers/prescription_serializer'
 require 'unified_health_data/serializers/prescriptions_refills_serializer'
 require 'securerandom'
+require 'unique_user_events'
 
 module Mobile
   module V1
@@ -17,6 +18,12 @@ module Mobile
         paged, page_meta = paginate_prescriptions(pruned)
         meta = build_meta(full_list: pruned, page_meta:, originals: all_prescriptions)
 
+        # Log unique user event for prescriptions accessed
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        )
+
         serialized = UnifiedHealthData::Serializers::PrescriptionSerializer.new(paged).serializable_hash
         render json: { **serialized, meta: }
       rescue Common::Exceptions::BackendServiceException
@@ -25,13 +32,16 @@ module Mobile
 
       def refill
         result = unified_health_service.refill_prescription(orders)
-        render json: UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error("Caught BackendServiceException: #{e.message}")
-        raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
-      rescue => e
-        Rails.logger.error("Caught unexpected error: #{e.class}, #{e.message}")
-        raise e
+        response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
+        raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
+
+        # Log unique user event for prescription refill requested
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+
+        render json: response.serializable_hash
       end
 
       private
