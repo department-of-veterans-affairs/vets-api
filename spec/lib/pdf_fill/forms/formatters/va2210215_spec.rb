@@ -103,6 +103,22 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       expect(form_data['programs'][0]['fte']['totalFTE']).to eq('10.25')
       expect(form_data['programs'][0]['fte']['supportedPercentageFTE']).to eq('55.50%')
     end
+
+    it 'handles empty programs array' do
+      form_data = { 'programs' => [] }
+      described_class.process_programs(form_data)
+      expect(form_data['programs']).to eq([])
+    end
+
+    it 'handles program with empty fte hash' do
+      form_data = {
+        'programs' => [
+          { 'name' => 'Program 1', 'fte' => {} }
+        ]
+      }
+      expect { described_class.process_programs(form_data) }.not_to raise_error
+      expect(form_data['programs'][0]['fte']).to eq({})
+    end
   end
 
   describe '#format_numeric_fte_value' do
@@ -125,6 +141,11 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       result = described_class.send(:format_numeric_fte_value, '3.456789')
       expect(result).to eq('3.46')
     end
+
+    it 'formats non-numeric string as -- when it converts to zero' do
+      result = described_class.send(:format_numeric_fte_value, 'abc')
+      expect(result).to eq('--')
+    end
   end
 
   describe '#format_percentage_fte_value' do
@@ -146,6 +167,11 @@ describe PdfFill::Forms::Formatters::Va2210215 do
     it 'formats percentage decimal values with proper precision' do
       result = described_class.send(:format_percentage_fte_value, '33.333')
       expect(result).to eq('33.33%')
+    end
+
+    it 'formats non-numeric string as N/A when it converts to zero' do
+      result = described_class.send(:format_percentage_fte_value, 'xyz')
+      expect(result).to eq('N/A')
     end
   end
 
@@ -224,6 +250,16 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       result = described_class.format_phone_number('1234567890')
       expect(result).to eq('(123) 456-7890')
     end
+
+    it 'returns original string when phone number does not match pattern' do
+      result = described_class.format_phone_number('123-456-7890')
+      expect(result).to eq('123-456-7890')
+    end
+
+    it 'returns original string for invalid phone number format' do
+      result = described_class.format_phone_number('12345')
+      expect(result).to eq('12345')
+    end
   end
 
   describe '#format_zero_as' do
@@ -245,6 +281,107 @@ describe PdfFill::Forms::Formatters::Va2210215 do
     it 'returns replacement when float zero' do
       result = described_class.format_zero_as('0.0', 'N/A')
       expect(result).to eq('N/A')
+    end
+
+    it 'returns replacement when non-numeric string converts to zero' do
+      result = described_class.format_zero_as('abc', 'N/A')
+      expect(result).to eq('N/A')
+    end
+  end
+
+  describe '#sort_programs_by_name' do
+    it 'sorts programs alphabetically by programName' do
+      programs = [
+        { 'programName' => 'Zebra Program', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple Program', 'studentsEnrolled' => 50 },
+        { 'programName' => 'Banana Program', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.map { |p| p['programName'] }).to eq(['Apple Program', 'Banana Program', 'Zebra Program'])
+    end
+
+    it 'sorts case-insensitively' do
+      programs = [
+        { 'programName' => 'zebra', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 50 },
+        { 'programName' => 'banana', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.map { |p| p['programName'] }).to eq(%w[Apple banana zebra])
+    end
+
+    it 'handles empty array' do
+      programs = []
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted).to eq([])
+    end
+
+    it 'handles nil programs' do
+      sorted = described_class.sort_programs_by_name(nil)
+      expect(sorted).to eq([])
+    end
+
+    it 'handles programs with missing programName' do
+      programs = [
+        { 'programName' => 'Zebra', 'studentsEnrolled' => 100 },
+        { 'studentsEnrolled' => 50 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      # Programs with nil/missing programName sort first (empty string)
+      expect(sorted.first['programName']).to be_nil
+      expect(sorted[1]['programName']).to eq('Apple')
+      expect(sorted.last['programName']).to eq('Zebra')
+    end
+
+    it 'handles nil programName values' do
+      programs = [
+        { 'programName' => 'Zebra', 'studentsEnrolled' => 100 },
+        { 'programName' => nil, 'studentsEnrolled' => 50 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      # Programs with nil programName sort first (empty string)
+      expect(sorted.first['programName']).to be_nil
+      expect(sorted[1]['programName']).to eq('Apple')
+      expect(sorted.last['programName']).to eq('Zebra')
+    end
+
+    it 'maintains stable sort for programs with same name' do
+      programs = [
+        { 'programName' => 'Apple', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Banana', 'studentsEnrolled' => 50 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 75 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.map { |p| p['programName'] }).to eq(%w[Apple Apple Banana])
+      # Verify original order is maintained for duplicates
+      expect(sorted[0]['studentsEnrolled']).to eq(100)
+      expect(sorted[1]['studentsEnrolled']).to eq(75)
+    end
+
+    it 'preserves all program data after sorting' do
+      programs = [
+        { 'programName' => 'Zebra', 'studentsEnrolled' => 100, 'supportedStudents' => 20 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 50, 'supportedStudents' => 10 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.first['programName']).to eq('Apple')
+      expect(sorted.first['studentsEnrolled']).to eq(50)
+      expect(sorted.first['supportedStudents']).to eq(10)
+      expect(sorted.last['programName']).to eq('Zebra')
+      expect(sorted.last['studentsEnrolled']).to eq(100)
+      expect(sorted.last['supportedStudents']).to eq(20)
+    end
+
+    it 'handles programName as number' do
+      programs = [
+        { 'programName' => 123, 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 50 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.first['programName']).to eq(123)
+      expect(sorted.last['programName']).to eq('Apple')
     end
   end
 end

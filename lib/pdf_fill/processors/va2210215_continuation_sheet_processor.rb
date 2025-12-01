@@ -24,7 +24,10 @@ module PdfFill
         @main_form_filler = main_form_filler
         @folder = 'tmp/pdfs'
         @pdf_files = []
-        @programs = @form_data['programs'] || []
+        unsorted_programs = @form_data['programs'] || []
+        @programs = PdfFill::Forms::Formatters::Va2210215.sort_programs_by_name(unsorted_programs)
+        # Update form_data with sorted programs to ensure consistency
+        @form_data['programs'] = @programs
       end
 
       def process
