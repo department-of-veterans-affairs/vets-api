@@ -25422,8 +25422,7 @@
         "required": [
           "id",
           "type",
-          "attributes",
-          "meta"
+          "attributes"
         ],
         "properties": {
           "id": {
@@ -25456,7 +25455,6 @@
                   "directDepositBenefitsUpdate": true,
                   "disabilityRating": true,
                   "genderIdentity": false,
-                  "labsAndTestsEnabled": false,
                   "lettersAndDocuments": true,
                   "militaryServiceHistory": true,
                   "paymentHistory": true,
@@ -25468,26 +25466,6 @@
                   "secureMessagingOracleHealthEnabled": false,
                   "medicationsOracleHealthEnabled": false
                 }
-              }
-            }
-          },
-          "meta": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "isUserAtPretransitionedOhFacility",
-              "isUserFacilityReadyForInfoAlert"
-            ],
-            "properties": {
-              "isUserAtPretransitionedOhFacility": {
-                "type": "boolean",
-                "example": true,
-                "description": "Indicates whether the user is associated with a facility that is pre-transitioned to Oracle Health."
-              },
-              "isUserFacilityReadyForInfoAlert": {
-                "type": "boolean",
-                "example": false,
-                "description": "Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition."
               }
             }
           }
