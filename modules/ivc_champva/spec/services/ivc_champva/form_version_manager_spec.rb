@@ -20,7 +20,7 @@ RSpec.describe IvcChampva::FormVersionManager do
       def initialize(data)
         @data = data
         @uuid = SecureRandom.uuid
-        @form_id = 'test_base_form'
+        @form_id = 'vha_12_34x'
       end
 
       def metadata
@@ -42,7 +42,7 @@ RSpec.describe IvcChampva::FormVersionManager do
       def initialize(data)
         @data = data
         @uuid = SecureRandom.uuid
-        @form_id = 'test_versioned_form'
+        @form_id = 'vha_12_34x_versioned'
       end
 
       def metadata
@@ -56,23 +56,23 @@ RSpec.describe IvcChampva::FormVersionManager do
     end
 
     # Register these classes using stub_const so they're automatically cleaned up
-    stub_const('IvcChampva::TestBaseForm', test_base_form)
-    stub_const('IvcChampva::TestVersionedForm', test_versioned_form)
+    stub_const('IvcChampva::VHA1234x', test_base_form)
+    stub_const('IvcChampva::VHA1234xVersioned', test_versioned_form)
 
     # Stub the form version configuration constants with test values
     stub_const('IvcChampva::FormVersionManager::FORM_VERSIONS', {
-                 'test_base_form' => {
-                   current: 'test_base_form',
-                   '2025' => 'test_versioned_form'
+                 'vha_12_34x' => {
+                   current: 'vha_12_34x',
+                   '2025' => 'vha_12_34x_versioned'
                  }
                })
 
     stub_const('IvcChampva::FormVersionManager::FORM_VERSION_FLAGS', {
-                 'test_versioned_form' => 'test_versioned_form_enabled'
+                 'vha_12_34x_versioned' => 'vha_12_34x_versioned_enabled'
                })
 
     stub_const('IvcChampva::FormVersionManager::LEGACY_MAPPING', {
-                 'test_versioned_form' => 'test_base_form'
+                 'vha_12_34x_versioned' => 'vha_12_34x'
                })
   end
 
@@ -91,29 +91,29 @@ RSpec.describe IvcChampva::FormVersionManager do
     context 'when form has versions configured' do
       context 'and feature flag is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(false)
         end
 
         it 'returns the current version' do
-          result = described_class.resolve_form_version('test_base_form', nil)
-          expect(result).to eq('test_base_form')
+          result = described_class.resolve_form_version('vha_12_34x', nil)
+          expect(result).to eq('vha_12_34x')
         end
       end
 
       context 'and feature flag is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(true)
         end
 
         it 'returns the versioned form ID' do
-          result = described_class.resolve_form_version('test_base_form', nil)
-          expect(result).to eq('test_versioned_form')
+          result = described_class.resolve_form_version('vha_12_34x', nil)
+          expect(result).to eq('vha_12_34x_versioned')
         end
 
         it 'passes the current_user to Flipper' do
           user = double('User')
-          expect(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', user).and_return(true)
-          described_class.resolve_form_version('test_base_form', user)
+          expect(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', user).and_return(true)
+          described_class.resolve_form_version('vha_12_34x', user)
         end
       end
     end
@@ -121,45 +121,31 @@ RSpec.describe IvcChampva::FormVersionManager do
 
   describe '.get_legacy_form_id' do
     it 'returns the legacy form ID for versioned forms' do
-      result = described_class.get_legacy_form_id('test_versioned_form')
-      expect(result).to eq('test_base_form')
+      result = described_class.get_legacy_form_id('vha_12_34x_versioned')
+      expect(result).to eq('vha_12_34x')
     end
 
     it 'returns the same form ID for non-versioned forms' do
-      result = described_class.get_legacy_form_id('test_base_form')
-      expect(result).to eq('test_base_form')
+      result = described_class.get_legacy_form_id('vha_12_34x')
+      expect(result).to eq('vha_12_34x')
     end
   end
 
   describe '.get_form_class' do
-    it 'correctly resolves class names with VHA prefix' do
-      # This test ensures the VHA acronym is properly capitalized
-      # titleize converts 'test_base_form' -> 'Test Base Form' -> 'TestBaseForm'
-      # No VHA prefix issue here, but validates the constantize works
-      expect(described_class.get_form_class('test_base_form')).to eq(IvcChampva::TestBaseForm)
-    end
-
-    it 'correctly resolves versioned form class names' do
-      # This tests that versioned forms can be resolved
-      # 'test_versioned_form' -> 'Test Versioned Form' -> 'TestVersionedForm'
-      expect(described_class.get_form_class('test_versioned_form')).to eq(IvcChampva::TestVersionedForm)
-    end
-
-    it 'handles real VHA form IDs with proper capitalization' do
-      # This is a regression test for the VHA capitalization bug
-      # Without the VHA fix, this would try to constantize 'IvcChampva::Vha1010d2027' which doesn't exist
-      expect(described_class.get_form_class('vha_10_10d_2027')).to eq(IvcChampva::VHA1010d2027)
+    it 'resolves VHA-prefixed form IDs to correct class names' do
+      expect(described_class.get_form_class('vha_12_34x')).to eq(IvcChampva::VHA1234x)
+      expect(described_class.get_form_class('vha_12_34x_versioned')).to eq(IvcChampva::VHA1234xVersioned)
     end
   end
 
   describe '.versioned_form?' do
     it 'returns true for forms with legacy mapping' do
-      result = described_class.versioned_form?('test_versioned_form')
+      result = described_class.versioned_form?('vha_12_34x_versioned')
       expect(result).to be true
     end
 
     it 'returns false for forms without legacy mapping' do
-      result = described_class.versioned_form?('test_base_form')
+      result = described_class.versioned_form?('vha_12_34x')
       expect(result).to be false
     end
   end
@@ -170,18 +156,18 @@ RSpec.describe IvcChampva::FormVersionManager do
     context 'when feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(true)
-        allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(false)
       end
 
       it 'creates an instance of the base form class' do
-        result = described_class.create_form_instance('test_base_form', form_data, nil)
-        expect(result).to be_a(IvcChampva::TestBaseForm)
-        expect(result.form_id).to eq('test_base_form')
+        result = described_class.create_form_instance('vha_12_34x', form_data, nil)
+        expect(result).to be_a(IvcChampva::VHA1234x)
+        expect(result.form_id).to eq('vha_12_34x')
         expect(result.data).to eq(form_data)
       end
 
       it 'returns a form instance with proper Hash metadata that supports dig' do
-        result = described_class.create_form_instance('test_base_form', form_data, nil)
+        result = described_class.create_form_instance('vha_12_34x', form_data, nil)
         metadata = result.metadata
 
         expect(metadata).to be_a(Hash)
@@ -194,38 +180,38 @@ RSpec.describe IvcChampva::FormVersionManager do
     context 'when feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(true)
-        allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(true)
       end
 
       it 'creates an instance of the versioned form class' do
-        result = described_class.create_form_instance('test_base_form', form_data, nil)
-        expect(result).to be_a(IvcChampva::TestVersionedForm)
-        expect(result.form_id).to eq('test_versioned_form')
+        result = described_class.create_form_instance('vha_12_34x', form_data, nil)
+        expect(result).to be_a(IvcChampva::VHA1234xVersioned)
+        expect(result.form_id).to eq('vha_12_34x_versioned')
       end
 
       it 'returns versioned form with proper Hash metadata' do
-        result = described_class.create_form_instance('test_base_form', form_data, nil)
+        result = described_class.create_form_instance('vha_12_34x', form_data, nil)
         metadata = result.metadata
 
         expect(metadata).to be_a(Hash)
         expect(metadata).to respond_to(:dig)
-        expect(metadata.dig('formExpiration')).to eq('12/31/2025')
+        expect(metadata['formExpiration']).to eq('12/31/2025')
       end
     end
 
     context 'when called with an already-resolved form ID (controller bug scenario)' do
       before do
         allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(true)
-        allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(true)
       end
 
       it 'handles double-resolution gracefully and still creates correct form instance' do
         # Simulate the controller bug: passing already-resolved form_id to create_form_instance
         # resolve_form_version will return the input as-is since it's not a base form ID
         # but get_form_class should still work thanks to the VHA capitalization fix
-        result = described_class.create_form_instance('test_versioned_form', form_data, nil)
+        result = described_class.create_form_instance('vha_12_34x_versioned', form_data, nil)
 
-        expect(result).to be_a(IvcChampva::TestVersionedForm)
+        expect(result).to be_a(IvcChampva::VHA1234xVersioned)
         expect(result.metadata).to be_a(Hash)
         expect(result.metadata).to respond_to(:dig)
       end
@@ -237,35 +223,35 @@ RSpec.describe IvcChampva::FormVersionManager do
       before do
         # Add another version to test precedence
         stub_const('IvcChampva::FormVersionManager::FORM_VERSIONS', {
-                     'test_base_form' => {
-                       current: 'test_base_form',
-                       '2024' => 'test_form_2024',
-                       '2025' => 'test_versioned_form'
+                     'vha_12_34x' => {
+                       current: 'vha_12_34x',
+                       '2024' => 'vha_test_2024',
+                       '2025' => 'vha_12_34x_versioned'
                      }
                    })
 
         stub_const('IvcChampva::FormVersionManager::FORM_VERSION_FLAGS', {
-                     'test_form_2024' => 'test_form_2024_enabled',
-                     'test_versioned_form' => 'test_versioned_form_enabled'
+                     'vha_test_2024' => 'vha_test_2024_enabled',
+                     'vha_12_34x_versioned' => 'vha_12_34x_versioned_enabled'
                    })
       end
 
       it 'uses the first enabled version in iteration order' do
         allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(true)
-        allow(Flipper).to receive(:enabled?).with('test_form_2024_enabled', anything).and_return(false)
-        allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('vha_test_2024_enabled', anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(true)
 
-        result = described_class.resolve_form_version('test_base_form', nil)
-        expect(result).to eq('test_versioned_form')
+        result = described_class.resolve_form_version('vha_12_34x', nil)
+        expect(result).to eq('vha_12_34x_versioned')
       end
 
       it 'prefers earlier version if both are enabled' do
         allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(true)
-        allow(Flipper).to receive(:enabled?).with('test_form_2024_enabled', anything).and_return(true)
-        allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('vha_test_2024_enabled', anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(true)
 
-        result = described_class.resolve_form_version('test_base_form', nil)
-        expect(result).to eq('test_form_2024')
+        result = described_class.resolve_form_version('vha_12_34x', nil)
+        expect(result).to eq('vha_test_2024')
       end
     end
 
@@ -290,10 +276,10 @@ RSpec.describe IvcChampva::FormVersionManager do
 
     it 'creates form instances with Hash metadata that supports dig operations' do
       allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(true)
-      allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(true)
+      allow(Flipper).to receive(:enabled?).with('vha_12_34x_versioned_enabled', anything).and_return(true)
 
       # Test both base and versioned forms
-      %w[test_base_form test_versioned_form].each do |form_id|
+      %w[vha_12_34x vha_12_34x_versioned].each do |form_id|
         form = described_class.create_form_instance(form_id, form_data, nil)
         metadata = form.metadata
 
@@ -301,8 +287,8 @@ RSpec.describe IvcChampva::FormVersionManager do
         expect(metadata).to respond_to(:dig), "Expected metadata to respond to #dig for #{form_id}"
 
         # Verify dig actually works (this is where the original bug would manifest)
-        expect { metadata.dig('uuid') }.not_to raise_error
-        expect { metadata.dig('docType') }.not_to raise_error
+        expect { metadata['uuid'] }.not_to raise_error
+        expect { metadata['docType'] }.not_to raise_error
       end
     end
   end

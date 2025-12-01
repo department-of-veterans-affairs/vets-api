@@ -78,9 +78,7 @@ module IvcChampva
       # @param form_id [String] The form ID
       # @return [Class] The form model class
       def get_form_class(form_id)
-        class_name = form_id.titleize.gsub(' ', '')
-        class_name = class_name.sub(/^Vha/, 'VHA')
-        "IvcChampva::#{class_name}".constantize
+        "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
       end
 
       ##
