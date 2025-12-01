@@ -914,6 +914,8 @@ mdot:
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
+memorials:
+  prefill: true
 mhv:
   account:
     mock: false
