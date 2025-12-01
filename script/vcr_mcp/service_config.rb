@@ -107,7 +107,7 @@ module VcrMcp
       # Detects service based on VCR placeholder names in URIs
       # Dynamically reads from spec/support/vcr.rb
       def detect_by_placeholders(interactions)
-        return nil if interactions.blank?
+        return nil if interactions.nil? || interactions.empty?
 
         uris = interactions.map { |i| i.dig(:request, :uri) }.compact
         return nil if uris.empty?
