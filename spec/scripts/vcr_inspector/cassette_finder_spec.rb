@@ -9,30 +9,24 @@ RSpec.describe VcrInspector::CassetteFinder do
 
   after { FileUtils.rm_rf(temp_dir) }
 
-  def create_cassette(relative_path, content = nil)
-    full_path = File.join(temp_dir, relative_path)
-    FileUtils.mkdir_p(File.dirname(full_path))
-
-    content ||= {
+  def default_cassette_content
+    {
       'http_interactions' => [
         {
-          'request' => {
-            'method' => 'get',
-            'uri' => 'https://example.com/api/test',
-            'body' => { 'string' => '' },
-            'headers' => {}
-          },
-          'response' => {
-            'status' => { 'code' => 200, 'message' => 'OK' },
-            'body' => { 'string' => '{"data": "test"}' },
-            'headers' => {}
-          },
-          'recorded_at' => Time.now.strftime('%Y-%m-%dT%H:%M:%SZ')
+          'request' => { 'method' => 'get', 'uri' => 'https://example.com/api/test',
+                         'body' => { 'string' => '' }, 'headers' => {} },
+          'response' => { 'status' => { 'code' => 200, 'message' => 'OK' },
+                          'body' => { 'string' => '{"data": "test"}' }, 'headers' => {} },
+          'recorded_at' => Time.zone.now.strftime('%Y-%m-%dT%H:%M:%SZ')
         }
       ]
     }
+  end
 
-    File.write(full_path, content.to_yaml)
+  def create_cassette(relative_path, content = nil)
+    full_path = File.join(temp_dir, relative_path)
+    FileUtils.mkdir_p(File.dirname(full_path))
+    File.write(full_path, (content || default_cassette_content).to_yaml)
     full_path
   end
 

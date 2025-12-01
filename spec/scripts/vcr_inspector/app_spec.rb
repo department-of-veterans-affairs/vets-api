@@ -76,7 +76,7 @@ RSpec.describe VcrInspector::App do
 
   describe '#format_file_date' do
     it 'formats Time object' do
-      time = Time.new(2024, 6, 15)
+      time = Time.zone.local(2024, 6, 15)
       result = app.send(:format_file_date, time)
       expect(result).to include('June')
       expect(result).to include('2024')
@@ -91,25 +91,25 @@ RSpec.describe VcrInspector::App do
 
   describe '#cassette_age_indicator' do
     it 'returns new indicator for recent cassettes' do
-      recent = Time.now - (10 * 86_400)
+      recent = Time.zone.now - (10 * 86_400)
       result = app.send(:cassette_age_indicator, recent)
       expect(result).to eq('🆕')
     end
 
     it 'returns normal indicator for medium age cassettes' do
-      medium = Time.now - (100 * 86_400)
+      medium = Time.zone.now - (100 * 86_400)
       result = app.send(:cassette_age_indicator, medium)
       expect(result).to eq('📼')
     end
 
     it 'returns warning indicator for old cassettes' do
-      old = Time.now - (300 * 86_400)
+      old = Time.zone.now - (300 * 86_400)
       result = app.send(:cassette_age_indicator, old)
       expect(result).to eq('⚠️')
     end
 
     it 'returns very old indicator for ancient cassettes' do
-      very_old = Time.now - (400 * 86_400)
+      very_old = Time.zone.now - (400 * 86_400)
       result = app.send(:cassette_age_indicator, very_old)
       expect(result).to eq('🕰️')
     end
@@ -261,7 +261,7 @@ RSpec.describe VcrInspector::App do
         ],
         raw: nil
       }
-      file_info = instance_double('File::Stat', mtime: Time.new(2020, 1, 1))
+      file_info = instance_double(File::Stat, mtime: Time.zone.local(2020, 1, 1))
 
       result = app.send(:extract_recorded_at, cassette, file_info)
       expect(result.year).to eq(2024)
@@ -274,7 +274,7 @@ RSpec.describe VcrInspector::App do
         interactions: [],
         raw: { 'recorded_at' => '2023-05-10T15:00:00Z' }
       }
-      file_info = instance_double('File::Stat', mtime: Time.new(2020, 1, 1))
+      file_info = instance_double(File::Stat, mtime: Time.zone.local(2020, 1, 1))
 
       result = app.send(:extract_recorded_at, cassette, file_info)
       expect(result.year).to eq(2023)
@@ -283,8 +283,8 @@ RSpec.describe VcrInspector::App do
 
     it 'falls back to file mtime' do
       cassette = { interactions: [], raw: nil }
-      file_mtime = Time.new(2022, 3, 15)
-      file_info = instance_double('File::Stat', mtime: file_mtime)
+      file_mtime = Time.zone.local(2022, 3, 15)
+      file_info = instance_double(File::Stat, mtime: file_mtime)
 
       result = app.send(:extract_recorded_at, cassette, file_info)
       expect(result).to eq(file_mtime)
@@ -292,8 +292,8 @@ RSpec.describe VcrInspector::App do
 
     it 'handles nil interactions' do
       cassette = { interactions: nil, raw: nil }
-      file_mtime = Time.new(2022, 3, 15)
-      file_info = instance_double('File::Stat', mtime: file_mtime)
+      file_mtime = Time.zone.local(2022, 3, 15)
+      file_info = instance_double(File::Stat, mtime: file_mtime)
 
       result = app.send(:extract_recorded_at, cassette, file_info)
       expect(result).to eq(file_mtime)
