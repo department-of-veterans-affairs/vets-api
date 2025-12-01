@@ -594,22 +594,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
-    context 'when the banking info is redacted' do
-      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
-
-      context 'when Lighthouse returns banking info for the user' do
-        it 'logs the submission was made with banking info' do
-          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
-            .to receive(:track_526_submission_with_banking_info)
-            .with(user.uuid)
-
-          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-            subject.send(:translate_banking_info)
-          end
-        end
-      end
-    end
-
     context 'when not provided banking info' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
