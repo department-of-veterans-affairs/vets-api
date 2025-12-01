@@ -10,5 +10,6 @@ module Vass
     class ServiceError < BaseError; end
     class VassApiError < BaseError; end
     class NotFoundError < BaseError; end
+    class RateLimitError < BaseError; end
   end
 end
