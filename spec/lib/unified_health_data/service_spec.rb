@@ -1100,9 +1100,14 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'with current_only: true' do
         it 'applies filtering to exclude old discontinued/expired prescriptions' do
-          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            filtered_prescriptions = service.get_prescriptions(current_only: true)
-            expect(filtered_prescriptions.size).to eq(53)
+          # Freeze time to prevent test from failing as prescriptions age
+          # The cassette has prescriptions with various expiration dates
+          # Using a fixed date ensures the 180-day filtering logic is consistent
+          Timecop.freeze(Time.zone.parse('2025-11-27')) do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              filtered_prescriptions = service.get_prescriptions(current_only: true)
+              expect(filtered_prescriptions.size).to eq(54)
+            end
           end
         end
       end
