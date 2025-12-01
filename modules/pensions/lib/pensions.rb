@@ -12,6 +12,9 @@ module Pensions
   # The module path
   MODULE_PATH = 'modules/pensions'
 
+  # Path to the PDF
+  PDF_PATH = "#{MODULE_PATH}/lib/pensions/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
+
   # API Version 0
   module V0
   end
