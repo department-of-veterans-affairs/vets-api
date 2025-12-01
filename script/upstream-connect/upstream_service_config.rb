@@ -26,6 +26,75 @@ class UpstreamServiceConfig
 
       TEXT
     },
+    'allergies_v0' => {
+      name: 'Patient Health API (FHIR) (Lighthouse)',
+      aliases: ['labs_and_tests'],
+      description: 'Search for an individual patients appointments, conditions, medications, observations including vital signs and lab tests, and more.', # rubocop:disable Layout/LineLength
+      ports: [4492],
+      settings_namespaces: ['lighthouse.veterans_health'],
+      skipped_settings: [['fast_tracker.api_key', 'fast_tracker.client_id']],
+      tunnel_setting: ['url'],
+      instructions: <<~TEXT
+        Patient Health API Connection Instructions:
+
+        (One-time setup)
+        1. Sign up for Patient Health API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/patient-health/sandbox-access
+        2. Generate Public key: https://developer.va.gov/explore/api/patient-health/client-credentials
+        3. Update Local Settings with client_id and api_key:
+          ```
+          # config/settings.local.yml
+
+          lighthouse:
+            veterans_health:
+              fast_tracker:
+                api_key: /srv/vets-api/secret/lighthouse_fast_track_api.key
+                client_id: 0oaaxkp0aeXEJkMFw2p7
+          ```
+
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - endpoint: /mobile/v0/health/allergy-intolerances
+
+        Additional Notes:
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/patient-health
+      TEXT
+    },
+    'dependents' => {
+      name: 'Benefits Intake API (Lighthouse)',
+      description: 'Connect to VA Benefits Intake API for dependents data',
+      ports: [4492],
+      settings_namespaces: ['lighthouse.benefits_intake'],
+      skipped_settings: [['api_key']],
+      tunnel_setting: ['host'],
+      instructions: <<~TEXT
+        Benefits Intake API Connection Instructions:
+
+        (One-time setup)
+        1. Sign up for VA Benefits Intake API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/benefits-intake/sandbox-access
+        2. Generate Public key: https://developer.va.gov/explore/api/benefits-intake/client-credentials
+        3. Update Local Settings with client_id and rsa_key:
+          ```
+          # config/settings.local.yml
+
+          lighthouse:
+            benefits_claims:
+              access_token:
+                client_id: 'your-client-id'
+                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
+          ```
+
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - endpoint: /mobile/v0/dependents
+
+        Additional Notes:
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/benefits-intake
+      TEXT
+    },
     'claims' => {
       name: 'Benefits Claims API (Lighthouse)',
       description: 'Connect to VA Benefits Claims API for claims data',
@@ -48,7 +117,7 @@ class UpstreamServiceConfig
             benefits_claims:
               access_token:
                 client_id: 'your-client-id'
-                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/benefits-claims/private.pem
+                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
           ```
 
         Test Connection:
@@ -58,6 +127,89 @@ class UpstreamServiceConfig
         Additional Notes:
         - See the Lighthouse documentation for more info
           - https://developer.va.gov/explore/api/benefits-claims
+      TEXT
+    },
+    'direct_deposit' => {
+      name: 'Direct Deposit Management API (Lighthouse)',
+      description: 'Connect to VA Direct Deposit Management API for direct deposit abnking data',
+      ports: [4492],
+      settings_namespaces: ['lighthouse.direct_deposit'],
+      skipped_settings: [['access_token.client_id', 'access_token.rsa_key', 'form526']],
+      tunnel_setting: ['host'],
+      instructions: <<~TEXT
+        Direct Deposit Management API Connection Instructions:
+
+        (One-time setup)
+        1. Sign up for Direct Deposit Management API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/direct-deposit-management/sandbox-access
+        2. Generate Public key: https://developer.va.gov/explore/api/direct-deposit-management/client-credentials
+        3. Update Local Settings with client_id and rsa_key:
+          ```
+          # config/settings.local.yml
+
+          lighthouse:
+            direct_deposit:
+              access_token:
+                client_id: 'your-client-id'
+                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
+          ```
+
+        Test Connection:
+          - Test User: TBD
+          - endpoint: /mobile/v0/payment-information/benefits
+
+        Additional Notes:
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/direct-deposit-management
+      TEXT
+    },
+    'immunizations' => {
+      name: 'Immunizations/Locations - Patient Health API (FHIR) (Lighthouse)',
+      aliases: ['locations'],
+      description: 'Search for an individual patients immunizations and Location information',
+      ports: [4492],
+      settings_namespaces: ['lighthouse_health_immunization'],
+      skipped_settings: [%w[client_id key_path scopes]],
+      tunnel_setting: ['url'],
+      instructions: <<~TEXT
+        Patient Health API Connection Instructions:
+
+        (One-time setup)
+        1. Sign up for Patient Health API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/patient-health/sandbox-access
+        2. Generate Public key: https://developer.va.gov/explore/api/patient-health/client-credentials
+        3. Update Local Settings with client_id and key_path:
+          ```
+          # config/settings.local.yml
+
+          lighthouse_health_immunization:
+            client_id: 'your-client-id'
+            key_path: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
+          ```
+        4. Update Local Settings to use localhost instead of fwdproxy
+          ```
+          # config/settings.local.yml
+
+          lighthouse_health_immunization:
+            access_token_url: https://fwdproxy-staging.vfs.va.gov:4492/oauth2/health/system/v1/token
+            api_url: https://fwdproxy-staging.vfs.va.gov:4492/services/fhir/v0/r4
+
+            <becomes>
+
+            access_token_url: https://localhost:4492/oauth2/health/system/v1/token
+            api_url: https://localhost:4492/services/fhir/v0/r4
+
+          ```
+
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - endpoint: /mobile/v0/health/immunizations
+                      /mobile/v0/health/locations/:id, id: <unknown>
+                      /mobile/v1/health/immunizations
+
+        Additional Notes:
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/patient-health
       TEXT
     },
     'letters' => {
@@ -82,7 +234,7 @@ class UpstreamServiceConfig
             letters_generator:
               access_token:
                 client_id: 'your-client-id'
-                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/letter-generator/private.pem
+                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
           ```
 
         Test Connection:
@@ -92,6 +244,45 @@ class UpstreamServiceConfig
         Additional Notes:
         - See the Lighthouse documentation for more info
           - https://developer.va.gov/explore/api/va-letter-generator
+      TEXT
+    },
+    'vet_verification' => {
+      name: 'Vet Service History and Elegibility API (Lighthouse)',
+      aliases: ['disability_rating'],
+      description: 'Connect to Vet Service History and Elegibility API for the service history, certain enrolled benefits, and disability rating information of a veteran', # rubocop:disable Layout/LineLength
+      ports: [4492],
+      settings_namespaces: ['lighthouse.veteran_verification'],
+      skipped_settings: [['form526.access_token', 'status']],
+      tunnel_setting: ['host'],
+      instructions: <<~TEXT
+        Letter Generator API Connection Instructions:
+
+        TODO
+
+        (One-time setup)
+        1. Sign up for Vet Service History and Elegibility API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/veteran-service-history-and-eligibility/sandbox-access
+        2. Generate Public key: https://developer.va.gov/explore/api/veteran-service-history-and-eligibility/client-credentials
+        3. Update Local Settings with client_id and rsa_key:
+          ```
+          # config/settings.local.yml
+
+          lighthouse:
+            veteran_verification:
+              form526:
+                access_token:
+                  client_id: 'your-client-id'
+                  rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
+          ```
+
+        Test Connection:
+          - Test User: Judy? TBD
+          - endpoints: /mobile/v0/disability_rating
+                       /mobile/v0/vet_verification_status
+
+        Additional Notes:
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/veteran-service-history-and-eligibility
       TEXT
     }
   }.freeze
