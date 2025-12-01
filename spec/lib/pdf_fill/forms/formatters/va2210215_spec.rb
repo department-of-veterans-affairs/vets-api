@@ -103,6 +103,22 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       expect(form_data['programs'][0]['fte']['totalFTE']).to eq('10.25')
       expect(form_data['programs'][0]['fte']['supportedPercentageFTE']).to eq('55.50%')
     end
+
+    it 'handles empty programs array' do
+      form_data = { 'programs' => [] }
+      described_class.process_programs(form_data)
+      expect(form_data['programs']).to eq([])
+    end
+
+    it 'handles program with empty fte hash' do
+      form_data = {
+        'programs' => [
+          { 'name' => 'Program 1', 'fte' => {} }
+        ]
+      }
+      expect { described_class.process_programs(form_data) }.not_to raise_error
+      expect(form_data['programs'][0]['fte']).to eq({})
+    end
   end
 
   describe '#format_numeric_fte_value' do
@@ -125,6 +141,11 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       result = described_class.send(:format_numeric_fte_value, '3.456789')
       expect(result).to eq('3.46')
     end
+
+    it 'formats non-numeric string as -- when it converts to zero' do
+      result = described_class.send(:format_numeric_fte_value, 'abc')
+      expect(result).to eq('--')
+    end
   end
 
   describe '#format_percentage_fte_value' do
@@ -146,6 +167,11 @@ describe PdfFill::Forms::Formatters::Va2210215 do
     it 'formats percentage decimal values with proper precision' do
       result = described_class.send(:format_percentage_fte_value, '33.333')
       expect(result).to eq('33.33%')
+    end
+
+    it 'formats non-numeric string as N/A when it converts to zero' do
+      result = described_class.send(:format_percentage_fte_value, 'xyz')
+      expect(result).to eq('N/A')
     end
   end
 
@@ -224,6 +250,16 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       result = described_class.format_phone_number('1234567890')
       expect(result).to eq('(123) 456-7890')
     end
+
+    it 'returns original string when phone number does not match pattern' do
+      result = described_class.format_phone_number('123-456-7890')
+      expect(result).to eq('123-456-7890')
+    end
+
+    it 'returns original string for invalid phone number format' do
+      result = described_class.format_phone_number('12345')
+      expect(result).to eq('12345')
+    end
   end
 
   describe '#format_zero_as' do
@@ -244,6 +280,11 @@ describe PdfFill::Forms::Formatters::Va2210215 do
 
     it 'returns replacement when float zero' do
       result = described_class.format_zero_as('0.0', 'N/A')
+      expect(result).to eq('N/A')
+    end
+
+    it 'returns replacement when non-numeric string converts to zero' do
+      result = described_class.format_zero_as('abc', 'N/A')
       expect(result).to eq('N/A')
     end
   end
@@ -331,6 +372,16 @@ describe PdfFill::Forms::Formatters::Va2210215 do
       expect(sorted.last['programName']).to eq('Zebra')
       expect(sorted.last['studentsEnrolled']).to eq(100)
       expect(sorted.last['supportedStudents']).to eq(20)
+    end
+
+    it 'handles programName as number' do
+      programs = [
+        { 'programName' => 123, 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple', 'studentsEnrolled' => 50 }
+      ]
+      sorted = described_class.sort_programs_by_name(programs)
+      expect(sorted.first['programName']).to eq(123)
+      expect(sorted.last['programName']).to eq('Apple')
     end
   end
 end
