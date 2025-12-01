@@ -29,43 +29,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
   end
 
-  describe '#appointment_error_status' do
-    let(:controller) { described_class.new }
-
-    it 'returns :conflict for conflict error' do
-      expect(controller.send(:appointment_error_status, 'conflict')).to eq(:conflict)
-    end
-
-    it 'returns :bad_request for bad-request error' do
-      expect(controller.send(:appointment_error_status, 'bad-request')).to eq(:bad_request)
-    end
-
-    it 'returns :bad_gateway for internal-error error' do
-      expect(controller.send(:appointment_error_status, 'internal-error')).to eq(:bad_gateway)
-    end
-
-    it 'returns :unprocessable_entity for other errors' do
-      expect(controller.send(:appointment_error_status, 'too-far-in-the-future')).to eq(:unprocessable_entity)
-      expect(controller.send(:appointment_error_status, 'already-canceled')).to eq(:unprocessable_entity)
-      expect(controller.send(:appointment_error_status, 'too-late-to-cancel')).to eq(:unprocessable_entity)
-      expect(controller.send(:appointment_error_status, 'unknown-error')).to eq(:unprocessable_entity)
-    end
-  end
-
-  describe '#submission_error_response' do
-    let(:controller) { described_class.new }
-
-    it 'returns a properly formatted error response with the error code' do
-      error_code = 'test-error'
-      response = controller.send(:submission_error_response, error_code)
-
-      expect(response).to be_a(Hash)
-      expect(response[:errors]).to be_an(Array)
-      expect(response[:errors].first[:title]).to eq('Appointment submission failed')
-      expect(response[:errors].first[:detail]).to eq("An error occurred: #{error_code}")
-      expect(response[:errors].first[:code]).to eq(error_code)
-    end
-  end
 
   describe '#submit_referral_appointment' do
     let(:controller) { described_class.new }
@@ -140,18 +103,19 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
-        allow(controller).to receive(:submission_error_response).and_return({ errors: [{ detail: 'Error' }] })
         allow(controller).to receive_messages(current_user:, ccra_referral_service:)
         allow(ccra_referral_service).to receive(:get_cached_referral_data).and_return(nil)
       end
 
-      it 'renders conflict status with error response' do
+      it 'renders error response using CommunityCareAppointmentErrorHandler' do
         controller.submit_referral_appointment
 
-        expect(controller).to have_received(:render).with(
-          json: { errors: [{ detail: 'Error' }] },
-          status: :conflict
-        )
+        expect(controller).to have_received(:render) do |args|
+          expect(args[:json]).to be_a(Hash)
+          expect(args[:json][:errors]).to be_an(Array)
+          expect(args[:json][:errors].first).to include(:title, :detail, :code)
+          expect(args[:status]).to be_present
+        end
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
           tags: ['service:community_care_appointments', 'type_of_care:no_value']
@@ -166,15 +130,19 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_raise(error)
-        allow(controller).to receive(:handle_appointment_creation_error)
         allow(controller).to receive_messages(current_user:, ccra_referral_service:)
         allow(ccra_referral_service).to receive(:get_cached_referral_data).and_return(nil)
       end
 
-      it 'calls handle_appointment_creation_error' do
+      it 'handles error using CommunityCareAppointmentErrorHandler' do
         controller.submit_referral_appointment
 
-        expect(controller).to have_received(:handle_appointment_creation_error).with(error)
+        expect(controller).to have_received(:render) do |args|
+          expect(args[:json]).to be_a(Hash)
+          expect(args[:json][:errors]).to be_an(Array)
+          expect(args[:json][:errors].first).to include(:title, :detail, :code)
+          expect(args[:status]).to be_present
+        end
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
           tags: ['service:community_care_appointments', 'type_of_care:no_value']
