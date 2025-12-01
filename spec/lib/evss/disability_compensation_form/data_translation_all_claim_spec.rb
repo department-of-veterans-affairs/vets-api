@@ -598,8 +598,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
       context 'and the Lighthouse DirectDeposit service does not have the account info' do
-        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
-
+        
         it 'does not set payment information' do
           expect(subject.send(:translate_banking_info)).to eq({})
         end
