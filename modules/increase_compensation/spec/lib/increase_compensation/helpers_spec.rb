@@ -85,6 +85,7 @@ RSpec.describe IncreaseCompensation::Helpers do
     it 'formats to write 1 single item to form' do
       care_item =
         {
+          'inVANetwork' => true,
           'nameAndAddressOfHospital' => 'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001',
           'hospitalTreatmentDates' => [
             {
@@ -100,7 +101,7 @@ RSpec.describe IncreaseCompensation::Helpers do
               'month' => '06', 'day' => '01', 'year' => '2024'
             }, 'to' => { 'month' => '06', 'day' => '15', 'year' => '2024' }
           },
-          'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001'
+          'VA - Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001'
         ]
       )
     end
@@ -124,7 +125,7 @@ RSpec.describe IncreaseCompensation::Helpers do
               'year' => "from: 2024-06-01, to: 2024-06-15\nfrom: 2024-06-01, to: \n"
             }
           },
-          'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001'
+          'Non-VA - Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001'
         ]
       )
     end
@@ -133,6 +134,7 @@ RSpec.describe IncreaseCompensation::Helpers do
   describe '#overflow_doc_and_hospitails' do
     doctors_care = [
       {
+        'inVANetwork' => true,
         'doctorsTreatmentDates' => [
           { 'from' => '2024-01-10',
             'to' => '2025-02-20' }
@@ -141,6 +143,7 @@ RSpec.describe IncreaseCompensation::Helpers do
         'relatedDisability' => ['PTSD']
       },
       {
+        'inVANetwork' => false,
         'doctorsTreatmentDates' => [
           { 'from' => '2024-01-10',
             'to' => '2025-02-20' },
@@ -161,9 +164,9 @@ RSpec.describe IncreaseCompensation::Helpers do
     it 'formats all items for overflow' do
       expect(subject.overflow_doc_and_hospitails(doctors_care, true)).to eq(
         [
-          "Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001\nTreated for: PTSD\nFrom: 2024-01-10, To: 2025-02-20\n",
-          "Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n",
-          "Dr. Zoidberg, 423 main St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: 2025-02-20\n" # rubocop:disable Layout/LineLength
+          "VA - Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001\nTreated for: PTSD\nFrom: 2024-01-10, To: 2025-02-20\n",
+          "Non-VA - Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n",
+          "Non-VA - Dr. Zoidberg, 423 main St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: 2025-02-20\n" # rubocop:disable Layout/LineLength
         ]
       )
     end

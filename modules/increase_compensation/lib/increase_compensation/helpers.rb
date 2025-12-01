@@ -97,10 +97,10 @@ module IncreaseCompensation
         }
       } :
       map_date_range(care_item[date_key].first)
-
+      is_va = care_item['inVANetwork'] ? 'VA' : 'Non-VA'
       [
         dates,
-        care_item[namekey]
+        "#{is_va} - #{care_item[namekey]}"
       ]
     end
 
@@ -115,7 +115,7 @@ module IncreaseCompensation
       key_name_address = is_doc ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'
       key_treatment = is_doc ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
       care_info_array.map do |info|
-        "#{info[key_name_address]}\n" \
+        "#{info['inVANetwork'] ? 'VA' : 'Non-VA'} - #{info[key_name_address]}\n" \
           "#{info['relatedDisability'] ? "Treated for: #{info['relatedDisability'].join(', ')}\n" : ''}" \
           "#{info[key_treatment].map { |td| "From: #{td['from']}, To: #{td['to']}\n" }.join}"
       end
