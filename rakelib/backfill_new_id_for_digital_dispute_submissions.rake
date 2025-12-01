@@ -14,4 +14,7 @@ task backfill_new_id_for_digital_dispute_submissions: :environment do
   SQL
 
   Rails.logger.info("[BackfillNewIdForDigitalDisputeSubmissions] Finished - updated #{updated_count} records")
+
+  remaining_count = DebtsApi::V0::DigitalDisputeSubmission.where(new_id: nil).count
+  Rails.logger.info("[BackfillNewIdForDigitalDisputeSubmissions] Remaining records with null new_id: #{remaining_count}")
 end
