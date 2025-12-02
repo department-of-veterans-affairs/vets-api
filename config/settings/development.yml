@@ -404,6 +404,8 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+email_verification:
+  jwt_secret: "b0a06b58cc2674005f300f5ca1bc3fbb29813b73ebcfd3dd2f8d4bede0b6ec34"
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:

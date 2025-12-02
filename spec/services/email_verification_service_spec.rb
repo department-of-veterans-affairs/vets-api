@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'common/exceptions'
+require 'sidekiq/attr_package'
 RSpec::Mocks.configuration.allow_message_expectations_on_nil = true
 
 RSpec.describe EmailVerificationService do
@@ -19,6 +20,8 @@ RSpec.describe EmailVerificationService do
     stub_const('EmailVerificationJob', Class.new do
       def self.perform_async(*); end
     end)
+    # Mock Sidekiq::AttrPackage for testing
+    allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key')
   end
 
   describe '#initiate_verification' do
@@ -37,6 +40,21 @@ RSpec.describe EmailVerificationService do
       expect($redis.get(key)).not_to be_nil
     end
 
+    it 'stores PII data in AttrPackage and passes cache_key to job' do
+      expect(Sidekiq::AttrPackage).to receive(:create).with(
+        expires_in: described_class::REDIS_EXPIRATION,
+        email: user.email,
+        first_name: user.first_name,
+        verification_link: anything
+      ).and_return('test_cache_key')
+
+      expect(EmailVerificationJob)
+        .to receive(:perform_async)
+        .with('initial_verification', 'test_cache_key')
+
+      initiate
+    end
+
     it 'invalidates older tokens when new one is issued' do
       $redis.set(key, 'oldtoken')
       initiate
@@ -45,9 +63,10 @@ RSpec.describe EmailVerificationService do
 
     shared_examples 'template_type job' do |template_arg, expected_type|
       it "passes correct template_type for #{expected_type}" do
+        expect(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key')
         expect(EmailVerificationJob)
           .to receive(:perform_async)
-          .with(expected_type, user.email, anything)
+          .with(expected_type, 'test_cache_key')
         described_class.new(user).initiate_verification(template_arg)
       end
     end
@@ -71,8 +90,15 @@ RSpec.describe EmailVerificationService do
       end
 
       it 'triggers success email job when verification succeeds' do
+        expect(Sidekiq::AttrPackage).to receive(:create).with(
+          expires_in: described_class::REDIS_EXPIRATION,
+          first_name: user.first_name,
+          email: user.email
+        ).and_return('success_cache_key')
+
         expect(EmailVerificationJob)
           .to receive(:perform_async)
+          .with('verification_success', 'success_cache_key')
         verify
       end
     end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'email_verification/jwt_generator'
+require 'sidekiq/attr_package'
 
 class EmailVerificationService
   TOKEN_VALIDITY_DURATION = EmailVerification::JwtGenerator::TOKEN_VALIDITY_DURATION
@@ -20,12 +21,15 @@ class EmailVerificationService
     # initial_verification, annual_verification, and email_change_verification
     template_type = template_name.to_s
 
-    personalisation = {
-      'verification_link' => generate_verification_link(token),
-      'first_name' => @user.first_name,
-      'email_address' => @user.email
-    }
-    EmailVerificationJob.perform_async(template_type, @user.email, personalisation)
+    # Store PII in Redis via AttrPackage to avoid exposing it in Sidekiq job arguments
+    cache_key = Sidekiq::AttrPackage.create(
+      expires_in: REDIS_EXPIRATION,
+      email: @user.email,
+      first_name: @user.first_name,
+      verification_link: generate_verification_link(token)
+    )
+
+    EmailVerificationJob.perform_async(template_type, cache_key)
 
     token
   rescue Redis::BaseError, Redis::CannotConnectError => e
@@ -103,10 +107,13 @@ class EmailVerificationService
     # email = VAProfile::Models::Email.new(verification_date: Time.now.utc.iso8601)
     # VAProfile::ContactInformation::V2::Service.new(@user).update_email(email)
 
-    personalisation = {
-      'first_name' => @user.first_name,
-      'email_address' => @user.email
-    }
-    EmailVerificationJob.perform_async('verification_success', @user.email, personalisation)
+    # Store PII in Redis via AttrPackage to avoid exposing it in Sidekiq job arguments
+    cache_key = Sidekiq::AttrPackage.create(
+      expires_in: REDIS_EXPIRATION,
+      first_name: @user.first_name,
+      email: @user.email
+    )
+
+    EmailVerificationJob.perform_async('verification_success', cache_key)
   end
 end
