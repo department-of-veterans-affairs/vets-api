@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'vass/response_middleware'
 
 module Vass
   ##
@@ -53,6 +54,8 @@ module Vass
         conn.use(:breakers, service_name:)
         conn.request :json
         conn.response :json
+        # VASS-specific error handling: intercepts HTTP 200 responses with success: false
+        conn.response :vass_errors
         conn.response :raise_custom_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if mock_enabled?
         conn.adapter Faraday.default_adapter

@@ -249,10 +249,11 @@ module Vass
     ##
     # Formats a date/time object to ISO8601 format for VASS API.
     #
-    # @param datetime [Time, String] DateTime to format
-    # @return [String] ISO8601 formatted datetime string
+    # @param datetime [Time, String, nil] DateTime to format
+    # @return [String, nil] ISO8601 formatted datetime string, or nil if input is nil
     #
     def format_datetime(datetime)
+      return nil if datetime.nil?
       return datetime if datetime.is_a?(String)
 
       datetime.utc.iso8601

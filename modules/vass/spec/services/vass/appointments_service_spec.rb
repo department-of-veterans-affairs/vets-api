@@ -195,6 +195,55 @@ describe Vass::AppointmentsService do
         end
       end
     end
+
+    context 'with HTTP 200 non-standard error responses' do
+      context 'when validation error occurs (Missing Parameters)' do
+        it 'raises VassApiError and logs the error' do
+          VCR.use_cassette('vass/get_appointment_validation_error') do
+            expect(Rails.logger).to receive(:error)
+
+            expect do
+              subject.get_appointment(appointment_id:)
+            end.to raise_error(Vass::Errors::VassApiError)
+          end
+        end
+      end
+
+      context 'when invalid veteran GUID format' do
+        it 'raises VassApiError and logs the error' do
+          VCR.use_cassette('vass/save_appointment_invalid_veteran') do
+            expect(Rails.logger).to receive(:error)
+
+            expect do
+              subject.save_appointment(
+                appointment_params: {
+                  veteran_id: 'invalid-guid',
+                  time_start_utc: Time.zone.parse('2025-12-03T10:00:00Z'),
+                  time_end_utc: Time.zone.parse('2025-12-03T10:30:00Z'),
+                  selected_agent_skills: ['skill-1']
+                }
+              )
+            end.to raise_error(Vass::Errors::VassApiError)
+          end
+        end
+      end
+
+      context 'when invalid date range provided' do
+        it 'raises VassApiError and logs the error' do
+          VCR.use_cassette('vass/get_availability_invalid_dates') do
+            expect(Rails.logger).to receive(:error)
+
+            expect do
+              subject.get_availability(
+                start_date: Time.zone.parse('2025-12-10T00:00:00Z'),
+                end_date: Time.zone.parse('2025-12-03T00:00:00Z'),
+                veteran_id: 'da1e1a40-1e63-f011-bec2-001dd80351ea'
+              )
+            end.to raise_error(Vass::Errors::VassApiError)
+          end
+        end
+      end
+    end
   end
 
   describe 'datetime formatting' do
@@ -208,6 +257,11 @@ describe Vass::AppointmentsService do
       datetime_str = '2025-11-27T10:00:00Z'
       formatted = subject.send(:format_datetime, datetime_str)
       expect(formatted).to eq(datetime_str)
+    end
+
+    it 'returns nil for nil input' do
+      formatted = subject.send(:format_datetime, nil)
+      expect(formatted).to be_nil
     end
   end
 end
