@@ -5,8 +5,6 @@ require 'dependents/monitor'
 
 module BGS
   class DependentService
-    include SentryLogging
-
     attr_reader :first_name,
                 :middle_name,
                 :last_name,
@@ -38,9 +36,18 @@ module BGS
     end
 
     def get_dependents
-      return { persons: [] } if participant_id.blank?
+      backup_response = { persons: [] }
+      return backup_response if participant_id.blank?
 
-      service.claimant.find_dependents_by_participant_id(participant_id, ssn) || { persons: [] }
+      response = service.claimant.find_dependents_by_participant_id(participant_id, ssn)
+      if response.presence && response[:persons]
+        # When only one dependent exists, BGS returns a Hash instead of an Array
+        # Ensure persons is always an array for consistent processing
+        response[:persons] = [response[:persons]] if response[:persons].is_a?(Hash)
+        response
+      else
+        backup_response
+      end
     end
 
     def submit_686c_form(claim)
@@ -50,7 +57,7 @@ module BGS
       InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
 
       encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
-      submit_pdf_job(claim:, encrypted_vet_info:)
+      submit_pdf_job(claim:)
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
@@ -62,9 +69,7 @@ module BGS
       submit_to_central_service(claim:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { error: e.message })
-      log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
-
+                           "#{STATS_KEY}.failure", { error: e.message, user_uuid: uuid })
       raise e
     end
 
@@ -90,20 +95,12 @@ module BGS
       @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
     end
 
-    def submit_pdf_job(claim:, encrypted_vet_info:)
+    def submit_pdf_job(claim:)
       @monitor = init_monitor(claim&.id)
-      if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        form_id = submit_claim_via_claims_evidence(claim)
-        submit_attachments_via_claims_evidence(form_id, claim)
-      else
-        @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
-        VBMS::SubmitDependentsPdfJob.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
-                                                  claim.submittable_674?)
-      end
+      @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+                           "#{STATS_KEY}.submit_pdf.begin")
+      form_id = submit_claim_via_claims_evidence(claim)
+      submit_attachments_via_claims_evidence(form_id, claim)
 
       @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
@@ -111,7 +108,7 @@ module BGS
       error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       @monitor.track_event('warn',
                            'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { error: })
+                           "#{STATS_KEY}.submit_pdf.failure", error:)
       raise PDFSubmissionError
     end
 
@@ -189,13 +186,6 @@ module BGS
       # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
       # the dashes and proceed with form submission.
       @file_number = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
-
-      # The `validate_*!` calls below will raise errors if we have an invalid
-      # file number, or if the file number and SSN don't match. Even if this is
-      # the case, we still want to submit a PDF to the veteran's VBMS eFolder.
-      # This is because we are currently relying on the presence of a PDF and
-      # absence of a BGS-established claim to identify cases where Form 686c-674
-      # submission failed.
 
       generate_hash_from_details
     end

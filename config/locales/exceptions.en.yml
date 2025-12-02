@@ -204,6 +204,12 @@ en:
         title: Bad Gateway
         code: 502
         status: 502
+      prescription_refill_response_mismatch:
+        <<: *defaults
+        title: Prescription Refill Response Mismatch
+        detail: The upstream service returned an incomplete response for prescription refill orders
+        code: 502
+        status: 502
       service_unavailable:
         <<: *defaults
         title: Service Unavailable
@@ -525,6 +531,11 @@ en:
         code: 'SM904'
         detail: 'Message requested could not be found'
         status: 404
+      SM915: # 'No messages in the requested folder'
+        <<: *external_defaults
+        code: 'SM915'
+        detail: 'No messages in the requested folder'
+        status: 400
       SM99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'SM99'
@@ -810,9 +821,9 @@ en:
         status: 400
       RES_CH31_ELIGIBILITY_403:
         <<: *external_defaults
-        title: Not Found
+        title: Forbidden
         code: 'RES_CH31_ELIGIBILITY_403'
-        detail: 'Not Authorized'
+        detail: 'Forbidden'
         status: 403
       RES_CH31_ELIGIBILITY_500:
         <<: *external_defaults

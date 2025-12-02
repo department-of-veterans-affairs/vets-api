@@ -66,19 +66,24 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
       return false
     end
 
-    # Try to insert directly - optimistic approach
-    begin
-      create!(user_id:, event_name:)
+    # Try to insert directly using INSERT ... ON CONFLICT DO NOTHING
+    # This avoids raising exceptions and database error logs for duplicate records
+    # rubocop:disable Rails/SkipsModelValidations
+    # Validations are already enforced by validate_inputs above and database constraint
+    result = insert(
+      { user_id:, event_name: },
+      unique_by: %i[user_id event_name],
+      returning: %i[user_id event_name]
+    )
+    # rubocop:enable Rails/SkipsModelValidations
 
-      # Cache that this event now exists
-      mark_key_cached(cache_key)
+    # Cache that this event now exists (whether new or duplicate)
+    mark_key_cached(cache_key)
 
+    if result.rows.any?
       Rails.logger.debug('UUM: New unique event recorded', { user_id:, event_name: })
       true # NEW EVENT - top-level library should log to statsd
-    rescue ActiveRecord::RecordNotUnique
-      # Event already exists in database
-      mark_key_cached(cache_key)
-
+    else
       Rails.logger.debug('UUM: Duplicate event found in database', { user_id:, event_name: })
       false # DUPLICATE EVENT - top-level library should NOT log to statsd
     end

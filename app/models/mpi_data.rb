@@ -5,14 +5,12 @@ require 'mpi/service'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 require 'mpi/constants'
-require 'sentry_logging'
 
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
 # or from the MVI SOAP service.
 class MPIData < Common::RedisStore
   include Common::CacheAside
-  include SentryLogging
 
   REDIS_CONFIG_KEY = :mpi_profile_response
   redis_config_key REDIS_CONFIG_KEY
@@ -100,6 +98,11 @@ class MPIData < Common::RedisStore
 
   # @return [Array[String]] multiple mhv ien ids
   delegate :mhv_iens, to: :profile, allow_nil: true
+
+  # NPI Correlation ID
+  #
+  # @return [String] the NPI id
+  delegate :npi_id, to: :profile, allow_nil: true
 
   # A Vet360 Correlation ID
   #
@@ -261,7 +264,7 @@ class MPIData < Common::RedisStore
     do_cached_with(key: user_key) do
       find_profile
     rescue ArgumentError, MPI::Errors::ArgumentError => e
-      log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
+      Rails.logger.warn('[MPIData] request error', message: e.message)
       return nil
     end
   end

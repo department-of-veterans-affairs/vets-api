@@ -222,8 +222,11 @@ RSpec.describe ApplicationController, type: :controller do
 
       it 'logs BackendServiceException with key:value error details' do
         ex = Common::Exceptions::BackendServiceException.new('RX139', { code: 'RX139', detail: 'x' })
-        # Expect the final Rails.logger.error call with formatted message including error details
-        expect(Rails.logger).to receive(:error).with(/RX139.*title.*detail.*code.*status.*backtrace/m)
+        # Expect the final Rails.logger.error call with message and hash arguments
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including('BackendServiceException'),
+          hash_including(:title, :detail, :code, :status, :backtrace)
+        )
         subject.log_exception_to_rails(ex, 'error')
       end
 
@@ -235,7 +238,10 @@ RSpec.describe ApplicationController, type: :controller do
         end
         ex = empty_errors_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
         # Should still log the exception message and backtrace even with empty errors
-        expect(Rails.logger).to receive(:error).with(/RX139.*backtrace/m)
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including('BackendServiceException'),
+          hash_including(:backtrace)
+        )
         # Should not raise
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end
@@ -248,7 +254,10 @@ RSpec.describe ApplicationController, type: :controller do
         end
         ex = nil_attrs_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
         # Should filter out nil and empty values, keeping only valid attributes
-        expect(Rails.logger).to receive(:error).with(/RX139.*title.*status.*backtrace/m)
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including('BackendServiceException'),
+          hash_including(:title, :status, :backtrace)
+        )
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end
 
@@ -260,7 +269,10 @@ RSpec.describe ApplicationController, type: :controller do
         end
         ex = all_empty_attrs_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
         # Should still log with just backtrace when all attributes are nil/empty
-        expect(Rails.logger).to receive(:error).with(/RX139.*backtrace/m)
+        expect(Rails.logger).to receive(:error).with(
+          a_string_including('BackendServiceException'),
+          hash_including(:backtrace)
+        )
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end
 
@@ -681,19 +693,18 @@ RSpec.describe ApplicationController, type: :controller do
       sign_in_as(user, session_object.token)
     end
 
-    context 'with controller name logging' do
+    context 'with origin logging' do
       context 'when controller has a name' do
-        it 'adds controller name to logs within around_action' do
-          expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'anonymous').and_call_original
+        it 'adds controller class name as origin to logs within around_action' do
+          expect(SemanticLogger).to receive(:named_tagged).with(origin: 'anonymous_controller').and_call_original
           expect(Rails.logger).to receive(:info).with(expected_result)
           subject
         end
       end
 
-      context 'when controller has no name' do
-        before { allow(controller).to receive(:controller_name).and_return('') }
-
-        it 'does not call SemanticLogger.named_tagged' do
+      context 'when controller class name is blank' do
+        it 'does not call SemanticLogger.named_tagged when class name is blank' do
+          allow(controller.class).to receive(:name).and_return('')
           expect(SemanticLogger).not_to receive(:named_tagged)
           expect(Rails.logger).to receive(:info).with(expected_result)
           subject

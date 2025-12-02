@@ -44,20 +44,8 @@ module Mobile
 
           Mobile::V0::Letter.new(letter_type: letter[:letterType], name: letter[:name])
         end
-        if Flipper.enabled?(:mobile_coe_letter_use_lgy_service, @current_user) && coe_app_version?
-          begin
-            coe_status = lgy_service.coe_status
-
-            if coe_status[:status].in?(COE_STATUSES)
-              response.append(Mobile::V0::Letter.new(
-                                letter_type: COE_LETTER_TYPE, name: 'Certificate of Eligibility for Home Loan Letter'
-                              ))
-            end
-          rescue => e
-            # log the error but don't prevent other letters from being shown
-            Rails.logger.error('LGY COE status check failed', error: e.message)
-          end
-        end
+        response.append(get_coe_letter_type).compact! if Flipper.enabled?(:mobile_coe_letter_use_lgy_service,
+                                                                          @current_user) && coe_app_version?
 
         render json: Mobile::V0::LettersSerializer.new(@current_user, response.select(&:displayable?).sort_by(&:name))
       end
@@ -72,7 +60,15 @@ module Mobile
       # returns a pdf or json representation of the requested letter type given the user has that letter type available
       def download
         if params[:type] == COE_LETTER_TYPE
-          response = lgy_service.get_coe_file.body
+          begin
+            StatsD.increment('mobile.letters.coe_status.download_total')
+            response = lgy_service.get_coe_file.body
+            StatsD.increment('mobile.letters.coe_status.download_success')
+          rescue => e
+            StatsD.increment('mobile.letters.coe_status.download_failure')
+            Rails.logger.error('LGY COE letter download failed', error: e.message)
+            raise e
+          end
         else
           if params[:format] == 'json'
             letter = lighthouse_service.get_letter(icn, params[:type], download_options_hash)
@@ -82,13 +78,30 @@ module Mobile
           response = download_lighthouse_letters(params)
         end
 
-        send_data response,
-                  filename: "#{params[:type]}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'attachment'
+        send_data response, filename: "#{params[:type]}.pdf", type: 'application/pdf', disposition: 'attachment'
       end
 
       private
+
+      def get_coe_letter_type
+        StatsD.increment('mobile.letters.coe_status.total')
+
+        coe_status = lgy_service.coe_status
+
+        increment_coe_counter(coe_status)
+
+        if coe_status[:status].in?(COE_STATUSES)
+          Mobile::V0::Letter.new(
+            letter_type: COE_LETTER_TYPE, name: 'Certificate of Eligibility for Home Loan Letter',
+            reference_number: coe_status[:reference_number], coe_status: coe_status[:status]
+          )
+        end
+      rescue => e
+        # log the error but don't prevent other letters from being shown
+        StatsD.increment('mobile.letters.coe_status.failure')
+        Rails.logger.error('LGY COE status check failed', error: e.message)
+        nil
+      end
 
       def download_lighthouse_letters(params)
         lighthouse_service.download_letter({ icn: }, params[:type], download_options_hash)
@@ -128,6 +141,14 @@ module Mobile
           tags: ["type:#{params[:type]}", "format:#{file_format}"],
           sample_rate: 1.0
         )
+      end
+
+      def increment_coe_counter(coe_status)
+        if coe_status[:status] == 'ELIGIBLE'
+          StatsD.increment('mobile.letters.coe_status.eligible')
+        elsif coe_status[:status] == 'AVAILABLE'
+          StatsD.increment('mobile.letters.coe_status.available')
+        end
       end
 
       # body params appear in the params hash in specs but not in actual requests

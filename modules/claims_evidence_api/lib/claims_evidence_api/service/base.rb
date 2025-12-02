@@ -29,13 +29,14 @@ module ClaimsEvidenceApi
         call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
         headers = headers.merge(request_headers)
 
+        requested_api = endpoint || path.split('/').first
         response = super(method, path, params, headers, options) # returns Faraday::Env
 
-        monitor.track_api_request(method, path, response.status, response.reason_phrase, call_location:)
+        monitor.track_api_request(method, requested_api, response.status, response.reason_phrase, call_location:)
         response
       rescue => e
-        code = e.respond_to?(:status) ? e.status : 500
-        monitor.track_api_request(method, path, code, e.message, call_location:)
+        code = e.try(:status) || 500
+        monitor.track_api_request(method, requested_api, code, e.message, call_location:)
         raise e
       end
 
@@ -68,6 +69,11 @@ module ClaimsEvidenceApi
       # @return [String] the encoded jwt
       def encode_jwt
         ClaimsEvidenceApi::JwtGenerator.encode_jwt
+      end
+
+      # the name for _this_ endpoint
+      def endpoint
+        nil
       end
     end
 

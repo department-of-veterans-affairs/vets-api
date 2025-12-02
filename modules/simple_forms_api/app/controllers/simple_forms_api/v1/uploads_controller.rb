@@ -24,15 +24,20 @@ module SimpleFormsApi
         '21-4138' => 'vba_21_4138',
         '21-4140' => 'vba_21_4140',
         '21-4142' => 'vba_21_4142',
+        '21P-0537' => 'vba_21p_0537',
         '21P-0847' => 'vba_21p_0847',
+        '21P-601' => 'vba_21p_601',
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
         '40-10007' => 'vba_40_10007'
       }.freeze
 
-      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007 21P-0537 21P-601].freeze
 
       def submit
+        # Temporarily gate submissions to 21P-0537 while in development
+        return if (params[:form_number] == '21P-0537') && !Flipper.enabled?(:form21p0537, @current_user)
+
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         response = if intent_service.use_intent_api?
@@ -52,7 +57,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+        return unless %w[40-0247 20-10207 40-10007 21-4140 21P-601].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
@@ -78,7 +83,7 @@ module SimpleFormsApi
       private
 
       def validate_document_if_needed(file_path)
-        return true unless %w[40-0247 40-10007].include?(params[:form_id]) &&
+        return true unless %w[40-0247 40-10007 21-4140].include?(params[:form_id]) &&
                            File.extname(file_path).downcase == '.pdf'
 
         service = BenefitsIntakeService::Service.new
@@ -201,7 +206,7 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
+        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007 vba_21p_601].include?(form_id)
 
         [file_path, metadata, form]
       end
@@ -254,7 +259,7 @@ module SimpleFormsApi
           metadata: metadata.to_json,
           document: file_path,
           upload_url: location,
-          attachments: form_id == 'vba_20_10207' ? form.get_attachments : nil
+          attachments: %w[vba_20_10207 vba_21_4140].include?(form_id) ? form.get_attachments : nil
         }.compact
 
         lighthouse_service.perform_upload(**upload_params)
@@ -264,7 +269,7 @@ module SimpleFormsApi
         return unless %w[production staging test].include?(Settings.vsp_environment)
 
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
+        attachments = %w[vba_20_10207 vba_21_4140].include?(form_id) ? form.get_attachments : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )

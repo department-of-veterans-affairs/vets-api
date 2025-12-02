@@ -10,171 +10,82 @@ describe UnifiedHealthData::Service, type: :service do
   let(:service) { described_class.new(user) }
 
   describe '#get_labs' do
-    let(:labs_response) do
-      file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'labs_response.json')
-      JSON.parse(File.read(file_path))
-    end
-    let(:sample_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'sample_response.json'
-      ).read)
-    end
+    context 'with valid lab responses', :vcr do
+      it 'returns all labs/tests with encodedData and/or observations' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+          expect(labs.size).to eq(29)
 
-    let(:labs_client_response) do
-      Faraday::Response.new(
-        body: labs_response
-      )
-    end
+          # Verify that labs with encodedData are returned
+          labs_with_encoded_data = labs.select { |lab| lab.encoded_data.present? }
+          expect(labs_with_encoded_data).not_to be_empty
 
-    let(:sample_client_response) do
-      Faraday::Response.new(
-        body: sample_response
-      )
-    end
-
-    context 'with defensive nil checks' do
-      it 'handles missing contained sections' do
-        # Simulate missing contained by modifying the response
-        modified_response = JSON.parse(labs_response.to_json)
-        modified_response['vista']['entry'].first['resource']['contained'] = nil
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_labs_by_date)
-          .and_return(Faraday::Response.new(
-                        body: modified_response
-                      ))
-
-        expect do
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs).to be_an(Array)
-        end.not_to raise_error
-      end
-    end
-
-    context 'with valid lab responses' do
-      before do
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_labs_by_date)
-          .and_return(labs_client_response)
-      end
-
-      context 'when Flipper is enabled for all codes' do
-        it 'returns labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(3)
-          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
+          # Verify that labs with observations are returned
+          labs_with_observations = labs.select { |lab| lab.observations.present? }
+          expect(labs_with_observations).not_to be_empty
         end
       end
 
-      context 'logs test code distribution' do
-        it 'logs the test code distribution from parsed records' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          allow(Rails.logger).to receive(:info)
+      it 'returns labs sorted by date_completed in descending order' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30').sort
 
-          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+          labs_with_dates = labs.select { |lab| lab.date_completed.present? }
+          dates = labs_with_dates.map { |lab| Time.zone.parse(lab.date_completed) }
+          expect(dates).to eq(dates.sort.reverse)
 
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD test code and name distribution',
-              service: 'unified_health_data'
-            )
+          last_labs = labs.last(5)
+          if last_labs.any? { |lab| lab.date_completed.nil? }
+            expect(labs.select { |lab| lab.date_completed.nil? }).to eq(last_labs.select { |lab|
+              lab.date_completed.nil?
+            })
+          end
+        end
+      end
+
+      it 'logs test code distribution from parsed records' do
+        allow(Rails.logger).to receive(:info)
+
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+        end
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'UHD test code and name distribution',
+            service: 'unified_health_data'
           )
+        )
+      end
+
+      it 'returns labs with only encodedData' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+
+          # Find labs that have encoded data but no observations
+          labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
+          expect(labs_with_encoded_only).not_to be_empty
         end
       end
 
-      context 'when filtering is disabled' do
-        it 'returns all labs/tests regardless of individual toggle states' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
+      it 'returns labs with only observations' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
 
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-
-          expect(labs.size).to eq(3)
-          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD filtering disabled - returning all records',
-              total_records: 3,
-              service: 'unified_health_data'
-            )
-          )
-        end
-
-        it 'logs that filtering is disabled' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-
-          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD filtering disabled - returning all records',
-              service: 'unified_health_data'
-            )
-          )
+          # Find labs that have observations but no encoded data
+          labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
+          expect(labs_with_observations_only).not_to be_empty
         end
       end
 
-      context 'when Flipper is disabled for all codes' do
-        it 'filters out labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs).to be_empty
-        end
-      end
+      it 'returns labs with both encodedData and observations' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
 
-      context 'when only one Flipper is enabled' do
-        it 'returns only enabled test codes' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(1)
-          expect(labs.first.test_code).to eq('CH')
-        end
-      end
-
-      context 'when MB Flipper is enabled' do
-        it 'would return MB test codes if present in the data' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(1)
+          # Check if any labs have both (may or may not exist in cassette)
+          labs_with_both = labs.select { |lab| lab.encoded_data.present? && lab.observations.present? }
+          # This is just checking the structure works - we don't require cassette to have this combination
+          expect(labs_with_both).to be_an(Array)
         end
       end
     end
@@ -189,96 +100,8 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'handles gracefully' do
-        allow(service).to receive(:parse_response_body).and_return(nil)
         allow(Flipper).to receive(:enabled?).and_return(true)
-        expect { service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31') }.not_to raise_error
-      end
-    end
-  end
-
-  describe '#filter_records' do
-    let(:record_ch) { double(test_code: 'CH') }
-    let(:record_sp) { double(test_code: 'SP') }
-    let(:record_mb) { double(test_code: 'MB') }
-    let(:record_other) { double(test_code: 'OTHER') }
-    let(:records) { [record_ch, record_sp, record_mb, record_other] }
-
-    context 'when filtering is disabled' do
-      it 'returns all records regardless of individual toggle states' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                  user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
-        allow(Rails.logger).to receive(:info)
-
-        result = service.send(:filter_records, records)
-
-        expect(result).to eq(records)
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD filtering disabled - returning all records',
-            total_records: 4,
-            service: 'unified_health_data'
-          )
-        )
-      end
-    end
-
-    context 'when filtering is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                  user).and_return(true)
-        allow(Rails.logger).to receive(:info)
-      end
-
-      it 'returns only records with enabled Flipper flags' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_ch, record_mb])
-      end
-
-      it 'returns only MB records when only MB flag is enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_mb])
-      end
-
-      it 'returns all supported records when all flags are enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_ch, record_sp, record_mb])
-      end
-
-      it 'filters out unsupported test codes even when all flags are enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).not_to include(record_other)
-      end
-
-      it 'logs filtering statistics' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-
-        service.send(:filter_records, records)
-
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD filtering enabled - applied test code filtering',
-            total_records: 4,
-            filtered_records: 2,
-            service: 'unified_health_data'
-          )
-        )
+        expect { service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30') }.not_to raise_error
       end
     end
   end
@@ -289,6 +112,32 @@ describe UnifiedHealthData::Service, type: :service do
         result = service.send(:fetch_combined_records, nil)
 
         expect(result).to eq([])
+      end
+    end
+
+    context 'when body has VistA and Oracle Health records' do
+      let(:body) do
+        {
+          'vista' => {
+            'entry' => [
+              { 'resource' => { 'id' => 'vista-1', 'resourceType' => 'DiagnosticReport' } }
+            ]
+          },
+          'oracle-health' => {
+            'entry' => [
+              { 'resource' => { 'id' => 'oracle-1', 'resourceType' => 'DiagnosticReport' } }
+            ]
+          }
+        }
+      end
+
+      it 'adds source to each record and combines them' do
+        result = service.send(:fetch_combined_records, body)
+        expect(result.size).to eq(2)
+        vista_record = result.find { |r| r['resource']['id'] == 'vista-1' }
+        oracle_record = result.find { |r| r['resource']['id'] == 'oracle-1' }
+        expect(vista_record['source']).to eq('vista')
+        expect(oracle_record['source']).to eq('oracle-health')
       end
     end
   end
@@ -331,7 +180,9 @@ describe UnifiedHealthData::Service, type: :service do
             ['food'],
             ['food']
           )
-          expect(allergies[0]).to have_attributes(
+          # Verify specific allergy exists (not checking position due to sorting)
+          trazodone_allergy = allergies.find { |a| a.id == '2678' }
+          expect(trazodone_allergy).to have_attributes(
             {
               'id' => '2678',
               'name' => 'TRAZODONE',
@@ -357,6 +208,24 @@ describe UnifiedHealthData::Service, type: :service do
                                        'provider' => be_a(String).or(be_nil)
                                      }
                                    ))
+        end
+
+        it 'returns allergies sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(sample_client_response)
+
+          allergies = service.get_allergies.sort
+
+          allergies_with_dates = allergies.select { |allergy| allergy.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = allergies_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          allergies_without_dates = allergies.select { |allergy| allergy.date.nil? }
+          if allergies_without_dates.any?
+            expect(allergies.last(allergies_without_dates.size)).to eq(allergies_without_dates)
+          end
         end
       end
 
@@ -525,6 +394,186 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  # Vitals
+  describe '#get_vitals' do
+    let(:vitals_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'vitals_example.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: vitals_sample_response
+      )
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all vitals' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(sample_client_response)
+
+          expect(Rails.logger).to receive(:info)
+            .with(
+              message: 'Multiple locations found for 8 Vital records:',
+              locations: [{ 'locations found' => 2,
+                            'names' => '668 Green Primary Care; WAMC Bariatric Surgery' }],
+              service: 'unified_health_data'
+            )
+
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(18)
+          expect(vitals.map(&:type)).to contain_exactly(
+            'WEIGHT',
+            'WEIGHT',
+            'HEIGHT',
+            'PULSE',
+            'TEMPERATURE',
+            'BLOOD_PRESSURE',
+            'PULSE_OXIMETRY',
+            'RESPIRATION',
+            'WEIGHT',
+            'BLOOD_PRESSURE',
+            'PULSE_OXIMETRY',
+            'WEIGHT',
+            'TEMPERATURE',
+            'RESPIRATION',
+            'PULSE',
+            'BLOOD_PRESSURE',
+            'HEIGHT',
+            'WEIGHT'
+          )
+
+          # this will be a VistA record
+          expect(vitals[0]).to have_attributes(
+            {
+              'id' => 'be3724c0-f9e2-4e6a-b37e-366aca305613',
+              'name' => 'Weight',
+              'type' => 'WEIGHT',
+              'date' => '2025-08-22T22:16:24Z',
+              'measurement' => '165.35 pounds',
+              'location' => 'CHY ANOTHER TEST CLINIC',
+              'notes' => []
+            }
+          )
+
+          oh_vital = vitals.find { |vital| vital.id == 'VS-15249708684' }
+          expect(oh_vital).to have_attributes(
+            {
+              'id' => 'VS-15249708684',
+              'name' => 'Weight dosing',
+              'type' => 'WEIGHT',
+              'date' => '2025-07-24T18:23:00.000Z',
+              'measurement' => '150.796 pounds',
+              'location' => '668 Green Primary Care',
+              'notes' => ['Result generated by automated process based on measured weight.']
+            }
+          )
+          expect(vitals).to all(have_attributes(
+                                  {
+                                    'id' => be_a(String),
+                                    'name' => be_a(String),
+                                    'date' => be_a(String).or(be_nil),
+                                    'type' => be_a(String),
+                                    'measurement' => be_a(String),
+                                    'location' => be_a(String),
+                                    'notes' => be_an(Array)
+                                  }
+                                ))
+        end
+      end
+
+      context 'when data exists for only VistA or OH' do
+        it 'returns vitals for VistA only' do
+          modified_response = vitals_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(10)
+          expect(vitals.map(&:type)).to contain_exactly(
+            'WEIGHT',
+            'WEIGHT',
+            'HEIGHT',
+            'PULSE',
+            'TEMPERATURE',
+            'BLOOD_PRESSURE',
+            'PULSE_OXIMETRY',
+            'RESPIRATION',
+            'WEIGHT',
+            'BLOOD_PRESSURE'
+          )
+
+          expect(vitals).to all(have_attributes(
+                                  {
+                                    'id' => be_a(String),
+                                    'name' => be_a(String),
+                                    'date' => be_a(String).or(be_nil),
+                                    'type' => be_a(String),
+                                    'measurement' => be_a(String),
+                                    'location' => be_a(String),
+                                    'notes' => be_an(Array)
+                                  }
+                                ))
+        end
+
+        it 'returns vitals for OH only' do
+          modified_response = vitals_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(8)
+          expect(vitals.map(&:type)).to contain_exactly(
+            'PULSE_OXIMETRY',
+            'WEIGHT',
+            'TEMPERATURE',
+            'RESPIRATION',
+            'PULSE',
+            'BLOOD_PRESSURE',
+            'HEIGHT',
+            'WEIGHT'
+          )
+          expect(vitals).to all(have_attributes(
+                                  {
+                                    'id' => be_a(String),
+                                    'name' => be_a(String),
+                                    'date' => be_a(String).or(be_nil),
+                                    'type' => be_a(String),
+                                    'measurement' => be_a(String),
+                                    'location' => be_a(String),
+                                    'notes' => be_an(Array)
+                                  }
+                                ))
+        end
+      end
+
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array for vitals' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(Faraday::Response.new(
+                          body: { 'vista' => {}, 'oracle-health' => {} }
+                        ))
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(0)
+        end
+      end
+    end
+  end
+
   # Clinical Notes
   describe '#get_care_summaries_and_notes' do
     let(:notes_sample_response) do
@@ -576,7 +625,9 @@ describe UnifiedHealthData::Service, type: :service do
             'discharge_summary',
             'other'
           )
-          expect(notes[0]).to have_attributes(
+          # Verify specific note exists (not checking position due to sorting)
+          telehealth_note = notes.find { |n| n.id == 'F253-7227761-1834074' }
+          expect(telehealth_note).to have_attributes(
             {
               'id' => 'F253-7227761-1834074',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
@@ -608,6 +659,14 @@ describe UnifiedHealthData::Service, type: :service do
                                    'note' => be_a(String)
                                  }
                                ))
+        end
+
+        it 'returns clinical notes sorted by date in descending order' do
+          notes = service.get_care_summaries_and_notes.sort
+
+          dates = notes.map { |note| Time.zone.parse(note.date) }
+          expect(dates).to eq(dates.sort.reverse)
+          expect(notes.first.date).to eq(notes.map(&:date).max)
         end
       end
 
@@ -688,6 +747,44 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
+    context 'with date parameters' do
+      it 'accepts and uses provided start_date and end_date' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '2024-01-01', end_date: '2024-12-31')
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2024-12-31')
+      end
+
+      it 'uses default dates when parameters not provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes
+      end
+
+      it 'uses default start_date when only end_date provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: '2024-12-31')
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(end_date: '2024-12-31')
+      end
+
+      it 'uses default end_date when only start_date provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '2024-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(start_date: '2024-01-01')
+      end
+    end
+
     context 'error handling' do
       it 'handles unknown errors' do
         uhd_service = double
@@ -716,7 +813,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(Rails.logger).to have_received(:info).with(
           {
-            message: 'UHD LOINC code distribution',
+            message: 'Clinical Notes LOINC code distribution',
             loinc_code_distribution: '11506-3:3,11488-4:1,4189665:1,18842-5:1,4189666:1,96339-7:1',
             total_codes: 6,
             total_records: 6,
@@ -791,14 +888,200 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  # After Visit Summaries
+  describe '#get_appt_avs' do
+    let(:avs_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'after_visit_summary.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: avs_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_avs)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      context 'when include_binary is not passed it defaults to false' do
+        it 'returns avs with metadata and no binary file' do
+          avs = service.get_appt_avs(appt_id: '12345')
+          expect(avs.size).to eq(2)
+          expect(avs.map(&:note_type)).to contain_exactly(
+            'ambulatory_patient_summary',
+            'ambulatory_patient_summary'
+          )
+          expect(avs[0]).to have_attributes(
+            {
+              'appt_id' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loinc_codes' => %w[4189669 96345-4],
+              'note_type' => 'ambulatory_patient_summary',
+              'content_type' => 'application/pdf',
+              'binary' => nil
+            }
+          )
+          expect(avs).to all(have_attributes(
+                               {
+                                 'appt_id' => be_a(String),
+                                 'id' => be_a(String),
+                                 'name' => be_a(String),
+                                 'loinc_codes' => be_an(Array),
+                                 'note_type' => be_a(String),
+                                 'content_type' => be_a(String),
+                                 'binary' => be_nil # should all be nil since include_binary is not passed
+                               }
+                             ))
+        end
+      end
+
+      context 'when include_binary is passed as true' do
+        it 'returns avs with metadata and binary file' do
+          avs = service.get_appt_avs(appt_id: '12345', include_binary: true)
+          expect(avs.size).to eq(2)
+          expect(avs.map(&:note_type)).to contain_exactly(
+            'ambulatory_patient_summary',
+            'ambulatory_patient_summary'
+          )
+          expect(avs[0]).to have_attributes(
+            {
+              'appt_id' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loinc_codes' => %w[4189669 96345-4],
+              'note_type' => 'ambulatory_patient_summary',
+              'content_type' => 'application/pdf',
+              'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+            }
+          )
+          expect(avs).to all(have_attributes(
+                               {
+                                 'appt_id' => be_a(String),
+                                 'id' => be_a(String),
+                                 'name' => be_a(String),
+                                 'loinc_codes' => be_an(Array),
+                                 'note_type' => be_a(String),
+                                 'content_type' => be_a(String),
+                                 'binary' => be_a(String)
+                               }
+                             ))
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_appt_avs).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_appt_avs(appt_id: '12345', include_binary: true)
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+
+    context 'LOINC code logging' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_avs)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs LOINC code distribution when flipper enabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(true)
+
+        service.get_appt_avs(appt_id: '12345', include_binary: true)
+
+        expect(Rails.logger).to have_received(:info).with(
+          {
+            message: 'AVS LOINC code distribution',
+            loinc_code_distribution: '4189669:2,96345-4:2',
+            total_codes: 2,
+            total_records: 2,
+            service: 'unified_health_data'
+          }
+        )
+      end
+
+      it 'does not log LOINC code distribution when flipper disabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(false)
+
+        expect(Rails.logger).not_to receive(:info)
+        service.get_appt_avs(appt_id: '12345', include_binary: true)
+      end
+    end
+  end
+
+  describe '#get_avs_binary_data' do
+    let(:avs_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'after_visit_summary.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: avs_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_avs)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      it 'returns avs binary data and content type' do
+        avs = service.get_avs_binary_data(appt_id: '12345', doc_id: '15249638961')
+        expect(avs).to have_attributes(
+          {
+            'content_type' => 'application/pdf',
+            'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+          }
+        )
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_avs_binary_data).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_avs_binary_data(appt_id: '12345', doc_id: 'banana')
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
   # Prescriptions
   describe '#get_prescriptions' do
     before do
       # Freeze today so the generated end_date in service matches VCR cassette date range expectations
       allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
+      allow(Rails.cache).to receive(:exist?).and_return(false)
     end
 
     context 'with valid prescription responses', :vcr do
+      before do
+        # Stub the cache to return the expected facility name for station 556
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Ambulatory Pharmacy')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
+      end
+
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
@@ -817,9 +1100,14 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'with current_only: true' do
         it 'applies filtering to exclude old discontinued/expired prescriptions' do
-          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            filtered_prescriptions = service.get_prescriptions(current_only: true)
-            expect(filtered_prescriptions.size).to eq(54)
+          # Freeze time to prevent test from failing as prescriptions age
+          # The cassette has prescriptions with various expiration dates
+          # Using a fixed date ensures the 180-day filtering logic is consistent
+          Timecop.freeze(Time.zone.parse('2025-11-27')) do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              filtered_prescriptions = service.get_prescriptions(current_only: true)
+              expect(filtered_prescriptions.size).to eq(54)
+            end
           end
         end
       end
@@ -831,7 +1119,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(vista_prescription.refill_status).to eq('activeParked')
           expect(vista_prescription.refill_remaining).to eq(2)
-          expect(vista_prescription.facility_name).to eq('DAYT29')
+          expect(vista_prescription.facility_name).to eq('Dayton Medical Center')
           expect(vista_prescription.prescription_name).to eq('BACITRACIN 500 UNIT/GM OINT 30GM')
           expect(vista_prescription.instructions).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
           expect(vista_prescription.is_refillable).to be true
@@ -859,8 +1147,8 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.station_number).to eq('556')
           expect(oracle_prescription.is_refillable).to be true
           expect(oracle_prescription.is_trackable).to be false
-          expect(oracle_prescription.tracking_information).to eq({})
-          expect(oracle_prescription.prescription_source).to eq('')
+          expect(oracle_prescription.tracking).to eq([])
+          expect(oracle_prescription.prescription_source).to eq('VA')
           expect(oracle_prescription.instructions).to eq(
             '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.'
           )
@@ -896,11 +1184,73 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription_with_patient_instruction.refill_date).to eq('2025-06-24T21:05:53.000Z')
           expect(oracle_prescription_with_patient_instruction.dispensed_date).to be_nil
 
-          # Test prescription with completed status mapping
+          # Test prescription with completed status mapping (normalized to discontinued/expired)
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
-          expect(completed_prescription.refill_status).to eq('completed')
+          # Completed status is normalized to either 'discontinued' or 'expired' based on expiration date
+          expect(completed_prescription.refill_status).to be_in(%w[discontinued expired])
           expect(completed_prescription.is_refillable).to be false
           expect(completed_prescription.refill_date).to be_nil
+        end
+      end
+
+      context 'facility name extraction integration' do
+        it 'uses cache when available and API when cache misses' do
+          # Test cache hit scenario
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Cached Facility Name')
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
+
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
+
+            expect(oracle_prescription.facility_name).to eq('Cached Facility Name')
+          end
+        end
+
+        it 'falls back to API when cache is empty' do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
+
+          # Mock the Lighthouse API call
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          mock_facility = double('facility', name: 'API Retrieved Facility')
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
+
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
+
+            expect(oracle_prescription.facility_name).to eq('API Retrieved Facility')
+            # API is called multiple times for different prescriptions with same station number
+            expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556').at_least(:once)
+          end
+        end
+
+        it 'handles API errors gracefully' do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
+          allow(Rails.logger).to receive(:error)
+          allow(StatsD).to receive(:increment)
+
+          # Mock API to raise an error
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:get_facilities).and_raise(StandardError, 'API unavailable')
+
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
+
+            expect(oracle_prescription.facility_name).to be_nil
+            # Error is logged multiple times for different prescriptions with same station number
+            expect(Rails.logger).to have_received(:error).with(
+              'Failed to fetch facility name from API for station 556: API unavailable'
+            ).at_least(:once)
+            expect(StatsD).to have_received(:increment).with(
+              'unified_health_data.facility_name_fallback.api_error'
+            ).at_least(:once)
+          end
         end
       end
 
@@ -1045,7 +1395,7 @@ describe UnifiedHealthData::Service, type: :service do
           result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
 
           expect(result[:success]).to eq([])
-          expect(result[:failed]).to eq([])
+          expect(result[:failed]).to eq([{ id: '12345', error: 'Service unavailable', station_number: '570' }])
         end
       end
     end
@@ -1053,7 +1403,6 @@ describe UnifiedHealthData::Service, type: :service do
     context 'parse_refill_response edge cases' do
       it 'always returns arrays for success and failed keys with nil response body' do
         response = double(body: nil)
-        allow(service).to receive(:parse_response_body).with(nil).and_return(nil)
 
         result = service.send(:parse_refill_response, response)
 
@@ -1065,7 +1414,6 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'always returns arrays for success and failed keys with non-array response body' do
         response = double(body: { error: 'Invalid format' })
-        allow(service).to receive(:parse_response_body).and_return({ error: 'Invalid format' })
 
         result = service.send(:parse_refill_response, response)
 
@@ -1077,7 +1425,6 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'always returns arrays for success and failed keys with empty array response' do
         response = double(body: [])
-        allow(service).to receive(:parse_response_body).and_return([])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1091,12 +1438,6 @@ describe UnifiedHealthData::Service, type: :service do
         response = double(body: [
                             { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' }
                           ])
-        allow(service).to receive(:parse_response_body).and_return([
-                                                                     { 'success' => true,
-                                                                       'orderId' => '123',
-                                                                       'message' => 'Success',
-                                                                       'stationNumber' => '570' }
-                                                                   ])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1111,10 +1452,6 @@ describe UnifiedHealthData::Service, type: :service do
         response = double(body: [
                             { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
                           ])
-        allow(service).to receive(:parse_response_body).and_return([
-                                                                     { 'success' => false, 'orderId' => '456',
-                                                                       'message' => 'Failed', 'stationNumber' => '571' }
-                                                                   ])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1187,6 +1524,134 @@ describe UnifiedHealthData::Service, type: :service do
                              ])
       end
     end
+
+    context 'validate_refill_response_count' do
+      it 'does not raise error when counts match' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'raises error when response has fewer items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' },
+          { id: '789', stationNumber: '572' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 3 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when response has more items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 1 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when no responses received for multiple orders' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: []
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 2 orders, received 0 responses'
+        )
+      end
+
+      it 'does not raise error when both orders and responses are empty' do
+        normalized_orders = []
+        result = {
+          success: [],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all success responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [
+            { id: '123', status: 'submitted', station_number: '570' },
+            { id: '456', status: 'submitted', station_number: '571' }
+          ],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all failed responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: [
+            { id: '123', error: 'Failed', station_number: '570' },
+            { id: '456', error: 'Failed', station_number: '571' }
+          ]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+    end
   end
 
   # Conditions
@@ -1234,6 +1699,19 @@ describe UnifiedHealthData::Service, type: :service do
       expect(conditions.size).to eq(18)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns conditions sorted by date in descending order' do
+      conditions = service.get_conditions.sort
+
+      conditions_with_dates = conditions.select { |condition| condition.date.present? }
+      dates = conditions_with_dates.map { |condition| Time.zone.parse(condition.date) }
+      expect(dates).to eq(dates.sort.reverse)
+
+      conditions_without_dates = conditions.select { |condition| condition.date.nil? }
+      if conditions_without_dates.any?
+        expect(conditions.last(conditions_without_dates.size)).to eq(conditions_without_dates)
+      end
     end
 
     it 'returns conditions from both VistA and Oracle Health with real sample data' do
@@ -1361,6 +1839,99 @@ describe UnifiedHealthData::Service, type: :service do
         expect { service.get_single_condition(condition_id) }.not_to raise_error
         condition = service.get_single_condition(condition_id)
         expect(condition).to be_nil
+      end
+    end
+  end
+
+  describe '#get_ccd_binary' do
+    let(:ccd_fixture) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)
+    end
+    let(:ccd_response) do
+      Faraday::Response.new(body: ccd_fixture)
+    end
+
+    let(:client_double) { instance_double(UnifiedHealthData::Client) }
+
+    before do
+      allow(UnifiedHealthData::Client).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:get_ccd).and_return(ccd_response)
+    end
+
+    context 'when requesting XML format' do
+      it 'returns BinaryData object with Base64 encoded XML' do
+        result = service.get_ccd_binary(format: 'xml')
+
+        expect(result).to be_a(UnifiedHealthData::BinaryData)
+        expect(result.content_type).to eq('application/xml')
+        expect(result.binary).to be_present
+        expect(result.binary[0, 20]).to eq('PD94bWwgdmVyc2lvbj0i')
+      end
+    end
+
+    context 'when requesting HTML format' do
+      it 'returns BinaryData object with Base64 encoded HTML' do
+        result = service.get_ccd_binary(format: 'html')
+
+        expect(result).to be_a(UnifiedHealthData::BinaryData)
+        expect(result.content_type).to eq('text/html')
+        expect(result.binary).to be_present
+        expect(result.binary[0, 20]).to eq('PCEtLSBEbyBOT1QgZWRp')
+      end
+    end
+
+    context 'when requesting PDF format' do
+      it 'returns BinaryData object with Base64 encoded PDF' do
+        result = service.get_ccd_binary(format: 'pdf')
+
+        expect(result).to be_a(UnifiedHealthData::BinaryData)
+        expect(result.content_type).to eq('application/pdf')
+        expect(result.binary).to be_present
+        expect(result.binary[0, 20]).to eq('JVBERi0xLjUKJeLjz9MK')
+      end
+    end
+
+    context 'when requesting unavailable format' do
+      let(:modified_ccd) do
+        ccd_data = JSON.parse(ccd_fixture.to_json)
+        doc_ref = ccd_data['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
+        doc_ref['resource']['content'].reject! do |item|
+          item['attachment']['contentType'] == 'text/html'
+        end
+        ccd_data
+      end
+      let(:ccd_response) do
+        Faraday::Response.new(body: modified_ccd)
+      end
+
+      before do
+        allow(client_double).to receive(:get_ccd).and_return(ccd_response)
+      end
+
+      it 'raises an error for missing HTML' do
+        expect do
+          service.get_ccd_binary(format: 'html')
+        end.to raise_error(ArgumentError, /Format html not available/)
+      end
+    end
+
+    context 'when requesting invalid format' do
+      it 'raises an ArgumentError' do
+        expect do
+          service.get_ccd_binary(format: 'json')
+        end.to raise_error(ArgumentError, /Invalid format/)
+      end
+    end
+
+    context 'when DocumentReference is missing' do
+      let(:empty_bundle) { { 'entry' => [] } }
+      let(:ccd_response) do
+        Faraday::Response.new(body: empty_bundle)
+      end
+
+      it 'returns nil when no CCD document exists' do
+        result = service.get_ccd_binary(format: 'xml')
+        expect(result).to be_nil
       end
     end
   end

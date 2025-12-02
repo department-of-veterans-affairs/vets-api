@@ -2,13 +2,14 @@
 
 require 'bgs/form686c'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class SubmitForm686cJob < Job
     class Invalid686cClaim < StandardError; end
     FORM_ID = '686C-674'
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
@@ -101,9 +102,10 @@ module BGS
       )
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
-      monitor = Dependents::Monitor.new(saved_claim_id)
+      monitor = ::Dependents::Monitor.new(saved_claim_id)
       monitor.track_event('error', 'BGS::SubmitForm686cJob backup submission failed...',
                           "#{STATS_KEY}.backup_failure", { error: e.message, nested_error: e.cause&.message })
+
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
     end
 

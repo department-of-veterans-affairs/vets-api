@@ -34,6 +34,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SAML'
   inflect.acronym 'SFTP'
   inflect.acronym 'SM'
+  inflect.acronym 'SOB' # Statement of Benefits
   inflect.acronym 'SSOe'
   inflect.acronym 'SSO'
   inflect.acronym 'VAOS'
@@ -47,4 +48,5 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VIC'
   inflect.acronym 'VRE'
   inflect.acronym 'VSO'
+  inflect.acronym 'HCC'
 end

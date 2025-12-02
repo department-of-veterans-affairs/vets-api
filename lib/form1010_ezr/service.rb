@@ -36,24 +36,6 @@ module Form1010Ezr
       }
     end
 
-    # @param [JSON] parsed_form
-    # @param [String] sentry_msg
-    # @param [String] sentry_context - identifier specific to the error
-    def self.log_submission_failure_to_sentry(
-      parsed_form,
-      sentry_msg,
-      sentry_context
-    )
-      if parsed_form.present?
-        log_message_to_sentry(
-          sentry_msg.to_s,
-          :error,
-          veteran_initials(parsed_form),
-          ezr: :"#{sentry_context}"
-        )
-      end
-    end
-
     def self.log_submission_failure(parsed_form, msg)
       log_message_to_rails(msg, :error, veteran_initials(parsed_form))
     end
@@ -83,12 +65,7 @@ module Form1010Ezr
       res
     rescue => e
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
-      if Flipper.enabled?(:hca_disable_sentry_logging)
-        Form1010Ezr::Service.log_submission_failure(parsed_form, '[10-10EZR] failure')
-      else
-        Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
-      end
-
+      Form1010Ezr::Service.log_submission_failure(parsed_form, '[10-10EZR] failure')
       raise e
     end
 
@@ -104,11 +81,7 @@ module Form1010Ezr
       submit_async(parsed_form)
     rescue => e
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
-      if Flipper.enabled?(:hca_disable_sentry_logging)
-        self.class.log_submission_failure(parsed_form, '[10-10EZR] failure')
-      else
-        self.class.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
-      end
+      self.class.log_submission_failure(parsed_form, '[10-10EZR] failure')
       raise e
     end
 

@@ -32,22 +32,44 @@ module Eps
     ##
     # Get appointments data from EPS
     #
-    # @return OpenStruct response from EPS appointments endpoint
+    # @param referral_number [String] Optional referral number to filter appointments
+    # @return [Array<Hash>] Array of appointment hashes from EPS
     #
-    def get_appointments
+    def get_appointments(referral_number: nil)
+      params = { patientId: patient_id }
+      params[:referralNumber] = referral_number if referral_number.present?
+
+      query_string = URI.encode_www_form(params)
+
       with_monitoring do
-        response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
+        response = perform(:get, "/#{config.base_path}/appointments?#{query_string}",
                            {}, request_headers_with_correlation_id)
 
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(response.body, response, 'get_appointments')
+        return [] unless response.body.is_a?(Hash)
+
         appointments = response.body[:appointments]
-        merged_appointments = merge_provider_data_with_appointments(appointments)
-        OpenStruct.new(data: merged_appointments)
+        return [] unless appointments.is_a?(Array)
+
+        appointments
       end
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'get_appointments')
       raise e
+    end
+
+    ##
+    # Get appointments data from EPS with provider information and return as EpsAppointment objects
+    #
+    # @return [Array<VAOS::V2::EpsAppointment>] Array of EpsAppointment objects with provider data
+    #
+    def get_appointments_with_providers
+      appointments = get_appointments
+      return [] if appointments.blank?
+
+      merged_appointments = merge_provider_data_with_appointments(appointments)
+      merged_appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt, appt[:provider]) }
     end
 
     ##

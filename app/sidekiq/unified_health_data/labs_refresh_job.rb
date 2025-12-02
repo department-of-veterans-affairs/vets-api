@@ -36,7 +36,7 @@ module UnifiedHealthData
 
     def date_range
       end_date = Date.current
-      days_back = Settings.mhv.uhd.labs_logging_date_range_days
+      days_back = Settings.mhv.uhd.labs_logging_date_range_days.to_i
       start_date = end_date - days_back.days
       [start_date, end_date]
     end

@@ -87,6 +87,58 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
             assert_schema_conform(404)
           end
         end
+
+        it 'replaces blank or nil issue descriptions with an appeal type message' do
+          # Mock the appeal data to include blank descriptions
+          mock_appeal_data = {
+            'data' => {
+              'id' => '3294289',
+              'type' => 'higherLevelReview',
+              'attributes' => {
+                'appealIds' => [],
+                'active' => true,
+                'alerts' => [],
+                'aod' => false,
+                'aoj' => 'vba',
+                'description' => '',
+                'docket' => {},
+                'events' => [],
+                'evidence' => [],
+                'incompleteHistory' => false,
+                'issues' => [
+                  { 'active' => true, 'date' => '2016-05-03', 'description' => nil, 'diagnosticCode' => '8100',
+                    'lastAction' => 'remand' },
+                  { 'active' => true, 'date' => '2016-05-03', 'description' => '', 'diagnosticCode' => '5260',
+                    'lastAction' => 'remand' },
+                  { 'active' => true, 'date' => '2016-05-03', 'description' => 'Service connection, hearing loss',
+                    'diagnosticCode' => '5242', 'lastAction' => 'remand' }
+                ],
+                'location' => 'aoj',
+                'programArea' => 'compensation',
+                'status' => { 'details' => {}, 'type' => 'remand_ssoc' },
+                'type' => 'legacyAppeal',
+                'updated' => '2018-01-19T10:20:42-05:00'
+              }
+            }
+          }
+
+          allow_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:get_appeal).and_return(
+            OpenStruct.new(mock_appeal_data['data']['attributes'].merge(
+                             id: mock_appeal_data['data']['id'],
+                             type: mock_appeal_data['data']['type']
+                           ))
+          )
+
+          get '/mobile/v0/appeal/3294289', headers: sis_headers
+
+          expect(response).to have_http_status(:ok)
+          parsed_response = response.parsed_body
+          issues = parsed_response.dig('data', 'attributes', 'issues')
+
+          expect(issues[0]['description']).to eq("We're unable to show this issue on your Higher-Level Review")
+          expect(issues[1]['description']).to eq("We're unable to show this issue on your Higher-Level Review")
+          expect(issues[2]['description']).to eq('Service connection, hearing loss')
+        end
       end
 
       context 'with appeals model NOT used' do
