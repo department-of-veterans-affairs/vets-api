@@ -671,17 +671,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
         subject.send(:translate_banking_info)
       end
-      # context 'when Lighthouse returns banking info for the user' do
-      #   it 'logs the submission was made with banking info' do
-      #     expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
-      #       .to receive(:track_526_submission_with_banking_info)
-      #       .with(user.uuid)
-
-      #     VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-      #       subject.send(:translate_banking_info)
-      #     end
-      #   end
-      # end
     end
   end
 
