@@ -847,6 +847,9 @@ features:
   disability_526_block_banking_info_retrieval:
     actor_type: user
     description: disables call to Lighthouse Direct Deposit API to fill in banking information without Veteran consent
+  disability_526_extra_bdd_pages_enabled:
+    actor_type: user
+    description: Enables extra pages during a BDD claim
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
