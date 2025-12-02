@@ -1121,7 +1121,9 @@ describe UnifiedHealthData::Service, type: :service do
           expect(vista_prescription.refill_remaining).to eq(5)
           expect(vista_prescription.facility_name).to eq('Dayton Medical Center')
           expect(vista_prescription.prescription_name).to eq('PROMETHAZINE HCL 25MG TAB')
-          expect(vista_prescription.instructions).to eq('TAKE ONE TABLET BY MOUTH DAILY TEST --TAKE WITH FOOD TO DECREASE GI UPSET/DO NOT CRUSH OR CHEW--')
+          expect(vista_prescription.instructions).to eq(
+            'TAKE ONE TABLET BY MOUTH DAILY TEST --TAKE WITH FOOD TO DECREASE GI UPSET/DO NOT CRUSH OR CHEW--'
+          )
           expect(vista_prescription.is_refillable).to be true
           expect(vista_prescription.station_number).to eq('989')
           expect(vista_prescription.prescription_number).to eq('2721445')
