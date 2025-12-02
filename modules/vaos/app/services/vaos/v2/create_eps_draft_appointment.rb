@@ -3,7 +3,7 @@
 module VAOS
   module V2
     ##
-    # EpsDraftAppointment - Plain Old Ruby Object for creating Community Care appointment drafts
+    # CreateEpsDraftAppointment - Command object for creating Community Care appointment drafts
     #
     # This class encapsulates the business logic for creating a draft appointment through
     # the Enterprise Provider Service (EPS). It handles the complete workflow including:
@@ -18,18 +18,20 @@ module VAOS
     # BackendServiceException errors from external services bubble up naturally.
     #
     # @example Basic usage
-    #   draft = EpsDraftAppointment.new(current_user, referral_id, referral_consult_id)
+    #   draft = CreateEpsDraftAppointment.call(current_user, referral_id, referral_consult_id)
     #   if draft.error
     #     # Handle error: draft.error[:message], draft.error[:status]
     #   else
     #     # Use success data: draft.id, draft.provider, draft.slots, draft.drive_time
     #   end
     #
-    class EpsDraftAppointment
+    class CreateEpsDraftAppointment
       include VAOS::CommunityCareConstants
 
       REFERRAL_DRAFT_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_draft_station_id.access".freeze
       PROVIDER_DRAFT_NETWORK_ID_METRIC = "#{STATSD_PREFIX}.provider_draft_network_id.access".freeze
+      APPT_DRAFT_CREATION_SUCCESS_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.success".freeze
+      APPT_DRAFT_CREATION_FAILURE_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.failure".freeze
 
       # @!attribute [r] id
       #   @return [String, nil] The ID of the created draft appointment, or nil if creation failed
@@ -42,31 +44,72 @@ module VAOS
       #   @return [Hash, nil] Drive time information from user's address to provider, or nil if unavailable
       # @!attribute [r] error
       #   @return [Hash, nil] Error information with :message and :status keys, or nil if successful
-      attr_reader :id, :provider, :slots, :drive_time, :error
+      # @!attribute [r] type_of_care
+      #   @return [String, nil] The sanitized type of care from the referral (e.g., 'CARDIOLOGY'),
+      #     or nil if not yet determined
+      attr_reader :id, :provider, :slots, :drive_time, :error, :type_of_care
 
       ##
-      # Initialize and execute the draft appointment creation process
+      # Class method to create and execute draft appointment creation
       #
-      # Performs upfront validation of parameters, then orchestrates the complete
-      # workflow of creating a Community Care draft appointment. All work is done
-      # in the constructor, setting the object's final state.
+      # @param current_user [User] The authenticated user
+      # @param referral_id [String] The referral identifier
+      # @param referral_consult_id [String] The referral consultation identifier
+      # @return [CreateEpsDraftAppointment] Instance with populated attributes or error
+      def self.call(current_user, referral_id, referral_consult_id)
+        new(current_user, referral_id, referral_consult_id).call
+      end
+
+      ##
+      # Initialize a new draft appointment instance
+      #
+      # Sets up the instance with initial state. Does not perform any API calls
+      # or business logic - call #call to execute the draft creation workflow.
       #
       # @param current_user [User] The authenticated user requesting the appointment
       # @param referral_id [String] The unique referral identifier
       # @param referral_consult_id [String] The referral consultation identifier
       #
-      # @return [EpsDraftAppointment] A new instance with populated attributes or error
+      # @return [EpsDraftAppointment] A new instance ready to execute
       def initialize(current_user, referral_id, referral_consult_id)
         @current_user = current_user
+        @referral_id = referral_id
+        @referral_consult_id = referral_consult_id
         @id = nil
         @provider = nil
         @slots = nil
         @drive_time = nil
         @error = nil
+        @type_of_care = nil
+      end
 
-        return unless validate_params(referral_id, referral_consult_id)
+      ##
+      # Execute the draft appointment creation process
+      #
+      # Performs validation, then orchestrates the complete draft appointment
+      # creation workflow, including referral validation, provider lookup,
+      # slot checking, and draft creation. Sets either success state or an
+      # error with appropriate status. Logs metrics for success/failure.
+      #
+      # @return [CreateEpsDraftAppointment] self with populated attributes or error
+      def call
+        unless validate_params(@referral_id, @referral_consult_id)
+          log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          return self
+        end
 
-        build_appointment_draft(referral_id, referral_consult_id)
+        build_appointment_draft(@referral_id, @referral_consult_id)
+
+        if @error
+          log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
+        else
+          log_draft_creation_metric(APPT_DRAFT_CREATION_SUCCESS_METRIC)
+        end
+
+        self
+      rescue => e
+        log_draft_creation_metric(APPT_DRAFT_CREATION_FAILURE_METRIC)
+        raise e
       end
 
       ##
@@ -111,20 +154,20 @@ module VAOS
       # @param referral_consult_id [String] The referral consultation identifier
       # @return [void] Sets instance variables for success data or error state
       def build_appointment_draft(referral_id, referral_consult_id)
-        referral = get_and_validate_referral(referral_consult_id)
+        @referral = get_and_validate_referral(referral_consult_id)
         return if @error
 
         validate_referral_not_used(referral_id)
         return if @error
 
-        provider = get_and_validate_provider(referral)
+        provider = get_and_validate_provider(@referral)
         return if @error
 
         draft = create_draft_appointment(referral_id)
         return if @error
 
         @drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
-        @slots = fetch_provider_slots(referral, provider, draft.id)
+        @slots = fetch_provider_slots(@referral, provider, draft.id)
         @id = draft.id
         @provider = provider
       end
@@ -188,21 +231,20 @@ module VAOS
         validation_result = validate_referral_data(referral)
 
         unless validation_result[:valid]
+          log_referral_validation_failure(referral, validation_result[:missing_attributes])
           return set_error(
             "Required referral data is missing or incomplete: #{validation_result[:missing_attributes]}",
             :unprocessable_entity
           )
         end
 
+        # Store type_of_care for metrics
+        @type_of_care = sanitize_log_value(referral&.category_of_care)
+
         log_referral_metrics(referral)
         referral
       rescue Redis::BaseError => e
-        error_data = {
-          error_class: e.class.name,
-          **common_logging_context
-        }
-        Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
-        set_error('Redis connection error', :bad_gateway)
+        handle_redis_error(e)
       end
 
       ##
@@ -216,8 +258,16 @@ module VAOS
       def validate_referral_not_used(referral_id)
         check = appointments_service.referral_appointment_already_exists?(referral_id)
         if check[:error]
+          log_personal_information_error('eps_draft_existing_appointment_check_failed', {
+                                           referral_number: referral_id,
+                                           failure_reason: "Error checking existing appointments: #{check[:failures]}"
+                                         })
           set_error("Error checking existing appointments: #{check[:failures]}", :bad_gateway)
         elsif check[:exists]
+          log_personal_information_error('eps_draft_referral_already_used', {
+                                           referral_number: referral_id,
+                                           failure_reason: 'Referral is already used for an existing appointment'
+                                         })
           set_error('No new appointment created: referral is already used', :unprocessable_entity)
         end
       end
@@ -227,6 +277,8 @@ module VAOS
       #
       # Uses the referral's NPI, specialty, and facility address to locate the provider
       # through the EPS provider service. Validates that a provider was found.
+      # Note: Provider search failures are logged in Eps::ProviderService, so we don't
+      # duplicate that logging here.
       #
       # @param referral [OpenStruct] The referral object containing provider search criteria
       # @return [OpenStruct, nil] The validated provider object, or nil if error occurred
@@ -246,6 +298,7 @@ module VAOS
       #
       # Calls the EPS appointment service to create a new draft appointment
       # and validates that the creation was successful.
+      # Note: Errors from the EPS service are logged in Eps::AppointmentService
       #
       # @param referral_id [String] The referral identifier for the appointment
       # @return [OpenStruct, nil] The created draft appointment object, or nil if error occurred
@@ -307,7 +360,8 @@ module VAOS
         eps_provider_service.search_provider_services(
           npi: referral.provider_npi,
           specialty: referral.provider_specialty,
-          address: referral.treating_facility_address
+          address: referral.treating_facility_address,
+          referral_number: referral.referral_number
         )
       end
 
@@ -385,6 +439,10 @@ module VAOS
       # and returns the ID of the first available type. Raises BackendServiceException
       # if provider data is invalid or no self-schedulable types are available.
       #
+      # Note: This is defensive validation. The provider should already have self-schedulable
+      # types since it passed through Eps::ProviderService#filter_self_schedulable. However,
+      # we validate again here to catch any data inconsistencies between the search and slot fetch.
+      #
       # @param provider [OpenStruct] The provider containing appointment types
       # @return [String] The appointment type ID
       # @raise [Common::Exceptions::BackendServiceException] When appointment types are missing
@@ -410,6 +468,11 @@ module VAOS
       # @return [void]
       #
       def handle_missing_appointment_types_error
+        log_personal_information_error('eps_draft_appointment_types_missing', {
+                                         referral_number: @referral&.referral_number,
+                                         npi: @referral&.provider_npi,
+                                         failure_reason: 'Provider appointment types data is not available'
+                                       })
         error_data = {
           error_message: 'Provider appointment types data is not available',
           **common_logging_context
@@ -429,6 +492,9 @@ module VAOS
       #
       # Logs the error with structured data and raises a BackendServiceException
       # when the provider has appointment types but none are self-schedulable.
+      # Note: This should theoretically never happen since the provider already passed
+      # self-schedulable filtering in Eps::ProviderService. If it does trigger, it indicates
+      # a data consistency issue. PII logging is already handled by ProviderService.
       #
       # @raise [Common::Exceptions::BackendServiceException] When no self-schedulable types are available
       # @return [void]
@@ -488,11 +554,13 @@ module VAOS
 
         referring_facility_code = sanitize_log_value(referral.referring_facility_code)
         station_id = sanitize_log_value(referral.station_id)
+        type_of_care = sanitize_log_value(referral.category_of_care)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
                            COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "station_id:#{station_id}"
+                           "station_id:#{station_id}",
+                           "type_of_care:#{type_of_care}"
                          ])
       end
 
@@ -511,6 +579,16 @@ module VAOS
           StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC,
                            tags: [COMMUNITY_CARE_SERVICE_TAG, "network_id:#{network_id}"])
         end
+      end
+
+      ##
+      # Log draft creation success or failure metric with type_of_care
+      #
+      # @param metric [String] The metric name to log
+      # @return [void]
+      def log_draft_creation_metric(metric)
+        type_of_care = @type_of_care || 'no_value'
+        StatsD.increment(metric, tags: [COMMUNITY_CARE_SERVICE_TAG, "type_of_care:#{type_of_care}"])
       end
 
       ##
@@ -558,7 +636,7 @@ module VAOS
       # @return [nil] Always returns nil to support early return pattern
       def set_error(message, status)
         @error = { message:, status: }
-        nil
+        nil # Metric logging happens at end of initialize
       end
 
       ##
@@ -612,6 +690,60 @@ module VAOS
           station_number: station_number(@current_user),
           eps_trace_id:
         }
+      end
+
+      ##
+      # Log personal information errors to PersonalInformationLog
+      #
+      # Creates an encrypted log entry for errors involving sensitive data like
+      # referral numbers and NPIs. Gracefully handles logging failures to prevent
+      # disruption of the main business logic.
+      #
+      # @param error_class [String] The error classification identifier
+      # @param data [Hash] The data to log (will be encrypted)
+      # @return [void]
+      def log_personal_information_error(error_class, data)
+        # Use create (not create!) so logging failures don't break the main flow
+        PersonalInformationLog.create(
+          error_class:,
+          data: {
+            npi: data[:npi],
+            referral_number: data[:referral_number],
+            user_uuid: data[:user_uuid] || @current_user&.uuid,
+            search_params: data[:search_params],
+            failure_reason: data[:failure_reason]
+          }.compact
+        )
+      end
+
+      ##
+      # Log referral validation failure with PII
+      #
+      # @param referral [OpenStruct] The referral that failed validation
+      # @param missing_attributes [String] Description of missing attributes
+      # @return [void]
+      def log_referral_validation_failure(referral, missing_attributes)
+        log_personal_information_error('eps_draft_referral_validation_failed', {
+                                         referral_number: referral&.referral_number,
+                                         npi: referral&.provider_npi,
+                                         failure_reason: 'Required referral data is missing or incomplete: ' \
+                                                         "#{missing_attributes}"
+                                       })
+      end
+
+      ##
+      # Handle Redis errors with logging
+      #
+      # @param error [Redis::BaseError] The Redis error
+      # @return [void]
+      # @raise [Redis::BaseError] Re-raises the error after logging
+      def handle_redis_error(error)
+        error_data = {
+          error_class: error.class.name,
+          **common_logging_context
+        }
+        Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
+        raise # Re-raise to let initialize rescue block handle metric logging
       end
     end
   end
