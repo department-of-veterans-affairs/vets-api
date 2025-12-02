@@ -82,7 +82,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue StandardError => e
+    rescue => e
       handle_error(e, 'get_availability')
     end
 
@@ -124,7 +124,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue StandardError => e
+    rescue => e
       handle_error(e, 'save_appointment')
     end
 
@@ -145,7 +145,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue StandardError => e
+    rescue => e
       handle_error(e, 'cancel_appointment')
     end
 
@@ -166,7 +166,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue StandardError => e
+    rescue => e
       handle_error(e, 'get_appointment')
     end
 
@@ -187,7 +187,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue StandardError => e
+    rescue => e
       handle_error(e, 'get_appointments')
     end
 
@@ -208,7 +208,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue StandardError => e
+    rescue => e
       handle_error(e, 'get_veteran_info')
     end
 
@@ -224,7 +224,7 @@ module Vass
       response = client.get_agent_skills
 
       parse_response(response)
-    rescue StandardError => e
+    rescue => e
       handle_error(e, 'get_agent_skills')
     end
 
