@@ -20,29 +20,54 @@ module AccreditedRepresentativePortal
       before_action :feature_enabled, :loa3_user?
       before_action :parse_request_body, :validate_form, only: [:submit]
 
-      def details
-        return render json: { errors: 'file is required' }, status: :bad_request unless params[:file]
+      # rubocop:disable Metrics/MethodLength
+      def background_detail_upload
+        file = params[:file]
+        return render json: { errors: 'file is required' }, status: :bad_request if file.blank?
 
         details_slug = params[:details_slug]
-        Rails.logger.info("Received Form21a details submission for: #{details_slug}")
+        Rails.logger.info(
+          "Form21aController: Received details upload for slug=#{details_slug} " \
+          "user_uuid=#{current_user&.uuid}"
+        )
 
-        render json: {
-          data: {
-            attributes: {
-              confirmationCode: SecureRandom.uuid,
-              name: params[:file].original_filename,
-              size: params[:file].size,
-              fileType: params[:file].content_type
+        ActiveRecord::Base.transaction do
+          form_attachment = Form21aAttachment.create!(
+            file_data: file,
+            type: 'Form21aAttachment'
+          )
+
+          # uploader = Form21aAttachmentUploader.new(form_attachment.guid)
+
+          update_in_progress_form(details_slug, file, form_attachment)
+
+          render json: {
+            data: {
+              attributes: {
+                errorMessage: '',
+                confirmationCode: form_attachment.guid,
+                name: file.original_filename,
+                size: file.size,
+                type: file.content_type
+              }
             }
-          }
-        }, status: :ok
+          }, status: :ok
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.error(
+          "Form21aController: details upload failed validation for user_uuid=#{current_user&.uuid} " \
+          "details_slug=#{details_slug} errors=#{e.record.errors.full_messages.join(', ')}"
+        )
+        render json: { errors: 'Unable to store document' }, status: :unprocessable_entity
       end
+      # rubocop:enable Metrics/MethodLength
 
       def submit
         form_hash = JSON.parse(@parsed_request_body)
 
         begin
           response = AccreditationService.submit_form21a([form_hash], @current_user&.uuid)
+
           InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy if response.success?
           render_ogc_service_response(response)
         rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
@@ -64,6 +89,35 @@ module AccreditedRepresentativePortal
 
       def schema
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
+      end
+
+      def current_in_progress_form_or_routing_error
+        current_in_progress_form || routing_error
+      end
+
+      def current_in_progress_form
+        InProgressForm.form_for_user(FORM_ID, current_user)
+      end
+
+      def documents_key_for(slug)
+        "#{slug.tr('-', '_').camelize(:lower)}Documents"
+      end
+
+      def update_in_progress_form(details_slug, file, form_attachment)
+        in_progress_form = current_in_progress_form_or_routing_error
+        documents_key = documents_key_for(details_slug)
+        form_data = JSON.parse(in_progress_form.form_data.presence || '{}')
+
+        form_data[documents_key] ||= []
+
+        form_data[documents_key] << {
+          'name' => file.original_filename,
+          'confirmationCode' => form_attachment.guid,
+          'size' => file.size,
+          'type' => file.content_type
+        }
+
+        in_progress_form.update!(form_data: form_data.to_json)
       end
 
       # Checks if the feature flag accredited_representative_portal_form_21a is enabled or not
