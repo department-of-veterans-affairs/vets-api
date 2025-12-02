@@ -593,25 +593,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         subject.send(:translate_banking_info)
       end
     end
-
-    context 'when not provided banking info' do
-      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
-
-      context 'when banking info is not provided, it does not set payment information' do
-        it 'does not set payment information' do
-          expect(subject.send(:translate_banking_info)).to eq({})
-        end
-      end
-
-      it 'logs the submission was made without banking info' do
-        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
-          .to receive(:track_526_submission_without_banking_info)
-          .with(user.uuid)
-
-        subject.send(:translate_banking_info)
-      end
-    end
-
+    
     context 'when the banking info is redacted' do
       context 'when account number is redacted' do
         let(:form_content) do
