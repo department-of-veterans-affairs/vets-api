@@ -597,7 +597,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'when not provided banking info' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
-      context 'and the Lighthouse DirectDeposit service does not have the account info' do
+      context 'when banking info is not provided, it does not set payment information' do
         it 'does not set payment information' do
           expect(subject.send(:translate_banking_info)).to eq({})
         end
@@ -610,6 +610,77 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
         subject.send(:translate_banking_info)
       end
+    end
+
+    context 'when the banking info is redacted' do
+      context 'when account number is redacted' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'bankName' => 'WELLS FARGO BANK',
+              'bankAccountType' => 'CHECKING',
+              'bankAccountNumber' => '****567890',
+              'bankRoutingNumber' => '0987654321'
+            }
+          }
+        end
+        it 'does not set payment information' do
+          expect(subject.send(:translate_banking_info)).to eq({})
+        end
+      end
+
+      context 'when routing number is redacted' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'bankName' => 'WELLS FARGO BANK',
+              'bankAccountType' => 'CHECKING',
+              'bankAccountNumber' => '1234567890',
+              'bankRoutingNumber' => '****654321'
+            }
+          }
+        end
+
+        it 'does not set payment information' do
+          expect(subject.send(:translate_banking_info)).to eq({})
+        end
+      end
+
+      context 'when both account and routing numbers are redacted' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'bankName' => 'WELLS FARGO BANK',
+              'bankAccountType' => 'CHECKING',
+              'bankAccountNumber' => '****567890',
+              'bankRoutingNumber' => '****654321'
+            }
+          }
+        end
+
+        it 'does not set payment information' do
+          expect(subject.send(:translate_banking_info)).to eq({})
+        end
+      end
+
+      it 'logs the submission was made without banking info' do
+        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+          .to receive(:track_526_submission_without_banking_info)
+          .with(user.uuid)
+
+        subject.send(:translate_banking_info)
+      end
+      # context 'when Lighthouse returns banking info for the user' do
+      #   it 'logs the submission was made with banking info' do
+      #     expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+      #       .to receive(:track_526_submission_with_banking_info)
+      #       .with(user.uuid)
+
+      #     VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+      #       subject.send(:translate_banking_info)
+      #     end
+      #   end
+      # end
     end
   end
 
