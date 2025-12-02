@@ -241,7 +241,8 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
       # NOTE: submission_id, completely_removed, removed_keys, purge_reasons, conditions_state,
       # orphaned_data_removed, and tags are allowlisted in DisabilityCompensation::Loggers::Monitor#initialize
-      # to ensure they are not filtered when written to Rails.logger. This test verifies the allowlist is working correctly.
+      # to ensure they are not filtered when written to Rails.logger. This test verifies the allowlist is
+      # working correctly.
       it 'does not filter out allowlisted toxic exposure tracking keys when writing to Rails logger' do
         expect(Rails.logger).to receive(:info) do |_, payload|
           expect(payload[:context][:submission_id]).to eq(submission.id)
