@@ -7,7 +7,7 @@ require 'rails_helper'
 require 'vye/vye_serializer'
 require_relative '../../../support/vye/shared_examples/controller_error_responses'
 
-RSpec.describe Vye::V1::DgibVerificationsController, type: :controller do
+RSpec.describe Vye::V1::DGIBVerificationsController, type: :controller do
   routes { Vye::Engine.routes }
 
   let!(:current_user) { create(:user, :accountable) }

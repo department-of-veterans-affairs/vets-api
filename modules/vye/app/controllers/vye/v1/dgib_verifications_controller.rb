@@ -4,7 +4,7 @@ require 'vye/dgib/service'
 
 module Vye
   module V1
-    class DgibVerificationsController < ::ApplicationController
+    class DGIBVerificationsController < ::ApplicationController
       service_tag 'verify-your-enrollment'
       rescue_from Pundit::NotAuthorizedError, with: -> { render json: { error: 'Forbidden' }, status: :forbidden }
 
