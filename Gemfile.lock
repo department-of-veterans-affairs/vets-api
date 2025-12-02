@@ -139,6 +139,7 @@ PATH
     veteran (0.0.1)
     vre (0.1.0)
     vye (0.1.0)
+
 GEM
   remote: https://enterprise.contribsys.com/
   specs:
@@ -443,7 +444,7 @@ GEM
       dry-core (~> 1.1)
       dry-initializer (~> 3.2)
       dry-schema (~> 1.14)
-      einhorn (1.0.0)
+    einhorn (1.0.0)
       zeitwerk (~> 2.6)
     erb (6.0.0)
     erb (6.0.0-java)
