@@ -444,8 +444,6 @@ GEM
       dry-core (~> 1.1)
       dry-initializer (~> 3.2)
       dry-schema (~> 1.14)
-    einhorn (1.0.0)
-      dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
     erb (6.0.0)
