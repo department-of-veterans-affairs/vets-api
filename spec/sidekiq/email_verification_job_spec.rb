@@ -134,11 +134,15 @@ RSpec.describe EmailVerificationJob, type: :job do
         subject.new.perform(template_type, cache_key)
       end.to raise_error(ArgumentError)
 
-      expect(StatsD).not_to have_received(:increment).with('api.vanotify.email_verification.failure')
-      expect(Rails.logger).to have_received(:error).with('EmailVerificationJob failed: Missing personalisation data in Redis', {
-                                                           template_type:,
-                                                           cache_key_present: true
-                                                         })
+      expect(StatsD).not_to have_received(:increment)
+        .with('api.vanotify.email_verification.failure')
+      expect(Rails.logger).to have_received(:error)
+        .with(
+          'EmailVerificationJob failed: Missing personalisation data in Redis', {
+            template_type:,
+            cache_key_present: true
+          }
+        )
     end
 
     it 'handles Sidekiq::AttrPackageError as ArgumentError (no retries)' do
@@ -150,10 +154,14 @@ RSpec.describe EmailVerificationJob, type: :job do
         subject.new.perform(template_type, cache_key)
       end.to raise_error(ArgumentError, '[Sidekiq] [AttrPackage] find error: Redis connection failed')
 
-      expect(Rails.logger).to have_received(:error).with('EmailVerificationJob AttrPackage error', {
-                                                           error: '[Sidekiq] [AttrPackage] find error: Redis connection failed',
-                                                           template_type:
-                                                         })
+      expect(Rails.logger)
+        .to have_received(:error)
+        .with(
+          'EmailVerificationJob AttrPackage error', {
+            error: '[Sidekiq] [AttrPackage] find error: Redis connection failed',
+            template_type:
+          }
+        )
       expect(StatsD).not_to have_received(:increment).with('api.vanotify.email_verification.failure')
     end
   end
