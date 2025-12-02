@@ -212,5 +212,18 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
         )
       end
     end
+
+    context 'when user has an empty middle name' do
+      let(:form1095b) { build(:enrollment_system_form1095_b, middle_name: '') }
+
+      it 'presents name correctly' do
+        expect(form1095b.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Smith'
+        )
+        expect(form1095b.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John Smith'
+        )
+      end
+    end
   end
 end
