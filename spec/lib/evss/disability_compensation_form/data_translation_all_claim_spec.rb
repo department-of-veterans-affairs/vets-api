@@ -593,7 +593,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         subject.send(:translate_banking_info)
       end
     end
-    
+
     context 'when the banking info is redacted' do
       context 'when account number is redacted' do
         let(:form_content) do
