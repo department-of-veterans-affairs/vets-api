@@ -101,8 +101,7 @@ module UnifiedHealthData
         )
 
         # Increment the counter once per DiagnosticReport that has filtered observations
-        StatsD.increment('unified_health_data.lab_or_test.filtered_observations',
-                         tags: ["diagnostic_report_id:#{resource['id']}"])
+        StatsD.increment('unified_health_data.lab_or_test.filtered_observations')
       end
 
       def log_final_status_warning(record, status, encoded_data, observations)
