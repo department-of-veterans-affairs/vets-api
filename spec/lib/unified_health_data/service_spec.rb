@@ -1196,6 +1196,73 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      context 'Task resource parsing' do
+        it 'sets refill_status to submitted when a valid Task exists' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            # Prescription 20848812135 has a Task with status='requested' and intent='order'
+            submitted_prescription = prescriptions.find { |p| p.prescription_id == '20848812135' }
+
+            expect(submitted_prescription.refill_status).to eq('submitted')
+          end
+        end
+
+        it 'sets disp_status to Active: Submitted when a valid Task exists' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            # Prescription 20848812135 has a Task with status='requested' and intent='order'
+            submitted_prescription = prescriptions.find { |p| p.prescription_id == '20848812135' }
+
+            expect(submitted_prescription.disp_status).to eq('Active: Submitted')
+          end
+        end
+
+        it 'sets refill_submit_date from Task executionPeriod.start' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            # Prescription 20848812135 has a Task with executionPeriod.start='2025-11-26T15:55:17+00:00'
+            submitted_prescription = prescriptions.find { |p| p.prescription_id == '20848812135' }
+
+            expect(submitted_prescription.refill_submit_date).to eq('2025-11-26T15:55:17+00:00')
+          end
+        end
+
+        it 'ignores Tasks with failed status' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            # Prescription 20848650695 has multiple Tasks but all have status='failed'
+            failed_task_prescription = prescriptions.find { |p| p.prescription_id == '20848650695' }
+
+            # Should NOT have refill_submit_date set from failed Tasks
+            expect(failed_task_prescription.refill_submit_date).to be_nil
+            # Should have normal active status, not submitted
+            expect(failed_task_prescription.refill_status).to eq('active')
+          end
+        end
+
+        it 'sets disp_status to Active (not Active: Submitted) when Tasks are failed' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            # Prescription 20848650695 has multiple Tasks but all have status='failed'
+            failed_task_prescription = prescriptions.find { |p| p.prescription_id == '20848650695' }
+
+            expect(failed_task_prescription.disp_status).to eq('Active')
+          end
+        end
+
+        it 'does not affect prescriptions without any Tasks' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            # VistA prescription 26305871 should have no Task resources
+            vista_prescription = prescriptions.find { |p| p.prescription_id == '26305871' }
+
+            expect(vista_prescription.refill_status).to eq('active')
+            expect(vista_prescription.refill_submit_date).to be_nil
+            expect(vista_prescription.disp_status).to eq('Active')
+          end
+        end
+      end
+
       context 'facility name extraction integration' do
         it 'uses cache when available and API when cache misses' do
           # Test cache hit scenario

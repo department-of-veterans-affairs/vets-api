@@ -29,7 +29,7 @@ module UnifiedHealthData
 
         build_core_attributes(resource, dispenses_data)
           .merge(build_tracking_attributes(tracking_data))
-          .merge(build_contact_and_source_attributes(resource))
+          .merge(build_contact_and_source_attributes(resource, dispenses_data))
           .merge(dispenses: dispenses_data)
           .merge(refill_metadata)
       end
@@ -62,8 +62,8 @@ module UnifiedHealthData
         }
       end
 
-      def build_contact_and_source_attributes(resource)
-        refill_status = extract_refill_status(resource)
+      def build_contact_and_source_attributes(resource, dispenses_data = [])
+        refill_status = extract_refill_status(resource, dispenses_data)
         prescription_source = extract_prescription_source(resource)
         {
           instructions: extract_instructions(resource),
