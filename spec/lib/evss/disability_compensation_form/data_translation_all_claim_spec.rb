@@ -624,6 +624,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             }
           }
         end
+
         it 'does not set payment information' do
           expect(subject.send(:translate_banking_info)).to eq({})
         end
