@@ -17,7 +17,6 @@ module BenefitsIntakeService
   # via paper submission (electronic PDF submission to CMP)
   #
   class Service < Common::Client::Base
-    include SentryLogging
     include Common::Client::Concerns::Monitoring
 
     configuration BenefitsIntakeService::Configuration

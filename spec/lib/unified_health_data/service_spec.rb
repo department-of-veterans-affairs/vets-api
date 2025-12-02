@@ -26,6 +26,23 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      it 'returns labs sorted by date_completed in descending order' do
+        VCR.use_cassette('mobile/unified_health_data/get_labs') do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30').sort
+
+          labs_with_dates = labs.select { |lab| lab.date_completed.present? }
+          dates = labs_with_dates.map { |lab| Time.zone.parse(lab.date_completed) }
+          expect(dates).to eq(dates.sort.reverse)
+
+          last_labs = labs.last(5)
+          if last_labs.any? { |lab| lab.date_completed.nil? }
+            expect(labs.select { |lab| lab.date_completed.nil? }).to eq(last_labs.select { |lab|
+              lab.date_completed.nil?
+            })
+          end
+        end
+      end
+
       it 'logs test code distribution from parsed records' do
         allow(Rails.logger).to receive(:info)
 
@@ -97,6 +114,32 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to eq([])
       end
     end
+
+    context 'when body has VistA and Oracle Health records' do
+      let(:body) do
+        {
+          'vista' => {
+            'entry' => [
+              { 'resource' => { 'id' => 'vista-1', 'resourceType' => 'DiagnosticReport' } }
+            ]
+          },
+          'oracle-health' => {
+            'entry' => [
+              { 'resource' => { 'id' => 'oracle-1', 'resourceType' => 'DiagnosticReport' } }
+            ]
+          }
+        }
+      end
+
+      it 'adds source to each record and combines them' do
+        result = service.send(:fetch_combined_records, body)
+        expect(result.size).to eq(2)
+        vista_record = result.find { |r| r['resource']['id'] == 'vista-1' }
+        oracle_record = result.find { |r| r['resource']['id'] == 'oracle-1' }
+        expect(vista_record['source']).to eq('vista')
+        expect(oracle_record['source']).to eq('oracle-health')
+      end
+    end
   end
 
   # Allergies
@@ -137,7 +180,9 @@ describe UnifiedHealthData::Service, type: :service do
             ['food'],
             ['food']
           )
-          expect(allergies[0]).to have_attributes(
+          # Verify specific allergy exists (not checking position due to sorting)
+          trazodone_allergy = allergies.find { |a| a.id == '2678' }
+          expect(trazodone_allergy).to have_attributes(
             {
               'id' => '2678',
               'name' => 'TRAZODONE',
@@ -163,6 +208,24 @@ describe UnifiedHealthData::Service, type: :service do
                                        'provider' => be_a(String).or(be_nil)
                                      }
                                    ))
+        end
+
+        it 'returns allergies sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(sample_client_response)
+
+          allergies = service.get_allergies.sort
+
+          allergies_with_dates = allergies.select { |allergy| allergy.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = allergies_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          allergies_without_dates = allergies.select { |allergy| allergy.date.nil? }
+          if allergies_without_dates.any?
+            expect(allergies.last(allergies_without_dates.size)).to eq(allergies_without_dates)
+          end
         end
       end
 
@@ -331,6 +394,186 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  # Vitals
+  describe '#get_vitals' do
+    let(:vitals_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'vitals_example.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: vitals_sample_response
+      )
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all vitals' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(sample_client_response)
+
+          expect(Rails.logger).to receive(:info)
+            .with(
+              message: 'Multiple locations found for 8 Vital records:',
+              locations: [{ 'locations found' => 2,
+                            'names' => '668 Green Primary Care; WAMC Bariatric Surgery' }],
+              service: 'unified_health_data'
+            )
+
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(18)
+          expect(vitals.map(&:type)).to contain_exactly(
+            'WEIGHT',
+            'WEIGHT',
+            'HEIGHT',
+            'PULSE',
+            'TEMPERATURE',
+            'BLOOD_PRESSURE',
+            'PULSE_OXIMETRY',
+            'RESPIRATION',
+            'WEIGHT',
+            'BLOOD_PRESSURE',
+            'PULSE_OXIMETRY',
+            'WEIGHT',
+            'TEMPERATURE',
+            'RESPIRATION',
+            'PULSE',
+            'BLOOD_PRESSURE',
+            'HEIGHT',
+            'WEIGHT'
+          )
+
+          # this will be a VistA record
+          expect(vitals[0]).to have_attributes(
+            {
+              'id' => 'be3724c0-f9e2-4e6a-b37e-366aca305613',
+              'name' => 'Weight',
+              'type' => 'WEIGHT',
+              'date' => '2025-08-22T22:16:24Z',
+              'measurement' => '165.35 pounds',
+              'location' => 'CHY ANOTHER TEST CLINIC',
+              'notes' => []
+            }
+          )
+
+          oh_vital = vitals.find { |vital| vital.id == 'VS-15249708684' }
+          expect(oh_vital).to have_attributes(
+            {
+              'id' => 'VS-15249708684',
+              'name' => 'Weight dosing',
+              'type' => 'WEIGHT',
+              'date' => '2025-07-24T18:23:00.000Z',
+              'measurement' => '150.796 pounds',
+              'location' => '668 Green Primary Care',
+              'notes' => ['Result generated by automated process based on measured weight.']
+            }
+          )
+          expect(vitals).to all(have_attributes(
+                                  {
+                                    'id' => be_a(String),
+                                    'name' => be_a(String),
+                                    'date' => be_a(String).or(be_nil),
+                                    'type' => be_a(String),
+                                    'measurement' => be_a(String),
+                                    'location' => be_a(String),
+                                    'notes' => be_an(Array)
+                                  }
+                                ))
+        end
+      end
+
+      context 'when data exists for only VistA or OH' do
+        it 'returns vitals for VistA only' do
+          modified_response = vitals_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(10)
+          expect(vitals.map(&:type)).to contain_exactly(
+            'WEIGHT',
+            'WEIGHT',
+            'HEIGHT',
+            'PULSE',
+            'TEMPERATURE',
+            'BLOOD_PRESSURE',
+            'PULSE_OXIMETRY',
+            'RESPIRATION',
+            'WEIGHT',
+            'BLOOD_PRESSURE'
+          )
+
+          expect(vitals).to all(have_attributes(
+                                  {
+                                    'id' => be_a(String),
+                                    'name' => be_a(String),
+                                    'date' => be_a(String).or(be_nil),
+                                    'type' => be_a(String),
+                                    'measurement' => be_a(String),
+                                    'location' => be_a(String),
+                                    'notes' => be_an(Array)
+                                  }
+                                ))
+        end
+
+        it 'returns vitals for OH only' do
+          modified_response = vitals_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(8)
+          expect(vitals.map(&:type)).to contain_exactly(
+            'PULSE_OXIMETRY',
+            'WEIGHT',
+            'TEMPERATURE',
+            'RESPIRATION',
+            'PULSE',
+            'BLOOD_PRESSURE',
+            'HEIGHT',
+            'WEIGHT'
+          )
+          expect(vitals).to all(have_attributes(
+                                  {
+                                    'id' => be_a(String),
+                                    'name' => be_a(String),
+                                    'date' => be_a(String).or(be_nil),
+                                    'type' => be_a(String),
+                                    'measurement' => be_a(String),
+                                    'location' => be_a(String),
+                                    'notes' => be_an(Array)
+                                  }
+                                ))
+        end
+      end
+
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array for vitals' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(Faraday::Response.new(
+                          body: { 'vista' => {}, 'oracle-health' => {} }
+                        ))
+          vitals = service.get_vitals
+          expect(vitals.size).to eq(0)
+        end
+      end
+    end
+  end
+
   # Clinical Notes
   describe '#get_care_summaries_and_notes' do
     let(:notes_sample_response) do
@@ -382,7 +625,9 @@ describe UnifiedHealthData::Service, type: :service do
             'discharge_summary',
             'other'
           )
-          expect(notes[0]).to have_attributes(
+          # Verify specific note exists (not checking position due to sorting)
+          telehealth_note = notes.find { |n| n.id == 'F253-7227761-1834074' }
+          expect(telehealth_note).to have_attributes(
             {
               'id' => 'F253-7227761-1834074',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
@@ -414,6 +659,14 @@ describe UnifiedHealthData::Service, type: :service do
                                    'note' => be_a(String)
                                  }
                                ))
+        end
+
+        it 'returns clinical notes sorted by date in descending order' do
+          notes = service.get_care_summaries_and_notes.sort
+
+          dates = notes.map { |note| Time.zone.parse(note.date) }
+          expect(dates).to eq(dates.sort.reverse)
+          expect(notes.first.date).to eq(notes.map(&:date).max)
         end
       end
 
@@ -491,6 +744,44 @@ describe UnifiedHealthData::Service, type: :service do
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(0)
         end
+      end
+    end
+
+    context 'with date parameters' do
+      it 'accepts and uses provided start_date and end_date' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '2024-01-01', end_date: '2024-12-31')
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2024-12-31')
+      end
+
+      it 'uses default dates when parameters not provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes
+      end
+
+      it 'uses default start_date when only end_date provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: '2024-12-31')
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(end_date: '2024-12-31')
+      end
+
+      it 'uses default end_date when only start_date provided' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '2024-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        service.get_care_summaries_and_notes(start_date: '2024-01-01')
       end
     end
 
@@ -809,9 +1100,14 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'with current_only: true' do
         it 'applies filtering to exclude old discontinued/expired prescriptions' do
-          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            filtered_prescriptions = service.get_prescriptions(current_only: true)
-            expect(filtered_prescriptions.size).to eq(54)
+          # Freeze time to prevent test from failing as prescriptions age
+          # The cassette has prescriptions with various expiration dates
+          # Using a fixed date ensures the 180-day filtering logic is consistent
+          Timecop.freeze(Time.zone.parse('2025-11-27')) do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              filtered_prescriptions = service.get_prescriptions(current_only: true)
+              expect(filtered_prescriptions.size).to eq(54)
+            end
           end
         end
       end
@@ -823,7 +1119,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(vista_prescription.refill_status).to eq('activeParked')
           expect(vista_prescription.refill_remaining).to eq(2)
-          expect(vista_prescription.facility_name).to eq('DAYT29')
+          expect(vista_prescription.facility_name).to eq('Dayton Medical Center')
           expect(vista_prescription.prescription_name).to eq('BACITRACIN 500 UNIT/GM OINT 30GM')
           expect(vista_prescription.instructions).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
           expect(vista_prescription.is_refillable).to be true
@@ -852,7 +1148,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.is_refillable).to be true
           expect(oracle_prescription.is_trackable).to be false
           expect(oracle_prescription.tracking).to eq([])
-          expect(oracle_prescription.prescription_source).to eq('')
+          expect(oracle_prescription.prescription_source).to eq('VA')
           expect(oracle_prescription.instructions).to eq(
             '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.'
           )
@@ -888,9 +1184,10 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription_with_patient_instruction.refill_date).to eq('2025-06-24T21:05:53.000Z')
           expect(oracle_prescription_with_patient_instruction.dispensed_date).to be_nil
 
-          # Test prescription with completed status mapping
+          # Test prescription with completed status mapping (normalized to discontinued/expired)
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
-          expect(completed_prescription.refill_status).to eq('completed')
+          # Completed status is normalized to either 'discontinued' or 'expired' based on expiration date
+          expect(completed_prescription.refill_status).to be_in(%w[discontinued expired])
           expect(completed_prescription.is_refillable).to be false
           expect(completed_prescription.refill_date).to be_nil
         end
@@ -1098,7 +1395,7 @@ describe UnifiedHealthData::Service, type: :service do
           result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
 
           expect(result[:success]).to eq([])
-          expect(result[:failed]).to eq([])
+          expect(result[:failed]).to eq([{ id: '12345', error: 'Service unavailable', station_number: '570' }])
         end
       end
     end
@@ -1227,6 +1524,134 @@ describe UnifiedHealthData::Service, type: :service do
                              ])
       end
     end
+
+    context 'validate_refill_response_count' do
+      it 'does not raise error when counts match' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'raises error when response has fewer items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' },
+          { id: '789', stationNumber: '572' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 3 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when response has more items than sent' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' }
+        ]
+        result = {
+          success: [{ id: '123', status: 'submitted', station_number: '570' }],
+          failed: [{ id: '456', error: 'Failed', station_number: '571' }]
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 1 orders, received 2 responses'
+        )
+      end
+
+      it 'raises error when no responses received for multiple orders' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: []
+        }
+
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.to raise_error(Common::Exceptions::PrescriptionRefillResponseMismatch)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Refill response count mismatch: sent 2 orders, received 0 responses'
+        )
+      end
+
+      it 'does not raise error when both orders and responses are empty' do
+        normalized_orders = []
+        result = {
+          success: [],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all success responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [
+            { id: '123', status: 'submitted', station_number: '570' },
+            { id: '456', status: 'submitted', station_number: '571' }
+          ],
+          failed: []
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+
+      it 'handles all failed responses correctly' do
+        normalized_orders = [
+          { id: '123', stationNumber: '570' },
+          { id: '456', stationNumber: '571' }
+        ]
+        result = {
+          success: [],
+          failed: [
+            { id: '123', error: 'Failed', station_number: '570' },
+            { id: '456', error: 'Failed', station_number: '571' }
+          ]
+        }
+
+        expect do
+          service.send(:validate_refill_response_count, normalized_orders, result)
+        end.not_to raise_error
+      end
+    end
   end
 
   # Conditions
@@ -1274,6 +1699,19 @@ describe UnifiedHealthData::Service, type: :service do
       expect(conditions.size).to eq(18)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns conditions sorted by date in descending order' do
+      conditions = service.get_conditions.sort
+
+      conditions_with_dates = conditions.select { |condition| condition.date.present? }
+      dates = conditions_with_dates.map { |condition| Time.zone.parse(condition.date) }
+      expect(dates).to eq(dates.sort.reverse)
+
+      conditions_without_dates = conditions.select { |condition| condition.date.nil? }
+      if conditions_without_dates.any?
+        expect(conditions.last(conditions_without_dates.size)).to eq(conditions_without_dates)
+      end
     end
 
     it 'returns conditions from both VistA and Oracle Health with real sample data' do

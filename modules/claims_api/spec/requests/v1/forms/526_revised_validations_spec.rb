@@ -8,16 +8,19 @@ require_relative '../../../../app/controllers/concerns/claims_api/revised_disabi
 RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
   # Create a test class that includes the module
   # Create an instance to test with
-  subject { test_class.new(form_attributes) }
+  subject { test_class.new(auth_headers, form_attributes) }
 
   let(:test_class) do
     Class.new do
       include ClaimsApi::RevisedDisabilityCompensationValidations
       attr_accessor :form_attributes
 
-      def initialize(attributes = {})
+      def initialize(auth_headers, attributes = {})
         @form_attributes = attributes
+        @auth_headers = auth_headers
       end
+
+      attr_reader :auth_headers
 
       def bgs_service
         # This will be stubbed in individual tests
@@ -25,6 +28,11 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
   end
   let(:form_attributes) { {} }
+  let(:auth_headers) do
+    {
+      'va_eauth_birthdate' => 20.years.ago.to_date.iso8601
+    }
+  end
 
   describe '#validate_form_526_submission_claim_date!' do
     context 'when claim date is blank' do
@@ -65,6 +73,46 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
 
       it 'does not raise an error' do
         expect { subject.validate_form_526_location_codes! }.not_to raise_error
+      end
+    end
+
+    describe '#validate_service_after_13th_birthday!' do
+      context 'when the service periods are after the 13th birthday' do
+        it 'does not raise an error' do
+          expect { subject.validate_service_after_13th_birthday! }.not_to raise_error
+        end
+      end
+
+      context 'when there are service period dates before the 13th birthday' do
+        let(:birthdate) { 12.years.ago.to_date.iso8601 }
+        let(:auth_headers) do
+          {
+            'va_eauth_birthdate' => birthdate
+          }
+        end
+        let(:form_attributes) do
+          {
+            'serviceInformation' => {
+              'servicePeriods' => [
+                {
+                  'activeDutyBeginDate' => 15.years.ago.to_date.iso8601,
+                  'activeDutyEndDate' => 5.years.ago.to_date.iso8601
+                }
+              ]
+            }
+          }
+        end
+
+        it 'raises an error' do
+          age_thirteen = (birthdate.to_date + 13.years).to_s
+
+          expect { subject.validate_service_after_13th_birthday! }
+            .to raise_error(Common::Exceptions::UnprocessableEntity) do |error|
+              expect(error.errors[0][:detail]).to include(
+                "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
+              )
+            end
+        end
       end
     end
 

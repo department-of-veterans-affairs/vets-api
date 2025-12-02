@@ -5,8 +5,6 @@ require 'rails_helper'
 RSpec.describe TravelPay::MileageExpense, type: :model do
   let(:valid_attributes) do
     {
-      description: 'Travel to appointment',
-      cost_requested: 50.00,
       purchase_date: Time.current,
       trip_type: 'OneWay'
     }
@@ -61,28 +59,6 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
         expect(subject.errors[:trip_type]).to include('is not included in the list')
       end
     end
-
-    context 'requested_mileage validation' do
-      it 'is valid when requested_mileage is nil (optional)' do
-        subject.requested_mileage = nil
-        expect(subject).to be_valid
-      end
-
-      it 'requires requested_mileage to be greater than 0.0 when present' do
-        subject.requested_mileage = 0.0
-        expect(subject).not_to be_valid
-        expect(subject.errors[:requested_mileage]).to include('must be greater than 0.0')
-
-        subject.requested_mileage = -5.5
-        expect(subject).not_to be_valid
-        expect(subject.errors[:requested_mileage]).to include('must be greater than 0.0')
-      end
-
-      it 'accepts positive requested_mileage values' do
-        subject.requested_mileage = 25.5
-        expect(subject).to be_valid
-      end
-    end
   end
 
   describe '#expense_type' do
@@ -94,28 +70,18 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
   end
 
   describe '#to_h' do
-    subject { described_class.new(valid_attributes.merge(claim_id: 'claim-123', requested_mileage: 42.5)) }
+    subject { described_class.new(valid_attributes.merge(claim_id: 'claim-123')) }
 
     it 'returns a hash representation including mileage-specific attributes' do
       json = subject.to_h
       expect(json['trip_type']).to eq('OneWay')
-      expect(json['requested_mileage']).to eq(42.5)
       expect(json['expense_type']).to eq('mileage')
     end
 
     it 'includes inherited BaseExpense attributes' do
       json = subject.to_h
-      expect(json['description']).to eq('Travel to appointment')
-      expect(json['cost_requested']).to eq(50.00)
       expect(json['claim_id']).to eq('claim-123')
       expect(json['has_receipt']).to be false
-    end
-
-    it 'handles nil requested_mileage gracefully' do
-      subject.requested_mileage = nil
-      json = subject.to_h
-      expect(json['requested_mileage']).to be_nil
-      expect(json['trip_type']).to eq('OneWay')
     end
   end
 
@@ -123,11 +89,8 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
     context 'creating a mileage expense with all attributes' do
       let(:expense) do
         described_class.new(
-          description: 'Travel for medical appointment',
-          cost_requested: 25.00,
           purchase_date: Date.current,
           trip_type: 'RoundTrip',
-          requested_mileage: 35.2,
           claim_id: 'uuid-123'
         )
       end
@@ -135,10 +98,74 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
       it 'creates a valid mileage expense' do
         expect(expense).to be_valid
         expect(expense.trip_type).to eq('RoundTrip')
-        expect(expense.requested_mileage).to eq(35.2)
         expect(expense.claim_id).to eq('uuid-123')
         expect(expense.expense_type).to eq('mileage')
       end
+    end
+  end
+
+  describe '.permitted_params' do
+    it 'returns mileage-specific permitted parameters' do
+      params = described_class.permitted_params
+      expect(params).to eq(%i[purchase_date trip_type])
+    end
+
+    it 'does not include description or cost_requested' do
+      params = described_class.permitted_params
+      expect(params).not_to include(:description)
+      expect(params).not_to include(:cost_requested)
+      expect(params).not_to include(:receipt)
+    end
+
+    it 'includes purchase_date' do
+      params = described_class.permitted_params
+      expect(params).to include(:purchase_date)
+    end
+
+    it 'overrides the base class permitted_params' do
+      expect(described_class.permitted_params).not_to eq(TravelPay::BaseExpense.permitted_params)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        trip_type: 'RoundTrip',
+        claim_id: 'claim-uuid-456'
+      )
+    end
+
+    it 'returns a hash with expense_type' do
+      params = subject.to_service_params
+      expect(params['expense_type']).to eq('mileage')
+    end
+
+    it 'includes purchase_date' do
+      params = subject.to_service_params
+      expect(params['purchase_date']).to eq('2024-03-15')
+    end
+
+    it 'includes trip_type' do
+      params = subject.to_service_params
+      expect(params['trip_type']).to eq('RoundTrip')
+    end
+
+    it 'includes claim_id when present' do
+      params = subject.to_service_params
+      expect(params['claim_id']).to eq('claim-uuid-456')
+    end
+
+    it 'excludes claim_id when nil' do
+      subject.claim_id = nil
+      params = subject.to_service_params
+      expect(params).not_to have_key('claim_id')
+    end
+
+    it 'does not include description or cost_requested' do
+      params = subject.to_service_params
+      expect(params).not_to have_key('description')
+      expect(params).not_to have_key('cost_requested')
     end
   end
 end

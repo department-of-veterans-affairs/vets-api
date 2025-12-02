@@ -17,8 +17,26 @@ module AccreditedRepresentativePortal
       FORM_ID = '21a'
 
       # NOTE: The order of before_action calls is important here.
-      before_action :feature_enabled
+      before_action :feature_enabled, :loa3_user?
       before_action :parse_request_body, :validate_form, only: [:submit]
+
+      def details
+        return render json: { errors: 'file is required' }, status: :bad_request unless params[:file]
+
+        details_slug = params[:details_slug]
+        Rails.logger.info("Received Form21a details submission for: #{details_slug}")
+
+        render json: {
+          data: {
+            attributes: {
+              confirmationCode: SecureRandom.uuid,
+              name: params[:file].original_filename,
+              size: params[:file].size,
+              fileType: params[:file].content_type
+            }
+          }
+        }, status: :ok
+      end
 
       def submit
         form_hash = JSON.parse(@parsed_request_body)
@@ -51,6 +69,10 @@ module AccreditedRepresentativePortal
       # Checks if the feature flag accredited_representative_portal_form_21a is enabled or not
       def feature_enabled
         routing_error unless Flipper.enabled?(:accredited_representative_portal_form_21a)
+      end
+
+      def loa3_user?
+        routing_error unless current_user.loa3?
       end
 
       # Parses the raw request body as JSON and assigns it to an instance variable.

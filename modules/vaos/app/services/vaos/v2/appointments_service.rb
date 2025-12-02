@@ -12,7 +12,7 @@ module VAOS
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
-      AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
+      AVS_ERROR_MESSAGE = 'Error retrieving AVS info'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -727,7 +727,8 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment, include[:avs])
+        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment,
+                                                                       include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
@@ -802,6 +803,10 @@ module VAOS
         @reason_code_service ||= VAOS::V2::AppointmentsReasonCodeService.new
       end
 
+      def unified_health_data_service
+        @unified_health_data_service ||= UnifiedHealthData::Service.new(user)
+      end
+
       def log_cnp_appt_count(cnp_count)
         Rails.logger.info('Compensation and Pension count on an appointment list retrieval',
                           { CompPenCount: cnp_count }.to_json)
@@ -827,6 +832,16 @@ module VAOS
         return if identifier.nil?
 
         identifier[:value]&.split(':', 2)
+      end
+
+      def extract_cerner_identifier(appointment)
+        return nil if appointment[:identifier].nil?
+
+        identifier = appointment[:identifier].find { |id| id[:system].include? 'cerner' }
+
+        return if identifier.nil?
+
+        identifier[:value]&.split('/', 2)&.last
       end
 
       # Normalizes an Integration Control Number (ICN) by removing the 'V' character and the trailing six digits.
@@ -878,6 +893,18 @@ module VAOS
         avs_path(data[:sid])
       end
 
+      def get_avs_pdf(appt)
+        cerner_system_id = extract_cerner_identifier(appt)
+
+        return nil if cerner_system_id.nil?
+
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: true)
+
+        return nil if avs_resp.empty? || avs_resp.nil?
+
+        avs_resp
+      end
+
       # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..
       #
       # In case of an error the method logs the error details and sets the `:avs_path` attribute of `appt` to `nil`.
@@ -888,14 +915,17 @@ module VAOS
       def fetch_avs_and_update_appt_body(appt)
         if appt[:id].nil?
           appt[:avs_path] = nil
+        elsif VAOS::AppointmentsHelper.cerner?(appt)
+          avs_pdf = get_avs_pdf(appt)
+          appt[:avs_pdf] = avs_pdf
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
         end
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
-        Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
-        appt[:avs_path] = AVS_ERROR_MESSAGE
+        Rails.logger.error("VAOS: Error retrieving AVS info: #{e.class}, #{e.message} \n   #{err_stack}")
+        appt[:avs_error] = AVS_ERROR_MESSAGE
       end
 
       # Determines if the appointment cannot be cancelled.

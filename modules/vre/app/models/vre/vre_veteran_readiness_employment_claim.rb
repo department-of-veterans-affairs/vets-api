@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module VRE
   class VREVeteranReadinessEmploymentClaim < ::SavedClaim
-    include SentryLogging
+    include Vets::SharedLogging
 
     FORM = Constants::FORM
 

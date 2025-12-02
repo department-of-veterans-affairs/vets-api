@@ -7,6 +7,7 @@ module Pensions
     # Individual section of the form to be filled
     class Section
       include ::PdfFill::Forms::FormHelper
+      include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
       include Helpers
 
       # Hash iterator
