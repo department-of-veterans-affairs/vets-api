@@ -113,6 +113,27 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
           expect(json_response).to eq({ 'data' => [] })
           expect(response).to match_response_schema('my_health/messaging/v1/message_threads_no_messages')
         end
+
+        context 'when Breakers::OutageException is raised' do
+          let(:mock_service) { instance_double(Breakers::Service, name: 'SM') }
+          let(:mock_outage) do
+            instance_double(Breakers::Outage, start_time: Time.zone.now, end_time: nil, service: mock_service)
+          end
+          let(:mock_exception) { Breakers::OutageException.new(mock_outage, mock_service) }
+
+          before do
+            allow_any_instance_of(SM::Client).to receive(:get_folder_threads).and_raise(mock_exception)
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'returns a 503 status code' do
+            get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+                params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
+
+            expect(response).to have_http_status(:service_unavailable)
+            expect(StatsD).to have_received(:increment).with('api.my_health.threads.fail')
+          end
+        end
       end
     end
 
