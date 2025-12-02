@@ -2,6 +2,4 @@
 
 require 'sob/engine'
 
-module SOB
-  # Your code goes here...
-end
+module SOB end

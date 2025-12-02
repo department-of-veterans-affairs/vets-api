@@ -247,6 +247,7 @@ module V0
         evidence_submission.tracked_item_id,
         tracked_items
       )
+      tracked_item_friendly_name = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[tracked_item_display_name]
 
       { acknowledgement_date: evidence_submission.acknowledgement_date,
         claim_id: evidence_submission.claim_id,
@@ -259,6 +260,7 @@ module V0
         lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
         tracked_item_id: evidence_submission.tracked_item_id,
         tracked_item_display_name:,
+        tracked_item_friendly_name:,
         upload_status: evidence_submission.upload_status,
         va_notify_status: evidence_submission.va_notify_status }
     end

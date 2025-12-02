@@ -50,8 +50,9 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      it 'throws 422 when requested year is more than 5 years ago' do
-        get '/v0/form1095_bs/download_pdf/2018'
+      # 2021 is the one unsupported year for which we have a template
+      it 'throws 422 when requested year is not in supported range' do
+        get '/v0/form1095_bs/download_pdf/2021'
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -112,8 +113,9 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      it 'throws 422 when requested year is more than 5 years ago' do
-        get '/v0/form1095_bs/download_txt/2018'
+      # 2021 is the one unsupported year for which we have a template
+      it 'throws 422 when requested year is not in supported range' do
+        get '/v0/form1095_bs/download_txt/2021'
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
