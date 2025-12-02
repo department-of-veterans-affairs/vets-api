@@ -21,6 +21,17 @@ module MedicalCopays
         raise e
       end
 
+      def get_detail(id:)
+        invoice_data = invoice_service.read(id)
+
+        raise Common::Exceptions::RecordNotFound, id if invoice_data.nil?
+
+        Lighthouse::HCC::CopayDetail.new(invoice_data)
+      rescue => e
+        Rails.logger.error("MedicalCopays::Lighthouse::Service#get_detail error: #{e.message}")
+        raise e
+      end
+
       def invoice_service
         ::Lighthouse::HealthcareCostAndCoverage::Invoice::Service.new(@icn)
       end
