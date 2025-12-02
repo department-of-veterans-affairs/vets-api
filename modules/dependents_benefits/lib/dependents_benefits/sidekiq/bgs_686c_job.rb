@@ -8,9 +8,20 @@ require 'bgsv2/form686c'
 
 module DependentsBenefits
   module Sidekiq
+    ##
+    # Submission job for 686c claims via BGS
+    #
+    # Handles the submission of 686c (Add/Remove Dependent) forms to BGS (Benefits
+    # Gateway Service). Normalizes claim data, validates the claim, and submits to
+    # BGS using the BGSV2::Form686c service. Detects permanent BGS errors for
+    # appropriate retry behavior.
+    #
     class BGS686cJob < DependentSubmissionJob
+      # Exception raised when 686c claim validation fails
+      class Invalid686cClaim < StandardError; end
+
       ##
-      # Service-specific submission logic - BGS vs Lighthouse vs Fax
+      # Service-specific submission logic for BGS
       # @return [ServiceResponse] Must respond to success? and error methods
       def submit_to_service
         saved_claim.add_veteran_info(user_data)
@@ -27,11 +38,14 @@ module DependentsBenefits
       end
 
       # Use .find_or_create to generate/return memoized service-specific form submission record
-      # @return [LighthouseFormSubmission, BGSFormSubmission] instance
+      # @return [BGSFormSubmission] instance
       def find_or_create_form_submission
         @submission ||= BGS::Submission.find_or_create_by(form_id: '21-686C', saved_claim_id: saved_claim.id)
       end
 
+      # Returns the memoized BGS submission record
+      #
+      # @return [BGS::Submission] The submission record
       def submission
         @submission ||= find_or_create_form_submission
       end
@@ -43,27 +57,49 @@ module DependentsBenefits
         @submission_attempt ||= BGS::SubmissionAttempt.create(submission:)
       end
 
+      # Returns the memoized BGS submission attempt record
+      #
+      # @return [BGS::SubmissionAttempt] The attempt record
       def submission_attempt
         @submission_attempt ||= create_form_submission_attempt
       end
 
-      # Service-specific success logic
-      # Update submission attempt and form submission records
+      # Marks the submission attempt as successful
+      #
+      # Service-specific success logic - updates submission attempt record to success status.
+      #
+      # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
       def mark_submission_succeeded
         submission_attempt&.success!
       end
 
-      # Service-specific failure logic
-      # Update submission attempt record only with failure and error details
+      # Marks the submission attempt as failed with error details
+      #
+      # Service-specific failure logic - updates submission attempt record with
+      # failure status and stores the exception details.
+      #
+      # @param exception [Exception] The exception that caused the failure
+      # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
       def mark_submission_attempt_failed(exception)
         submission_attempt&.fail!(error: exception)
       end
 
+      # No-op for BGS submissions
       #
-      # BGS::Submission has no status update, so no-op here
+      # BGS::Submission has no status update, so this is a no-op.
       # This differs from other submission types, which may require status updates on failure.
+      #
+      # @param _exception [Exception] The exception that caused the failure (unused)
+      # @return [nil]
       def mark_submission_failed(_exception) = nil
 
+      # Determines if an error represents a permanent BGS failure
+      #
+      # Checks if the error message or its cause matches any of the BGS filtered errors
+      # that should not be retried (invalid SSN, duplicate claim, etc.).
+      #
+      # @param error [Exception, nil] The error to check
+      # @return [Boolean] true if error matches BGS permanent failure patterns, false if transient
       def permanent_failure?(error)
         return false if error.nil?
 
