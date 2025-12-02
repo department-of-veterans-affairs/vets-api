@@ -298,9 +298,9 @@ RSpec.describe V0::InProgressFormsController do
         let(:new_form) { create(:in_progress_form, user_uuid: user.uuid, user_account: user.user_account) }
 
         context 'when handling race condition' do
-          context 'with in_progress_form_atomiticity flipper on' do
+          context 'with in_progress_form_atomicity flipper on' do
             before do
-              allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomiticity,
+              allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity,
                                                         instance_of(User)).and_return(true)
             end
 
@@ -340,9 +340,9 @@ RSpec.describe V0::InProgressFormsController do
             end
           end
 
-          context 'with in_progress_form_atomiticity flipper off' do
+          context 'with in_progress_form_atomicity flipper off' do
             before do
-              allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomiticity,
+              allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity,
                                                         instance_of(User)).and_return(false)
             end
 

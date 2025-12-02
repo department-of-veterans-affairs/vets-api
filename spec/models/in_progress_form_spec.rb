@@ -205,9 +205,9 @@ RSpec.describe InProgressForm, type: :model do
     context 'with with_lock parameter' do
       subject { InProgressForm.form_for_user(form_id, user, with_lock: true) }
 
-      context 'when in_progress_form_atomiticity flipper is enabled' do
+      context 'when in_progress_form_atomicity flipper is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomiticity, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity, user).and_return(true)
         end
 
         context 'and in progress form exists' do
@@ -227,9 +227,9 @@ RSpec.describe InProgressForm, type: :model do
         end
       end
 
-      context 'when in_progress_form_atomiticity flipper is disabled' do
+      context 'when in_progress_form_atomicity flipper is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomiticity, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity, user).and_return(false)
         end
 
         context 'and in progress form exists' do

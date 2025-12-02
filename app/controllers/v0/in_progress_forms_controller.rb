@@ -17,7 +17,7 @@ module V0
     end
 
     def update
-      if Flipper.enabled?(:in_progress_form_atomiticity, @current_user)
+      if Flipper.enabled?(:in_progress_form_atomicity, @current_user)
         atomic_update
       else
         original_update
