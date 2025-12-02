@@ -51,6 +51,7 @@ module ClaimsEvidenceApi
       # POST overwrite a file in a vbms folder, but retain the uuid
       # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/update
       #
+      # @param uuid [String] The UUID of the file data
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def overwrite(uuid, file_path, provider_data:)
@@ -62,6 +63,16 @@ module ClaimsEvidenceApi
         params = post_params(file_path, provider_data)
 
         perform :post, "files/#{uuid}", params, headers
+      end
+
+      # GET file content for a given version as a pdf
+      # @see
+      #
+      # @param uuid [String] The UUID of the file data
+      # @param version [String] version UUID of the file data
+      def download(uuid, version)
+        headers = { 'Accept' => 'application/pdf' }
+        perform :get, "files/#{uuid}/#{version}/content", {}, headers
       end
 
       private

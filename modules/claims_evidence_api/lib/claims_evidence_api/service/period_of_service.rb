@@ -12,7 +12,9 @@ module ClaimsEvidenceApi
         new.retrieve
       end
 
-      # GET retrieve the list of document types
+      # GET retrieve the period of service documents for a veteran
+      #
+      # @param uuid [String] The UUID of the file data
       def retrieve(uuid)
         perform :get, "files/#{uuid}/periodOfService", {}
       end
