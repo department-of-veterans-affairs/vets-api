@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/digital_dispute_submission_service'
+require 'sidekiq/attr_package'
 
 module DebtsApi
   module V0
@@ -91,12 +92,12 @@ module DebtsApi
       end
 
       def send_submission_email
+        cache_key = Sidekiq::AttrPackage.create(email: current_user.email, first_name: current_user.first_name)
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
           5.minutes,
           {
             'submission_type' => 'digital_dispute',
-            'email' => current_user.email,
-            'first_name' => current_user.first_name,
+            'cache_key' => cache_key,
             'user_uuid' => current_user.uuid,
             'template_id' => DebtsApi::V0::DigitalDisputeSubmission::SUBMISSION_TEMPLATE
           }

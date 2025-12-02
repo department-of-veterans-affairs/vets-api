@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/attr_package'
+
 module DebtsApi
   module V0
     class DigitalDisputeSubmission < ApplicationRecord
@@ -117,11 +119,11 @@ module DebtsApi
         user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
+        cache_key = Sidekiq::AttrPackage.create(email: user.email, first_name: user.first_name)
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(
           {
             'submission_type' => 'digital_dispute',
-            'email' => user.email,
-            'first_name' => user.first_name,
+            'cache_key' => cache_key,
             'user_uuid' => user.uuid,
             'template_id' => CONFIRMATION_TEMPLATE
           }
@@ -137,13 +139,16 @@ module DebtsApi
         user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
-        submission_email = user.email.downcase
+        cache_key = Sidekiq::AttrPackage.create(
+          email: user.email.downcase,
+          personalisation: failure_email_personalization_info(user)
+        )
         DebtManagementCenter::VANotifyEmailJob.perform_in(
           24.hours,
-          submission_email,
+          nil,
           FAILURE_TEMPLATE,
-          failure_email_personalization_info(user),
-          { id_type: 'email', failure_mailer: true }
+          nil,
+          { id_type: 'email', failure_mailer: true, cache_key: }
         )
       rescue => e
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.failure")
