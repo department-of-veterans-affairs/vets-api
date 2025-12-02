@@ -157,13 +157,12 @@ module VaNotify
     # rubocop:disable Lint/NonLocalExitFromIterator
     def create_notification(response)
       Datadog::Tracing.trace('api.vanotify.service.create_notification', service: 'va-notify') do |span|
-        span.set_tag('notification_id', response.id)
-
         if response.nil?
           Rails.logger.error('VANotify - no response')
           return
         end
 
+        span.set_tag('notification_id', response.id)
         # when the class is used directly we can pass symbols as keys
         # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
         notification = VANotify::Notification.new(
