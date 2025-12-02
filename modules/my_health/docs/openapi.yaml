@@ -1968,6 +1968,44 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v3/prescriptions/refillable_prescriptions:
+    get:
+      description: List refillable medications with minimal fields for widget/modal use. Returns only prescriptions that can be refilled (is_refillable=true and refill_remaining>0).
+      operationId: get_v3_refillable_prescriptions
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/RefillablePrescriptionList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: "FEATURE_NOT_AVAILABLE"
+                      message:
+                        type: string
+                        example: "This feature is not currently available"
+          description: Feature flag is disabled or user is not authorized
+      summary: /v3/prescriptions/refillable_prescriptions
+      tags:
+        - Prescriptions V3
   /v1/tooltips:
     get:
       description: Retrieve tooltips settings for mhv-medications In-Product Education (IPE)
