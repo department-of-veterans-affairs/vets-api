@@ -63,6 +63,8 @@ These path-specific instructions are automatically loaded by GitHub Copilot when
 
 **⚠️ CRITICAL: Treat Settings values like untrusted user input.** Settings values from Parameter Store may arrive as unexpected types. The `config` gem (`config/initializers/config.rb`) has `env_parse_values = true`, which automatically converts numeric strings to integers (e.g., `"0"` becomes `0`). Always use explicit type coercion and safe fallbacks.
 
+When reviewing pull requests that include Settings values, always leave a comment for the author advising them of potential issues with unexpected types. This will cause the author to carefully review that bit of code with the considerations of these instructions in mind.
+
 **Common Pitfalls:**
 - Numeric strings are auto-converted: `"0"` → `0`, `"123"` → `123` (via `env_parse_values`)
 - `0` (integer zero) is truthy in Ruby - only `false` and `nil` are falsy
