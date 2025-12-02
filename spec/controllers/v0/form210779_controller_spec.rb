@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::Form210779Controller, type: :controller do
   let(:form_id) { '21-0779' }
   let(:form_data) { { form: VetsJsonSchema::EXAMPLES[form_id].to_json }.to_json }
+  let(:invalid_data) { { form: build(:va210779_invalid).form }.to_json }
 
   def parsed_response
     JSON.parse(response.body)
@@ -63,6 +64,11 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     it 'returns bad_request when json is invalid' do
       post(:create, body: { no_form: 'missing form attribute' }.to_json, as: :json)
       expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns bad_request when form does not validate against schema' do
+      post(:create, body: invalid_data, as: :json)
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
     context 'when feature flag is disabled' do
