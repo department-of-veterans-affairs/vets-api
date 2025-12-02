@@ -27,10 +27,18 @@ module SOB
 
       private
 
+      RPO_MAP = {
+        'RPO307' => 'Buffalo, NY',
+        'RPO316' => 'Atlanta, GA',
+        'RPO331' => 'St. Louis, MO',
+        'RPO351' => 'Muskogee, OK',
+        'VACentralOffice' => 'Central Office Washington, DC'
+      }.freeze
+
       def normalized_attributes
         @claimant['date_of_birth'] = parse_date(@claimant['date_of_birth'])
-        @claimant['regional_processing_office'] = parse_rpo(@claimant['station'])
-        benefit = find_benefit(@claimant['benefits'])
+        @claimant['regional_processing_office'] = RPO_MAP[@claimant['station']]
+        benefit = @claimant['benefits'].filter(&method(:ch33?)).first
         return @claimant unless benefit
 
         parse_eligibility(benefit['eligibility_results'])
@@ -40,24 +48,12 @@ module SOB
         @claimant
       end
 
-      RPO_MAP = {
-        'RPO307' => 'Buffalo, NY',
-        'RPO316' => 'Atlanta, GA',
-        'RPO331' => 'St. Louis, MO',
-        'RPO351' => 'Muskogee, OK',
-        'VACentralOffice' => 'Central Office Washington, DC'
-      }.freeze
-
-      def parse_rpo(rpo_code)
-        RPO_MAP[rpo_code]
-      end
-
       def parse_date(date_string)
         date_string&.to_date&.iso8601
       end
 
-      def find_benefit(list)
-        list.find { |item| item['benefit_type'] == SOB::DGIB::Service::BENEFIT_TYPE }
+      def ch33?(benefit)
+        benefit['benefit_type'] == Service::BENEFIT_TYPE
       end
 
       def parse_eligibility(eligibilities)
@@ -91,12 +87,13 @@ module SOB
       end
 
       def parse_toe(transfers)
-        transfer = find_benefit(transfers)
-        return unless transfer
+        transferred_days = transfers&.inject(0) do |total, transfer|
+          next total unless ch33?(transfer)
 
-        @claimant['entitlement_transferred_out'] = parse_months(
-          transfer['transferred_days']
-        )
+          total + (transfer['transferred_days'] || 0)
+        end
+
+        @claimant['entitlement_transferred_out'] = parse_months(transferred_days)
       end
 
       def parse_months(days)
