@@ -768,7 +768,7 @@ RSpec.describe FormProfile, type: :model do
       },
       veteranDob: '1809-02-12',
       phoneNumber: '3035551234',
-      email: 'person111@example.com',
+      email: user.va_profile_email,
       veteranAddress: {
         street: '140 Rock Creek Rd',
         city: 'Washington',
