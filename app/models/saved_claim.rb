@@ -174,6 +174,17 @@ class SavedClaim < ApplicationRecord
     []
   end
 
+  # Required for Lighthouse Benefits Intake API submission
+  # Subclasses can override to provide alternate metadata if needed
+  def metadata_for_benefits_intake
+    address = parsed_form['claimantAddress'] || parsed_form['veteranAddress'] || {}
+    { veteranFirstName: parsed_form.dig('veteranFullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranFullName', 'last'),
+      fileNumber: parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber'],
+      zipCode: address['postalCode'],
+      businessLine: business_line }
+  end
+
   private
 
   def validate_schema(schema)
