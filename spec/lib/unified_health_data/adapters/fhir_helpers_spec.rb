@@ -5,13 +5,13 @@ require 'unified_health_data/adapters/fhir_helpers'
 
 describe UnifiedHealthData::Adapters::FhirHelpers do
   # Create a test class that includes the module
+  subject { helper_class.new }
+
   let(:helper_class) do
     Class.new do
       include UnifiedHealthData::Adapters::FhirHelpers
     end
   end
-
-  subject { helper_class.new }
 
   describe '#parse_date_or_epoch' do
     it 'parses a valid ISO 8601 date string' do
