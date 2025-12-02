@@ -7,14 +7,6 @@ require 'fileutils'
 require 'tmpdir'
 require 'timecop'
 
-def basic_class
-  EmploymentQuestionnaires::PdfFill::Va214140.new({})
-end
-
-def test_data_types
-  %w[kitchen_sink overflow simple]
-end
-
 describe EmploymentQuestionnaires::PdfFill::Va214140 do
   include SchemaMatchers
 

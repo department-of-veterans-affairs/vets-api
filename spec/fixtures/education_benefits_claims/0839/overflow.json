@@ -25,7 +25,8 @@
         "city": "Some City",
         "street": "123 Main St",
         "postalCode": "12345"
-      }
+      },
+      "isForeignCountry": false
     },
     {
       "facilityCode": "87654321",
@@ -36,7 +37,8 @@
         "city": "Another City",
         "street": "123 Main St",
         "postalCode": "87654"
-      }
+      },
+      "isForeignCountry": false
     },
     {
       "facilityCode": "87654322",
@@ -47,7 +49,8 @@
         "city": "Another City",
         "street": "123 Main St",
         "postalCode": "87654"
-      }
+      },
+      "isForeignCountry": false
     },
     {
       "facilityCode": "87654323",
@@ -58,7 +61,8 @@
         "city": "Another City",
         "street": "123 Main St",
         "postalCode": "87654"
-      }
+      },
+      "isForeignCountry": false
     },
     {
       "facilityCode": "87654324",
@@ -69,7 +73,8 @@
         "city": "Another City",
         "street": "123 Main St",
         "postalCode": "87654"
-      }
+      },
+      "isForeignCountry": false
     },
     {
       "facilityCode": "87654325",
@@ -80,7 +85,8 @@
         "city": "Another City",
         "street": "123 Main St",
         "postalCode": "87654"
-      }
+      },
+      "isForeignCountry": false
     }
   ],
   "yellowRibbonProgramAgreementRequest": [

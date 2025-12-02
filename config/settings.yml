@@ -300,8 +300,12 @@ dgi:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
     public_key_path: <%= ENV['dgi__jwt__public_key_path'] %>
   sob:
-    mock: <%= ENV['dgi__sob__mock'] %>
-    url: <%= ENV['dgi__sob__url'] %>
+    claimants:
+      mock: <%= ENV['dgi__sob__claimants__mock'] %>
+      url: <%= ENV['dgi__sob__claimants__url'] %>
+    jwt:
+      private_key_path: <%= ENV['dgi__sob__jwt__private_key_path'] %>
+      public_key_path: <%= ENV['dgi__sob__jwt__public_key_path'] %>
   vets:
     mock: <%= ENV['dgi__vets__mock'] %>
     url: <%= ENV['dgi__vets__url'] %>
@@ -479,6 +483,8 @@ form526_export:
     bucket: <%= ENV['form526_export__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['form526_export__aws__secret_access_key'] %>
+form_10275:
+  submission_email: <%= ENV['form_10275__submission_email'] %>
 form_10282:
   sftp:
     host: <%= ENV['form_10282__sftp__host'] %>
@@ -813,6 +819,7 @@ maintenance:
   services:
     1010ez: <%= ENV['maintenance__services__1010ez'] %>
     1010ezr: <%= ENV['maintenance__services__1010ezr'] %>
+    accredited_representative_portal: <%= ENV['maintenance__services__accredited_representative_portal'] %>
     appeals: <%= ENV['maintenance__services__appeals'] %>
     arcgis: <%= ENV['maintenance__services__arcgis'] %>
     askva: <%= ENV['maintenance__services__askva'] %>
@@ -928,6 +935,9 @@ mhv:
     x_api_key: <%= ENV['mhv__medical_records__x_api_key'] %>
     x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
+  oh_facility_checks:
+    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] || '612, 555' %>
+    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] || '612, 357, 555' %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
@@ -1491,6 +1501,8 @@ vanotify:
     benefits_decision_review:
       api_key: <%= ENV['vanotify__services__benefits_decision_review__api_key'] %>
       template_id:
+        evidence_recovery_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__evidence_recovery_email'] %>
+        form_recovery_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__form_recovery_email'] %>
         higher_level_review_form_error_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__higher_level_review_form_error_email'] %>
         notice_of_disagreement_evidence_error_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__notice_of_disagreement_evidence_error_email'] %>
         notice_of_disagreement_form_error_email: <%= ENV['vanotify__services__benefits_decision_review__template_id__notice_of_disagreement_form_error_email'] %>
@@ -1616,6 +1628,7 @@ vanotify:
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
+        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %>
         form10297_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form10297_confirmation_email'] %>
         form1880_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1880_reminder_email'] %>
         form1900_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
@@ -1725,6 +1738,19 @@ vaos:
     encryption:
       hex_iv: <%= ENV['vaos__referral__encryption__hex_iv'] %>
       hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
+vass:
+  api_url: <%= ENV['vass__api_url'] %>
+  auth_url: https://login.microsoftonline.us
+  client_id: <%= ENV['vass__client_id'] %>
+  client_secret: <%= ENV['vass__client_secret'] %>
+  mock: false
+  redis_otc_expiry: 600
+  redis_session_expiry: 7200
+  redis_token_expiry: 3540
+  scope: <%= ENV['vass__scope'] %>
+  service_name: VASS-API
+  subscription_key: <%= ENV['vass__subscription_key'] %>
+  tenant_id: <%= ENV['vass__tenant_id'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
   enable_download_endpoint: <%= ENV['vba_documents__enable_download_endpoint'] %>
@@ -1803,6 +1829,8 @@ veteran_enrollment_system:
     api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
   ee_summary:
     api_key: ~
+  enrollment_periods:
+    api_key: <%= ENV['veteran_enrollment_system__enrollment_periods__api_key'] %>
   form1095b:
     api_key: <%= ENV['veteran_enrollment_system__form1095b__api_key'] %>
   host: <%= ENV['veteran_enrollment_system__host'] %>

@@ -191,7 +191,7 @@ module SignIn
         ).first
         log_parsed_credential(decoded_jwt) if config.log_credential
 
-        OpenStruct.new(decoded_jwt)
+        parse_decoded_jwt(decoded_jwt)
       rescue JWT::JWKError
         raise Errors::PublicJWKError, '[SignIn][Idme][Service] Public JWK is malformed'
       rescue JWT::VerificationError
@@ -200,6 +200,13 @@ module SignIn
         raise Errors::JWTExpiredError, '[SignIn][Idme][Service] JWT has expired'
       rescue JWT::DecodeError
         raise Errors::JWTDecodeError, '[SignIn][Idme][Service] JWT is malformed'
+      end
+
+      def parse_decoded_jwt(decoded_jwt)
+        jwt_struct = OpenStruct.new(decoded_jwt)
+        jwt_struct.level_of_assurance ||= jwt_struct.lname ? Constants::Auth::LOA_THREE : Constants::Auth::LOA_ONE
+        jwt_struct.credential_ial ||= jwt_struct.lname ? Constants::Auth::IAL_TWO : Constants::Auth::IAL_ONE
+        jwt_struct
       end
 
       def log_parsed_credential(decoded_jwt)
@@ -236,8 +243,7 @@ module SignIn
                                                  last_name: attributes[:last_name],
                                                  ssn: attributes[:ssn],
                                                  birth_date: attributes[:birth_date],
-                                                 email: attributes[:csp_email],
-                                                 address: attributes[:address]).perform
+                                                 email: attributes[:csp_email]).perform
       end
     end
   end
