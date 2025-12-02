@@ -343,6 +343,12 @@ RSpec.describe Users::Profile do
               expect(va_profile[:user_facility_ready_for_info_alert]).to be true
             end
           end
+
+          it 'when user has no facilities sets both flags to false' do
+            allow(user).to receive(:va_treatment_facility_ids).and_return([])
+            expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+            expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+          end
         end
       end
 
