@@ -296,27 +296,37 @@ module DisabilityCompensation
         has_selections ? 'has_selections' : 'empty'
       end
 
-      # @return [String] Module application name for logging
+      ##
+      # Module application name used for logging
+      # @return [String]
       def service_name
         SERVICE_NAME
       end
 
-      # @return [String] Stats key for DataDog
+      ##
+      # Stats key for DD
+      # @return [String]
       def claim_stats_key
         CLAIM_STATS_KEY
       end
 
-      # @return [String] Stats key for Sidekiq DataDog logging
+      ##
+      # Stats key for Sidekiq DD logging
+      # @return [String]
       def submission_stats_key
         SUBMISSION_STATS_KEY
       end
 
-      # @return [String] Class name for log messages
+      ##
+      # Class name for log messages
+      # @return [String]
       def name
         self.class.name
       end
 
-      # @return [String] Form ID
+      ##
+      # Form ID for the application
+      # @return [String]
       def form_id
         FORM_ID
       end
