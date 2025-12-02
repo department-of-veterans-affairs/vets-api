@@ -3,15 +3,15 @@
 require 'sob/authentication_token_service'
 
 module SOB
-  module DGIB
+  module DGI
     class Service < ::Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
-      configuration SOB::DGIB::Configuration
+      configuration SOB::DGI::Configuration
 
       BENEFIT_TYPE = 'CH33'
       INCLUDE_ENROLLMENTS = 'NO'
-      STATSD_KEY_PREFIX = 'api.sob.dgib'
+      STATSD_KEY_PREFIX = 'api.sob.dgi'
 
       def initialize(ssn)
         super()
@@ -30,7 +30,7 @@ module SOB
           )
           raise_claimant_not_found if raw_response.status == 204
 
-          SOB::DGIB::Response.new(raw_response.status, raw_response)
+          SOB::DGI::Response.new(raw_response.status, raw_response)
         end
       rescue Common::Exceptions::BackendServiceException => e
         log_error(e)
@@ -65,13 +65,13 @@ module SOB
 
       def log_error(error)
         error_context = {
-          service: 'SOB/DGIB',
+          service: 'SOB/DGI',
           error_class: error.class.name,
           error_status: error.original_status,
           timestamp: Time.current.iso8601
         }
 
-        Rails.logger.error('SOB/DGIB service error',
+        Rails.logger.error('SOB/DGI service error',
                            error_context,
                            backtrace: error.backtrace)
       end

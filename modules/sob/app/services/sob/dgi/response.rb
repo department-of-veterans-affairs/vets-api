@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SOB
-  module DGIB
+  module DGI
     class Response
       include Vets::Model
 

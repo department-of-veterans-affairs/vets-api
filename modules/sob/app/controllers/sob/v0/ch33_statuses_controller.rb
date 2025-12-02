@@ -13,7 +13,7 @@ module SOB
       private
 
       def service
-        SOB::DGIB::Service.new(@current_user&.ssn)
+        SOB::DGI::Service.new(@current_user&.ssn)
       end
     end
   end

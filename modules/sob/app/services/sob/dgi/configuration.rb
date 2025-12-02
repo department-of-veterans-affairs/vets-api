@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SOB
-  module DGIB
+  module DGI
     class Configuration < ::Common::Client::Configuration::REST
       API_ROOT_PATH = '/external-api-service/api/v1'
       CERT_PATH = Settings.dgi.sob.jwt.public_key_path
