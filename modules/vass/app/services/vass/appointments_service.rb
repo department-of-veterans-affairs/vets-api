@@ -124,7 +124,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue StandardError => e
       handle_error(e, 'save_appointment')
     end
 
