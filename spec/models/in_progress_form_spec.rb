@@ -201,6 +201,47 @@ RSpec.describe InProgressForm, type: :model do
         end
       end
     end
+
+    context 'with with_lock parameter' do
+      subject { InProgressForm.form_for_user(form_id, user, with_lock: true) }
+
+      context 'when in_progress_form_atomiticity flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomiticity, user).and_return(true)
+        end
+
+        context 'and in progress form exists' do
+          let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'returns the form with a lock' do
+            expect(InProgressForm).to receive(:lock).and_call_original
+            expect(subject).to eq(in_progress_form_user_uuid)
+          end
+        end
+
+        context 'and in progress form does not exist' do
+          it 'returns nil' do
+            expect(InProgressForm).to receive(:lock).and_call_original
+            expect(subject).to be_nil
+          end
+        end
+      end
+
+      context 'when in_progress_form_atomiticity flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomiticity, user).and_return(false)
+        end
+
+        context 'and in progress form exists' do
+          let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'returns the form without a lock' do
+            expect(InProgressForm).not_to receive(:lock)
+            expect(subject).to eq(in_progress_form_user_uuid)
+          end
+        end
+      end
+    end
   end
 
   describe '.for_user' do

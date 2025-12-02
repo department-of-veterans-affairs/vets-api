@@ -57,9 +57,15 @@ class InProgressForm < ApplicationRecord
                 }
   after_save :log_hca_email_diff
 
-  def self.form_for_user(form_id, user)
-    user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
-    user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
+  def self.form_for_user(form_id, user, with_lock: false)
+    if Flipper.enabled?(:in_progress_form_atomiticity, user)
+      scope = with_lock ? lock : all
+      user_uuid_form = scope.find_by(form_id:, user_uuid: user.uuid)
+      user_account_form = scope.find_by(form_id:, user_account: user.user_account) if user.user_account
+    else
+      user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
+      user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
+    end
     user_uuid_form || user_account_form
   end
 
