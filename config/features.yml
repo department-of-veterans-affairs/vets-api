@@ -22,9 +22,9 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_intent_to_file_api:
+  accredited_representative_portal_intent_to_file:
     actor_type: user
-    description: Enables the endpoints of the accredited representative portal intent to file
+    description: Enables accredited representative portal intent to file (0966)
     enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
@@ -168,6 +168,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
   event_bus_gateway_pension_email_template:
     description: Toggle to enable pension email template in eventbus-gateway
+  event_bus_gateway_push_notifications:
+    description: "Gateway: Enable push notifications"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.

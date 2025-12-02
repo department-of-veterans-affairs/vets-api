@@ -26,6 +26,7 @@ require 'pdf_fill/forms/va21p530a'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va220839'
+require 'pdf_fill/forms/va220803'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
@@ -94,6 +95,7 @@ module PdfFill
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
       '22-0839' => PdfFill::Forms::Va220839,
+      '22-0803' => PdfFill::Forms::Va220803,
       '22-0976' => PdfFill::Forms::Va220976,
       '21-0779' => PdfFill::Forms::Va210779,
       '22-8794' => PdfFill::Forms::Va228794,
