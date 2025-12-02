@@ -73,8 +73,10 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        # NOTE: doesn't do anything at the moment, but here for consistency
-        # with other sections that have expand methods.
+        signature = combine_hash(form_data['claimantFullName'], %w[first last])
+        form_data['signature'] = signature
+        form_data['signatureDate'] = Time.zone.today.to_s if signature.present?
+        expand_checkbox_in_place(form_data, 'processOption')
       end
     end
   end
