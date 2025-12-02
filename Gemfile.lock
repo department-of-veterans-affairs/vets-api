@@ -64,8 +64,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
-  revision: f50c995b4a92fa8da4488ed608318eeca723b543
-  tag: v4.1.0
+  revision: 933fc6187e0dab7a51629eca25a4ed22feab946f
+  tag: v4.2.0
   specs:
     govdelivery-tms (4.1.0)
       activesupport (>= 5.2.4.3, < 9.0.0)
