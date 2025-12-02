@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'zero_silent_failures/manual_remediation/saved_claim'
 
 RSpec.describe ZeroSilentFailures::ManualRemediation::SavedClaim do
-  let(:fake_claim) { build(:fake_saved_claim) }
+  let(:fake_claim) { create(:fake_saved_claim) }
   let(:submission) { build(:form_submission, :failure, form_type: fake_claim.form_id) }
   let(:attachment) { build(:persistent_attachment) }
 
@@ -49,6 +49,22 @@ RSpec.describe ZeroSilentFailures::ManualRemediation::SavedClaim do
       expect(FormSubmissionAttempt).to receive(:where).with(form_submission_id: fs_ids, aasm_state: 'failure')
 
       remediation.run
+    end
+  end
+
+  describe '#generate_metadata' do
+    it 'creates expected metadata structure' do
+      metadata = remediation.send('generate_metadata')
+      expect(metadata[:claimId]).to eq(fake_claim.id)
+      expect(metadata[:docType]).to eq(fake_claim.form_id)
+      expect(metadata[:formStartDate]).to eq(fake_claim.form_start_date)
+      expect(metadata[:claimSubmissionDate]).to eq(fake_claim.created_at)
+      expect(metadata[:claimConfirmation]).to eq(fake_claim.guid)
+      expect(metadata[:veteranFirstName]).to eq(fake_claim.parsed_form.dig('veteranFullName', 'first'))
+      expect(metadata[:veteranLastName]).to eq(fake_claim.parsed_form.dig('veteranFullName', 'last'))
+      expect(metadata[:fileNumber]).to eq(fake_claim.parsed_form['veteranSocialSecurityNumber'])
+      expect(metadata[:zipCode]).to eq(fake_claim.parsed_form.dig('veteranAddress', 'postalCode'))
+      expect(metadata[:businessLine]).to eq(fake_claim.business_line)
     end
   end
 
