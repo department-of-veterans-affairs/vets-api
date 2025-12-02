@@ -89,7 +89,7 @@ module UnifiedHealthData
         )
 
         StatsD.increment('unified_health_data.lab_or_test.filtered_diagnostic_report',
-                         tags: ["reason:#{reason}", "status:#{status || 'nil'}"])
+                         tags: ["reason:#{reason}"])
       end
 
       def log_filtered_observations(record, filtered_count, total_count)
