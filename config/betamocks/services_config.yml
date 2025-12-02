@@ -1135,7 +1135,7 @@
   :base_uri: <%= "#{URI(Settings.dgi.sob.claimants.url).host}:#{URI(Settings.dgi.sob.claimants.url).port}" %>
   :endpoints:
     - :method: :post
-      :path: "/afs06/external-api-service/api/v1/claimants"
+      :path: "/external-api-service/api/v1/claimants"
       :file_path: "dgib/sob"
       :cache_multiple_responses:
         :uid_location: body

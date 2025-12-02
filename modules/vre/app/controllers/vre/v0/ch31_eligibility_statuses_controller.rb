@@ -5,6 +5,8 @@ module VRE
     class Ch31EligibilityStatusesController < ApplicationController
       service_tag 'vre-application'
 
+      skip_before_action :authenticate
+
       def show
         response = eligibility_service.get_details
         render json: VRE::Ch31EligibilitySerializer.new(response)
@@ -13,7 +15,7 @@ module VRE
       private
 
       def eligibility_service
-        VRE::Ch31Eligibility::Service.new(@current_user&.icn)
+        VRE::Ch31Eligibility::Service.new('200')
       end
     end
   end

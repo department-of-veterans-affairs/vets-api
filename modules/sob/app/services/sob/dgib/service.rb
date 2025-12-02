@@ -11,7 +11,6 @@ module SOB
 
       BENEFIT_TYPE = 'CH33'
       INCLUDE_ENROLLMENTS = 'NO'
-      NOT_FOUND = 404
       STATSD_KEY_PREFIX = 'api.sob.dgib'
 
       def initialize(ssn)
@@ -59,8 +58,9 @@ module SOB
       end
 
       def raise_claimant_not_found
-        msg = "#{config.service_name}_#{NOT_FOUND}"
-        raise Common::Exceptions::BackendServiceException.new(msg, {}, NOT_FOUND)
+        status_code = 404
+        msg = "#{config.service_name}_#{status_code}"
+        raise Common::Exceptions::BackendServiceException.new(msg, {}, status_code)
       end
 
       def log_error(error)
