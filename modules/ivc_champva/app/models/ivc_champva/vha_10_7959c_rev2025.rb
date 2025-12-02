@@ -16,6 +16,7 @@ module IvcChampva
 
     include Vets::Model
     include Attachments
+    include StampableLogging
 
     attribute :data, Hash
     attr_reader :form_id
@@ -33,10 +34,14 @@ module IvcChampva
     end
 
     def metadata
+      use_renamed_keys = Flipper.enabled?(:champva_update_metadata_keys)
+      name_prefix = use_renamed_keys ? 'sponsor' : 'veteran'
+      applicant_prefix = use_renamed_keys ? 'beneficiary' : 'applicant'
+
       {
-        'veteranFirstName' => @data.dig('applicant_name', 'first'),
-        'veteranMiddleName' => @data.dig('applicant_name', 'middle'),
-        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        "#{name_prefix}FirstName" => @data.dig('applicant_name', 'first'),
+        "#{name_prefix}MiddleName" => @data.dig('applicant_name', 'middle'),
+        "#{name_prefix}LastName" => @data.dig('applicant_name', 'last'),
         'fileNumber' => @data['applicant_ssn'],
         'zipCode' => @data.dig('applicant_address', 'postal_code') || '00000',
         'country' => @data.dig('applicant_address', 'country') || 'USA',
@@ -47,7 +52,7 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s,
-        'applicantEmail' => @data['applicant_email'] || ''
+        "#{applicant_prefix}Email" => @data['applicant_email'] || ''
       }
     end
 
@@ -69,6 +74,11 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 rev2025 Email Used', email_used:)
     end
 
+    def track_delegate_form(parent_form_id)
+      StatsD.increment("#{STATS_KEY}.delegate_form.#{parent_form_id}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 rev2025 Delegate Form', parent_form_id:)
+    end
+
     # rubocop:disable Naming/BlockForwarding
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)
@@ -83,8 +93,16 @@ module IvcChampva
     private
 
     def initial_stamps
+      signature = @data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => {
+                                 value: signature.present? ? 'present' : nil
+                               }
+                             })
+
       [
-        { coords: [170, 65], text: @data['statement_of_truth_signature'], page: 0 }
+        { coords: [170, 65], text: signature, page: 0 }
       ]
     end
   end

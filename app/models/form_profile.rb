@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'string_helpers'
-require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
 require 'vets/model'
+require 'vets/shared_logging'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -84,7 +84,7 @@ end
 
 class FormProfile
   include Vets::Model
-  include SentryLogging
+  include Vets::SharedLogging
 
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
@@ -97,8 +97,8 @@ class FormProfile
     dependents_verification: %w[21-0538],
     dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990EMEB 22-1995 22-5490 22-5490E
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ
-            22-10297],
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990EZ
+            22-10297 22-0803],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     form_upload: %w[
@@ -131,7 +131,7 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
@@ -149,18 +149,20 @@ class FormProfile
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21P-0537' => ::FormProfiles::VA21p0537,
     '21P-0969' => IncomeAndAssets::FormProfiles::VA21p0969,
     '21P-8416' => MedicalExpenseReports::FormProfiles::VA21p8416,
     '21P-527EZ' => Pensions::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '21P-601' => ::FormProfiles::VA21p601,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
+    '22-0803' => ::FormProfiles::VA0803,
     '22-10203' => ::FormProfiles::VA10203,
     '22-10297' => ::FormProfiles::VA10297,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
-    '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
@@ -174,6 +176,7 @@ class FormProfile
     '5655' => ::FormProfiles::VA5655,
     '686C-674-V2' => ::FormProfiles::VA686c674v2,
     '686C-674' => ::FormProfiles::VA686c674,
+    '21-2680' => ::FormProfiles::VA212680,
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
@@ -297,6 +300,8 @@ class FormProfile
     military_information_data
   rescue => e
     log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
+
+    log_exception_to_rails(e)
 
     {}
   end

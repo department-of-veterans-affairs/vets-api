@@ -2,10 +2,13 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api_submission/metadata_validator'
+require 'logging/helper/parameter_filter'
 
 module SimpleFormsApi
   module V1
     class ScannedFormUploadsController < ApplicationController
+      include Logging::Helper::ParameterFilter
+
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
         check_for_changes
@@ -20,11 +23,16 @@ module SimpleFormsApi
       def upload_scanned_form
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
-        attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
-        attachment.save
+        attachment.file_attacher.attach(params['file'], validate: false)
+
+        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
+        processor.process!
+
         render json: PersistentAttachmentVAFormSerializer.new(attachment)
+      rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
+             SimpleFormsApi::ScannedFormProcessor::ValidationError => e
+        render json: { errors: e.errors }, status: :unprocessable_entity
       end
 
       def upload_supporting_documents
@@ -35,16 +43,16 @@ module SimpleFormsApi
 
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
-        attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
-        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment)
+        attachment.file_attacher.attach(params['file'], validate: false)
+
+        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
         processed_attachment = processor.process!
 
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
-        render json: { error: e.errors }, status: :unprocessable_entity
+        render json: { errors: e.errors }, status: :unprocessable_entity
       end
 
       private
@@ -72,40 +80,21 @@ module SimpleFormsApi
 
         Rails.logger.info(
           'Simple forms api - scanned form uploaded',
-          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+          filter_params(
+            { form_number: params[:form_number], status:, confirmation_number:, file_size: },
+            allowlist: %w[form_number status confirmation_number file_size]
+          )
         )
         [status, confirmation_number]
       end
 
-      def upload_response_with_supporting_documents # rubocop:disable Metrics/MethodLength
-        main_attachment = PersistentAttachment.find_by!(guid: params[:confirmation_code])
-        main_file_path = find_attachment_path(main_attachment.guid)
-
-        supporting_attachments = []
-        if params[:supporting_documents].present?
-          confirmation_codes = params[:supporting_documents].map { |doc| doc[:confirmation_code] }
-          supporting_attachments = PersistentAttachment.where(guid: confirmation_codes)
-        end
-
-        stamper = PdfStamper.new(stamped_template_path: main_file_path, current_loa: @current_user.loa[:current],
-                                 timestamp: Time.current)
-        stamper.stamp_pdf
-
-        metadata = validated_metadata
-        status, confirmation_number = upload_pdf_with_attachments(main_file_path, supporting_attachments, metadata)
-
-        file_size = File.size(main_file_path).to_f / (2**20)
-
-        Rails.logger.info(
-          'Simple forms api - scanned form uploaded',
-          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+      def upload_response_with_supporting_documents
+        service = SimpleFormsApi::ScannedFormUploadService.new(
+          params:,
+          current_user: @current_user,
+          lighthouse_service:
         )
-        [status, confirmation_number]
-      rescue ActiveRecord::RecordNotFound
-        raise Common::Exceptions::RecordNotFound.new(
-          params[:confirmation_code],
-          detail: 'Attachment not found'
-        )
+        service.upload_with_supporting_documents
       end
 
       def find_attachment_path(confirmation_code)
@@ -133,23 +122,6 @@ module SimpleFormsApi
         [response.status, uuid]
       end
 
-      def upload_pdf_with_attachments(main_file_path, supporting_attachments, metadata)
-        location, uuid = prepare_for_upload
-        log_upload_details(location, uuid)
-        attachments = supporting_attachments.map do |attachment|
-          find_attachment_path(attachment.guid)
-        end
-
-        response = lighthouse_service.perform_upload(
-          metadata: metadata.to_json,
-          document: main_file_path,
-          upload_url: location,
-          attachments:
-        )
-
-        [response.status, uuid]
-      end
-
       def prepare_for_upload
         location, uuid = lighthouse_service.request_upload
         create_form_submission_attempt(uuid)
@@ -174,7 +146,13 @@ module SimpleFormsApi
 
       def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Simple forms api - preparing to upload scanned PDF to benefits intake', { location:, uuid: })
+        Rails.logger.info(
+          'Simple forms api - preparing to upload scanned PDF to benefits intake',
+          filter_params(
+            { location:, uuid: },
+            allowlist: %w[uuid]
+          )
+        )
       end
 
       def perform_pdf_upload(location, file_path, metadata)

@@ -5383,24 +5383,6 @@
             }
           },
           {
-            "description": "The page number requested",
-            "example": 1,
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "The number of records to return per page. Defaults to 100",
-            "example": 10,
-            "in": "query",
-            "name": "perPage",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
             "description": "Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.",
             "example": true,
             "in": "query",
@@ -7564,6 +7546,96 @@
           }
         ],
         "summary": "/v0/travel-pay/claims/{id}"
+      }
+    },
+    "/v0/travel-pay/claims/{claim_id}/documents/{document_id}": {
+      "get": {
+        "description": "Download a specific document associated with a travel pay claim.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The unique identifier for the travel pay claim",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "in": "path",
+            "name": "claim_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "The unique identifier for the document to download",
+            "example": "doc1-decision-letter",
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "Document downloaded successfully",
+            "headers": {
+              "Content-Disposition": {
+                "description": "Indicates the file should be downloaded with the specified filename",
+                "schema": {
+                  "type": "string",
+                  "example": "attachment; filename=\"DecisionLetter.pdf\""
+                }
+              },
+              "Content-Type": {
+                "description": "The MIME type of the document",
+                "schema": {
+                  "type": "string",
+                  "example": "application/pdf"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims/{claim_id}/documents/{document_id}"
       }
     },
     "/v0/user": {
@@ -13005,6 +13077,18 @@
                   "claimTypeCode": {
                     "type": "string",
                     "example": "020NEW"
+                  },
+                  "claimTypeBase": {
+                    "type": "string",
+                    "description": "Base type of claim",
+                    "example": "compensation claim",
+                    "nullable": true
+                  },
+                  "displayTitle": {
+                    "type": "string",
+                    "description": "Formatted title for display",
+                    "example": "Claim for compensation",
+                    "nullable": true
                   }
                 }
               }
@@ -14528,7 +14612,8 @@
               "displayTitle": {
                 "type": "string",
                 "description": "Formatted title for display in mobile overview list",
-                "example": "disability compensation appeal"
+                "example": "disability compensation appeal",
+                "nullable": true
               },
               "decisionLetterSent": {
                 "type": "boolean",
@@ -14558,6 +14643,12 @@
                 "description": "Type of claim",
                 "nullable": true,
                 "example": "020NEW"
+              },
+              "claimTypeBase": {
+                "type": "string",
+                "description": "Base type of claim",
+                "example": "compensation claim",
+                "nullable": true
               }
             }
           }
@@ -14715,7 +14806,8 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal"
+                      "example": "disability compensation appeal",
+                      "nullable": true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14746,6 +14838,12 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": null
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "example": "compensation claim",
+                      "nullable": true
                     }
                   }
                 }
@@ -14914,6 +15012,11 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": "020NEW"
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "nullable": true
                     }
                   }
                 }
@@ -15216,7 +15319,8 @@
                     "amountWithheld",
                     "originalAr",
                     "currentAr",
-                    "debtHistory"
+                    "debtHistory",
+                    "fiscalTransactionData"
                   ],
                   "properties": {
                     "fileNumber": {
@@ -15283,6 +15387,69 @@
                           }
                         }
                       }
+                    },
+                    "fiscalTransactionData": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "debtId": {
+                            "type": "integer"
+                          },
+                          "debtIncreaseAmount": {
+                            "type": "float"
+                          },
+                          "hinesCode": {
+                            "type": "string"
+                          },
+                          "offsetAmount": {
+                            "type": "float"
+                          },
+                          "offsetType": {
+                            "type": "string"
+                          },
+                          "paymentType": {
+                            "type": "string"
+                          },
+                          "transactionAdminAmount": {
+                            "type": "float"
+                          },
+                          "transactionCourtAmount": {
+                            "type": "float"
+                          },
+                          "transactionDate": {
+                            "type": "string"
+                          },
+                          "transactionDescription": {
+                            "type": "string"
+                          },
+                          "transactionExplanation": {
+                            "type": "string"
+                          },
+                          "transactionFiscalCode": {
+                            "type": "string"
+                          },
+                          "transactionFiscalSource": {
+                            "type": "string"
+                          },
+                          "transactionFiscalYear": {
+                            "type": "string"
+                          },
+                          "transactionInterestAmount": {
+                            "type": "float"
+                          },
+                          "transactionMarshallAmount": {
+                            "type": "float"
+                          },
+                          "transactionPrincipalAmount": {
+                            "type": "float"
+                          },
+                          "transactionTotalAmount": {
+                            "type": "float"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -15345,7 +15512,8 @@
                   "amountWithheld",
                   "originalAr",
                   "currentAr",
-                  "debtHistory"
+                  "debtHistory",
+                  "fiscalTransactionData"
                 ],
                 "properties": {
                   "fileNumber": {
@@ -15410,6 +15578,69 @@
                         "description": {
                           "type": "string",
                           "example": "Third Demand Letter - Potential Treasury Referral"
+                        }
+                      }
+                    }
+                  },
+                  "fiscalTransactionData": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "debtId": {
+                          "type": "integer"
+                        },
+                        "debtIncreaseAmount": {
+                          "type": "float"
+                        },
+                        "hinesCode": {
+                          "type": "string"
+                        },
+                        "offsetAmount": {
+                          "type": "float"
+                        },
+                        "offsetType": {
+                          "type": "string"
+                        },
+                        "paymentType": {
+                          "type": "string"
+                        },
+                        "transactionAdminAmount": {
+                          "type": "float"
+                        },
+                        "transactionCourtAmount": {
+                          "type": "float"
+                        },
+                        "transactionDate": {
+                          "type": "string"
+                        },
+                        "transactionDescription": {
+                          "type": "string"
+                        },
+                        "transactionExplanation": {
+                          "type": "string"
+                        },
+                        "transactionFiscalCode": {
+                          "type": "string"
+                        },
+                        "transactionFiscalSource": {
+                          "type": "string"
+                        },
+                        "transactionFiscalYear": {
+                          "type": "string"
+                        },
+                        "transactionInterestAmount": {
+                          "type": "float"
+                        },
+                        "transactionMarshallAmount": {
+                          "type": "float"
+                        },
+                        "transactionPrincipalAmount": {
+                          "type": "float"
+                        },
+                        "transactionTotalAmount": {
+                          "type": "float"
                         }
                       }
                     }
@@ -22612,24 +22843,9 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "currentPage",
-                  "perPage",
-                  "totalPages",
                   "totalEntries"
                 ],
                 "properties": {
-                  "currentPage": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "perPage": {
-                    "type": "integer",
-                    "example": 10
-                  },
-                  "totalPages": {
-                    "type": "integer",
-                    "example": 2
-                  },
                   "totalEntries": {
                     "type": "integer",
                     "example": 15
@@ -23346,10 +23562,10 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "userInTriageTeam?"
+              "userInTriageTeam"
             ],
             "properties": {
-              "userInTriageTeam?": {
+              "userInTriageTeam": {
                 "type": "boolean",
                 "example": true,
                 "description": "This field is only present if the user is in the triage team for this message. This can be used to determine if the user can reply to the message."
@@ -24766,6 +24982,12 @@
               }
             }
           },
+          "decisionLetterReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decision letter reason extracted from decision letter document for denied or partial payment claims",
+            "example": "Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable."
+          },
           "appointment": {
             "type": "object",
             "nullable": false,
@@ -25200,7 +25422,8 @@
         "required": [
           "id",
           "type",
-          "attributes"
+          "attributes",
+          "meta"
         ],
         "properties": {
           "id": {
@@ -25233,6 +25456,7 @@
                   "directDepositBenefitsUpdate": true,
                   "disabilityRating": true,
                   "genderIdentity": false,
+                  "labsAndTestsEnabled": false,
                   "lettersAndDocuments": true,
                   "militaryServiceHistory": true,
                   "paymentHistory": true,
@@ -25244,6 +25468,26 @@
                   "secureMessagingOracleHealthEnabled": false,
                   "medicationsOracleHealthEnabled": false
                 }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "isUserAtPretransitionedOhFacility",
+              "isUserFacilityReadyForInfoAlert"
+            ],
+            "properties": {
+              "isUserAtPretransitionedOhFacility": {
+                "type": "boolean",
+                "example": true,
+                "description": "Indicates whether the user is associated with a facility that is pre-transitioned to Oracle Health."
+              },
+              "isUserFacilityReadyForInfoAlert": {
+                "type": "boolean",
+                "example": false,
+                "description": "Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition."
               }
             }
           }

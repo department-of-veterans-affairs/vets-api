@@ -2,10 +2,11 @@
 
 require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class DependentV2Service
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :first_name,
                 :middle_name,
@@ -18,6 +19,8 @@ module BGS
                 :participant_id,
                 :uuid,
                 :file_number
+
+    attr_accessor :notification_email
 
     STATS_KEY = 'bgs.dependent_service'
 
@@ -35,7 +38,7 @@ module BGS
       @email = user.email
       @icn = user.icn
       @participant_id = user.participant_id
-      @va_profile_email = user.va_profile_email
+      @notification_email = get_user_email(user)
     end
 
     def get_dependents
@@ -44,6 +47,9 @@ module BGS
 
       response = service.claimant.find_dependents_by_participant_id(participant_id, ssn)
       if response.presence && response[:persons]
+        # When only one dependent exists, BGS returns a Hash instead of an Array
+        # Ensure persons is always an array for consistent processing
+        response[:persons] = [response[:persons]] if response[:persons].is_a?(Hash)
         response
       else
         backup_response
@@ -51,13 +57,20 @@ module BGS
     end
 
     def submit_686c_form(claim)
+      # Set email for BGS service and notification emails from form email if va_profile_email is not available
+      # Form email is required
+      if @notification_email.nil?
+        form = claim.parsed_form
+        @notification_email = form&.dig('dependents_application', 'veteran_contact_information', 'email_address')
+      end
+
       @monitor = init_monitor(claim&.id)
       @monitor.track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start")
 
       InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
 
-      encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
-      submit_pdf_job(claim:, encrypted_vet_info:)
+      encrypted_vet_info = setup_vet_info(claim)
+      submit_pdf_job(claim:)
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
@@ -73,6 +86,13 @@ module BGS
     end
 
     private
+
+    def setup_vet_info(claim)
+      vet_info = get_form_hash_686c
+      claim.add_veteran_info(vet_info)
+
+      KmsEncrypted::Box.new.encrypt(vet_info.to_json)
+    end
 
     def service
       @service ||= BGS::Services.new(external_uid: icn, external_key:)
@@ -130,20 +150,12 @@ module BGS
       @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
     end
 
-    def submit_pdf_job(claim:, encrypted_vet_info:)
+    def submit_pdf_job(claim:)
       @monitor = init_monitor(claim&.id)
-      if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        form_id = submit_claim_via_claims_evidence(claim)
-        submit_attachments_via_claims_evidence(form_id, claim)
-      else
-        @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                             "#{STATS_KEY}.submit_pdf.begin")
-        # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
-        VBMS::SubmitDependentsPdfV2Job.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
-                                                    claim.submittable_674?)
-      end
+      @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+                           "#{STATS_KEY}.submit_pdf.begin")
+      form_id = submit_claim_via_claims_evidence(claim)
+      submit_attachments_via_claims_evidence(form_id, claim)
 
       @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
@@ -239,48 +251,75 @@ module BGS
     end
 
     def get_form_hash_686c
-      # include ssn in call to BGS for mocks
-      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
-      @file_number = bgs_person[:file_nbr]
-      # BGS's file number is supposed to be an eight or nine-digit string, and
-      # our code is built upon the assumption that this is the case. However,
-      # we've seen cases where BGS returns a file number with dashes
-      # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
-      # the dashes and proceed with form submission.
-      @file_number = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
+      begin
+        #  include ssn in call to BGS for mocks
+        bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+        if bgs_person.present?
+          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+                               "#{STATS_KEY}.find_by_participant_id")
+        else
+          bgs_person = service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+                               "#{STATS_KEY}.find_by_ssn")
+        end
+        @file_number = bgs_person[:file_nbr]
+        # BGS's file number is supposed to be an eight or nine-digit string, and
+        # our code is built upon the assumption that this is the case. However,
+        # we've seen cases where BGS returns a file number with dashes
+        # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
+        # the dashes and proceed with form submission.
+        @file_number = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
 
-      # The `validate_*!` calls below will raise errors if we have an invalid
-      # file number, or if the file number and SSN don't match. Even if this is
-      # the case, we still want to submit a PDF to the veteran's VBMS eFolder.
-      # This is because we are currently relying on the presence of a PDF and
-      # absence of a BGS-established claim to identify cases where Form 686c-674
-      # submission failed.
+        # The `validate_*!` calls below will raise errors if we have an invalid
+        # file number, or if the file number and SSN don't match. Even if this is
+        # the case, we still want to submit a PDF to the veteran's VBMS eFolder.
+        # This is because we are currently relying on the presence of a PDF and
+        # absence of a BGS-established claim to identify cases where Form 686c-674
+        # submission failed.
+      rescue
+        @monitor.track_event('warn',
+                             'BGS::DependentV2Service#get_form_hash_686c failed',
+                             "#{STATS_KEY}.get_form_hash.failure", { error: 'Could not retrieve file number from BGS' })
+      end
 
       generate_hash_from_details
-    rescue
-      @monitor.track_event('warn',
-                           'BGS::DependentV2Service#get_form_hash_686c failed',
-                           "#{STATS_KEY}.get_form_hash.failure", { error: 'Could not retrieve file number from BGS' })
-      raise BgsServicesError
     end
 
     def generate_hash_from_details
       full_name = { 'first' => first_name, 'last' => last_name }
       full_name['middle'] = middle_name unless middle_name.nil? # nil middle name breaks prod validation
+      # Sometimes BGS will return a 502 (Bad Gateway) when trying to find a person by participant id or ssn.
+      # Given this a rare occurrence and almost always file number is the same as ssn, we'll set file number
+      # to ssn as a backup.
       {
         'veteran_information' => {
           'full_name' => full_name,
           'common_name' => common_name,
-          'va_profile_email' => @va_profile_email,
+          'va_profile_email' => @notification_email,
           'email' => email,
           'participant_id' => participant_id,
           'ssn' => ssn,
-          'va_file_number' => file_number,
+          'va_file_number' => file_number || ssn,
           'birth_date' => birth_date,
           'uuid' => uuid,
           'icn' => icn
         }
       }
+    end
+
+    def get_user_email(user)
+      # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
+      # Failure is expected occasionally due to 404 errors from the redis cache
+      # New users, users that have not logged on in over a month, users who created an account on web,
+      # and users who have not visited their profile page will need to obtain/refresh VAProfile_ID
+      # Originates here: lib/va_profile/contact_information/v2/service.rb
+      user.va_profile_email
+    rescue => e
+      # We don't have a claim id accessible yet
+      @monitor = init_monitor(nil)
+      @monitor.track_event('warn', 'BGS::DependentV2Service#get_user_email failed to get va_profile_email',
+                           "#{STATS_KEY}.get_va_profile_email.failure", { error: e.message })
+      nil
     end
 
     def init_monitor(saved_claim_id)

@@ -3,10 +3,12 @@
 require_relative '../models/clinical_notes'
 require_relative '../models/avs'
 require_relative '../models/binary_data'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
     class ClinicalNotesAdapter
+      include DateNormalizer
       LOINC_CODES = {
         '11506-3' => 'physician_procedure_note',
         '11488-4' => 'consult_result',
@@ -38,12 +40,15 @@ module UnifiedHealthData
         record = note['resource']
         return nil unless record && get_note(record)
 
+        date_value = record['date']
+
         UnifiedHealthData::ClinicalNotes.new({
                                                id: record['id'],
                                                name: get_title(record),
                                                note_type: get_record_type(record),
                                                loinc_codes: get_loinc_codes(record),
-                                               date: record['date'],
+                                               date: date_value,
+                                               sort_date: normalize_date_for_sorting(date_value),
                                                date_signed: get_date_signed(record),
                                                written_by: extract_author(record),
                                                signed_by: extract_authenticator(record),
@@ -82,6 +87,33 @@ module UnifiedHealthData
         return nil unless record && avs_binary_data
 
         UnifiedHealthData::BinaryData.new(avs_binary_data)
+      end
+
+      # Parses CCD binary data for download
+      #
+      # @param document_ref_entry [Hash] FHIR DocumentReference entry
+      # @param format [String] Format to extract: 'xml', 'html', or 'pdf'
+      # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content,
+      #   or nil if resource is absent
+      # @raise [ArgumentError] if the requested format is invalid (not xml/html/pdf)
+      # @raise [ArgumentError] if the requested format is not available for this CCD
+      def parse_ccd_binary(document_ref_entry, format = 'xml')
+        resource = document_ref_entry['resource']
+        return nil unless resource
+
+        # For CCD, we need to search through all content items to find the matching format
+        content_type = content_type_for_format(format)
+        content_item = resource['content']&.find do |item|
+          attachment = item['attachment']
+          attachment&.dig('contentType') == content_type && attachment&.dig('data').present?
+        end
+
+        raise ArgumentError, "Format #{format} not available for this CCD" unless content_item
+
+        UnifiedHealthData::BinaryData.new(
+          content_type:,
+          binary: content_item['attachment']['data']
+        )
       end
 
       private
@@ -243,6 +275,17 @@ module UnifiedHealthData
           return nil unless resource && (resource['resourceType'] == type_id.first || resource['resourceType'] == type)
         end
         resource
+      end
+
+      # Returns proper content type for format
+      def content_type_for_format(format)
+        case format.downcase
+        when 'xml' then 'application/xml'
+        when 'html' then 'text/html'
+        when 'pdf' then 'application/pdf'
+        else
+          raise ArgumentError, "Invalid format: #{format}. Use xml, html, or pdf"
+        end
       end
     end
   end

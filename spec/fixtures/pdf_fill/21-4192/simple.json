@@ -1,0 +1,51 @@
+{
+  "veteranInformation": {
+    "fullName": { "first": "John", "middle": "M", "last": "Doe" },
+    "ssn": "123456789",
+    "vaFileNumber": "987654321",
+    "dateOfBirth": "1980-01-01"
+  },
+  "employmentInformation": {
+    "employerName": "Acme Corporation",
+    "employerAddress": {
+      "street": "456 Business Ave",
+      "street2": "Suite 200",
+      "city": "Commerce City",
+      "state": "CA",
+      "country": "US",
+      "postalCode": "54321"
+    },
+    "typeOfWorkPerformed": "Software Developer",
+    "beginningDateOfEmployment": "2015-01-15",
+    "endingDateOfEmployment": "2020-12-31",
+    "amountEarnedLast12MonthsOfEmployment": 95000,
+    "timeLostLast12MonthsOfEmployment": "6 months due to disability",
+    "hoursWorkedDaily": 8,
+    "hoursWorkedWeekly": 40,
+    "concessions": "Flexible schedule provided",
+    "terminationReason": "Position eliminated due to company restructuring",
+    "dateLastWorked": "2020-12-31",
+    "lastPaymentDate": "2021-01-15",
+    "lastPaymentGrossAmount": 7916.67,
+    "lumpSumPaymentMade": true,
+    "grossAmountPaid": 15000,
+    "datePaid": "2021-02-01"
+  },
+  "militaryDutyStatus": {
+    "currentDutyStatus": "Inactive Reserve",
+    "veteranDisabilitiesPreventMilitaryDuties": true
+  },
+  "benefitEntitlementPayments": {
+    "sickRetirementOtherBenefits": true,
+    "typeOfBenefit": "Short-term disability insurance",
+    "grossMonthlyAmountOfBenefit": 2500,
+    "dateBenefitBegan": "2021-01-01",
+    "dateFirstPaymentIssued": "2021-01-15",
+    "dateBenefitWillStop": "2021-06-30",
+    "remarks": "Benefits paid through employer-provided insurance plan"
+  },
+  "certification": {
+    "signature": "John Doe",
+    "certified": true
+  }
+}
