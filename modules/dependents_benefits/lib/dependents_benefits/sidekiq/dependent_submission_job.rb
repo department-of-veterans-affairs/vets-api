@@ -291,30 +291,6 @@ module DependentsBenefits::Sidekiq
       parent_group.update!(status: SavedClaimGroup::STATUSES[:PROCESSING])
     end
 
-    # Sends in-progress notification to the veteran
-    #
-    # @todo Implement notification sending logic
-    # @return [void]
-    def send_in_progress_notification
-      # Notification logic to be implemented
-    end
-
-    # Sends success notification to the veteran
-    #
-    # @todo Implement notification sending logic
-    # @return [void]
-    def send_success_notification
-      # Notification logic to be implemented
-    end
-
-    # Sends failure notification to the veteran
-    #
-    # @todo Implement notification sending logic
-    # @return [void]
-    def send_failure_notification
-      # Notification logic to be implemented
-    end
-
     # Enqueues a backup submission job for the parent claim
     #
     # @return [String] Sidekiq job ID
