@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'vass/response_middleware'
 
 describe Vass::ResponseMiddleware do
-  let(:middleware) { described_class.new(lambda { |env| env }) }
+  let(:middleware) { described_class.new(->(env) { env }) }
   let(:base_env) do
     {
       status: 200,
@@ -377,10 +377,10 @@ describe Vass::ResponseMiddleware do
           Common::Exceptions::BackendServiceException
         ) do |exception|
           expect(exception.original_status).to eq(expected_status),
-                                                "Expected #{message.inspect} to map to #{expected_status}, got #{exception.original_status}"
+                                               "Expected #{message.inspect} to map to #{expected_status}, " \
+                                               "got #{exception.original_status}"
         end
       end
     end
   end
 end
-

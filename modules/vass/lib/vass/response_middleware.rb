@@ -68,7 +68,7 @@ module Vass
 
       # Log StatsD metric for HTTP 200 errors
       StatsD.increment('api.vass.http_200_errors',
-                       tags: ["error_status:#{status}", "service:vass"])
+                       tags: ["error_status:#{status}", 'service:vass'])
 
       # Raise exception with mapped status for proper error handling
       raise Common::Exceptions::BackendServiceException.new(
@@ -122,4 +122,3 @@ module Vass
     end
   end
 end
-
