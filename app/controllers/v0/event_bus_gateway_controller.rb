@@ -22,6 +22,8 @@ module V0
 
     def send_notifications
       validate_at_least_one_template!
+      return if performed?
+
       EventBusGateway::LetterReadyNotificationJob.perform_async(
         participant_id,
         send_notifications_params[:email_template_id],
