@@ -1423,7 +1423,7 @@ DEPENDENCIES
   rufus-scheduler
   savon
   seedbank
-  sentry-ruby
+  sentry-ruby (= 5.28.1)
   shoulda-matchers
   shrine
   sidekiq
