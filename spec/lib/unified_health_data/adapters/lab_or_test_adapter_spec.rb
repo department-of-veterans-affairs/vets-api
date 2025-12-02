@@ -863,12 +863,12 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
   describe '#parse_single_record with Oracle Health FHIR format' do
     context 'with ECG diagnostic report (no contained resources, effectivePeriod, presentedForm extension)' do
-      it 'filters out record with partial status' do
+      it 'processes the record successfully' do
         record = {
           'resource' => {
             'resourceType' => 'DiagnosticReport',
             'id' => '15249582244',
-            'status' => 'partial',
+            'status' => 'final',
             'category' => [{
               'coding' => [{
                 'system' => 'http://loinc.org',
@@ -901,7 +901,19 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result).to be_nil
+        expect(result).not_to be_nil
+        expect(result.id).to eq('15249582244')
+        expect(result.type).to eq('DiagnosticReport')
+        expect(result.display).to eq('12 Lead ECG/EKG')
+        expect(result.test_code).to eq('LP29708-2')
+        expect(result.date_completed).to eq('2025-06-24T15:21:00.000Z')
+        expect(result.encoded_data).to eq('')
+        expect(result.observations).to eq([])
+        expect(result.sample_tested).to eq('')
+        expect(result.body_site).to eq('')
+        expect(result.status).to eq('partial')
+        expect(result.location).to be_nil
+        expect(result.ordered_by).to be_nil
       end
     end
   end
