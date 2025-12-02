@@ -1,11 +1,31 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/attr_package'
 require_relative '../../../app/sidekiq/event_bus_gateway/constants'
 require_relative 'shared_examples_letter_ready_job'
 
 RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
   subject { described_class }
+
+  # Shared setup for most test scenarios
+  before do
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+      .and_return(mpi_profile_response)
+    allow_any_instance_of(BGS::PersonWebService)
+      .to receive(:find_person_by_ptcpnt_id)
+      .and_return(bgs_profile)
+    allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
+    allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+    allow(Rails.logger).to receive(:warn)
+    allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key_123')
+    allow(Sidekiq::AttrPackage).to receive(:delete)
+    allow(Flipper).to receive(:enabled?)
+      .with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor))
+      .and_return(true)
+  end
 
   let(:participant_id) { '1234' }
   let(:email_template_id) { '5678' }
@@ -48,24 +68,6 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
       template_id: push_template_id,
       personalisation: {}
     }
-  end
-
-  # Shared setup for most test scenarios
-  before do
-    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-      .and_return(mpi_profile_response)
-    allow_any_instance_of(BGS::PersonWebService)
-      .to receive(:find_person_by_ptcpnt_id)
-      .and_return(bgs_profile)
-    allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
-    allow(StatsD).to receive(:increment)
-    allow(Rails.logger).to receive(:info)
-    allow(Rails.logger).to receive(:error)
-    allow(Rails.logger).to receive(:warn)
-    # Enable push notifications feature flag by default
-    allow(Flipper).to receive(:enabled?)
-      .with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor))
-      .and_return(true)
   end
 
   describe '#perform' do
@@ -135,6 +137,37 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
         end
       end
 
+      context 'PII protection with AttrPackage' do
+        it 'stores PII in Redis and passes only cache_key to email job' do
+          expect(Sidekiq::AttrPackage).to receive(:create).with(
+            first_name: 'Joe',
+            icn: mpi_profile_response.profile.icn
+          ).and_return('email_cache_key')
+
+          expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with(
+            participant_id,
+            email_template_id,
+            'email_cache_key'
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'stores PII in Redis and passes only cache_key to push job' do
+          expect(Sidekiq::AttrPackage).to receive(:create).with(
+            icn: mpi_profile_response.profile.icn
+          ).and_return('push_cache_key')
+
+          expect(EventBusGateway::LetterReadyPushJob).to receive(:perform_async).with(
+            participant_id,
+            push_template_id,
+            'push_cache_key'
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+      end
+
       context 'with only push template ID' do
         it 'sends only push notification' do
           expect(va_notify_service).not_to receive(:send_email)
@@ -164,6 +197,10 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
 
           subject.new.perform(participant_id, nil, push_template_id)
         end
+      end
+
+      it 'configures sidekiq retry count' do
+        expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_NOTIFICATION)
       end
     end
 
@@ -263,101 +300,6 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
           )
 
           subject.new.perform(participant_id, email_template_id, push_template_id)
-        end
-      end
-    end
-
-    describe 'feature flag scenarios' do
-      around do |example|
-        Sidekiq::Testing.inline! { example.run }
-      end
-
-      context 'when push notifications feature flag is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor))
-            .and_return(false)
-        end
-
-        it 'sends email but skips push notification' do
-          expect(va_notify_service).to receive(:send_email)
-          expect(va_notify_service).not_to receive(:send_push)
-
-          subject.new.perform(participant_id, email_template_id, push_template_id)
-        end
-
-        it 'logs that push notification was skipped due to feature flag' do
-          expect(Rails.logger).to receive(:error).with(
-            'LetterReadyNotificationJob push skipped',
-            {
-              notification_type: 'push',
-              reason: 'Push notifications not enabled for this user',
-              template_id: push_template_id
-            }
-          )
-
-          subject.new.perform(participant_id, email_template_id, push_template_id)
-        end
-
-        it 'increments skipped metric for push with feature flag reason' do
-          expect(StatsD).to receive(:increment).with(
-            'event_bus_gateway.letter_ready_email.success',
-            tags: EventBusGateway::Constants::DD_TAGS
-          )
-          expect(StatsD).to receive(:increment).with(
-            'event_bus_gateway.letter_ready_notification.skipped',
-            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:push',
-                                                         'reason:push_notifications_not_enabled_for_this_user']
-          )
-
-          subject.new.perform(participant_id, email_template_id, push_template_id)
-        end
-      end
-
-      context 'when push notifications feature flag is enabled' do
-        it 'sends both email and push notifications' do
-          expect(va_notify_service).to receive(:send_email)
-          expect(va_notify_service).to receive(:send_push)
-
-          subject.new.perform(participant_id, email_template_id, push_template_id)
-        end
-      end
-    end
-
-    describe 'private methods' do
-      let(:job_instance) { subject.new }
-
-      describe '#should_send_push?' do
-        it 'returns true when all requirements are met' do
-          result = job_instance.send(:should_send_push?, 'template_123', 'icn_456')
-          expect(result).to be true
-        end
-
-        it 'returns false when push_template_id is missing' do
-          result = job_instance.send(:should_send_push?, nil, 'icn_456')
-          expect(result).to be false
-        end
-
-        it 'returns false when icn is missing' do
-          result = job_instance.send(:should_send_push?, 'template_123', nil)
-          expect(result).to be false
-        end
-      end
-
-      describe '#should_send_email?' do
-        it 'returns true when all requirements are met' do
-          result = job_instance.send(:should_send_email?, 'template_123', 'icn_456')
-          expect(result).to be true
-        end
-
-        it 'returns false when email_template_id is missing' do
-          result = job_instance.send(:should_send_email?, nil, 'icn_456')
-          expect(result).to be false
-        end
-
-        it 'returns false when icn is missing' do
-          result = job_instance.send(:should_send_email?, 'template_123', nil)
-          expect(result).to be false
         end
       end
     end
@@ -472,6 +414,100 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
           expect do
             subject.new.perform(participant_id, email_template_id, push_template_id)
           end.to raise_error(EventBusGateway::Errors::MpiProfileNotFoundError, 'Failed to fetch MPI profile')
+        end
+      end
+
+      context 'when an unexpected error occurs during data fetching' do
+        before do
+          allow_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_person_by_ptcpnt_id)
+            .and_raise(StandardError, 'Unexpected BGS error')
+        end
+
+        it 'records failure because instance variables are nil' do
+          expect_any_instance_of(described_class).to receive(:record_notification_send_failure)
+            .with(instance_of(StandardError), 'Notification')
+
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id)
+          end.to raise_error(StandardError, 'Unexpected BGS error')
+        end
+      end
+
+      context 'when error occurs after data fetching completes' do
+        before do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job enqueue failed')
+        end
+
+        it 'does not record notification send failure' do
+          expect_any_instance_of(described_class).not_to receive(:record_notification_send_failure)
+
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id)
+          end.not_to raise_error
+        end
+
+        it 'returns error in the errors array' do
+          result = subject.new.perform(participant_id, email_template_id, push_template_id)
+          expect(result).to eq([{ type: 'email', error: 'Email job enqueue failed' }])
+        end
+      end
+    end
+
+    describe 'feature flag scenarios' do
+      around do |example|
+        Sidekiq::Testing.inline! { example.run }
+      end
+
+      context 'when push notifications feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor))
+            .and_return(false)
+        end
+
+        it 'sends email but skips push notification' do
+          expect(va_notify_service).to receive(:send_email)
+          expect(va_notify_service).not_to receive(:send_push)
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'logs that push notification was skipped due to feature flag' do
+          expect(Rails.logger).to receive(:error).with(
+            'LetterReadyNotificationJob push skipped',
+            {
+              notification_type: 'push',
+              reason: 'Push notifications not enabled for this user',
+              template_id: push_template_id
+            }
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+
+        it 'increments skipped metric for push with feature flag reason' do
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_email.success',
+            tags: EventBusGateway::Constants::DD_TAGS
+          )
+          expect(StatsD).to receive(:increment).with(
+            'event_bus_gateway.letter_ready_notification.skipped',
+            tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:push',
+                                                         'reason:push_notifications_not_enabled_for_this_user']
+          )
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
+        end
+      end
+
+      context 'when push notifications feature flag is enabled' do
+        it 'sends both email and push notifications' do
+          expect(va_notify_service).to receive(:send_email)
+          expect(va_notify_service).to receive(:send_push)
+
+          subject.new.perform(participant_id, email_template_id, push_template_id)
         end
       end
     end

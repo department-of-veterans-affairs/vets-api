@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/attr_package'
 require_relative 'constants'
 require_relative 'errors'
 require_relative 'letter_ready_job_concern'
@@ -14,7 +15,7 @@ module EventBusGateway
 
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_notification'
 
-    sidekiq_options Constants::SIDEKIQ_RETRY_OPTIONS
+    sidekiq_options retry: Constants::SIDEKIQ_RETRY_COUNT_FIRST_NOTIFICATION
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -30,7 +31,6 @@ module EventBusGateway
 
     def perform(participant_id, email_template_id = nil, push_template_id = nil)
       # Fetch participant data upfront
-      get_mpi_profile(participant_id)
       icn = get_icn(participant_id)
 
       errors = []
@@ -44,7 +44,11 @@ module EventBusGateway
       errors
     rescue => e
       # Only catch errors from the initial BGS/MPI lookups
-      record_notification_send_failure(e, 'Notification') if @bgs_person.nil? || @mpi_profile.nil?
+      if e.is_a?(Errors::BgsPersonNotFoundError) ||
+         e.is_a?(Errors::MpiProfileNotFoundError) ||
+         @bgs_person.nil? || @mpi_profile.nil?
+        record_notification_send_failure(e, 'Notification')
+      end
       raise
     end
 
@@ -89,7 +93,9 @@ module EventBusGateway
     end
 
     def send_email_async(participant_id, email_template_id, first_name, icn)
-      LetterReadyEmailJob.perform_async(participant_id, email_template_id, first_name, icn)
+      # Store PII in Redis and pass only cache key to avoid PII exposure in logs
+      cache_key = Sidekiq::AttrPackage.create(first_name:, icn:)
+      LetterReadyEmailJob.perform_async(participant_id, email_template_id, cache_key)
       nil
     rescue => e
       log_notification_failure('email', email_template_id, e)
@@ -97,7 +103,9 @@ module EventBusGateway
     end
 
     def send_push_async(participant_id, push_template_id, icn)
-      LetterReadyPushJob.perform_async(participant_id, push_template_id, icn)
+      # Store PII in Redis and pass only cache key to avoid PII exposure in logs
+      cache_key = Sidekiq::AttrPackage.create(icn:)
+      LetterReadyPushJob.perform_async(participant_id, push_template_id, cache_key)
       nil
     rescue => e
       log_notification_failure('push', push_template_id, e)

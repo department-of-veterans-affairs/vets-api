@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_notify/service'
+require 'sidekiq/attr_package'
 require_relative '../../../app/sidekiq/event_bus_gateway/constants'
 require_relative 'shared_examples_letter_ready_job'
 
@@ -65,6 +66,8 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       .and_return(bgs_profile)
     allow(StatsD).to receive(:increment)
     allow(Rails.logger).to receive(:error)
+    allow(Sidekiq::AttrPackage).to receive(:find).and_return(nil)
+    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   describe 'successful email notification' do
@@ -111,6 +114,100 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
       end.to change(EventBusGatewayNotification, :count).by(1)
     end
+
+    context 'when notification record fails to save' do
+      let(:invalid_notification) do
+        instance_double(EventBusGatewayNotification, persisted?: false,
+                                                     errors: double(full_messages: ['Validation failed']))
+      end
+
+      before do
+        allow(EventBusGatewayNotification).to receive(:create).and_return(invalid_notification)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'logs a warning with error details' do
+        job_instance = subject.new
+
+        expect(Rails.logger).to receive(:warn).with(
+          'LetterReadyEmailJob notification record failed to save',
+          {
+            errors: ['Validation failed'],
+            template_id:,
+            va_notify_id: notification_id
+          }
+        )
+
+        job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
+      end
+
+      it 'still sends the email successfully' do
+        job_instance = subject.new
+
+        expect(va_notify_service).to receive(:send_email).with(expected_email_args)
+
+        job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
+      end
+
+      it 'does not raise an error' do
+        job_instance = subject.new
+
+        expect do
+          job_instance.send(:send_email_notification, participant_id, template_id, first_name, mpi_profile.icn)
+        end.not_to raise_error
+      end
+    end
+  end
+
+  describe 'PII protection with AttrPackage' do
+    let(:cache_key) { 'test_cache_key_123' }
+
+    context 'when cache_key is provided' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(
+          first_name:,
+          icn: mpi_profile.icn
+        )
+      end
+
+      it 'retrieves PII from Redis' do
+        expect(Sidekiq::AttrPackage).to receive(:find).with(cache_key)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'sends email with PII from cache' do
+        expect(va_notify_service).to receive(:send_email).with(expected_email_args)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'cleans up cache_key after successful processing' do
+        expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'does not call BGS or MPI services' do
+        expect_any_instance_of(described_class).not_to receive(:get_first_name_from_participant_id)
+        expect_any_instance_of(described_class).not_to receive(:get_icn)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+    end
+
+    context 'when cache_key retrieval fails' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
+      end
+
+      it 'falls back to fetching PII from services' do
+        expect_any_instance_of(described_class).to receive(:get_first_name_from_participant_id).and_call_original
+        expect_any_instance_of(described_class).to receive(:get_icn).and_call_original
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'still sends email successfully' do
+        expect(va_notify_service).to receive(:send_email).with(expected_email_args)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+    end
   end
 
   describe '#hostname_for_template' do
@@ -141,20 +238,6 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
     end
   end
 
-  describe 'pre-provided data' do
-    it 'uses provided data instead of fetching from BGS and MPI' do
-      expect_any_instance_of(described_class).not_to receive(:get_bgs_person)
-      expect_any_instance_of(described_class).not_to receive(:get_mpi_profile)
-
-      subject.new.perform(participant_id, template_id, first_name, icn)
-    end
-
-    it 'sends email with provided first_name' do
-      expect(va_notify_service).to receive(:send_email).with(expected_email_args)
-      subject.new.perform(participant_id, template_id, first_name, icn)
-    end
-  end
-
   describe 'when ICN is not present' do
     let(:mpi_profile) { build(:mpi_profile, icn: nil) }
 
@@ -174,31 +257,77 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         subject.new.perform(participant_id, template_id)
       end.not_to change(EventBusGatewayNotification, :count)
     end
+
+    it 'logs the skipped notification' do
+      expect(Rails.logger).to receive(:error).with(
+        'LetterReadyEmailJob email skipped',
+        {
+          notification_type: 'email',
+          reason: 'ICN not available',
+          template_id:
+        }
+      )
+
+      subject.new.perform(participant_id, template_id)
+    end
+
+    it 'increments the skipped metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::STATSD_METRIC_PREFIX}.skipped",
+        tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email', 'reason:icn_not_available']
+      )
+
+      subject.new.perform(participant_id, template_id)
+    end
   end
 
-  describe 'edge cases' do
-    context 'when first_name is nil' do
-      let(:bgs_profile) do
+  describe 'when first_name is not present' do
+    let(:bgs_profile) do
+      {
+        first_nm: nil,
+        last_nm: 'Smith',
+        brthdy_dt: 30.years.ago,
+        ssn_nbr: '123456789'
+      }
+    end
+
+    it 'returns early without sending email' do
+      expect(va_notify_service).not_to receive(:send_email)
+      expect(StatsD).not_to receive(:increment).with(
+        "#{described_class::STATSD_METRIC_PREFIX}.success",
+        tags: EventBusGateway::Constants::DD_TAGS
+      )
+
+      result = subject.new.perform(participant_id, template_id)
+      expect(result).to be_nil
+    end
+
+    it 'does not create notification record' do
+      expect do
+        subject.new.perform(participant_id, template_id)
+      end.not_to change(EventBusGatewayNotification, :count)
+    end
+
+    it 'logs the skipped notification' do
+      expect(Rails.logger).to receive(:error).with(
+        'LetterReadyEmailJob email skipped',
         {
-          first_nm: nil,
-          last_nm: 'Smith',
-          brthdy_dt: 30.years.ago,
-          ssn_nbr: '123456789'
+          notification_type: 'email',
+          reason: 'First Name not available',
+          template_id:
         }
-      end
+      )
 
-      it 'handles nil first_name gracefully' do
-        expect(va_notify_service).to receive(:send_email).with(
-          recipient_identifier: { id_value: participant_id, id_type: 'PID' },
-          template_id:,
-          personalisation: {
-            host: EventBusGateway::Constants::HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
-            first_name: nil
-          }
-        )
+      subject.new.perform(participant_id, template_id)
+    end
 
-        subject.new.perform(participant_id, template_id, nil, icn)
-      end
+    it 'increments the skipped metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::STATSD_METRIC_PREFIX}.skipped",
+        tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:email', 'reason:first_name_not_available']
+      )
+
+      subject.new.perform(participant_id, template_id)
     end
   end
 
@@ -208,7 +337,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         allow(VaNotify::Service).to receive(:new).and_raise(StandardError, 'Service initialization failed')
       end
 
-      include_examples 'letter ready job va notify error handling', 'Email', 'email'
+      include_examples 'letter ready job va notify error handling', 'Email'
 
       it 'does not send email and does not change notification count' do
         expect(va_notify_service).not_to receive(:send_email)
@@ -302,6 +431,31 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       )
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
+    end
+  end
+
+  describe 'Retry count limit.' do
+    it "Sets Sidekiq retry count to #{EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_EMAIL}." do
+      expect(described_class.sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_EMAIL)
+    end
+  end
+
+  describe 'Sidekiq retry interval configuration and jitter.' do
+    # Ensure the retry interval is always greater than one hour between retries.
+    # This helps avoid excessive retry frequency and gives external services time to recover.
+    it 'Ensures each retry interval is greater than one hour.' do
+      retry_in_proc = EventBusGateway::LetterReadyEmailJob.sidekiq_retry_in_block
+      (1..EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_EMAIL).each do |count|
+        interval = retry_in_proc.call(count, StandardError.new)
+        expect(interval).to be > 1.hour.to_i
+      end
+    end
+
+    # Ensure jitter is present in the retry intervals.
+    it 'Adds jitter to the retry interval.' do
+      retry_in_proc = EventBusGateway::LetterReadyEmailJob.sidekiq_retry_in_block
+      intervals = Array.new(10) { retry_in_proc.call(2, StandardError.new) }
+      expect(intervals.uniq.size).to be > 1
     end
   end
 end

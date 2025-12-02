@@ -23,9 +23,14 @@ RSpec.describe TravelPay::TollExpense, type: :model do
       expect(toll_expense.errors[:purchase_date]).to include("can't be blank")
     end
 
-    it 'requires a description to be present' do
+    it 'allows description to be nil (inherited allow_blank: true from BaseExpense)' do
       toll_expense.description = nil
-      expect(toll_expense).not_to be_valid
+      expect(toll_expense).to be_valid
+    end
+
+    it 'allows description to be blank/empty string (inherited allow_blank: true from BaseExpense)' do
+      toll_expense.description = ''
+      expect(toll_expense).to be_valid
     end
 
     it 'requires cost_requested to be present' do
@@ -64,6 +69,29 @@ RSpec.describe TravelPay::TollExpense, type: :model do
     it 'includes the correct expense_type' do
       hash = toll_expense.to_h
       expect(hash['expense_type']).to eq(TravelPay::Constants::EXPENSE_TYPES[:toll])
+    end
+  end
+
+  describe '.permitted_params' do
+    it 'inherits base expense permitted parameters' do
+      params = described_class.permitted_params
+      expect(params).to eq(TravelPay::BaseExpense.permitted_params)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        description: 'Highway toll',
+        cost_requested: 5.50,
+        claim_id: 'claim-uuid-toll'
+      )
+    end
+
+    it 'returns correct expense_type' do
+      params = subject.to_service_params
+      expect(params['expense_type']).to eq('toll')
     end
   end
 end

@@ -2,11 +2,28 @@
 
 require 'rails_helper'
 require 'va_notify/service'
+require 'sidekiq/attr_package'
 require_relative '../../../app/sidekiq/event_bus_gateway/constants'
 require_relative 'shared_examples_letter_ready_job'
 
 RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
   subject { described_class }
+
+  # Shared setup for most test scenarios
+  before do
+    allow(VaNotify::Service).to receive(:new)
+      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
+      .and_return(va_notify_service)
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+      .and_return(mpi_profile_response)
+    allow_any_instance_of(BGS::PersonWebService)
+      .to receive(:find_person_by_ptcpnt_id)
+      .and_return(bgs_profile)
+    allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:error)
+    allow(Sidekiq::AttrPackage).to receive(:find).and_return(nil)
+    allow(Sidekiq::AttrPackage).to receive(:delete)
+  end
 
   let(:participant_id) { '1234' }
   let(:template_id) { '5678' }
@@ -39,20 +56,6 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       template_id:,
       personalisation: {}
     }
-  end
-
-  # Shared setup for most test scenarios
-  before do
-    allow(VaNotify::Service).to receive(:new)
-      .with(EventBusGateway::Constants::NOTIFY_SETTINGS.api_key)
-      .and_return(va_notify_service)
-    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-      .and_return(mpi_profile_response)
-    allow_any_instance_of(BGS::PersonWebService)
-      .to receive(:find_person_by_ptcpnt_id)
-      .and_return(bgs_profile)
-    allow(StatsD).to receive(:increment)
-    allow(Rails.logger).to receive(:error)
   end
 
   describe 'successful push notification' do
@@ -98,6 +101,54 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
     end
   end
 
+  describe 'PII protection with AttrPackage' do
+    let(:cache_key) { 'test_cache_key_456' }
+
+    context 'when cache_key is provided' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(
+          icn: mpi_profile.icn
+        )
+      end
+
+      it 'retrieves PII from Redis' do
+        expect(Sidekiq::AttrPackage).to receive(:find).with(cache_key)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'sends push with PII from cache' do
+        expect(va_notify_service).to receive(:send_push).with(expected_push_args)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'cleans up cache_key after successful processing' do
+        expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'does not call MPI service' do
+        expect_any_instance_of(described_class).not_to receive(:get_icn)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+    end
+
+    context 'when cache_key retrieval fails' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
+      end
+
+      it 'falls back to fetching ICN from MPI' do
+        expect_any_instance_of(described_class).to receive(:get_icn).and_call_original
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+
+      it 'still sends push successfully' do
+        expect(va_notify_service).to receive(:send_push).with(expected_push_args)
+        subject.new.perform(participant_id, template_id, cache_key)
+      end
+    end
+  end
+
   describe 'ICN validation' do
     let(:error_message) { 'LetterReadyPushJob push error' }
     let(:message_detail) { 'Failed to fetch ICN' }
@@ -132,29 +183,6 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
     end
   end
 
-  describe 'pre-provided ICN' do
-    let!(:user_account_with_provided_icn) { create(:user_account, icn:) }
-
-    let(:expected_push_args_with_icn) do
-      {
-        mobile_app: 'VA_FLAGSHIP_APP',
-        recipient_identifier: { id_value: icn, id_type: 'ICN' },
-        template_id:,
-        personalisation: {}
-      }
-    end
-
-    it 'uses provided ICN instead of fetching from MPI' do
-      expect_any_instance_of(described_class).not_to receive(:get_mpi_profile)
-      subject.new.perform(participant_id, template_id, icn)
-    end
-
-    it 'sends push notification with provided ICN' do
-      expect(va_notify_service).to receive(:send_push).with(expected_push_args_with_icn)
-      subject.new.perform(participant_id, template_id, icn)
-    end
-  end
-
   describe 'error handling' do
     context 'when VA Notify service initialization fails' do
       before do
@@ -163,7 +191,7 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
           .and_raise(StandardError, 'Service initialization failed')
       end
 
-      include_examples 'letter ready job va notify error handling', 'Push', 'push notification'
+      include_examples 'letter ready job va notify error handling', 'Push'
 
       it 'does not send push notification' do
         expect(va_notify_service).not_to receive(:send_push)
@@ -274,6 +302,10 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       )
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
+    end
+
+    it 'configures sidekiq retry count' do
+      expect(described_class.get_sidekiq_options['retry']).to eq(EventBusGateway::Constants::SIDEKIQ_RETRY_COUNT_FIRST_PUSH)
     end
 
     it 'increments exhausted metric with error message tag' do

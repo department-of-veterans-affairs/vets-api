@@ -139,7 +139,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
       it 'tracks the error without re-raising' do
         expect(monitor_instance).to receive(:track_submission_error)
-          .with('Error handling job success', 'success_failure', error: test_error)
+          .with('Error handling job success', 'success_failure', error: test_error, parent_claim_id: parent_claim.id)
         expect { job.handle_job_success }.not_to raise_error
       end
     end
