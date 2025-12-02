@@ -208,7 +208,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue StandardError => e
       handle_error(e, 'get_veteran_info')
     end
 
