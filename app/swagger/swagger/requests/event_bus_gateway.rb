@@ -77,7 +77,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
           key :description,
-              'Sends one email and/or one push notification to a veteran based on provided template IDs'
+              'Sends one email and/or one push notification to a veteran. At least one template ID must be provided.'
           key :operationId, 'sendNotifications'
           key :tags, %w[event_bus_gateway]
 

@@ -50,12 +50,14 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
     context 'with missing template_id' do
       let(:params) { {} }
 
-      it 'enqueues job with nil template_id' do
-        expect(EventBusGateway::LetterReadyEmailJob)
-          .to receive(:perform_async)
-          .with(participant_id, nil)
+      it 'returns 400 Bad Request' do
+        post(:send_email, params:)
+        expect(response).to have_http_status(:bad_request)
+      end
 
-        post :send_email, params:
+      it 'does not enqueue the job' do
+        expect(EventBusGateway::LetterReadyEmailJob).not_to receive(:perform_async)
+        post(:send_email, params:)
       end
     end
 
@@ -102,12 +104,14 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
     context 'with missing template_id' do
       let(:params) { {} }
 
-      it 'enqueues job with nil template_id' do
-        expect(EventBusGateway::LetterReadyPushJob)
-          .to receive(:perform_async)
-          .with(participant_id, nil)
+      it 'returns 400 Bad Request' do
+        post(:send_push, params:)
+        expect(response).to have_http_status(:bad_request)
+      end
 
-        post :send_push, params:
+      it 'does not enqueue the job' do
+        expect(EventBusGateway::LetterReadyPushJob).not_to receive(:perform_async)
+        post(:send_push, params:)
       end
     end
 
@@ -185,12 +189,21 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
     context 'with no template IDs' do
       let(:params) { {} }
 
-      it 'enqueues job with both template IDs as nil' do
-        expect(EventBusGateway::LetterReadyNotificationJob)
-          .to receive(:perform_async)
-          .with(participant_id, nil, nil)
+      it 'returns 400 Bad Request' do
+        post(:send_notifications, params:)
+        expect(response).to have_http_status(:bad_request)
+      end
 
-        post :send_notifications, params:
+      it 'returns error message about missing templates' do
+        post(:send_notifications, params:)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['detail'])
+          .to include('At least one of email_template_id or push_template_id is required')
+      end
+
+      it 'does not enqueue the job' do
+        expect(EventBusGateway::LetterReadyNotificationJob).not_to receive(:perform_async)
+        post(:send_notifications, params:)
       end
     end
 
