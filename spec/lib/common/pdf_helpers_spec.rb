@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 require 'common/pdf_helpers'
-require './lib/sentry_logging'
 
 describe Common::PdfHelpers do
   describe '#unlock_pdf' do

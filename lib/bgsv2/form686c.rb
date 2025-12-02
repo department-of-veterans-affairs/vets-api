@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require_relative 'benefit_claim'
 require_relative 'dependents'
 require_relative 'marriages'
@@ -13,7 +15,7 @@ require_relative '../bid/awards/service'
 
 module BGSV2
   class Form686c
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :user, :saved_claim, :proc_id
 
@@ -46,9 +48,6 @@ module BGSV2
 
       set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
 
-      # temporary logging to troubleshoot
-      log_message_to_sentry("#{@proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
-
       benefit_claim_record = BenefitClaim.new(
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
@@ -62,9 +61,6 @@ module BGSV2
 
       begin
         benefit_claim_id = benefit_claim_record[:benefit_claim_id]
-        # temporary logging to troubleshoot
-        log_message_to_sentry("#{@proc_id} - #{benefit_claim_id}", :warn, '', { team: 'vfs-ebenefits' })
-
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
         if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
           prep_manual_claim(benefit_claim_id)
@@ -100,8 +96,10 @@ module BGSV2
     end
 
     def create_proc_id_and_form(vnp_proc_state_type_cd)
-      vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
-      @proc_id = vnp_response[:vnp_proc_id]
+      if @proc_id.nil?
+        vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
+        @proc_id = vnp_response[:vnp_proc_id]
+      end
 
       bgs_service.create_proc_form(
         @proc_id,

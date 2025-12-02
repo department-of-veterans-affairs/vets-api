@@ -157,45 +157,37 @@ module TravelPay
         expense_class.new(expense_params)
       end
 
-      def expense_class_for_type(_expense_type)
-        # TODO: Implement specific expense models (MileageExpense, LodgingExpense, MealExpense)
-        # For now, all expense types use BaseExpense
-        TravelPay::BaseExpense
+      def expense_class_for_type(expense_type)
+        return TravelPay::BaseExpense if expense_type.nil?
+
+        case expense_type.to_sym
+        when :airtravel
+          TravelPay::FlightExpense
+        when :common_carrier
+          TravelPay::CommonCarrierExpense
+        when :lodging
+          TravelPay::LodgingExpense
+        when :meal
+          TravelPay::MealExpense
+        when :mileage
+          TravelPay::MileageExpense
+        when :parking
+          TravelPay::ParkingExpense
+        when :toll
+          TravelPay::TollExpense
+        else
+          # :other or any unknown type defaults to BaseExpense
+          TravelPay::BaseExpense
+        end
       end
 
       def permitted_params
-        params.require(:expense).permit(
-          :purchase_date,
-          :description,
-          :cost_requested,
-          :receipt
-        )
+        expense_class = expense_class_for_type(params[:expense_type])
+        params.require(:expense).permit(*expense_class.permitted_params)
       end
 
       def expense_params_for_service(expense)
-        params = {
-          'purchase_date' => format_purchase_date(expense.purchase_date),
-          'description' => expense.description,
-          'cost_requested' => expense.cost_requested,
-          'expense_type' => expense.expense_type
-        }
-        params['claim_id'] = expense.claim_id if expense.claim_id.present?
-        params
-      end
-
-      # Ensures purchase_date is formatted as ISO8601, regardless of input type
-      def format_purchase_date(purchase_date)
-        return nil if purchase_date.nil?
-
-        if purchase_date.is_a?(Date) || purchase_date.is_a?(Time) || purchase_date.is_a?(DateTime)
-          purchase_date.iso8601
-        elsif purchase_date.is_a?(String)
-          begin
-            Date.iso8601(purchase_date).iso8601
-          rescue ArgumentError
-            nil
-          end
-        end
+        expense.to_service_params
       end
     end
   end
