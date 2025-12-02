@@ -19,8 +19,18 @@ module DisabilityCompensation
       CLAIM_STATS_KEY = 'api.disability_compensation'
       SUBMISSION_STATS_KEY = 'api.disability_compensation.submission'
 
+      TOXIC_EXPOSURE_ALLOWLIST = %w[
+        completely_removed
+        conditions_state
+        orphaned_data_removed
+        purge_reasons
+        removed_keys
+        submission_id
+        tags
+      ].freeze
+
       def initialize
-        super(SERVICE_NAME, allowlist: %w[completely_removed conditions_state orphaned_data_removed purge_reasons removed_keys submission_id tags])
+        super(SERVICE_NAME, allowlist: TOXIC_EXPOSURE_ALLOWLIST)
       end
 
       # Logs SavedClaim ActiveRecord save errors
@@ -85,8 +95,8 @@ module DisabilityCompensation
         in_progress_toxic_exposure = in_progress_form_data['toxic_exposure']
         submitted_toxic_exposure = submitted_data['toxicExposure']
 
-        # Only log if toxic exposure existed in save-in-progress but changed or was removed
-        return if in_progress_toxic_exposure.nil? || in_progress_toxic_exposure == submitted_toxic_exposure
+        # Skip if no toxic exposure data existed in save-in-progress
+        return if in_progress_toxic_exposure.nil?
 
         change_metadata = calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
 
@@ -192,33 +202,20 @@ module DisabilityCompensation
       #
       # @param in_progress_toxic_exposure [Hash] InProgressForm data (snake_case)
       # @param submitted_toxic_exposure [Hash, nil] SavedClaim data (camelCase)
-      # @return [Hash] Metadata with completely_removed, removed_keys, purge_reasons, conditions_state, orphaned_data_removed
+      # @return [Hash] Metadata: completely_removed, removed_keys, purge_reasons,
+      #   conditions_state, orphaned_data_removed
       def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
         in_progress_camelized = OliveBranch::Transformations.transform(
-          in_progress_toxic_exposure,
-          OliveBranch::Transformations.method(:camelize)
+          in_progress_toxic_exposure, OliveBranch::Transformations.method(:camelize)
         )
-
-        in_progress_camel_keys = in_progress_camelized.keys
-        submitted_camel_keys = submitted_toxic_exposure&.keys || []
-
-        removed_keys = (in_progress_camel_keys - submitted_camel_keys).sort
-        completely_removed = submitted_toxic_exposure.nil?
-
-        # Determine why each key was removed and detect orphaned data
-        purge_analysis = analyze_purge_reasons(
-          removed_keys,
-          in_progress_camelized,
-          submitted_toxic_exposure
-        )
-
-        conditions_state = determine_conditions_state(submitted_toxic_exposure)
+        removed_keys = (in_progress_camelized.keys - (submitted_toxic_exposure&.keys || [])).sort
+        purge_analysis = analyze_purge_reasons(removed_keys, in_progress_camelized, submitted_toxic_exposure)
 
         {
-          completely_removed:,
+          completely_removed: submitted_toxic_exposure.nil?,
           removed_keys:,
           purge_reasons: purge_analysis[:purge_reasons],
-          conditions_state:,
+          conditions_state: determine_conditions_state(submitted_toxic_exposure),
           orphaned_data_removed: purge_analysis[:orphaned_data_removed]
         }
       end
@@ -230,60 +227,58 @@ module DisabilityCompensation
       # - User opt-outs (explicit false values, 'none' selected)
       #
       # @param removed_keys [Array<String>] Keys that were removed
-      # @param in_progress_data [Hash] InProgressForm data (camelCase)
+      # @param _in_progress_data [Hash] InProgressForm data (camelCase) - reserved for future use
       # @param submitted_toxic_exposure [Hash, nil] The submitted toxic exposure data
       # @return [Hash] { purge_reasons: Hash, orphaned_data_removed: Boolean }
-      def analyze_purge_reasons(removed_keys, in_progress_data, submitted_toxic_exposure)
+      def analyze_purge_reasons(removed_keys, _in_progress_data, submitted_toxic_exposure)
         if submitted_toxic_exposure.nil?
-          return {
-            purge_reasons: { all: 'user_opted_out_of_conditions' },
-            orphaned_data_removed: false
-          }
+          return { purge_reasons: { all: 'user_opted_out_of_conditions' },
+                   orphaned_data_removed: false }
         end
 
-        conditions = submitted_toxic_exposure['conditions'] || {}
-        has_none_selected = conditions['none'] == true
+        has_none_selected = submitted_toxic_exposure.dig('conditions', 'none') == true
         orphaned_data_detected = false
 
         purge_reasons = removed_keys.each_with_object({}) do |key, reasons|
-          if has_none_selected
-            reasons[key] = 'user_selected_none_for_conditions'
-          elsif key.end_with?('Details')
-            # Determine if details removed due to orphaned parent or user opt-out
-            parent_key = key.sub('Details', '')
-            parent_in_submitted = submitted_toxic_exposure[parent_key]
-
-            if parent_in_submitted.nil? || !parent_in_submitted.is_a?(Hash)
-              # Parent missing or invalid - details are orphaned (prevents 422)
-              reasons[key] = 'orphaned_details_no_parent'
-              orphaned_data_detected = true
-            else
-              # Parent exists - user deselected all locations
-              reasons[key] = 'user_deselected_all_locations'
-            end
-          elsif %w[otherHerbicideLocations specifyOtherExposures].include?(key)
-            # Check if otherKey removed due to orphaned parent or user opt-out
-            parent_key = key == 'otherHerbicideLocations' ? 'herbicide' : 'otherExposures'
-            parent_in_submitted = submitted_toxic_exposure[parent_key]
-
-            if parent_in_submitted.nil? || !parent_in_submitted.is_a?(Hash)
-              # Parent missing or invalid - otherKey is orphaned (prevents 422)
-              reasons[key] = 'orphaned_other_field_no_parent'
-              orphaned_data_detected = true
-            else
-              # Parent exists - user opted out of section or has no valid selections
-              reasons[key] = 'user_opted_out_of_other_field'
-            end
-          else
-            # Section removed (gulfWar1990, gulfWar2001, herbicide, otherExposures)
-            reasons[key] = 'user_deselected_section'
-          end
+          reason, is_orphan = categorize_removed_key(key, has_none_selected, submitted_toxic_exposure)
+          reasons[key] = reason
+          orphaned_data_detected ||= is_orphan
         end
 
-        {
-          purge_reasons:,
-          orphaned_data_removed: orphaned_data_detected
-        }
+        { purge_reasons:, orphaned_data_removed: orphaned_data_detected }
+      end
+
+      # Categorize a single removed key and determine if it's orphaned
+      #
+      # @param key [String] The removed key to categorize
+      # @param has_none_selected [Boolean] Whether user selected 'none' for conditions
+      # @param submitted_toxic_exposure [Hash] The submitted toxic exposure data
+      # @return [Array<String, Boolean>] [reason, is_orphan]
+      def categorize_removed_key(key, has_none_selected, submitted_toxic_exposure)
+        return ['user_selected_none_for_conditions', false] if has_none_selected
+        return categorize_details_key(key, submitted_toxic_exposure) if key.end_with?('Details')
+        return categorize_other_field_key(key, submitted_toxic_exposure) if other_field_key?(key)
+
+        ['user_deselected_section', false]
+      end
+
+      # Check if key is an "other" field key
+      def other_field_key?(key)
+        %w[otherHerbicideLocations specifyOtherExposures].include?(key)
+      end
+
+      # Categorize a Details key (e.g., gulfWar1990Details)
+      def categorize_details_key(key, submitted_toxic_exposure)
+        parent_key = key.sub('Details', '')
+        parent_valid = submitted_toxic_exposure[parent_key].is_a?(Hash)
+        parent_valid ? ['user_deselected_all_locations', false] : ['orphaned_details_no_parent', true]
+      end
+
+      # Categorize an "other" field key (otherHerbicideLocations, specifyOtherExposures)
+      def categorize_other_field_key(key, submitted_toxic_exposure)
+        parent_key = key == 'otherHerbicideLocations' ? 'herbicide' : 'otherExposures'
+        parent_valid = submitted_toxic_exposure[parent_key].is_a?(Hash)
+        parent_valid ? ['user_opted_out_of_other_field', false] : ['orphaned_other_field_no_parent', true]
       end
 
       # Determine the final state of toxic exposure conditions
@@ -294,7 +289,7 @@ module DisabilityCompensation
         return 'removed' if submitted_toxic_exposure.nil?
 
         conditions = submitted_toxic_exposure['conditions']
-        return 'empty' if conditions.nil? || conditions.empty?
+        return 'empty' if conditions.blank?
         return 'none' if conditions['none'] == true
 
         has_selections = conditions.any? { |k, v| k != 'none' && v == true }
