@@ -7,4 +7,3 @@ require 'vass/response_middleware'
 
 # Register custom Faraday middleware for VASS error handling
 Faraday::Response.register_middleware(vass_errors: Vass::ResponseMiddleware)
-
