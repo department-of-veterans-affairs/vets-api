@@ -82,7 +82,8 @@ timeout = Settings.api.timeout     # May be nil, wrong type, or unexpected value
 # Handles: true, false, "true", "false", 1, 0, "1", "0", nil
 if ActiveModel::Type::Boolean.new.cast(Settings.feature.enabled)
 
-# Alternative: explicit string comparison (doesn't handle 1/0 or nil gracefully)
+# Alternative: explicit string comparison
+# Returns true only for "true" (case-insensitive), false for everything else including nil, 0, 1
 if Settings.feature.enabled.to_s.downcase == 'true'
 
 # For integers - always convert with safe fallback
