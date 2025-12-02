@@ -38,6 +38,7 @@ class EmailVerificationJob
   end
 
   # TODO: Add back email_address param when ready to send real emails
+  # rubocop:disable Metrics/MethodLength
   def perform(template_type, cache_key)
     return unless Flipper.enabled?(:auth_exp_email_verification_enabled)
 
@@ -87,6 +88,7 @@ class EmailVerificationJob
     StatsD.increment("#{STATS_KEY}.failure")
     raise e
   end
+  # rubocop:enable Metrics/MethodLength
 
   private
 
