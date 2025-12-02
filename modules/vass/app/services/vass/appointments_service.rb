@@ -224,7 +224,7 @@ module Vass
       response = client.get_agent_skills
 
       parse_response(response)
-    rescue => e
+    rescue StandardError => e
       handle_error(e, 'get_agent_skills')
     end
 
