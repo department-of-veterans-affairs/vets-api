@@ -42,5 +42,16 @@ module Pensions
                                                                Pensions::BenefitsIntake::SubmissionHandler)
       end
     end
+
+    initializer 'pensions.pdf_stamper.register_stamp_sets' do |app|
+      app.config.to_prepare do
+        require 'pdf_utilities/pdf_stamper'
+        require 'pensions/pdf_stamper'
+
+        Pensions::PDFStamper::STAMP_SETS.each do |identifier, stamps|
+          ::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)
+        end
+      end
+    end
   end
 end

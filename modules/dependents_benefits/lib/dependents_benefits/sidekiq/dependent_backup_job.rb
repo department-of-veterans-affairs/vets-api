@@ -43,7 +43,7 @@ module DependentsBenefits::Sidekiq
     # @return [void]
     def handle_permanent_failure(claim_id, error)
       @claim_id = claim_id
-      send_failure_notification
+      notification_email.send_error_notification
       monitor.log_silent_failure_avoided({ claim_id:, error: })
     rescue => e
       # Last resort if notification fails
@@ -68,7 +68,7 @@ module DependentsBenefits::Sidekiq
           # the parent group is marked as processing to indicate it hasn't reached VBMS yet
           mark_parent_group_processing
           # notify user of acceptance by the service - final success will be sent after VBMS is reached
-          send_in_progress_notification
+          notification_email.send_submitted_notification
         end
       end
     rescue => e

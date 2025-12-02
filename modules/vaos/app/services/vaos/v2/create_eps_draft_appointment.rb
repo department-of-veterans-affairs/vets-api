@@ -264,6 +264,7 @@ module VAOS
                                            referral_number: referral_id,
                                            failure_reason: "Error checking existing appointments: #{check[:failures]}"
                                          })
+
           set_error("Error checking existing appointments: #{check[:failures]}", :bad_gateway,
                     code: 'DRAFT_APPOINTMENT_CHECK_FAILED')
         elsif check[:exists]
@@ -271,8 +272,10 @@ module VAOS
                                            referral_number: referral_id,
                                            failure_reason: 'Referral is already used for an existing appointment'
                                          })
+
           set_error('No new appointment created: referral is already used', :unprocessable_entity,
                     code: 'DRAFT_REFERRAL_ALREADY_USED')
+
         end
       end
 

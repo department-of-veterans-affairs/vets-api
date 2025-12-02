@@ -67,20 +67,10 @@ module Lighthouse
     end
 
     def generate_metadata
-      form = @claim.parsed_form
-      veteran_full_name = form['veteranFullName']
-      address = form['claimantAddress'] || form['veteranAddress']
-
-      # also validates/manipulates the metadata
-      ::BenefitsIntake::Metadata.generate(
-        veteran_full_name['first'],
-        veteran_full_name['last'],
-        form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        address['postalCode'],
-        "#{@claim.class} va.gov",
-        @claim.form_id,
-        @claim.business_line
-      )
+      md = @claim.metadata_for_benefits_intake
+      ::BenefitsIntake::Metadata.generate(md[:veteranFirstName], md[:veteranLastName], md[:fileNumber],
+                                          md[:zipCode], "#{@claim.class} va.gov", @claim.form_id,
+                                          md[:businessLine])
     end
 
     def process_record(record)
