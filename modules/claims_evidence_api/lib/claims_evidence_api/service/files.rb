@@ -65,8 +65,20 @@ module ClaimsEvidenceApi
         perform :post, "files/#{uuid}", params, headers
       end
 
+      # GET retrieve the associated period of service record to from a document
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Period%20Of%20Service
+      #
+      # only certain documents will have associated period of service records
+      #
+      # @param uuid [String] The UUID of the file data
+      def period_of_service(uuid)
+        perform :get, "files/#{uuid}/periodOfService", {}
+      end
+
       # GET file content for a given version as a pdf
       # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Version%20Content
+      #
+      # PDF content is returned as ASCII-8BIT
       #
       # @param uuid [String] The UUID of the file data
       # @param version [String] version UUID of the file data

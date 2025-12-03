@@ -122,10 +122,19 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
     end
   end
 
+  describe '#period_of_service' do
+    it 'performs a GET' do
+      path = "files/#{uuid}/periodOfService"
+      expect(service).to receive(:perform).with(:get, path, {})
+      service.period_of_service(uuid)
+    end
+  end
+
   describe '#download' do
     it 'performs a GET for a specific file version' do
       download_headers = { 'Accept' => 'application/pdf' }
-      expect(service).to receive(:perform).with(:get, "files/#{uuid}/#{version}/content", {}, download_headers)
+      path = "files/#{uuid}/#{version}/content"
+      expect(service).to receive(:perform).with(:get, path, {}, download_headers)
       service.download(uuid, version)
     end
   end
