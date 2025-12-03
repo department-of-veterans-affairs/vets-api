@@ -44,8 +44,10 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     it 'processes claims' do
       expect(DependentsBenefits::Sidekiq::BGS::BGS686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
       expect(DependentsBenefits::Sidekiq::BGS::BGS674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims686cJob)
+        .to receive(:perform_async).with(form_686_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job)
+        .to receive(:perform_async).with(form_674_claim.id, proc_id)
 
       result = processor.enqueue_submissions
 

@@ -151,7 +151,7 @@ module DependentsBenefits
         #
         # @return [DependentsBenefits::BenefitsIntake::LighthouseSubmission] Submission helper
         def lighthouse_submission
-          @lighthouse_submission ||= 
+          @lighthouse_submission ||=
             DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(saved_claim, user_data)
         end
       end
