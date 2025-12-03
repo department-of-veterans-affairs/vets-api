@@ -30,8 +30,11 @@ module VaNotify
       handle_error(e)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def send_email(args)
-      Datadog::Tracing.trace('api.vanotify.service.send_email') do
+      Datadog::Tracing.trace('api.vanotify.service.send_email', service: 'va-notify') do |span|
+        span.set_tag('template_id', args[:template_id])
+
         @template_id = args[:template_id]
         if Flipper.enabled?(:va_notify_notification_creation)
           response = with_monitoring do
@@ -52,6 +55,7 @@ module VaNotify
         handle_error(e)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def send_sms(args)
       @template_id = args[:template_id]
@@ -150,13 +154,15 @@ module VaNotify
     end
 
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Lint/NonLocalExitFromIterator
     def create_notification(response)
-      Datadog::Tracing.trace('api.vanotify.service.create_notification') do
+      Datadog::Tracing.trace('api.vanotify.service.create_notification', service: 'va-notify') do |span|
         if response.nil?
           Rails.logger.error('VANotify - no response')
           return
         end
 
+        span.set_tag('notification_id', response.id)
         # when the class is used directly we can pass symbols as keys
         # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
         notification = VANotify::Notification.new(
@@ -179,6 +185,7 @@ module VaNotify
       end
     end
     # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Lint/NonLocalExitFromIterator
 
     def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
