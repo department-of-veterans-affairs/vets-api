@@ -11,6 +11,7 @@ module EVSS
     STATSD_KEY_PREFIX = 'api.evss'
 
     def initialize(user = nil, auth_headers = nil)
+      Rails.logger.info("EVSS SERVICE INITIALIZED") if Flipper.enabled?(:enable_ppiu_logging)
       @user = user
       if auth_headers.nil?
         @headers = EVSS::AuthHeaders.new(user)

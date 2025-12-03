@@ -41,7 +41,11 @@ class FormProfiles::VA0994 < FormProfile
     response = service.get_payment_information
     raw_account = response.responses.first&.payment_account
 
+    ppiu_logging_enabled = Flipper.enabled?(:enable_ppiu_logging)
+    Rails.logger.info("PPIU Initialized - VA0994") if ppiu_logging_enabled
+
     if raw_account
+      Rails.logger.info("PPIU Data Unknown - VA0994") if ppiu_logging_enabled
       VA0994::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
         account_number: mask(raw_account&.account_number),
@@ -49,6 +53,7 @@ class FormProfiles::VA0994 < FormProfile
         bank_name: raw_account&.financial_institution_name
       )
     else
+      Rails.logger.info("PPIU Data Recovered - VA0994 ") if ppiu_logging_enabled
       {}
     end
   rescue => e
