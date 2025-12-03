@@ -792,8 +792,8 @@ module SM
       if %w[FAILED INVALID].include?(status)
         raise Common::Exceptions::BackendServiceException.new(
           'SM_GENERIC_FAILURE',
-          status: 503,
-          detail: 'The message failed to send to the recipient',
+          status: 400,
+          detail: "OH message send failure with recipient_id #{message.recipient_id} and status #{status}",
           source: self.class.to_s
         )
       end
