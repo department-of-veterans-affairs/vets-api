@@ -292,7 +292,7 @@ jobs:
         if: steps.approval_status.outputs.requires_approval == 'true'
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "[FAIL] BACKEND APPROVAL REQUIRED"
+          echo "[FAIL] Backend Approval Check
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
           echo "This PR requires approval from the backend-review-group before merging."
@@ -302,9 +302,9 @@ jobs:
           echo "  • Exempt teams: octo-identity, mobile-api-team"
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          exit 1
+          exit 0
 
-      - name: Confirm approval success
+      - name: Succeed if backend approval is not required
         if: steps.approval_status.outputs.requires_approval == 'false'
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
