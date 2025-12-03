@@ -28,7 +28,7 @@ module Mobile
                                              get_unique_care_systems(resource.records)
                                            end
 
-        # Even though this is a collection action we are not going to paginate
+        # Even though this is a collection action we are not going to paginate.
         options = { meta: resource.metadata }
         render json: AllTriageTeamsSerializer.new(resource.data, options)
       end
