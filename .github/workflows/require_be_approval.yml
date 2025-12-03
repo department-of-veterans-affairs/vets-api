@@ -288,11 +288,11 @@ jobs:
             gh pr edit "${PR_NUMBER}" --add-label "${label}" 2>/dev/null || echo "  [WARN] Could not add ${label}"
           done
 
-      - name: Fail if backend approval required
+      - name: Echo status if backend approval required
         if: steps.approval_status.outputs.requires_approval == 'true'
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "[FAIL] Backend Approval Check
+          echo "[FAIL] BACKEND APPROVAL REQUIRED"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
           echo "This PR requires approval from the backend-review-group before merging."
@@ -304,7 +304,7 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 0
 
-      - name: Succeed if backend approval is not required
+      - name: Echo status if backend approval is not required
         if: steps.approval_status.outputs.requires_approval == 'false'
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
