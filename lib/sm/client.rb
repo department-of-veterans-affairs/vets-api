@@ -788,7 +788,15 @@ module SM
       end
       result = poll_message_status(message.id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
       status = result && result[:status]
-      raise Common::Exceptions::UnprocessableEntity if %w[FAILED INVALID].include?(status)
+
+      if %w[FAILED INVALID].include?(status)
+        raise Common::Exceptions::BackendServiceException.new(
+          'SM_GENERIC_FAILURE',
+          status: 503,
+          detail: 'The message failed to send to the recipient',
+          source: self.class.to_s
+        )
+      end
 
       message
     end
