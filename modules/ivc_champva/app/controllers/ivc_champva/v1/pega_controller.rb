@@ -69,10 +69,19 @@ module IvcChampva
       end
 
       def get_ivc_forms(form_uuid, file_names)
-        if file_names.any? { |name| name.end_with?('_merged.pdf') }
-          fetch_forms_by_uuid(form_uuid)
+        forms = if file_names.any? { |name| name.end_with?('_merged.pdf') }
+                  fetch_forms_by_uuid(form_uuid)
+                else
+                  forms_query(form_uuid, file_names)
+                end
+
+        # Add VES JSON files to the collection (Pega doesn't send VES JSON file names in callback)
+        ves_json_forms = fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%_ves.json')
+        if ves_json_forms.any?
+          Rails.logger.info "Adding #{ves_json_forms.count} VES JSON file(s) to update for form_uuid: #{form_uuid}"
+          forms + ves_json_forms.to_a
         else
-          forms_query(form_uuid, file_names)
+          forms
         end
       end
 
