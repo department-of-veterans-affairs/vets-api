@@ -171,6 +171,9 @@ module DebtsApi
         self.new_id ||= self.class.connection.select_value(
           "SELECT nextval('digital_dispute_submissions_new_id_seq')"
         )
+      rescue ActiveRecord::StatementInvalid
+        # Sequence doesn't exist yet (migration not run), skip setting new_id
+        nil
       end
     end
   end
