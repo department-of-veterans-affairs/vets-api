@@ -167,13 +167,17 @@ module DebtsApi
 
       def set_new_id
         return unless self.class.column_names.include?('new_id')
+        return unless sequence_exists?('digital_dispute_submissions_new_id_seq')
 
         self.new_id ||= self.class.connection.select_value(
           "SELECT nextval('digital_dispute_submissions_new_id_seq')"
         )
-      rescue ActiveRecord::StatementInvalid
-        # Sequence doesn't exist yet (migration not run), skip setting new_id
-        nil
+      end
+
+      def sequence_exists?(sequence_name)
+        self.class.connection.select_value(
+          "SELECT 1 FROM pg_class WHERE relkind = 'S' AND relname = '#{sequence_name}'"
+        ).present?
       end
     end
   end
