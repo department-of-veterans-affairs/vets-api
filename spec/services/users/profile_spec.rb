@@ -563,7 +563,8 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
-          expect(vet360_info[:contact_email_verified]).to be_present
+          expect(vet360_info).to have_key(:contact_email_verified)
+          expect(vet360_info[:contact_email_verified]).to be_in([true, false])
         end
 
         it 'includes contact_email_verified field' do
