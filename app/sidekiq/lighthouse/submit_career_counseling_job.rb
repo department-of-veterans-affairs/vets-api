@@ -61,7 +61,7 @@ module Lighthouse
       pcpg_monitor = PCPG::Monitor.new
       email = claim.parsed_form.dig('claimantInformation', 'emailAddress')
       pcpg_monitor.track_submission_exhaustion(msg, claim, email)
-      claim.send_failure_email(email) if claim.present?
+      claim.presence&.send_failure_email(email)
     end
   end
 end

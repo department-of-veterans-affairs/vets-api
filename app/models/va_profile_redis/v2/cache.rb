@@ -16,7 +16,7 @@ module VAProfileRedis
         return if user&.icn.blank?
 
         contact_info = VAProfileRedis::V2::ContactInformation.find(user.icn)
-        contact_info.destroy if contact_info.present?
+        contact_info.presence&.destroy
       end
     end
   end

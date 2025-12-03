@@ -99,16 +99,11 @@ module AccreditedRepresentativePortal
           # we're using #update_columns to skip validation because the redaction
           # removes required fields and will leave the record invalid
           # rubocop:disable Rails/SkipsModelValidations
-          if submission.present?
-            submission.update_columns(
-              # Use the actual ciphertext/key column names
-              service_response_ciphertext: nil,
-              error_message_ciphertext: nil
-            )
-          end
+          submission.presence&.update_columns(service_response_ciphertext: nil,
+                                              error_message_ciphertext: nil)
 
           # 3. Redact resolution data using update_columns
-          resolution.update_columns(reason_ciphertext: nil) if resolution.present?
+          resolution.presence&.update_columns(reason_ciphertext: nil)
         end
 
         # 4. Mark request as redacted

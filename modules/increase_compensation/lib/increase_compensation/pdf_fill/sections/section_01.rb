@@ -190,9 +190,7 @@ module IncreaseCompensation
         form_data['veteranSocialSecurityNumber2'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranSocialSecurityNumber3'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranDateOfBirth'] = split_date(form_data['dateOfBirth'])
-        if form_data['veteranAddress'].present?
-          form_data['veteranAddress']['postalCode'] = split_postal_code(form_data['veteranAddress'])
-        end
+        form_data['veteranAddress'].presence&.[]=('postalCode', split_postal_code(form_data['veteranAddress']))
         form_data['electronicCorrespondance'] = form_data['electronicCorrespondance'] ? 1 : 0
         form_data['emailAddresses'] = two_line_overflow(form_data['email'], 'email', 17)
       end
