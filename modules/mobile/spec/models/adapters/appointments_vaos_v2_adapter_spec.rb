@@ -115,7 +115,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
                                  'service_category_name' => nil,
                                  'show_schedule_link' => nil,
                                  'is_cerner' => nil,
-                                 'avs_pdf' => nil
+                                 'avs_pdf' => nil,
+                                 'avs_error' => nil
                                })
   end
 
