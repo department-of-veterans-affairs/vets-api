@@ -22,6 +22,11 @@ module TravelClaim
     CLAIM_NAME          = 'Travel Reimbursement'
     CLAIMANT_TYPE       = 'Veteran'
     STATSD_KEY_PREFIX   = 'api.check_in.travel_claim'
+    API_EXCEPTIONS      = [
+      Common::Exceptions::BackendServiceException,
+      Common::Client::Errors::ClientError,
+      Common::Exceptions::GatewayTimeout
+    ].freeze
 
     attr_reader :settings
 
@@ -96,18 +101,15 @@ module TravelClaim
 
       with_monitoring do
         body = { secret: travel_pay_client_secret, icn: }
-
         headers = {
           'Content-Type' => 'application/json',
           'X-Correlation-ID' => @correlation_id,
           'BTSSS-API-Client-Number' => client_number.to_s,
           'Authorization' => "Bearer #{veis_access_token}"
         }.merge(subscription_key_headers)
-
         perform(:post, 'api/v4/auth/system-access-token', body, headers)
       end
-    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout => e
+    rescue *api_exceptions => e
       handle_backend_service_exception(e)
     end
 
@@ -119,17 +121,11 @@ module TravelClaim
     def send_appointment_request
       with_auth do
         with_monitoring do
-          body = {
-            appointmentDateTime: @appointment_date_time,
-            facilityStationNumber: @station_number
-          }
-
-          perform(:post, 'api/v3/appointments/find-or-add', body, headers)
+          perform(:post, 'api/v3/appointments/find-or-add',
+                  { appointmentDateTime: @appointment_date_time, facilityStationNumber: @station_number }, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException,
-           Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout => e
+    rescue *api_exceptions => e
       handle_backend_service_exception(e)
     end
 
@@ -141,18 +137,11 @@ module TravelClaim
     def send_claim_request(appointment_id:)
       with_auth do
         with_monitoring do
-          body = {
-            appointmentId: appointment_id,
-            claimName: CLAIM_NAME,
-            claimantType: CLAIMANT_TYPE
-          }
-
-          perform(:post, 'api/v3/claims', body, headers)
+          perform(:post, 'api/v3/claims',
+                  { appointmentId: appointment_id, claimName: CLAIM_NAME, claimantType: CLAIMANT_TYPE }, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException,
-           Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout => e
+    rescue *api_exceptions => e
       handle_backend_service_exception(e)
     end
 
@@ -166,19 +155,12 @@ module TravelClaim
     def send_mileage_expense_request(claim_id:, date_incurred:)
       with_auth do
         with_monitoring do
-          body = {
-            claimId: claim_id,
-            dateIncurred: date_incurred,
-            description: EXPENSE_DESCRIPTION,
-            tripType: TRIP_TYPE
-          }
-
-          perform(:post, 'api/v3/expenses/mileage', body, headers)
+          perform(:post, 'api/v3/expenses/mileage',
+                  { claimId: claim_id, dateIncurred: date_incurred, description: EXPENSE_DESCRIPTION,
+                    tripType: TRIP_TYPE }, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException,
-           Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout => e
+    rescue *api_exceptions => e
       handle_backend_service_exception(e)
     end
 
@@ -190,13 +172,9 @@ module TravelClaim
     #
     def send_get_claim_request(claim_id:)
       with_auth do
-        with_monitoring do
-          perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
-        end
+        with_monitoring { perform(:get, "api/v3/claims/#{claim_id}", nil, headers) }
       end
-    rescue Common::Exceptions::BackendServiceException,
-           Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout => e
+    rescue *api_exceptions => e
       handle_backend_service_exception(e)
     end
 
@@ -208,13 +186,9 @@ module TravelClaim
     #
     def send_claim_submission_request(claim_id:)
       with_auth do
-        with_monitoring do
-          perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
-        end
+        with_monitoring { perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers) }
       end
-    rescue Common::Exceptions::BackendServiceException,
-           Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout => e
+    rescue *api_exceptions => e
       handle_backend_service_exception(e)
     end
 
@@ -244,18 +218,11 @@ module TravelClaim
     #
     def headers
       if @current_veis_token.blank? || @current_btsss_token.blank?
-        Rails.logger.error('TravelPayClient building headers without tokens', {
-                             correlation_id: @correlation_id,
-                             veis_token_present: @current_veis_token.present?,
-                             btsss_token_present: @current_btsss_token.present?
-                           })
-        missing_tokens = []
-        missing_tokens << 'VEIS token' if @current_veis_token.blank?
-        missing_tokens << 'BTSSS token' if @current_btsss_token.blank?
-        raise TravelClaim::Errors::InvalidArgument,
-              "Missing auth token(s) for request headers: #{missing_tokens.join(', ')}"
+        log_with_context('TravelPayClient building headers without tokens')
+        missing = [('VEIS token' if @current_veis_token.blank?),
+                   ('BTSSS token' if @current_btsss_token.blank?)].compact
+        raise TravelClaim::Errors::InvalidArgument, "Missing auth token(s) for request headers: #{missing.join(', ')}"
       end
-
       {
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{@current_veis_token}",
@@ -281,6 +248,10 @@ module TravelClaim
 
     private
 
+    def api_exceptions
+      API_EXCEPTIONS
+    end
+
     # ------------ Identity prerequisites ------------
 
     ##
@@ -305,11 +276,8 @@ module TravelClaim
     # @raise [TravelClaim::Errors::InvalidArgument] if any required arguments are missing
     #
     def validate_arguments
-      redis_attempted = false
       redis_failed = false
-
       if (@icn.blank? || @station_number.blank?) && @check_in_uuid.present?
-        redis_attempted = true
         begin
           load_redis_data
         rescue Redis::BaseError
@@ -318,35 +286,24 @@ module TravelClaim
         end
       end
 
-      missing = []
-      missing << 'appointment date time' if @appointment_date_time.blank?
-      missing << 'ICN' if @icn.blank?
-      missing << 'station number' if @station_number.blank?
-      missing << 'check-in UUID' if (@icn.blank? || @station_number.blank?) && @check_in_uuid.blank?
-
+      missing = [('appointment date time' if @appointment_date_time.blank?),
+                 ('ICN' if @icn.blank?),
+                 ('station number' if @station_number.blank?),
+                 ('check-in UUID' if (@icn.blank? || @station_number.blank?) && @check_in_uuid.blank?)].compact
       return if missing.empty?
 
-      missing << 'data from Redis (check-in UUID provided but Redis unavailable)' if redis_attempted && redis_failed
-
+      missing << 'data from Redis (check-in UUID provided but Redis unavailable)' if redis_failed
       log_initialization_error(missing)
       raise TravelClaim::Errors::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"
     end
 
     def ensure_identity_context!
-      icn_ok = @icn.present?
-      stn_ok = @station_number.present?
+      return if @icn.present? && @station_number.present?
 
-      unless icn_ok && stn_ok
-        Rails.logger.error('TravelPayClient identity context missing', {
-                             correlation_id: @correlation_id,
-                             icn_present: icn_ok,
-                             station_number_present: stn_ok
-                           })
-        missing = []
-        missing << 'ICN' unless icn_ok
-        missing << 'station number' unless stn_ok
-        raise TravelClaim::Errors::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"
-      end
+      log_with_context('TravelPayClient identity context missing',
+                       icn_present: @icn.present?, station_number_present: @station_number.present?)
+      missing = [('ICN' if @icn.blank?), ('station number' if @station_number.blank?)].compact
+      raise TravelClaim::Errors::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"
     end
 
     def btsss_token!
@@ -360,18 +317,14 @@ module TravelClaim
         raise TravelClaim::Errors::InvalidArgument, 'ICN is required to request BTSSS token'
       end
 
-      Rails.logger.debug('TravelPayClient BTSSS auth preflight',
-                         correlation_id: @correlation_id, icn_present: true)
-
-      resp  = system_access_token_request(veis_access_token: @current_veis_token, icn: @icn)
+      Rails.logger.debug('TravelPayClient BTSSS auth preflight', correlation_id: @correlation_id, icn_present: true)
+      resp = system_access_token_request(veis_access_token: @current_veis_token, icn: @icn)
       token = resp.body.dig('data', 'accessToken')
       if token.blank?
-        Rails.logger.error('TravelPayClient BTSSS token response missing accessToken',
-                           correlation_id: @correlation_id)
-        raise Common::Exceptions::BackendServiceException.new('VA900',
-                                                              { detail: 'BTSSS auth missing accessToken' }, 502)
+        Rails.logger.error('TravelPayClient BTSSS token response missing accessToken', correlation_id: @correlation_id)
+        raise Common::Exceptions::BackendServiceException.new('VA900', { detail: 'BTSSS auth missing accessToken' },
+                                                              502)
       end
-
       @current_btsss_token = token
     end
 
@@ -391,7 +344,7 @@ module TravelClaim
     end
 
     def mint_veis_token
-      resp  = veis_token_request
+      resp = veis_token_request
       token = resp.body['access_token']
       if token.blank?
         Rails.logger.error('TravelPayClient VEIS token response missing access_token', correlation_id: @correlation_id)
@@ -440,22 +393,13 @@ module TravelClaim
     end
 
     def assert_auth_context!
-      veis_ok  = @current_veis_token.present?
-      btsss_ok = @current_btsss_token.present?
-      icn_ok   = @icn.present?
+      return if @current_veis_token.present? && @current_btsss_token.present? && @icn.present?
 
-      return if veis_ok && btsss_ok && icn_ok
-
-      Rails.logger.error('TravelPayClient auth context incomplete', {
-                           correlation_id: @correlation_id,
-                           veis_token_present: veis_ok,
-                           btsss_token_present: btsss_ok,
-                           icn_present: icn_ok
-                         })
-      missing = []
-      missing << 'VEIS token'  unless veis_ok
-      missing << 'BTSSS token' unless btsss_ok
-      missing << 'ICN'         unless icn_ok
+      log_with_context('TravelPayClient auth context incomplete',
+                       icn_present: @icn.present?)
+      missing = [('VEIS token' if @current_veis_token.blank?),
+                 ('BTSSS token' if @current_btsss_token.blank?),
+                 ('ICN' if @icn.blank?)].compact
       raise TravelClaim::Errors::InvalidArgument, "Auth context missing: #{missing.join(', ')}"
     end
 
@@ -489,61 +433,46 @@ module TravelClaim
     # ------------ Logging helpers (no PHI) ------------
 
     def log_initialization_error(missing_args)
-      Rails.logger.error('TravelPayClient initialization failed', {
-                           correlation_id: @correlation_id,
-                           check_in_uuid: @check_in_uuid,
-                           missing_arguments: missing_args,
-                           redis_data_loaded: @icn.present? && @station_number.present?
-                         })
+      log_with_context('TravelPayClient initialization failed',
+                       missing_arguments: missing_args,
+                       redis_data_loaded: @icn.present? && @station_number.present?)
     end
 
     def log_redis_error(operation)
-      Rails.logger.error('TravelPayClient Redis error', {
-                           correlation_id: @correlation_id,
-                           check_in_uuid: @check_in_uuid,
-                           operation:,
-                           icn_present: @icn.present?,
-                           station_number_present: @station_number.present?
-                         })
+      log_with_context('TravelPayClient Redis error',
+                       operation:,
+                       icn_present: @icn.present?,
+                       station_number_present: @station_number.present?)
     end
 
     def log_auth_retry
-      Rails.logger.error('TravelPayClient 401 error - retrying authentication', {
-                           correlation_id: @correlation_id,
-                           check_in_uuid: @check_in_uuid,
-                           veis_token_present: @current_veis_token.present?,
-                           btsss_token_present: @current_btsss_token.present?
-                         })
+      log_with_context('TravelPayClient 401 error - retrying authentication')
     end
 
     def log_auth_error(error_type, status_code)
-      Rails.logger.error('TravelPayClient authentication failed', {
-                           correlation_id: @correlation_id,
-                           check_in_uuid: @check_in_uuid,
-                           error_type:,
-                           status_code:,
-                           veis_token_present: @current_veis_token.present?,
-                           btsss_token_present: @current_btsss_token.present?
-                         })
+      log_with_context('TravelPayClient authentication failed', error_type:, status_code:)
     end
 
     def log_token_error(service, issue)
-      Rails.logger.error('TravelPayClient token error', {
-                           correlation_id: @correlation_id,
-                           check_in_uuid: @check_in_uuid,
-                           service:,
-                           issue:,
-                           veis_token_present: @current_veis_token.present?,
-                           btsss_token_present: @current_btsss_token.present?
-                         })
+      log_with_context('TravelPayClient token error', service:, issue:)
+    end
+
+    def log_with_context(message, **extra_fields)
+      Rails.logger.error(message, base_log_context.merge(extra_fields))
+    end
+
+    def base_log_context
+      {
+        correlation_id: @correlation_id,
+        check_in_uuid: @check_in_uuid,
+        veis_token_present: @current_veis_token.present?,
+        btsss_token_present: @current_btsss_token.present?
+      }
     end
 
     def log_existing_claim_error
-      Rails.logger.error('TravelPayClient existing claim error', {
-                           correlation_id: @correlation_id,
-                           check_in_uuid: @check_in_uuid,
-                           message: 'Validation failed: A claim has already been created for this appointment.'
-                         })
+      log_with_context('TravelPayClient existing claim error',
+                       message: 'Validation failed: A claim has already been created for this appointment.')
     end
 
     def extract_message_from_response(body)
@@ -580,26 +509,23 @@ module TravelClaim
 
     def log_api_error(status, body)
       return unless status
+      return if status == 401 # Already logged in with_auth method
 
-      # Only log specific known error types to avoid exposing PHI
-      # Skip 401 errors as they're already logged in with_auth method
       if status == 400
         parsed_message = extract_message_from_response(body)
         if parsed_message&.include?('already been created')
           log_existing_claim_error
         else
-          Rails.logger.error('TravelPayClient API error', {
-                               correlation_id: @correlation_id,
-                               status:,
-                               error_type: 'bad_request'
-                             })
+          log_api_error_with_status(status,
+                                    'bad_request')
         end
-      elsif status != 401
-        Rails.logger.error('TravelPayClient API error', {
-                             correlation_id: @correlation_id,
-                             status:
-                           })
+      else
+        log_api_error_with_status(status)
       end
+    end
+
+    def log_api_error_with_status(status, error_type = nil)
+      log_with_context('TravelPayClient API error', status:, error_type:)
     end
   end
 end
