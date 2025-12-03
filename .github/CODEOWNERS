@@ -1523,6 +1523,7 @@ spec/lib/mhv_ac @department-of-veterans-affairs/vfs-mhv-integration @department-
 spec/lib/mhv_ac/client_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv/aal @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv/account_creation @department-of-veterans-affairs/octo-identity
+spec/lib/mhv/oh_facilities_helper @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mpi @department-of-veterans-affairs/octo-identity
 spec/lib/okta @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/okta/directory_service_spec.rb @department-of-veterans-affairs/lighthouse-pivot
