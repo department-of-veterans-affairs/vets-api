@@ -78,8 +78,6 @@ module ClaimsEvidenceApi
       # GET file content for a given version as a pdf
       # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Version%20Content
       #
-      # PDF content is returned as ASCII-8BIT
-      #
       # @param uuid [String] The UUID of the file data
       # @param version [String] version UUID of the file data
       def download(uuid, version)
