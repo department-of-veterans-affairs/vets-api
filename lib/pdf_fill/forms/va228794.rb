@@ -87,7 +87,7 @@ module PdfFill
             key: 'signature_email'
           },
           'signatureName' => {
-            key: 'signature_print_name'
+            key: 'signature_name'
           },
           'phoneNumber' => {
             key: 'signature_phone'
@@ -134,7 +134,7 @@ module PdfFill
           data['signature'] = full_name
           data['receivesBenefits'] = details['hasVaEducationBenefits'] ? 'Yes' : 'No'
           data['title'] = details['title']
-          data['phoneNumber'] = details['phoneNumber']
+          data['phoneNumber'] = details['internationalPhoneNumber'].presence || details['phoneNumber']
           data['emailAddress'] = details['emailAddress']
           data['trainingCompletionDate'] = details['trainingExempt'] ? 'EXEMPT' : details['trainingCompletionDate']
         end
