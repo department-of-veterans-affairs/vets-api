@@ -346,5 +346,5 @@ jobs:
 
           gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
             -f state="${STATE}" \
-            -f context="Succeed if backend approval is confirmed" \
+            -f context="Backend Approval Check" \
             -f description="${DESCRIPTION}"
