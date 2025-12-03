@@ -2,11 +2,13 @@
 
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
+require_relative 'renewability_helper'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
       include FhirHelpers
+      include RenewabilityHelper
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -51,6 +53,7 @@ module UnifiedHealthData
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
           is_refillable: extract_is_refillable(resource),
+          is_renewable: extract_is_renewable(resource),
           cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
