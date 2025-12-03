@@ -10724,6 +10724,11 @@
                   "$ref": "#/components/schemas/AvsPdf"
                 },
                 "nullable": true
+              },
+              "avsError": {
+                "type": "string",
+                "nullable": true,
+                "example": "Error generating AVS PDF"
               }
             }
           }
