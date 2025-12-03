@@ -244,7 +244,7 @@ class FormProfiles::VA526ez < FormProfile
     }.compact
   end
 
-  def initialize_payment_information
+  def initialize_payment_information # rubocop:disable Metrics/MethodLength
     return {} unless user.authorize(:lighthouse, :direct_deposit_access?) && user.authorize(:evss, :access?)
 
     provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
@@ -254,11 +254,9 @@ class FormProfiles::VA526ez < FormProfile
     response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 
-    ppiu_logging_enabled = Flipper.enabled?(:enable_ppiu_logging)
-    Rails.logger.info("PPIU Initialized - VA526ez") if ppiu_logging_enabled
-
+    Rails.logger.info('PPIU Initialized - VA526ez') if ppiu_logging_enabled?
     if raw_account
-      Rails.logger.info("PPIU Data Unknown - VA526ez") if ppiu_logging_enabled
+      Rails.logger.info('PPIU Data Unknown - VA526ez') if ppiu_logging_enabled?
       VA526ez::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
         account_number: mask(raw_account&.account_number),
@@ -266,7 +264,7 @@ class FormProfiles::VA526ez < FormProfile
         bank_name: raw_account&.financial_institution_name
       )
     else
-      Rails.logger.info("PPIU Data Recovered - VA526ez ") if ppiu_logging_enabled
+      Rails.logger.info('PPIU Data Recovered - VA526ez ') if ppiu_logging_enabled?
       {}
     end
   rescue => e
@@ -282,5 +280,9 @@ class FormProfiles::VA526ez < FormProfile
 
   def mask(number)
     number.gsub(/.(?=.{4})/, '*')
+  end
+
+  def ppiu_logging_enabled?
+    Flipper.enabled?(:enable_ppiu_logging)
   end
 end
