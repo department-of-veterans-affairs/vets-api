@@ -31,7 +31,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     token = 'fake_access_token'
 
     allow(Rails.logger).to receive(:info)
-    allow(Rails.logger).to receive(:warn)
     allow(Rails.logger).to receive(:error)
     allow(StatsD).to receive(:increment)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
