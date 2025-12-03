@@ -1183,6 +1183,9 @@ features:
   ha_cpap_supplies_cta:
     actor_type: user
     description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
+  in_progress_form_atomicity:
+    actor_type: user
+    description: Prevents multiple form creations for in_progress_form updates
   in_progress_form_reminder:
     actor_type: user
     description: Enable/disable in progress form reminders (sent via VaNotify)

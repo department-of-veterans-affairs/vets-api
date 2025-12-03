@@ -29,7 +29,7 @@ module DependentsBenefits
       # @param claim_data [Hash] Normalized claim data with names and addresses
       # @return [Object] BGS service response
       def submit_form(claim_data)
-        BGSV2::Form674.new(generate_user_struct, saved_claim, proc_id).submit(claim_data)
+        BGSV2::Form674.new(generate_user_struct, saved_claim, { proc_id:, claim_type_end_product: }).submit(claim_data)
       end
 
       ##
