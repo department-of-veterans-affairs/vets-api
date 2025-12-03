@@ -4,9 +4,9 @@ require 'rails_helper'
 require_relative '../../lib/ivc_champva/monitor'
 
 RSpec.describe IvcChampva::MPIService do
-  let(:service) { described_class.new }
   let(:mock_mpi_service) { instance_double(MPI::Service) }
   let(:mock_monitor) { instance_double(IvcChampva::Monitor) }
+  let(:service) { described_class.new(mpi_service: mock_mpi_service, monitor: mock_monitor) }
 
   let(:form_data) do
     JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
@@ -16,17 +16,6 @@ RSpec.describe IvcChampva::MPIService do
     instance_double(MPI::Responses::FindProfileResponse, ok?: true,
                                                          profile: instance_double(MPI::Models::MviProfile,
                                                                                   icn: '12345678901234567890'))
-  end
-
-  before do
-    allow(MPI::Service).to receive(:new).and_return(mock_mpi_service)
-    allow(IvcChampva::Monitor).to receive(:new).and_return(mock_monitor)
-  end
-
-  after do
-    # Clear RSpec mocks to prevent pollution of subsequent tests
-    RSpec::Mocks.space.proxy_for(MPI::Service).reset
-    RSpec::Mocks.space.proxy_for(IvcChampva::Monitor).reset
   end
 
   describe '#validate_profiles' do

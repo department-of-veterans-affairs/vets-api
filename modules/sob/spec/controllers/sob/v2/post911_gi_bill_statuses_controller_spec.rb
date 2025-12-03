@@ -77,14 +77,11 @@ RSpec.describe SOB::V2::Post911GIBillStatusesController, type: :controller do
     end
 
     let(:mock_exception) { Breakers::OutageException.new(mock_outage, mock_service) }
+    let(:mock_benefits_service) { instance_double(BenefitsEducation::Service) }
 
     before do
-      allow_any_instance_of(BenefitsEducation::Configuration).to receive(:get).and_raise(mock_exception)
-    end
-
-    after do
-      # Clear RSpec mocks to prevent pollution of subsequent tests
-      RSpec::Mocks.space.proxy_for(BenefitsEducation::Configuration).reset
+      allow(controller).to receive(:service).and_return(mock_benefits_service)
+      allow(mock_benefits_service).to receive(:get_gi_bill_status).and_raise(mock_exception)
     end
 
     it 'returns a 503 status code' do

@@ -4,9 +4,9 @@ require 'mpi/service'
 
 module IvcChampva
   class MPIService
-    def initialize
-      @mpi_service = MPI::Service.new
-      @monitor = IvcChampva::Monitor.new
+    def initialize(mpi_service: nil, monitor: nil)
+      @mpi_service = mpi_service || MPI::Service.new
+      @monitor = monitor || IvcChampva::Monitor.new
     end
 
     def validate_profiles(parsed_form_data)
