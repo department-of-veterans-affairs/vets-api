@@ -1,7 +1,6 @@
 # All lines should be added in alphabetical order (using sort -u)
 # For more details and guidance, please take a look at .github/CODEOWNERS_README.md
 
-
 .devcontainer/ @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 .github/ @department-of-veterans-affairs/backend-review-group
 app/concerns/retriable_concern.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
