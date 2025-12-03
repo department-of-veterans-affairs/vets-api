@@ -534,6 +534,19 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       let(:form_uuid) { '12345678-1234-5678-1234-567812345678' }
       let(:different_uuid) { '87654321-4321-8765-4321-876543210987' }
       let(:created_time) { 30.minutes.ago }
+      let(:default_form_attrs) do
+        {
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false,
+          created_at: created_time
+        }
+      end
 
       before do
         allow_any_instance_of(IvcChampva::Email).to receive(:valid_environment?).and_return(true)
@@ -546,50 +559,11 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       end
 
       it 'updates VES JSON files even when Pega does not send VES JSON file names' do
-        # Create main form file
-        IvcChampvaForm.create!(
-          form_uuid:,
-          email: 'test@email.com',
-          first_name: 'Veteran',
-          last_name: 'Surname',
-          form_number: '10-10D',
-          file_name: "#{form_uuid}_vha_10_10d.pdf",
-          s3_status: 'Submitted',
-          pega_status: nil,
-          case_id: nil,
-          email_sent: false,
-          created_at: created_time
-        )
-
-        # Create VES JSON file (not sent by Pega)
-        IvcChampvaForm.create!(
-          form_uuid:,
-          email: 'test@email.com',
-          first_name: 'Veteran',
-          last_name: 'Surname',
-          form_number: '10-10D',
-          file_name: "#{form_uuid}_vha_10_10d_ves.json",
-          s3_status: 'Submitted',
-          pega_status: nil,
-          case_id: nil,
-          email_sent: false,
-          created_at: created_time
-        )
-
-        # Create supporting document
-        IvcChampvaForm.create!(
-          form_uuid:,
-          email: 'test@email.com',
-          first_name: 'Veteran',
-          last_name: 'Surname',
-          form_number: '10-10D',
-          file_name: "#{form_uuid}_vha_10_10d_supporting_doc-1.pdf",
-          s3_status: 'Submitted',
-          pega_status: nil,
-          case_id: nil,
-          email_sent: false,
-          created_at: created_time
-        )
+        # Create main form, VES JSON, and supporting document
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid:, file_name: "#{form_uuid}_vha_10_10d.pdf"))
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid:, file_name: "#{form_uuid}_vha_10_10d_ves.json"))
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid:,
+                                                        file_name: "#{form_uuid}_vha_10_10d_supporting_doc-1.pdf"))
 
         # Pega only sends the main form and supporting doc file names, NOT the VES JSON
         payload = {
@@ -620,35 +594,11 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       end
 
       it 'does not update VES JSON files when no files match the UUID' do
-        # Create form with different UUID
-        IvcChampvaForm.create!(
-          form_uuid: different_uuid,
-          email: 'test@email.com',
-          first_name: 'Veteran',
-          last_name: 'Surname',
-          form_number: '10-10D',
-          file_name: "#{different_uuid}_vha_10_10d.pdf",
-          s3_status: 'Submitted',
-          pega_status: nil,
-          case_id: nil,
-          email_sent: false,
-          created_at: created_time
-        )
-
-        # Create VES JSON file with different UUID
-        IvcChampvaForm.create!(
-          form_uuid: different_uuid,
-          email: 'test@email.com',
-          first_name: 'Veteran',
-          last_name: 'Surname',
-          form_number: '10-10D',
-          file_name: "#{different_uuid}_vha_10_10d_ves.json",
-          s3_status: 'Submitted',
-          pega_status: nil,
-          case_id: nil,
-          email_sent: false,
-          created_at: created_time
-        )
+        # Create form and VES JSON with different UUID
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid: different_uuid,
+                                                        file_name: "#{different_uuid}_vha_10_10d.pdf"))
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid: different_uuid,
+                                                        file_name: "#{different_uuid}_vha_10_10d_ves.json"))
 
         # Send payload for form_uuid that doesn't exist
         payload = {
