@@ -1,7 +1,7 @@
 # Validates backend approval requirements for PRs
 # Runs on PR updates and review submissions to ensure proper approval from backend-review-group
 # or exemption through team-based file ownership
-name: Backend Approval Check
+name: Require Backend Approval
 
 on:
   pull_request:
