@@ -167,16 +167,16 @@ module DebtsApi
 
       def set_new_id
         return unless self.class.column_names.include?('new_id')
-        return unless sequence_exists?('digital_dispute_submissions_new_id_seq')
+        return unless sequence_exists?
 
         self.new_id ||= self.class.connection.select_value(
           "SELECT nextval('digital_dispute_submissions_new_id_seq')"
         )
       end
 
-      def sequence_exists?(sequence_name)
+      def sequence_exists?
         self.class.connection.select_value(
-          "SELECT 1 FROM pg_class WHERE relkind = 'S' AND relname = '#{sequence_name}'"
+          "SELECT 1 FROM pg_class WHERE relkind = 'S' AND relname = 'digital_dispute_submissions_new_id_seq'"
         ).present?
       end
     end
