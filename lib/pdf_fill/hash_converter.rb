@@ -125,7 +125,7 @@ module PdfFill
 
       if k.present? && overflow?(key_data, new_value, from_array_overflow)
         add_to_extras(key_data, new_value, i)
-        # NOTE: Allows for accomodating fields that don't have enough space for the full placeholder text
+        # NOTE: Allows for accommodating fields that don't have enough space for the full placeholder text
         # PDFtk doesn't care and truncates the text at the field limit, but HexaPDF will error out if the text
         # exceeds the field limit
         max_length = placeholder_text.length
