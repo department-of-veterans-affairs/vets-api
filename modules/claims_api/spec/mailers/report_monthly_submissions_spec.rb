@@ -32,15 +32,12 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
           drew.fisher@adhocteam.us
           eshvimmer@deloitte.com
           janet.coutinho@va.gov
-          jgreene@technatomy.com
+          jeffrey.greene1@va.gov
           mbavanaka@deloitte.com
-          mchristianson@technatomy.com
-          michael.clement@adhocteam.us
           michael.harlow@va.gov
           mughumman@deloitte.com
-          mzanaty@technatomy.com
           robert.perea-martinez@adhocteam.us
-          rrice@technatomy.com
+          rockwell.rice@va.gov
           slamsal@deloitte.com
           stone_christopher@bah.com
           zachary.goldfine@va.gov
