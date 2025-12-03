@@ -5,7 +5,7 @@ require 'vass/response_middleware'
 
 describe Vass::ResponseMiddleware do
   let(:middleware) { described_class.new(->(env) { env }) }
-  
+
   def create_env(status: 200, content_type: 'application/json; charset=utf-8', response_headers: nil, body: {})
     env = OpenStruct.new
     env.status = status

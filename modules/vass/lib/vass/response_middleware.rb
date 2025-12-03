@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Note: This require is needed for when the file is loaded directly (e.g., in specs).
+# NOTE: This require is needed for when the file is loaded directly (e.g., in specs).
 # The initializer also requires this file, which happens after Rails boot.
 require 'common/exceptions'
 

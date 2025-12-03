@@ -58,7 +58,8 @@ describe Vass::AppointmentsService do
 
     context 'when successful' do
       it 'retrieves appointment availability' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/get_availability_success', match_requests_on: %i[method path]) do
             result = subject.get_availability(
               start_date:,
@@ -87,7 +88,8 @@ describe Vass::AppointmentsService do
 
     context 'when successful' do
       it 'creates a new appointment' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/save_appointment_success', match_requests_on: %i[method path]) do
             result = subject.save_appointment(appointment_params:)
 
@@ -102,7 +104,8 @@ describe Vass::AppointmentsService do
   describe '#cancel_appointment' do
     context 'when successful' do
       it 'cancels an appointment' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/cancel_appointment_success', match_requests_on: %i[method path]) do
             result = subject.cancel_appointment(appointment_id:)
 
@@ -115,7 +118,8 @@ describe Vass::AppointmentsService do
 
     context 'when appointment not found' do
       it 'raises NotFoundError' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/get_appointment_404_not_found', match_requests_on: %i[method path]) do
             expect do
               subject.get_appointment(appointment_id: 'nonexistent-id')
@@ -129,7 +133,8 @@ describe Vass::AppointmentsService do
   describe '#get_appointment' do
     context 'when successful' do
       it 'retrieves a specific appointment' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/get_appointment_success', match_requests_on: %i[method path]) do
             result = subject.get_appointment(appointment_id:)
 
@@ -145,7 +150,8 @@ describe Vass::AppointmentsService do
   describe '#get_appointments' do
     context 'when successful' do
       it 'retrieves all appointments for a veteran' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/get_appointments_success', match_requests_on: %i[method path]) do
             result = subject.get_appointments(veteran_id:)
 
@@ -162,7 +168,8 @@ describe Vass::AppointmentsService do
   describe '#get_veteran_info' do
     context 'when successful' do
       it 'retrieves veteran information' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/get_veteran_success', match_requests_on: %i[method path]) do
             result = subject.get_veteran_info(veteran_id:)
 
@@ -179,7 +186,8 @@ describe Vass::AppointmentsService do
   describe '#get_agent_skills' do
     context 'when successful' do
       it 'retrieves available agent skills' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/get_agent_skills_success', match_requests_on: %i[method path]) do
             result = subject.get_agent_skills
 
@@ -202,7 +210,8 @@ describe Vass::AppointmentsService do
   describe 'error handling' do
     context 'when server error occurs' do
       it 'raises ServiceError and logs the error' do
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                     allow_playback_repeats: true) do
           VCR.use_cassette('vass/get_appointment_500_server_error', match_requests_on: %i[method path]) do
             expect(Rails.logger).to receive(:error)
 
@@ -217,7 +226,8 @@ describe Vass::AppointmentsService do
     context 'with HTTP 200 non-standard error responses' do
       context 'when validation error occurs (Missing Parameters)' do
         it 'raises VassApiError and logs the error' do
-          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                       allow_playback_repeats: true) do
             VCR.use_cassette('vass/get_appointment_validation_error', match_requests_on: %i[method uri]) do
               expect(Rails.logger).to receive(:error)
 
@@ -231,7 +241,8 @@ describe Vass::AppointmentsService do
 
       context 'when invalid veteran GUID format' do
         it 'raises VassApiError and logs the error' do
-          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                       allow_playback_repeats: true) do
             VCR.use_cassette('vass/save_appointment_invalid_veteran', match_requests_on: %i[method path]) do
               expect(Rails.logger).to receive(:error)
 
@@ -252,7 +263,8 @@ describe Vass::AppointmentsService do
 
       context 'when invalid date range provided' do
         it 'raises VassApiError and logs the error' do
-          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path], allow_playback_repeats: true) do
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method path],
+                                                       allow_playback_repeats: true) do
             VCR.use_cassette('vass/get_availability_invalid_dates', match_requests_on: %i[method path]) do
               expect(Rails.logger).to receive(:error)
 
