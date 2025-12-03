@@ -5,18 +5,19 @@ require 'vass/response_middleware'
 
 describe Vass::ResponseMiddleware do
   let(:middleware) { described_class.new(->(env) { env }) }
-  let(:base_env) do
-    {
-      status: 200,
-      response_headers: { 'content-type' => 'application/json; charset=utf-8' },
-      body: {}
-    }
+  
+  def create_env(status: 200, content_type: 'application/json; charset=utf-8', response_headers: nil, body: {})
+    env = OpenStruct.new
+    env.status = status
+    env.response_headers = response_headers || { 'content-type' => content_type }
+    env.body = body
+    env
   end
 
   describe '#on_complete' do
     context 'when response is HTTP 200 with success: true' do
       it 'does not raise an exception' do
-        env = base_env.merge(
+        env = create_env(
           body: {
             'success' => true,
             'message' => nil,
@@ -33,7 +34,7 @@ describe Vass::ResponseMiddleware do
     context 'when response is HTTP 200 with success: false' do
       context 'with Missing Parameters error' do
         it 'raises BackendServiceException with status 400' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => 'Missing Parameters',
@@ -54,7 +55,7 @@ describe Vass::ResponseMiddleware do
 
       context 'with invalid GUID format error' do
         it 'raises BackendServiceException with status 422' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => 'Provided veteranId does not have a valid GUID format',
@@ -74,7 +75,7 @@ describe Vass::ResponseMiddleware do
 
       context 'with not found error' do
         it 'raises BackendServiceException with status 404' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => 'Appointment not found',
@@ -94,7 +95,7 @@ describe Vass::ResponseMiddleware do
 
       context 'with invalid date range error' do
         it 'raises BackendServiceException with status 422' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => 'The end date must be later than the start date. Please select a valid date range.',
@@ -114,7 +115,7 @@ describe Vass::ResponseMiddleware do
 
       context 'with time slot not available error' do
         it 'raises BackendServiceException with status 422' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => 'The selected time-slot is not available',
@@ -134,7 +135,7 @@ describe Vass::ResponseMiddleware do
 
       context 'with processor error' do
         it 'raises BackendServiceException with status 502' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => 'GetVeteranAppointmentProcessor Error.',
@@ -154,7 +155,7 @@ describe Vass::ResponseMiddleware do
 
       context 'with unknown error message' do
         it 'raises BackendServiceException with status 502' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => 'Unknown error occurred',
@@ -174,7 +175,7 @@ describe Vass::ResponseMiddleware do
 
       context 'with blank error message' do
         it 'raises BackendServiceException with status 502' do
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => '',
@@ -193,7 +194,7 @@ describe Vass::ResponseMiddleware do
       end
 
       it 'logs to Sentry with safe context' do
-        env = base_env.merge(
+        env = create_env(
           body: {
             'success' => false,
             'message' => 'Test error',
@@ -216,7 +217,7 @@ describe Vass::ResponseMiddleware do
       end
 
       it 'logs StatsD metrics for HTTP 200 errors' do
-        env = base_env.merge(
+        env = create_env(
           body: {
             'success' => false,
             'message' => 'Missing Parameters',
@@ -245,7 +246,7 @@ describe Vass::ResponseMiddleware do
         ]
 
         test_cases.each do |test_case|
-          env = base_env.merge(
+          env = create_env(
             body: {
               'success' => false,
               'message' => test_case[:message],
@@ -269,7 +270,7 @@ describe Vass::ResponseMiddleware do
 
     context 'when response is not HTTP 200' do
       it 'does not intercept 404 responses' do
-        env = base_env.merge(
+        env = create_env(
           status: 404,
           body: { 'error' => 'Not found' }
         )
@@ -278,7 +279,7 @@ describe Vass::ResponseMiddleware do
       end
 
       it 'does not intercept 500 responses' do
-        env = base_env.merge(
+        env = create_env(
           status: 500,
           body: { 'error' => 'Internal server error' }
         )
@@ -289,7 +290,7 @@ describe Vass::ResponseMiddleware do
 
     context 'when response is not JSON' do
       it 'does not process XML responses' do
-        env = base_env.merge(
+        env = create_env(
           response_headers: { 'content-type' => 'text/xml' },
           body: '<error>Test</error>'
         )
@@ -298,7 +299,7 @@ describe Vass::ResponseMiddleware do
       end
 
       it 'does not process HTML responses' do
-        env = base_env.merge(
+        env = create_env(
           response_headers: { 'content-type' => 'text/html' },
           body: '<html><body>Error</body></html>'
         )
@@ -309,7 +310,7 @@ describe Vass::ResponseMiddleware do
 
     context 'when response body is not a Hash' do
       it 'does not process string responses' do
-        env = base_env.merge(
+        env = create_env(
           body: 'plain text response'
         )
 
@@ -317,7 +318,7 @@ describe Vass::ResponseMiddleware do
       end
 
       it 'does not process array responses' do
-        env = base_env.merge(
+        env = create_env(
           body: [{ 'success' => false }]
         )
 
@@ -327,7 +328,7 @@ describe Vass::ResponseMiddleware do
 
     context 'when body does not have success field' do
       it 'does not raise an exception' do
-        env = base_env.merge(
+        env = create_env(
           body: {
             'message' => 'Test message',
             'data' => { 'value' => 123 }
@@ -363,7 +364,7 @@ describe Vass::ResponseMiddleware do
 
     it 'maps error messages to correct HTTP status codes' do
       test_cases.each do |message, expected_status|
-        env = base_env.merge(
+        env = create_env(
           body: {
             'success' => false,
             'message' => message,

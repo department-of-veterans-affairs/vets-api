@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Note: This require is needed for when the file is loaded directly (e.g., in specs).
+# The initializer also requires this file, which happens after Rails boot.
 require 'common/exceptions'
 
 module Vass
@@ -27,7 +29,7 @@ module Vass
     # Error pattern mapping for VASS API error messages to HTTP status codes
     ERROR_PATTERNS = [
       { pattern: /missing parameter/i, status: 400 },
-      { pattern: /invalid.*guid.*format/i, status: 422 },
+      { pattern: /guid.*format/i, status: 422 }, # Matches both "valid GUID format" and "invalid GUID format"
       { pattern: /invalid.*format/i, status: 422 },
       { pattern: /not found/i, status: 404 },
       { pattern: /does not exist/i, status: 404 },
@@ -36,6 +38,8 @@ module Vass
       { pattern: /unavailable/i, status: 422 },
       { pattern: /invalid.*date/i, status: 422 },
       { pattern: /date.*invalid/i, status: 422 },
+      { pattern: /date.*range/i, status: 422 }, # Matches "date range" error messages
+      { pattern: /end date.*start date/i, status: 422 }, # Matches "end date must be later than start date"
       { pattern: /invalid.*booking.*period/i, status: 422 },
       { pattern: /error loading/i, status: 502 },
       { pattern: /processor error/i, status: 502 }
