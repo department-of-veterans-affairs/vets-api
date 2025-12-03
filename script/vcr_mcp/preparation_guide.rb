@@ -144,7 +144,7 @@ module VcrMcp
       uris = inspect_result[:interactions].map { |i| i.dig(:request, :uri) }.compact
       uris.filter_map do |u|
         URI.parse(u).host
-      rescue
+      rescue URI::InvalidURIError
         nil
       end.uniq
     end

@@ -323,7 +323,8 @@ module VcrMcp
     def count_interactions(content)
       yaml = YAML.safe_load(content)
       yaml&.dig('http_interactions')&.length || 0
-    rescue
+    rescue => e
+      warn "[Validator] Failed to count interactions: #{e.class}: #{e.message}"
       0
     end
 

@@ -7,7 +7,7 @@ require 'base64'
 module VcrMcp
   class CassetteParser
     def self.parse(file_path)
-      yaml_content = YAML.load_file(file_path)
+      yaml_content = YAML.safe_load_file(file_path, permitted_classes: [], permitted_symbols: [], aliases: true)
 
       {
         interactions: parse_interactions(yaml_content['http_interactions']),
@@ -100,7 +100,7 @@ module VcrMcp
         image_type:,
         data_uri: "data:image/#{image_type};base64,#{string}"
       }
-    rescue
+    rescue ArgumentError
       nil
     end
 
