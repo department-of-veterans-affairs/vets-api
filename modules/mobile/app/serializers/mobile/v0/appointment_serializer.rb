@@ -36,6 +36,7 @@ module Mobile
                  :show_schedule_link,
                  :is_cerner,
                  :avs_pdf
+                 :avs_error
     end
   end
 end
