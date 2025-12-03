@@ -16,6 +16,10 @@ module Vass
 
     def_delegators :settings, :redis_token_expiry, :redis_otc_expiry, :redis_session_expiry
 
+    # Rate limiting defaults
+    RATE_LIMIT_MAX_ATTEMPTS = 5
+    RATE_LIMIT_EXPIRY = 15.minutes
+
     ##
     # Factory method to create a new RedisClient instance.
     #
@@ -186,6 +190,65 @@ module Vass
       )
     end
 
+    # ------------ Rate Limiting ------------
+
+    ##
+    # Retrieves the current rate limit count for an identifier.
+    #
+    # @param identifier [String] Contact value (email/phone) to rate limit
+    # @return [Integer] Current attempt count
+    #
+    def rate_limit_count(identifier:)
+      Rails.cache.read(
+        rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      ).to_i
+    end
+
+    ##
+    # Increments the rate limit counter for an identifier.
+    #
+    # @param identifier [String] Contact value (email/phone) to rate limit
+    # @return [Integer] New attempt count
+    #
+    def increment_rate_limit(identifier:)
+      key = rate_limit_key(identifier)
+      current = rate_limit_count(identifier:)
+      new_count = current + 1
+
+      Rails.cache.write(
+        key,
+        new_count,
+        namespace: 'vass-rate-limit-cache',
+        expires_in: rate_limit_expiry
+      )
+
+      new_count
+    end
+
+    ##
+    # Checks if the identifier has exceeded the rate limit.
+    #
+    # @param identifier [String] Contact value (email/phone) to check
+    # @return [Boolean] true if rate limit exceeded
+    #
+    def rate_limit_exceeded?(identifier:)
+      rate_limit_count(identifier:) >= rate_limit_max_attempts
+    end
+
+    ##
+    # Resets the rate limit counter for an identifier.
+    #
+    # @param identifier [String] Contact value (email/phone) to reset
+    # @return [void]
+    #
+    def reset_rate_limit(identifier:)
+      Rails.cache.delete(
+        rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      )
+    end
+
     private
 
     ##
@@ -206,6 +269,36 @@ module Vass
     #
     def session_key(session_token)
       "session_#{session_token}"
+    end
+
+    ##
+    # Generates a cache key for rate limiting.
+    # Uses SHA256 hash to avoid storing PII directly in Redis keys.
+    #
+    # @param identifier [String] Contact value to hash
+    # @return [String] Cache key
+    #
+    def rate_limit_key(identifier)
+      hashed = Digest::SHA256.hexdigest(identifier.to_s.downcase.strip)
+      "rate_limit_#{hashed}"
+    end
+
+    ##
+    # Returns the maximum number of attempts allowed.
+    #
+    # @return [Integer] Max attempts
+    #
+    def rate_limit_max_attempts
+      RATE_LIMIT_MAX_ATTEMPTS
+    end
+
+    ##
+    # Returns the rate limit expiry time.
+    #
+    # @return [ActiveSupport::Duration] Expiry duration
+    #
+    def rate_limit_expiry
+      RATE_LIMIT_EXPIRY
     end
   end
 end
