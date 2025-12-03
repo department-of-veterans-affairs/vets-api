@@ -15,7 +15,7 @@ module MyHealth
       include MyHealth::RxGroupingHelperV2
       include JsonApiPaginationLinks
 
-      service_tag 'mhv-prescriptions'
+      service_tag 'mhv-medications'
 
       def refill
         return unless validate_feature_flag
@@ -53,6 +53,20 @@ module MyHealth
 
         log_prescriptions_access
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
+      end
+
+      def show
+        return unless validate_feature_flag
+
+        prescriptions = service.get_prescriptions(current_only: false).compact
+        prescription = prescriptions.find do |p|
+          p.prescription_id.to_s == params[:id].to_s &&
+            p.station_number.to_s == params[:station_number].to_s
+        end
+
+        raise Common::Exceptions::RecordNotFound, params[:id] unless prescription
+
+        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
       end
 
       def list_refillable_prescriptions

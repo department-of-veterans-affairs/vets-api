@@ -39,7 +39,7 @@ module EmploymentQuestionnaires
     #
     # @return [String] the claimant email
     def email
-      parsed_form['email'] || 'test@example.com' # TODO: update this when we have a real email field
+      parsed_form.dig('veteranContact', 'email')
     end
 
     # Utility function to retrieve veteran first name from form

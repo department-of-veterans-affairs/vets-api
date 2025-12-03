@@ -5,6 +5,20 @@ module EventBusGateway
     # VA Notify service settings
     NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
 
+    # The following retry counts each used to be 16, which was causing production strain and staging strain.
+    # Controls the sidekiq (infrastructure level) retry when the letter ready email job fails.
+    SIDEKIQ_RETRY_COUNT_FIRST_EMAIL = 5
+    # Controls the sidekiq (infrastructure level) retry when the letter ready email retry job fails.
+    SIDEKIQ_RETRY_COUNT_RETRY_EMAIL = 3
+    # Controls the maximum number of email attempts to VA notify (application level).
+    MAX_EMAIL_ATTEMPTS = 5
+
+    # Controls the sidekiq (infrastructure level) retry when the letter ready push job fails.
+    SIDEKIQ_RETRY_COUNT_FIRST_PUSH = 5
+
+    # Controls the sidekiq (infrastructure level) retry when the letter ready notification job fails.
+    SIDEKIQ_RETRY_COUNT_FIRST_NOTIFICATION = 5
+
     # Hostname mapping for different environments
     HOSTNAME_MAPPING = {
       'dev-api.va.gov' => 'dev.va.gov',
@@ -20,13 +34,5 @@ module EventBusGateway
       'itportfolio:benefits-delivery',
       'dependency:va-notify'
     ].freeze
-
-    # Retry for 2d 1h 47m 12s
-    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
-    SIDEKIQ_RETRY_OPTIONS = {
-      retry: 16
-    }.freeze
-
-    MAX_EMAIL_ATTEMPTS = 16
   end
 end
