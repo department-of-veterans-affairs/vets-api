@@ -499,6 +499,21 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
+          expect(vet360_info[:contact_email_verified]).to be_present
+        end
+
+        it 'includes contact_email_verified field' do
+          expect(vet360_info).to have_key(:contact_email_verified)
+        end
+
+        context 'when email object is nil' do
+          before do
+            allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:email).and_return(nil)
+          end
+
+          it 'returns nil for contact_email_verified when email is nil' do
+            expect(vet360_info[:contact_email_verified]).to be_nil
+          end
         end
 
         it 'sets the status to 200' do

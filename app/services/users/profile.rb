@@ -123,17 +123,19 @@ module Users
       person = user.vet360_contact_info
       return {} if person.blank?
 
+      email_object = person.email
       {
         vet360_id: user.vet360_id,
         va_profile_id: user.vet360_id,
-        email: person.email,
+        email: email_object,
         residential_address: person.residential_address,
         mailing_address: person.mailing_address,
         mobile_phone: person.mobile_phone,
         home_phone: person.home_phone,
         work_phone: person.work_phone,
         temporary_phone: person.temporary_phone,
-        fax_number: person.fax_number
+        fax_number: person.fax_number,
+        contact_email_verified: email_object&.contact_email_verified?
       }
     rescue => e
       handle_service_error(e, 'VAProfile', 'vet360_contact_information')

@@ -91,6 +91,22 @@ module VAProfile
         correct_confirmation_date_if_needed
       end
 
+      # Override the verification_date setter to store the date
+      # Uses the framework's type casting to ensure consistency with Vets::Type::ISO8601Time.
+      # @param value [Time, String, nil] the verification date to set
+      # @return [Time] the verification date
+      def verification_date=(value)
+        @verification_date = Vets::Attributes::Value.cast(:verification_date, Vets::Type::ISO8601Time, value)
+      end
+
+      # Computed property for email verification status
+      # @return [Boolean] true if verification_date is present and within the last year, false otherwise
+      def contact_email_verified?
+        return false if @verification_date.blank?
+
+        @verification_date > 1.year.ago
+      end
+
       private
 
       # Corrects confirmation_date if it's after source_date.
