@@ -39,9 +39,9 @@ module MHV
       end
 
       def parse_facility_setting(value)
-        return [] if value.blank? || value == false || value == 0
+        return [] unless ActiveModel::Type::Boolean.new.cast(value)
 
-        value.to_s.split(',').map(&:strip).reject(&:blank?)
+        value.to_s.split(',').map(&:strip).compact_blank
       end
     end
   end
