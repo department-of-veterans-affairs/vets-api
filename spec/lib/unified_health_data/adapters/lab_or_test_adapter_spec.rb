@@ -609,6 +609,8 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           '(Patient: 6789)',
           { service: 'unified_health_data' }
         )
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
 
         result = adapter.send(:parse_single_record, record)
         expect(result).to be_nil
@@ -1147,6 +1149,47 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           expect(result).to be_nil
         end
       end
+
+      context 'logging and metrics for filtered DiagnosticReports' do
+        before do
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs and tracks when DiagnosticReport is filtered due to disallowed status' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'preliminary'
+
+          expect(Rails.logger).to receive(:info).with(
+            /Filtered DiagnosticReport: id=test-123, status=preliminary, reason=disallowed_status/,
+            hash_including(service: 'unified_health_data', filtering: true)
+          )
+          expect(StatsD).to receive(:increment).with(
+            'unified_health_data.lab_or_test.filtered_diagnostic_report',
+            tags: ['reason:disallowed_status']
+          )
+
+          adapter.send(:parse_single_record, record)
+        end
+
+        it 'logs and tracks when DiagnosticReport is filtered due to no valid data' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'final'
+          record['resource']['presentedForm'] = []
+          record['resource']['contained'] = []
+
+          expect(Rails.logger).to receive(:info).with(
+            /Filtered DiagnosticReport: id=test-123, status=final, reason=no_valid_data/,
+            hash_including(service: 'unified_health_data', filtering: true)
+          )
+          expect(StatsD).to receive(:increment).with(
+            'unified_health_data.lab_or_test.filtered_diagnostic_report',
+            tags: ['reason:no_valid_data']
+          )
+
+          adapter.send(:parse_single_record, record)
+        end
+      end
     end
 
     describe '#get_observations' do
@@ -1323,6 +1366,72 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           expect(result.size).to eq(2)
           expect(result.map(&:test_code)).to contain_exactly('Glucose', 'Potassium')
           expect(result.map(&:status)).to contain_exactly('final', 'amended')
+        end
+      end
+
+      context 'logging and metrics for filtered Observations' do
+        before do
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs and tracks when Observations are filtered' do
+          record = {
+            'resource' => {
+              'id' => 'diag-report-456',
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Valid Obs' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'final'
+                },
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Invalid Obs' },
+                  'valueQuantity' => { 'value' => 200, 'unit' => 'mg/dL' },
+                  'status' => 'cancelled'
+                }
+              ]
+            }
+          }
+
+          expect(Rails.logger).to receive(:info).with(
+            %r{Filtered 1/2 Observations from DiagnosticReport diag-report-456},
+            hash_including(service: 'unified_health_data', filtering: true)
+          )
+          expect(StatsD).to receive(:increment).with(
+            'unified_health_data.lab_or_test.filtered_observations'
+          )
+
+          adapter.send(:get_observations, record)
+        end
+
+        it 'does not log when no Observations are filtered' do
+          record = {
+            'resource' => {
+              'id' => 'diag-report-789',
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Valid Obs 1' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'final'
+                },
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Valid Obs 2' },
+                  'valueQuantity' => { 'value' => 200, 'unit' => 'mg/dL' },
+                  'status' => 'amended'
+                }
+              ]
+            }
+          }
+
+          expect(Rails.logger).not_to receive(:info).with(/Filtered.*Observations/, anything)
+          expect(StatsD).not_to receive(:increment).with('unified_health_data.lab_or_test.filtered_observations')
+
+          adapter.send(:get_observations, record)
         end
       end
     end
