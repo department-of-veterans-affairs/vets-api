@@ -106,6 +106,9 @@ module TravelClaim
 
         perform(:post, 'api/v4/auth/system-access-token', body, headers)
       end
+    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout => e
+      handle_backend_service_exception(e)
     end
 
     ##
@@ -124,7 +127,9 @@ module TravelClaim
           perform(:post, 'api/v3/appointments/find-or-add', body, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException => e
+    rescue Common::Exceptions::BackendServiceException,
+           Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout => e
       handle_backend_service_exception(e)
     end
 
@@ -145,7 +150,9 @@ module TravelClaim
           perform(:post, 'api/v3/claims', body, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException => e
+    rescue Common::Exceptions::BackendServiceException,
+           Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout => e
       handle_backend_service_exception(e)
     end
 
@@ -169,7 +176,9 @@ module TravelClaim
           perform(:post, 'api/v3/expenses/mileage', body, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException => e
+    rescue Common::Exceptions::BackendServiceException,
+           Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout => e
       handle_backend_service_exception(e)
     end
 
@@ -185,7 +194,9 @@ module TravelClaim
           perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException => e
+    rescue Common::Exceptions::BackendServiceException,
+           Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout => e
       handle_backend_service_exception(e)
     end
 
@@ -201,7 +212,9 @@ module TravelClaim
           perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
         end
       end
-    rescue Common::Exceptions::BackendServiceException => e
+    rescue Common::Exceptions::BackendServiceException,
+           Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout => e
       handle_backend_service_exception(e)
     end
 
@@ -419,10 +432,9 @@ module TravelClaim
         refresh_tokens!
         assert_auth_context!
         yield
-      elsif e.original_status == 401 && @auth_retry_attempted
-        log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
-        raise
       else
+        # Log auth errors for non-401 errors or 401 errors after retry
+        log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
         raise
       end
     end
@@ -544,9 +556,15 @@ module TravelClaim
     end
 
     def handle_backend_service_exception(error)
-      log_api_error(error.original_status, error.original_body)
-      # Extract message from original body if detail is nil
-      if error.response_values[:detail].nil? && error.original_body
+      # Handle different exception types with different property names
+      status = error.respond_to?(:original_status) ? error.original_status : error.try(:status)
+      body = error.respond_to?(:original_body) ? error.original_body : error.try(:body)
+
+      log_api_error(status, body)
+
+      # Extract message from original body if detail is nil (only for BackendServiceException)
+      if error.is_a?(Common::Exceptions::BackendServiceException) &&
+         error.response_values[:detail].nil? && error.original_body
         message = extract_message_from_response(error.original_body)
         if message
           raise Common::Exceptions::BackendServiceException.new(

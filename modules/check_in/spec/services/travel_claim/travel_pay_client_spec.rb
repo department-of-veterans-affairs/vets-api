@@ -143,6 +143,99 @@ RSpec.describe TravelClaim::TravelPayClient do
         end
       end
     end
+
+    context 'when request fails' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs error when BackendServiceException is raised' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::BackendServiceException.new('TEST', {}, 500, 'Internal Server Error')
+          )
+
+          expect do
+            client.send(:system_access_token_request,
+                        veis_access_token: 'test-veis-token',
+                        icn: test_icn)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient API error',
+            hash_including(
+              correlation_id: be_present,
+              status: 500
+            )
+          )
+        end
+      end
+
+      it 'logs error when 502 Bad Gateway error occurs' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::BackendServiceException.new('VA900', {}, 502, 'Bad Gateway')
+          )
+
+          expect do
+            client.send(:system_access_token_request,
+                        veis_access_token: 'test-veis-token',
+                        icn: test_icn)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient API error',
+            hash_including(
+              correlation_id: be_present,
+              status: 502
+            )
+          )
+        end
+      end
+
+      it 'logs error when ClientError is raised' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Client::Errors::ClientError.new('Connection failed', 503)
+          )
+
+          expect do
+            client.send(:system_access_token_request,
+                        veis_access_token: 'test-veis-token',
+                        icn: test_icn)
+          end.to raise_error(Common::Client::Errors::ClientError)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient API error',
+            hash_including(
+              correlation_id: be_present,
+              status: 503
+            )
+          )
+        end
+      end
+
+      it 'handles GatewayTimeout error' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::GatewayTimeout.new('Timeout::Error')
+          )
+
+          expect do
+            client.send(:system_access_token_request,
+                        veis_access_token: 'test-veis-token',
+                        icn: test_icn)
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
+
+          # GatewayTimeout has no status, so log_api_error returns early
+          # The exception is still properly handled and re-raised
+        end
+      end
+    end
   end
 
   describe '#send_appointment_request' do
