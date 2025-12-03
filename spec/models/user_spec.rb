@@ -25,7 +25,7 @@ RSpec.describe User, type: :model do
       let(:identity_icn) { 'some_identity_icn' }
 
       it 'returns icn off the User Identity' do
-        expect(user.icn).to eq("identity_icn")
+        expect(user.icn).to eq(identity_icn)
       end
     end
 
