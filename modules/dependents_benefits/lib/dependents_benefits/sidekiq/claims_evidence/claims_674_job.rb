@@ -3,7 +3,9 @@
 require 'dependents_benefits/sidekiq/claims_evidence/claims_evidence_form_job'
 
 module DependentsBenefits
+  # Background jobs for dependent benefits claim processing
   module Sidekiq
+    # Sidekiq modules for BGS interactions
     module ClaimsEvidence
       ##
       # Submission job for 674 claims via Claims Evidence API

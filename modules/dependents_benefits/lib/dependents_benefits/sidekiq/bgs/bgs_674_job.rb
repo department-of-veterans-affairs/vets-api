@@ -6,6 +6,7 @@ require 'dependents_benefits/sidekiq/bgs/bgs_form_job'
 module DependentsBenefits
   # Background jobs for dependent benefits claim processing
   module Sidekiq
+    # Sidekiq modules for BGS interactions
     module BGS
       ##
       # Submission job for 674 claims via BGS
