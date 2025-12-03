@@ -331,16 +331,8 @@ jobs:
           EXEMPT: ${{ steps.approval_status.outputs.exempt }}
           EXEMPT_REASON: ${{ steps.approval_status.outputs.exempt_reason }}
         run: |
-          if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
-            STATE="failure"
-            DESCRIPTION="Requires approval from backend-review-group"
-          elif [[ "${EXEMPT}" == "true" ]]; then
-            STATE="success"
-            DESCRIPTION="Exempt: ${EXEMPT_REASON}"
-          else
-            STATE="success"
-            DESCRIPTION="Backend approval confirmed"
-          fi
+          STATE="failure"
+          DESCRIPTION="Requires approval from backend-review-group"
 
           echo "Setting commit status: ${STATE} - ${DESCRIPTION}"
 
