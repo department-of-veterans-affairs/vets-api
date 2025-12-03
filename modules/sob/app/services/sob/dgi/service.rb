@@ -10,7 +10,7 @@ module SOB
       configuration SOB::DGI::Configuration
 
       BENEFIT_TYPE = 'CH33'
-      INCLUDE_ENROLLMENTS = 'NO'
+      ENROLLMENT_PARAM = 'NO'
       STATSD_KEY_PREFIX = 'api.sob.dgi'
 
       def initialize(ssn)
@@ -28,10 +28,13 @@ module SOB
             payload.to_json,
             request_headers
           )
-          raise_claimant_not_found if raw_response.status == 204
+          # Expect 204 from DGI if claimant not found
+          raise_claimant_not_found if response_204?(raw_response)
 
           SOB::DGI::Response.new(raw_response.status, raw_response)
         end
+      rescue SOB::DGI::Response::Ch33DataMissing
+        raise_claimant_not_found
       rescue Common::Exceptions::BackendServiceException => e
         log_error(e)
         raise e
@@ -43,7 +46,7 @@ module SOB
         {
           ssn: @ssn,
           benefitType: BENEFIT_TYPE,
-          enrollment: INCLUDE_ENROLLMENTS
+          enrollment: ENROLLMENT_PARAM
         }
       end
 
@@ -57,6 +60,12 @@ module SOB
         }
       end
 
+      # Encountered staging response where status was 200 but body was '{"status":204,"claimant":null}'
+      def response_204?(res)
+        [res.body['status'], res.status].any? { |status| status == 204 }
+      end
+
+      # Convert DGI 204 response into 404 error
       def raise_claimant_not_found
         status_code = 404
         msg = "#{config.service_name}_#{status_code}"

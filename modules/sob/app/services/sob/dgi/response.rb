@@ -5,6 +5,8 @@ module SOB
     class Response
       include Vets::Model
 
+      class Ch33DataMissing < StandardError; end
+
       attribute :first_name, String
       attribute :last_name, String
       attribute :date_of_birth, String
@@ -38,8 +40,8 @@ module SOB
       def normalized_attributes
         @claimant['date_of_birth'] = parse_date(@claimant['date_of_birth'])
         @claimant['regional_processing_office'] = RPO_MAP[@claimant['station']]
-        benefit = @claimant['benefits'].filter(&method(:ch33?)).first
-        return @claimant unless benefit
+        benefit = @claimant['benefits'].find(&method(:ch33?))
+        raise Ch33DataMissing unless benefit
 
         parse_eligibility(benefit['eligibility_results'])
         parse_entitlement(benefit['entitlement_results'])
