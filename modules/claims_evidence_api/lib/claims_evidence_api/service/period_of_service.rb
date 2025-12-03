@@ -9,7 +9,7 @@ module ClaimsEvidenceApi
     class PeriodOfService < Base
       # @see #retrieve
       def self.get(uuid)
-        new.retrieve
+        new.retrieve(uuid)
       end
 
       # GET retrieve the period of service documents for a veteran

@@ -126,7 +126,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
     it 'performs a GET for a specific file version' do
       download_headers = { 'Accept' => 'application/pdf' }
       expect(service).to receive(:perform).with(:get, "files/#{uuid}/#{version}/content", {}, download_headers)
-      service.update(uuid, version)
+      service.download(uuid, version)
     end
   end
 end
