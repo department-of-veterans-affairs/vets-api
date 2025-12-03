@@ -95,6 +95,7 @@ module AccreditedRepresentativePortal
 
       def handle_fatal_error(error)
         error_message = error.respond_to?(:detail) ? error.detail : error.message
+        log_enqueue_failure(error, error_message)
         create_error_form_submission(error_message, {})
         raise Error.new(error_message, :not_found)
       end
@@ -131,6 +132,45 @@ module AccreditedRepresentativePortal
 
         Monitoring.new.track_duration('ar.poa.submission.duration', from: @poa_request.created_at)
         Monitoring.new.track_duration('ar.poa.submission.enqueue_failed.duration', from: @poa_request.created_at)
+      end
+
+      def log_enqueue_failure(error, error_message)
+        status_code = error.respond_to?(:status_code) ? error.status_code : nil
+        error_details = extract_error_details(error)
+
+        Monitoring.new.track_count(
+          'ar.poa.submission.enqueue_failed.count',
+          tags: [
+            "error_class:#{error.class.name}",
+            ("status:#{status_code}" if status_code)
+          ].compact
+        )
+
+        Rails.logger.error(
+          [
+            '[AR::POA] enqueue_failed',
+            "poa_request_id=#{poa_request.id}",
+            "poa_code=#{poa_request.power_of_attorney_holder_poa_code}",
+            ("status=#{status_code}" if status_code),
+            "error_class=#{error.class.name}",
+            "message=#{error_message}",
+            ("errors=#{error_details.to_json}" if error_details.present?)
+          ].compact.join(' ')
+        )
+      end
+
+      def extract_error_details(error)
+        return unless error.respond_to?(:errors)
+
+        Array(error.errors).map do |err|
+          if err.respond_to?(:to_hash)
+            err.to_hash.slice(:code, :detail, :title, :status)
+          elsif err.is_a?(Hash)
+            err.slice(:code, :detail, :title, :status)
+          else
+            { detail: err.to_s }
+          end
+        end.compact.presence
       end
 
       def form_payload
