@@ -3,6 +3,7 @@
 # NOTE: This require is needed for when the file is loaded directly (e.g., in specs).
 # The initializer also requires this file, which happens after Rails boot.
 require 'common/exceptions'
+require 'vass/errors'
 
 module Vass
   ##
@@ -49,7 +50,7 @@ module Vass
     # that return HTTP 200 with success: false.
     #
     # @param env [Faraday::Env] The Faraday environment object
-    # @raise [Common::Exceptions::BackendServiceException] When success is false
+    # @raise [Vass::ServiceException] When success is false
     #
     def on_complete(env)
       return unless env.status == 200
@@ -75,8 +76,8 @@ module Vass
                        tags: ["error_status:#{status}", 'service:vass'])
 
       # Raise exception with mapped status for proper error handling
-      raise Common::Exceptions::BackendServiceException.new(
-        'VASS_ERROR',
+      raise Vass::ServiceException.new(
+        Vass::Errors::ERROR_KEY_VASS_ERROR,
         response_values(body),
         status,
         body

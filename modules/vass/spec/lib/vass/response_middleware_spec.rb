@@ -33,7 +33,7 @@ describe Vass::ResponseMiddleware do
 
     context 'when response is HTTP 200 with success: false' do
       context 'with Missing Parameters error' do
-        it 'raises BackendServiceException with status 400' do
+        it 'raises Vass::ServiceException with status 400' do
           env = create_env(
             body: {
               'success' => false,
@@ -45,7 +45,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(400)
             expect(exception.original_body).to eq(env[:body])
@@ -54,7 +54,7 @@ describe Vass::ResponseMiddleware do
       end
 
       context 'with invalid GUID format error' do
-        it 'raises BackendServiceException with status 422' do
+        it 'raises Vass::ServiceException with status 422' do
           env = create_env(
             body: {
               'success' => false,
@@ -66,7 +66,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(422)
           end
@@ -74,7 +74,7 @@ describe Vass::ResponseMiddleware do
       end
 
       context 'with not found error' do
-        it 'raises BackendServiceException with status 404' do
+        it 'raises Vass::ServiceException with status 404' do
           env = create_env(
             body: {
               'success' => false,
@@ -86,7 +86,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(404)
           end
@@ -94,7 +94,7 @@ describe Vass::ResponseMiddleware do
       end
 
       context 'with invalid date range error' do
-        it 'raises BackendServiceException with status 422' do
+        it 'raises Vass::ServiceException with status 422' do
           env = create_env(
             body: {
               'success' => false,
@@ -106,7 +106,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(422)
           end
@@ -114,7 +114,7 @@ describe Vass::ResponseMiddleware do
       end
 
       context 'with time slot not available error' do
-        it 'raises BackendServiceException with status 422' do
+        it 'raises Vass::ServiceException with status 422' do
           env = create_env(
             body: {
               'success' => false,
@@ -126,7 +126,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(422)
           end
@@ -134,7 +134,7 @@ describe Vass::ResponseMiddleware do
       end
 
       context 'with processor error' do
-        it 'raises BackendServiceException with status 502' do
+        it 'raises Vass::ServiceException with status 502' do
           env = create_env(
             body: {
               'success' => false,
@@ -146,7 +146,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(502)
           end
@@ -154,7 +154,7 @@ describe Vass::ResponseMiddleware do
       end
 
       context 'with unknown error message' do
-        it 'raises BackendServiceException with status 502' do
+        it 'raises Vass::ServiceException with status 502' do
           env = create_env(
             body: {
               'success' => false,
@@ -166,7 +166,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(502)
           end
@@ -174,7 +174,7 @@ describe Vass::ResponseMiddleware do
       end
 
       context 'with blank error message' do
-        it 'raises BackendServiceException with status 502' do
+        it 'raises Vass::ServiceException with status 502' do
           env = create_env(
             body: {
               'success' => false,
@@ -186,7 +186,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           ) do |exception|
             expect(exception.original_status).to eq(502)
           end
@@ -212,7 +212,7 @@ describe Vass::ResponseMiddleware do
         )
 
         expect { middleware.on_complete(env) }.to raise_error(
-          Common::Exceptions::BackendServiceException
+          Vass::ServiceException
         )
       end
 
@@ -233,7 +233,7 @@ describe Vass::ResponseMiddleware do
         )
 
         expect { middleware.on_complete(env) }.to raise_error(
-          Common::Exceptions::BackendServiceException
+          Vass::ServiceException
         )
       end
 
@@ -262,7 +262,7 @@ describe Vass::ResponseMiddleware do
           )
 
           expect { middleware.on_complete(env) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Vass::ServiceException
           )
         end
       end
@@ -375,7 +375,7 @@ describe Vass::ResponseMiddleware do
         )
 
         expect { middleware.on_complete(env) }.to raise_error(
-          Common::Exceptions::BackendServiceException
+          Vass::ServiceException
         ) do |exception|
           expect(exception.original_status).to eq(expected_status),
                                                "Expected #{message.inspect} to map to #{expected_status}, " \

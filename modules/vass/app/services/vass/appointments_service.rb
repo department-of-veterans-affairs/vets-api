@@ -82,7 +82,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException => e
       handle_error(e, 'get_availability')
     end
 
@@ -124,7 +124,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException => e
       handle_error(e, 'save_appointment')
     end
 
@@ -145,7 +145,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException => e
       handle_error(e, 'cancel_appointment')
     end
 
@@ -166,7 +166,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException => e
       handle_error(e, 'get_appointment')
     end
 
@@ -187,7 +187,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException => e
       handle_error(e, 'get_appointments')
     end
 
@@ -208,7 +208,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException => e
       handle_error(e, 'get_veteran_info')
     end
 
@@ -224,7 +224,7 @@ module Vass
       response = client.get_agent_skills
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException => e
       handle_error(e, 'get_agent_skills')
     end
 
@@ -283,7 +283,7 @@ module Vass
       log_error(error, method_name)
 
       case error
-      when Common::Exceptions::BackendServiceException
+      when Vass::ServiceException
         if error.original_status == 401
           raise Vass::Errors::AuthenticationError, 'Authentication failed'
         elsif error.original_status == 404
