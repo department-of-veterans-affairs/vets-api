@@ -758,4 +758,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(appt.avs_pdf[0].to_h).to eq(avs_pdf)
     end
   end
+
+  describe 'avs_error' do
+    it 'passes through the proper error message' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.avs_error).to be_nil
+      appt = appointment_by_id(cerner_va_id, overrides: { avs_error: 'Error retrieving AVS' })
+      expect(appt.avs_error).to eq('Error retrieving AVS')
+    end
+  end
 end
