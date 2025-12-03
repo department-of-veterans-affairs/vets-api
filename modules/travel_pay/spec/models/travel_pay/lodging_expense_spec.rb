@@ -16,10 +16,14 @@ RSpec.describe TravelPay::LodgingExpense, type: :model do
       expect(lodging_expense.errors[:purchase_date]).to include("can't be blank")
     end
 
-    it 'requires a description to be present' do
+    it 'allows description to be nil (inherited allow_blank: true from BaseExpense)' do
       lodging_expense.description = nil
-      expect(lodging_expense).not_to be_valid
-      expect(lodging_expense.errors[:description]).to include("can't be blank")
+      expect(lodging_expense).to be_valid
+    end
+
+    it 'allows description to be blank/empty string (inherited allow_blank: true from BaseExpense)' do
+      lodging_expense.description = ''
+      expect(lodging_expense).to be_valid
     end
 
     it 'requires cost_requested to be present' do
@@ -137,6 +141,40 @@ RSpec.describe TravelPay::LodgingExpense, type: :model do
     it 'includes the correct expense_type' do
       hash = lodging_expense.to_h
       expect(hash['expense_type']).to eq(TravelPay::Constants::EXPENSE_TYPES[:lodging])
+    end
+  end
+
+  describe '.permitted_params' do
+    it 'extends base expense permitted parameters with lodging-specific fields' do
+      params = described_class.permitted_params
+      expect(params).to include(:vendor, :check_in_date, :check_out_date)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        description: 'Hotel stay',
+        cost_requested: 150.00,
+        vendor: 'Holiday Inn',
+        check_in_date: Date.new(2024, 3, 15),
+        check_out_date: Date.new(2024, 3, 17),
+        claim_id: 'claim-uuid-789'
+      )
+    end
+
+    it 'includes lodging-specific fields' do
+      params = subject.to_service_params
+      expect(params['vendor']).to eq('Holiday Inn')
+      expect(params['check_in_date']).to eq('2024-03-15')
+      expect(params['check_out_date']).to eq('2024-03-17')
+    end
+
+    it 'formats dates as ISO8601 strings' do
+      params = subject.to_service_params
+      expect(params['check_in_date']).to match(/\d{4}-\d{2}-\d{2}/)
+      expect(params['check_out_date']).to match(/\d{4}-\d{2}-\d{2}/)
     end
   end
 end

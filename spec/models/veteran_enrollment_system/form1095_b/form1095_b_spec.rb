@@ -97,29 +97,37 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     after { Timecop.return }
 
     context 'with start and end dates' do
-      it 'returns previous four tax years for which the user had any coverage' do
+      it 'returns all currently available years during which the user had coverage' do
         periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2025-03-05' }]
         result = described_class.available_years(periods)
-        expect(result).to eq([2021, 2022, 2023, 2024])
+        expect(result).to eq([2024])
       end
     end
 
     context 'when end date is nil' do
-      it 'returns previous four tax years for which the user had any coverage' do
+      it 'infers that the user is still covered and returns all currently available years' do
         periods = [{ 'startDate' => '2015-03-05', 'endDate' => nil }]
         result = described_class.available_years(periods)
-        expect(result).to eq([2021, 2022, 2023, 2024])
+        expect(result).to eq([2024])
       end
     end
 
     context 'with multiple periods' do
-      it 'includes previous four tax years for which user had any coverage' do
+      it 'returns all currently available years during which the user had coverage' do
         periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2017-03-05' },
                    { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
                    { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
                    { 'startDate' => '2024-03-05', 'endDate' => nil }]
         result = described_class.available_years(periods)
-        expect(result).to eq([2021, 2022, 2024])
+        expect(result).to eq([2024])
+      end
+    end
+
+    context 'when user was not covered during available years' do
+      it 'returns an empty array' do
+        periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2020-03-05' }]
+        result = described_class.available_years(periods)
+        expect(result).to eq([])
       end
     end
   end
@@ -128,9 +136,9 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
     after { Timecop.return }
 
-    it 'returns an array containing last year and five years ago' do
+    it 'returns an array containing first and last years of accessible 1095-B data' do
       result = described_class.available_years_range
-      expect(result).to eq([2021, 2024])
+      expect(result).to eq([2024, 2024])
     end
   end
 
@@ -178,6 +186,43 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
 
       it 'raises error' do
         expect { inv_year_form.txt_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
+      end
+    end
+
+    context 'when user has a middle name' do
+      it 'presents name correctly' do
+        expect(form1095b.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Michael Smith'
+        )
+        expect(form1095b.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John M Smith'
+        )
+      end
+    end
+
+    context 'when user has no middle name' do
+      let(:form1095b) { build(:enrollment_system_form1095_b, middle_name: nil) }
+
+      it 'presents name correctly' do
+        expect(form1095b.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Smith'
+        )
+        expect(form1095b.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John Smith'
+        )
+      end
+    end
+
+    context 'when user has an empty middle name' do
+      let(:form1095b) { build(:enrollment_system_form1095_b, middle_name: '') }
+
+      it 'presents name correctly' do
+        expect(form1095b.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Smith'
+        )
+        expect(form1095b.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John Smith'
+        )
       end
     end
   end

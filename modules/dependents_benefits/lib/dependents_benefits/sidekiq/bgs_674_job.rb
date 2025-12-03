@@ -1,74 +1,43 @@
 # frozen_string_literal: true
 
-require 'dependents_benefits/monitor'
-require 'dependents_benefits/service_response'
-require 'dependents_benefits/sidekiq/dependent_submission_job'
-require 'bgs/job'
 require 'bgsv2/form674'
+require 'dependents_benefits/sidekiq/bgs_form_job'
 
 module DependentsBenefits
+  # Background jobs for dependent benefits claim processing
   module Sidekiq
-    class BGS674Job < DependentSubmissionJob
+    ##
+    # Submission job for 674 claims via BGS
+    #
+    # Handles the submission of 674 (School Attendance Approval) forms to BGS (Benefits
+    # Gateway Service). Normalizes claim data, validates the claim, and submits to
+    # BGS using the BGSV2::Form674 service. Detects permanent BGS errors for
+    # appropriate retry behavior.
+    #
+    class BGS674Job < BGSFormJob
       ##
-      # Service-specific submission logic - BGS vs Lighthouse vs Fax
-      # @return [ServiceResponse] Must respond to success? and error methods
-
-      def submit_to_service
-        saved_claim.add_veteran_info(user_data)
-
-        raise Invalid674Claim unless saved_claim.valid?(:run_686_form_jobs)
-
-        claim_data = BGS::Job.new.normalize_names_and_addresses!(saved_claim.parsed_form)
-
-        BGSV2::Form674.new(generate_user_struct, saved_claim, proc_id).submit(claim_data)
-
-        DependentsBenefits::ServiceResponse.new(status: true)
-      rescue => e
-        DependentsBenefits::ServiceResponse.new(status: false, error: e)
-      end
-
-      # Use .find_or_create to generate/return memoized service-specific form submission record
-      # @return [LighthouseFormSubmission, BGSFormSubmission] instance
-      def find_or_create_form_submission
-        @submission ||= BGS::Submission.find_or_create_by(form_id: '21-674', saved_claim_id: saved_claim.id)
-      end
-
-      def submission
-        @submission ||= find_or_create_form_submission
-      end
-
-      # Generate a new form submission attempt record
-      # Each retry gets its own attempt record for debugging
-      # @return [LighthouseFormSubmissionAttempt, BGSFormSubmissionAttempt] instance
-      def create_form_submission_attempt
-        @submission_attempt ||= BGS::SubmissionAttempt.create(submission:)
-      end
-
-      def submission_attempt
-        @submission_attempt ||= create_form_submission_attempt
-      end
-
-      # Service-specific success logic
-      # Update submission attempt and form submission records
-      def mark_submission_succeeded
-        submission_attempt&.success!
-      end
-
-      # Service-specific failure logic
-      # Update submission attempt record only with failure and error details
-      def mark_submission_attempt_failed(exception)
-        submission_attempt&.fail!(error: exception)
-      end
-
+      # Returns the error class for invalid 674 claims
       #
-      # BGS::Submission has no status update, so no-op here
-      # This differs from other submission types, which may require status updates on failure.
-      def mark_submission_failed(_exception) = nil
+      # @return [Class] Invalid674Claim error class
+      def invalid_claim_error_class
+        Invalid674Claim
+      end
 
-      def permanent_failure?(error)
-        return false if error.nil?
+      ##
+      # Submits the 674 form data to BGS
+      #
+      # @param claim_data [Hash] Normalized claim data with names and addresses
+      # @return [Object] BGS service response
+      def submit_form(claim_data)
+        BGSV2::Form674.new(generate_user_struct, saved_claim, { proc_id:, claim_type_end_product: }).submit(claim_data)
+      end
 
-        BGS::Job::FILTERED_ERRORS.any? { |filtered| error.message.include?(filtered) || error.cause&.message&.include?(filtered) }
+      ##
+      # Returns the form identifier for 674 submissions
+      #
+      # @return [String] Form ID string '21-674'
+      def form_id
+        SCHOOL_ATTENDANCE_APPROVAL
       end
     end
   end
