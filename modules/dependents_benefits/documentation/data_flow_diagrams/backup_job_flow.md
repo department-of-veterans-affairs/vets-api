@@ -2,52 +2,48 @@
 
 [← Back to Overview](./full_data_flow.md)
 
-This diagram shows what happens when `DependentBackupJob` is triggered after permanent failures in the primary submission jobs. The backup job submits claims to Lighthouse Benefits Intake API as a fallback mechanism.
+Shows `DependentBackupJob` triggered after permanent failures. Submits to Lighthouse Benefits Intake API as fallback.
 
 ```mermaid
 graph TD
-    Start[DependentBackupJob#perform<br/>claim_id triggered] --> LoadClaim[Load SavedClaim]
+    Start[DependentBackupJob#perform<br/>claim_id] --> LoadClaim[Load SavedClaim]
     
-    LoadClaim --> CreateRecords[Create DB Records]
-    CreateRecords --> DB1[(DB: Lighthouse::Submission<br/>find_or_create)]
-    DB1 --> DB2[(DB: Lighthouse::SubmissionAttempt<br/>create)]
+    LoadClaim --> DB1[(Lighthouse::Submission)]
+    DB1 --> DB2[(Lighthouse::SubmissionAttempt)]
     
-    DB2 --> InitService[Initialize LighthouseSubmission<br/>BenefitsIntakeService::Service]
-    InitService --> GetUUID[Get UUID from service]
-    GetUUID --> UpdateUUID[(DB: Update SubmissionAttempt<br/>benefits_intake_uuid)]
+    DB2 --> InitService[Init BenefitsIntakeService]
+    InitService --> GetUUID[Get UUID]
+    GetUUID --> UpdateUUID[(Store benefits_intake_uuid)]
     
     UpdateUUID --> PrepareSubmission[Prepare Submission<br/>add_veteran_info<br/>get_files_from_claim]
     
-    PrepareSubmission --> CollectClaims[Collect Child Claims<br/>686c and 674 PDFs]
-    CollectClaims --> ProcessPDFs[Process Each PDF<br/>DatestampPdf with VA.GOV<br/>Add FDC Reviewed stamp]
-    ProcessPDFs --> SetMainForm[Set Main Form Path<br/>686c if present, else first 674]
-    SetMainForm --> CollectAttachments[Collect Attachments<br/>Remaining 674s + persistent attachments]
+    PrepareSubmission --> CollectClaims[Collect Child Claims<br/>686c and 674s]
+    CollectClaims --> ProcessPDFs[Stamp PDFs<br/>VA.GOV + FDC Reviewed]
+    ProcessPDFs --> SetMainForm[Set Main Form<br/>686c or first 674]
+    SetMainForm --> CollectAttachments[Collect Attachments<br/>Other 674s + files]
     
-    CollectAttachments --> GenerateMetadata[Generate Lighthouse Metadata<br/>veteran name, file_number, zip<br/>doc_type, claim_date, business_line: CMP]
+    CollectAttachments --> GenerateMetadata[Generate Metadata<br/>veteran, file_number<br/>doc_type, business_line: CMP]
     
-    GenerateMetadata --> Upload[Upload to Lighthouse<br/>BenefitsIntakeService.upload_form<br/>main_document + attachments]
+    GenerateMetadata --> Upload[Upload to Lighthouse<br/>main_document + attachments]
     
     Upload --> Success{Success?}
     
-    Success -->|Yes| UpdateSuccess[(DB: SubmissionAttempt<br/>status: success)]
-    UpdateSuccess --> MarkProcessing[(DB: Parent SavedClaimGroup<br/>status: PROCESSING<br/>Overwrite previous FAILED)]
-    MarkProcessing --> SendNotification[Send In-Progress Email<br/>Accepted by service]
-    SendNotification --> Cleanup[Cleanup Temp Files<br/>Delete PDFs]
-    Cleanup --> Complete[Job Complete]
+    Success -->|Yes| UpdateSuccess[(SubmissionAttempt: success)]
+    UpdateSuccess --> MarkProcessing[(Parent Group: PROCESSING<br/>overwrites FAILED)]
+    MarkProcessing --> SendNotification[Send In-Progress Email]
+    SendNotification --> Cleanup[Cleanup PDFs]
+    Cleanup --> Complete[Complete]
     
-    Success -->|No - Transient| UpdateFailed[(DB: SubmissionAttempt<br/>status: failed)]
-    UpdateFailed --> RetryCheck{Retries<br/>< 16?}
-    RetryCheck -->|Yes| RetryJob[Sidekiq Retry<br/>exponential backoff]
+    Success -->|No| UpdateFailed[(SubmissionAttempt: failed)]
+    UpdateFailed --> RetryCheck{Retries < 16?}
+    RetryCheck -->|Yes| RetryJob[Sidekiq Retry]
     RetryJob -.Retry.-> Start
     
-    RetryCheck -->|No| Exhausted[Retries Exhausted]
-    Exhausted --> SendFailure[Send Failure Email<br/>Final notification to user]
-    SendFailure --> LogFailure[Log Silent Failure Avoided<br/>Datadog monitoring]
-    LogFailure --> CleanupFinal[Cleanup Temp Files]
-    CleanupFinal --> Failed[Job Failed Permanently]
-    
-    Success -->|No - Permanent| UpdatePermFailed[(DB: SubmissionAttempt<br/>status: failed)]
-    UpdatePermFailed --> SendFailure
+    RetryCheck -->|No| Exhausted[Exhausted]
+    Exhausted --> SendFailure[Send Failure Email]
+    SendFailure --> LogFailure[Log to Datadog]
+    LogFailure --> CleanupFinal[Cleanup]
+    CleanupFinal --> Failed[Failed]
     
     %% Styling
     classDef trigger fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px
@@ -58,8 +54,8 @@ graph TD
     classDef failure fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
     
     class Start trigger
-    class LoadClaim,CreateRecords,GetUUID,PrepareSubmission,CollectClaims,ProcessPDFs,SetMainForm,CollectAttachments,GenerateMetadata,SendNotification,SendFailure,LogFailure,Complete,Cleanup,CleanupFinal,RetryJob,Exhausted process
-    class DB1,DB2,UpdateUUID,UpdateSuccess,UpdateFailed,UpdatePermFailed,MarkProcessing database
+    class LoadClaim,GetUUID,PrepareSubmission,CollectClaims,ProcessPDFs,SetMainForm,CollectAttachments,GenerateMetadata,SendNotification,SendFailure,LogFailure,Complete,Cleanup,CleanupFinal,RetryJob,Exhausted process
+    class DB1,DB2,UpdateUUID,UpdateSuccess,UpdateFailed,MarkProcessing database
     class InitService,Upload service
     class Success,RetryCheck decision
     class Failed failure
@@ -67,18 +63,11 @@ graph TD
 
 ## Key Points
 
-- **Lighthouse Only**: Backup job only submits to Lighthouse Benefits Intake API
-- **PDF Generation**: Generates PDFs for all child claims (686c and 674s)
-- **PDF Stamping**: Adds VA.GOV and FDC Reviewed datestamps to all documents
-- **Database Tracking**: Lighthouse::Submission and Lighthouse::SubmissionAttempt
-- **Status Override**: On success, marks parent SavedClaimGroup as PROCESSING (overwrites previous FAILED status)
-- **Notifications**:
-  - **Success**: In-progress email (claim accepted, awaiting VBMS processing)
-  - **Failure**: Final failure email after exhausting retries
-- **Monitoring**: Logs to Datadog to track backup job outcomes
-
-## Retry Logic
-
-- Up to 16 retries with exponential backoff for transient failures
-- Permanent failures or retry exhaustion result in failure notification
-- No further backup mechanism - this is the last resort
+- **Lighthouse Only**: Submits to Lighthouse Benefits Intake API only
+- **PDF Processing**: Generates PDFs for all child claims, stamps with VA.GOV + FDC Reviewed
+- **Main Form**: 686c if present, else first 674
+- **Attachments**: Remaining 674s + persistent attachments
+- **Metadata**: Veteran info, file_number, doc_type, business_line: CMP
+- **Status Override**: Success marks parent as PROCESSING (overwrites FAILED)
+- **Notifications**: In-progress email on success, failure email after 16 retries
+- **Last Resort**: No further backup mechanism

@@ -2,46 +2,46 @@
 
 [← Back to Overview](./full_data_flow.md)
 
-This diagram shows the complete flow through the `DependentsBenefits::V0::ClaimsController` from form submission through async job enqueue.
+This diagram shows the flow through `DependentsBenefits::V0::ClaimsController` from form submission through job enqueue.
 
 ```mermaid
 graph TD
-    Start[User Submits Form] --> CreateClaim[Create DependentsBenefits::SavedClaim<br/>form: dependent_params.to_json]
+    Start[User Submits Form] --> CreateClaim[Create SavedClaim<br/>form: dependent_params.to_json]
     
     CreateClaim --> CheckIPF{InProgressForm<br/>exists?}
-    CheckIPF -->|Yes| AssignDate[Assign form_start_date<br/>from InProgressForm.created_at]
+    CheckIPF -->|Yes| AssignDate[Assign form_start_date]
     CheckIPF -->|No| ValidateClaim
-    AssignDate --> ValidateClaim{Validate & Save<br/>SavedClaim}
+    AssignDate --> ValidateClaim{Validate & Save}
     
-    ValidateClaim -->|Invalid| Error[Return 422<br/>Validation Error]
-    ValidateClaim -->|Valid| DB1[(DB: SavedClaim saved)]
+    ValidateClaim -->|Invalid| Error[Return 422]
+    ValidateClaim -->|Valid| DB1[(SavedClaim saved)]
     
-    DB1 --> CollectUser[Collect User Data<br/>DependentsBenefits::UserData.new]
+    DB1 --> CollectUser[Collect UserData]
     
-    CollectUser --> CreateGroup[Create SavedClaimGroup<br/>parent_claim_id: claim.id<br/>saved_claim_id: claim.id<br/>user_data: user_data.get_user_json]
+    CollectUser --> CreateGroup[Create SavedClaimGroup<br/>parent + child link<br/>user_data encrypted]
     
-    CreateGroup --> DB2[(DB: SavedClaimGroup saved<br/>Parent record)]
+    CreateGroup --> DB2[(Parent SavedClaimGroup)]
     
-    DB2 --> ValidateType{claim.submittable_686?<br/>OR<br/>claim.submittable_674?}
+    DB2 --> ValidateType{submittable_686?<br/>OR submittable_674?}
     
-    ValidateType -->|No| ErrorType[Return 422<br/>Validation Error]
-    ValidateType -->|Yes| CheckType{Check Claim Types}
+    ValidateType -->|No| ErrorType[Return 422]
+    ValidateType -->|Yes| CheckType{Check Types}
     
-    CheckType -->|submittable_686?| Gen686[Claim686cGenerator.generate<br/>Creates child SavedClaim<br/>form_id: '21-686C']
-    CheckType -->|submittable_674?| Gen674[Claim674Generator.generate<br/>for EACH student]
+    CheckType -->|686c| Gen686[Claim686cGenerator<br/>Creates child 686c claim]
+    CheckType -->|674| Gen674[Claim674Generator<br/>One per student]
     
-    Gen686 --> DB3[(DB: SavedClaim created<br/>686c child claim)]
-    DB3 --> DB4[(DB: SavedClaimGroup created<br/>links child to parent)]
+    Gen686 --> DB3[(SavedClaim: 686c)]
+    DB3 --> DB4[(SavedClaimGroup: 686c)]
     
-    Gen674 --> DB5[(DB: SavedClaim created<br/>674 child claim per student)]
-    DB5 --> DB6[(DB: SavedClaimGroup created<br/>links each 674 to parent)]
+    Gen674 --> DB5[(SavedClaim: 674)]
+    DB5 --> DB6[(SavedClaimGroup: 674)]
     
-    DB4 --> Enqueue[ClaimProcessor.create_proc_forms<br/>Async Job Enqueued]
+    DB4 --> Enqueue[ClaimProcessor.create_proc_forms<br/>Enqueues BGSProcJob]
     DB6 --> Enqueue
     
-    Enqueue --> Return200[Return 200 to User<br/>SavedClaimSerializer.new]
+    Enqueue --> Return200[Return 200<br/>SavedClaimSerializer]
     
-    Enqueue -.Background Job.-> AsyncJob[BGSProcJob processes<br/>in background]
+    Enqueue -.Async.-> AsyncJob[BGSProcJob.perform_async<br/>parent_claim_id]
     
     %% Styling
     classDef process fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px
@@ -59,9 +59,8 @@ graph TD
 
 ## Next Steps
 
-After the controller returns 200 to the user, background processing begins:
+After the controller returns 200, background processing begins:
 
-- **[UserData Collection](./userdata_flow.md)** - Details of how user data is collected and fallbacks
-- **[BGS Proc Job](./bgs_proc_job_flow.md)** - BGSProcJob creates vnp_proc in BGS
-- **[Submission Jobs](./submission_jobs_flow.md)** - Four parallel submission jobs
-- **[Backup Job](./backup_job_flow.md)** - Lighthouse backup submission on failures
+- **[BGS Proc Job](./bgs_proc_job_flow.md)** - Creates vnp_proc in BGS and selects EP codes
+- **[Submission Jobs](./submission_jobs_flow.md)** - Parallel submission jobs with EP codes
+- **[Backup Job](./backup_job_flow.md)** - Lighthouse backup on failures

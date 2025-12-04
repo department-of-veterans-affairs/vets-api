@@ -1,41 +1,41 @@
 # Full Data Flow Documentation
 
-This document describes the complete data flow for dependents benefits claims processing from the controller through completion.
+Complete data flow for dependents benefits claims processing from submission to completion.
 
 ## Overview
 
-This simplified end-to-end diagram shows the complete happy path from form submission to completion, with failure paths branching off to the side. Click the links below to zoom into detailed flow diagrams for each step.
+Simplified end-to-end diagram showing happy path and failure branches. Click links below for detailed flows.
 
 ## Simplified End-to-End Flow
 
 ```mermaid
 graph TD
-    Start[User Submits Form] --> SaveClaim[Save Claim & User Data]
-    SaveClaim --> DB1[(DB: SavedClaim<br/>SavedClaimGroup parent)]
-    DB1 --> GenChildren[Generate Child Claims<br/>686c and/or 674 SavedClaims]
-    GenChildren --> DB2[(DB: SavedClaim children<br/>SavedClaimGroup links)]
-    DB2 --> Return[Return 200 to User]
+    Start[User Submits Form] --> SaveClaim[Save Claim + User Data]
+    SaveClaim --> DB1[(SavedClaim<br/>SavedClaimGroup parent)]
+    DB1 --> GenChildren[Generate Child Claims<br/>686c and/or 674s]
+    GenChildren --> DB2[(SavedClaim children<br/>SavedClaimGroup links)]
+    DB2 --> Return[Return 200]
     
-    Return --> BGSProc[BGSProcJob]
-    BGSProc --> DB3[(DB: BGS::Submission<br/>BGS::SubmissionAttempt)]
-    DB3 --> BGSService[Service: BGSV2<br/>create_proc, create_proc_form]
+    Return --> BGSProc[BGSProcJob<br/>Select EP codes]
+    BGSProc --> DB3[(BGS::Submission<br/>BGS::SubmissionAttempt)]
+    DB3 --> BGSService[BGSV2<br/>create_proc + proc_forms]
     BGSService -->|Failure| BGSFail[Mark Failed]
-    BGSService --> EnqueueSubs[Enqueue Submission Jobs<br/>0-1 BGS686c, 0-1 Claims686c<br/>0-n BGS674, 0-n Claims674<br/>per child claim]
+    BGSService --> EnqueueSubs[Enqueue Jobs<br/>with EP codes<br/>0-1 pair 686c<br/>0-n pairs 674]
     
-    EnqueueSubs --> SubmitAll[Submit to Services<br/>Parallel execution]
-    SubmitAll --> DB4[(DB: BGSFormSubmission<br/>LighthouseFormSubmission<br/>FormSubmissionAttempts)]
-    DB4 --> Services[Services: BGSV2 Form686c/Form674<br/>Claims Evidence API]
-    Services -->|Any Permanent Failure| SubFail[Mark Failed]
-    Services --> Coordinate[Coordinate Success<br/>Check all siblings completed]
+    EnqueueSubs --> SubmitAll[Submit Parallel<br/>BGS + Lighthouse]
+    SubmitAll --> DB4[(Form Submissions<br/>+ Attempts)]
+    DB4 --> Services[BGSV2 Form686c/674<br/>Lighthouse Benefits Intake]
+    Services -->|Permanent Failure| SubFail[Mark Failed]
+    Services --> Coordinate[Coordinate<br/>Check siblings]
     
-    Coordinate --> MarkSuccess[Mark All Groups SUCCESS<br/>Send Confirmation Email]
+    Coordinate --> MarkSuccess[Groups: SUCCESS<br/>Send Confirmation]
     
     BGSFail --> Backup[DependentBackupJob]
     SubFail --> Backup
-    Backup --> DB5[(DB: Lighthouse::Submission<br/>Lighthouse::SubmissionAttempt)]
-    DB5 --> BackupService[Service: Lighthouse<br/>Benefits Intake API]
-    BackupService -->|Failure| BackupFail[Send Failure Email<br/>End]
-    BackupService --> BackupSuccess[Mark PROCESSING<br/>Send In-Progress Email]
+    Backup --> DB5[(Lighthouse::Submission<br/>+ Attempt)]
+    DB5 --> BackupService[Lighthouse<br/>Benefits Intake]
+    BackupService -->|Failure| BackupFail[Failure Email<br/>End]
+    BackupService --> BackupSuccess[Group: PROCESSING<br/>In-Progress Email]
     
     %% Styling
     classDef mainPath fill:#c8e6c9,stroke:#1b5e20,stroke-width:3px
@@ -53,36 +53,26 @@ graph TD
 
 ## Detailed Flow Diagrams
 
-Each step in the simplified diagram above has a detailed flow diagram:
+1. **[Controller Flow](./controller_flow.md)** - Form submission through job enqueue
+   - SavedClaim, SavedClaimGroup (parent + children)
+   - Claim686cGenerator, Claim674Generator
+   - Validation
 
-1. **[Controller Flow](./controller_flow.md)** - Complete controller flow from form submission through async job enqueue
-   - Database: SavedClaim, SavedClaimGroup (parent and children)
-   - Generators: Claim686cGenerator, Claim674Generator
-   - Validation and error handling
+2. **[UserData Collection](./userdata_flow.md)** - User data collection with fallbacks
+   - Sources: User object, claim data, VA Profile, BGS
+   - Encrypted storage in SavedClaimGroup
 
-2. **[UserData Collection](./userdata_flow.md)** - How user data is collected with fallback strategies
-   - Data sources: User object, claim data, VA Profile, BGS
-   - Fallback chains for each field
-   - Error handling
+3. **[BGS Proc Job](./bgs_proc_job_flow.md)** - Creates vnp_proc + selects EP codes
+   - BGS::Submission, BGS::SubmissionAttempt
+   - BGSV2 create_proc, create_proc_form
+   - 16 retries → backup job
 
-3. **[BGS Proc Job](./bgs_proc_job_flow.md)** - BGSProcJob creates vnp_proc in BGS
-   - Database: BGS::Submission, BGS::SubmissionAttempt
-   - Services: BGSV2 create_proc, create_proc_form
-   - Retry logic (up to 16 retries)
-   - Success: Triggers submission jobs
-   - Failure: Triggers backup job
+4. **[Submission Jobs](./submission_jobs_flow.md)** - Parallel BGS + Lighthouse jobs
+   - 0-1 pair 686c, 0-n pairs 674
+   - BGS jobs use EP codes
+   - Coordination with pessimistic locking
 
-4. **[Submission Jobs](./submission_jobs_flow.md)** - Parallel jobs submit to BGS and Lighthouse (one pair per child claim)
-   - 0-1 BGS686cJob + 0-1 Claims686cJob (if 686c child claim exists)
-   - 0-n BGS674Job + 0-n Claims674Job (one pair per 674 child claim)
-   - Database: BGSFormSubmission, LighthouseFormSubmission, FormSubmissionAttempts
-   - Services: BGSV2 Form686c/Form674, Claims Evidence
-   - Coordination patterns for success and failure
-   - Pessimistic locking for sibling coordination
-
-5. **[Backup Job](./backup_job_flow.md)** - Lighthouse-only submission as last resort
-   - Database: Lighthouse::Submission, Lighthouse::SubmissionAttempt
-   - Services: Lighthouse Benefits Intake API
-   - PDF generation and stamping
-   - Success: Mark PROCESSING, send in-progress email
-   - Failure: Send failure email, log to Datadog
+5. **[Backup Job](./backup_job_flow.md)** - Lighthouse-only fallback
+   - Lighthouse::Submission + Attempt
+   - PDF generation + stamping
+   - Last resort, no further backup
