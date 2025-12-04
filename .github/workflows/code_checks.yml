@@ -383,6 +383,33 @@ jobs:
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
 
+
+
+      - name: Comment Coverage on PR
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+              ## ❌ Critical: Test Coverage Too Low
+              **Coverage:** ${{ steps.coverage.outputs.percent }}%
+              Your test coverage is **below the required minimum of 90%**.
+              Please add additional tests before this PR can be considered for merge.
+              Once coverage is improved, push another commit or rerun the workflow to update this report.
+
+      - name: Comment Coverage on PR
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 91 }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+            ## ⚠️ Warning: Low Coverage Report
+            **Coverage:** ${{ steps.coverage.outputs.percent }}%
+
+            Please consider adding or expanding tests to improve coverage before merging.
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
@@ -422,28 +449,3 @@ jobs:
           message: "THIS IS A TEST, PLEASE DISREGARD"
           blocks: "**Coverage:** ${{ steps.coverage.outputs.percent }}%"
           channel_id: "C039HRTHXDH"
-
-      - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          header: coverage
-          message: |
-              ## ❌ Critical: Test Coverage Too Low
-              **Coverage:** ${{ steps.coverage.outputs.percent }}%
-              Your test coverage is **below the required minimum of 90%**.
-              Please add additional tests before this PR can be considered for merge.
-              Once coverage is improved, push another commit or rerun the workflow to update this report.
-
-      - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 91 }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          header: coverage
-          message: |
-            ## ⚠️ Warning: Low Coverage Report
-            **Coverage:** ${{ steps.coverage.outputs.percent }}%
-
-            Please consider adding or expanding tests to improve coverage before merging.
