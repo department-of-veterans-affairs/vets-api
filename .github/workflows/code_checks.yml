@@ -356,6 +356,7 @@ jobs:
             vets-api-coverage \
             bundle exec rake coverage:report
 
+      # NEW: Copy coverage files to workspace root for actions
       - name: Copy coverage to workspace root
         if: needs.tests.result == 'success'
         run: |
@@ -375,24 +376,29 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: Coverage Report
-          path: vets-api/coverage
+          path: coverage
           if-no-files-found: ignore
+
       - name: Fix up coverage report to work with coverage-check-action
         if: needs.tests.result == 'success'
-        run: sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+        run: |
+          sed -i 's/"line"/"covered_percent"/g' 'coverage/.last_run.json'
+          echo "=== Modified coverage file (first 30 lines) ==="
+          head -30 coverage/.last_run.json
 
       - name: Publish Coverage Report
         if: needs.tests.result == 'success'
         uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
-          result_path: vets-api/coverage/.last_run.json
+          result_path: coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: SimpleCov Check
+        if: needs.tests.result == 'success'
         uses: joshmfrankel/simplecov-check-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_suite_coverage: 90
-        if: always()
+          coverage_path: coverage/.last_run.json  # Explicitly specify the path
