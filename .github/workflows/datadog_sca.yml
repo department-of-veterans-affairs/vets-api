@@ -2,6 +2,10 @@ on: [push]
 
 name: Datadog Software Composition Analysis
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   software-composition-analysis:
     runs-on: ubuntu-latest
@@ -9,10 +13,29 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v6
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v5
+      with:
+        role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+        aws-region: us-gov-west-1
+
+    - name: Get Datadog API Key
+      uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+      with:
+        ssm_parameter: /dsva-vagov/datadog-gov/common/API_KEY
+        env_variable_name: DD_API_KEY
+
+    - name: Get Datadog App Key
+      uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+      with:
+        ssm_parameter: /dsva-vagov/datadog-gov/common/APP_KEY
+        env_variable_name: DD_APP_KEY
+
     - name: Check imported libraries are secure and compliant
       id: datadog-software-composition-analysis
       uses: DataDog/datadog-sca-github-action@129f73657aec2f2dcd82bda9e5f418bdbf526986 # main
       with:
-        dd_api_key: ${{ secrets.DD_API_KEY }}
-        dd_app_key: ${{ secrets.DD_APP_KEY }}
+        dd_api_key: ${{ env.DD_API_KEY }}
+        dd_app_key: ${{ env.DD_APP_KEY }}
         dd_site: ddog-gov.com
