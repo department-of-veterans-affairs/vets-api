@@ -169,11 +169,6 @@ jobs:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-
       - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2.0.1
@@ -273,11 +268,8 @@ jobs:
     needs: tests
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
-    env:
-      VA_VSP_BOT_GITHUB_TOKEN: ${{ secrets.VA_VSP_BOT_GITHUB_TOKEN }}
 
     steps:
-
       - uses: actions/download-artifact@v6
 
       - name: Publish Test Results to GitHub
@@ -390,6 +382,17 @@ jobs:
           result_path: vets-api/coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: us-gov-west-1
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Checkout VSP actions
         uses: actions/checkout@v6
