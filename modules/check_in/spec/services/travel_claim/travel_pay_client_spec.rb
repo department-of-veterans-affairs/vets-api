@@ -231,8 +231,10 @@ RSpec.describe TravelClaim::TravelPayClient do
                         icn: test_icn)
           end.to raise_error(Common::Exceptions::GatewayTimeout)
 
-          # GatewayTimeout has no status, so log_api_error returns early
-          # The exception is still properly handled and re-raised
+          expect(Rails.logger).not_to have_received(:error).with(
+            'TravelPayClient API error',
+            any_args
+          )
         end
       end
     end

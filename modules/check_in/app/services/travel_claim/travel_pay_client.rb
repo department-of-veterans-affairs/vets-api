@@ -352,8 +352,9 @@ module TravelClaim
                                                               502)
       end
       token
-    rescue Common::Exceptions::BackendServiceException
-      log_token_error('VEIS', 'token_request_failed')
+    rescue Common::Exceptions::BackendServiceException => e
+      error_details = extract_oauth2_error_details(e.original_body)
+      log_token_error('VEIS', 'token_request_failed', e.original_status, error_details)
       raise
     end
 
@@ -453,8 +454,12 @@ module TravelClaim
       log_with_context('TravelPayClient authentication failed', error_type:, status_code:)
     end
 
-    def log_token_error(service, issue)
-      log_with_context('TravelPayClient token error', service:, issue:)
+    def log_token_error(service, issue, status = nil, error_details = nil)
+      log_data = { service:, issue: }
+      log_data[:status] = status if status
+      log_data[:error] = error_details[:error] if error_details&.dig(:error)
+      log_data[:error_description] = error_details[:error_description] if error_details&.dig(:error_description)
+      log_with_context('TravelPayClient token error', log_data)
     end
 
     def log_with_context(message, **extra_fields)
@@ -480,6 +485,18 @@ module TravelClaim
 
       parsed = body.is_a?(String) ? JSON.parse(body) : body
       parsed['message']
+    rescue JSON::ParserError
+      nil
+    end
+
+    def extract_oauth2_error_details(body)
+      return nil unless body
+
+      parsed = body.is_a?(String) ? JSON.parse(body) : body
+      {
+        error: parsed['error'],
+        error_description: parsed['error_description']
+      }.compact
     rescue JSON::ParserError
       nil
     end
