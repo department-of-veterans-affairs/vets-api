@@ -169,6 +169,25 @@ jobs:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
+      - name: Checkout VSP actions
+        uses: actions/checkout@v6
+        with:
+          repository: department-of-veterans-affairs/vsp-github-actions
+          ref: refs/heads/main
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          persist-credentials: false
+          path: ./.github/actions/vsp-github-actions
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/github_actions_slack_socket_token
+          env_variable_name: SLACK_APP_TOKEN
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/github_actions_slack_bot_user_token
+          env_variable_name: SLACK_BOT_TOKEN
+
       - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2.0.1
@@ -268,8 +287,17 @@ jobs:
     needs: tests
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
+    env:
+      SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
     steps:
+
+      - name: Example Slack Notification
+        run: |
+          echo "SLACK_APP_TOKEN=$SLACK_APP_TOKEN"
+          echo "SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN"
+
       - uses: actions/download-artifact@v6
 
       - name: Publish Test Results to GitHub
@@ -384,13 +412,36 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment Coverage on PR
-        if: ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           header: coverage
           message: |
-            ## 🧪 Test Coverage Report
+              ## ❌ Critical: Test Coverage Too Low
+              **Coverage:** ${{ steps.coverage.outputs.percent }}%
+              Your test coverage is **below the required minimum of 90%**.
+              Please add additional tests before this PR can be considered for merge.
+              Once coverage is improved, push another commit or rerun the workflow to update this report.
+
+      - name: Comment Coverage on PR
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 90 }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+            ## ⚠️ Warning: Low Coverage Report
             **Coverage:** ${{ steps.coverage.outputs.percent }}%
 
-            _Combined SimpleCov coverage across all test shards._
+            Please consider adding or expanding tests to improve coverage before merging. Thanks!
+
+      - name: Slack notify
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 90 }}
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Testing coverage alert"
+          blocks: "testing gha"
+          channel_id: "C039HRTHXDH"
