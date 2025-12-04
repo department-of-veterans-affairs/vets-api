@@ -11,23 +11,37 @@ on:
 
 name: Datadog Software Composition Analysis
 
+permissions:
+  contents: read
+
 jobs:
   sbom-generation:
     runs-on: ubuntu-latest
     name: Generate SBOM
+    env:
+      DD_SBOM_VERSION: v1.2.2
     steps:
     - name: Checkout
       uses: actions/checkout@v6
 
-    - name: Download datadog-sbom-generator
+    - name: Download and verify datadog-sbom-generator
       run: |
-        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/latest/download/datadog-sbom-generator_linux_amd64.zip" -o sbom-generator.zip
+        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/download/${DD_SBOM_VERSION}/datadog-sbom-generator_linux_amd64.zip" -o sbom-generator.zip
+        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/download/${DD_SBOM_VERSION}/datadog-sbom-generator_SHA256SUMS" -o checksums.txt
+        grep "datadog-sbom-generator_linux_amd64.zip" checksums.txt | sha256sum -c -
         unzip -q sbom-generator.zip -d sbom-generator
         chmod +x sbom-generator/datadog-sbom-generator
 
     - name: Generate SBOM
       run: |
-        ./sbom-generator/datadog-sbom-generator scan -o sbom.json .
+        if ! ./sbom-generator/datadog-sbom-generator scan -o sbom.json .; then
+          echo "::error::Failed to generate SBOM"
+          exit 1
+        fi
+        if ! jq empty sbom.json 2>/dev/null; then
+          echo "::error::Generated SBOM is not valid JSON"
+          exit 1
+        fi
         echo "Generated SBOM with $(jq '.components | length' sbom.json) components"
 
     - name: Upload SBOM artifact
