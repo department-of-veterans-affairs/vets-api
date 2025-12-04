@@ -419,7 +419,7 @@ jobs:
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "THIS IS A TEST, PLEASE DISREGARD"
+          message: "Low Coverage Alart"
           blocks: |
             [
               { "type": "divider" },
@@ -427,7 +427,28 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":scared_and_sweating_smiley: Testing coverage slack message! :scared_and_sweating_smiley:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n **Coverage:** ${{ steps.coverage.outputs.percent }}%"
+                  "text": ":cross_mark: Critical: Test Coverage Too Low! Vets-API deployment is blocked :cross_mark:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%\n\n"
+                }
+              },
+              { "type": "divider" }
+            ]
+          channel_id: "C039HRTHXDH"
+
+      - name: Slack notify
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) > 90 && fromJSON(steps.coverage.outputs.percent) < 93}}
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Low Coverage Warning"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":cross_mark: Warning: Low Vets-API Coverage Report! :cross_mark:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%"
                 }
               },
               { "type": "divider" }
