@@ -841,6 +841,7 @@ maintenance:
     community_care_ds: ~
     decision_reviews: ~
     disability_compensation_form: ~
+    dgi_claimants: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
