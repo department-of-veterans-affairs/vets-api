@@ -13,6 +13,11 @@ module BPDS
   class Service < Common::Client::Base
     configuration BPDS::Configuration
 
+    # Registry mapping form IDs to their formatter classes
+    FORMATTERS = {
+      '21P-530EZ' => 'Burials::BPDS::Formatter'
+    }.freeze
+
     def initialize
       unless Flipper.enabled?(:bpds_service_enabled)
         raise Common::Exceptions::Forbidden,
@@ -89,15 +94,34 @@ module BPDS
     # - 'fileNumber' is included if provided, representing the user's file number.
     # - 'payload' contains the parsed form data from the claim.
     def default_payload(claim, participant_id = nil, file_number = nil)
+      formatted_payload = format_payload(claim)
+
       {
         'bpd' => {
           'sensitivityLevel' => 0,
           'payloadNamespace' => bpds_namespace(claim.form_id),
           'participantId' => participant_id,
           'fileNumber' => file_number,
-          'payload' => claim.parsed_form
+          'payload' => formatted_payload
         }
       }
+    end
+
+    # Formats the claim payload using a registered formatter if available.
+    #
+    # @param claim [SavedClaim] The claim to format
+    # @return [Hash] The formatted payload (or original parsed_form if no formatter exists)
+    def format_payload(claim)
+      formatter_class_name = FORMATTERS[claim.form_id]
+
+      return claim.parsed_form unless formatter_class_name
+
+      formatter_class = formatter_class_name.constantize
+      formatter_class.new(claim.parsed_form).format
+    rescue NameError
+      # Formatter class not found - fall back to unformatted parsed_form
+      # The calling job's monitor will track if this causes submission issues
+      claim.parsed_form
     end
 
     ##
