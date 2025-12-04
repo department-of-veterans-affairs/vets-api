@@ -112,7 +112,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Cache Docker Image
+      - name: Build Docker Image
         uses: docker/build-push-action@v6
         env:
           DOCKER_BUILD_SUMMARY: false
@@ -121,9 +121,20 @@ jobs:
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             USER_ID=${{ env.VETS_API_USER_ID }}
           context: .
-          push: false
+          tags: vets-api:latest
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Save Docker Image to Tar
+        run: docker save vets-api:latest -o /tmp/vets-api.tar
+
+      - name: Upload Docker Image as Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: vets-api-image
+          path: /tmp/vets-api.tar
+          retention-days: 1
 
   tests:
     name: Test (Group ${{ matrix.test_group }})
@@ -169,31 +180,25 @@ jobs:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
       - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
 
-      - name: Set Environment Variable
-        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker Image
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v6
         with:
-          build-args: |
-            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=${{ env.VETS_API_USER_ID }}
-          context: .
-          push: false
-          load: true
-          tags: vets-api
-          cache-from: type=gha
+          name: vets-api-image
+          path: /tmp
+
+      - name: Load Docker Image
+        run: docker load --input /tmp/vets-api.tar
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -265,11 +270,14 @@ jobs:
   publish_results:
     name: Publish Test Results and Coverage
     if: always()
-    needs: tests
+    needs: [build, tests]
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
+    env:
+      VA_VSP_BOT_GITHUB_TOKEN: ${{ secrets.VA_VSP_BOT_GITHUB_TOKEN }}
 
     steps:
+
       - uses: actions/download-artifact@v6
 
       - name: Publish Test Results to GitHub
@@ -320,31 +328,16 @@ jobs:
           echo "=== Verifying artifacts in vets-api directory ==="
           ls -la vets-api/simplecov-resultset-* || echo "No simplecov-resultset-* directories in vets-api"
 
-      - name: Login to DockerHub
+      - name: Download Docker Image Artifact
         if: needs.tests.result == 'success'
-        uses: docker/login-action@v3
+        uses: actions/download-artifact@v6
         with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          name: vets-api-image
+          path: /tmp
 
-      - name: Set up Docker Buildx
+      - name: Load Docker Image
         if: needs.tests.result == 'success'
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker Image for Coverage
-        if: needs.tests.result == 'success'
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-        with:
-          build-args: |
-            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=1001
-          context: vets-api
-          push: false
-          load: true
-          tags: vets-api-coverage
-          cache-from: type=gha
+        run: docker load --input /tmp/vets-api.tar
 
       - name: Collate coverage and generate report
         if: needs.tests.result == 'success'
@@ -352,7 +345,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/vets-api:/app \
             -w /app \
-            vets-api-coverage \
+            vets-api:latest \
             bundle exec rake coverage:report
 
       - name: Upload Combined Coverage HTML
@@ -383,17 +376,6 @@ jobs:
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: us-gov-west-1
-
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-
       - name: Checkout VSP actions
         uses: actions/checkout@v6
         with:
@@ -413,47 +395,15 @@ jobs:
           ssm_parameter: /devops/github_actions_slack_bot_user_token
           env_variable_name: SLACK_BOT_TOKEN
 
-      - name: Slack notify
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
-        uses: ./.github/actions/vsp-github-actions/slack-socket
-        with:
-          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
-          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "Low Coverage Alart"
-          blocks: |
-            [
-              { "type": "divider" },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": ":cross_mark: Critical: Test Coverage Too Low! Vets-API deployment is blocked :cross_mark:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%\n\n"
-                }
-              },
-              { "type": "divider" }
-            ]
-          channel_id: "C039HRTHXDH"
-
-      - name: Slack notify
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) > 90 && fromJSON(steps.coverage.outputs.percent) < 93}}
-        uses: ./.github/actions/vsp-github-actions/slack-socket
-        with:
-          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
-          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "Low Coverage Warning"
-          blocks: |
-            [
-              { "type": "divider" },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": ":cross_mark: Warning: Low Vets-API Coverage Report! :cross_mark:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%"
-                }
-              },
-              { "type": "divider" }
-            ]
-          channel_id: "C039HRTHXDH"
+      # - name: Slack notify
+      #   if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
+      #   uses: ./.github/actions/vsp-github-actions/slack-socket
+      #   with:
+      #     slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+      #     slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+      #     message: "THIS IS A TEST, PLEASE DISREGARD"
+      #     blocks: "**Coverage:** ${{ steps.coverage.outputs.percent }}%"
+      #     channel_id: "C039HRTHXDH"
 
       - name: Comment Coverage on PR
         if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
