@@ -39,7 +39,7 @@ RSpec.describe 'V0::Form212680', type: :request do
     let(:status) { '500' }
 
     it 'returns a properly handled error' do
-      allow_any_instance_of(SavedClaim).to receive(:to_pdf).and_raise(StandardError, 'PDF generation error')
+      allow_any_instance_of(SavedClaim::Form212680).to receive(:to_pdf).and_raise(StandardError, 'PDF generation error')
 
       metrics = capture_statsd_calls do
         post(
