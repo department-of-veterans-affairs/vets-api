@@ -127,6 +127,34 @@ RSpec.describe TravelClaim::TravelPayClient do
         end
       end
     end
+
+    context 'when request fails' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs error when GatewayTimeout is raised' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::GatewayTimeout.new('Timeout::Error')
+          )
+
+          expect do
+            client.send(:veis_token_request)
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient VEIS endpoint error',
+            hash_including(
+              correlation_id: be_present,
+              status: 504,
+              endpoint: 'VEIS'
+            )
+          )
+        end
+      end
+    end
   end
 
   describe '#system_access_token_request' do
@@ -240,36 +268,6 @@ RSpec.describe TravelClaim::TravelPayClient do
               correlation_id: be_present,
               status: 504,
               endpoint: 'BTSSS'
-            )
-          )
-        end
-      end
-    end
-  end
-
-  describe '#veis_token_request' do
-    context 'when request fails' do
-      before do
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'logs error when GatewayTimeout is raised' do
-        with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
-          allow(client).to receive(:perform).and_raise(
-            Common::Exceptions::GatewayTimeout.new('Timeout::Error')
-          )
-
-          expect do
-            client.send(:veis_token_request)
-          end.to raise_error(Common::Exceptions::GatewayTimeout)
-
-          expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient VEIS endpoint error',
-            hash_including(
-              correlation_id: be_present,
-              status: 504,
-              endpoint: 'VEIS'
             )
           )
         end
