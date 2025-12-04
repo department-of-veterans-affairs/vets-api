@@ -7,6 +7,10 @@ RSpec.describe Mobile::V0::Adapters::Immunizations, type: :model do
 
   describe '#parse' do
     context 'group_name extraction' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_lighthouse_name_logging).and_return(true)
+      end
+
       context 'when coding has VACCINE GROUP: prefix at start with space' do
         let(:immunizations) do
           {
@@ -39,6 +43,19 @@ RSpec.describe Mobile::V0::Adapters::Immunizations, type: :model do
 
           result = adapter.parse(immunizations)
           expect(result.first.group_name).to eq('COVID-19')
+        end
+
+        context 'when logging is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_lighthouse_name_logging).and_return(false)
+          end
+
+          it 'does not log vaccine processing' do
+            expect(Rails.logger).not_to receive(:info).with('Immunizations group_name processing', anything)
+
+            result = adapter.parse(immunizations)
+            expect(result.first.group_name).to eq('COVID-19')
+          end
         end
       end
 

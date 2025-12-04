@@ -59,6 +59,8 @@ module Mobile
         end
 
         def log_vaccine_code_processing(vaccine_codes)
+          return unless Flipper.enabled?(:mhv_vaccine_lighthouse_name_logging)
+
           coding_count = vaccine_codes[:coding]&.length || 0
           display_hashes = anonymized_display_hashes(vaccine_codes)
           vaccine_group_lengths = calculate_vaccine_group_lengths(vaccine_codes)
