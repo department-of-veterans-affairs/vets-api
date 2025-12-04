@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'veteran_enrollment_system/enrollment_periods/configuration'
+require 'veteran_enrollment_system/error_handling'
 
 module VeteranEnrollmentSystem
   module EnrollmentPeriods
@@ -17,6 +18,7 @@ module VeteranEnrollmentSystem
     #
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
+      include VeteranEnrollmentSystem::ErrorHandling
 
       configuration VeteranEnrollmentSystem::EnrollmentPeriods::Configuration
       STATSD_KEY_PREFIX = 'api.enrollment_periods'
@@ -30,8 +32,18 @@ module VeteranEnrollmentSystem
         with_monitoring do
           path = "ves-ee-summary-svc/enrollment-periods/person/#{icn}"
           response = perform(:get, path, {})
-          response.body['data']['mecPeriods']
+          if response.status == 200
+            response.body['data']['mecPeriods']
+          else
+            raise_error(response, statsd_key_prefix: STATSD_KEY_PREFIX, operation: 'get_enrollment_periods')
+          end
         end
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_enrollment_periods.failed")
+        Rails.logger.error(
+          "get_enrollment_periods failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+        )
+        raise e
       end
     end
   end

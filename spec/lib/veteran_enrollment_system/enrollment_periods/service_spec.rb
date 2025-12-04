@@ -26,10 +26,23 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
     end
 
     context 'when an error status is received' do
-      it 'raises an error' do
+      it 'raises a mapped error (ResourceNotFound)' do
         VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
                          { match_requests_on: %i[method uri] }) do
-          expect { subject.get_enrollment_periods(icn:) }.to raise_error(Common::Client::Errors::ClientError)
+          expect { subject.get_enrollment_periods(icn:) }.to raise_error(Common::Exceptions::ResourceNotFound)
+        end
+      end
+
+      it 'logs and increments StatsD on error' do
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
+                         { match_requests_on: %i[method uri] }) do
+          expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.failed')
+          expect(Rails.logger).to receive(:error).with(/get_enrollment_periods failed:/)
+          begin
+            subject.get_enrollment_periods(icn:)
+          rescue Common::Exceptions::ResourceNotFound
+            # expected
+          end
         end
       end
     end

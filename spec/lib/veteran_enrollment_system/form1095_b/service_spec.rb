@@ -58,10 +58,14 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
     end
 
     context 'when an error status is received' do
-      it 'raises an error' do
+      it 'raises a mapped error and logs the failure' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
-          expect { subject.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
+          expect(Rails.logger).to receive(:error).with(/get_form_by_icn failed:/)
+          expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.failed')
+          expect {
+            subject.get_form_by_icn(icn:, tax_year:)
+          }.to raise_error(Common::Exceptions::ResourceNotFound)
         end
       end
     end

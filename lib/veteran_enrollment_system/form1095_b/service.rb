@@ -35,12 +35,21 @@ module VeteranEnrollmentSystem
           response = perform(:get, path, {})
 
           if response.status == 200
-            # response.body['data']['associations']
-              response.body
+            response.body
           else
-            raise_error(response)
+            raise_error(
+              response,
+              statsd_key_prefix: STATSD_KEY_PREFIX,
+              operation: 'get_form_by_icn'
+            )
           end
         end
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_form_by_icn.failed")
+        Rails.logger.error(
+          "get_form_by_icn failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+        )
+        raise e
       end
     end
   end
