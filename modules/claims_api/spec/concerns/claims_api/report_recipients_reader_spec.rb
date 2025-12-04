@@ -21,7 +21,7 @@ describe ClaimsApi::ReportRecipientsReader do
 
       before do
         allow(File).to receive(:exist?).with(recipient_file_path).and_return(true)
-        allow(YAML).to receive(:load_file).with(recipient_file_path).and_return(mock_yaml_data)
+        allow(YAML).to receive(:safe_load_file).with(recipient_file_path).and_return(mock_yaml_data)
       end
 
       it 'loads common recipients plus specific recipient type' do
@@ -43,7 +43,7 @@ describe ClaimsApi::ReportRecipientsReader do
     context 'when the file exists but is empty' do
       before do
         allow(File).to receive(:exist?).with(recipient_file_path).and_return(true)
-        allow(YAML).to receive(:load_file).with(recipient_file_path).and_return(nil)
+        allow(YAML).to receive(:safe_load_file).with(recipient_file_path).and_return(nil)
       end
 
       it 'returns an empty array' do
@@ -54,6 +54,29 @@ describe ClaimsApi::ReportRecipientsReader do
     context 'when the file does not exist' do
       before do
         allow(File).to receive(:exist?).with(recipient_file_path).and_return(false)
+      end
+
+      it 'returns an empty array' do
+        expect(report.load_recipients('submission_report_mailer')).to eq([])
+      end
+    end
+
+    context 'when YAML parsing fails' do
+      before do
+        allow(File).to receive(:exist?).with(recipient_file_path).and_return(true)
+        allow(YAML).to receive(:safe_load_file).with(recipient_file_path).and_raise(Psych::SyntaxError.new('file', 1, 1, 0, 'syntax error', 'context'))
+      end
+
+      it 'returns an empty array and logs the error' do
+        expect(Rails.logger).to receive(:error).with(/Failed to load recipients/)
+        expect(report.load_recipients('submission_report_mailer')).to eq([])
+      end
+    end
+
+    context 'when YAML returns non-hash data' do
+      before do
+        allow(File).to receive(:exist?).with(recipient_file_path).and_return(true)
+        allow(YAML).to receive(:safe_load_file).with(recipient_file_path).and_return('invalid data')
       end
 
       it 'returns an empty array' do
