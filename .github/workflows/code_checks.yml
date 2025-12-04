@@ -411,7 +411,7 @@ jobs:
           env_variable_name: SLACK_BOT_TOKEN
 
       - name: Slack notify
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) > 90 }}
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
@@ -434,7 +434,7 @@ jobs:
               Once coverage is improved, push another commit or rerun the workflow to update this report.
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 90 }}
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 91 }}
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -443,4 +443,4 @@ jobs:
             ## ⚠️ Warning: Low Coverage Report
             **Coverage:** ${{ steps.coverage.outputs.percent }}%
 
-            Please consider adding or expanding tests to improve coverage before merging. Thanks!
+            Please consider adding or expanding tests to improve coverage before merging.
