@@ -22,12 +22,12 @@ jobs:
     - name: Download datadog-sbom-generator
       run: |
         curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/latest/download/datadog-sbom-generator_linux_amd64.zip" -o sbom-generator.zip
-        unzip -q sbom-generator.zip
-        chmod +x datadog-sbom-generator
+        unzip -q sbom-generator.zip -d sbom-generator
+        chmod +x sbom-generator/datadog-sbom-generator
 
     - name: Generate SBOM
       run: |
-        ./datadog-sbom-generator scan -o sbom.json .
+        ./sbom-generator/datadog-sbom-generator scan -o sbom.json .
         echo "Generated SBOM with $(jq '.components | length' sbom.json) components"
 
     - name: Upload SBOM artifact
