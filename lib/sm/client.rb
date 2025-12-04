@@ -8,6 +8,7 @@ require 'sm/client/preferences'
 require 'sm/client/folders'
 require 'sm/client/message_drafts'
 require 'sm/client/messages'
+require 'sm/client/message_sending'
 require 'sm/client/triage_teams'
 require 'sm/client/attachments'
 require 'sm/client/message_status'
@@ -23,6 +24,7 @@ module SM
     include Folders
     include MessageDrafts
     include Messages
+    include MessageSending
     include TriageTeams
     include Attachments
     include MessageStatus
