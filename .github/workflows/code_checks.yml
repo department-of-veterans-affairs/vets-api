@@ -214,6 +214,7 @@ jobs:
         timeout-minutes: 15
         env:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
+          CI: true
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
           "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
@@ -234,13 +235,6 @@ jobs:
           path: simplecov-resultset-${{ matrix.test_group }}/.resultset.json
           include-hidden-files: true
           if-no-files-found: warn
-
-      - name: SimpleCov Check
-        uses: joshmfrankel/simplecov-check-action@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 90
-        if: always()
 
       - name: Upload Test Results (JUnit XMLs)
         if: always()
@@ -381,3 +375,10 @@ jobs:
           result_path: vets-api/coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: SimpleCov Check
+        uses: joshmfrankel/simplecov-check-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 90
+        if: always()
