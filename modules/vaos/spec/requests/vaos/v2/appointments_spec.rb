@@ -355,7 +355,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         let(:start_date) { Time.zone.parse('2023-10-13T14:25:00Z') }
         let(:end_date) { Time.zone.parse('2023-10-13T17:45:00Z') }
         let(:params) { { start: start_date, end: end_date } }
-        let(:avs_error_message) { 'Error retrieving AVS info' }
+        let(:avs_error) { 'Error retrieving AVS info' }
         let(:avs_path) do
           '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
         end
@@ -878,7 +878,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         context 'with judy morrison test appointment' do
           let(:current_user) { build(:user, :vaos) }
-          let(:avs_error_message) { 'Error retrieving AVS info' }
+          let(:avs_error) { 'Error retrieving AVS info' }
 
           it 'includes an avs error message in response when appointment has no available avs' do
             stub_clinics
