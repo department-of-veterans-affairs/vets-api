@@ -379,3 +379,25 @@ jobs:
           result_path: vets-api/coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Coverage Percent
+        if: needs.tests.result == 'success'
+        id: coverage
+        run: |
+          pct=$(jq '.result.covered_percent' vets-api/coverage/.last_run.json)
+          echo "$pct"
+          echo "percent=$pct" >> $GITHUB_OUTPUT
+
+          - name: Comment Coverage on PR
+
+      - name: Comment Coverage on PR
+        if: ${{ github.event_name == 'pull_request' }} && needs.tests.result == 'success'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+            ## 🧪 Test Coverage Report
+            **Coverage:** ${{ steps.coverage.outputs.percent }}%
+
+            _Combined SimpleCov coverage across all test shards._
