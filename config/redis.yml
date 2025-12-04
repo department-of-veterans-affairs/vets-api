@@ -223,6 +223,9 @@ development: &defaults
   unique_user_metrics:
     namespace: mhv-uum
     each_ttl: 86400  # 1 day cache for event existence checks
+  evidence_submission_poll_store:
+    namespace: evidence-submission-poll
+    each_ttl: 60  # 60 seconds cache for evidence submission polling
 test:
   <<: *defaults
   redis:
