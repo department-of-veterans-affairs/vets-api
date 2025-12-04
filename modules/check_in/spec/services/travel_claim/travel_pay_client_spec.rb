@@ -163,10 +163,11 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient API error',
+            'TravelPayClient BTSSS endpoint error',
             hash_including(
               correlation_id: be_present,
-              status: 500
+              status: 500,
+              endpoint: 'BTSSS'
             )
           )
         end
@@ -186,10 +187,11 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient API error',
+            'TravelPayClient BTSSS endpoint error',
             hash_including(
               correlation_id: be_present,
-              status: 502
+              status: 502,
+              endpoint: 'BTSSS'
             )
           )
         end
@@ -209,16 +211,17 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Client::Errors::ClientError)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient API error',
+            'TravelPayClient BTSSS endpoint error',
             hash_including(
               correlation_id: be_present,
-              status: 503
+              status: 503,
+              endpoint: 'BTSSS'
             )
           )
         end
       end
 
-      it 'handles GatewayTimeout error' do
+      it 'logs error when GatewayTimeout is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
                       claims_url_v2:) do
           allow(client).to receive(:perform).and_raise(
@@ -231,9 +234,43 @@ RSpec.describe TravelClaim::TravelPayClient do
                         icn: test_icn)
           end.to raise_error(Common::Exceptions::GatewayTimeout)
 
-          expect(Rails.logger).not_to have_received(:error).with(
-            'TravelPayClient API error',
-            any_args
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient BTSSS endpoint error',
+            hash_including(
+              correlation_id: be_present,
+              status: 504,
+              endpoint: 'BTSSS'
+            )
+          )
+        end
+      end
+    end
+  end
+
+  describe '#veis_token_request' do
+    context 'when request fails' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs error when GatewayTimeout is raised' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::GatewayTimeout.new('Timeout::Error')
+          )
+
+          expect do
+            client.send(:veis_token_request)
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient VEIS endpoint error',
+            hash_including(
+              correlation_id: be_present,
+              status: 504,
+              endpoint: 'VEIS'
+            )
           )
         end
       end

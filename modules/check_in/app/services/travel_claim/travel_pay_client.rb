@@ -82,6 +82,8 @@ module TravelClaim
         headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
         perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
       end
+    rescue *api_exceptions => e
+      handle_backend_service_exception(e, endpoint: 'VEIS')
     end
 
     ##
@@ -110,7 +112,7 @@ module TravelClaim
         perform(:post, 'api/v4/auth/system-access-token', body, headers)
       end
     rescue *api_exceptions => e
-      handle_backend_service_exception(e)
+      handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
     ##
@@ -126,7 +128,7 @@ module TravelClaim
         end
       end
     rescue *api_exceptions => e
-      handle_backend_service_exception(e)
+      handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
     # Sends a request to create a new claim.
@@ -142,7 +144,7 @@ module TravelClaim
         end
       end
     rescue *api_exceptions => e
-      handle_backend_service_exception(e)
+      handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
     ##
@@ -161,7 +163,7 @@ module TravelClaim
         end
       end
     rescue *api_exceptions => e
-      handle_backend_service_exception(e)
+      handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
     ##
@@ -175,7 +177,7 @@ module TravelClaim
         with_monitoring { perform(:get, "api/v3/claims/#{claim_id}", nil, headers) }
       end
     rescue *api_exceptions => e
-      handle_backend_service_exception(e)
+      handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
     ##
@@ -189,7 +191,7 @@ module TravelClaim
         with_monitoring { perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers) }
       end
     rescue *api_exceptions => e
-      handle_backend_service_exception(e)
+      handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
     # ------------ Keys / headers ------------
@@ -312,16 +314,13 @@ module TravelClaim
       veis_token! if @current_veis_token.blank?
 
       if @icn.blank?
-        Rails.logger.error('TravelPayClient BTSSS token mint aborted (missing ICN)',
-                           correlation_id: @correlation_id, icn_present: false)
+        log_with_context('TravelPayClient BTSSS token mint aborted (missing ICN)', icn_present: false)
         raise TravelClaim::Errors::InvalidArgument, 'ICN is required to request BTSSS token'
       end
 
-      Rails.logger.debug('TravelPayClient BTSSS auth preflight', correlation_id: @correlation_id, icn_present: true)
       resp = system_access_token_request(veis_access_token: @current_veis_token, icn: @icn)
       token = resp.body.dig('data', 'accessToken')
       if token.blank?
-        Rails.logger.error('TravelPayClient BTSSS token response missing accessToken', correlation_id: @correlation_id)
         raise Common::Exceptions::BackendServiceException.new('VA900', { detail: 'BTSSS auth missing accessToken' },
                                                               502)
       end
@@ -334,7 +333,6 @@ module TravelClaim
       cached = redis_client.token
       if cached.present?
         @current_veis_token = cached
-        Rails.logger.debug('TravelPayClient VEIS token from cache', correlation_id: @correlation_id)
       else
         @current_veis_token = mint_veis_token
         redis_client.save_token(token: @current_veis_token)
@@ -347,15 +345,10 @@ module TravelClaim
       resp = veis_token_request
       token = resp.body['access_token']
       if token.blank?
-        Rails.logger.error('TravelPayClient VEIS token response missing access_token', correlation_id: @correlation_id)
         raise Common::Exceptions::BackendServiceException.new('VA900', { detail: 'VEIS auth missing access_token' },
                                                               502)
       end
       token
-    rescue Common::Exceptions::BackendServiceException => e
-      error_details = extract_oauth2_error_details(e.original_body)
-      log_token_error('VEIS', 'token_request_failed', e.original_status, error_details)
-      raise
     end
 
     def refresh_tokens!
@@ -454,14 +447,6 @@ module TravelClaim
       log_with_context('TravelPayClient authentication failed', error_type:, status_code:)
     end
 
-    def log_token_error(service, issue, status = nil, error_details = nil)
-      log_data = { service:, issue: }
-      log_data[:status] = status if status
-      log_data[:error] = error_details[:error] if error_details&.dig(:error)
-      log_data[:error_description] = error_details[:error_description] if error_details&.dig(:error_description)
-      log_with_context('TravelPayClient token error', log_data)
-    end
-
     def log_with_context(message, **extra_fields)
       Rails.logger.error(message, base_log_context.merge(extra_fields))
     end
@@ -489,24 +474,11 @@ module TravelClaim
       nil
     end
 
-    def extract_oauth2_error_details(body)
-      return nil unless body
-
-      parsed = body.is_a?(String) ? JSON.parse(body) : body
-      {
-        error: parsed['error'],
-        error_description: parsed['error_description']
-      }.compact
-    rescue JSON::ParserError
-      nil
-    end
-
-    def handle_backend_service_exception(error)
-      # Handle different exception types with different property names
-      status = error.respond_to?(:original_status) ? error.original_status : error.try(:status)
+    def handle_backend_service_exception(error, endpoint: nil)
+      status = extract_error_status(error)
       body = error.respond_to?(:original_body) ? error.original_body : error.try(:body)
 
-      log_api_error(status, body)
+      log_api_error(status, body, endpoint:)
 
       # Extract message from original body if detail is nil (only for BackendServiceException)
       if error.is_a?(Common::Exceptions::BackendServiceException) &&
@@ -524,25 +496,41 @@ module TravelClaim
       raise
     end
 
-    def log_api_error(status, body)
-      return unless status
+    def extract_error_status(error)
+      return error.original_status if error.respond_to?(:original_status)
+      return error.status if error.respond_to?(:status)
+      return error.status_code if error.respond_to?(:status_code)
+
+      nil
+    end
+
+    def log_api_error(status, body, endpoint: nil)
       return if status == 401 # Already logged in with_auth method
 
       if status == 400
         parsed_message = extract_message_from_response(body)
         if parsed_message&.include?('already been created')
           log_existing_claim_error
-        else
-          log_api_error_with_status(status,
-                                    'bad_request')
+          return
         end
-      else
-        log_api_error_with_status(status)
       end
+
+      log_api_error_with_status(status, endpoint:)
     end
 
-    def log_api_error_with_status(status, error_type = nil)
-      log_with_context('TravelPayClient API error', status:, error_type:)
+    def log_api_error_with_status(status, endpoint: nil)
+      log_data = { status: }
+      log_data[:endpoint] = endpoint if endpoint
+
+      message = if endpoint == 'VEIS'
+                  'TravelPayClient VEIS endpoint error'
+                elsif endpoint == 'BTSSS'
+                  'TravelPayClient BTSSS endpoint error'
+                else
+                  'TravelPayClient API error'
+                end
+
+      log_with_context(message, **log_data)
     end
   end
 end
