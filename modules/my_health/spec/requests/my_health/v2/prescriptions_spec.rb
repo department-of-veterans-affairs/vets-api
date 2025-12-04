@@ -9,6 +9,45 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:refill_path) { '/my_health/v2/prescriptions/refill' }
 
+  # Default prescription attributes for mock prescriptions
+  let(:default_prescription_attrs) do
+    {
+      prescription_id: '12345',
+      prescription_number: 'RX123456',
+      prescription_name: 'Test Medication',
+      refill_status: 'active',
+      refill_submit_date: nil,
+      refill_date: Time.zone.today - 30.days,
+      refill_remaining: 3,
+      facility_name: 'Test VA Facility',
+      ordered_date: Time.zone.today - 60.days,
+      quantity: 30,
+      expiration_date: Time.zone.today + 300.days,
+      dispensed_date: Time.zone.today - 30.days,
+      station_number: '556',
+      is_refillable: true,
+      is_trackable: false,
+      cmop_ndc_number: nil,
+      tracking: nil,
+      instructions: 'Take one tablet daily',
+      facility_phone_number: '555-123-4567',
+      cmop_division_phone: nil,
+      dial_cmop_division_phone: nil,
+      prescription_source: 'VA',
+      category: 'Rx Medication',
+      disclaimer: nil,
+      provider_name: 'Dr. Test',
+      indication_for_use: nil,
+      remarks: nil,
+      disp_status: 'Active',
+      dispenses: [],
+      rx_rf_records: [],
+      grouped_medications: nil,
+      orderable_item: 'Test Medication 10mg Tab',
+      sorted_dispensed_date: Time.zone.today - 30.days
+    }
+  end
+
   before do
     sign_in_as(current_user)
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
@@ -999,5 +1038,17 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
     end
+  end
+
+  private
+
+  def build_mock_prescription(attrs = {})
+    prescription = OpenStruct.new(default_prescription_attrs.merge(attrs))
+
+    prescription.define_singleton_method(:disp_status=) do |value|
+      @table[:disp_status] = value
+    end
+
+    prescription
   end
 end

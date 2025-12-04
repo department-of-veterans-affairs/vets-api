@@ -17,6 +17,29 @@ module MyHealth
 
       service_tag 'mhv-medications'
 
+      # Mapping from current VA.gov statuses to new VA.gov V2 statuses
+      # Only applied when mhv_medications_cerner_pilot feature flag is enabled
+      #
+      # Note: "Pending New Prescription" and "Pending Renewal" are NOT API statuses -
+      # they are derived from prescription_source field (PD) and handled separately
+      # in the frontend or via prescription grouping logic.
+      #
+      # "Active: Non-VA" IS a valid disp_status computed in the adapter when
+      # refill_status is 'active' and prescription_source is 'NV'
+      V2_STATUS_MAPPING = {
+        'Active' => 'Active',
+        'Active: Parked' => 'Active',
+        'Active: Non-VA' => 'Active',
+        'Active: Submitted' => 'In progress',
+        'Active: Refill in Process' => 'In progress',
+        'Expired' => 'Inactive',
+        'Discontinued' => 'Inactive',
+        'Active: On hold' => 'Inactive',
+        'Active: On Hold' => 'Inactive',
+        'Transferred' => 'Transferred',
+        'Unknown' => 'Status not available'
+      }.freeze
+
       def refill
         return unless validate_feature_flag
 
@@ -49,6 +72,12 @@ module MyHealth
         filter_count = set_filter_metadata(prescriptions, raw_data)
         prescriptions, sort_metadata = apply_filters_and_sorting(prescriptions)
 
+        # Map to V2 statuses when Cerner pilot is enabled
+        if cerner_pilot_enabled?
+          prescriptions = map_to_v2_statuses(prescriptions)
+          recently_requested = map_to_v2_statuses(recently_requested)
+        end
+
         records, options = build_response_data(prescriptions, filter_count, recently_requested, sort_metadata)
 
         log_prescriptions_access
@@ -66,6 +95,9 @@ module MyHealth
 
         raise Common::Exceptions::RecordNotFound, params[:id] unless prescription
 
+        # Map to V2 status when Cerner pilot is enabled
+        prescription = map_prescription_to_v2_status(prescription) if cerner_pilot_enabled?
+
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
       end
 
@@ -75,6 +107,12 @@ module MyHealth
         prescriptions = service.get_prescriptions(current_only: false).compact
         recently_requested = get_recently_requested_prescriptions(prescriptions)
         refillable_prescriptions = filter_data_by_refill_and_renew(prescriptions)
+
+        # Map to V2 statuses when Cerner pilot is enabled
+        if cerner_pilot_enabled?
+          refillable_prescriptions = map_to_v2_statuses(refillable_prescriptions)
+          recently_requested = map_to_v2_statuses(recently_requested)
+        end
 
         options = { meta: { recently_requested: } }
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(refillable_prescriptions, options)
@@ -86,8 +124,12 @@ module MyHealth
         @service ||= UnifiedHealthData::Service.new(@current_user)
       end
 
+      def cerner_pilot_enabled?
+        Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
+      end
+
       def validate_feature_flag
-        return true if Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
+        return true if cerner_pilot_enabled?
 
         render json: {
           error: {
@@ -96,6 +138,29 @@ module MyHealth
           }
         }, status: :forbidden
         false
+      end
+
+      # Maps a collection of prescriptions to V2 statuses
+      # @param prescriptions [Array] Array of prescription objects
+      # @return [Array] Prescriptions with disp_status mapped to V2 values
+      def map_to_v2_statuses(prescriptions)
+        prescriptions.map { |prescription| map_prescription_to_v2_status(prescription) }
+      end
+
+      # Maps a single prescription's disp_status to V2 status
+      # @param prescription [Object] A prescription object
+      # @return [Object] Prescription with disp_status mapped to V2 value
+      def map_prescription_to_v2_status(prescription)
+        return prescription unless prescription.respond_to?(:disp_status) && prescription.disp_status.present?
+
+        new_status = V2_STATUS_MAPPING[prescription.disp_status]
+
+        # Only update if we have a mapping for this status
+        if new_status && new_status != prescription.disp_status && prescription.respond_to?(:disp_status=)
+          prescription.disp_status = new_status
+        end
+
+        prescription
       end
 
       def apply_filters_and_sorting(prescriptions)
@@ -140,9 +205,13 @@ module MyHealth
       end
 
       def get_recently_requested_prescriptions(prescriptions)
+        # These are the original MHV status values before V2 mapping
+        in_progress_statuses = [
+          'Active: Refill in Process',
+          'Active: Submitted'
+        ]
         prescriptions.select do |item|
-          item.respond_to?(:disp_status) && ['Active: Refill in Process',
-                                             'Active: Submitted'].include?(item.disp_status)
+          item.respond_to?(:disp_status) && in_progress_statuses.include?(item.disp_status)
         end
       end
 
@@ -203,8 +272,12 @@ module MyHealth
 
       def count_active_medications(list)
         active_statuses = [
-          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
-          'Active: Parked', 'Active: Submitted'
+          'Active',
+          'Active: Refill in Process',
+          'Active: Non-VA',
+          'Active: On hold',
+          'Active: Parked',
+          'Active: Submitted'
         ]
         list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
       end
