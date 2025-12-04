@@ -229,10 +229,10 @@ module VaNotify
     end
 
     def set_service_id(response)
-      if Flipper.enabled?(:va_notify_request_level_callbacks)
-        parsed_template_uri = response.template['uri']&.split('/')
-        parsed_template_uri[4]
-      end
+      return nil unless Flipper.enabled?(:va_notify_request_level_callbacks)
+
+      parsed_template_uri = response.template['uri']&.split('/')
+      parsed_template_uri[4]
     end
   end
 end
