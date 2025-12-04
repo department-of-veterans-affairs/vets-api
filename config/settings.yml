@@ -1028,7 +1028,7 @@ ogc:
     s3:
       uploads_enabled: true
       type: s3
-      region: us-gov-west-1
+      region: <%= ENV['ogc__form21a__s3__region'] %>
       bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
 oidc:
   isolated_audience:

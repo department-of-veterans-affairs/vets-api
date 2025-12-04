@@ -32,7 +32,7 @@ module AccreditedRepresentativePortal
         )
 
         ActiveRecord::Base.transaction do
-          form_attachment = Form21aAttachment.new(type: 'Form21aAttachment')
+          form_attachment = Form21aAttachment.new
           form_attachment.set_file_data!(file)
           form_attachment.save!
           update_in_progress_form(details_slug, file, form_attachment)
