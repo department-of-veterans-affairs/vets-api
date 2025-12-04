@@ -17,39 +17,21 @@ module MyHealth
 
       service_tag 'mhv-medications'
 
-      # Mapping from current VA.gov statuses to new VA.gov V2 statuses
-      # Only applied when mhv_medications_cerner_pilot feature flag is enabled
-      V2_STATUS_MAPPING = {
-        'Active' => 'Active',
-        'Active: Parked' => 'Active',
-        'Active: Non-VA' => 'Active',
-        'Active: Submitted' => 'In progress',
-        'Active: Refill in Process' => 'In progress',
-        'Expired' => 'Inactive',
-        'Discontinued' => 'Inactive',
-        'Active: On hold' => 'Inactive',
-        'Transferred' => 'Transferred',
-        'Unknown' => 'Status not available'
+      # V2 Status Categories - Single source of truth for status groupings
+      # Each V2 status maps to an array of original MHV statuses
+      V2_STATUS_GROUPS = {
+        'Active' => ['Active', 'Active: Parked', 'Active: Non-VA'].freeze,
+        'In progress' => ['Active: Submitted', 'Active: Refill in Process'].freeze,
+        'Inactive' => ['Expired', 'Discontinued', 'Active: On hold'].freeze,
+        'Transferred' => ['Transferred'].freeze,
+        'Status not available' => ['Unknown'].freeze
       }.freeze
 
-      # Reverse mapping from V2 statuses to original statuses for filtering
-      # Used when cerner_pilot is enabled to translate filter values
-      V2_TO_ORIGINAL_STATUS_MAPPING = {
-        'Active' => ['Active', 'Active: Parked', 'Active: Non-VA'],
-        'In progress' => ['Active: Submitted', 'Active: Refill in Process'],
-        'Inactive' => ['Expired', 'Discontinued', 'Active: On hold'],
-        'Transferred' => ['Transferred'],
-        'Status not available' => ['Unknown']
-      }.freeze
-
-      # Original statuses that map to V2 "Active" for counting purposes
-      V2_ACTIVE_STATUSES = ['Active', 'Active: Parked', 'Active: Non-VA'].freeze
-
-      # Original statuses that map to V2 "In progress" for counting purposes
-      V2_IN_PROGRESS_STATUSES = ['Active: Submitted', 'Active: Refill in Process'].freeze
-
-      # Original statuses that map to V2 "Inactive" for counting purposes
-      V2_INACTIVE_STATUSES = ['Expired', 'Discontinued', 'Active: On hold'].freeze
+      # Generated mapping from original status to V2 status (case-insensitive lookup)
+      # Example: { 'active' => 'Active', 'active: parked' => 'Active', ... }
+      ORIGINAL_TO_V2_STATUS_MAPPING = V2_STATUS_GROUPS.each_with_object({}) do |(v2_status, originals), hash|
+        originals.each { |original| hash[original.downcase] = v2_status }
+      end.freeze
 
       def refill
         return unless validate_feature_flag
@@ -164,14 +146,66 @@ module MyHealth
       def map_prescription_to_v2_status(prescription)
         return prescription unless prescription.respond_to?(:disp_status) && prescription.disp_status.present?
 
-        new_status = V2_STATUS_MAPPING[prescription.disp_status]
+        # Case-insensitive lookup
+        new_status = ORIGINAL_TO_V2_STATUS_MAPPING[prescription.disp_status.downcase]
 
-        # Only update if we have a mapping for this status
-        if new_status && new_status != prescription.disp_status && prescription.respond_to?(:disp_status=)
-          prescription.disp_status = new_status
-        end
+        prescription.disp_status = new_status if new_status && prescription.respond_to?(:disp_status=)
 
         prescription
+      end
+
+      # Counts medications by V2 status category
+      # @param list [Array] List of prescriptions with original status values
+      # @param v2_status [String] The V2 status category to count
+      # @return [Integer] Count of medications matching the V2 category
+      def count_medications_by_v2_status(list, v2_status)
+        original_statuses = V2_STATUS_GROUPS[v2_status]&.map(&:downcase) || []
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && rx.disp_status &&
+            original_statuses.include?(rx.disp_status.downcase)
+        end
+      end
+
+      def count_v2_active_medications(list)
+        count_medications_by_v2_status(list, 'Active')
+      end
+
+      def count_v2_in_progress_medications(list)
+        count_medications_by_v2_status(list, 'In progress')
+      end
+
+      def count_v2_inactive_medications(list)
+        # Inactive includes Transferred and Status not available for non_active count
+        non_active_v2_statuses = ['Inactive', 'Transferred', 'Status not available']
+        non_active_v2_statuses.sum { |status| count_medications_by_v2_status(list, status) }
+      end
+
+      # Gets recently requested prescriptions (V2 "In progress" status)
+      # NOTE: Called BEFORE V2 mapping, checks for original status values
+      # Original statuses: "Active: Submitted", "Active: Refill in Process"
+      # @param prescriptions [Array] List of prescriptions with original status values
+      # @return [Array] Prescriptions that map to V2 "In progress" status
+      def get_recently_requested_prescriptions(prescriptions)
+        in_progress_originals = V2_STATUS_GROUPS['In progress'].map(&:downcase)
+        prescriptions.select do |item|
+          item.respond_to?(:disp_status) && item.disp_status &&
+            in_progress_originals.include?(item.disp_status.downcase)
+        end
+      end
+
+      # Maps V2 filter values to original status values for filtering
+      # @param filters [Array<String>] Array of V2 status values from filter params
+      # @return [Array<String>] Array of original status values (lowercased)
+      def map_v2_filters_to_original(filters)
+        filters.flat_map do |filter|
+          original_statuses = V2_STATUS_GROUPS[filter]
+          if original_statuses
+            original_statuses.map(&:downcase)
+          else
+            # If no mapping found, use the filter value as-is (backwards compatibility)
+            [filter.downcase]
+          end
+        end.uniq
       end
 
       def apply_filters_and_sorting(prescriptions)
@@ -225,91 +259,6 @@ module MyHealth
             non_active: count_v2_inactive_medications(list)
           }
         }
-      end
-
-      def count_v2_active_medications(list)
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && V2_ACTIVE_STATUSES.include?(rx.disp_status)
-        end
-      end
-
-      def count_v2_in_progress_medications(list)
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && V2_IN_PROGRESS_STATUSES.include?(rx.disp_status)
-        end
-      end
-
-      def count_v2_inactive_medications(list)
-        non_active_original_statuses = V2_INACTIVE_STATUSES + %w[Transferred Unknown]
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && non_active_original_statuses.include?(rx.disp_status)
-        end
-      end
-
-      def get_recently_requested_prescriptions(prescriptions)
-        prescriptions.select do |item|
-          item.respond_to?(:disp_status) && V2_IN_PROGRESS_STATUSES.include?(item.disp_status)
-        end
-      end
-
-      def apply_filters_to_list(prescriptions)
-        filter_params = params.require(:filter).permit(disp_status: [:eq])
-        disp_status = filter_params[:disp_status]
-
-        if disp_status.present?
-          if disp_status[:eq]&.downcase == 'active,expired'.downcase
-            # filter renewals
-            prescriptions.select(&method(:renewable))
-          else
-            filters = disp_status[:eq].split(',').map(&:strip)
-            # Map V2 filter values to original status values for filtering
-            # V2 controller always has cerner_pilot enabled (enforced by validate_feature_flag)
-            original_filters = map_v2_filters_to_original(filters)
-
-            prescriptions.select do |item|
-              item.respond_to?(:disp_status) && item.disp_status &&
-                original_filters.include?(item.disp_status.downcase)
-            end
-          end
-        else
-          prescriptions
-        end
-      end
-
-      def map_v2_filters_to_original(filters)
-        filters.flat_map do |filter|
-          original_statuses = V2_TO_ORIGINAL_STATUS_MAPPING[filter]
-          if original_statuses
-            original_statuses.map(&:downcase)
-          else
-            # If no mapping found, use the filter value as-is (for backwards compatibility)
-            [filter.downcase]
-          end
-        end.uniq
-      end
-
-      def apply_sorting_to_list(prescriptions, sort_param)
-        # Create a mock resource object for the helper methods
-        resource = Struct.new(:records, :metadata).new(prescriptions, {})
-
-        # Use the helper's apply_sorting method which sets the metadata
-        sorted_resource = apply_sorting(resource, sort_param)
-
-        [sorted_resource.records, sorted_resource.metadata]
-      end
-
-      def resource_data_modifications(prescriptions)
-        display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, @current_user)
-
-        prescriptions = if params[:filter].blank? && display_pending_meds
-                          prescriptions.reject do |item|
-                            item.respond_to?(:prescription_source) && item.prescription_source == 'PF'
-                          end
-                        else
-                          remove_pf_pd(prescriptions)
-                        end
-
-        group_prescriptions(prescriptions)
       end
 
       def count_grouped_prescriptions(prescriptions)

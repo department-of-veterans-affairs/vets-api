@@ -1176,22 +1176,58 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     end
   end
 
-  describe 'filter_count metadata with V2 status groupings' do
+  describe 'V2_STATUS_GROUPS constant' do
+    it 'defines correct status groupings' do
+      expected_groups = {
+        'Active' => ['Active', 'Active: Parked', 'Active: Non-VA'],
+        'In progress' => ['Active: Submitted', 'Active: Refill in Process'],
+        'Inactive' => ['Expired', 'Discontinued', 'Active: On hold'],
+        'Transferred' => ['Transferred'],
+        'Status not available' => ['Unknown']
+      }
+
+      expect(MyHealth::V2::PrescriptionsController::V2_STATUS_GROUPS).to eq(expected_groups)
+    end
+  end
+
+  describe 'ORIGINAL_TO_V2_STATUS_MAPPING constant' do
+    it 'generates correct case-insensitive mappings from V2_STATUS_GROUPS' do
+      mapping = MyHealth::V2::PrescriptionsController::ORIGINAL_TO_V2_STATUS_MAPPING
+
+      # Verify it's case-insensitive (all keys lowercase)
+      expect(mapping.keys).to all(eq(mapping.keys.first.downcase).or(be_a(String)))
+
+      # Verify mappings
+      expect(mapping['active']).to eq('Active')
+      expect(mapping['active: parked']).to eq('Active')
+      expect(mapping['active: non-va']).to eq('Active')
+      expect(mapping['active: submitted']).to eq('In progress')
+      expect(mapping['active: refill in process']).to eq('In progress')
+      expect(mapping['expired']).to eq('Inactive')
+      expect(mapping['discontinued']).to eq('Inactive')
+      expect(mapping['active: on hold']).to eq('Inactive')
+      expect(mapping['transferred']).to eq('Transferred')
+      expect(mapping['unknown']).to eq('Status not available')
+    end
+  end
+
+  describe 'filter_count metadata with refactored V2 counting methods' do
     let(:mock_prescriptions) do
       [
-        # V2 "Active" group
+        # V2 "Active" group (3)
         build_mock_prescription(prescription_id: '1', disp_status: 'Active'),
         build_mock_prescription(prescription_id: '2', disp_status: 'Active: Parked'),
         build_mock_prescription(prescription_id: '3', disp_status: 'Active: Non-VA', prescription_source: 'NV'),
-        # V2 "In progress" group
+        # V2 "In progress" group (2)
         build_mock_prescription(prescription_id: '4', disp_status: 'Active: Submitted'),
         build_mock_prescription(prescription_id: '5', disp_status: 'Active: Refill in Process'),
-        # V2 "Inactive" group
+        # V2 "Inactive" group (3)
         build_mock_prescription(prescription_id: '6', disp_status: 'Expired'),
         build_mock_prescription(prescription_id: '7', disp_status: 'Discontinued'),
         build_mock_prescription(prescription_id: '8', disp_status: 'Active: On hold'),
-        # Other statuses
+        # V2 "Transferred" (1)
         build_mock_prescription(prescription_id: '9', disp_status: 'Transferred'),
+        # V2 "Status not available" (1)
         build_mock_prescription(prescription_id: '10', disp_status: 'Unknown')
       ]
     end
@@ -1201,36 +1237,96 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
     end
 
-    it 'returns filter_count with V2 status groupings' do
+    it 'counts active medications using V2 groupings' do
       get('/my_health/v2/prescriptions', headers:)
 
-      expect(response).to have_http_status(:success)
       json_response = JSON.parse(response.body)
       filter_count = json_response['meta']['filter_count']
 
-      # V2 "Active" = Active, Active: Parked, Active: Non-VA = 3
+      # Active = Active + Active: Parked + Active: Non-VA = 3
       expect(filter_count['active']).to eq(3)
-
-      # V2 "In progress" = Active: Submitted, Active: Refill in Process = 2
-      expect(filter_count['recently_requested']).to eq(2)
-
-      # V2 "Inactive" = Expired, Discontinued, Active: On hold, Transferred, Unknown = 5
-      expect(filter_count['non_active']).to eq(5)
     end
 
-    it 'returns recently_requested prescriptions mapped to V2 status' do
+    it 'counts recently_requested (in progress) medications using V2 groupings' do
       get('/my_health/v2/prescriptions', headers:)
 
       json_response = JSON.parse(response.body)
-      recently_requested = json_response['meta']['recently_requested']
+      filter_count = json_response['meta']['filter_count']
 
-      # Should have 2 prescriptions (IDs 4 and 5)
-      expect(recently_requested.length).to eq(2)
+      # In progress = Active: Submitted + Active: Refill in Process = 2
+      expect(filter_count['recently_requested']).to eq(2)
+    end
 
-      # All should have V2 status "In progress"
-      recently_requested.each do |rx|
-        expect(rx['disp_status']).to eq('In progress')
-      end
+    it 'counts non_active medications using V2 groupings' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      # Non-active = Inactive (3) + Transferred (1) + Status not available (1) = 5
+      expect(filter_count['non_active']).to eq(5)
+    end
+
+    it 'counts all_medications correctly' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      expect(filter_count['all_medications']).to eq(10)
+    end
+  end
+
+  describe 'V2 status filtering with map_v2_filters_to_original' do
+    let(:mock_prescriptions) { build_prescriptions_with_all_statuses }
+
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+    end
+
+    it 'maps V2 "Inactive" filter to original statuses' do
+      # V2_STATUS_GROUPS['Inactive'] = ['Expired', 'Discontinued', 'Active: On hold']
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'Inactive' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('6', '7', '8')
+    end
+
+    it 'maps V2 "In progress" filter to original statuses' do
+      # V2_STATUS_GROUPS['In progress'] = ['Active: Submitted', 'Active: Refill in Process']
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'In progress' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('4', '5')
+    end
+
+    it 'maps V2 "Active" filter to original statuses' do
+      # V2_STATUS_GROUPS['Active'] = ['Active', 'Active: Parked', 'Active: Non-VA']
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'Active' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('1', '2', '3')
+    end
+
+    it 'falls back to original filter value if no V2 mapping exists' do
+      # Unknown filter value should be passed through
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'SomeUnknownStatus' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      # Should return empty since no prescription has 'SomeUnknownStatus'
+      expect(json_response['data']).to be_empty
     end
   end
 
