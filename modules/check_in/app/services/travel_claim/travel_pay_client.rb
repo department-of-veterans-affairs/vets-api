@@ -85,7 +85,7 @@ module TravelClaim
         headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
         perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
       end
-    rescue *api_exceptions => e
+    rescue *API_EXCEPTIONS => e
       handle_backend_service_exception(e, endpoint: 'VEIS')
     end
 
@@ -114,7 +114,7 @@ module TravelClaim
         }.merge(subscription_key_headers)
         perform(:post, 'api/v4/auth/system-access-token', body, headers)
       end
-    rescue *api_exceptions => e
+    rescue *API_EXCEPTIONS => e
       handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
@@ -130,7 +130,7 @@ module TravelClaim
                   { appointmentDateTime: @appointment_date_time, facilityStationNumber: @station_number }, headers)
         end
       end
-    rescue *api_exceptions => e
+    rescue *API_EXCEPTIONS => e
       handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
@@ -146,7 +146,7 @@ module TravelClaim
                   { appointmentId: appointment_id, claimName: CLAIM_NAME, claimantType: CLAIMANT_TYPE }, headers)
         end
       end
-    rescue *api_exceptions => e
+    rescue *API_EXCEPTIONS => e
       handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
@@ -165,7 +165,7 @@ module TravelClaim
                     tripType: TRIP_TYPE }, headers)
         end
       end
-    rescue *api_exceptions => e
+    rescue *API_EXCEPTIONS => e
       handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
@@ -179,7 +179,7 @@ module TravelClaim
       with_auth do
         with_monitoring { perform(:get, "api/v3/claims/#{claim_id}", nil, headers) }
       end
-    rescue *api_exceptions => e
+    rescue *API_EXCEPTIONS => e
       handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
@@ -193,7 +193,7 @@ module TravelClaim
       with_auth do
         with_monitoring { perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers) }
       end
-    rescue *api_exceptions => e
+    rescue *API_EXCEPTIONS => e
       handle_backend_service_exception(e, endpoint: 'BTSSS')
     end
 
@@ -262,10 +262,6 @@ module TravelClaim
     end
 
     private
-
-    def api_exceptions
-      API_EXCEPTIONS
-    end
 
     # ------------ Identity prerequisites ------------
 
