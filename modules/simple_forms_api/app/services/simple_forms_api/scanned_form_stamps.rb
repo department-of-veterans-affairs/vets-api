@@ -24,7 +24,7 @@ module SimpleFormsApi
 
     # Special cases: forms that stamp on a different page
     STAMP_PAGE_OVERRIDES = {
-      '21-0304' => 1 # Stamp on page 2 instead of page 0
+      '21-0304' => 1 # Stamp on page 2 instead of page 1
     }.freeze
 
     # Special cases: forms that need different coordinates (lower position)
