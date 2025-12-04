@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'veteran_enrollment_system/form1095_b/configuration'
+require 'veteran_enrollment_system/errors'
 
 module VeteranEnrollmentSystem
   module Form1095B
@@ -17,6 +18,7 @@ module VeteranEnrollmentSystem
     #
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
+      include VeteranEnrollmentSystem::ErrorHandling
 
       configuration VeteranEnrollmentSystem::Form1095B::Configuration
       STATSD_KEY_PREFIX = 'api.form1095b_enrollment'
@@ -31,7 +33,13 @@ module VeteranEnrollmentSystem
         with_monitoring do
           path = "ves-ee-summary-svc/form1095b/#{icn}/#{tax_year}"
           response = perform(:get, path, {})
-          response.body
+
+          if response.status == 200
+            # response.body['data']['associations']
+              response.body
+          else
+            raise_error(response)
+          end
         end
       end
     end
