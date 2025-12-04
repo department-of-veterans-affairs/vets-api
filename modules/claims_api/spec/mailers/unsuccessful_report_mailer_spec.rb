@@ -25,26 +25,6 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
     it 'sends to the right people' do
       expect(subject.to).to match_array(expected_recipients)
     end
-
-    it 'includes all expected recipients from the mailing list' do
-      expect(subject.to).to match_array(
-        %w[
-          david.mazik@va.gov
-          drew.fisher@adhocteam.us
-          eshvimmer@deloitte.com
-          janet.coutinho@va.gov
-          jeffrey.greene1@va.gov
-          mbavanaka@deloitte.com
-          michael.harlow@va.gov
-          mughumman@deloitte.com
-          robert.perea-martinez@adhocteam.us
-          rockwell.rice@va.gov
-          slamsal@deloitte.com
-          stone_christopher@bah.com
-          zachary.goldfine@va.gov
-        ]
-      )
-    end
   end
 
   describe 'claims_api/_submission_grouped_table.html.erb', type: :view do
