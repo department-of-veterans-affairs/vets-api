@@ -55,7 +55,7 @@ module Burials
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        process_and_upload_to_bpds(claim) if Flipper.enabled?(:burial_bpds_service_enabled)
+        process_and_upload_to_bpds(claim)
 
         process_attachments(in_progress_form, claim)
 
