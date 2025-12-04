@@ -364,12 +364,15 @@ jobs:
           if-no-files-found: ignore
 
       - name: Fix up coverage report to work with coverage-check-action
+        id: coverage
         if: needs.tests.result == 'success'
         run: |
           echo "=== Fixing coverage report format ==="
           sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
           echo "=== Verifying modified format ==="
-          cat vets-api/coverage/.last_run.json | jq '.result.covered_percent'
+          pct=$(cat vets-api/coverage/.last_run.json | jq '.result.covered_percent')
+          echo "percent=$pct" >> $GITHUB_OUTPUT
+          echo "Extracted coverage: $pct"
 
       - name: Publish Coverage Report
         if: needs.tests.result == 'success'
@@ -380,16 +383,8 @@ jobs:
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Coverage Percent
-        if: needs.tests.result == 'success'
-        id: coverage
-        run: |
-          pct=$(jq '.result.covered_percent' vets-api/coverage/.last_run.json)
-          echo "$pct"
-          echo "percent=$pct" >> $GITHUB_OUTPUT
-
       - name: Comment Coverage on PR
-        if: ${{ github.event_name == 'pull_request' }} && needs.tests.result == 'success'
+        if: ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
