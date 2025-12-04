@@ -235,12 +235,12 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
 
-      - name: SimpleCov Report
-        uses: aki77/simplecov-report-action@v1
+      - name: SimpleCov Check
+        uses: joshmfrankel/simplecov-check-action@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          failedThreshold: 90  # Minimum coverage percentage
-        if: always()  # Run even if tests fail
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 90
+        if: always()
 
       - name: Upload Test Results (JUnit XMLs)
         if: always()
