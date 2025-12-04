@@ -28,6 +28,14 @@ module Lighthouse
           handle_error(e, endpoint)
         end
 
+        def read(id)
+          endpoint = "r4/Invoice/#{id}"
+
+          config.get(endpoint, icn: @icn).body
+        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
+          handle_error(e, endpoint)
+        end
+
         private
 
         def handle_error(error, endpoint)
