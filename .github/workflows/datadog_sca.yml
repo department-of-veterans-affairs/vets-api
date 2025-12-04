@@ -26,10 +26,10 @@ jobs:
 
     - name: Download and verify datadog-sbom-generator
       run: |
-        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/download/${DD_SBOM_VERSION}/datadog-sbom-generator_linux_amd64.zip" -o sbom-generator.zip
+        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/download/${DD_SBOM_VERSION}/datadog-sbom-generator_linux_amd64.zip" -o datadog-sbom-generator_linux_amd64.zip
         curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/download/${DD_SBOM_VERSION}/datadog-sbom-generator_SHA256SUMS" -o checksums.txt
         grep "datadog-sbom-generator_linux_amd64.zip" checksums.txt | sha256sum -c -
-        unzip -q sbom-generator.zip -d sbom-generator
+        unzip -q datadog-sbom-generator_linux_amd64.zip -d sbom-generator
         chmod +x sbom-generator/datadog-sbom-generator
 
     - name: Generate SBOM
