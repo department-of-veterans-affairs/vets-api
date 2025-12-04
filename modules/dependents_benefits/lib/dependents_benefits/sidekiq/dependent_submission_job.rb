@@ -70,6 +70,9 @@ module DependentsBenefits::Sidekiq
       find_or_create_form_submission
       create_form_submission_attempt
 
+      saved_claim.add_veteran_info(user_data)
+      raise invalid_claim_error_class unless saved_claim.valid?(:run_686_form_jobs)
+
       @service_response = submit_to_service
 
       raise DependentSubmissionError, @service_response&.error unless @service_response&.success?
@@ -82,6 +85,16 @@ module DependentsBenefits::Sidekiq
     private
 
     attr_reader :claim_id, :proc_id
+
+    ##
+    # Returns the error class to raise for invalid claims
+    #
+    # @abstract Subclasses must implement this method
+    # @return [Class] Error class for invalid claims
+    # @raise [NotImplementedError] if not implemented by subclass
+    def invalid_claim_error_class
+      raise NotImplementedError, 'Subclasses must implement invalid_claim_error_class method'
+    end
 
     ##
     # Service-specific submission logic - BGS vs Lighthouse vs Fax
@@ -347,7 +360,7 @@ module DependentsBenefits::Sidekiq
     #
     # @return [DependentsBenefits::NotificationEmail] Notification email instance
     def notification_email
-      @notification_email ||= DependentsBenefits::NotificationEmail.new(claim_id)
+      @notification_email ||= DependentsBenefits::NotificationEmail.new(parent_claim_id)
     end
 
     # Returns the memoized form submission record
