@@ -3,7 +3,7 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'veteran_enrollment_system/form1095_b/configuration'
-require 'veteran_enrollment_system/errors'
+require 'veteran_enrollment_system/error_handling'
 
 module VeteranEnrollmentSystem
   module Form1095B

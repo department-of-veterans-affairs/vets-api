@@ -14,12 +14,12 @@ module VeteranEnrollmentSystem
     def raise_error(response, statsd_key_prefix: nil, operation: nil)
       message = response.body['messages']&.pluck('description')&.join(', ') || response.body
 
-      if statsd_key_prefix && operation
-        StatsD.increment("#{statsd_key_prefix}.#{operation}.failed")
-        Rails.logger.error(
-          "#{operation} failed: #{message}"
-        )
-      end
+      # if statsd_key_prefix && operation
+      #   # StatsD.increment("#{statsd_key_prefix}.#{operation}.failed")
+      #   Rails.logger.error(
+      #     "#{operation} failed: #{message}"
+      #   )
+      # end
 
       # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
       raise ERROR_MAP[response.status]&.new(detail: message) ||
