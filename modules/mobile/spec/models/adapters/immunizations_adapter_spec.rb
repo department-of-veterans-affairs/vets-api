@@ -250,6 +250,7 @@ RSpec.describe Mobile::V0::Adapters::Immunizations, type: :model do
           expect(result.first.group_name).to be_nil
         end
       end
+
       context 'when VACCINE GROUP: prefix has nothing after' do
         let(:immunizations) do
           {
