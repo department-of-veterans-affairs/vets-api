@@ -1526,6 +1526,7 @@ spec/lib/mhv_ac @department-of-veterans-affairs/vfs-mhv-integration @department-
 spec/lib/mhv_ac/client_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv/aal @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv/account_creation @department-of-veterans-affairs/octo-identity
+spec/lib/mhv/oh_facilities_helper @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mpi @department-of-veterans-affairs/octo-identity
 spec/lib/okta @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/okta/directory_service_spec.rb @department-of-veterans-affairs/lighthouse-pivot
@@ -2194,6 +2195,7 @@ spec/support/vcr_cassettes/chatbot @department-of-veterans-affairs/vfs-virtual-a
 spec/support/vcr_cassettes/check_in @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/claims_api @department-of-veterans-affairs/lighthouse-dash
+spec/support/vcr_cassettes/vass @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/complex_interaction @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/contention_classification @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-vro-engineers @department-of-veterans-affairs/benefits-contention-classification-engineers
 spec/support/vcr_cassettes/debts @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
