@@ -46,7 +46,8 @@ describe ClaimsApi::ReportRecipientsReader do
         allow(YAML).to receive(:safe_load_file).with(recipient_file_path).and_return(nil)
       end
 
-      it 'returns an empty array' do
+      it 'returns an empty array and logs a warning' do
+        expect(Rails.logger).to receive(:warn).with(/Recipients file is empty or invalid/)
         expect(report.load_recipients('submission_report_mailer')).to eq([])
       end
     end
@@ -56,7 +57,8 @@ describe ClaimsApi::ReportRecipientsReader do
         allow(File).to receive(:exist?).with(recipient_file_path).and_return(false)
       end
 
-      it 'returns an empty array' do
+      it 'returns an empty array and logs a warning' do
+        expect(Rails.logger).to receive(:warn).with(/Recipients file does not exist/)
         expect(report.load_recipients('submission_report_mailer')).to eq([])
       end
     end
@@ -64,7 +66,9 @@ describe ClaimsApi::ReportRecipientsReader do
     context 'when YAML parsing fails' do
       before do
         allow(File).to receive(:exist?).with(recipient_file_path).and_return(true)
-        allow(YAML).to receive(:safe_load_file).with(recipient_file_path).and_raise(Psych::SyntaxError.new('file', 1, 1, 0, 'syntax error', 'context'))
+        allow(YAML).to receive(:safe_load_file)
+          .with(recipient_file_path)
+          .and_raise(Psych::SyntaxError.new('file', 1, 1, 0, 'syntax error', 'context'))
       end
 
       it 'returns an empty array and logs the error' do
@@ -79,7 +83,8 @@ describe ClaimsApi::ReportRecipientsReader do
         allow(YAML).to receive(:safe_load_file).with(recipient_file_path).and_return('invalid data')
       end
 
-      it 'returns an empty array' do
+      it 'returns an empty array and logs a warning' do
+        expect(Rails.logger).to receive(:warn).with(/Recipients file is empty or invalid/)
         expect(report.load_recipients('submission_report_mailer')).to eq([])
       end
     end

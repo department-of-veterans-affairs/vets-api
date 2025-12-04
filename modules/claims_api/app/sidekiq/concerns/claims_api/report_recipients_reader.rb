@@ -6,10 +6,18 @@ module ClaimsApi
 
     def load_recipients(recipient_type)
       recipient_file_path = ClaimsApi::Engine.root.join('config', 'mailinglists', 'mailinglist.yml')
-      return [] unless File.exist?(recipient_file_path)
+
+      unless File.exist?(recipient_file_path)
+        Rails.logger.warn("Recipients file does not exist: #{recipient_file_path}")
+        return []
+      end
 
       hash = YAML.safe_load_file(recipient_file_path)
-      return [] if hash.nil? || !hash.is_a?(Hash)
+
+      if hash.nil? || !hash.is_a?(Hash)
+        Rails.logger.warn("Recipients file is empty or invalid: #{recipient_file_path}")
+        return []
+      end
 
       Array(hash['common']) + Array(hash[recipient_type])
     rescue => e
