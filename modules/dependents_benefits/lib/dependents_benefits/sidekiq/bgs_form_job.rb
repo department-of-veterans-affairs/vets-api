@@ -59,11 +59,63 @@ module DependentsBenefits
       def submit_to_service
         claim_data = BGS::Job.new.normalize_names_and_addresses!(saved_claim.parsed_form)
 
+        @claim_type_end_product = claim_type_end_product
+        record_ep_code_in_submission_attempt
+
         submit_form(claim_data)
 
         DependentsBenefits::ServiceResponse.new(status: true)
       rescue => e
         DependentsBenefits::ServiceResponse.new(status: false, error: e)
+      end
+
+      private
+
+      ##
+      # Retrieves active EP codes from the veteran's existing BGS benefit claims
+      #
+      # Queries BGS to find all active benefit claim type increments (EP codes) for the veteran.
+      # These EP codes are used to prevent conflicts when selecting an available EP code for
+      # the current submission.
+      #
+      # @return [Array<String>] Array of active EP codes from BGS (e.g., ['130', '131'])
+      # @see BGSV2::Service#find_active_benefit_claim_type_increments
+      def active_claim_ep_codes
+        BGSV2::Service.new(generate_user_struct).find_active_benefit_claim_type_increments
+      end
+
+      # Retrieves unique EP codes from pending submission attempts for sibling claims
+      # Used to prevent EP code conflicts when selecting available codes for current submission
+      # @return [Array<String>] Array of unique EP codes (e.g., ['130', '131'])
+      def active_sibling_ep_codes
+        BGS::SubmissionAttempt.by_claim_group(parent_claim_id)
+                              .pending
+                              .map(&:claim_type_end_product).compact.uniq
+      end
+
+      # see modules/dependents_benefits/documentation/bgs/ep_code.md
+      def claim_type_end_product
+        return @claim_type_end_product if @claim_type_end_product.present?
+
+        active_ep_codes = active_claim_ep_codes + active_sibling_ep_codes
+        available_ep_codes = %w[130 131 132 134 136 137 138 139] - active_ep_codes
+
+        available_ep_codes.first
+      end
+
+      ##
+      # Records the selected EP code in the submission attempt metadata
+      #
+      # Updates the submission attempt's metadata JSON to store the claim_type_end_product
+      # (EP code) that was selected for this submission. This allows tracking which EP code
+      # was used for each attempt and helps prevent conflicts in subsequent submissions.
+      #
+      # @return [Boolean] Result of the save operation
+      def record_ep_code_in_submission_attempt
+        metadata = submission_attempt.metadata.present? ? JSON.parse(submission_attempt.metadata) : {}
+        metadata['claim_type_end_product'] = @claim_type_end_product
+        submission_attempt.metadata = metadata.to_json
+        submission_attempt.save!
       end
 
       ##
