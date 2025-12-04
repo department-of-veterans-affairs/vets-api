@@ -112,6 +112,86 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         expect(response).to have_http_status(:service_unavailable)
       end
     end
+
+    context 'with receipt attachment' do
+      let(:expenses_client) { instance_double(TravelPay::ExpensesClient) }
+      let(:receipt_file) do
+        Rack::Test::UploadedFile.new(
+          Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures', 'documents', 'test.pdf'),
+          'application/pdf'
+        )
+      end
+      let(:expense_params_with_receipt) do
+        {
+          expense: {
+            purchase_date: 1.day.ago.iso8601,
+            description: 'Parking with receipt',
+            cost_requested: 15.00
+          },
+          receipt: receipt_file
+        }
+      end
+
+      before do
+        allow(TravelPay::ExpensesClient).to receive(:new).and_return(expenses_client)
+      end
+
+      it 'sends receipt in the correct body structure to add_expense' do
+        # Capture the body parameter passed to add_expense
+        expect(expenses_client).to receive(:add_expense) do |veis_token, btsss_token, expense_type, body|
+          # Verify tokens (from global before block)
+          expect(veis_token).to eq('veis_access_token_12345')
+          expect(btsss_token).to eq('btsss_access_token_67890')
+          expect(expense_type).to eq('parking')
+
+          # Verify body structure with camelCase keys
+          expect(body).to be_a(Hash)
+          expect(body['claimId']).to eq(claim_id)
+          expect(body['dateIncurred']).to be_a(String)
+          expect(body['description']).to eq('Parking with receipt')
+          expect(body['costRequested']).to eq(15.00)
+          expect(body['expenseType']).to eq('parking')
+          expect(body['expenseReceipt']).to be_present
+          expect(body['expenseReceipt']).to respond_to(:read)
+
+          # Return mock response
+          double('Faraday::Response', body: { 'data' => { 'id' => expense_id } })
+        end
+
+        post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+             params: expense_params_with_receipt,
+             headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'excludes receipt from body when not provided' do
+        expect(expenses_client).to receive(:add_expense) do |veis_token, btsss_token, expense_type, body|
+          # Verify tokens (from global before block)
+          expect(veis_token).to eq('veis_access_token_12345')
+          expect(btsss_token).to eq('btsss_access_token_67890')
+          expect(expense_type).to eq('other')
+
+          # Verify body structure - should NOT have expenseReceipt
+          expect(body).to be_a(Hash)
+          expect(body['claimId']).to eq(claim_id)
+          expect(body['dateIncurred']).to be_a(String)
+          expect(body['description']).to eq('Test expense description')
+          expect(body['costRequested']).to eq(25.50)
+          expect(body['expenseType']).to eq('other')
+          expect(body).not_to have_key('expenseReceipt')
+
+          # Return mock response
+          double('Faraday::Response', body: { 'data' => { 'id' => expense_id } })
+        end
+
+        post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
+             params: expense_params,
+             headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(response).to have_http_status(:created)
+      end
+    end
   end
 
   # GET /travel_pay/v0/claims/:claim_id/expenses/:expense_type/:expense_id
