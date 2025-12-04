@@ -60,6 +60,14 @@ class SavedClaim::Form212680 < SavedClaim
     [].freeze
   end
 
+  # Override to_pdf to add veteran signature stamp
+  # This ensures the signature is included in both the download_pdf endpoint
+  # and the Lighthouse Benefits Intake submission
+  def to_pdf(file_name = nil, fill_options = {})
+    pdf_path = PdfFill::Filler.fill_form(self, file_name, fill_options)
+    PdfFill::Forms::Va212680.stamp_signature(pdf_path, parsed_form)
+  end
+
   private
 
   def update_metadata_with_pdf_generation
