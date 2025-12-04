@@ -36,7 +36,7 @@ class FormProfiles::VA10297 < FormProfile
 
   private
 
-  def initialize_payment_information
+  def initialize_payment_information # rubocop:disable Metrics/MethodLength
     return {} unless user.authorize(:lighthouse, :direct_deposit_access?) && user.authorize(:evss, :access?)
 
     provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
@@ -46,7 +46,9 @@ class FormProfiles::VA10297 < FormProfile
     response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 
+    Rails.logger.info('PPIU Initialized - VA10297') if ppiu_logging_enabled?
     if raw_account
+      Rails.logger.info('PPIU Data Unknown - VA10297') if ppiu_logging_enabled?
       VA10297::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
         account_number: raw_account&.account_number,
@@ -54,10 +56,15 @@ class FormProfiles::VA10297 < FormProfile
         bank_name: raw_account&.financial_institution_name
       )
     else
+      Rails.logger.info('PPIU Data Recovered - VA10297 ') if ppiu_logging_enabled?
       {}
     end
   rescue => e
     Rails.logger.error "FormProfiles::VA10297 Failed to retrieve Payment Information data: #{e.message}"
     {}
+  end
+
+  def ppiu_logging_enabled?
+    Flipper.enabled?(:enable_ppiu_logging)
   end
 end

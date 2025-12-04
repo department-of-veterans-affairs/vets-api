@@ -2306,6 +2306,9 @@ features:
   disablity_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for disability benefits applications
+  enable_ppiu_logging:
+    actor_type: user
+    description: Log when PPIU service is enabled.
   virtual_agent_use_sts_authentication:
     actor_type: user
     description: Use STS authentication for the virtual agent chatbot application
