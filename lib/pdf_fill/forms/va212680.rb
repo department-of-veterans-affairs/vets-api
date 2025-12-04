@@ -48,21 +48,12 @@ module PdfFill
       # @param form_data [Hash] The form data containing the signature
       # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
       def self.stamp_signature(pdf_path, form_data)
-        Rails.logger.info("Form212680: stamp_signature called with pdf_path=#{pdf_path}")
-        Rails.logger.info("Form212680: form_data keys=#{form_data.keys}")
-        Rails.logger.info("Form212680: veteranSignature=#{form_data['veteranSignature']}")
-
         signature_text = form_data.dig('veteranSignature', 'signature')
-        Rails.logger.info("Form212680: signature_text=#{signature_text.inspect}")
 
         # Return original path if signature is blank
-        if signature_text.nil? || signature_text.to_s.strip.empty?
-          Rails.logger.warn('Form212680: signature_text is blank, skipping stamp')
-          return pdf_path
-        end
+        return pdf_path if signature_text.nil? || signature_text.to_s.strip.empty?
 
-        Rails.logger.info("Form212680: Calling DatestampPdf with x=#{SIGNATURE_X}, y=#{SIGNATURE_Y}, page=#{SIGNATURE_PAGE}")
-        result = PDFUtilities::DatestampPdf.new(pdf_path).run(
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
           text: signature_text,
           x: SIGNATURE_X,
           y: SIGNATURE_Y,
@@ -73,8 +64,6 @@ module PdfFill
           template: pdf_path,
           multistamp: true
         )
-        Rails.logger.info("Form212680: DatestampPdf returned #{result}")
-        result
       rescue => e
         Rails.logger.error('Form212680: Error stamping signature', error: e.message, backtrace: e.backtrace)
         pdf_path # Return original PDF if stamping fails
