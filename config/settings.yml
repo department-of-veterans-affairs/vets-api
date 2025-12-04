@@ -1027,13 +1027,9 @@ ogc:
     document_upload_url: <%= ENV['ogc__form21a_service_url__upload_url'] %>
     s3:
       uploads_enabled: true
-      aws_access_key_id: <%= ENV['form21a__s3__aws_access_key_id'] %>
-      aws_secret_access_key: <%= ENV['form21a__s3__aws_secret_access_key'] %>
       type: s3
-      # aws_role_arn: "arn:aws-us-gov:iam::008577686731:role/form21a-s3-uploader"
-      region: us-gov-east-1
-       # bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
-      bucket: "dava-vetsgov-staging-form21a-uploads"
+      region: us-gov-west-1
+      bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
 oidc:
   isolated_audience:
     claims: <%= ENV['oidc__isolated_audience__claims'] %>

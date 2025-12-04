@@ -12,17 +12,10 @@ class Form21aAttachmentUploader < CarrierWave::Uploader::Base
     # carrierwave allows only 2 arguments, which they will pass onto
     # different versions by calling the initialize function again
     # so the _unused argument is necessary
-
     super
     @guid = guid
 
-    set_aws_config(
-      Settings.ogc.form21a_service_url.s3.aws_access_key_id,
-      Settings.ogc.form21a_service_url.s3.aws_secret_access_key,
-      # Settings.ogc.form21a_service_url.s3.aws_role_arn,
-      Settings.ogc.form21a_service_url.s3.region,
-      Settings.ogc.form21a_service_url.s3.bucket
-    )
+    set_aws_params
   end
 
   def store_dir
@@ -32,8 +25,11 @@ class Form21aAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_allowlist
-    # Only allow PDF
-    %w[pdf]
+    %w[pdf docx]
+  end
+
+  def content_type_allowlist
+    %w[application/pdf application/vnd.openxmlformats-officedocument.wordprocessingml.document]
   end
 
   def filename
@@ -48,7 +44,6 @@ class Form21aAttachmentUploader < CarrierWave::Uploader::Base
     log = {
       process_id: Process.pid,
       filesize: uploaded_file.try(:size),
-      file_headers: uploaded_file.try(:headers),
       upload_start: Time.current
     }
 
@@ -59,10 +54,19 @@ class Form21aAttachmentUploader < CarrierWave::Uploader::Base
     log = {
       process_id: Process.pid,
       filesize: uploaded_file.try(:size),
-      file_headers: uploaded_file.try(:headers),
       upload_complete: Time.current
     }
 
     Rails.logger.info(log)
+  end
+
+  def set_aws_params
+    self.aws_credentials = {
+      region: Settings.ogc.form21a_service_url.s3.region
+    }
+    self.aws_acl = 'private'
+    self.aws_bucket = Settings.ogc.form21a_service_url.s3.bucket
+    self.aws_attributes = { server_side_encryption: 'AES256' }
+    self.class.storage = :aws
   end
 end
