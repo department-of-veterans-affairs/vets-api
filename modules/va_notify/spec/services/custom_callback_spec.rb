@@ -54,7 +54,7 @@ describe VANotify::CustomCallback do
       it 'logs the status' do
         notification = create(:notification, notification_id:)
 
-        expected_error_message = "VANotify - no callback provided for notification: #{notification.id}"
+        expected_error_message = "VANotify - no custom callback provided for notification: #{notification.id}"
 
         expect(Rails.logger).to receive(:info).with(message: expected_error_message)
 
