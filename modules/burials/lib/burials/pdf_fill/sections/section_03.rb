@@ -6,6 +6,7 @@ module Burials
   module PdfFill
     # Section III: Veteran Service Information
     class Section3 < Section
+      # rubocop:disable Layout/LineLength
       # Section configuration hash
       KEY = {
         'toursOfDuty' => {
@@ -64,11 +65,13 @@ module Burials
         'previousNames' => {
           key: 'form1[0].#subform[82].OTHER_NAME_VETERAN_SERVED_UNDER[0]',
           question_num: 15,
-          question_label: 'Other Names Veteran Served Under',
-          question_text: 'OTHER NAMES VETERAN SERVED UNDER',
-          limit: 3
+          question_label: 'If Veteran Served Under Name Other Than That Shown In Item 1, Give Full Name And Service Rendered Under That Name',
+          question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
+          limit: 180
         }
       }.freeze
+      # rubocop:enable Layout/LineLength
+
       ##
       # Expands the form data for Section 3.
       #
@@ -98,20 +101,9 @@ module Burials
       def expand_previous_names_and_service(previous_names)
         return if previous_names.blank?
 
-        formatted_names = previous_names.map do |previous_name|
+        previous_names.map do |previous_name|
           "#{combine_full_name(previous_name)} (#{previous_name['serviceBranch']})"
-        end
-
-        # Check if this data will go to overflow based on the limit
-        # The KEY configuration above for 'previousNames' shows limit: 3, so if we have more than that,
-        # the extras will be handled by the overflow system
-        if formatted_names.length > 3
-          # For overflow, we want each name on a new line
-          formatted_names.join("\n")
-        else
-          # For main form, use semicolons
-          formatted_names.join('; ')
-        end
+        end.join('; ')
       end
     end
   end
