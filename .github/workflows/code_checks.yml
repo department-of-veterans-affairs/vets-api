@@ -427,7 +427,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":rotating_light: Critical: Test Coverage Too Low! Vets-API deployment is blocked :rotating_light:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%\n\n"
+                  "text": ":rotating_light: CRITICAL: TEST COVERAGE IS TOO LOW — Vets-API deployment is blocked. :rotating_light:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%\n\n"
                 }
               },
               { "type": "divider" }
