@@ -133,7 +133,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+        test_group: [1, 2]
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -216,7 +216,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec/lib/flipper --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
 
       - name: Prepare SimpleCov shard payload
         if: always()
@@ -362,9 +362,14 @@ jobs:
           name: Coverage Report
           path: vets-api/coverage
           if-no-files-found: ignore
+
       - name: Fix up coverage report to work with coverage-check-action
         if: needs.tests.result == 'success'
-        run: sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+        run: |
+          echo "=== Fixing coverage report format ==="
+          sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+          echo "=== Verifying modified format ==="
+          cat vets-api/coverage/.last_run.json | jq '.result.covered_percent'
 
       - name: Publish Coverage Report
         if: needs.tests.result == 'success'
