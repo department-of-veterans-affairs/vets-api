@@ -105,6 +105,97 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       end
     end
 
+    context 'when response includes applicationId and form has document uploads' do
+      let(:in_progress_form_data) do
+        {
+          'convictionDetailsDocuments' => [
+            {
+              'name' => 'test_doc.pdf',
+              'confirmationCode' => 'guid-123',
+              'size' => 12_345,
+              'type' => 'application/pdf'
+            }
+          ]
+        }.to_json
+      end
+
+      let!(:in_progress_form) do
+        create(
+          :in_progress_form,
+          form_id: '21a',
+          user_uuid: representative_user.uuid,
+          form_data: in_progress_form_data
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+      end
+
+      it 'enqueues document upload jobs when applicationId is present' do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'applicationId' => '12345', 'result' => 'success' },
+            status: 201
+          )
+        )
+
+        expect(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .to receive(:enqueue_uploads)
+          .with(in_progress_form:, application_id: '12345')
+          .and_return(1)
+
+        make_post_request
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'destroys in-progress form after enqueuing uploads' do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'applicationId' => '12345', 'result' => 'success' },
+            status: 201
+          )
+        )
+
+        allow(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .to receive(:enqueue_uploads)
+          .and_return(1)
+
+        expect { make_post_request }.to change(InProgressForm, :count).by(-1)
+      end
+
+      it 'logs a warning and skips uploads when applicationId is missing' do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'result' => 'success' },
+            status: 201
+          )
+        )
+
+        expect(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .not_to receive(:enqueue_uploads)
+
+        allow(Rails.logger).to receive(:warn).and_call_original
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        make_post_request
+
+        expect(response).to have_http_status(:created)
+        expect(Rails.logger).to have_received(:warn).with(
+          a_string_including('No applicationId in GCLAWS response')
+        )
+      end
+    end
+
     context 'with invalid JSON' do
       let(:payload) { 'invalid_json' }
 
@@ -420,14 +511,16 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
     context 'with a valid slug and file' do
       it 'creates an attachment, updates the in-progress form, and returns confirmation data' do
-        expect(Rails.logger).to receive(:info).with(
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        expect { make_post_request }
+          .to change(Form21aAttachment, :count).by(1)
+
+        expect(Rails.logger).to have_received(:info).with(
           a_string_including(
             "Form21aController: Received details upload for slug=#{slug} user_uuid=#{representative_user.uuid}"
           )
         )
-
-        expect { make_post_request }
-          .to change(Form21aAttachment, :count).by(1)
 
         expect(response).to have_http_status(:ok)
 
