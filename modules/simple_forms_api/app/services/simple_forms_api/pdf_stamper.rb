@@ -64,7 +64,7 @@ module SimpleFormsApi
     end
 
     def get_scanned_form_stamps(form_number)
-      return [] unless SimpleFormsApi::ScannedFormStamps.has_stamps?(form_number)
+      return [] unless SimpleFormsApi::ScannedFormStamps.stamps?(form_number)
 
       stamp_config = SimpleFormsApi::ScannedFormStamps.new(form_number)
       stamp_config.submission_date_stamps(timestamp)

@@ -5,16 +5,16 @@ require 'rails_helper'
 RSpec.describe SimpleFormsApi::ScannedFormStamps do
   let(:timestamp) { Time.zone.parse('2025-11-07 18:35:00 UTC') }
 
-  describe '.has_stamps?' do
+  describe '.stamps?' do
     it 'returns true for forms with stamps' do
-      expect(described_class.has_stamps?('21-0779')).to be true
-      expect(described_class.has_stamps?('21-0304')).to be true
+      expect(described_class.stamps?('21-0779')).to be true
+      expect(described_class.stamps?('21-0304')).to be true
     end
 
     it 'returns false for forms without stamps' do
-      expect(described_class.has_stamps?('21-4192')).to be false
-      expect(described_class.has_stamps?('21-509')).to be false
-      expect(described_class.has_stamps?('99-9999')).to be false
+      expect(described_class.stamps?('21-4192')).to be false
+      expect(described_class.stamps?('21-509')).to be false
+      expect(described_class.stamps?('99-9999')).to be false
     end
   end
 
