@@ -5,21 +5,28 @@ require 'rails_helper'
 RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
   describe '#build' do
     subject do
-      described_class.build(1.day.ago, Time.zone.now, consumer_claims_totals: [],
-                                                      unsuccessful_claims_submissions: [],
-                                                      unsuccessful_va_gov_claims_submissions: [],
-                                                      poa_totals: [],
-                                                      unsuccessful_poa_submissions: [],
-                                                      ews_totals: [],
-                                                      unsuccessful_evidence_waiver_submissions: [],
-                                                      itf_totals: []).deliver_now
+      described_class.build(1.day.ago, Time.zone.now, expected_recipients, consumer_claims_totals: [],
+                                                                           unsuccessful_claims_submissions: [],
+                                                                           unsuccessful_va_gov_claims_submissions: [],
+                                                                           poa_totals: [],
+                                                                           unsuccessful_poa_submissions: [],
+                                                                           ews_totals: [],
+                                                                           unsuccessful_evidence_waiver_submissions: [],
+                                                                           itf_totals: []).deliver_now
     end
+
+    let(:recipient_loader) { Class.new { include ClaimsApi::ReportRecipientsReader }.new }
+    let(:expected_recipients) { recipient_loader.load_recipients('unsuccessful_report_mailer') }
 
     it 'sends the email' do
       expect(subject.subject).to eq('Benefits Claims Daily Submission Report')
     end
 
     it 'sends to the right people' do
+      expect(subject.to).to match_array(expected_recipients)
+    end
+
+    it 'includes all expected recipients from the mailing list' do
       expect(subject.to).to match_array(
         %w[
           david.mazik@va.gov

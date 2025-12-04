@@ -14,6 +14,8 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
     let(:from) { 1.month.ago }
     let(:to) { Time.zone.now }
+    let(:recipient_loader) { Class.new { include ClaimsApi::ReportRecipientsReader }.new }
+    let(:expected_recipients) { recipient_loader.load_recipients('submission_report_mailer') }
 
     it 'sends mail' do
       with_settings(Settings.claims_api,
@@ -23,6 +25,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
         expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
           from,
           to,
+          expected_recipients,
           consumer_claims_totals: if defined?(expected_consumer_claims_totals)
                                     match_array(expected_consumer_claims_totals)
                                   else
