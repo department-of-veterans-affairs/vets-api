@@ -136,8 +136,7 @@ RSpec.describe VANotify::EmailJob, type: :worker do
             job_class: described_class.to_s,
             error_class: 'RuntimeError',
             error_message: 'an error occurred!',
-            template_id: 'template-123',
-            email: 'test@example.com'
+            template_id: 'template-123'
           }
         )
         expect(StatsD).to receive(:increment).with(
@@ -183,7 +182,6 @@ RSpec.describe VANotify::EmailJob, type: :worker do
             error_class: 'Faraday::TimeoutError',
             error_message: 'Connection timeout',
             template_id: 'template-456',
-            email: 'veteran@example.com',
             form_number: '21-526EZ',
             service: 'disability-benefits',
             function: 'submission_confirmation'
