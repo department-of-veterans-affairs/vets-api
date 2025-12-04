@@ -427,7 +427,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":rotating_light: *CRITICAL: TEST COVERAGE TOO LOW* :rotating_light:\n\n*Vets-API deployment is BLOCKED until coverage reaches at least 90%*\n\n:chart_with_downwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:dart: *Required Minimum:* 90%\n:stop_sign: *Status:* Deployment Blocked\n\n<https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}|View PR> | <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Run #${{ github.run_number }}>\n\n:writing_hand: *Action Required:* Add tests to reach 90% coverage before merge."
+                  "text": ":rotating_light: *CRITICAL: TEST COVERAGE TOO LOW* :rotating_light:\n\n*Vets-API deployment is BLOCKED until coverage reaches at least 90%*\n\n:chart_with_downwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:dart: *Required Minimum:* 90%\n :x: *Status:* Deployment Blocked\n\n<https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}|View PR> | <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Run #${{ github.run_number }}>\n\n:writing_hand: *Action Required:* Add tests to reach 90% coverage before merge."
                 }
               },
               { "type": "divider" }
@@ -435,7 +435,7 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Slack notify - low coverage warning
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
