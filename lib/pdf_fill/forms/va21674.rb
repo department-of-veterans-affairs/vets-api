@@ -620,10 +620,12 @@ module PdfFill
           end
         end
 
+        # rubocop:disable Rails/Presence - Autocorrected version would crash when agency_or_program is nil
         if agency_or_program.present?
           agency_or_program['date_payments_began'] =
             split_date(agency_or_program['date_payments_began'])
         end
+        # rubocop:enable Rails/Presence
       end
       # rubocop:enable Metrics/MethodLength
 
