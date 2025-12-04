@@ -52,15 +52,64 @@ module Mobile
         end
 
         def group_name(vaccine_codes)
-          filtered_codes = vaccine_codes[:coding].select { |v| v[:display]&.include?('VACCINE GROUP: ') }
+          return nil if vaccine_codes.nil?
 
-          if filtered_codes.empty?
-            group_name = vaccine_codes.dig(:coding, 1, :display) || vaccine_codes.dig(:coding, 0, :display)
-          else
-            group_name = filtered_codes.dig(0, :display)
-            group_name&.slice!('VACCINE GROUP: ')
+          log_vaccine_code_processing(vaccine_codes)
+          extract_group_name_from_codes(vaccine_codes)
+        end
+
+        def log_vaccine_code_processing(vaccine_codes)
+          coding_count = vaccine_codes[:coding]&.length || 0
+          display_hashes = anonymized_display_hashes(vaccine_codes)
+          vaccine_group_lengths = calculate_vaccine_group_lengths(vaccine_codes)
+
+          Rails.logger.info(
+            'Immunizations group_name processing',
+            coding_count:,
+            display_hashes:,
+            vaccine_group_lengths:
+          )
+        end
+
+        def anonymized_display_hashes(vaccine_codes)
+          vaccine_codes[:coding]&.map { |v| Digest::SHA256.hexdigest(v[:display].to_s)[0..7] } || []
+        end
+
+        def calculate_vaccine_group_lengths(vaccine_codes)
+          vaccine_codes[:coding]&.map do |v|
+            next unless v[:display]&.include?('VACCINE GROUP')
+
+            # Count everything after "VACCINE GROUP:" (after the colon)
+            text_after_group = v[:display].split('VACCINE GROUP').last
+            text_after_colon = text_after_group&.sub(/^:/, '')
+            text_after_colon&.length || 0
+          end&.compact || []
+        end
+
+        def extract_group_name_from_codes(vaccine_codes)
+          # Look for entries that start with the vaccine group prefix
+          filtered_codes = vaccine_codes[:coding].select do |v|
+            v[:display]&.start_with?('VACCINE GROUP:')
           end
+
+          group_name = if filtered_codes.empty?
+                         fallback_group_name(vaccine_codes)
+                       else
+                         extract_prefixed_group_name(filtered_codes)
+                       end
+
           group_name.presence
+        end
+
+        def fallback_group_name(vaccine_codes)
+          # Fallback: try index 1 first, then index 0
+          vaccine_codes.dig(:coding, 1, :display) || vaccine_codes.dig(:coding, 0, :display)
+        end
+
+        def extract_prefixed_group_name(filtered_codes)
+          # Remove the prefix and clean up whitespace
+          group_name = filtered_codes.dig(0, :display)
+          group_name&.delete_prefix('VACCINE GROUP:')&.strip
         end
 
         def date(immunization)
@@ -71,6 +120,8 @@ module Mobile
         end
 
         def cvx_code(vaccine_code)
+          return nil if vaccine_code.nil?
+
           code = vaccine_code.dig(:coding, 0, :code)
           StatsD.increment('mobile.immunizations.cvx_code_missing') if code.blank?
 
