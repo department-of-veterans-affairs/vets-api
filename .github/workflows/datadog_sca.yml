@@ -2,14 +2,14 @@
 # Datadog GovCloud doesn't yet support Code Security SCA uploads
 # See: https://github.com/department-of-veterans-affairs/vets-api/pull/25424
 
+name: Datadog Software Composition Analysis
+
 on:
   push:
     branches: [master]
   pull_request:
     branches: [master]
   workflow_dispatch:
-
-name: Datadog Software Composition Analysis
 
 permissions:
   contents: read
