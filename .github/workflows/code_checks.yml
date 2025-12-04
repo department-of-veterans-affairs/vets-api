@@ -437,11 +437,11 @@ jobs:
             Please consider adding or expanding tests to improve coverage before merging. Thanks!
 
       - name: Slack notify
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 90 }}
+        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) > 90 }}
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "Testing coverage alert"
-          blocks: "testing gha"
+          message: "THIS IS A TEST, PLEASE DISREGARD"
+          blocks: "**Coverage:** ${{ steps.coverage.outputs.percent }}%"
           channel_id: "C039HRTHXDH"
