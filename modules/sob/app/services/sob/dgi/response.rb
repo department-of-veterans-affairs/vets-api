@@ -41,6 +41,7 @@ module SOB
         @claimant['date_of_birth'] = parse_date(@claimant['date_of_birth'])
         @claimant['regional_processing_office'] = RPO_MAP[@claimant['station']]
         benefit = @claimant['benefits'].find(&method(:ch33?))
+        # Guard against case where we have 200 response but empty benefits list
         raise Ch33DataMissing unless benefit
 
         parse_eligibility(benefit['eligibility_results'])
