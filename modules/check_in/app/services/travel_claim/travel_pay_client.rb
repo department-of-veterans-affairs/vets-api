@@ -263,10 +263,6 @@ module TravelClaim
 
     private
 
-    def api_exceptions
-      API_EXCEPTIONS
-    end
-
     # ------------ Identity prerequisites ------------
 
     ##
