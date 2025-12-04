@@ -13,11 +13,9 @@ module AccreditedRepresentativePortal
       # carrierwave allows only 2 arguments, which they will pass onto
       # different versions by calling the initialize function again
       # so the _unused argument is necessary
-      debugger
+
       super
       @guid = guid
-
-      # debugger
       set_aws_params
     end
 
