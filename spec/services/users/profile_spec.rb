@@ -567,10 +567,6 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:contact_email_verified]).to be_in([true, false])
         end
 
-        it 'includes contact_email_verified field' do
-          expect(vet360_info).to have_key(:contact_email_verified)
-        end
-
         context 'when email object is nil' do
           before do
             allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:email).and_return(nil)

@@ -277,4 +277,56 @@ RSpec.describe VAProfile::Models::Email do
       end
     end
   end
+
+  describe '#contact_email_verified?' do
+    let(:email) { build(:email) }
+
+    context 'when verification_date is within the last year' do
+      before { email.verification_date = 6.months.ago }
+
+      it 'returns true' do
+        expect(email.contact_email_verified?).to be true
+      end
+    end
+
+    context 'when verification_date is exactly one year ago' do
+      before { email.verification_date = 1.year.ago }
+
+      it 'returns false' do
+        expect(email.contact_email_verified?).to be false
+      end
+    end
+
+    context 'when verification_date is more than one year ago' do
+      before { email.verification_date = 2.years.ago }
+
+      it 'returns false' do
+        expect(email.contact_email_verified?).to be false
+      end
+    end
+
+    context 'when verification_date is nil' do
+      before { email.verification_date = nil }
+
+      it 'returns false' do
+        expect(email.contact_email_verified?).to be false
+      end
+    end
+
+    context 'when verification_date is very recent' do
+      before { email.verification_date = 1.day.ago }
+
+      it 'returns true' do
+        expect(email.contact_email_verified?).to be true
+      end
+    end
+
+    context 'when verification_date is just under one year ago' do
+      before { email.verification_date = 11.months.ago }
+
+      it 'returns true' do
+        expect(email.contact_email_verified?).to be true
+      end
+    end
+  end
 end
