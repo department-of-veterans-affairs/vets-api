@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Burials
+  # Formatter for converting burial form data into BPDS compatible format.
   module BPDS
     class Formatter # rubocop:disable Metrics/ClassLength
       # Initializes a new Formatter instance with a parsed burial form.
