@@ -192,10 +192,10 @@ describe Vass::Client do
         )
       end
 
-      it 'raises BackendServiceException' do
+      it 'raises Vass::ServiceException' do
         expect do
           subject.send(:ensure_oauth_token!)
-        end.to raise_error(Common::Exceptions::BackendServiceException)
+        end.to raise_error(Vass::ServiceException)
       end
     end
 

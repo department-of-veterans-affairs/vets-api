@@ -433,6 +433,7 @@ app/services/claim_fast_tracking/diagnostic_codes.rb @department-of-veterans-aff
 app/services/debt_transaction_log_service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/services/debt_transaction_log/ @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/services/email_verification_callback.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
+app/services/email_verification_service.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/services/evss_claim_service.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/services/feature_toggles_service.rb @department-of-veterans-affairs/backend-review-group
 app/services/form1010_ezr_attachments/file_type_validator.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
@@ -871,6 +872,7 @@ lib/disability_compensation @department-of-veterans-affairs/backend-review-group
 lib/disability_max_ratings @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-vro-engineers @department-of-veterans-affairs/benefits-employee-exp-engineers
 lib/efolder @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/efolder/service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+lib/email_verification/jwt_generator.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 lib/eps/configuration.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-vaos
 lib/evss/auth_headers.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/evss/base_headers.rb @department-of-veterans-affairs/backend-review-group
@@ -1524,6 +1526,7 @@ spec/lib/mhv_ac @department-of-veterans-affairs/vfs-mhv-integration @department-
 spec/lib/mhv_ac/client_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv/aal @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv/account_creation @department-of-veterans-affairs/octo-identity
+spec/lib/mhv/oh_facilities_helper @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/mpi @department-of-veterans-affairs/octo-identity
 spec/lib/okta @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/okta/directory_service_spec.rb @department-of-veterans-affairs/lighthouse-pivot
@@ -1876,6 +1879,7 @@ spec/services/bgs @department-of-veterans-affairs/benefits-dependents-management
 spec/services/claim_fast_tracking @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/services/debt_transaction_log_service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/services/email_verification_callback_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
+spec/services/email_verification_service_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/services/evss_claim_service_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/services/feature_toggles_service_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/services/form1010_ezr_attachments/file_type_validator_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
@@ -2191,6 +2195,7 @@ spec/support/vcr_cassettes/chatbot @department-of-veterans-affairs/vfs-virtual-a
 spec/support/vcr_cassettes/check_in @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/claims_api @department-of-veterans-affairs/lighthouse-dash
+spec/support/vcr_cassettes/vass @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/complex_interaction @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/contention_classification @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-vro-engineers @department-of-veterans-affairs/benefits-contention-classification-engineers
 spec/support/vcr_cassettes/debts @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
