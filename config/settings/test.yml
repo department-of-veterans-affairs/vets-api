@@ -1038,6 +1038,10 @@ ogc:
     api_key: fake_key
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
     document_upload_url: http://localhost:5000/api/v1/accreditation/applications/form21a/documents
+    s3:
+      region: us-gov-west-1
+      bucket: test-bucket
+      uploads_enabled: false
 oidc:
   isolated_audience:
     claims: ~
