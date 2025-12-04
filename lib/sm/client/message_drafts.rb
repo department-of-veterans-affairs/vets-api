@@ -14,7 +14,7 @@ module SM
       # @return [MessageDraft]
       #
       def post_create_message_draft(args = {})
-        # Prevent call if this is a reply draft, otherwise reply-to message suject can change.
+        # Prevent call if this is a reply draft, otherwise reply-to message subject can change.
         validate_draft(args)
 
         json = perform(:post, 'message/draft', args, token_headers).body

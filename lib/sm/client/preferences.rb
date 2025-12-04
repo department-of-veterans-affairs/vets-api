@@ -47,7 +47,7 @@ module SM
       ##
       # Fetch current message signature
       #
-      # @return [Sting] json response
+      # @return [String] json response
       #
       def get_signature
         perform(:get, 'preferences/signature', nil, token_headers).body
@@ -56,7 +56,7 @@ module SM
       ##
       # Update current message signature
       #
-      # @return [Sting] json response
+      # @return [String] json response
       #
       def post_signature(params)
         request_body = MessagingSignature.new(params).to_h

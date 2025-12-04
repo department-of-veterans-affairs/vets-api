@@ -47,7 +47,7 @@ module SM
 
       ##
       # Create a presigned URL for an attachment
-      # # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
+      # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
       # @return [String] the MHV S3 presigned URL for the attachment
       #
       def create_presigned_url_for_attachment(file)
