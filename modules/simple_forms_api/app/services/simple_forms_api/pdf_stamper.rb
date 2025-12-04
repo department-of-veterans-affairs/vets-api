@@ -5,7 +5,7 @@ require 'fileutils'
 
 module SimpleFormsApi
   class PdfStamper
-    attr_reader :stamped_template_path, :form, :loa, :timestamp
+    attr_reader :stamped_template_path, :form, :loa, :timestamp, :form_number
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     FORM_UPLOAD_SUBMISSION_TEXT = 'Submitted via VA.gov at '
@@ -56,6 +56,7 @@ module SimpleFormsApi
       if form
         form.desired_stamps + form.submission_date_stamps(timestamp)
       elsif form_number
+        binding.pry
         # Scanned form - lookup stamps by form number
         get_scanned_form_stamps(form_number)
       else
@@ -64,6 +65,7 @@ module SimpleFormsApi
     end
 
     def get_scanned_form_stamps(form_number)
+      binding.pry
       return [] unless SimpleFormsApi::ScannedFormStamps.stamps?(form_number)
 
       stamp_config = SimpleFormsApi::ScannedFormStamps.new(form_number)

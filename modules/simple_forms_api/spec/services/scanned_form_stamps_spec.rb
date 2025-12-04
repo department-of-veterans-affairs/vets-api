@@ -70,6 +70,12 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
       expect(described_class::TIMESTAMP_LINE_2_COORDS).to eq([460, 690])
       expect(described_class::TIMESTAMP_FONT_SIZE).to eq(12)
       expect(described_class::STAMP_PAGE_OVERRIDES).to eq({ '21-0304' => 1 })
+      expect(described_class::STAMP_COORDINATE_OVERRIDES).to eq({
+        '21-0304' => {
+          line_1: [460, 660],
+          line_2: [460, 640]
+        }
+      })
     end
   end
 end
