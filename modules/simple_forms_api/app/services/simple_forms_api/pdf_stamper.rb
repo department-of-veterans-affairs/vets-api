@@ -68,11 +68,11 @@ module SimpleFormsApi
 
       stamp_config = SimpleFormsApi::ScannedFormStamps.new(form_number)
       stamp_config.submission_date_stamps(timestamp)
-      rescue => e
-        Rails.logger.error(
-          'Simple forms api - error loading scanned form stamps',
-          { form_number: form_number, error: e.message }
-        )
+    rescue => e
+      Rails.logger.error(
+        'Simple forms api - error loading scanned form stamps',
+        { form_number:, error: e.message }
+      )
       []
     end
 

@@ -31,14 +31,14 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
       stamps = stamp_config.submission_date_stamps(timestamp)
 
       expect(stamps.length).to eq(2)
-      
+
       expect(stamps[0]).to eq(
         coords: [460, 710],
         text: 'Application Submitted:',
         page: 0,
         font_size: 12
       )
-      
+
       expect(stamps[1]).to eq(
         coords: [460, 690],
         text: '18:35 UTC 11/07/25',
