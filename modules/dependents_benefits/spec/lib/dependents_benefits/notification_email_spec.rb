@@ -5,6 +5,10 @@ require 'dependents_benefits/notification_callback'
 require 'dependents_benefits/notification_email'
 
 RSpec.describe DependentsBenefits::NotificationEmail do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+  end
+
   let(:saved_claim) { create(:dependents_claim) }
   let(:vanotify) { double(send_email: true) }
 

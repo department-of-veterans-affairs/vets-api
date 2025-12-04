@@ -5,6 +5,12 @@ require 'dependents_benefits/sidekiq/bgs_form_job'
 require 'bgsv2/service'
 
 RSpec.describe DependentsBenefits::Sidekiq::BGSFormJob, type: :job do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    # Initialize job with current claim context
+    job.instance_variable_set(:@claim_id, saved_claim.id)
+  end
+
   # Create a concrete test class since BGSFormJob is abstract
   let(:test_job_class) do
     Class.new(described_class) do
@@ -25,11 +31,6 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSFormJob, type: :job do
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
   let(:job) { test_job_class.new }
-
-  before do
-    # Initialize job with current claim context
-    job.instance_variable_set(:@claim_id, saved_claim.id)
-  end
 
   describe '#active_sibling_ep_codes' do
     let(:sibling_claim1) { create(:add_remove_dependents_claim) }
@@ -137,20 +138,11 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSFormJob, type: :job do
     end
   end
 
-  describe '#claim_type_end_product' do
+  describe '#available_claim_type_end_product_codes' do
     let(:bgs_service) { instance_double(BGSV2::Service) }
 
     before do
       allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
-    end
-
-    context 'when claim_type_end_product is already set' do
-      it 'returns memoized value' do
-        job.instance_variable_set(:@claim_type_end_product, '130')
-
-        expect(bgs_service).not_to receive(:find_active_benefit_claim_type_increments)
-        expect(job.send(:claim_type_end_product)).to eq('130')
-      end
     end
 
     context 'when selecting from available EP codes' do
@@ -168,29 +160,29 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSFormJob, type: :job do
         create(:bgs_submission_attempt, submission: sibling_submission, status: 'pending',
                                         metadata: { claim_type_end_product: '130' }.to_json)
 
-        result = job.send(:claim_type_end_product)
+        result = job.send(:available_claim_type_end_product_codes)
 
         # Should exclude: 130 (sibling), 131 (active), 134 (active)
         # Available: 132, 136, 137, 138, 139
-        expect(result).to eq('132')
+        expect(result).to eq(%w[132 136 137 138 139])
       end
 
-      it 'returns first available EP code when all are available' do
+      it 'returns all available EP codes when all are available' do
         allow(bgs_service).to receive(:find_active_benefit_claim_type_increments).and_return([])
 
-        result = job.send(:claim_type_end_product)
+        result = job.send(:available_claim_type_end_product_codes)
 
-        expect(result).to eq('130')
+        expect(result).to eq(%w[130 131 132 134 136 137 138 139])
       end
 
-      it 'returns nil when no EP codes are available' do
+      it 'returns empty array when no EP codes are available' do
         # All codes are active
         allow(bgs_service).to receive(:find_active_benefit_claim_type_increments)
           .and_return(%w[130 131 132 134 136 137 138 139])
 
-        result = job.send(:claim_type_end_product)
+        result = job.send(:available_claim_type_end_product_codes)
 
-        expect(result).to be_nil
+        expect(result).to be_empty
       end
     end
   end

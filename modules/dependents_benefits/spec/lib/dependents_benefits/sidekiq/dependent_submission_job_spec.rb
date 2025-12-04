@@ -7,19 +7,8 @@ require 'dependents_benefits/notification_email'
 require 'sidekiq/job_retry'
 
 RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job do
-  let(:saved_claim) { create(:dependents_claim) }
-  let(:claim_id) { saved_claim.id }
-  let(:proc_id) { 'test-proc-123' }
-  let(:job) { described_class.new }
-  let(:parent_claim) { create(:dependents_claim) }
-  let(:child_claim) { create(:add_remove_dependents_claim) }
-  let(:sibling_claim) { create(:student_claim) }
-  let(:failed_response) { double('ServiceResponse', success?: false, error: 'Service unavailable') }
-  let(:successful_response) { double('ServiceResponse', success?: true) }
-  let(:monitor) { instance_double(DependentsBenefits::Monitor) }
-  let(:notification_email) { instance_double(DependentsBenefits::NotificationEmail) }
-
   before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive(:track_submission_info)
@@ -29,6 +18,19 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
     allow(job).to receive(:find_or_create_form_submission)
   end
 
+  let(:saved_claim) { create(:dependents_claim) }
+  let(:claim_id) { saved_claim.id }
+  let(:proc_id) { 'test-proc-123' }
+  let(:claim_type_end_product) { '131' }
+  let(:job) { described_class.new }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:child_claim) { create(:add_remove_dependents_claim) }
+  let(:sibling_claim) { create(:student_claim) }
+  let(:failed_response) { double('ServiceResponse', success?: false, error: 'Service unavailable') }
+  let(:successful_response) { double('ServiceResponse', success?: true) }
+  let(:monitor) { instance_double(DependentsBenefits::Monitor) }
+  let(:notification_email) { instance_double(DependentsBenefits::NotificationEmail) }
+
   describe '#perform' do
     context 'when claim group has already failed' do
       let!(:parent_claim_group) { create(:parent_claim_group, parent_claim:, status: SavedClaimGroup::STATUSES[:FAILURE]) }
@@ -36,7 +38,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
       it 'skips submission without creating form submission attempt' do
         expect(job).not_to receive(:submit_to_service)
-        job.perform(child_claim.id)
+        job.perform(child_claim.id, { proc_id:, claim_type_end_product: })
       end
     end
 
@@ -119,7 +121,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
   describe 'sidekiq_retries_exhausted callback' do
     it 'calls handle_permanent_failure' do
-      msg = { 'args' => [claim_id, proc_id], 'class' => job.class.name }
+      msg = { 'args' => [claim_id, { proc_id: 'proc_id', claim_type_end_product: '131' }], 'class' => job.class.name }
       exception = StandardError.new('Service failed')
 
       expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
@@ -340,7 +342,9 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
   describe '#sidekiq_retries_exhausted' do
     it 'logs a distinct error when no claim_id provided' do
-      described_class.within_sidekiq_retries_exhausted_block({ 'args' => [child_claim.id, 'proc_id'] }, 'Failure!') do
+      described_class.within_sidekiq_retries_exhausted_block(
+        { 'args' => [child_claim.id, { proc_id: 'proc_id', claim_type_end_product: '131' }] }, 'Failure!'
+      ) do
         allow(described_class).to receive(:new).and_return(job)
         expect(job).to receive(:handle_permanent_failure).with(child_claim.id, 'Failure!')
       end

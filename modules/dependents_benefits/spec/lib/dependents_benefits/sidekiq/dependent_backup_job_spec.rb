@@ -5,7 +5,7 @@ require 'dependents_benefits/sidekiq/dependent_backup_job'
 
 RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(pdf_stamper_instance).at_least(:once)
     allow(pdf_stamper_instance).to receive(:run).and_return('/tmp/stamped_1.pdf', '/tmp/stamped_2.pdf',
                                                             '/tmp/final_stamped.pdf')
@@ -215,7 +215,8 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
   describe 'sidekiq_retries_exhausted callback' do
     it 'calls handle_permanent_failure' do
-      msg = { 'args' => [parent_claim.id, 'proc_id'], 'class' => job.class.name }
+      msg = { 'args' => [parent_claim.id, { proc_id: 'proc_id', claim_type_end_product: '131' }],
+              'class' => job.class.name }
       exception = StandardError.new('Service failed')
 
       expect_any_instance_of(described_class).to receive(:handle_permanent_failure)

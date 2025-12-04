@@ -8,15 +8,8 @@ require 'dependents_benefits/sidekiq/claims_686c_job'
 require 'dependents_benefits/sidekiq/claims_674_job'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
-  let(:parent_claim) { create(:dependents_claim) }
-  let(:form_674_claim) { create(:student_claim) }
-  let(:form_686_claim) { create(:add_remove_dependents_claim) }
-  let(:parent_claim_id) { parent_claim.id }
-  let(:proc_id) { 'proc-123-456' }
-  let(:processor) { described_class.new(parent_claim_id, proc_id) }
-  let(:mock_monitor) { instance_double(DependentsBenefits::Monitor) }
-
   before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
     allow(mock_monitor).to receive(:track_processor_info)
     allow(mock_monitor).to receive(:track_processor_error)
@@ -24,11 +17,23 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:form_674_claim) { create(:student_claim) }
+  let(:form_686_claim) { create(:add_remove_dependents_claim) }
+  let(:parent_claim_id) { parent_claim.id }
+  let(:proc_id) { 'proc-123-456' }
+  let(:claim_type_end_products) { [131, 134] }
+  let(:processor) { described_class.new(parent_claim_id, proc_id:, claim_type_end_products:) }
+  let(:mock_monitor) { instance_double(DependentsBenefits::Monitor) }
+
   describe '.enqueue_submissions' do
     it 'creates processor instance and delegates to instance method' do
-      expect(described_class).to receive(:new).with(parent_claim_id, proc_id).and_return(processor)
+      claim_type_end_products = [131, 134]
+      expect(described_class).to receive(:new).with(
+        parent_claim_id, proc_id:, claim_type_end_products:
+      ).and_return(processor)
       expect(processor).to receive(:enqueue_submissions)
-      described_class.enqueue_submissions(parent_claim_id, proc_id)
+      described_class.enqueue_submissions(parent_claim_id, proc_id, claim_type_end_products)
     end
   end
 
@@ -42,10 +47,15 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     end
 
     it 'processes claims' do
-      expect(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).with(
+        form_686_claim.id,
+        { proc_id:, claim_type_end_product: claim_type_end_products[0] }
+      )
+      expect(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).with(
+        form_674_claim.id, { proc_id:, claim_type_end_product: claim_type_end_products[1] }
+      )
+      expect(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).with(form_686_claim.id)
+      expect(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).with(form_674_claim.id)
 
       result = processor.enqueue_submissions
 
@@ -53,8 +63,12 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     end
 
     it 'monitors submissions' do
-      expect(processor).to receive(:enqueue_686c_submission).with(form_686_claim).and_return(2)
-      expect(processor).to receive(:enqueue_674_submission).with(form_674_claim).and_return(2)
+      expect(processor).to receive(:enqueue_686c_submission).with(
+        form_686_claim, claim_type_end_products[0]
+      ).and_return(2)
+      expect(processor).to receive(:enqueue_674_submission).with(
+        form_674_claim, claim_type_end_products[1]
+      ).and_return(2)
 
       processor.enqueue_submissions
 
@@ -104,8 +118,8 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
 
     it 'tracks enqueued submissions for both form types' do
-      processor.send(:enqueue_686c_submission, form_686_claim)
-      processor.send(:enqueue_674_submission, form_674_claim)
+      processor.send(:enqueue_686c_submission, form_686_claim, claim_type_end_products[0])
+      processor.send(:enqueue_674_submission, form_674_claim, claim_type_end_products[1])
 
       expect(mock_monitor).to have_received(:track_processor_info).with(
         'Enqueued 686c submission jobs', 'enqueue_686c', { parent_claim_id:, claim_id: form_686_claim.id }

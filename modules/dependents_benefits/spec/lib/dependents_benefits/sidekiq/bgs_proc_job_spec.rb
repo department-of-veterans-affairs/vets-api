@@ -4,13 +4,14 @@ require 'rails_helper'
 
 RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     # Set up job with parent claim ID and initialize required instance variables
     job.instance_variable_set(:@claim_id, parent_claim.id)
 
     # Mock service dependencies
     allow(job).to receive(:generate_user_struct).and_return(user)
     allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+    allow(bgs_service).to receive(:find_active_benefit_claim_type_increments).and_return(%w[130 132 136 137 138 139])
     allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
   end
 
@@ -23,6 +24,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
   let(:job) { described_class.new }
   let(:bgs_service) { instance_double(BGSV2::Service) }
   let(:proc_id) { '123456' }
+  let(:claim_type_end_products) { %w[131 134] }
   let(:claim_processor) { instance_double(DependentsBenefits::ClaimProcessor) }
 
   describe '#perform' do
@@ -30,7 +32,8 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
       expect(bgs_service).to receive(:create_proc).and_return({ vnp_proc_id: proc_id })
       expect(bgs_service).to receive(:create_proc_form).with(proc_id, '21-686c')
       expect(bgs_service).to receive(:create_proc_form).with(proc_id, '21-674')
-      expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions).with(parent_claim.id, proc_id)
+      expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions).with(parent_claim.id, proc_id,
+                                                                                       claim_type_end_products)
       expect { job.perform(parent_claim.id) }.not_to raise_error
     end
   end
@@ -104,6 +107,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
       before do
         job.instance_variable_set(:@proc_id, proc_id)
         job.instance_variable_set(:@parent_claim_id, parent_claim.id)
+        job.instance_variable_set(:@claim_type_end_products, claim_type_end_products)
         allow(job).to receive(:mark_submission_succeeded)
         allow(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
         allow(job).to receive(:monitor).and_return(double('monitor', track_submission_error: nil))
@@ -115,7 +119,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
 
           expect(job).to have_received(:mark_submission_succeeded)
           expect(DependentsBenefits::ClaimProcessor).to have_received(:enqueue_submissions)
-            .with(parent_claim.id, proc_id)
+            .with(parent_claim.id, proc_id, claim_type_end_products)
         end
       end
 

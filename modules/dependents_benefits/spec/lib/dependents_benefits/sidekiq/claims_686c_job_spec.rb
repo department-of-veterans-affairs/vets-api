@@ -6,7 +6,7 @@ require 'dependents_benefits/user_data'
 
 RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 
   let(:user) { create(:evss_user) }
@@ -18,7 +18,6 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
   let(:job) { described_class.new }
   let(:claims_evidence_uploader) { instance_double(ClaimsEvidenceApi::Uploader) }
   let(:lighthouse_submission) { instance_double(DependentsBenefits::BenefitsIntake::LighthouseSubmission) }
-  let(:proc_id) { '123456' }
 
   describe '#perform' do
     before do
@@ -30,7 +29,7 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
 
     context 'with valid claim' do
       it 'processes the claim successfully' do
-        expect { job.perform(saved_claim.id, proc_id) }.not_to raise_error
+        expect { job.perform(saved_claim.id) }.not_to raise_error
       end
 
       it 'calls lighthouse and claims evidence service' do
@@ -50,13 +49,13 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
           form_id: DependentsBenefits::ADD_REMOVE_DEPENDENT,
           doctype: saved_claim.document_type
         )
-        job.perform(saved_claim.id, proc_id)
+        job.perform(saved_claim.id)
       end
     end
 
     context 'with missing claim' do
       it 'raises error for non-existent claim' do
-        expect { job.perform(999_999, proc_id) }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { job.perform(999_999) }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 
@@ -66,7 +65,7 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
           .to receive(:valid?)
           .with(:run_686_form_jobs)
           .and_return(false)
-        expect { job.perform(saved_claim.id, proc_id) }
+        expect { job.perform(saved_claim.id) }
           .to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError)
       end
     end
@@ -82,10 +81,9 @@ RSpec.describe DependentsBenefits::Sidekiq::Claims686cJob, type: :job do
         # Mock permanent_failure? to return true for the original error
         allow(job).to receive(:permanent_failure?).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError)).and_return(true)
 
-        expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim.id,
-                                                                                                proc_id)
+        expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim.id)
 
-        expect { job.perform(saved_claim.id, proc_id) }.to raise_error(Sidekiq::JobRetry::Skip)
+        expect { job.perform(saved_claim.id) }.to raise_error(Sidekiq::JobRetry::Skip)
       end
     end
   end

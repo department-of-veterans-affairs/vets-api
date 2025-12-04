@@ -7,7 +7,7 @@ require 'dependents_benefits/user_data'
 
 RSpec.describe DependentsBenefits::Sidekiq::BGS674Job, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow_any_instance_of(BGS::Services).to receive(:benefit_claims).and_return(benefit_claims)
     allow(benefit_claims).to receive(:find_claims_details_by_participant_id).and_return(
       bnft_claim_detail: [
@@ -29,6 +29,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS674Job, type: :job do
   let(:benefit_claims) { double('BenefitClaims') }
   let(:bgs_service) { BGSV2::Service.new(user) }
   let(:proc_id) { '123456' }
+  let(:claim_type_end_product) { '134' }
 
   describe '#perform' do
     before do
@@ -48,18 +49,18 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS674Job, type: :job do
 
     context 'with valid claim' do
       it 'processes the claim successfully' do
-        expect { job.perform(saved_claim.id, proc_id) }.not_to raise_error
+        expect { job.perform(saved_claim.id, { proc_id:, claim_type_end_product: }) }.not_to raise_error
       end
 
       it 'calls BGS service' do
         expect_any_instance_of(BGSV2::Form674).to receive(:submit).and_return({ status: 'success' })
-        job.perform(saved_claim.id, proc_id)
+        job.perform(saved_claim.id, { proc_id:, claim_type_end_product: })
       end
     end
 
     context 'with missing claim' do
       it 'raises error for non-existent claim' do
-        expect { job.perform(999_999, proc_id) }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { job.perform(999_999, { proc_id:, claim_type_end_product: }) }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 
@@ -76,14 +77,15 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS674Job, type: :job do
 
         expect(job).to receive(:send_backup_job)
 
-        expect { job.perform(saved_claim.id, proc_id) }.to raise_error(Sidekiq::JobRetry::Skip)
+        expect { job.perform(saved_claim.id, { proc_id:, claim_type_end_product: }) }.to raise_error(Sidekiq::JobRetry::Skip)
       end
     end
   end
 
   describe 'sidekiq_retries_exhausted callback' do
     it 'calls handle_permanent_failure' do
-      msg = { 'args' => [parent_claim.id, 'proc_id'], 'class' => job.class.name }
+      msg = { 'args' => [parent_claim.id, { proc_id: 'proc_id', claim_type_end_product: '134' }],
+              'class' => job.class.name }
       exception = StandardError.new('Service failed')
 
       expect_any_instance_of(described_class).to receive(:handle_permanent_failure)

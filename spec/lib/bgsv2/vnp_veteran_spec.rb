@@ -425,6 +425,53 @@ RSpec.describe BGSV2::VnpVeteran do
           expect(vnp_veteran[:benefit_claim_type_end_product]).to eq('139')
         end
       end
+
+      context 'when veteran_response fails on first attempt with provided claim_type_end_product' do
+        it 'retries with a new EP code from find_benefit_claim_type_increment' do
+          # Mock veteran object to fail once then succeed
+          veteran_double = instance_double(BGSDependentsV2::Veteran)
+          allow(BGSDependentsV2::Veteran).to receive(:new).and_return(veteran_double)
+          allow(veteran_double).to receive_messages(formatted_params: formatted_payload_v2, create_person_params: {},
+                                                    formatted_boolean: 'Y', create_address_params: {})
+
+          # First call to veteran_response fails with provided EP code
+          # Second call to veteran_response succeeds with new EP code from increment
+          expect(veteran_double).to receive(:veteran_response).twice do |_participant, _address, opts|
+            if opts[:claim_type_end_product] == '130'
+              raise StandardError, 'Duplicate EP code error'
+            elsif opts[:claim_type_end_product] == '132'
+              {
+                vnp_participant_id: '151031',
+                benefit_claim_type_end_product: '132'
+              }
+            end
+          end
+
+          # After error, expect call to find_benefit_claim_type_increment for new EP code
+          expect_any_instance_of(BGSV2::Service).to receive(:find_benefit_claim_type_increment)
+            .with('130DPNEBNADJ')
+            .and_return('132')
+            .once
+
+          # Expect error to be logged
+          expect(Rails.logger).to receive(:error).with(
+            'Error creating veteran response',
+            hash_including(service: 'bgs',
+                           context: hash_including(action: 'vnp_veteran_response_error',
+                                                   error: 'Duplicate EP code error'))
+          )
+
+          vnp_veteran = BGSV2::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload_v2,
+            user: user_object,
+            claim_type: '130DPNEBNADJ',
+            claim_type_end_product: '130'
+          ).create
+
+          expect(vnp_veteran[:benefit_claim_type_end_product]).to eq('132')
+        end
+      end
     end
   end
 end
