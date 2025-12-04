@@ -31,10 +31,12 @@ module SOB
           # Expect 204 from DGI if claimant not found
           raise_claimant_not_found if response_204?(raw_response)
 
-          SOB::DGI::Response.new(raw_response.status, raw_response)
+          begin
+            SOB::DGI::Response.new(raw_response.status, raw_response)
+          rescue SOB::DGI::Response::Ch33DataMissing
+            raise_claimant_not_found
+          end
         end
-      rescue SOB::DGI::Response::Ch33DataMissing
-        raise_claimant_not_found
       rescue Common::Exceptions::BackendServiceException => e
         log_error(e)
         raise e
@@ -62,7 +64,7 @@ module SOB
 
       # Encountered staging response where status was 200 but body was '{"status":204,"claimant":null}'
       def response_204?(res)
-        [res.body['status'], res.status].any? { |status| status == 204 }
+        [res.body&.dig('status'), res.status].any? { |status| status == 204 }
       end
 
       # Convert DGI 204 response into 404 error
