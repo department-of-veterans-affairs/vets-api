@@ -16,7 +16,8 @@ module VSPDanger
         ChangeLimiter.new.run,
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
-        GemfileLockPlatformChecker.new.run
+        GemfileLockPlatformChecker.new.run,
+        ParameterFilteringAllowlistChecker.new.run
       ]
     end
 
@@ -499,6 +500,82 @@ module VSPDanger
 
     def gemfile_diff
       `git diff #{BASE_SHA}...#{HEAD_SHA} -- Gemfile.lock`
+    end
+  end
+
+  class ParameterFilteringAllowlistChecker
+    FILTER_PARAM_FILE = 'config/initializers/filter_parameter_logging.rb'
+    ALLOWLIST_PATTERN = /^ALLOWLIST = %w\[/
+
+    def run
+      return Result.success('Parameter filtering allowlist is unchanged.') unless allowlist_changed?
+
+      Result.warn(warning_message)
+    end
+
+    private
+
+    def allowlist_changed?
+      return false if filter_params_diff.empty?
+
+      # Check if any lines in the ALLOWLIST array were added or removed
+      filter_params_diff.split("\n").any? do |line|
+        # Look for additions or deletions within the ALLOWLIST array
+        (line.start_with?('+', '-') && !line.start_with?('+++', '---')) &&
+          in_allowlist_section?(line)
+      end
+    end
+
+    def in_allowlist_section?(line)
+      # Simple heuristic: if the line looks like an array element (indented word)
+      # This catches lines like "  action" or "  +  benefits_intake_uuid"
+      clean_line = line[1..].strip # Remove the leading '+' or '-'
+      clean_line.match?(/^[a-z_]+$/) # Single word, lowercase with underscores
+    end
+
+    def warning_message
+      <<~EMSG
+        ⚠️ **Parameter Filtering ALLOWLIST Modified**
+
+        This PR modifies the `ALLOWLIST` constant in `config/initializers/filter_parameter_logging.rb`.
+
+        **⚠️ CRITICAL: PII RISK**
+
+        Adding keys to the ALLOWLIST means those parameters will **NOT** be filtered in logs across **ALL** of vets-api.
+        This could expose sensitive data (PII/PHI/secrets) in:
+        - Application logs
+        - DataDog
+        - Sentry
+        - Other logging destinations
+
+        **Before approving this PR, verify:**
+        - [ ] The added key(s) **CANNOT** contain PII, PHI, or secrets
+        - [ ] The key name is generic enough that it won't accidentally expose sensitive data
+        - [ ] There's a documented business need for unfiltering this parameter
+        - [ ] Consider using the new `log_allowlist` parameter for per-call filtering instead (see #121130)
+
+        **Per-call filtering alternative:**
+        ```ruby
+        # Instead of adding to global ALLOWLIST, use per-call allowlist:
+        Rails.logger.info(data, log_allowlist: [:specific_key])
+        ```
+
+        **Documentation:**
+        - [PII Guidelines](https://depo-platform-documentation.scrollhelp.site/developer-docs/personal-identifiable-information-pii-guidelines)
+        - [Filter Parameter Logging](https://github.com/department-of-veterans-affairs/vets-api/blob/master/config/initializers/filter_parameter_logging.rb)
+
+        <details>
+          <summary>Modified ALLOWLIST diff</summary>
+
+          ```diff
+          #{filter_params_diff}
+          ```
+        </details>
+      EMSG
+    end
+
+    def filter_params_diff
+      @filter_params_diff ||= `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{FILTER_PARAM_FILE}`
     end
   end
 
