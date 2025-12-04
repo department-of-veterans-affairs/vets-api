@@ -1,350 +1,216 @@
-# Validates backend approval requirements for PRs
-# Runs on PR updates and review submissions to ensure proper approval from backend-review-group
-# or exemption through team-based file ownership
-name: Require Backend Approval
+# frozen_string_literal: true
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  pull_request_review:
-    types: [submitted, dismissed]
+module Eps
+  class AppointmentService < BaseService
+    ##
+    # Get a specific appointment from EPS by ID
+    #
+    # @param appointment_id [String] The ID of the appointment to retrieve
+    # @param retrieve_latest_details [Boolean] Whether to fetch latest details from provider service
+    # @raise [ArgumentError] If appointment_id is blank
+    # @raise [VAOS::Exceptions::BackendServiceException] If response contains error field
+    # @return OpenStruct response from EPS get appointment endpoint
+    #
+    def get_appointment(appointment_id:, retrieve_latest_details: false)
+      query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: write
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
+                           request_headers_with_correlation_id)
+        result = OpenStruct.new(response.body)
 
-concurrency:
-  group: backend-approval-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+        # Check for error field in successful responses using reusable helper
+        check_for_eps_error!(result, response, 'get_appointment')
 
-env:
-  AWS_REGION: us-gov-west-1
-  SSM_BOT_TOKEN_PATH: /devops/VA_VSP_BOT_GITHUB_TOKEN
+        result
+      end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_appointment')
+      raise e
+    end
 
-jobs:
-  backend-approval-check:
-    name: Succeed if backend approval is confirmed
-    runs-on: ubuntu-latest
-    permissions: write-all
+    ##
+    # Get appointments data from EPS
+    #
+    # @param referral_number [String] Optional referral number to filter appointments
+    # @return [Array<Hash>] Array of appointment hashes from EPS
+    #
+    def get_appointments(referral_number: nil)
+      params = { patientId: patient_id }
+      params[:referralNumber] = referral_number if referral_number.present?
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+      query_string = URI.encode_www_form(params)
 
-      - name: Fetch PR data and changed files
-        id: pr_info
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/appointments?#{query_string}",
+                           {}, request_headers_with_correlation_id)
 
-          # Fetch PR metadata
-          PR_DATA=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
-            author: .user.login,
-            draft: .draft,
-            labels: [.labels[].name]
-          }')
+        # Check for error field in successful responses using reusable helper
+        check_for_eps_error!(response.body, response, 'get_appointments')
+        return [] unless response.body.is_a?(Hash)
 
-          echo "pr_author=$(echo "$PR_DATA" | jq -r '.author')" >> "$GITHUB_OUTPUT"
-          echo "pr_draft=$(echo "$PR_DATA" | jq -r '.draft')" >> "$GITHUB_OUTPUT"
-          echo "pr_labels=$(echo "$PR_DATA" | jq -c '.labels')" >> "$GITHUB_OUTPUT"
+        appointments = response.body[:appointments]
+        return [] unless appointments.is_a?(Array)
 
-          # Fetch changed files (handles pagination automatically)
-          CHANGED_FILES=$(gh api "/repos/${{ github.repository }}/pulls/${PR_NUMBER}/files" \
-            --paginate --jq '.[].filename')
+        appointments
+      end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_appointments')
+      raise e
+    end
 
-          echo "$CHANGED_FILES" > /tmp/changed_files.txt
-          FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+    ##
+    # Get appointments data from EPS with provider information and return as EpsAppointment objects
+    #
+    # @return [Array<VAOS::V2::EpsAppointment>] Array of EpsAppointment objects with provider data
+    #
+    def get_appointments_with_providers
+      appointments = get_appointments
+      return [] if appointments.blank?
 
-          echo "file_count=${FILE_COUNT}" >> "$GITHUB_OUTPUT"
+      merged_appointments = merge_provider_data_with_appointments(appointments)
+      merged_appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt, appt[:provider]) }
+    end
 
-          echo "PR #${PR_NUMBER} Analysis"
-          echo "  Author: $(echo "$PR_DATA" | jq -r '.author')"
-          echo "  Draft: $(echo "$PR_DATA" | jq -r '.draft')"
-          echo "  Changed files: ${FILE_COUNT}"
+    ##
+    # Create draft appointment in EPS
+    #
+    # @return OpenStruct response from EPS create draft appointment endpoint
+    #
+    def create_draft_appointment(referral_id:)
+      with_monitoring do
+        response = perform(:post, "/#{config.base_path}/appointments",
+                           { patientId: patient_id, referral: { referralNumber: referral_id } },
+                           request_headers_with_correlation_id)
 
-      - name: Analyze file ownership against CODEOWNERS
-        id: file_ownership
-        run: |
-          if [[ ! -s /tmp/changed_files.txt ]]; then
-            echo "all_files_exempt=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+        result = OpenStruct.new(response.body)
 
-          CODEOWNERS_FILE=".github/CODEOWNERS"
-          if [[ ! -f "$CODEOWNERS_FILE" ]]; then
-            echo "[ERROR] CODEOWNERS file not found"
-            echo "all_files_exempt=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+        # Check for error field in successful responses using reusable helper
+        check_for_eps_error!(result, response, 'create_draft_appointment')
 
-          EXEMPT_TEAM_ARRAY=(
-            "octo-identity"
-            "mobile-api-team"
-          )
+        result
+      end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'create_draft_appointment')
+      raise e
+    end
 
-          all_files_exempt=true
+    ##
+    #
+    # Submit an appointment to EPS for booking
+    #
+    # @param appointment_id [String] The ID of the appointment to submit
+    # @param params [Hash] Hash containing required and optional parameters
+    # @option params [String] :network_id The network ID for the appointment
+    # @option params [String] :provider_service_id The provider service ID
+    # @option params [Array<String>] :slot_ids Array of slot IDs for the appointment
+    # @option params [String] :referral_number The referral number
+    # @option params [Hash] :additional_patient_attributes Optional patient details (address, contact info)
+    # @raise [ArgumentError] If any required parameters are missing
+    # @raise [VAOS::Exceptions::BackendServiceException] If response contains error field
+    # @return OpenStruct response from EPS submit appointment endpoint
+    #
+    def submit_appointment(appointment_id, params = {})
+      validate_submit_params!(appointment_id, params)
+      payload = build_submit_payload(params)
+      persist_submit_side_effects(appointment_id)
 
-          echo "Analyzing Code Owners"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
+      with_monitoring do
+        response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload,
+                           request_headers_with_correlation_id)
 
-          while IFS= read -r file || [[ -n "$file" ]]; do
-            [[ -z "$file" ]] && continue
+        result = OpenStruct.new(response.body)
+        check_for_eps_error!(result, response, 'submit_appointment')
+        result
+      end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'submit_appointment')
+      raise e
+    end
 
-            echo "File: $file"
+    private
 
-            result=$(awk -v f="$file" '
-              $0 !~ /^#/ && NF > 0 {
-                p = $1
-                orig = p
-                gsub(/\*\*\//, "<!DS!>", p)
-                gsub(/\*/, "<!S!>", p)
-                if (p ~ /\/$/) sub(/\/$/, "/<!S!>", p)
-                else if (p !~ /<!S!>/ && p !~ /<!DS!>/ && p !~ /\./) p = "(" p "$|" p "/<!S!>)"
-                gsub(/\./, "\\.", p)
-                gsub(/<!DS!>/, ".*", p)
-                gsub(/<!S!>/, ".*", p)
-                if (f ~ "^" p) {
-                  pattern = orig
-                  owners = ""
-                  for (i=2; i<=NF; i++) owners = owners $i " "
-                }
-              }
-              END {
-                if (pattern && owners) {
-                  print pattern
-                  print owners
-                  exit 0
-                }
-                exit 1
-              }
-            ' "$CODEOWNERS_FILE")
+    ##
+    # Merge provider data with appointment data
+    #
+    # @param appointments [Array<Hash>] Array of appointment data
+    # @raise [Common::Exceptions::BackendServiceException] If provider data cannot be fetched
+    # @return [Array<Hash>] Array of appointment data with provider data merged in
+    def merge_provider_data_with_appointments(appointments)
+      return [] if appointments.nil?
 
-            if [[ $? -ne 0 || -z "$result" ]]; then
-              echo "  Pattern matched: (none)"
-              echo "  Code owners: (none)"
-              echo "  Status: [X] REQUIRES APPROVAL"
-              echo ""
-              all_files_exempt=false
-              continue
-            fi
+      provider_ids = appointments.pluck(:provider_service_id).compact.uniq
+      return appointments if provider_ids.empty?
 
-            pattern=$(echo "$result" | head -1)
-            owners=$(echo "$result" | tail -1)
+      providers = provider_services.get_provider_services_by_ids(provider_ids:)
 
-            echo "  Pattern matched: \"$pattern\""
-            echo "  Code owners: $owners"
+      appointments.each do |appointment|
+        next unless appointment[:provider_service_id]
 
-            file_is_exempt=false
-            for team in "${EXEMPT_TEAM_ARRAY[@]}"; do
-              if echo "$owners" | grep -q "@department-of-veterans-affairs/${team}"; then
-                echo "  Status: [OK] EXEMPT (via team: $team)"
-                file_is_exempt=true
-                break
-              fi
-            done
+        provider = providers[:provider_services].find do |provider_data|
+          provider_data[:id] == appointment[:provider_service_id]
+        end
+        appointment[:provider] = provider
+      end
 
-            if [[ "$file_is_exempt" == "false" ]]; then
-              echo "  Status: [X] REQUIRES APPROVAL"
-              all_files_exempt=false
-            fi
+      appointments
+    end
 
-            echo ""
-          done < /tmp/changed_files.txt
+    def build_submit_payload(params)
+      payload = {
+        network_id: params[:network_id],
+        provider_service_id: params[:provider_service_id],
+        slot_ids: params[:slot_ids],
+        referral: {
+          referral_number: params[:referral_number]
+        }
+      }
 
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          if [[ "$all_files_exempt" == "true" ]]; then
-            echo "All files are exempt"
-          else
-            echo "Some files require backend approval"
-          fi
+      if params[:additional_patient_attributes]
+        payload[:additional_patient_attributes] = params[:additional_patient_attributes]
+      end
 
-          echo "all_files_exempt=${all_files_exempt}" >> "$GITHUB_OUTPUT"
+      payload
+    end
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
+    def validate_submit_params!(appointment_id, params)
+      raise ArgumentError, 'appointment_id is required and cannot be blank' if appointment_id.blank?
+      raise ArgumentError, 'Email is required' if user.email.blank?
 
-      # VA_VSP_BOT_GITHUB_TOKEN is required to access organization team membership
-      - name: Retrieve bot token from AWS SSM
-        uses: marvinpinto/action-inject-ssm-secrets@latest
-        with:
-          ssm_parameter: ${{ env.SSM_BOT_TOKEN_PATH }}
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+      required_params = %i[network_id provider_service_id slot_ids referral_number]
+      missing_params = required_params - params.keys
+      raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+    end
 
-      - name: Determine approval status
-        id: approval_status
-        env:
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
-          ALL_FILES_EXEMPT: ${{ steps.file_ownership.outputs.all_files_exempt }}
-        run: |
-          exempt=false
-          exempt_reason=""
-          backend_approved=false
-          requires_approval=true
+    def persist_submit_side_effects(appointment_id)
+      redis_client.store_appointment_data(
+        uuid: user.uuid,
+        appointment_id:,
+        email: user.email
+      )
 
-          echo "Determining approval requirements"
-          echo "----------------------------------------"
+      appointment_last4 = appointment_id.to_s.last(4)
+      Eps::AppointmentStatusJob.perform_async(user.uuid, appointment_last4)
+    end
 
-          # Check: Are all files owned by exempt teams?
-          if [[ "${ALL_FILES_EXEMPT}" == "true" ]]; then
-            echo "[PASS] Exempt: All files owned by exempt teams"
-            exempt=true
-            exempt_reason="file ownership"
-            requires_approval=false
-          fi
+    ##
+    # Get instance of ProviderService
+    #
+    # @return [Eps::ProviderService] ProviderService instance
+    def provider_services
+      @provider_services ||= Eps::ProviderService.new(user)
+    end
 
-          # If not exempt, verify backend approval
-          if [[ "${requires_approval}" == "true" ]]; then
-            echo "Checking for backend-review-group approval..."
+    ##
+    # Get instance of RedisClient
+    #
+    # @return [Eps::RedisClient] RedisClient instance
+    def redis_client
+      @redis_client ||= Eps::RedisClient.new
+    end
+  end
 
-            # Fetch backend-review-group members
-            BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
-            BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
-            echo "  Backend reviewers: ${BACKEND_REVIEWERS}"
-
-            # Get most recent review state per user
-            readarray -t APPROVALS < <(
-              gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews --jq '
-                [.[] | select(.state == "APPROVED")]
-                | sort_by(.submitted_at)
-                | reverse
-                | unique_by(.user.login)
-                | .[].user.login
-              ' 2>/dev/null || true
-            )
-
-            # Check if any approver is from backend-review-group
-            for approver in "${APPROVALS[@]}"; do
-              if echo "$approver" | grep -iqE "^(${BACKEND_REVIEWERS})$"; then
-                echo "[PASS] Backend approval confirmed by: ${approver}"
-                backend_approved=true
-                requires_approval=false
-                break
-              fi
-            done
-
-            if [[ "${backend_approved}" == "false" ]]; then
-              echo "No approval from backend-review-group"
-            fi
-          fi
-
-          echo "----------------------------------------"
-          echo "Final Status:"
-          echo "  Exempt: ${exempt}"
-          [[ "${exempt}" == "true" ]] && echo "  Exempt Reason: ${exempt_reason}"
-          echo "  Backend Approved: ${backend_approved}"
-          echo "  Requires Approval: ${requires_approval}"
-
-          # Output results for subsequent steps
-          echo "exempt=${exempt}" >> "$GITHUB_OUTPUT"
-          echo "exempt_reason=${exempt_reason}" >> "$GITHUB_OUTPUT"
-          echo "backend_approved=${backend_approved}" >> "$GITHUB_OUTPUT"
-          echo "requires_approval=${requires_approval}" >> "$GITHUB_OUTPUT"
-
-      - name: Update PR labels
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
-          EXEMPT: ${{ steps.approval_status.outputs.exempt }}
-          REQUIRES_APPROVAL: ${{ steps.approval_status.outputs.requires_approval }}
-        run: |
-          echo "Updating PR labels..."
-
-          # Determine which labels to add/remove based on status
-          LABELS_TO_ADD=()
-          LABELS_TO_REMOVE=()
-
-          if [[ "${EXEMPT}" == "true" ]]; then
-            LABELS_TO_ADD+=("exempt-be-review")
-            LABELS_TO_REMOVE+=("require-backend-approval")
-          else
-            LABELS_TO_REMOVE+=("exempt-be-review")
-          fi
-
-          if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
-            LABELS_TO_ADD+=("require-backend-approval")
-          else
-            LABELS_TO_REMOVE+=("require-backend-approval")
-          fi
-
-          # Apply label changes
-          for label in "${LABELS_TO_REMOVE[@]}"; do
-            echo "  Removing: ${label}"
-            gh pr edit "${PR_NUMBER}" --remove-label "${label}" 2>/dev/null || echo "  [WARN] Could not remove ${label}"
-          done
-
-          for label in "${LABELS_TO_ADD[@]}"; do
-            echo "  Adding: ${label}"
-            gh pr edit "${PR_NUMBER}" --add-label "${label}" 2>/dev/null || echo "  [WARN] Could not add ${label}"
-          done
-
-      - name: Fail if backend approval required
-        if: steps.approval_status.outputs.requires_approval == 'true'
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "[FAIL] Backend Approval Check
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          echo "This PR requires approval from the backend-review-group before merging."
-          echo ""
-          echo "To get your PR exempt from this requirement, ensure:"
-          echo "  • All changed files are owned exclusively by exempt teams in CODEOWNERS"
-          echo "  • Exempt teams: octo-identity, mobile-api-team"
-          echo ""
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          exit 0
-
-      - name: Succeed if backend approval is not required
-        if: steps.approval_status.outputs.requires_approval == 'false'
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "[PASS] APPROVAL CHECK PASSED"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-          if [[ "${{ steps.approval_status.outputs.exempt }}" == "true" ]]; then
-            echo ""
-            echo "PR is exempt from backend approval requirement"
-            echo "Reason: ${{ steps.approval_status.outputs.exempt_reason }}"
-          else
-            echo ""
-            echo "Backend approval has been confirmed"
-          fi
-
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          exit 0
-
-      - name: Set commit status
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REQUIRES_APPROVAL: ${{ steps.approval_status.outputs.requires_approval }}
-          EXEMPT: ${{ steps.approval_status.outputs.exempt }}
-          EXEMPT_REASON: ${{ steps.approval_status.outputs.exempt_reason }}
-        run: |
-          if [[ "${REQUIRES_APPROVAL}" == "true" ]]; then
-            STATE="failure"
-            DESCRIPTION="Requires approval from backend-review-group"
-          elif [[ "${EXEMPT}" == "true" ]]; then
-            STATE="success"
-            DESCRIPTION="Exempt: ${EXEMPT_REASON}"
-          else
-            STATE="success"
-            DESCRIPTION="Backend approval confirmed"
-          fi
-
-          echo "Setting commit status: ${STATE} - ${DESCRIPTION}"
-
-          gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
-            -f state="${STATE}" \
-            -f context="Backend Approval Check" \
-            -f description="${DESCRIPTION}"
+  # Mirrors the middleware-defined EPS exception so callers can rely on
+  # BackendServiceException fields (e.g., original_status, original_body).
+  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Eps::ServiceException)
+end
