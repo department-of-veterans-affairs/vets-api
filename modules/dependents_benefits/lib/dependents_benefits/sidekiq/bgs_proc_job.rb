@@ -15,7 +15,7 @@ module DependentsBenefits
     # for dependent benefits claims. Creates proc forms for 686c and 674 claims
     # as needed, and triggers the enqueueing of individual submission jobs.
     #
-    class BGSProcJob < DependentSubmissionJob
+    class BGSProcJob < BGSFormJob
       ##
       # Creates a BGS vnp_proc (Veteran Notification Process) and associates form submissions
       # The proc_id is used to track all related form submissions for this veteran's request
@@ -31,7 +31,12 @@ module DependentsBenefits
         bgs_service.create_proc_form(@proc_id, ADD_REMOVE_DEPENDENT.downcase) if saved_claim.submittable_686?
         bgs_service.create_proc_form(@proc_id, SCHOOL_ATTENDANCE_APPROVAL) if saved_claim.submittable_674?
 
-        DependentsBenefits::ServiceResponse.new(status: true, data: { proc_id: @proc_id })
+        @claim_type_end_products = available_claim_type_end_product_codes
+
+        DependentsBenefits::ServiceResponse.new(
+          status: true,
+          data: { proc_id: @proc_id, claim_type_end_products: @claim_type_end_products }
+        )
       rescue => e
         DependentsBenefits::ServiceResponse.new(status: false, error: e)
       end
@@ -47,7 +52,7 @@ module DependentsBenefits
       def handle_job_success
         mark_submission_succeeded # update attempt and submission records
         # Enqueue follow-up jobs to submit individual forms associated with this claim and proc_id
-        DependentsBenefits::ClaimProcessor.enqueue_submissions(@parent_claim_id, @proc_id)
+        DependentsBenefits::ClaimProcessor.enqueue_submissions(@parent_claim_id, @proc_id, @claim_type_end_products)
       rescue => e
         monitor.track_submission_error('Error handling job success', 'success_failure', error: e, parent_claim_id:)
         send_backup_job

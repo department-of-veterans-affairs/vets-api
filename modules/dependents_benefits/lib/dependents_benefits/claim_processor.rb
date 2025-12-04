@@ -22,9 +22,11 @@ module DependentsBenefits
     #
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
     # @param proc_id [String, nil] Optional processing ID for job tracking
-    def initialize(parent_claim_id, proc_id)
+    # @param claim_type_end_products [Array<String>, nil] Optional list of end product codes
+    def initialize(parent_claim_id, proc_id: nil, claim_type_end_products: [])
       @parent_claim_id = parent_claim_id
       @proc_id = proc_id
+      @claim_type_end_products = claim_type_end_products
     end
 
     # Creates processing forms for a parent claim
@@ -34,7 +36,7 @@ module DependentsBenefits
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
     # @return [String] Sidekiq job ID
     def self.create_proc_forms(parent_claim_id)
-      processor = new(parent_claim_id, nil)
+      processor = new(parent_claim_id)
       processor.create_proc_forms
     end
 
@@ -53,10 +55,11 @@ module DependentsBenefits
     # @todo Set claim group gets set as accepted
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
     # @param proc_id [String] Processing ID for job tracking
+    # @param claim_type_end_products [Array<String>] List of end product codes for the claim
     # @return [Hash] Success result with :jobs_enqueued count and :error nil
     # @raise [StandardError] If any submission job fails to enqueue
-    def self.enqueue_submissions(parent_claim_id, proc_id)
-      processor = new(parent_claim_id, proc_id)
+    def self.enqueue_submissions(parent_claim_id, proc_id, claim_type_end_products)
+      processor = new(parent_claim_id, proc_id:, claim_type_end_products:)
       processor.enqueue_submissions
     end
 
@@ -71,12 +74,13 @@ module DependentsBenefits
     def enqueue_submissions
       monitor.track_processor_info('Starting claim submission processing', 'start', parent_claim_id:)
       jobs_enqueued = 0
-      collect_child_claims.each do |claim|
+      collect_child_claims.each_with_index do |claim, i|
+        claim_type_end_product = @claim_type_end_products[i]
         case claim.form_id
         when '21-686C'
-          jobs_enqueued += enqueue_686c_submission(claim)
+          jobs_enqueued += enqueue_686c_submission(claim, claim_type_end_product)
         when '21-674'
-          jobs_enqueued += enqueue_674_submission(claim)
+          jobs_enqueued += enqueue_674_submission(claim, claim_type_end_product)
         else
           monitor.track_processor_error('Unknown form_id for child claim', 'unknown_form',
                                         parent_claim_id:, claim_id: claim.id, form_id: claim.form_id)
@@ -118,14 +122,14 @@ module DependentsBenefits
     #
     # @param claim [SavedClaim] The 686c claim to submit
     # @return [Integer] Number of jobs enqueued (currently 2)
-    def enqueue_686c_submission(claim)
+    def enqueue_686c_submission(claim, claim_type_end_product)
       jobs_count = 0
 
       # Enqueue primary 686c submission jobs
-      Sidekiq::BGS686cJob.perform_async(claim.id, proc_id)
+      Sidekiq::BGS686cJob.perform_async(claim.id, { proc_id:, claim_type_end_product: })
       jobs_count += 1
 
-      Sidekiq::Claims686cJob.perform_async(claim.id, proc_id)
+      Sidekiq::Claims686cJob.perform_async(claim.id)
       jobs_count += 1
 
       # @todo Add calls to submission jobs here as they are implemented
@@ -142,14 +146,14 @@ module DependentsBenefits
     #
     # @param claim [SavedClaim] The 674 claim to submit
     # @return [Integer] Number of jobs enqueued (currently 2)
-    def enqueue_674_submission(claim)
+    def enqueue_674_submission(claim, claim_type_end_product)
       jobs_count = 0
 
       # Enqueue primary 674 submission job
-      Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
+      Sidekiq::BGS674Job.perform_async(claim.id, { proc_id:, claim_type_end_product: })
       jobs_count += 1
 
-      Sidekiq::Claims674Job.perform_async(claim.id, proc_id)
+      Sidekiq::Claims674Job.perform_async(claim.id)
       jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',

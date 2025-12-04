@@ -59,7 +59,10 @@ module DependentsBenefits
       def submit_to_service
         claim_data = BGS::Job.new.normalize_names_and_addresses!(saved_claim.parsed_form)
 
-        @claim_type_end_product = claim_type_end_product
+        claim_type_codes = available_claim_type_end_product_codes
+        if @claim_type_end_product.nil? || claim_type_codes.exclude?(@claim_type_end_product)
+          @claim_type_end_product = claim_type_codes.first
+        end
         record_ep_code_in_submission_attempt
 
         submit_form(claim_data)
@@ -94,13 +97,9 @@ module DependentsBenefits
       end
 
       # see modules/dependents_benefits/documentation/bgs/ep_code.md
-      def claim_type_end_product
-        return @claim_type_end_product if @claim_type_end_product.present?
-
+      def available_claim_type_end_product_codes
         active_ep_codes = active_claim_ep_codes + active_sibling_ep_codes
-        available_ep_codes = %w[130 131 132 134 136 137 138 139] - active_ep_codes
-
-        available_ep_codes.first
+        %w[130 131 132 134 136 137 138 139] - active_ep_codes
       end
 
       ##

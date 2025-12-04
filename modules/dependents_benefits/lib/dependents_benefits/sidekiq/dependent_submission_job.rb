@@ -30,7 +30,7 @@ module DependentsBenefits::Sidekiq
     # Callback runs outside job context - must recreate instance state
     sidekiq_retries_exhausted do |msg, exception|
       monitor = DependentsBenefits::Monitor.new
-      claim_id, _proc_id = msg['args']
+      claim_id, _options = msg['args']
 
       # Use the class of the inheriting job that exhausted, not the base class
       job_class_name = msg['class']
@@ -57,9 +57,10 @@ module DependentsBenefits::Sidekiq
     # @param proc_id [String, nil] Optional processing ID for tracking related submissions
     # @return [void]
     # @raise [DependentSubmissionError] if submission fails and should be retried
-    def perform(claim_id, proc_id = nil)
+    def perform(claim_id, options = {})
       @claim_id = claim_id
-      @proc_id = proc_id
+      @proc_id = options[:proc_id]
+      @claim_type_end_product = options[:claim_type_end_product]
 
       monitor.track_submission_info("Starting #{self.class} for claim_id #{claim_id}", 'start', claim_id:,
                                                                                                 parent_claim_id:)
@@ -84,7 +85,7 @@ module DependentsBenefits::Sidekiq
 
     private
 
-    attr_reader :claim_id, :proc_id
+    attr_reader :claim_id, :proc_id, :claim_type_end_product, :service_response
 
     ##
     # Returns the error class to raise for invalid claims
@@ -308,7 +309,7 @@ module DependentsBenefits::Sidekiq
     #
     # @return [String] Sidekiq job ID
     def send_backup_job
-      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id, proc_id)
+      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id)
     end
 
     # Returns the claim group for the current claim

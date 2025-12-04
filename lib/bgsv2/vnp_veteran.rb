@@ -25,6 +25,28 @@ module BGSV2
       location_id = get_location_id(regional_office_number)
       create_person(participant)
       bgs_service.create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+
+      begin
+        create_veteran_response(participant:, address:, regional_office_number:, location_id:)
+      rescue => e
+        # Retry creating the veteran response with a new EP code if it fails
+        monitor.error('Error creating veteran response', 'vnp_veteran_response_error',
+                      user_uuid: @user.uuid, error: e.message)
+        @claim_type_end_product = bgs_service.find_benefit_claim_type_increment(@claim_type)
+        create_veteran_response(participant:, address:, regional_office_number:, location_id:)
+      end
+    end
+
+    private
+
+    # Creates BGS veteran response with participant, address, and claim type end product
+    # @param participant [Hash] BGS participant data with vnp_ptcpnt_id
+    # @param address [Hash] BGS address data with zip_prefix_nbr and cntry_nm
+    # @param regional_office_number [String] Regional office number for the veteran
+    # @param location_id [String] Location ID for the regional office
+    # @return [void]
+    # @raise [StandardError] If response creation fails after retry
+    def create_veteran_response(participant:, address:, regional_office_number:, location_id:)
       veteran.veteran_response(
         participant,
         address,
@@ -37,8 +59,6 @@ module BGSV2
         }
       )
     end
-
-    private
 
     # Creates BGS person record for participant after validating/fixing SSN
     # @param participant [Hash] BGS participant data with vnp_ptcpnt_id
