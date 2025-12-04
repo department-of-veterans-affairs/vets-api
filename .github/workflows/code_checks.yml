@@ -356,6 +356,20 @@ jobs:
             vets-api-coverage \
             bundle exec rake coverage:report
 
+      - name: Copy coverage to workspace root
+        if: needs.tests.result == 'success'
+        run: |
+          echo "=== Copying coverage from vets-api to workspace root ==="
+          cp -r vets-api/coverage ./coverage
+          echo "=== Verifying coverage files ==="
+          ls -la coverage/
+          if [ -f "coverage/.last_run.json" ]; then
+            echo "✓ coverage/.last_run.json found"
+          else
+            echo "✗ coverage/.last_run.json NOT found"
+            exit 1
+          fi
+
       - name: Upload Combined Coverage HTML
         if: needs.tests.result == 'success'
         uses: actions/upload-artifact@v5
