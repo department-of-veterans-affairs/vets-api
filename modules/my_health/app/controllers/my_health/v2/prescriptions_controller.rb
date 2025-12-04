@@ -19,13 +19,6 @@ module MyHealth
 
       # Mapping from current VA.gov statuses to new VA.gov V2 statuses
       # Only applied when mhv_medications_cerner_pilot feature flag is enabled
-      #
-      # Note: "Pending New Prescription" and "Pending Renewal" are NOT API statuses -
-      # they are derived from prescription_source field (PD) and handled separately
-      # in the frontend or via prescription grouping logic.
-      #
-      # "Active: Non-VA" IS a valid disp_status computed in the adapter when
-      # refill_status is 'active' and prescription_source is 'NV'
       V2_STATUS_MAPPING = {
         'Active' => 'Active',
         'Active: Parked' => 'Active',
@@ -35,10 +28,28 @@ module MyHealth
         'Expired' => 'Inactive',
         'Discontinued' => 'Inactive',
         'Active: On hold' => 'Inactive',
-        'Active: On Hold' => 'Inactive',
         'Transferred' => 'Transferred',
         'Unknown' => 'Status not available'
       }.freeze
+
+      # Reverse mapping from V2 statuses to original statuses for filtering
+      # Used when cerner_pilot is enabled to translate filter values
+      V2_TO_ORIGINAL_STATUS_MAPPING = {
+        'Active' => ['Active', 'Active: Parked', 'Active: Non-VA'],
+        'In progress' => ['Active: Submitted', 'Active: Refill in Process'],
+        'Inactive' => ['Expired', 'Discontinued', 'Active: On hold'],
+        'Transferred' => ['Transferred'],
+        'Status not available' => ['Unknown']
+      }.freeze
+
+      # Original statuses that map to V2 "Active" for counting purposes
+      V2_ACTIVE_STATUSES = ['Active', 'Active: Parked', 'Active: Non-VA'].freeze
+
+      # Original statuses that map to V2 "In progress" for counting purposes
+      V2_IN_PROGRESS_STATUSES = ['Active: Submitted', 'Active: Refill in Process'].freeze
+
+      # Original statuses that map to V2 "Inactive" for counting purposes
+      V2_INACTIVE_STATUSES = ['Expired', 'Discontinued', 'Active: On hold'].freeze
 
       def refill
         return unless validate_feature_flag
@@ -204,14 +215,40 @@ module MyHealth
         )
       end
 
+      def set_filter_metadata(list, non_modified_collection)
+        {
+          filter_count: {
+            all_medications: count_grouped_prescriptions(non_modified_collection),
+            active: count_v2_active_medications(list),
+            recently_requested: count_v2_in_progress_medications(list),
+            renewal: list.count { |item| renewable(item) },
+            non_active: count_v2_inactive_medications(list)
+          }
+        }
+      end
+
+      def count_v2_active_medications(list)
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && V2_ACTIVE_STATUSES.include?(rx.disp_status)
+        end
+      end
+
+      def count_v2_in_progress_medications(list)
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && V2_IN_PROGRESS_STATUSES.include?(rx.disp_status)
+        end
+      end
+
+      def count_v2_inactive_medications(list)
+        non_active_original_statuses = V2_INACTIVE_STATUSES + %w[Transferred Unknown]
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && non_active_original_statuses.include?(rx.disp_status)
+        end
+      end
+
       def get_recently_requested_prescriptions(prescriptions)
-        # These are the original MHV status values before V2 mapping
-        in_progress_statuses = [
-          'Active: Refill in Process',
-          'Active: Submitted'
-        ]
         prescriptions.select do |item|
-          item.respond_to?(:disp_status) && in_progress_statuses.include?(item.disp_status)
+          item.respond_to?(:disp_status) && V2_IN_PROGRESS_STATUSES.include?(item.disp_status)
         end
       end
 
@@ -224,14 +261,31 @@ module MyHealth
             # filter renewals
             prescriptions.select(&method(:renewable))
           else
-            filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
+            filters = disp_status[:eq].split(',').map(&:strip)
+            # Map V2 filter values to original status values for filtering
+            # V2 controller always has cerner_pilot enabled (enforced by validate_feature_flag)
+            original_filters = map_v2_filters_to_original(filters)
+
             prescriptions.select do |item|
-              item.respond_to?(:disp_status) && item.disp_status && filters.include?(item.disp_status.downcase)
+              item.respond_to?(:disp_status) && item.disp_status &&
+                original_filters.include?(item.disp_status.downcase)
             end
           end
         else
           prescriptions
         end
+      end
+
+      def map_v2_filters_to_original(filters)
+        filters.flat_map do |filter|
+          original_statuses = V2_TO_ORIGINAL_STATUS_MAPPING[filter]
+          if original_statuses
+            original_statuses.map(&:downcase)
+          else
+            # If no mapping found, use the filter value as-is (for backwards compatibility)
+            [filter.downcase]
+          end
+        end.uniq
       end
 
       def apply_sorting_to_list(prescriptions, sort_param)
@@ -258,33 +312,9 @@ module MyHealth
         group_prescriptions(prescriptions)
       end
 
-      def set_filter_metadata(list, non_modified_collection)
-        {
-          filter_count: {
-            all_medications: count_grouped_prescriptions(non_modified_collection),
-            active: count_active_medications(list),
-            recently_requested: get_recently_requested_prescriptions(list).length,
-            renewal: list.select { |item| renewable(item) }.length,
-            non_active: count_non_active_medications(list)
-          }
-        }
-      end
-
-      def count_active_medications(list)
-        active_statuses = [
-          'Active',
-          'Active: Refill in Process',
-          'Active: Non-VA',
-          'Active: On hold',
-          'Active: Parked',
-          'Active: Submitted'
-        ]
-        list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
-      end
-
-      def count_non_active_medications(list)
-        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
-        list.count { |rx| rx.respond_to?(:disp_status) && non_active_statuses.include?(rx.disp_status) }
+      def count_grouped_prescriptions(prescriptions)
+        # Group by station number and prescription ID, count unique combinations
+        prescriptions.group_by { |rx| [rx.station_number, rx.prescription_id] }.count
       end
 
       def remove_pf_pd(data)
