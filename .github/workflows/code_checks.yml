@@ -427,7 +427,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":cross_mark: Critical: Test Coverage Too Low! Vets-API deployment is blocked :cross_mark:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%\n\n"
+                  "text": ":rotating_light: Critical: Test Coverage Too Low! Vets-API deployment is blocked :rotating_light:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%\n\n"
                 }
               },
               { "type": "divider" }
@@ -448,7 +448,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":cross_mark: Warning: Low Vets-API Coverage Report! :cross_mark:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%"
+                  "text": ":warning: Warning: Low Vets-API Coverage Report! :warning:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Coverage:* ${{ steps.coverage.outputs.percent }}%"
                 }
               },
               { "type": "divider" }
