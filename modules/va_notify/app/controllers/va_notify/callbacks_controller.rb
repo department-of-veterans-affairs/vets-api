@@ -64,7 +64,7 @@ module VANotify
 
       return if signature_from_header.blank?
 
-      api_key = get_api_key_value(@notification.service_api_key_path)
+      api_key = get_api_key_value(@notification.service_id)
 
       signature = VANotify::CallbackSignatureGenerator.call(request.raw_post, api_key)
 
@@ -113,10 +113,18 @@ module VANotify
       )
     end
 
-    def get_api_key_value(path_string)
-      keys = path_string.sub(/^Settings\./, '').split('.')
-      secret_token = Settings.dig(*keys)
-      secret_token[(secret_token.length - UUID_LENGTH)..secret_token.length]
+    def get_api_key_value(service_id)
+      service_config = Settings.vanotify.services.find do |_service, options|
+        options.api_key.include?(service_id)
+      end
+      Rails.logger.error("api key not found for service_id #{service_id}") if service_config.blank?
+
+      computed_api_key = service_config[1].api_key
+      extracted_value(computed_api_key)
+    end
+
+    def extracted_value(computed_api_key)
+      computed_api_key[(computed_api_key.length - UUID_LENGTH)..computed_api_key.length]
     end
   end
 end
