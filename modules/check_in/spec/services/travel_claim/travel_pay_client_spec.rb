@@ -25,6 +25,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:tenant_id) { 'fake_template_id' }
   let(:travel_pay_client_id) { 'fake_client_id' }
   let(:travel_pay_client_secret) { 'fake_client_secret' }
+  let(:travel_pay_client_secret_oh) { 'fake_client_secret_oh' }
   let(:scope) { 'fake_scope' }
   let(:travel_pay_resource) { 'fake_resource' }
   let(:claims_url_v2) { 'https://dev.integration.d365.va.gov' }
@@ -124,6 +125,34 @@ RSpec.describe TravelClaim::TravelPayClient do
           expect(response_body['access_token']).to be_present
           expect(response_body['token_type']).to eq('Bearer')
           expect(response_body['expires_in']).to be_present
+        end
+      end
+    end
+
+    context 'when request fails' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs error when GatewayTimeout is raised' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::GatewayTimeout.new('Timeout::Error')
+          )
+
+          expect do
+            client.send(:veis_token_request)
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient VEIS endpoint error',
+            hash_including(
+              correlation_id: be_present,
+              status: 504,
+              endpoint: 'VEIS'
+            )
+          )
         end
       end
     end
@@ -240,36 +269,6 @@ RSpec.describe TravelClaim::TravelPayClient do
               correlation_id: be_present,
               status: 504,
               endpoint: 'BTSSS'
-            )
-          )
-        end
-      end
-    end
-  end
-
-  describe '#veis_token_request' do
-    context 'when request fails' do
-      before do
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'logs error when GatewayTimeout is raised' do
-        with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
-          allow(client).to receive(:perform).and_raise(
-            Common::Exceptions::GatewayTimeout.new('Timeout::Error')
-          )
-
-          expect do
-            client.send(:veis_token_request)
-          end.to raise_error(Common::Exceptions::GatewayTimeout)
-
-          expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient VEIS endpoint error',
-            hash_including(
-              correlation_id: be_present,
-              status: 504,
-              endpoint: 'VEIS'
             )
           )
         end
@@ -914,6 +913,48 @@ RSpec.describe TravelClaim::TravelPayClient do
                                   'Ocp-Apim-Subscription-Key-E' => e_subscription_key,
                                   'Ocp-Apim-Subscription-Key-S' => s_subscription_key
                                 })
+        end
+      end
+    end
+  end
+
+  describe '#btsss_client_secret' do
+    context 'when facility_type is "oh"' do
+      it 'returns the OH-specific client secret' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      travel_pay_client_secret:,
+                      travel_pay_client_secret_oh:) do
+          client = described_class.new(check_in_uuid:, appointment_date_time:, facility_type: 'oh')
+          expect(client.send(:btsss_client_secret)).to eq(travel_pay_client_secret_oh)
+        end
+      end
+
+      it 'returns the OH-specific client secret for uppercase OH' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      travel_pay_client_secret:,
+                      travel_pay_client_secret_oh:) do
+          client = described_class.new(check_in_uuid:, appointment_date_time:, facility_type: 'OH')
+          expect(client.send(:btsss_client_secret)).to eq(travel_pay_client_secret_oh)
+        end
+      end
+    end
+
+    context 'when facility_type is not "oh"' do
+      it 'returns the standard client secret for vamc' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      travel_pay_client_secret:,
+                      travel_pay_client_secret_oh:) do
+          client = described_class.new(check_in_uuid:, appointment_date_time:, facility_type: 'vamc')
+          expect(client.send(:btsss_client_secret)).to eq(travel_pay_client_secret)
+        end
+      end
+
+      it 'returns the standard client secret when facility_type is nil' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      travel_pay_client_secret:,
+                      travel_pay_client_secret_oh:) do
+          client = described_class.new(check_in_uuid:, appointment_date_time:, facility_type: nil)
+          expect(client.send(:btsss_client_secret)).to eq(travel_pay_client_secret)
         end
       end
     end

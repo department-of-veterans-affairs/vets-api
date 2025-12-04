@@ -31,20 +31,23 @@ module TravelClaim
     attr_reader :settings
 
     def_delegators :settings, :auth_url, :tenant_id, :travel_pay_client_id, :travel_pay_client_secret,
-                   :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
-                   :client_number, :travel_pay_resource, :client_secret
+                   :travel_pay_client_secret_oh, :scope, :claims_url_v2, :subscription_key,
+                   :e_subscription_key, :s_subscription_key, :client_number, :travel_pay_resource,
+                   :client_secret
 
     ##
     # @param appointment_date_time [String] ISO 8601 appointment date/time
     # @param check_in_uuid [String, nil] UUID to load ICN/station_number from Redis
     # @param icn [String, nil] Patient ICN (loaded from Redis if not provided)
     # @param station_number [String, nil] Facility station number (loaded from Redis if not provided)
+    # @param facility_type [String, nil] Facility type ('oh' for Oracle Health, or other values)
     #
-    def initialize(appointment_date_time:, check_in_uuid: nil, icn: nil, station_number: nil)
+    def initialize(appointment_date_time:, check_in_uuid: nil, icn: nil, station_number: nil, facility_type: nil)
       @appointment_date_time = appointment_date_time
       @check_in_uuid = check_in_uuid
       @icn = icn
       @station_number = station_number
+      @facility_type = facility_type
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @correlation_id = SecureRandom.uuid
 
@@ -102,7 +105,7 @@ module TravelClaim
                         })
 
       with_monitoring do
-        body = { secret: travel_pay_client_secret, icn: }
+        body = { secret: btsss_client_secret, icn: }
         headers = {
           'Content-Type' => 'application/json',
           'X-Correlation-ID' => @correlation_id,
@@ -212,6 +215,16 @@ module TravelClaim
       else
         { 'Ocp-Apim-Subscription-Key' => subscription_key }
       end
+    end
+
+    ##
+    # Selects the appropriate BTSSS client secret based on facility type.
+    # Oracle Health facilities use a separate secret from other facilities.
+    #
+    # @return [String] The appropriate client secret for BTSSS authentication
+    #
+    def btsss_client_secret
+      @facility_type&.downcase == 'oh' ? travel_pay_client_secret_oh : travel_pay_client_secret
     end
 
     ##
