@@ -149,54 +149,31 @@ RSpec.describe InProgressForm, type: :model do
   end
 
   describe '#expires_after' do
-    context 'with in_progress_form_custom_expiration Flipper disabled' do
-      context 'when 21-526EZ' do
-        before do
-          in_progress_form.form_id = '21-526EZ'
-        end
-
-        it 'is an ActiveSupport::Duration' do
-          Flipper.disable(:in_progress_form_custom_expiration)
-
-          expect(in_progress_form.expires_after).to be_a(ActiveSupport::Duration)
-        end
-
-        it 'value is 1 year' do
-          Flipper.disable(:in_progress_form_custom_expiration)
-
-          expect(in_progress_form.expires_after).to eq(1.year)
-        end
+    context 'when 21-526EZ' do
+      before do
+        in_progress_form.form_id = '21-526EZ'
       end
 
-      context 'when unrecognized form' do
-        before do
-          in_progress_form.form_id = 'abcd-1234'
-        end
+      it 'is an ActiveSupport::Duration' do
+        expect(in_progress_form.expires_after).to be_a(ActiveSupport::Duration)
+      end
 
-        it 'is an ActiveSupport::Duration' do
-          Flipper.disable(:in_progress_form_custom_expiration)
-
-          expect(in_progress_form.expires_after).to be_a(ActiveSupport::Duration)
-        end
-
-        it 'value is 60 days' do
-          Flipper.disable(:in_progress_form_custom_expiration)
-
-          expect(in_progress_form.expires_after).to eq(60.days)
-        end
+      it 'value is 1 year' do
+        expect(in_progress_form.expires_after).to eq(1.year)
       end
     end
 
-    context 'with in_progress_form_custom_expiration Flipper enabled' do
+    context 'when unrecognized form' do
       before do
-        in_progress_form.form_id = 'HC-QSTNR_abc123'
-        in_progress_form.form_data = { days_till_expires: '90' }.to_json
+        in_progress_form.form_id = 'abcd-1234'
       end
 
-      it 'expires in 90 days' do
-        Flipper.enable(:in_progress_form_custom_expiration)
+      it 'is an ActiveSupport::Duration' do
+        expect(in_progress_form.expires_after).to be_a(ActiveSupport::Duration)
+      end
 
-        expect(in_progress_form.expires_after).to eq(90.days)
+      it 'value is 60 days' do
+        expect(in_progress_form.expires_after).to eq(60.days)
       end
     end
   end
@@ -221,6 +198,47 @@ RSpec.describe InProgressForm, type: :model do
 
         it 'returns InProgressForms for user with given form id' do
           expect(subject).to eq(in_progress_form_user_account)
+        end
+      end
+    end
+
+    context 'with with_lock parameter' do
+      subject { InProgressForm.form_for_user(form_id, user, with_lock: true) }
+
+      context 'when in_progress_form_atomicity flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity, user).and_return(true)
+        end
+
+        context 'and in progress form exists' do
+          let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'returns the form with a lock' do
+            expect(InProgressForm).to receive(:lock).and_call_original
+            expect(subject).to eq(in_progress_form_user_uuid)
+          end
+        end
+
+        context 'and in progress form does not exist' do
+          it 'returns nil' do
+            expect(InProgressForm).to receive(:lock).and_call_original
+            expect(subject).to be_nil
+          end
+        end
+      end
+
+      context 'when in_progress_form_atomicity flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity, user).and_return(false)
+        end
+
+        context 'and in progress form exists' do
+          let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'returns the form without a lock' do
+            expect(InProgressForm).not_to receive(:lock)
+            expect(subject).to eq(in_progress_form_user_uuid)
+          end
         end
       end
     end

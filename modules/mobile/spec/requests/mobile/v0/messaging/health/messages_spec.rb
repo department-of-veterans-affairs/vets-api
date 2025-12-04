@@ -55,17 +55,15 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         expect(response).to match_camelized_response_schema('category')
       end
 
-      it 'responds to GET #show' do
+      it 'responds to GET #show with inactive triage group' do
         VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
-          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
         end
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        response_hash = JSON.parse(response.body)
-        response_hash.delete('meta')
-        response.body = response_hash.to_json
+        expect(response.parsed_body['meta']['userInTriageTeam']).to be(false)
         expect(response).to match_camelized_response_schema('message', strict: false)
         link = response.parsed_body.dig('data', 'links', 'self')
         expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/573059')
@@ -79,16 +77,16 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                             '/health/messages/573059/attachments/674847' } })
       end
 
-      it 'generates mobile-specific metadata links' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+      it 'responds to GET #show with active triage group' do
+        VCR.use_cassette('mobile/messages/gets_a_message_active_triage_team') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
         end
-
-        result = JSON.parse(response.body)
-        expect(result['data']['links']['self']).to match(%r{/mobile/v0})
-        expect(result['meta']['userInTriageTeam?']).to be(false)
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['meta']['userInTriageTeam']).to be(true)
+        expect(response).to match_camelized_response_schema('message', strict: false)
       end
 
       it 'returns message signature preferences' do
@@ -140,7 +138,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-            expect(response).to match_camelized_response_schema('message')
+            expect(response).to match_camelized_response_schema('message', strict: false)
             included = response.parsed_body.dig('included', 0)
             expect(included).to be_nil
 
@@ -180,7 +178,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-            expect(response).to match_camelized_response_schema('message')
+            expect(response).to match_camelized_response_schema('message', strict: false)
 
             # Verify event logging was called
             expect(UniqueUserEvents).to have_received(:log_event).with(
@@ -201,6 +199,117 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
             expect(JSON.parse(response.body)['included'][0]['attributes']['attachment_size']).to be_positive.or be_nil
             expect(response).to match_camelized_response_schema('message_with_attachment')
+          end
+        end
+
+        context 'poll_for_status parameter' do
+          let(:attachment_type) { 'image/jpg' }
+          let(:uploads) { [Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type)] }
+          let(:message_params) { attributes_for(:message, subject: 'OH Group Subject', body: 'Body') }
+          let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+          let(:params_with_attachments) { { message: params, uploads: } }
+
+          it 'passes poll_for_status=true on create with attachments when is_oh_triage_group=true' do
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages?is_oh_triage_group=true',
+                 headers: sis_headers,
+                 params: params_with_attachments
+
+            expect(response).to be_successful
+          end
+
+          it 'passes poll_for_status=true on reply without attachments when is_oh_triage_group=true' do
+            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:poll_message_status)
+              .and_return({ status: 'SENT' })
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              post '/mobile/v0/messaging/health/messages/674838/reply?is_oh_triage_group=true',
+                   headers: sis_headers,
+                   params: { message: params }
+            end
+
+            expect(response).to be_successful
+          end
+        end
+
+        context 'timeout extension for OH triage groups' do
+          let(:message_params) { attributes_for(:message, subject: 'OH Group Subject', body: 'Body') }
+          let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+
+          it 'extends timeout when is_oh_triage_group=true on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              VCR.use_cassette('sm_client/messages/creates/status_sent') do
+                post '/mobile/v0/messaging/health/messages?is_oh_triage_group=true',
+                     headers: sis_headers,
+                     params: { message: params }
+
+                expect(response).to be_successful
+                expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+              end
+            end
+          end
+
+          it 'extends timeout when is_oh_triage_group=true on reply' do
+            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:poll_message_status)
+              .and_return({ status: 'SENT' })
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              post '/mobile/v0/messaging/health/messages/674838/reply?is_oh_triage_group=true',
+                   headers: sis_headers,
+                   params: { message: params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+            end
+          end
+
+          it 'does not extend timeout when is_oh_triage_group=false on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              VCR.use_cassette('sm_client/messages/creates/status_sent') do
+                post '/mobile/v0/messaging/health/messages?is_oh_triage_group=false',
+                     headers: sis_headers,
+                     params: { message: params }
+
+                expect(response).to be_successful
+                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+              end
+            end
+          end
+
+          it 'does not extend timeout when is_oh_triage_group param is absent on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+            end
+          end
+
+          it 'does not extend timeout when is_oh_triage_group=false on reply' do
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              post '/mobile/v0/messaging/health/messages/674838/reply?is_oh_triage_group=false',
+                   headers: sis_headers,
+                   params: { message: params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+            end
+          end
+
+          it 'does not extend timeout for non-create/reply actions like show' do
+            VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+                get "/mobile/v0/messaging/health/messages/#{message_id}?is_oh_triage_group=true",
+                    headers: sis_headers
+
+                expect(response).to be_successful
+                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+              end
+            end
           end
         end
       end

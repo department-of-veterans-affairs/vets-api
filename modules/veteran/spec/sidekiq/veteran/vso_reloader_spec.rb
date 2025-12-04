@@ -69,6 +69,58 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
+    context 'stale organization removal' do
+      it 'removes organizations whose POA is not in the vso_data' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          # Create a stale organization with a POA code not in the fixture data
+          # Fixture contains POA codes: 091, ZZZ, 095
+          stale_org = create(:organization, poa: 'XXX', name: 'Stale Organization')
+
+          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to eq(stale_org)
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          # Stale organization should be removed
+          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to be_nil
+        end
+      end
+
+      it 'preserves organizations whose POA is still in the vso_data' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          # Create an organization with a POA that IS in the fixture data
+          create(:organization, poa: '091', name: 'Old Name')
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          # Organization should still exist (and be updated)
+          expect(Veteran::Service::Organization.find_by(poa: '091')).to be_present
+          expect(Veteran::Service::Organization.find_by(poa: '091').name).to eq('African American PTSD Association')
+        end
+      end
+
+      it 'does not remove stale organizations when validation fails' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          # Create a stale organization
+          stale_org = create(:organization, poa: 'XXX', name: 'Stale Organization')
+
+          # Create initial counts that will cause validation to fail
+          Veteran::AccreditationTotal.create!(
+            attorneys: 100,
+            claims_agents: 50,
+            vso_representatives: 1000, # Set high count so new count will fail validation
+            vso_organizations: 1000,   # Set high count so new count will fail validation
+            created_at: 1.day.ago
+          )
+
+          reloader = Veteran::VSOReloader.new
+          reloader.reload_vso_reps
+
+          # Stale organization should NOT be removed because validation failed
+          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to eq(stale_org)
+        end
+      end
+    end
+
     describe "storing a VSO's middle initial" do
       it 'stores the middle initial if it exists' do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do
@@ -279,59 +331,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     end
   end
 
-  describe 'remove_duplicates_by_rep_id' do
-    let(:reloader) { Veteran::VSOReloader.new }
-
-    it 'deletes all non-test duplicates' do
-      Veteran::Service::Representative.create!(
-        representative_id: 'DUP1',
-        first_name: 'Old',
-        last_name: 'Name',
-        user_types: ['attorney'],
-        poa_codes: ['AAA'],
-        created_at: 3.days.ago,
-        updated_at: 3.days.ago
-      )
-      Veteran::Service::Representative.create!(
-        representative_id: 'DUP1',
-        first_name: 'Mid',
-        last_name: 'Name',
-        user_types: ['claim_agents'],
-        poa_codes: ['BBB'],
-        created_at: 2.days.ago,
-        updated_at: 2.days.ago
-      )
-      test_user = Veteran::Service::Representative.create!(
-        representative_id: 'DUP1',
-        first_name: 'Tamara',
-        last_name: 'Ellis',
-        user_types: ['veteran_service_officer'],
-        poa_codes: ['CCC'],
-        created_at: 1.day.ago,
-        updated_at: 1.day.ago
-      )
-      Veteran::Service::Representative.create!(
-        representative_id: 'DUP1',
-        first_name: 'New',
-        last_name: 'Name',
-        user_types: ['veteran_service_officer'],
-        poa_codes: ['CCC'],
-        created_at: 1.day.ago,
-        updated_at: 1.day.ago
-      )
-
-      expect do
-        reloader.send(:remove_duplicates_by_rep_id)
-      end.to change { Veteran::Service::Representative.where(representative_id: 'DUP1').count }.from(4).to(1)
-
-      survivor = Veteran::Service::Representative.find_by!(representative_id: 'DUP1')
-      expect(survivor.first_name).to eq(test_user.first_name)
-      expect(survivor.last_name).to eq(test_user.last_name)
-      expect(survivor.user_types).to eq(test_user.user_types)
-      expect(survivor.poa_codes).to eq(test_user.poa_codes)
-    end
-  end
-
   describe 'validation logic' do
     let(:reloader) { Veteran::VSOReloader.new }
 
@@ -366,16 +365,16 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'blocks updates when decrease exceeds threshold' do
-        # 45 attorneys is a 55% decrease, which exceeds 50% threshold
-        expect(reloader.send(:valid_count?, :attorneys, 45)).to be false
+        # 75 attorneys is a 25% decrease, which exceeds 20% threshold
+        expect(reloader.send(:valid_count?, :attorneys, 75)).to be false
       end
 
       it 'notifies slack when the decrease exceeds threshold' do
         allow(reloader).to receive(:notify_threshold_exceeded)
         expect(reloader).to receive(:notify_threshold_exceeded).with(
-          :attorneys, 100, 45, anything, anything
+          :attorneys, 100, 75, anything, anything
         )
-        reloader.send(:valid_count?, :attorneys, 45)
+        reloader.send(:valid_count?, :attorneys, 75)
       end
 
       it 'allows updates when decrease is within threshold' do

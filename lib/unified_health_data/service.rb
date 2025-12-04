@@ -9,6 +9,7 @@ require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
+require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
 require_relative 'client'
@@ -30,12 +31,11 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
-        filtered_records = filter_records(parsed_records)
 
-        # Log test code distribution after filtering is applied
+        # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        filtered_records
+        parsed_records
       end
     end
 
@@ -99,7 +99,9 @@ module UnifiedHealthData
       normalized_orders = normalize_orders(orders)
       with_monitoring do
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
-        parse_refill_response(response)
+        result = parse_refill_response(response)
+        validate_refill_response_count(normalized_orders, result)
+        result
       end
     rescue Common::Exceptions::BackendServiceException => e
       raise e if e.original_status && e.original_status >= 500
@@ -108,11 +110,15 @@ module UnifiedHealthData
       build_error_response(normalized_orders)
     end
 
-    def get_care_summaries_and_notes
+    def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
-        # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = default_start_date
-        end_date = default_end_date
+        # Validate user-provided dates BEFORE applying defaults
+        validate_date_param(start_date, 'start_date') if start_date
+        validate_date_param(end_date, 'end_date') if end_date
+
+        # Apply defaults after validation
+        start_date ||= default_start_date
+        end_date ||= default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
@@ -144,6 +150,20 @@ module UnifiedHealthData
         return nil unless filtered
 
         parse_single_note(filtered)
+      end
+    end
+
+    def get_vitals
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        vitals_adapter.parse(combined_records)
       end
     end
 
@@ -244,55 +264,11 @@ module UnifiedHealthData
     def fetch_combined_records(body)
       return [] if body.nil?
 
-      vista_records = body.dig('vista', 'entry') || []
-      oracle_health_records = body.dig('oracle-health', 'entry') || []
-      vista_records + oracle_health_records
-    end
-
-    # Labs and Tests methods
-    def filter_records(records)
-      return all_records_response(records) unless filtering_enabled?
-
-      apply_test_code_filtering(records)
-    end
-
-    def filtering_enabled?
-      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
-    end
-
-    def all_records_response(records)
-      Rails.logger.info(
-        message: 'UHD filtering disabled - returning all records',
-        total_records: records.size,
-        service: 'unified_health_data'
-      )
-      records
-    end
-
-    def apply_test_code_filtering(records)
-      filtered = records.select { |record| test_code_enabled?(record.test_code) }
-
-      Rails.logger.info(
-        message: 'UHD filtering enabled - applied test code filtering',
-        total_records: records.size,
-        filtered_records: filtered.size,
-        service: 'unified_health_data'
-      )
-
-      filtered
-    end
-
-    def test_code_enabled?(test_code)
-      case test_code
-      when 'CH'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-      when 'SP'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-      when 'MB'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-      else
-        false # Reject any other test codes for now, but we'll log them for analysis
+      vista_records = (body.dig('vista', 'entry') || []).map { |r| r.merge('source' => 'vista') }
+      oracle_health_records = (body.dig('oracle-health', 'entry') || []).map do |r|
+        r.merge('source' => 'oracle-health')
       end
+      vista_records + oracle_health_records
     end
 
     # Prescription refill helper methods
@@ -343,6 +319,18 @@ module UnifiedHealthData
         success: successes || [],
         failed: failures || []
       }
+    end
+
+    def validate_refill_response_count(normalized_orders, result)
+      orders_sent = normalized_orders.size
+      orders_received = result[:success].size + result[:failed].size
+
+      return if orders_sent == orders_received
+
+      error_message = "Refill response count mismatch: sent #{orders_sent} orders, " \
+                      "received #{orders_received} responses"
+      Rails.logger.error(error_message)
+      raise Common::Exceptions::PrescriptionRefillResponseMismatch.new(orders_sent, orders_received)
     end
 
     def extract_successful_refills(refill_items)
@@ -432,6 +420,10 @@ module UnifiedHealthData
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
+    def vitals_adapter
+      @vitals_adapter ||= UnifiedHealthData::Adapters::VitalAdapter.new
+    end
+
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
@@ -443,6 +435,12 @@ module UnifiedHealthData
 
     def default_end_date
       Time.zone.today.to_s
+    end
+
+    def validate_date_param(date_string, param_name)
+      Date.parse(date_string)
+    rescue ArgumentError, TypeError
+      raise ArgumentError, "Invalid #{param_name}: '#{date_string}'. Expected format: YYYY-MM-DD"
     end
   end
 end

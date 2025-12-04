@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'identity/parsers/gc_ids'
 require_relative 'parser_base'
 require 'mpi/models/mvi_profile'
@@ -9,7 +8,6 @@ module MPI
   module Responses
     # Parses a MVI response and returns a MviProfile
     class ProfileParser < ParserBase
-      include SentryLogging
       include Identity::Parsers::GCIds
 
       BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
@@ -182,7 +180,8 @@ module MPI
           birls_id: sanitize_id(parsed_mvi_ids[:birls_id]),
           vet360_id: parsed_mvi_ids[:vet360_id],
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
-          cerner_id: parsed_mvi_ids[:cerner_id]
+          cerner_id: parsed_mvi_ids[:cerner_id],
+          npi_id: parsed_mvi_ids[:npi_id]
         }
       end
 

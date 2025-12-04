@@ -57,11 +57,22 @@ Rails.application.routes.draw do
 
     resources :form210779, only: [:create] do
       collection do
-        post :download_pdf
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
       end
     end
 
     resources :form214192, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+    resources :form21p530a, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
+    resources :form212680, only: [] do
       collection do
         post :download_pdf
       end
@@ -390,6 +401,7 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
+    resources :medical_copays, only: %i[index show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -414,6 +426,7 @@ Rails.application.routes.draw do
   mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
+  mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IncreaseCompensation::Engine, at: '/increase_compensation'
@@ -425,13 +438,16 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount SOB::Engine, at: '/sob'
   mount TravelPay::Engine, at: '/travel_pay'
   mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
+  mount Vass::Engine, at: '/vass'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   mount DecisionReviews::Engine, at: '/decision_reviews'
+  mount SurvivorsBenefits::Engine, at: '/survivors_benefits'
   # End Modules
 
   require 'sidekiq/web'

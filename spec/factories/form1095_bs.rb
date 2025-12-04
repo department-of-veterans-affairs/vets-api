@@ -6,9 +6,9 @@ FactoryBot.define do
     tax_year { 2021 }
     form_data {
       {
-        first_name: 'First',
-        middle_name: 'Middle',
-        last_name: 'Last',
+        first_name: 'John',
+        middle_name: 'Michael',
+        last_name: 'Smith',
         last_4_ssn: '1234',
         address: '123 Test st',
         city: 'Hollywood',
@@ -20,5 +20,23 @@ FactoryBot.define do
         coverage_months: Array.new(13, true)
       }.to_json
     }
+  end
+
+  factory :enrollment_system_form1095_b, class: 'VeteranEnrollmentSystem::Form1095B::Form1095B' do
+    tax_year { 2024 }
+    first_name { 'John' }
+    middle_name { 'Michael' }
+    last_name { 'Smith' }
+    last_4_ssn { '1234' }
+    birth_date { '1932-02-05'.to_date }
+    address { '123 Test st' }
+    city { 'Hollywood' }
+    state { 'CA' }
+    province { nil }
+    zip_code { '12345' }
+    foreign_zip { '12345' }
+    country { 'USA' }
+    is_corrected { false }
+    coverage_months { Array.new(13, true) }
   end
 end

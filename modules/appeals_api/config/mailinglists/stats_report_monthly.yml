@@ -1,12 +1,10 @@
 common:
-  - kristen.brown@adhocteam.us
-  - mmcdonald@technatomy.com
-  - pstevens@technatomy.com
-  - alattimore@technatomy.com
-  - dorner_brandon@bah.com
+  - eshvimmer@deloitte.com
+  - slamsal@deloitte.com
+  - mughumman@deloitte.com
+  - mbavanaka@deloitte.com
+  - alan.lattimore@pingwind.com
 development:
 staging:
 production:
-  - drew.fisher@adhocteam.us
-  - michael.hobson@adhocteam.us
-  - heather.roy@zerodelta365.com
+  - mihobson@deloitte.com

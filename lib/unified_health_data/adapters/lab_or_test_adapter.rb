@@ -2,10 +2,12 @@
 
 require_relative '../models/lab_or_test'
 require_relative '../reference_range_formatter'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
     class LabOrTestAdapter
+      include DateNormalizer
       def parse_labs(records)
         return [] if records.blank?
 
@@ -21,28 +23,36 @@ module UnifiedHealthData
 
         contained = record['resource']['contained']
         code = get_code(record)
-        encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
+        encoded_data = get_encoded_data(record['resource'])
         observations = get_observations(record)
         return nil unless code && (encoded_data || observations)
 
         log_warnings(record, encoded_data, observations)
+        build_lab_or_test(record, code, encoded_data, observations, contained)
+      end
+
+      private
+
+      def build_lab_or_test(record, code, encoded_data, observations, contained)
+        date_completed_value = get_date_completed(record['resource'])
 
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
-          date_completed: record['resource']['effectiveDateTime'],
+          date_completed: date_completed_value,
+          sort_date: normalize_date_for_sorting(date_completed_value),
           sample_tested: get_sample_tested(record['resource'], contained),
           encoded_data:,
           location: get_location(record),
           ordered_by: get_ordered_by(record),
           observations:,
-          body_site: get_body_site(record['resource'], contained)
+          body_site: get_body_site(record['resource'], contained),
+          status: record['resource']['status'],
+          source: record['source']
         )
       end
-
-      private
 
       def log_warnings(record, encoded_data, observations)
         log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
@@ -227,6 +237,27 @@ module UnifiedHealthData
           service_request['code']['text']
         else
           record['resource']['code'] ? record['resource']['code']['text'] : ''
+        end
+      end
+
+      def get_encoded_data(resource)
+        return '' unless resource['presentedForm']&.any?
+
+        # Find the presentedForm item with contentType 'text/plain'
+        presented_form = resource['presentedForm'].find { |form| form['contentType'] == 'text/plain' }
+        return '' unless presented_form
+
+        # Handle standard data field or extensions indicating data-absent-reason
+        # Return empty string when data is absent (either with data-absent-reason extension or missing)
+        presented_form['data'] || ''
+      end
+
+      def get_date_completed(resource)
+        # Handle both effectiveDateTime and effectivePeriod formats
+        if resource['effectiveDateTime']
+          resource['effectiveDateTime']
+        elsif resource['effectivePeriod']&.dig('start')
+          resource['effectivePeriod']['start']
         end
       end
     end

@@ -411,62 +411,78 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
     end
 
     it "preserves transformed values through each step for form #{form_number}" do
-      # Create and validate form instance
-      form_instance = form_class.new(@tracking_request)
-      validated_metadata = IvcChampva::MetadataValidator.validate(form_instance.metadata)
+      [{
+        enabled: true,
+        name_prefix: 'sponsor'
+      }, {
+        enabled: false,
+        name_prefix: 'veteran'
+      }].each do |test_case|
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(test_case[:enabled])
 
-      # Process through controller
-      controller = IvcChampva::V1::UploadsController.new
-      allow(controller).to receive(:get_attachment_ids_and_form).and_return([['Test Document'], form_instance])
-      file_paths, merged_metadata = controller.send(:get_file_paths_and_metadata, @tracking_request)
+        # Create and validate form instance
+        form_instance = form_class.new(@tracking_request)
+        validated_metadata = IvcChampva::MetadataValidator.validate(form_instance.metadata)
 
-      # Create mock database record that includes all relevant fields from metadata
-      db_record_properties = {
-        form_uuid:,
-        form_number:
-      }
+        # Process through controller
+        controller = IvcChampva::V1::UploadsController.new
+        allow(controller).to receive(:get_attachment_ids_and_form).and_return([['Test Document'], form_instance])
+        file_paths, merged_metadata = controller.send(:get_file_paths_and_metadata, @tracking_request)
 
-      # Add fields that should be passed to the DB from metadata
-      # Map metadata fields to database fields
-      metadata_to_db_mapping = {
-        'veteranFirstName' => :first_name,
-        'veteranLastName' => :last_name,
-        'primaryContactEmail' => :email
-      }
+        # Create mock database record that includes all relevant fields from metadata
+        db_record_properties = {
+          form_uuid:,
+          form_number:
+        }
 
-      metadata_to_db_mapping.each do |metadata_field, db_field|
-        db_record_properties[db_field] = validated_metadata[metadata_field] if validated_metadata.key?(metadata_field)
-      end
+        test_case[:name_prefix] = 'veteran' if form_number == '10-10D'
+        first_name_key = "#{test_case[:name_prefix]}FirstName"
+        last_name_key = "#{test_case[:name_prefix]}LastName"
 
-      test_db_record = instance_double(IvcChampvaForm, db_record_properties)
+        # Add fields that should be passed to the DB from metadata
+        # Map metadata fields to database fields
+        metadata_to_db_mapping = {
+          first_name_key => :first_name,
+          last_name_key => :last_name,
+          'primaryContactEmail' => :email
+        }
 
-      # Mock form uploader
-      file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, true)
-      allow(file_uploader).to receive_messages(
-        insert_form: test_db_record,
-        upload: [200, nil]
-      )
+        metadata_to_db_mapping.each do |metadata_field, db_field|
+          db_record_properties[db_field] = validated_metadata[metadata_field] if validated_metadata.key?(metadata_field)
+        end
 
-      # Verify ALL metadata fields remain consistent through each step
-      validated_metadata.each_key do |field|
-        expect(merged_metadata[field]).to eq(validated_metadata[field]),
-                                          "Field '#{field}' was not preserved correctly between validation and merging"
-      end
+        test_db_record = instance_double(IvcChampvaForm, db_record_properties)
 
-      # Verify specifically tracked fields in the database record
-      expect(test_db_record.first_name).to eq(validated_metadata['veteranFirstName'])
-      expect(test_db_record.last_name).to eq(validated_metadata['veteranLastName'])
+        # Mock form uploader
+        file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, true)
+        allow(file_uploader).to receive_messages(
+          insert_form: test_db_record,
+          upload: [200, nil]
+        )
 
-      # Verify markers are present in transformed values
-      expect(validated_metadata['veteranFirstName']).to include('FIRST')
-      expect(validated_metadata['veteranLastName']).to include('LAST')
-      expect(validated_metadata['fileNumber']).to match(/^\d{8,9}$/)
-      expect(validated_metadata['docType']).to eq(form_number)
+        # Verify ALL metadata fields remain consistent through each step
+        validated_metadata.each_key do |field|
+          expect(merged_metadata[field]).to(
+            eq(validated_metadata[field]),
+            "Field '#{field}' was not preserved correctly between validation and merging"
+          )
+        end
 
-      # Additional verification for common metadata fields across all form types
-      %w[uuid source businessLine].each do |common_field|
-        expect(validated_metadata).to have_key(common_field),
-                                      "Common field '#{common_field}' is missing from validated metadata"
+        # Verify specifically tracked fields in the database record
+        expect(test_db_record.first_name).to eq(validated_metadata[first_name_key])
+        expect(test_db_record.last_name).to eq(validated_metadata[last_name_key])
+
+        # Verify markers are present in transformed values
+        expect(validated_metadata[first_name_key]).to include('FIRST')
+        expect(validated_metadata[last_name_key]).to include('LAST')
+        expect(validated_metadata['fileNumber']).to match(/^\d{8,9}$/)
+        expect(validated_metadata['docType']).to eq(form_number)
+
+        # Additional verification for common metadata fields across all form types
+        %w[uuid source businessLine].each do |common_field|
+          expect(validated_metadata).to have_key(common_field),
+                                        "Common field '#{common_field}' is missing from validated metadata"
+        end
       end
     end
   end

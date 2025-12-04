@@ -17,8 +17,10 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
   let(:job) { described_class.new }
-  let(:bgs_service) { instance_double(BGSV2::Service) }
+  let(:bgs_service) { BGSV2::Service.new(user) }
+  let(:benefit_claims) { double('BenefitClaims') }
   let(:proc_id) { '123456' }
+  let(:pending_status) { 'PEND' }
 
   describe '#perform' do
     before do
@@ -29,6 +31,15 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
                                              create_proc_form: {}, create_relationship: {},
                                              vnp_create_benefit_claim: {}, insert_benefit_claim: {},
                                              vnp_benefit_claim_update: {}, create_note: {}, update_proc: {})
+      allow_any_instance_of(BGS::Services).to receive(:benefit_claims).and_return(benefit_claims)
+      allow(benefit_claims).to receive(:find_claims_details_by_participant_id).and_return(
+        bnft_claim_detail: [
+          { cp_claim_end_prdct_type_cd: '130', status_type_cd: BGSV2::Service::CLEARED_EPS_STATUS },
+          { cp_claim_end_prdct_type_cd: '131', status_type_cd: pending_status },
+          { cp_claim_end_prdct_type_cd: '132', status_type_cd: BGSV2::Service::CANCELED_EPS_STATUS },
+          { cp_claim_end_prdct_type_cd: '134', status_type_cd: pending_status }
+        ]
+      )
       allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_return(
         double('Response', body: { 'awards_pension' => { 'is_in_receipt_of_pension' => true } })
       )
@@ -67,6 +78,18 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
 
         expect { job.perform(saved_claim.id, proc_id) }.to raise_error(Sidekiq::JobRetry::Skip)
       end
+    end
+  end
+
+  describe 'sidekiq_retries_exhausted callback' do
+    it 'calls handle_permanent_failure' do
+      msg = { 'args' => [parent_claim.id, 'proc_id'], 'class' => job.class.name }
+      exception = StandardError.new('Service failed')
+
+      expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
+        .with(parent_claim.id, exception)
+
+      described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end
   end
 end

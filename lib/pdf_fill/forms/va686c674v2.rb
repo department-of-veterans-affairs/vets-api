@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dependents/error_classes'
+
 # rubocop:disable Metrics/ClassLength
 
 module PdfFill
@@ -1540,7 +1542,11 @@ module PdfFill
           @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
         end
 
+        # We add the user data to the form data in some jobs. It should always be present here.
+        raise Dependents::ErrorClasses::MissingVeteranInfoError unless @form_data['veteran_information']
+
         veteran_information = @form_data['veteran_information']
+
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
         # extract middle initial
@@ -1787,8 +1793,10 @@ module PdfFill
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
-          stepchild['address']['postal_code'] = split_postal_code(stepchild['address'])
-          stepchild['address']['country'] = extract_country(stepchild['address'])
+          if stepchild['address'].present?
+            stepchild['address']['postal_code'] = split_postal_code(stepchild['address'])
+            stepchild['address']['country'] = extract_country(stepchild['address'])
+          end
 
           # expand living_expenses_paid
           living_expenses_paid = stepchild['living_expenses_paid']

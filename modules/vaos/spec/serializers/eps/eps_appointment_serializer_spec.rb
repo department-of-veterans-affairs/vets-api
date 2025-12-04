@@ -59,6 +59,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
       },
       modality: 'communityCareEps',
       past: true,
+      referral_id: 'REF-12345',
       location: {
         id: 'Aq7wgAux',
         type: 'appointments',
@@ -91,6 +92,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
                                                                 }
                                                               })
       expect(serialized[:data][:attributes][:past]).to be(true)
+      expect(serialized[:data][:attributes][:referralId]).to eq('REF-12345')
     end
 
     it 'includes provider details' do
@@ -148,6 +150,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           provider_details: nil,
           modality: 'communityCareEps',
           past: true,
+          referral_id: nil,
           location: nil
         )
       end
@@ -170,6 +173,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           provider_details: nil,
           modality: 'communityCareEps',
           past: true,
+          referral_id: nil,
           location: {}
         )
       end
@@ -194,12 +198,73 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           provider_details: nil,
           modality: 'communityCareEps',
           past: true,
+          referral_id: 'REF-12345',
           location: nil
         )
       end
 
       it 'returns nil for provider' do
         expect(serialized[:data][:attributes][:provider]).to be_nil
+      end
+    end
+  end
+
+  describe 'referral_id functionality' do
+    it 'includes referralId when present' do
+      expect(serialized[:data][:attributes][:referralId]).to eq('REF-12345')
+    end
+
+    context 'when referral_id is nil' do
+      let(:eps_appointment) do
+        instance_double(
+          VAOS::V2::EpsAppointment,
+          id: 'qdm61cJ5',
+          status: 'booked',
+          start: '2024-11-21T18:00:00Z',
+          is_latest: true,
+          last_retrieved: '2023-10-01T12:00:00Z',
+          provider:,
+          provider_details: {
+            id: 'test-provider-id',
+            name: 'Timothy Bob',
+            is_active: true,
+            organization: {
+              name: 'test-provider-org-name'
+            },
+            location: {
+              name: 'Test Medical Complex',
+              address: '207 Davishill Ln',
+              latitude: 33.058736,
+              longitude: -80.032819,
+              timezone: 'America/New_York'
+            },
+            network_ids: ['sandbox-network-test'],
+            address: {
+              street1: '123 Main St',
+              street2: 'Suite 456',
+              city: 'Anytown',
+              state: 'CA',
+              zip: '12345'
+            }
+          },
+          modality: 'communityCareEps',
+          past: true,
+          referral_id: nil,
+          location: {
+            id: 'Aq7wgAux',
+            type: 'appointments',
+            attributes: {
+              name: 'Test Medical Complex',
+              timezone: {
+                timeZoneId: 'America/New_York'
+              }
+            }
+          }
+        )
+      end
+
+      it 'returns nil for referralId' do
+        expect(serialized[:data][:attributes][:referralId]).to be_nil
       end
     end
   end
