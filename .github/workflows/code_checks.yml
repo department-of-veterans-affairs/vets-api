@@ -388,8 +388,6 @@ jobs:
           echo "$pct"
           echo "percent=$pct" >> $GITHUB_OUTPUT
 
-          - name: Comment Coverage on PR
-
       - name: Comment Coverage on PR
         if: ${{ github.event_name == 'pull_request' }} && needs.tests.result == 'success'
         uses: marocchino/sticky-pull-request-comment@v2
