@@ -380,5 +380,5 @@ jobs:
         uses: joshmfrankel/simplecov-check-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 90
+          minimum_suite_coverage: 90
         if: always()
