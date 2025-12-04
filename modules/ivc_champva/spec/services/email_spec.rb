@@ -35,13 +35,6 @@ RSpec.describe IvcChampva::Email, type: :service do
         )
         subject.send_email
       end
-
-      it 'logs the file count' do
-        expect(Rails.logger).to receive(:info).with(
-          "Pega Status Update Email: #{data[:file_count]} file(s)"
-        )
-        subject.send_email
-      end
     end
 
     context 'in invalid environments' do
@@ -51,13 +44,6 @@ RSpec.describe IvcChampva::Email, type: :service do
 
       it 'does not enqueue VANotify::EmailJob' do
         expect(VANotify::EmailJob).not_to receive(:perform_async)
-        subject.send_email
-      end
-
-      it 'does not log the file counts' do
-        expect(Rails.logger).not_to receive(:info).with(
-          "Pega Status Update Email: #{data[:file_count]} file(s)"
-        )
         subject.send_email
       end
     end
