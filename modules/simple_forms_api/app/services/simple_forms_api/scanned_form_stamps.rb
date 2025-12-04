@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   class ScannedFormStamps
-    # Standard coordinates for upper right corner timestamp (two lines)
+    
     TIMESTAMP_LINE_1_COORDS = [460, 710].freeze
     TIMESTAMP_LINE_2_COORDS = [460, 690].freeze
     TIMESTAMP_FONT_SIZE = 12
@@ -22,15 +22,16 @@ module SimpleFormsApi
       21-0304
     ].freeze
 
+    # Special cases: forms that stamp on a different page
     STAMP_PAGE_OVERRIDES = {
-      '21-0304' => 1 # Stamp on page 1 (second page) instead of page 0
+      '21-0304' => 1 # Stamp on page 2 instead of page 0
     }.freeze
 
     # Special cases: forms that need different coordinates (lower position)
     STAMP_COORDINATE_OVERRIDES = {
       '21-0304' => {
-        line_1: [460, 660],
-        line_2: [460, 640]
+        line_one: [460, 660],
+        line_two: [460, 640]
       }
     }.freeze
 
@@ -49,18 +50,18 @@ module SimpleFormsApi
     end
 
     def submission_date_stamps(timestamp = Time.current)
-      line_1_coords = @coords ? @coords[:line_1] : TIMESTAMP_LINE_1_COORDS
-      line_2_coords = @coords ? @coords[:line_2] : TIMESTAMP_LINE_2_COORDS
+      line_one_coords = @coords ? @coords[:line_one] : TIMESTAMP_LINE_1_COORDS
+      line_two_coords = @coords ? @coords[:line_two] : TIMESTAMP_LINE_2_COORDS
 
       [
         {
-          coords: line_1_coords,
+          coords: line_one_coords,
           text: 'Application Submitted:',
           page: @page,
           font_size: TIMESTAMP_FONT_SIZE
         },
         {
-          coords: line_2_coords,
+          coords: line_two_coords,
           text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: @page,
           font_size: TIMESTAMP_FONT_SIZE
