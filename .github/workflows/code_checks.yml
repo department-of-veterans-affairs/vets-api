@@ -420,6 +420,18 @@ jobs:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           message: "THIS IS A TEST, PLEASE DISREGARD"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":scared_and_sweating_smiley: Testing coverage slack message! :scared_and_sweating_smiley:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n **Coverage:** ${{ steps.coverage.outputs.percent }}%"
+                }
+              },
+              { "type": "divider" }
+            ]
           blocks: "**Coverage:** ${{ steps.coverage.outputs.percent }}%"
           channel_id: "C039HRTHXDH"
 
