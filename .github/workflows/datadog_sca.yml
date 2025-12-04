@@ -45,6 +45,7 @@ jobs:
         echo "Generated SBOM with $(jq '.components | length' sbom.json) components"
 
     - name: Upload SBOM artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: sbom-${{ github.sha }}
