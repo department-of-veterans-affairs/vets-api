@@ -337,6 +337,38 @@ RSpec.describe Mobile::V0::Adapters::Immunizations, type: :model do
           expect(result.first.group_name).to eq('VARICELLA')
         end
       end
+
+      context 'when vaccine_codes[:coding] is nil' do
+        let(:immunizations) do
+          {
+            entry: [
+              {
+                resource: {
+                  id: '131',
+                  vaccine_code: {
+                    text: 'Test vaccine',
+                    coding: nil
+                  },
+                  occurrence_date_time: '2023-09-15'
+                }
+              }
+            ]
+          }
+        end
+
+        it 'handles nil coding safely and returns nil' do
+          expect(Rails.logger).to receive(:info).with(
+            'Immunizations group_name processing',
+            hash_including(
+              coding_count: 0,
+              vaccine_group_lengths: []
+            )
+          )
+
+          result = adapter.parse(immunizations)
+          expect(result.first.group_name).to be_nil
+        end
+      end
     end
   end
 end

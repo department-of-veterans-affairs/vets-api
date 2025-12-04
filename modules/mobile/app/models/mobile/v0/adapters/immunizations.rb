@@ -89,8 +89,11 @@ module Mobile
         end
 
         def extract_group_name_from_codes(vaccine_codes)
+          coding = vaccine_codes[:coding]
+          return nil if coding.nil?
+
           # Look for entries that start with the vaccine group prefix
-          filtered_codes = vaccine_codes[:coding].select do |v|
+          filtered_codes = coding.select do |v|
             v[:display]&.start_with?('VACCINE GROUP:')
           end
 
