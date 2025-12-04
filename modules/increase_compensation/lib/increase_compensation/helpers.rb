@@ -90,13 +90,15 @@ module IncreaseCompensation
     def format_first_care_item(care_item)
       date_key = care_item.key?('doctorsTreatmentDates') ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
       namekey = care_item.key?('nameAndAddressOfDoctor') ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'
-      dates = care_item[date_key].length > 1 ? # rubocop:disable Style/MultilineTernaryOperator
-      {
-        'from' => {
-          'year' => care_item[date_key].map { |td| "from: #{td['from']}, to: #{td['to']}\n" }.join
-        }
-      } :
-      map_date_range(care_item[date_key].first)
+      dates = if care_item[date_key].length > 1
+                {
+                  'from' => {
+                    'year' => care_item[date_key].map { |td| "from: #{td['from']}, to: #{td['to']}\n" }.join
+                  }
+                }
+              else
+                map_date_range(care_item[date_key].first)
+              end
       is_va = care_item['inVANetwork'] ? 'VA' : 'Non-VA'
       [
         dates,
@@ -109,7 +111,7 @@ module IncreaseCompensation
     #
     # @param care_info_array [Array]
     # @param is_doc [Bool]
-    def overflow_doc_and_hospitails(care_info_array, is_doc)
+    def overflow_doc_and_hospitals(care_info_array, is_doc)
       return nil if care_info_array.nil? || is_doc.nil?
 
       key_name_address = is_doc ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'

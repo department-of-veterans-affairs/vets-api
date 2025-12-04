@@ -139,7 +139,7 @@ module IncreaseCompensation
               format_first_care_item(items.first)
           else
             form_data[overflow_key] = [
-              overflow_doc_and_hospitails(items, is_docotor).join("\n\n")
+              overflow_doc_and_hospitals(items, is_docotor).join("\n\n")
             ]
             form_data[name_and_address_key] = 'See Additional Pages'
           end

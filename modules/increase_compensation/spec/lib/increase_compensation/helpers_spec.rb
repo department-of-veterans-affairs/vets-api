@@ -131,7 +131,7 @@ RSpec.describe IncreaseCompensation::Helpers do
     end
   end
 
-  describe '#overflow_doc_and_hospitails' do
+  describe '#overflow_doc_and_hospitals' do
     doctors_care = [
       {
         'inVANetwork' => true,
@@ -162,10 +162,10 @@ RSpec.describe IncreaseCompensation::Helpers do
       }
     ]
     it 'formats all items for overflow' do
-      expect(subject.overflow_doc_and_hospitails(doctors_care, true)).to eq(
+      expect(subject.overflow_doc_and_hospitals(doctors_care, true)).to eq(
         [
-          "VA - Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001\nTreated for: PTSD\nFrom: 2024-01-10, To: 2025-02-20\n",
-          "Non-VA - Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n",
+          "VA - Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001\nTreated for: PTSD\nFrom: 2024-01-10, To: 2025-02-20\n", # rubocop:disable Layout/LineLength
+          "Non-VA - Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n", # rubocop:disable extLayout/LineLength
           "Non-VA - Dr. Zoidberg, 423 main St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: 2025-02-20\n" # rubocop:disable Layout/LineLength
         ]
       )
