@@ -120,7 +120,8 @@ module Mobile
             service_category_name: appointment.dig(:service_category, 0, :text),
             show_schedule_link: appointment[:show_schedule_link],
             is_cerner: appointment[:is_cerner],
-            avs_pdf: appointment[:avs_pdf]
+            avs_pdf: appointment[:avs_pdf],
+            avs_error: appointment[:avs_error]
           }
 
           if appointment[:travelPayClaim]

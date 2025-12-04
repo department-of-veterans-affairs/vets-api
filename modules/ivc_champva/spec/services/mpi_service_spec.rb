@@ -23,6 +23,12 @@ RSpec.describe IvcChampva::MPIService do
     allow(IvcChampva::Monitor).to receive(:new).and_return(mock_monitor)
   end
 
+  after do
+    # Clear RSpec mocks to prevent pollution of subsequent tests
+    RSpec::Mocks.space.proxy_for(MPI::Service).reset
+    RSpec::Mocks.space.proxy_for(IvcChampva::Monitor).reset
+  end
+
   describe '#validate_profiles' do
     context 'when MPI profiles are found' do
       before do
