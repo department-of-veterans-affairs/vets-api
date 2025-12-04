@@ -800,7 +800,8 @@ GEM
     oj (3.16.12)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
-    okcomputer (1.19.0)
+    okcomputer (1.19.1)
+      benchmark
     olive_branch (4.0.1)
       multi_json
       rails (>= 4.0)
