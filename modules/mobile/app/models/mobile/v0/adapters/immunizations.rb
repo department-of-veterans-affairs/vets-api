@@ -79,7 +79,7 @@ module Mobile
           vaccine_codes[:coding]&.map do |v|
             next unless v[:display]&.include?('VACCINE GROUP')
 
-            # Count everything after "VACCINE GROUP:" (after the colon)
+            # Count characters after "VACCINE GROUP:" including any whitespace (before stripping)
             text_after_group = v[:display].split('VACCINE GROUP').last
             text_after_colon = text_after_group&.sub(/^:/, '')
             text_after_colon&.length || 0
