@@ -86,7 +86,7 @@ module VAProfile
         end
 
         def candidate_address_not_found?(exception)
-          details = exception.errors.map { |e| e.instance_variable_get('@detail') } || []
+          details = exception.errors.map { |e| e.instance_variable_get('@detail') || e.detail } || []
           details.any? { |detail| detail['messages'].any? { |message| message['key'] == 'CandidateAddressNotFound' } }
         end
       end

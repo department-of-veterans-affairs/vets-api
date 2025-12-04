@@ -299,8 +299,12 @@ dgi:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
   sob:
-    mock: ~
-    url: ~
+    claimants:
+      mock: ~
+      url: ~
+    jwt:
+      private_key_path: modules/sob/spec/fixtures/test_private_key.pem
+      public_key_path: ~
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -403,6 +407,8 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+email_verification:
+  jwt_secret: "EV_TEST_KEY_1234567890"
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
@@ -944,6 +950,9 @@ mhv:
     x_api_key: fake-x-api-key
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
+  oh_facility_checks:
+    facilities_ready_for_info_alert: 612, 555
+    pretransitioned_oh_facilities: 612, 357, 555
   rx:
     app_token: ~
     base_path: mhv-api/patient/v1/
