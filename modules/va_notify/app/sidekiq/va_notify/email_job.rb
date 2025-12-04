@@ -23,7 +23,8 @@ module VANotify
         error_class:,
         error_message:,
         template_id:,
-        email: args[0],
+        # Don't log raw email (PII). Log presence only.
+        email_present: args[0].present?,
         form_number: callback_metadata&.dig('form_number'),
         service: callback_metadata&.dig('statsd_tags', 'service'),
         function: callback_metadata&.dig('statsd_tags', 'function')
