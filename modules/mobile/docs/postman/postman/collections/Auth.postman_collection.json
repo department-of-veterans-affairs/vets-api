@@ -1,0 +1,191 @@
+{
+  "info": {
+    "_postman_id": "46e0e724-5b08-4ac2-9a2f-31595b2f377d",
+    "name": "Auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Set Bearer Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "b9e56e21-d006-400b-a5d2-3dca5fab209a",
+            "exec": [
+              "var jsonData = JSON.parse(responseBody)",
+              "pm.globals.set(\"BEARER_TOKEN\", jsonData.access_token)"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "b2193383-2b28-4b59-9668-092e7d7c3761",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "id": "1ee71946-5f33-4c91-9fda-1d627094d42b",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{Password}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "{{Username}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "body": {
+          "mode": "urlencoded"
+        },
+        "url": {
+          "raw": "{{AuthUrl}}/auth/token/:email?environment={{Environment}}&ngrok_url={{NGROK_URL}}&requester={{REQUESTER}}",
+          "host": [
+            "{{AuthUrl}}"
+          ],
+          "path": [
+            "auth",
+            "token",
+            ":email"
+          ],
+          "query": [
+            {
+              "key": "environment",
+              "value": "{{Environment}}"
+            },
+            {
+              "key": "ngrok_url",
+              "value": "{{NGROK_URL}}"
+            },
+            {
+              "key": "requester",
+              "value": "{{REQUESTER}}"
+            }
+          ],
+          "variable": [
+            {
+              "key": "email",
+              "value": "judy.morrison@id.me",
+              "description": "judy.morrison@id.me"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Local Token from Code (You probably don't need)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "9f9be172-95b5-4ccd-b37d-80db97d93799",
+            "exec": [
+              "var jsonData = JSON.parse(responseBody)",
+              "pm.globals.set(\"BEARER_TOKEN\", jsonData.data.access_token)"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "aba3e667-2557-43d0-9857-7ab9ddc00370",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "id": "e1a18d9d-2b63-44e9-b817-6eb71692c646",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "grant_type",
+              "value": "authorization_code",
+              "type": "text"
+            },
+            {
+              "key": "code_verifier",
+              "value": "CODE_VERIFIER_STRING",
+              "type": "text"
+            },
+            {
+              "key": "code",
+              "value": "df4c9fe9-b392-45f0-83ed-2ea52b1794f5",
+              "description": "< Change me",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "localhost:3000/v0/sign_in/token",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "v0",
+            "sign_in",
+            "token"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Manual Refresh (don't use)",
+      "id": "2ab5df99-1314-4a2e-8cb3-743697e914f3",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "refresh_token",
+              "value": "YOUR_REFRESH_TOKEN_HERE",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{BaseUrl}}/v0/sign_in/refresh",
+          "host": [
+            "{{BaseUrl}}"
+          ],
+          "path": [
+            "v0",
+            "sign_in",
+            "refresh"
+          ]
+        }
+      }
+    }
+  ]
+}

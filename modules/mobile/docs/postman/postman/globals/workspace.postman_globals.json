@@ -1,0 +1,30 @@
+{
+  "id": "bc69e8ac-9a33-4a33-a075-e126e84ad619",
+  "name": "Globals",
+  "values": [
+    {
+      "key": "BEARER_TOKEN",
+      "value": "",
+      "enabled": true,
+      "type": "any",
+      "description": "This is manually set by \"Set Bearer Token\" request/script"
+    },
+    {
+      "key": "NGROK_URL",
+      "value": "",
+      "enabled": true,
+      "type": "default",
+      "description": "See README for obtaining Ngrok URL for Local Auth"
+    },
+    {
+      "key": "REQUESTER",
+      "value": "",
+      "enabled": true,
+      "type": "default",
+      "description": "Your github username, used for identitfying your token records in DevTools"
+    }
+  ],
+  "_postman_variable_scope": "globals",
+  "_postman_exported_at": "2025-11-24T22:06:33.296Z",
+  "_postman_exported_using": "Postman/11.0.0"
+}
