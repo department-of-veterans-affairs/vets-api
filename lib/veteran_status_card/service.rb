@@ -12,13 +12,15 @@ module VeteranStatusCard
     VET_STATUS_MORE_RESEARCH_REQUIRED_TEXT = 'MORE_RESEARCH_REQUIRED'
     VET_STATUS_NOT_TITLE_38_TEXT = 'NOT_TITLE_38'
 
-    CONFIRMED_SSC_CODES = %w[A1 A2 B1 B2 R1 R2 G1 G2].freeze
-    TBD_SSC_CODES = %w[A3 A4 A5- B3 B4 B5- R3 R4].freeze # TODO: Unsure of what to do with these codes yet
-    DISHONORABLE_SSC_CODES = %w[A5 B5 G3 G4 G5 R5].freeze # TODO: Unsure of what the messaging is for these
+    CONFIRMED_SSC_CODES = %w[A1 A2 A3 A4 A5- A1+ A3+ A4+ A5+ A3* A4* B1 B2 B3 B4 B5- B1+ B3+ B4+ B5+ B3* B4* B5* G1 G2 G1+ R1 R2
+                             R3 R4 R1+ R3+ R4+ R3* R4*].freeze
+    DISHONORABLE_SSC_CODES = %w[A5 A5* B5].freeze # TODO: Unsure of what the messaging is for these
+    INELIGIBLE_SERVICE_SSC_CODES = %w[G3 G4 G5 G3* G4* G5* R5 R5*].freeze
+    TBD_SSC_CODES = %w[G3+ G4+ G5+ R5+].freeze
     UNKNOWN_SERVICE_SSC_CODE = 'U'
     EDIPI_NO_PNL_CODE = 'X'
-    CURRENTLY_SERVING_CODE = 'D^'
-    ERROR_SSC_CODES = %w[VNA DVN].freeze
+    CURRENTLY_SERVING_CODES = %w[D D+ D*].freeze
+    ERROR_SSC_CODES = %w[VNA DVN DVU CVI].freeze
 
     ##
     # Initializes the VeteranStatusCard::Service
@@ -83,7 +85,6 @@ module VeteranStatusCard
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR,
       if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
         return {
-          confirmed: false,
           title: vet_verification_status[:title],
           message: vet_verification_status[:message],
           status: vet_verification_status[:status]
@@ -93,45 +94,22 @@ module VeteranStatusCard
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38, so we
       # don't need to explicitly check for those reasons
 
-      error_response = {
-        confirmed: false,
-        title: VeteranVerification::Constants::ERROR_MESSAGE_TITLE,
-        message: VeteranVerification::Constants::ERROR_MESSAGE,
-        status: VeteranVerification::Constants::ERROR_MESSAGE_STATUS
-      }
+      return Constants::DISHONORABLE_RESPONSE if DISHONORABLE_SSC_CODES.include?(ssc_code)
 
-      if TBD_SSC_CODES.include?(ssc_code)
-        # Unsure of how to handle these codes yet
-        return error_response
-      end
+      return Constants::INELIGIBLE_SERVICE_RESPONSE if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
 
-      if DISHONORABLE_SSC_CODES.include?(ssc_code)
-        # Unsure of what the messaging is for these
-        return error_response
-      end
+      return Constants::TBD_RESPONSE if TBD_SSC_CODES.include?(ssc_code)
 
-      if ssc_code == UNKNOWN_SERVICE_SSC_CODE
-        # Unsure of what the messaging is for these
-        return error_response
-      end
+      return Constants::UNKNOWN_SERVICE_RESPONSE if ssc_code == UNKNOWN_SERVICE_SSC_CODE
 
-      if ssc_code == EDIPI_NO_PNL_CODE
-        # Unsure of what the messaging is for these
-        return error_response
-      end
+      return Constants::EDIPI_NO_PNL_RESPONSE if ssc_code == EDIPI_NO_PNL_CODE
 
-      if ssc_code == CURRENTLY_SERVING_CODE
-        # Unsure of what the messaging is for these
-        return error_response
-      end
+      return Constants::CURRENTLY_SERVING_RESPONSE if CURRENTLY_SERVING_CODES.include?(ssc_code)
 
-      if ERROR_SSC_CODES.include?(ssc_code)
-        # Unsure of what the messaging is for these
-        return error_response
-      end
+      return Constants::ERROR_RESPONSE if ERROR_SSC_CODES.include?(ssc_code)
 
       # Default fallback
-      error_response
+      Constants::ERROR_RESPONSE
     end
 
     ##
