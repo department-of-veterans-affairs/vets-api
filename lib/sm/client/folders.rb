@@ -101,7 +101,7 @@ module SM
       ##
       # Get a collection of Threads
       #
-      # @param folder_id [Fixnum] id of the user's folder (0 Inbox, -1 Sent, -2 Drafts, -3 Deleted, > 0 for custom folder)
+      # @param folder_id [Fixnum] id of the user's folder (0 Inbox, -1 Sent, -2 Drafts, -3 Deleted, > 0 for custom)
       # @param page_start [Fixnum] Pagination start numbering
       # @param page_end [Fixnum] Pagination end numbering (max: 100)
       # @param sort_field [String] field to sort results by (SENDER_NAME or RECIPIENT_NAME or SENT_DATE or DRAFT_DATE)
