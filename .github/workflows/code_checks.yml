@@ -169,6 +169,11 @@ jobs:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
       - name: Checkout VSP actions
         uses: actions/checkout@v6
         with:
