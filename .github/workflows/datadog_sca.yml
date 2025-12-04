@@ -1,0 +1,37 @@
+# Generates SBOM for ATO compliance using Datadog's sbom-generator
+# Datadog GovCloud doesn't yet support Code Security SCA uploads
+# See: https://github.com/department-of-veterans-affairs/vets-api/pull/25424
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+name: Datadog Software Composition Analysis
+
+jobs:
+  sbom-generation:
+    runs-on: ubuntu-latest
+    name: Generate SBOM
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Download datadog-sbom-generator
+      run: |
+        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/latest/download/datadog-sbom-generator_Linux_x86_64.tar.gz" | tar xz
+        chmod +x datadog-sbom-generator
+
+    - name: Generate SBOM
+      run: |
+        ./datadog-sbom-generator scan -o sbom.json .
+        echo "Generated SBOM with $(jq '.components | length' sbom.json) components"
+
+    - name: Upload SBOM artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom-${{ github.sha }}
+        path: sbom.json
+        retention-days: 90
