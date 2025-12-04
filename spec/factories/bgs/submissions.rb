@@ -10,7 +10,8 @@ FactoryBot.define do
         'icn' => '1234567890V123456',
         'ssn' => '123456789',
         'participant_id' => '12345678',
-        'file_number' => '987654321'
+        'file_number' => '987654321',
+        'proc_id' => 'ABC123DEF456'
       }
     end
 

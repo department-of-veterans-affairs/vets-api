@@ -112,6 +112,7 @@
                 "birls_id",
                 "edipi",
                 "sec_id",
+                "npi_id",
                 "logingov_uuid",
                 "idme_uuid",
                 "id_theft_flag"
@@ -232,6 +233,9 @@
                     "string",
                     null
                   ]
+                },
+                "npi_id": {
+                  "type": ["string", "null"]
                 },
                 "logingov_uuid": {
                   "type": [
