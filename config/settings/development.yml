@@ -1038,6 +1038,7 @@ ogc:
   form21a_service_url:
     api_key: fake_key
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
+    document_upload_url: http://localhost:5000/api/v1/accreditation/applications/form21a/documents
 oidc:
   isolated_audience:
     claims: ~
