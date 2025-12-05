@@ -249,7 +249,7 @@
     "country": "String",
     "zip": "String"
   },
-   "alternateSignature": {
+  "alternateSignature": {
     "blockNumber": "29A",
     "yes": "Boolean",
     "no": "Boolean"
