@@ -24,6 +24,8 @@ module Vass
     rescue_from Vass::Errors::ServiceError, with: :handle_service_error
     rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
     rescue_from Vass::Errors::RedisError, with: :handle_redis_error
+    rescue_from Vass::Errors::RateLimitError, with: :handle_rate_limit_error
+    rescue_from VANotify::Error, with: :handle_vanotify_error
 
     private
 
@@ -78,6 +80,40 @@ module Vass
         title: 'Cache Error',
         detail: 'The caching service is temporarily unavailable',
         status: :service_unavailable
+      )
+    end
+
+    def handle_rate_limit_error(exception)
+      log_safe_error('rate_limit_error', exception.class.name)
+      render_error_response(
+        title: 'Rate Limit Exceeded',
+        detail: 'Too many requests. Please try again later',
+        status: :too_many_requests
+      )
+    end
+
+    def handle_vanotify_error(exception)
+      log_safe_error('vanotify_error', exception.class.name)
+      # Map VANotify status codes to appropriate HTTP statuses
+      status = case exception.status_code
+               when 400
+                 :bad_request
+               when 401, 403
+                 :unauthorized
+               when 404
+                 :not_found
+               when 429
+                 :too_many_requests
+               when 500, 502, 503
+                 :bad_gateway
+               else
+                 :service_unavailable
+               end
+
+      render_error_response(
+        title: 'Notification Service Error',
+        detail: 'Unable to send notification. Please try again later',
+        status:
       )
     end
 

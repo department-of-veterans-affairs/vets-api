@@ -82,7 +82,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_availability')
     end
 
@@ -124,7 +124,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'save_appointment')
     end
 
@@ -145,7 +145,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'cancel_appointment')
     end
 
@@ -166,7 +166,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_appointment')
     end
 
@@ -187,7 +187,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_appointments')
     end
 
@@ -208,7 +208,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_veteran_info')
     end
 
@@ -224,7 +224,7 @@ module Vass
       response = client.get_agent_skills
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_agent_skills')
     end
 
@@ -249,11 +249,10 @@ module Vass
     ##
     # Formats a date/time object to ISO8601 format for VASS API.
     #
-    # @param datetime [Time, String, nil] DateTime to format
-    # @return [String, nil] ISO8601 formatted datetime string, or nil if input is nil
+    # @param datetime [Time, String] DateTime to format
+    # @return [String] ISO8601 formatted datetime string
     #
     def format_datetime(datetime)
-      return nil if datetime.nil?
       return datetime if datetime.is_a?(String)
 
       datetime.utc.iso8601
@@ -283,7 +282,7 @@ module Vass
       log_error(error, method_name)
 
       case error
-      when Vass::ServiceException
+      when Common::Exceptions::BackendServiceException
         if error.original_status == 401
           raise Vass::Errors::AuthenticationError, 'Authentication failed'
         elsif error.original_status == 404

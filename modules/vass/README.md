@@ -215,8 +215,8 @@ The service layer provides comprehensive error handling:
 
 - `Vass::Errors::AuthenticationError` - OAuth/authentication failures (401)
 - `Vass::Errors::NotFoundError` - Resource not found (404)
-- `Vass::Errors::ValidationError` - Request validation failures (422)
-- `Vass::Errors::VassApiError` - VASS API errors (5xx and mapped errors)
+- `Vass::Errors::ValidationError` - Request validation failures
+- `Vass::Errors::VassApiError` - VASS API errors (5xx)
 - `Vass::Errors::ServiceError` - General service errors
 - `Vass::Errors::RedisError` - Redis connection/storage issues
 
@@ -250,12 +250,6 @@ All VASS API operations are tracked via the `Common::Client::Concerns::Monitorin
 
 All failure metrics include error tags: `error:ErrorClassName` and `status:HTTPStatus`
 
-**Non-Standard Error Metrics:**
-- `api.vass.http_200_errors` - Tracks HTTP 200 responses with `success: false`
-  - Tags: `error_status:XXX` (mapped status code), `service:vass`
-  - This metric helps monitor VASS's non-standard error responses
-
 ## Support
 
 For questions or issues, contact the VASS team.
-
