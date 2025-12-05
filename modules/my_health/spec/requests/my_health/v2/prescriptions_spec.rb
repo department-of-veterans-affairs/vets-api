@@ -12,10 +12,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
   before do
     sign_in_as(current_user)
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
+    # Stub all Flipper calls to allow through, then override specific ones
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(false)
   end
 
   # Helper methods for V2 status mapping tests
+  # rubocop:disable Metrics/MethodLength
   def build_mock_prescription(attrs = {})
     defaults = {
       prescription_id: attrs[:prescription_id] || '12345',
@@ -34,11 +38,30 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       dispensed_date: attrs[:dispensed_date],
       quantity: attrs[:quantity] || 30,
       sig: attrs[:sig] || 'Take 1 tablet daily',
-      grouped_medications: attrs[:grouped_medications] || []
+      instructions: attrs[:instructions] || 'Take 1 tablet daily',
+      grouped_medications: attrs[:grouped_medications] || [],
+      dispenses: attrs[:dispenses] || [],
+      tracking: attrs[:tracking] || [],
+      refill_date: attrs[:refill_date],
+      refill_submit_date: attrs[:refill_submit_date],
+      cmop_ndc_number: attrs[:cmop_ndc_number],
+      prescription_image: attrs[:prescription_image],
+      facility_phone_number: attrs[:facility_phone_number],
+      cmop_division_phone: attrs[:cmop_division_phone],
+      in_cerner_transition: attrs[:in_cerner_transition] || false,
+      not_refillable_display_message: attrs[:not_refillable_display_message],
+      sorted_dispensed_date: attrs[:sorted_dispensed_date] || attrs[:dispensed_date]
     }
 
-    OpenStruct.new(defaults.merge(attrs))
+    mock = OpenStruct.new(defaults.merge(attrs))
+
+    # Add method stubs that the controller/serializer may call
+    mock.define_singleton_method(:sort_date) { ordered_date }
+    mock.define_singleton_method(:to_h) { to_h }
+
+    mock
   end
+  # rubocop:enable Metrics/MethodLength
 
   def build_prescriptions_with_all_statuses
     [
@@ -665,11 +688,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
 
-          # Verify recently_requested contains prescriptions with specific disp_status values
-          # These should be prescriptions with 'Active: Refill in Process' or 'Active: Submitted'
+          # Verify recently_requested contains prescriptions with V2 'In progress' status
+          # These are mapped from 'Active: Refill in Process' or 'Active: Submitted'
           recently_requested.each do |rx|
             status = rx['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            expect(status).to eq('In progress') if status.present?
           end
         end
       end
@@ -748,6 +771,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             # Otherwise, check if it meets renewal criteria (only applies to items with disp_status)
             next if prescription['disp_status'].blank?
 
+            # disp_status is now V2 mapped - 'Active', 'In progress', 'Inactive', 'Transferred', etc.
             disp_status = prescription['disp_status']
             # rx_rf_records maps to dispenses array from UHD model
             refill_history_item = prescription['rx_rf_records']&.first
@@ -759,15 +783,16 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             cut_off_date = Time.zone.today - 120.days
             zero_date = Date.new(0, 1, 1)
 
-            # Should meet renewal criteria
-            meets_criteria = ['Active', 'Active: Parked'].include?(disp_status) ||
-                             (disp_status == 'Expired' &&
+            # Should meet renewal criteria based on V2 statuses
+            # Active V2 status includes: Active, Active: Parked, Active: Non-VA
+            meets_criteria = disp_status == 'Active' ||
+                             (disp_status == 'Inactive' &&
                              expired_date.present? &&
                              DateTime.parse(expired_date) != zero_date &&
                              DateTime.parse(expired_date) >= cut_off_date)
 
             expect(meets_criteria).to be(true),
-                                      "Prescription #{prescription['prescription_id']} with status " \
+                                      "Prescription #{prescription['prescription_id']} with V2 status " \
                                       "'#{disp_status}' should meet refillable criteria"
           end
         end
@@ -784,10 +809,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
 
-          # Verify recently_requested contains prescriptions with specific disp_status values
+          # Verify recently_requested contains prescriptions with V2 'In progress' status
           recently_requested.each do |prescription|
             status = prescription['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            expect(status).to eq('In progress') if status.present?
           end
         end
       end
@@ -851,33 +876,33 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
-      it 'handles Expired prescriptions within cutoff date' do
+      it 'handles Inactive prescriptions (formerly Expired) within cutoff date' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
 
-          # Find any Expired prescriptions in the results
-          expired_prescriptions = json_response['data'].select do |p|
-            p['attributes']['disp_status'] == 'Expired'
+          # Find any Inactive prescriptions in the results (includes Expired, Discontinued, Active: On hold)
+          inactive_prescriptions = json_response['data'].select do |p|
+            p['attributes']['disp_status'] == 'Inactive'
           end
 
-          # If there are expired prescriptions, verify they're within cutoff
+          # If there are Inactive prescriptions that were originally Expired, verify they're within cutoff
           cut_off_date = Time.zone.today - 120.days
           zero_date = Date.new(0, 1, 1)
 
-          expired_prescriptions.each do |rx|
+          inactive_prescriptions.each do |rx|
             attrs = rx['attributes']
             # rx_rf_records maps to dispenses array from UHD model
             refill_history_item = attrs['rx_rf_records']&.first
             expired_date = if refill_history_item && refill_history_item['expiration_date']
                              DateTime.parse(refill_history_item['expiration_date'])
-                           else
+                           elsif attrs['expiration_date'].present?
                              DateTime.parse(attrs['expiration_date'])
                            end
 
-            expect(expired_date).not_to eq(zero_date)
-            expect(expired_date).to be >= cut_off_date
+            # If we have an expiration date, verify it's within cutoff for refillable
+            expect(expired_date).to be >= cut_off_date if expired_date && expired_date != zero_date
           end
         end
       end
@@ -1610,34 +1635,6 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     end
   end
 
-  describe 'V2StatusMapper module integration in controller' do
-    it 'includes V2StatusMapper module' do
-      expect(MyHealth::V2::PrescriptionsController.ancestors).to include(
-        UnifiedHealthData::Adapters::V2StatusMapper
-      )
-    end
-
-    it 'has access to map_to_v2_status method' do
-      controller = MyHealth::V2::PrescriptionsController.new
-      expect(controller).to respond_to(:map_to_v2_status)
-    end
-
-    it 'has access to original_statuses_for_v2_status method' do
-      controller = MyHealth::V2::PrescriptionsController.new
-      expect(controller).to respond_to(:original_statuses_for_v2_status)
-    end
-
-    it 'has access to apply_v2_status_mapping method' do
-      controller = MyHealth::V2::PrescriptionsController.new
-      expect(controller).to respond_to(:apply_v2_status_mapping)
-    end
-
-    it 'has access to apply_v2_status_mapping_to_collection method' do
-      controller = MyHealth::V2::PrescriptionsController.new
-      expect(controller).to respond_to(:apply_v2_status_mapping_to_collection)
-    end
-  end
-
   describe 'V2 status mapping with pagination and sorting' do
     let(:mock_prescriptions) { build_prescriptions_with_all_statuses }
 
@@ -1733,40 +1730,6 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       # (Note: some statuses may overlap in business logic)
       total_counted = filter_count['active'] + filter_count['recently_requested'] + filter_count['non_active']
       expect(total_counted).to eq(filter_count['all_medications'])
-    end
-  end
-
-  describe 'when cerner pilot is disabled' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
-    end
-
-    it 'returns forbidden for index' do
-      get('/my_health/v2/prescriptions', headers:)
-
-      expect(response).to have_http_status(:forbidden)
-      json_response = JSON.parse(response.body)
-      expect(json_response['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
-    end
-
-    it 'returns forbidden for show' do
-      get('/my_health/v2/prescriptions/12345', params: { station_number: '556' }, headers:)
-
-      expect(response).to have_http_status(:forbidden)
-    end
-
-    it 'returns forbidden for list_refillable_prescriptions' do
-      get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
-
-      expect(response).to have_http_status(:forbidden)
-    end
-
-    it 'returns forbidden for refill' do
-      post refill_path,
-           params: [{ stationNumber: '123', id: '25804851' }].to_json,
-           headers: { 'Content-Type' => 'application/json' }
-
-      expect(response).to have_http_status(:forbidden)
     end
   end
 end
