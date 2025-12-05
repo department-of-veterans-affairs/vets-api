@@ -109,7 +109,7 @@ http_interactions:
                        "endProductCode":"020",
                        "evidenceWaiverSubmitted5103":false,
                        "errors":[
-                          
+
                        ],
                        "jurisdiction":"National Work Queue",
                        "lighthouseId":null,
@@ -300,7 +300,7 @@ http_interactions:
                           {
                              "closedDate":"2022-10-30",
                              "description":null,
-                             "displayName":"Attorney Fees",
+                             "displayName":"Attorney Fee",
                              "overdue":false,
                              "receivedDate":null,
                              "requestedDate":"2022-09-30",
