@@ -6,8 +6,10 @@ require 'burials/bpds/formatter'
 
 RSpec.describe BPDS::Service do
   let(:service) { described_class.new }
-  let(:claim) { double('SavedClaim', id: 1, form_id: '21-526EZ', parsed_form: { 'key' => 'value' }) }
+  let(:formatted_claim_form) { { 'key' => 'value' } }
+  let(:form_id) { '21-526EZ' }
   let(:participant_id) { '123456' }
+  let(:file_number) { '123456789' }
   let(:bpds_uuid) { 'some-uuid' }
   let(:response) { double('response', body: 'response body') }
 
@@ -24,15 +26,22 @@ RSpec.describe BPDS::Service do
   end
 
   describe '#submit_json' do
-    it 'raises an error if claim is nil' do
-      expect { service.submit_json(nil) }.to raise_error NoMethodError
+    context 'when participant_id is provided' do
+      it 'returns the response body' do
+        expect(service).to receive(:perform).with(:post, '', anything, anything).and_return(response)
+
+        result = service.submit_json(formatted_claim_form, form_id, participant_id, nil)
+        expect(result).to eq('response body')
+      end
     end
 
-    it 'returns the response body when claim is present' do
-      expect(service).to receive(:perform).with(:post, '', anything, anything).and_return(response)
+    context 'when file_number is provided' do
+      it 'returns the response body' do
+        expect(service).to receive(:perform).with(:post, '', anything, anything).and_return(response)
 
-      result = service.submit_json(claim, participant_id)
-      expect(result).to eq('response body')
+        result = service.submit_json(formatted_claim_form, form_id, nil, file_number)
+        expect(result).to eq('response body')
+      end
     end
   end
 
@@ -45,111 +54,54 @@ RSpec.describe BPDS::Service do
     end
   end
 
-  describe '#format_payload' do
-    context 'when no formatter is registered for the form_id' do
-      let(:claim) { double('SavedClaim', form_id: '21-526EZ', parsed_form: { 'key' => 'value' }) }
-
-      it 'returns the original parsed_form' do
-        result = service.send(:format_payload, claim)
-        expect(result).to eq(claim.parsed_form)
-      end
-    end
-
-    context 'when a formatter is registered for the form_id' do
-      let(:claim) { create(:burials_saved_claim) }
-      let(:formatter_instance) { instance_double(Burials::BPDS::Formatter) }
-      let(:formatted_result) { { 'veteranName' => { 'first' => 'WESLEY' } } }
-
-      before do
-        allow(Burials::BPDS::Formatter).to receive(:new).with(claim.parsed_form).and_return(formatter_instance)
-        allow(formatter_instance).to receive(:format).and_return(formatted_result)
-      end
-
-      it 'uses the registered formatter to format the payload' do
-        result = service.send(:format_payload, claim)
-        expect(result).to eq(formatted_result)
-      end
-
-      it 'instantiates the formatter with the parsed_form' do
-        expect(Burials::BPDS::Formatter).to receive(:new).with(claim.parsed_form)
-        service.send(:format_payload, claim)
-      end
-    end
-
-    context 'when formatter class cannot be found' do
-      let(:claim) { create(:burials_saved_claim) }
-
-      before do
-        stub_const('BPDS::Service::FORMATTERS', { '21P-530EZ' => 'NonExistent::Formatter' })
-      end
-
-      it 'falls back to returning the original parsed_form' do
-        result = service.send(:format_payload, claim)
-        expect(result).to eq(claim.parsed_form)
-      end
-    end
-  end
-
   describe '#default_payload' do
     context 'when a participant id is present' do
-      let(:participant_id) { '133663' }
-      let(:file_number) { nil }
-
-      it 'returns the default payload for a given claim with the participant id' do
+      it 'returns the default payload with the participant id' do
         expected_payload = {
           'bpd' => {
             'sensitivityLevel' => 0,
-            'payloadNamespace' => "urn:vets_api:#{claim.form_id}:#{Settings.bpds.schema_version}",
+            'payloadNamespace' => "urn:vets_api:#{form_id}:#{Settings.bpds.schema_version}",
             'participantId' => participant_id,
             'fileNumber' => nil,
-            'payload' => claim.parsed_form
+            'payload' => formatted_claim_form
           }
         }
-        expect(service.send(:default_payload, claim, participant_id, file_number)).to eq(expected_payload)
+        expect(service.send(:default_payload, formatted_claim_form, form_id, participant_id,
+                            nil)).to eq(expected_payload)
       end
     end
 
     context 'when a file number is present' do
-      let(:participant_id) { nil }
-      let(:file_number) { '123456789' }
-
-      it 'returns the default payload for a given claim with the file number' do
+      it 'returns the default payload with the file number' do
         expected_payload = {
           'bpd' => {
             'sensitivityLevel' => 0,
-            'payloadNamespace' => "urn:vets_api:#{claim.form_id}:#{Settings.bpds.schema_version}",
+            'payloadNamespace' => "urn:vets_api:#{form_id}:#{Settings.bpds.schema_version}",
             'participantId' => nil,
             'fileNumber' => file_number,
-            'payload' => claim.parsed_form
+            'payload' => formatted_claim_form
           }
         }
-        expect(service.send(:default_payload, claim, participant_id, file_number)).to eq(expected_payload)
+        expect(service.send(:default_payload, formatted_claim_form, form_id, nil, file_number)).to eq(expected_payload)
       end
     end
 
-    context 'when a formatter is registered for the claim' do
-      let(:claim) { create(:burials_saved_claim) }
-      let(:formatter_instance) { instance_double(Burials::BPDS::Formatter) }
+    context 'when formatted data is provided' do
       let(:formatted_result) { { 'veteranName' => { 'first' => 'John' } } }
-      let(:participant_id) { '133663' }
-      let(:file_number) { nil }
-
-      before do
-        allow(Burials::BPDS::Formatter).to receive(:new).with(claim.parsed_form).and_return(formatter_instance)
-        allow(formatter_instance).to receive(:format).and_return(formatted_result)
-      end
+      let(:burial_form_id) { '21P-530EZ' }
 
       it 'uses the formatted payload in the default_payload' do
         expected_payload = {
           'bpd' => {
             'sensitivityLevel' => 0,
-            'payloadNamespace' => "urn:vets_api:#{claim.form_id}:#{Settings.bpds.schema_version}",
+            'payloadNamespace' => "urn:vets_api:#{burial_form_id}:#{Settings.bpds.schema_version}",
             'participantId' => participant_id,
             'fileNumber' => nil,
             'payload' => formatted_result
           }
         }
-        expect(service.send(:default_payload, claim, participant_id, file_number)).to eq(expected_payload)
+        expect(service.send(:default_payload, formatted_result, burial_form_id, participant_id,
+                            nil)).to eq(expected_payload)
       end
     end
   end
