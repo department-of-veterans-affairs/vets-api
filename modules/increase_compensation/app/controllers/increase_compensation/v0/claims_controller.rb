@@ -2,8 +2,10 @@
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
+require 'increase_compensation/s3_config'
 require 'persistent_attachments/sanitizer'
-require 'simple_forms_api/form_remediation/configuration/vff_config'
+# require 'simple_forms_api/form_remediation/configuration/vff_config'
+require 'simple_forms_api/form_remediation/uploader'
 
 module IncreaseCompensation
   module V0
@@ -13,6 +15,7 @@ module IncreaseCompensation
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
+      skip_before_action :verify_authenticity_token
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
@@ -27,7 +30,12 @@ module IncreaseCompensation
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: IncreaseCompensation::SavedClaimSerializer.new(claim)
+
+        # form_submission_attempt = get_last_form_submission_attempt(claim.guid)
+        # pdf_url = get_signed_url(claim, form_submission_attempt.created_at.to_date)
+        # render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
+
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -57,12 +65,18 @@ module IncreaseCompensation
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
-        # TODO: pdf url needed in response, s3 settings? settings.yml?
-        # config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new || nil
-        # pdf_url = SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(claim.guid, config:)
-        pdf_url = nil
+
         clear_saved_form(claim.form_id)
-        render json: IncreaseCompensation::SavedClaimSerializer.new(claim, params: { pdf_url: })
+
+        form_submission = FormSubmission.create!(
+          form_type: claim.form_id,
+          saved_claim: claim
+        )
+        form_submission_attempt = FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
+        pdf_url = upload_to_s3(claim, form_submission_attempt.created_at.to_date)
+
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
+        # render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
@@ -116,6 +130,41 @@ module IncreaseCompensation
       #
       def monitor
         @monitor ||= IncreaseCompensation::Monitor.new
+      end
+
+      # upload to S3 and return a download url
+      def upload_to_s3(claim, created_at)
+        File.open(claim.to_pdf(claim.guid)) do |file|
+          directory = dated_directory_name(claim.form_id, created_at)
+          config = IncreaseCompensation::S3Config.new
+          sanitized_file = CarrierWave::SanitizedFile.new(file)
+          s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
+          s3_uploader.store!(sanitized_file)
+          s3_uploader.get_s3_link("#{directory}/#{sanitized_file.filename}")
+        end
+      end
+
+      # returns the url of an already-created PDF
+      def get_signed_url(claim, created_at)
+        directory = dated_directory_name(claim.form_id, created_at)
+        config = IncreaseCompensation::S3Config.new
+        s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
+        s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}.pdf")
+      end
+
+      # the last submission attempt is used to construct the S3 file path
+      def get_last_form_submission_attempt(benefits_intake_uuid)
+        FormSubmissionAttempt.where(benefits_intake_uuid:).order(:created_at).last
+      end
+
+      # # returns the URL to the PDF in S3 so the person completing the forms can download them
+      # def pdf_url(guid)
+      #   SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
+      # end
+
+      # returns e.g. `12.11.25-Form21P-8416`
+      def dated_directory_name(form_number, date = Time.now.utc.to_date)
+        "#{date.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
     end
   end
