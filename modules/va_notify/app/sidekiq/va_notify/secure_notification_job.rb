@@ -1,5 +1,5 @@
 module VANotify
-  class PackagedEmailJob
+  class SecureNotificationJob
     include Sidekiq::Job
 
     def perform(email, template_id, attr_package_key, api_key, callback_options = {})
