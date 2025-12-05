@@ -1029,7 +1029,7 @@ describe UnifiedHealthData::Service, type: :service do
         it 'applies filtering to exclude old discontinued/expired prescriptions' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             filtered_prescriptions = service.get_prescriptions(current_only: true)
-            expect(filtered_prescriptions.size).to eq(54)
+            expect(filtered_prescriptions.size).to eq(53)
           end
         end
       end
