@@ -95,7 +95,7 @@ module Vass
       # @return [String] Generated OTP code
       #
       def generate_otp
-        SecureRandom.random_number(999999).to_s.rjust(OTP_LENGTH, '0')
+        SecureRandom.random_number(999_999).to_s.rjust(OTP_LENGTH, '0')
       end
 
       ##
