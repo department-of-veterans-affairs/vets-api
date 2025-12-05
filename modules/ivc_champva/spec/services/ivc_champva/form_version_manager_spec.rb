@@ -172,8 +172,8 @@ RSpec.describe IvcChampva::FormVersionManager do
 
         expect(metadata).to be_a(Hash)
         expect(metadata).to respond_to(:dig)
-        expect(metadata.dig('uuid')).to be_present
-        expect(metadata.dig('docType')).to eq('TEST-FORM')
+        expect(metadata['uuid']).to be_present
+        expect(metadata['docType']).to eq('TEST-FORM')
       end
     end
 
