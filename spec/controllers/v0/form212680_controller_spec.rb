@@ -95,5 +95,34 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         expect(response).to have_http_status(:internal_server_error)
       end
     end
+
+    context 'InProgressForm cleanup' do
+      let(:user) { create(:user, :loa3) }
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21-2680', user_account: user.user_account) }
+
+      before do
+        sign_in_as(user)
+      end
+
+      it 'deletes the InProgressForm after successful PDF generation' do
+        expect {
+          post(:download_pdf, params: valid_form_data, as: :json)
+        }.to change(InProgressForm, :count).by(-1)
+
+        expect(response).to have_http_status(:ok)
+        expect(InProgressForm.find_by(id: in_progress_form.id)).to be_nil
+      end
+
+      it 'does not delete IPF if PDF generation fails' do
+        allow_any_instance_of(SavedClaim::Form212680).to receive(:generate_prefilled_pdf)
+          .and_raise(StandardError, 'PDF generation error')
+
+        expect {
+          post(:download_pdf, params: valid_form_data, as: :json)
+        }.not_to change(InProgressForm, :count)
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
+    end
   end
 end

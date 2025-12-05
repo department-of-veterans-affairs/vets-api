@@ -74,6 +74,7 @@ module V0
                 type: 'application/pdf',
                 disposition: 'attachment'
 
+      clear_saved_form(claim.form_id)
       pdf_path
     end
 
