@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows: ["Code Checks"]
-    branches: [master]
+    branches: [master, production-bypass]
     types: [completed]
 permissions:
   id-token: write
@@ -25,14 +25,36 @@ jobs:
           echo "github.event.workflow_run.name: ${{ github.event.workflow_run.name }}"
           echo "github.event.workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
           echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
+          echo "github.event.workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
           echo "github.event_name: ${{ github.event_name }}"
 
+  check_bypass_branch:
+    runs-on: ubuntu-latest
+    name: Check if production-bypass branch exists
+    outputs:
+      bypass_exists: ${{ steps.check-branch.outputs.exists }}
+    steps:
+      - name: Check for production-bypass branch
+        id: check-branch
+        run: |
+          # Check if production-bypass branch exists in the remote repo
+          if git ls-remote --heads https://github.com/${{ github.repository }} production-bypass | grep -q production-bypass; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ production-bypass branch exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ production-bypass branch does not exist"
+          fi
+
   build_and_push:
+    needs: check_bypass_branch
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build and Push
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     runs-on: ubuntu-latest
+    outputs:
+      bypass_exists: ${{ needs.check_bypass_branch.outputs.bypass_exists }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -50,6 +72,7 @@ jobs:
       - name: Login to ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
+
       - name: Build Postman Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -60,6 +83,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-postman:${{ github.event.workflow_run.head_commit.id }}
+
       - name: Build vets-api Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -75,14 +99,60 @@ jobs:
             ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
-  deploy:
+
+  deploy_all_envs:
     needs: build_and_push
-    if: ${{ github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.conclusion == 'success' }}
+    # Deploy to all environments if:
+    # 1. Branch is master AND
+    # 2. production-bypass branch does NOT exist AND
+    # 3. Code checks passed
+    if: |
+      github.event.workflow_run.head_branch == 'master' &&
+      needs.build_and_push.outputs.bypass_exists == 'false' &&
+      github.event.workflow_run.conclusion == 'success'
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"
       manifests_directory: "vets-api"
-      auto_deploy_envs: "dev staging prod sandbox"
+      auto_deploy_envs: "dev staging sandbox prod"
+      commit_sha: ${{ github.event.workflow_run.head_commit.id }}
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy_lower_envs:
+    needs: build_and_push
+    # Deploy to lower environments if:
+    # 1. Branch is master AND
+    # 2. production-bypass branch EXISTS (code freeze active) AND
+    # 3. Code checks passed
+    if: |
+      github.event.workflow_run.head_branch == 'master' &&
+      needs.build_and_push.outputs.bypass_exists == 'true' &&
+      github.event.workflow_run.conclusion == 'success'
+    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
+    with:
+      ecr_repository: "vets-api"
+      manifests_directory: "vets-api"
+      auto_deploy_envs: "dev staging"
+      commit_sha: ${{ github.event.workflow_run.head_commit.id }}
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy_higher_envs:
+    needs: build_and_push
+    # Deploy to higher environments if:
+    # 1. Branch is production-bypass AND
+    # 2. Code checks passed
+    if: |
+      github.event.workflow_run.head_branch == 'production-bypass' &&
+      github.event.workflow_run.conclusion == 'success'
+    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
+    with:
+      ecr_repository: "vets-api"
+      manifests_directory: "vets-api"
+      auto_deploy_envs: "sandbox prod"
       commit_sha: ${{ github.event.workflow_run.head_commit.id }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
