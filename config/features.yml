@@ -1447,6 +1447,10 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
+  mhv_medical_records_merge_cvix_into_scdf:
+    actor_type: user
+    description: Combines CVIX lab record list with the SCDF/Unified lab record list
+    enable_in_development: true
   mhv_medical_records_migrate_ccd_to_s3:
     actor_type: user
     description: Enables the switch to an s3 bucket for the CCD endpoints
