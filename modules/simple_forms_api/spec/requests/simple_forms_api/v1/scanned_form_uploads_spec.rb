@@ -120,6 +120,18 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size warnings])
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
     end
+
+    it 'returns unprocessable entity when file is missing' do
+      params = { form_id: form_number }
+
+      expect do
+        post '/simple_forms_api/v1/scanned_form_upload', params:
+      end.not_to change(PersistentAttachment, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      resp = JSON.parse(response.body)
+      expect(resp['errors']).to be_present
+    end
   end
 
   describe '#upload_supporting_documents' do
@@ -138,16 +150,19 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
                                                   an_instance_of(User)).and_return(true)
       end
 
-      it 'processes files through ScannedFormProcessor and returns success' do
-        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment|
+      it 'processes files through Common::PdfProcessor and returns success' do
+        processor_double = double('PdfProcessor')
+        
+        allow(Common::PdfProcessor).to receive(:new) do |attachment, password:|
           expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
           expect(attachment.form_id).to eq(form_number)
-          processor = double('ScannedFormProcessor')
-          allow(processor).to receive(:process!) do
+          expect(password).to be_nil
+          
+          allow(processor_double).to receive(:process!) do
             attachment.save!
             attachment
           end
-          processor
+          processor_double
         end
 
         params = { form_id: form_number, file: valid_pdf_file }
@@ -158,6 +173,18 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+
+      it 'returns unprocessable entity when file is missing' do
+        params = { form_id: form_number }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_present
       end
     end
 
@@ -239,15 +266,17 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
 
       it 'passes password to processor and processes successfully' do
-        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment, password:|
+        processor_double = double('PdfProcessor')
+        
+        allow(Common::PdfProcessor).to receive(:new) do |attachment, password:|
           expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
           expect(password).to eq(correct_password)
-          processor = double('ScannedFormProcessor')
-          allow(processor).to receive(:process!) do
+          
+          allow(processor_double).to receive(:process!) do
             attachment.save!
             attachment
           end
-          processor
+          processor_double
         end
 
         params = { form_id: form_number, file: encrypted_pdf_file, password: correct_password }
@@ -261,6 +290,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       it 'successfully processes encrypted PDF end-to-end with real decryption' do
         params = { form_id: form_number, file: encrypted_pdf_file, password: correct_password }
+
         expect do
           post '/simple_forms_api/v1/supporting_documents_upload', params:
         end.to change(PersistentAttachment, :count).by(1)
