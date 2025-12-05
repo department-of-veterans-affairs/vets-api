@@ -266,4 +266,3 @@ RSpec.describe Vass::V0::Session, type: :model do
     end
   end
 end
-
