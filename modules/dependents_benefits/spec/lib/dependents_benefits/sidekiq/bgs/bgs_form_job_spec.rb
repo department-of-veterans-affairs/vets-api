@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dependents_benefits/sidekiq/bgs_form_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_form_job'
 require 'bgsv2/service'
 
-RSpec.describe DependentsBenefits::Sidekiq::BGSFormJob, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   # Create a concrete test class since BGSFormJob is abstract
   let(:test_job_class) do
     Class.new(described_class) do

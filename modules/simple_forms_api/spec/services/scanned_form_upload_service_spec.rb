@@ -211,5 +211,22 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
         )
       end
     end
+
+    context 'when Lighthouse upload raises a client error' do
+      before do
+        allow(lighthouse_service).to receive(:perform_upload)
+          .and_raise(Common::Client::Errors::ClientError.new('Boom', 502))
+      end
+
+      it 'raises an UploadError with a user-friendly message' do
+        expect do
+          service.upload_with_supporting_documents
+        rescue SimpleFormsApi::ScannedFormUploadService::UploadError => e
+          expect(e.errors.first[:title]).to eq('Submission failed')
+          expect(e.http_status).to eq(502)
+          raise
+        end.to raise_error(SimpleFormsApi::ScannedFormUploadService::UploadError)
+      end
+    end
   end
 end

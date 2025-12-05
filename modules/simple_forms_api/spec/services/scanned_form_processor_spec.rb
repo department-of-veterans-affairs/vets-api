@@ -290,6 +290,65 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
     end
   end
 
+  context 'when attachment persistence fails' do
+    let(:attachment) do
+      PersistentAttachments::VAForm.new.tap do |att|
+        att.form_id = '21-0779'
+        att.file = File.open(jpg_path, 'rb')
+      end
+    end
+    let(:processor) { described_class.new(attachment) }
+    let(:temp_pdf) do
+      file = Tempfile.new(['processed', '.pdf'])
+      file.binmode
+      file.write('%PDF-1.4 test')
+      file.close
+      file
+    end
+
+    before do
+      allow(Common::ConvertToPdf).to receive(:new).and_return(double(run: temp_pdf.path))
+      allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+        double(validate: double(valid_pdf?: true, errors: []))
+      )
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_correct_form)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_pdf_page_count)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_unlocked_pdf)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_max_width)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_max_height)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_max_size)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_min_size)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_mime_type_inclusion)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_virus_free)
+    end
+
+    after do
+      temp_pdf.unlink if File.exist?(temp_pdf.path)
+    rescue Errno::ENOENT
+      nil
+    end
+
+    it 'raises PersistenceError with validation messages when save! fails' do
+      attachment.errors.add(:base, 'database unavailable')
+      allow(attachment).to receive(:save!).and_raise(ActiveRecord::RecordInvalid.new(attachment))
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::PersistenceError) do |error|
+          expect(error.errors.first[:detail]).to eq('database unavailable')
+        end
+    end
+
+    it 'raises PersistenceError with a default message on unexpected errors' do
+      attachment.errors.clear
+      allow(attachment).to receive(:save!).and_raise(StandardError, 'boom')
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::PersistenceError) do |error|
+          expect(error.errors.first[:detail]).to include('save your file')
+        end
+    end
+  end
+
   context 'end-to-end processing without mocks' do
     let(:attachment) do
       PersistentAttachments::VAForm.new.tap do |att|

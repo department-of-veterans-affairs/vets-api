@@ -14,6 +14,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
   let(:headers) { { 'X-Folder-URI' => folder_identifier } }
 
   let(:uuid) { SecureRandom.hex }
+  let(:version) { SecureRandom.hex }
   let(:file_path) { Common::FileHelpers.generate_random_file('TEST FILE', '.test') }
   let(:file_name) { File.basename(file_path) }
   let(:provider_data) do
@@ -118,6 +119,23 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
 
     it 'raises an exception if schema is not valid' do
       expect { service.overwrite(uuid, file_path, provider_data: {}) }.to raise_error JSON::Schema::ValidationError
+    end
+  end
+
+  describe '#period_of_service' do
+    it 'performs a GET' do
+      path = "files/#{uuid}/periodOfService"
+      expect(service).to receive(:perform).with(:get, path, {})
+      service.period_of_service(uuid)
+    end
+  end
+
+  describe '#download' do
+    it 'performs a GET for a specific file version' do
+      download_headers = { 'Accept' => 'application/pdf' }
+      path = "files/#{uuid}/#{version}/content"
+      expect(service).to receive(:perform).with(:get, path, {}, download_headers)
+      service.download(uuid, version)
     end
   end
 end
