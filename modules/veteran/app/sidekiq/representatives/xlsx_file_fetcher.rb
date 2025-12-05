@@ -15,10 +15,11 @@ module Representatives
     PATH = 'products/accredited-representation-management/data/rep-org-addresses.xlsx'
 
     # Fetches the XLSX file content from the GitHub repository.
+    # @param force [Boolean] If true, skips the recency check and always downloads the file
     # @return [String, nil] The content of the file as a string, or nil if not fetched.
-    def fetch
+    def fetch(force: false)
       setup_octokit_client
-      return nil unless file_recently_updated?
+      return nil unless force || file_recently_updated?
 
       file_info = fetch_rep_addresses_file_info
       fetch_file_content(file_info.download_url)
