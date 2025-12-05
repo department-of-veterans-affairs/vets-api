@@ -13,6 +13,7 @@
     - [Why Use Callbacks?](#why-use-callbacks)
     - [Option 1: Default Callback Class](#callbacks-option-1)
     - [Option 2: Custom Callback Class](#callbacks-option-2)
+- [Secure Email Job Pattern: PackagedEmailJob](#packaged-email-jobs)
 - [Testing](#testing)
 - [Debugging](#debugging)
 - [Contact Us](#contact-us)
@@ -295,6 +296,41 @@ else
   # Default logic
 end
 ```
+
+[Back to top](#top)
+
+## Secure Email Job Pattern: PackagedEmailJob <a name="packaged-email-jobs"></a>
+
+### Why Use PackagedEmailJob?
+
+To prevent PII (such as first name and email address) from being exposed in Sidekiq job arguments and logs, we are transitioning to using `VANotify::PackagedEmailJob`. This job stores personalisation data securely in Redis using `Sidekiq::AttrPackage`, and only passes a reference key to the job. This ensures that PII is not logged or sent to Datadog if a job fails.
+
+### Usage
+
+Instead of calling `VANotify::EmailJob.perform_async` with personalisation data, use:
+
+```ruby
+VANotify::PackagedEmailJob.enqueue(
+  "user@example.com",
+  "template-id-123",
+  { first_name: "Jane", date_submitted: "May 1, 2024" }, # personalisation hash
+  Settings.vanotify.services.va_gov.api_key,
+  { callback_metadata: { notification_type: "confirmation" } }
+)
+```
+
+### Migration Plan
+
+- **New jobs**: Use `PackagedEmailJob` for all new email flows that include personalisation data.
+- **Existing jobs**: We will gradually migrate existing usages of `VANotify::EmailJob` and `VANotify::UserAccountJob` to use `PackagedEmailJob`.
+
+### Additional Notes
+
+- The `.enqueue` method handles packaging and enqueuing for you.
+- The job will retrieve and delete the personalisation data from Redis when it runs.
+- This pattern is required for any job that handles PII in personalisation.
+
+For more details, see [`app/sidekiq/va_notify/packaged_email_job.rb`](app/sidekiq/va_notify/packaged_email_job.rb).
 
 [Back to top](#top)
 
