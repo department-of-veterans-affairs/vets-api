@@ -2,11 +2,13 @@
 
 require_relative 'base'
 require 'va_profile/concerns/defaultable'
+require 'va_profile/concerns/expirable'
 
 module VAProfile
   module Models
     class PersonOption < Base
       include VAProfile::Concerns::Defaultable
+      include VAProfile::Concerns::Expirable
 
       attribute :id, Integer
       attribute :item_id, Integer
