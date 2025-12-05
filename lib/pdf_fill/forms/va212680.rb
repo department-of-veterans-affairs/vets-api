@@ -12,6 +12,13 @@ module PdfFill
       KEY = FieldMappings::Va212680::KEY
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
+      # Coordinates for the 21-2680 veteran signature field
+      # Located in Section V, field 15A on page 2
+      SIGNATURE_X = 60
+      SIGNATURE_Y = 535
+      SIGNATURE_PAGE = 1 # zero-indexed; 1 == page 2
+      SIGNATURE_SIZE = 10
+
       RELATIONSHIPS = { 'self' => 1,
                         'spouse' => 2,
                         'parent' => 2,
@@ -33,6 +40,33 @@ module PdfFill
         hospitalized_checkbox
         split_email
         @form_data
+      end
+
+      # Stamp a typed signature string onto the PDF using DatestampPdf
+      #
+      # @param pdf_path [String] Path to the PDF to stamp
+      # @param form_data [Hash] The form data containing the signature
+      # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
+      def self.stamp_signature(pdf_path, form_data)
+        signature_text = form_data.dig('veteranSignature', 'signature')
+
+        # Return original path if signature is blank
+        return pdf_path if signature_text.nil? || signature_text.to_s.strip.empty?
+
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: signature_text,
+          x: SIGNATURE_X,
+          y: SIGNATURE_Y,
+          page_number: SIGNATURE_PAGE,
+          size: SIGNATURE_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        )
+      rescue => e
+        Rails.logger.error('Form212680: Error stamping signature', error: e.message, backtrace: e.backtrace)
+        pdf_path # Return original PDF if stamping fails
       end
 
       private
