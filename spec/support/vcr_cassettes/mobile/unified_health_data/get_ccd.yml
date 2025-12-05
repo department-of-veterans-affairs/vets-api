@@ -41,7 +41,7 @@ http_interactions:
   recorded_with: VCR 6.0.0
 - request:
     method: get
-    uri: "<MHV_UHD_HOST>/v1/medicalrecords/ccd/oracle-health?endDate=2025-10-22&patientId=1000123456V123456&startDate=1900-01-01"
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/ccd?endDate=2025-10-22&patientId=1000123456V123456&startDate=1900-01-01"
     body:
       encoding: US-ASCII
       string: ''
