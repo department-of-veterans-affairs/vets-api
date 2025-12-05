@@ -10,6 +10,8 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
   describe '#perform' do
     let(:from) { 1.day.ago }
     let(:to) { Time.zone.now }
+    let(:recipient_loader) { Class.new { include ClaimsApi::ReportRecipientsReader }.new }
+    let(:expected_recipients) { recipient_loader.load_recipients('unsuccessful_report_mailer') }
     let(:cid) { '0oa9uf05lgXYk6ZXn297' }
     let(:unsuccessful_poa_submissions) do
       ClaimsApi::PowerOfAttorney.where(created_at: from..to,
@@ -27,6 +29,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
         expect(ClaimsApi::UnsuccessfulReportMailer).to receive(:build).once.with(
           from,
           to,
+          expected_recipients,
           consumer_claims_totals: [],
           unsuccessful_claims_submissions: [],
           unsuccessful_va_gov_claims_submissions: nil,
