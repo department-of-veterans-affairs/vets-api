@@ -3,7 +3,7 @@
 module Burials
   # Formatter for converting burial form data into BPDS compatible format.
   module BPDS
-    class Formatter # rubocop:disable Metrics/ClassLength
+    class Formatter
       # Initializes a new Formatter instance with a parsed burial form.
       #
       # @param parsed_form [Hash] The parsed burial form data to be formatted
@@ -212,14 +212,14 @@ module Burials
         tours.map do |tour|
           {
             'enteredService' => {
-              'date' => parse_service_date(tour['dateRangeStart']),
+              'date' => parse_date(tour['dateRangeStart']),
               'place' => tour['placeOfEntry']
             },
             'serviceNumber' => {
               'value' => tour['militaryServiceNumber'] || @form['militaryServiceNumber']
             },
             'separatedFromService' => {
-              'date' => parse_service_date(tour['dateRangeEnd']),
+              'date' => parse_date(tour['dateRangeEnd']),
               'place' => tour['placeOfSeparation']
             },
             'gradeRankRatingOrgBranch' => {
@@ -235,16 +235,15 @@ module Burials
         previous_names = @form['previousNames']
         return nil unless previous_names&.any?
 
-        first_name = previous_names.first
-        return nil unless first_name
+        previous_names.map do |name|
+          full_name = [name['first'], name['middle'], name['last']].compact.join(' ')
+          service_info = name['serviceBranch']
 
-        full_name = [first_name['first'], first_name['middle'], first_name['last']].compact.join(' ')
-        service_info = first_name['serviceBranch']
-
-        {
-          'fullName' => full_name,
-          'serviceRendered' => service_info
-        }.compact
+          {
+            'fullName' => full_name,
+            'serviceRendered' => service_info
+          }.compact
+        end
       end
 
       # Formats the location of burial or remains.
@@ -472,7 +471,7 @@ module Burials
         claimant_name = @form['claimantFullName']
         return nil unless claimant_name
 
-        full_name = "#{claimant_name['first']} #{claimant_name['middle']} #{claimant_name['last']}".strip
+        full_name = [claimant_name['first'], claimant_name['middle'], claimant_name['last']].compact.join(' ')
         {
           'value' => full_name
         }
@@ -553,29 +552,14 @@ module Burials
       def parse_date(date_string)
         return nil unless date_string
 
-        parts = date_string.split('-')
-        return nil unless parts.length == 3
-
-        year, month, day = parts
-
+        date = DateTime.parse(date_string)
         {
-          'month' => month,
-          'day' => day,
-          'year' => year
+          'month' => date.month.to_s.rjust(2, '0'),
+          'day' => date.day.to_s.rjust(2, '0'),
+          'year' => date.year.to_s
         }
-      end
-
-      # Parses a service date string into month, day, and year components.
-      # @param date_string [String] Date in YYYY-MM-DD format
-      # @return [Hash, nil] Hash with month, day, year or nil if invalid
-      def parse_service_date(date_string)
-        return nil unless date_string
-
-        parts = date_string.split('-')
-        return nil unless parts.length == 3
-
-        year, month, day = parts
-        { 'month' => month, 'day' => day, 'year' => year }
+      rescue ArgumentError, TypeError
+        nil
       end
 
       # Formats service branch information into a comma-separated string.
@@ -610,12 +594,12 @@ module Burials
 
       # Extracts VA file number, removing leading 'c' or 'C' if present for numbers >= 10 chars.
       # @param va_file_number [String] VA file number to extract
-      # @return [String] Extracted file number
+      # @return [String] Extracted file number with whitespace removed
       def extract_va_file_number(va_file_number)
-        return va_file_number if va_file_number.blank? || va_file_number.length < 10
+        return va_file_number if va_file_number.blank?
 
-        # Remove leading 'c' or 'C' if file number is 10+ characters
-        va_file_number.sub(/^[Cc]/, '')
+        cleaned = va_file_number.strip
+        cleaned.length >= 10 ? cleaned.sub(/^[Cc]/, '') : cleaned
       end
     end
   end

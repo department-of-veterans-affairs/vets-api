@@ -128,12 +128,9 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
     end
   end
 
-  describe '#process_and_upload_to_bpds' do
+  describe '#submit_claim_to_bpds (via SubmissionHandler concern)' do
     let(:claim) { build(:burials_saved_claim) }
-    let(:in_progress_form) { build(:in_progress_form) }
-    let(:bpds_submission) { double('BPDS::Submission', id: '12345') }
     let(:bpds_monitor) { double('BPDS::Monitor') }
-    let(:current_user) { create(:user) }
     let(:participant_id) { mpi_profile.participant_id }
     let(:encrypted_payload) { KmsEncrypted::Box.new.encrypt({ participant_id: }.to_json) }
     let(:mpi_profile) { build(:mpi_profile) }
@@ -146,14 +143,30 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
       allow(bpds_monitor).to receive(:track_get_user_identifier_result)
       allow(bpds_monitor).to receive(:track_get_user_identifier_file_number_result)
       allow(bpds_monitor).to receive(:track_skip_bpds_job)
-      allow(BPDS::Submission).to receive(:create).and_return(bpds_submission)
       allow(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async)
+      allow(Flipper).to receive(:enabled?).with(:burial_bpds_service_enabled).and_return(true)
+    end
+
+    context 'when feature flag is disabled' do
+      it 'does not submit to BPDS' do
+        allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(false)
+        allow(subject).to receive(:current_user).and_return(nil) # rubocop:disable RSpec/SubjectStub
+
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
+
+        result = subject.send(:submit_claim_to_bpds, claim)
+        expect(result).to be false
+      end
     end
 
     context 'when the user is LOA3' do
       let!(:user) { create(:user, :loa3) }
 
-      it 'tracks the submission and enqueues the job' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(true)
+      end
+
+      it 'retrieves participant_id from MPI and enqueues the job' do
         allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
 
         expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa3').once
@@ -165,7 +178,24 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
           .and_return(mpi_response)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload).once
 
-        subject.send(:process_and_upload_to_bpds, claim)
+        result = subject.send(:submit_claim_to_bpds, claim)
+        expect(result).to be true
+      end
+
+      it 'skips submission if MPI returns no participant_id' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+        mpi_response_no_participant = build(:find_profile_response, profile: build(:mpi_profile, participant_id: nil))
+
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa3').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('mpi', false).once
+        expect(bpds_monitor).to receive(:track_skip_bpds_job).with(claim.id).once
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
+          .with(identifier: user.icn, identifier_type: MPI::Constants::ICN)
+          .and_return(mpi_response_no_participant)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
+
+        result = subject.send(:submit_claim_to_bpds, claim)
+        expect(result).to be false
       end
     end
 
@@ -174,7 +204,11 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
       let(:encrypted_payload_bgs) { KmsEncrypted::Box.new.encrypt({ participant_id: '1234567890' }.to_json) }
       let(:bgs_response) { BGS::People::Response.new({ ptcpnt_id: '1234567890' }) }
 
-      it 'tracks the submission and enqueues the job' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(true)
+      end
+
+      it 'retrieves participant_id from BGS and enqueues the job' do
         allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
 
         expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa1').once
@@ -185,7 +219,8 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
                                                                                                .and_return(bgs_response)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload_bgs).once
 
-        subject.send(:process_and_upload_to_bpds, claim)
+        result = subject.send(:submit_claim_to_bpds, claim)
+        expect(result).to be true
       end
     end
 
@@ -194,7 +229,11 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
       let(:encrypted_payload_bgs) { KmsEncrypted::Box.new.encrypt({ file_number: '1234567890' }.to_json) }
       let(:bgs_response) { BGS::People::Response.new({ file_nbr: '1234567890' }) }
 
-      it 'tracks the submission and enqueues the job' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(true)
+      end
+
+      it 'retrieves file_number from BGS and enqueues the job' do
         allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
 
         expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa1').once
@@ -205,23 +244,53 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
                                                                                                .and_return(bgs_response)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload_bgs).once
 
-        subject.send(:process_and_upload_to_bpds, claim)
+        result = subject.send(:submit_claim_to_bpds, claim)
+        expect(result).to be true
       end
     end
 
     context 'when the user is not authenticated and no identifier is available' do
-      it 'tracks the submission and does not enqueue the job' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(true)
+      end
+
+      it 'skips submission and does not enqueue the job' do
         allow(subject).to receive(:current_user).and_return(nil) # rubocop:disable RSpec/SubjectStub
 
         expect(bpds_monitor).to receive(:track_get_user_identifier).with('unauthenticated').once
         expect(bpds_monitor).to receive(:track_skip_bpds_job).with(claim.id).once
         expect(bpds_monitor).not_to receive(:track_get_user_identifier_result)
-        expect(bpds_monitor).not_to receive(:track_get_user_identifier_result_file_number)
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_file_number_result)
         expect(bpds_monitor).not_to receive(:track_submit_begun)
         expect_any_instance_of(BGS::People::Request).not_to receive(:find_person_by_participant_id)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
 
-        subject.send(:process_and_upload_to_bpds, claim)
+        result = subject.send(:submit_claim_to_bpds, claim)
+        expect(result).to be false
+      end
+    end
+
+    context 'when BGS returns neither participant_id nor file_number' do
+      let!(:user) { create(:user, :loa1) }
+      let(:bgs_response) { BGS::People::Response.new({}) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(true)
+      end
+
+      it 'skips submission' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa1').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('bgs', false).once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_file_number_result).with(false).once
+        expect(bpds_monitor).to receive(:track_skip_bpds_job).with(claim.id).once
+        expect_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id).with(user:)
+                                                                                               .and_return(bgs_response)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
+
+        result = subject.send(:submit_claim_to_bpds, claim)
+        expect(result).to be false
       end
     end
   end
