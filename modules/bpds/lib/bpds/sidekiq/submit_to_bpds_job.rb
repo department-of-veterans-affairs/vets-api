@@ -64,7 +64,7 @@ module BPDS
         begin
           # Submit the BPDS submission to the BPDS service
           payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_payload))
-          response = BPDS::Service.new.submit_json(format_payload(@saved_claim), @saved_claim.form_id,
+          response = BPDS::Service.new.submit_json(format_claim_form(@saved_claim), @saved_claim.form_id,
                                                    payload['participant_id'], payload['file_number'])
           @bpds_submission.submission_attempts.create(status: 'submitted', response: response.to_json,
                                                       bpds_id: response['uuid'])
@@ -96,11 +96,11 @@ module BPDS
         @monitor = BPDS::Monitor.new
       end
 
-      # Formats the claim payload using a registered formatter if available.
+      # Formats the claim's form data using a registered formatter if available.
       #
       # @param claim [SavedClaim] The claim to format
       # @return [Hash] The formatted payload (or original parsed_form if no formatter exists)
-      def format_payload(claim)
+      def format_claim_form(claim)
         formatter_class_name = FORMATTERS[claim.form_id]
 
         return claim.parsed_form unless formatter_class_name
