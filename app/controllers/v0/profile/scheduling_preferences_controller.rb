@@ -38,7 +38,7 @@ module V0
       private
 
       def check_feature_flag!
-        unless Flipper.enabled?(:profile_health_care_settings_page)
+        unless Flipper.enabled?(:profile_health_care_settings_page, @current_user)
           raise Common::Exceptions::Forbidden, detail: 'Scheduling preferences not available'
         end
       end
