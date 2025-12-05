@@ -115,7 +115,8 @@ module DecisionReviews
     def validate_template_type!
       return if TEMPLATE_TYPES.value?(@template_type)
 
-      raise ArgumentError, "Invalid template_type: #{@template_type}. Must be one of: #{TEMPLATE_TYPES.values.join(', ')}"
+      raise ArgumentError, "Invalid template_type: #{@template_type}.
+                            Must be one of: #{TEMPLATE_TYPES.values.join(', ')}"
     end
 
     def save_to_file(pdf_binary)
