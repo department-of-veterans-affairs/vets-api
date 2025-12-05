@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'sm/client/message_status'
+require 'sm/client/attachments'
+
 module SM
   class Client < Common::Client::Base
     ##

@@ -10,8 +10,6 @@ require 'sm/client/message_drafts'
 require 'sm/client/messages'
 require 'sm/client/message_sending'
 require 'sm/client/triage_teams'
-require 'sm/client/attachments'
-require 'sm/client/message_status'
 require 'vets/collection'
 
 module SM

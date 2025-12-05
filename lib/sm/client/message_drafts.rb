@@ -45,10 +45,6 @@ module SM
 
       private
 
-      def reply_draft?(id)
-        get_message_history(id).records.present?
-      end
-
       def validate_draft(args)
         draft = ::MessageDraft.new(args)
         draft.as_reply if args[:id] && reply_draft?(args[:id])
