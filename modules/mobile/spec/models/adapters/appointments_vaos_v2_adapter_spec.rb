@@ -114,7 +114,9 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
                                  'friendly_location_name' => 'Cheyenne VA Medical Center',
                                  'service_category_name' => nil,
                                  'show_schedule_link' => nil,
-                                 'is_cerner' => nil
+                                 'is_cerner' => nil,
+                                 'avs_pdf' => nil,
+                                 'avs_error' => nil
                                })
   end
 
@@ -733,6 +735,37 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(appt.is_cerner).to be_nil
       appt = appointment_by_id(cerner_va_id)
       expect(appt.is_cerner).to be(true)
+    end
+  end
+
+  describe 'avs_pdf' do
+    let(:avs_pdf) do
+      {
+        appt_id: '12345',
+        id: '15249638961',
+        name: 'Ambulatory Visit Summary',
+        loinc_codes: %w[4189669 96345-4],
+        note_type: 'ambulatory_patient_summary',
+        content_type: 'application/pdf',
+        binary: 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+      }
+    end
+
+    it 'passes through the proper boolean value' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.avs_pdf).to be_nil
+      appt = appointment_by_id(cerner_va_id)
+      expect(appt.avs_pdf.length).to eq(1)
+      expect(appt.avs_pdf[0].to_h).to eq(avs_pdf)
+    end
+  end
+
+  describe 'avs_error' do
+    it 'passes through the proper error message' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.avs_error).to be_nil
+      appt = appointment_by_id(cerner_va_id, overrides: { avs_error: 'Error retrieving AVS' })
+      expect(appt.avs_error).to eq('Error retrieving AVS')
     end
   end
 end

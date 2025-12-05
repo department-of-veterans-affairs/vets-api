@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'common/exceptions/base_error'
 
 module Common
@@ -28,7 +27,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(render_overides)))
+        Array(SerializableError.new((i18n_data || {}).merge(render_overides)))
       end
 
       # VA900 is characterized as a generic type of exception. See exceptions.en.yml for what JSON will render
@@ -75,23 +74,24 @@ module Common
       # was provided by the backend service, because the backend service response
       # might not always be relevant
       def status
-        i18n_data[:status].presence || 400
+        i18n_data&.[](:status).presence || 400
       end
 
       # OPTIONAL - This is the detail or message that is rendered in JSON response
       # Not providing detail will render a detail the same as title, 'Operation failed'
       # NOTE: in the future, detail will only work via i18n, not the value from response_values
       def detail
-        i18n_data[:detail].presence || response_values[:detail]
+        i18n_data&.[](:detail).presence || response_values&.[](:detail)
       end
 
       # OPTIONAL - This should usually be a developer message of some sort from the backend service
       # if one is not provided by the backend this can be nil and the key will not be rendered
       def source
-        response_values[:source]
+        response_values&.[](:source)
       end
 
       def validate_arguments!
+        raise ArgumentError, 'response_values cannot be nil' if @response_values.nil?
         raise ArgumentError, "i18n key (#{@key}) is invalid" unless I18n.exists?(i18n_key)
         raise ArgumentError, "status (#{status}) is not in range" unless status.between?(400, 599)
       end

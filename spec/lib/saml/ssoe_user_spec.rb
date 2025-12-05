@@ -44,6 +44,8 @@ RSpec.describe SAML::User do
           application: client_id
         }
       )
+
+      allow(Rails.logger).to receive(:warn)
     end
 
     context 'mapped attributes' do
@@ -714,13 +716,11 @@ RSpec.describe SAML::User do
       context 'with one id string' do
         let(:sec_id) { '1234567890' }
 
-        it 'does not log a warning to sentry' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(
-            'User attributes contains multiple sec_id values',
-            'warn',
-            { sec_id: }
-          )
+        it 'does not log a warning' do
           subject.validate!
+          expect(Rails.logger).not_to have_received(:warn).with(
+            '[SAML][UserAttributes][SSOe] User attributes contains multiple sec_id values', anything
+          )
         end
       end
 
