@@ -15,7 +15,7 @@ module VcrInspector
 
       pattern = Shellwords.shellescape(cassette_path)
       root_escaped = Shellwords.shellescape(root)
-      cmd = "grep -r #{pattern} #{root_escaped} --include='*_spec.rb' 2>/dev/null"
+      cmd = "grep -rn #{pattern} #{root_escaped} --include='*_spec.rb' 2>/dev/null"
       output = `#{cmd}`
 
       parse_grep_output(output, root)
@@ -33,11 +33,17 @@ module VcrInspector
     def self.extract_test_info(line, root)
       return nil unless line =~ /^([^:]+):(\d+):(.*)/
 
+      # Capture all matches immediately before any string operations
+      # that might reset Regexp.last_match
+      full_path = Regexp.last_match(1)
+      line_number = Regexp.last_match(2)
+      content = Regexp.last_match(3)
+
       {
-        file: Regexp.last_match(1).sub("#{root}/", ''),
-        line: Regexp.last_match(2),
-        content: Regexp.last_match(3).strip,
-        full_path: Regexp.last_match(1)
+        file: full_path.sub("#{root}/", ''),
+        line: line_number,
+        content: content.strip,
+        full_path:
       }
     end
 
