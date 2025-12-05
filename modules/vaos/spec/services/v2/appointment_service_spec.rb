@@ -2307,7 +2307,7 @@ describe VAOS::V2::AppointmentsService do
       { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }],
         ien: '12345678', station: '983' }
     end
-    let(:avs_error_message) { 'Error retrieving AVS info' }
+    let(:avs_error) { 'Error retrieving AVS info' }
 
     context 'OH AVS PDF' do
       context 'when UHD Service successfully retrieved the AVS PDF' do
@@ -2324,7 +2324,7 @@ describe VAOS::V2::AppointmentsService do
             .and_raise(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to receive(:error)
           subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
-          expect(appt_cerner[:avs_error]).to eq(avs_error_message)
+          expect(appt_cerner[:avs_error]).to eq(avs_error)
           expect(appt_cerner[:avs_pdf]).to be_nil
           expect(appt_cerner[:avs_path]).to be_nil
         end
@@ -2356,7 +2356,7 @@ describe VAOS::V2::AppointmentsService do
             .and_raise(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to receive(:error)
           subject.send(:fetch_avs_and_update_appt_body, appt_vista)
-          expect(appt_vista[:avs_error]).to eq(avs_error_message)
+          expect(appt_vista[:avs_error]).to eq(avs_error)
           expect(appt_vista[:avs_path]).to be_nil
         end
       end

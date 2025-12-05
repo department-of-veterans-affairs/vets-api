@@ -758,6 +758,28 @@ RSpec.describe FormProfile, type: :model do
       }
     }
   end
+
+  let(:v21_2680_expected) do
+    { veteranInformation: {
+      veteranFullName: {
+        first: 'Abraham',
+        last: 'Lincoln',
+        suffix: 'Jr.'
+      },
+      veteranDob: '1809-02-12',
+      phoneNumber: '3035551234',
+      email: user.va_profile_email,
+      veteranAddress: {
+        street: '140 Rock Creek Rd',
+        city: 'Washington',
+        state: 'DC',
+        country: 'USA',
+        postalCode: '20011'
+      },
+      veteranSsn: '796111863'
+    } }
+  end
+
   let(:v26_1880_expected) do
     {
       'fullName' => {
@@ -2071,6 +2093,7 @@ RSpec.describe FormProfile, type: :model do
           26-4555
           21-22
           21-22A
+          21-2680
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do

@@ -42,13 +42,13 @@ module Mobile
 
       def get_unique_care_systems612_fix(all_recipients)
         unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
-        does_include612 = unique_care_system_ids.delete('612')
+        included_complex_systems = MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS.keys & unique_care_system_ids
+        unique_care_system_ids -= included_complex_systems
         care_system_map = map_care_systems(unique_care_system_ids)
-
-        if does_include612
+        included_complex_systems.each do |system_id|
           care_system_map << {
-            station_number: '612',
-            health_care_system_name: 'VA Northern California'
+            station_number: system_id,
+            health_care_system_name: MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS[system_id]
           }
         end
         care_system_map
