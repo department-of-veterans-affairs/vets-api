@@ -30,17 +30,27 @@
 #     end
 #   end
 #
+# Testing your provider implementation
+#   RSpec.describe MyClaimsProvider do
+#     let(:current_user) { create(:user) }
+#
+#     # This shared example enforces the BenefitsClaimsProvider interface contract
+#     it_behaves_like 'benefits claims provider'
+#
+#     # Then add your provider-specific tests
+#     describe '#get_claims' do
+#       it 'returns claims from my API' do
+#         # Your specific implementation tests
+#       end
+#     end
+#   end
+#
 # The new class MUST implement these methods to be a valid BenefitsClaimsProvider:
 # - get_claims: Returns an array of claims for the current user
 # - get_claim(id): Returns a single claim by its ID
 #
-# TODO:Create a standardized claim response structure that represents what VA.gov expects
-# (i.e. `lib/benefits_claims/responses/claim_response.rb`).
-
-# @see lib/benefits_claims/responses/claim_response.rb for the expected response structure (not yet created)
-# @see lib/claim_letters/providers/claim_letters/claim_letters_provider.rb for reference implementation
-#
 module BenefitsClaimsProvider
+
   # Retrieves all claims for the current user
   #
   # @return [Array<Hash>] Array of claim data transformed to ClaimResponse DTO format

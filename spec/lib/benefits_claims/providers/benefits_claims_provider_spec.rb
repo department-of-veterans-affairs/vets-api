@@ -1,25 +1,30 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'benefits_claims/providers/benefits_claims/benefits_claims/benefits_claims_provider'
+require 'benefits_claims/providers/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaimsProvider do
+  # Create a test class that includes the module
   let(:test_class) do
     Class.new do
       include BenefitsClaimsProvider
+
+      def initialize(_current_user); end
     end
   end
-  let(:provider) { test_class.new }
+  let(:current_user) { build(:user) }
+
+  it_behaves_like 'benefits claims provider'
 
   describe '#get_claims' do
     it 'raises NotImplementedError when not implemented' do
-      expect { provider.get_claims }.to raise_error(NotImplementedError)
+      expect { subject.get_claims }.to raise_error(NotImplementedError)
     end
   end
 
   describe '#get_claim' do
     it 'raises NotImplementedError when not implemented' do
-      expect { provider.get_claim('123456') }.to raise_error(NotImplementedError)
+      expect { subject.get_claim('123456') }.to raise_error(NotImplementedError)
     end
   end
 end
