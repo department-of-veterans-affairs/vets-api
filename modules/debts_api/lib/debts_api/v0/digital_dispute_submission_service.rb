@@ -36,6 +36,7 @@ module DebtsApi
 
         success_result(submission)
       rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.error("DigitalDisputeSubmissionService ActiveRecord error: #{e.message}")
         failure_result(e)
       rescue => e
         submission&.register_failure(e.message)
