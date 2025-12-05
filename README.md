@@ -1,6 +1,6 @@
 # Vets API
 
-This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
+This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs). Test
 
 
 [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api)
