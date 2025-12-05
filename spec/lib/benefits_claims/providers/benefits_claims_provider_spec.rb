@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'benefits_claims/providers/benefits_claims/benefits_claims_provider'
+require 'support/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaimsProvider do
   # Create a test class that includes the module
