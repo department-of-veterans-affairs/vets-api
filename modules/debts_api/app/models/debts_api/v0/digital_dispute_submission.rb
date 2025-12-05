@@ -60,9 +60,11 @@ module DebtsApi
 
       def register_failure(message)
         failed!
+        error_message = message.presence ||
+                        "An unknown error occurred while submitting from call_location: #{caller_locations&.first}"
+        Rails.logger.error("DigitalDisputeSubmission error_message: #{error_message}")
         update(
-          error_message: message.presence ||
-            "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+          error_message:
         )
         begin
           send_failure_email if Settings.vsp_environment == 'production' &&
