@@ -188,7 +188,7 @@ module AccreditedRepresentativePortal
       def ar_monitoring(with_organization:)
         org_tag = ("org:#{organization}" if with_organization && organization.present?)
 
-        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+        AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
           default_tags: [
             "controller:#{controller_name}",
