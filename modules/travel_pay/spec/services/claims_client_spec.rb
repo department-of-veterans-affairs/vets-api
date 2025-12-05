@@ -265,4 +265,118 @@ describe TravelPay::ClaimsClient do
               tags: ['travel_pay:submit'])
     end
   end
+
+  context 'v3 upgrade' do
+    context 'enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(true)
+        allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+      end
+
+      it 'upgrades /documents endpoint' do
+        claim_id = 'uuid1'
+        @stubs.post("/api/v3/claims/#{claim_id}/documents") do
+          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
+        end
+
+        client = TravelPay::ClaimsClient.new
+        response = client.upload_document('veis_token', 'btsss_token', claim_id, 'document_body')
+
+        expect(response.status).to eq(200)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:upload_document'])
+      end
+
+      it 'upgrades /documents/{documentId} endpoint' do
+        claim_id = 'uuid1'
+        document_id = 'doc-uuid'
+        @stubs.delete("/api/v3/claims/#{claim_id}/documents/#{document_id}") do
+          [200, {}, { 'success' => true }]
+        end
+
+        client = TravelPay::ClaimsClient.new
+        response = client.delete_document('veis_token', 'btsss_token', claim_id, document_id)
+
+        expect(response.status).to eq(200)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:delete_document'])
+      end
+
+      it 'upgrades /documents/form-data endpoint' do
+        claim_id = 'uuid1'
+        @stubs.post("/api/v3/claims/#{claim_id}/documents/form-data") do
+          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
+        end
+
+        client = TravelPay::ClaimsClient.new
+        response = client.upload_document_form_data('veis_token', 'btsss_token', claim_id, 'form_data')
+
+        expect(response.status).to eq(200)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:upload_document_form_data'])
+      end
+
+      it 'upgrades /claims endpoint' do
+        @stubs.post('/api/v3/claims') do
+          [200, {}, { 'data' => { 'claimId' => 'uuid1' } }]
+        end
+
+        client = TravelPay::ClaimsClient.new
+        body = { 'appointmentId' => 'appt-id', 'claimName' => 'Test', 'claimantType' => 'Veteran' }.to_json
+        response = client.create_claim('veis_token', 'btsss_token', body)
+
+        expect(response.status).to eq(200)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:create'])
+      end
+
+      it 'upgrades /claims/{claimId}/submit endpoint' do
+        claim_id = 'uuid1'
+        @stubs.patch("/api/v3/claims/#{claim_id}/submit") do
+          [200, {}, { 'success' => true }]
+        end
+
+        client = TravelPay::ClaimsClient.new
+        response = client.submit_claim('veis_token', 'btsss_token', claim_id)
+
+        expect(response.status).to eq(200)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:submit'])
+      end
+
+      it 'upgrades /claims/search-by-appointment-date endpoint' do
+        @stubs.get('/api/v3/claims/search-by-appointment-date') do
+          [200, {}, { 'data' => [{ 'id' => 'uuid1' }], 'totalRecordCount' => 1 }]
+        end
+
+        client = TravelPay::ClaimsClient.new
+        response = client.get_claims_by_date('veis_token', 'btsss_token',
+                                             { start_date: '2024-01-01', end_date: '2024-02-01',
+                                               page_number: 1, page_size: 50 })
+
+        expect(response.status).to eq(200)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:get_by_date'])
+      end
+    end
+
+    context 'disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+        allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+      end
+
+      it 'uses v2 /claims endpoint' do
+        @stubs.post('/api/v2/claims') do
+          [200, {}, { 'data' => { 'claimId' => 'uuid1' } }]
+        end
+
+        client = TravelPay::ClaimsClient.new
+        body = { 'appointmentId' => 'appt-id', 'claimName' => 'Test', 'claimantType' => 'Veteran' }.to_json
+        response = client.create_claim('veis_token', 'btsss_token', body)
+
+        expect(response.status).to eq(200)
+      end
+    end
+  end
 end
