@@ -3,12 +3,13 @@
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'persistent_attachments/sanitizer'
+require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 module IncreaseCompensation
   module V0
     ###
     # The Increase Compensation claim controller that handles form submissions
-    #
+
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
@@ -26,7 +27,7 @@ module IncreaseCompensation
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: SavedClaimSerializer.new(claim)
+        render json: IncreaseCompensation::SavedClaimSerializer.new(claim)
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -40,7 +41,9 @@ module IncreaseCompensation
         claim = claim_class.new(form: filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
 
-        in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
+        # Issue with 2 8940's in the api, frontend  calls to /in_progess_form/8940 but backend uses `8940V1`
+        in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id[..6], current_user) : nil
+
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
@@ -54,9 +57,12 @@ module IncreaseCompensation
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
-
+        # TODO: pdf url needed in response, s3 settings? settings.yml?
+        # config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new || nil
+        # pdf_url = SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(claim.guid, config:)
+        pdf_url = nil
         clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
+        render json: IncreaseCompensation::SavedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e

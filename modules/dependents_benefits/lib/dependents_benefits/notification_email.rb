@@ -108,7 +108,9 @@ module DependentsBenefits
       default = super
 
       submission_date = claim.submitted_at || Time.zone.today
-      first_name = @user_first_name || claim.parsed_form.dig('veteran_information', 'full_name', 'first')
+      vet_info = claim.parsed_form.dig('dependents_application', 'veteran_information') ||
+                 claim.parsed_form['veteran_information']
+      first_name = @user_first_name || vet_info&.dig('full_name', 'first')
       dependents = {
         'first_name' => first_name&.upcase&.presence,
         'date_submitted' => submission_date.strftime('%B %d, %Y'),

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'claims_evidence_api/uploader'
 require 'dependents_benefits/user_data'
 
-RSpec.describe DependentsBenefits::Sidekiq::Claims674Job, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job, type: :job do
   before do
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end

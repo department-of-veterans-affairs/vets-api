@@ -72,9 +72,9 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :form212680, only: [] do
+    resources :form212680, only: [:create] do
       collection do
-        post :download_pdf
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
       end
     end
 

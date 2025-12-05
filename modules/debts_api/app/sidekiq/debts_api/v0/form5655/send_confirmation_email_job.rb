@@ -2,6 +2,7 @@
 
 require 'debts_api/v0/financial_status_report_service'
 require 'debts_api/v0/digital_dispute_submission_service'
+require 'sidekiq/attr_package'
 
 module DebtsApi
   class V0::Form5655::SendConfirmationEmailJob
@@ -34,6 +35,9 @@ module DebtsApi
 
     def perform(args)
       submission_type = args['submission_type'] || 'fsr'
+      cache_key = args['cache_key']
+      pii = retrieve_pii(args, cache_key)
+
       submissions_data = find_submissions(args['user_uuid'], submission_type)
 
       if submissions_data.blank?
@@ -45,9 +49,11 @@ module DebtsApi
       end
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        args['email'], args['template_id'], email_personalization_info(args, submissions_data,
-                                                                       submission_type), { id_type: 'email' }
+        pii[:email], args['template_id'], email_personalization_info(pii, submissions_data,
+                                                                     submission_type), { id_type: 'email' }
       )
+
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue => e
       Rails.logger.error("DebtsApi::SendConfirmationEmailJob (#{submission_type}) - Error sending email: #{e.message}")
       raise e
@@ -55,15 +61,25 @@ module DebtsApi
 
     private
 
-    def email_personalization_info(args, submissions_data, submission_type)
+    def retrieve_pii(args, cache_key)
+      if cache_key
+        attributes = Sidekiq::AttrPackage.find(cache_key)
+        return { email: attributes[:email], first_name: attributes[:first_name] } if attributes
+      end
+
+      # Fallback for backward compatibility (FSR still passes PII directly)
+      { email: args['email'], first_name: args['first_name'] }
+    end
+
+    def email_personalization_info(pii, submissions_data, submission_type)
       confirmation_number = if submission_type == 'fsr'
                               submissions_data.map(&:id)
                             else
-                              submissions_data.id
+                              submissions_data.guid
                             end
 
       {
-        'first_name' => args['first_name'],
+        'first_name' => pii[:first_name],
         'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
         'confirmation_number' => confirmation_number
       }

@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 require 'dependents_benefits/claim_processor'
-require 'dependents_benefits/sidekiq/bgs_674_job'
-require 'dependents_benefits/sidekiq/bgs_686c_job'
-require 'dependents_benefits/sidekiq/claims_686c_job'
-require 'dependents_benefits/sidekiq/claims_674_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_674_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_686c_job'
+require 'dependents_benefits/sidekiq/claims_evidence/claims_686c_job'
+require 'dependents_benefits/sidekiq/claims_evidence/claims_674_job'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   let(:parent_claim) { create(:dependents_claim) }
@@ -34,18 +34,20 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '#enqueue_submissions' do
     before do
-      allow(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).and_return(true)
-      allow(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).and_return(true)
-      allow(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).and_return(true)
-      allow(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::BGS::BGS686cJob).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::BGS::BGS674Job).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims686cJob).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job).to receive(:perform_async).and_return(true)
       allow(processor).to receive(:collect_child_claims).and_return([form_686_claim, form_674_claim])
     end
 
     it 'processes claims' do
-      expect(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::BGS::BGS686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::BGS::BGS674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims686cJob)
+        .to receive(:perform_async).with(form_686_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job)
+        .to receive(:perform_async).with(form_674_claim.id, proc_id)
 
       result = processor.enqueue_submissions
 

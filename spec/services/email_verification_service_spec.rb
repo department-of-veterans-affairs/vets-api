@@ -15,8 +15,6 @@ RSpec.describe EmailVerificationService do
     allow(Settings.email_verification)
       .to receive(:jwt_secret)
       .and_return('test_jwt_secret')
-    $redis = MockRedis.new
-    $redis.flushdb
     stub_const('EmailVerificationJob', Class.new do
       def self.perform_async(*); end
     end)
