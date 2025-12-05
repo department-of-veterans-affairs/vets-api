@@ -496,5 +496,27 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
       params = subject.to_service_params
       expect(params['purchase_date']).to be_nil
     end
+
+    context 'with receipt' do
+      let(:receipt_data) { { file_name: 'receipt.pdf', content_type: 'application/pdf' } }
+
+      it 'includes receipt when present' do
+        subject.receipt = receipt_data
+        params = subject.to_service_params
+        expect(params['receipt']).to eq(receipt_data)
+      end
+
+      it 'excludes receipt when nil' do
+        subject.receipt = nil
+        params = subject.to_service_params
+        expect(params).not_to have_key('receipt')
+      end
+
+      it 'excludes receipt when blank' do
+        subject.receipt = ''
+        params = subject.to_service_params
+        expect(params).not_to have_key('receipt')
+      end
+    end
   end
 end

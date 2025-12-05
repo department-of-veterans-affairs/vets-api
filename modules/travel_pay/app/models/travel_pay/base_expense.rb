@@ -90,6 +90,7 @@ module TravelPay
         'cost_requested' => cost_requested
       }
       params['claim_id'] = claim_id if claim_id.present?
+      params['receipt'] = receipt if receipt.present?
       params
     end
 
