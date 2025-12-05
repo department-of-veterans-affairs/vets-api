@@ -5,8 +5,6 @@ require 'benefits_claims/providers/benefits_claims/benefits_claims_provider'
 require 'support/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaimsProvider do
-  subject { test_class.new(current_user) }
-
   let(:test_class) do
     Class.new do
       include BenefitsClaimsProvider
@@ -15,6 +13,7 @@ RSpec.describe BenefitsClaimsProvider do
     end
   end
   let(:current_user) { build(:user) }
+  subject { test_class.new(current_user) }
 
   it_behaves_like 'benefits claims provider'
 
