@@ -3,6 +3,7 @@
 module Burials
   # Formatter for converting burial form data into BPDS compatible format.
   module BPDS
+    # Formatter class for transforming burial claim form data into BPDS-compatible format.
     class Formatter
       # Initializes a new Formatter instance with a parsed burial form.
       #
