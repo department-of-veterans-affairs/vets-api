@@ -5,14 +5,15 @@ require_relative 'facility_name_resolver'
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
-      # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
+      # Parse Oracle Health FHIR resource into Prescription
+      # Returns raw prescription with ORIGINAL status - V2 mapping happens at PrescriptionsAdapter level
       #
-      # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
+      # @param resource [FHIR::MedicationRequest] Oracle Health FHIR resource
       # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
       def parse(resource)
-        return nil if resource.nil? || resource['id'].nil?
+        return nil unless resource&.id
 
-        UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
+        build_prescription(resource)
       rescue => e
         Rails.logger.error("Error parsing Oracle Health prescription: #{e.message}")
         nil
@@ -20,7 +21,7 @@ module UnifiedHealthData
 
       private
 
-      def build_prescription_attributes(resource)
+      def build_prescription(resource)
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
 
@@ -188,10 +189,11 @@ module UnifiedHealthData
 
       # Maps refill_status to user-friendly disp_status for display
       # When disp_status is nil (UHD service), derive it from refill_status
+      # NOTE: This produces ORIGINAL statuses. For V2 statuses, use apply_v2_status_mapping
       #
       # @param refill_status [String] Internal refill status code
       # @param prescription_source [String] Source of prescription (VA, NV, etc.)
-      # @return [String] User-friendly display status
+      # @return [String] User-friendly display status (original format)
       def map_refill_status_to_disp_status(refill_status, prescription_source)
         # Special case: active + Non-VA source
         return 'Active: Non-VA' if refill_status == 'active' && prescription_source == 'NV'
