@@ -80,7 +80,7 @@
     "parent": "Boolean",
     "executor": "Boolean",
     "funeralHome": "Boolean",
-	"relativeOrFriend": "Boolean"
+      "relativeOrFriend": "Boolean"
   },
   "periodsOfService":
   [
