@@ -26,7 +26,6 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:travel_pay_client_id) { 'fake_client_id' }
   let(:travel_pay_client_secret) { 'fake_client_secret' }
   let(:travel_pay_client_secret_oh) { 'fake_client_secret_oh' }
-  let(:scope) { 'fake_scope' }
   let(:travel_pay_resource) { 'fake_resource' }
   let(:claims_url_v2) { 'https://dev.integration.d365.va.gov' }
   let(:subscription_key) { 'sub-key' }
@@ -112,7 +111,6 @@ RSpec.describe TravelClaim::TravelPayClient do
                     tenant_id:,
                     travel_pay_client_id:,
                     travel_pay_client_secret:,
-                    scope:,
                     travel_pay_resource:) do
         VCR.use_cassette('check_in/travel_claim/veis_token_200') do
           result = client.veis_token_request
@@ -856,7 +854,6 @@ RSpec.describe TravelClaim::TravelPayClient do
                       tenant_id:,
                       travel_pay_client_id:,
                       travel_pay_client_secret:,
-                      scope:,
                       travel_pay_resource:) do
           VCR.use_cassette('check_in/travel_claim/veis_token_200') do
             # Redis client should be nil before token operations
