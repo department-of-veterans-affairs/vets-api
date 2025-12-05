@@ -130,15 +130,15 @@
     "blockNumber": "17",
     "yes": "Boolean",
     "no": "Boolean",
-	"cemeteryName": "String"
+      "cemeteryName": "String"
   },
   "veteranBuriedInStateVeteransCemetery": {
     "blockNumber": "18",
     "stateCemetery": "Boolean",
-	"tribalTrustLand": "Boolean",
+      "tribalTrustLand": "Boolean",
     "no": "Boolean",
-	"name": "String",
-	"zipCode": "String"
+      "name": "String",
+      "zipCode": "String"
   },
   "federalOrStateGovernmentOrEmployerContribute": {
     "blockNumber": "19A",
