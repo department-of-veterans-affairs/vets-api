@@ -85,6 +85,8 @@ module VANotify
       tags
     end
 
+    private
+
     # Log malformed request (400 error) with template context
     def log_malformed_request(error)
       template_id = @template_id || 'unknown'
