@@ -8,82 +8,152 @@ RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
   let(:use_v2_statuses) { false }
 
-  describe '#combine_prescriptions' do
-    let(:oracle_resource) do
-      double('FHIR::MedicationRequest',
-             id: '12345',
-             status: 'active',
-             medicationCodeableConcept: double(text: 'Test Med'))
+  describe '#parse' do
+    let(:oracle_record) do
+      {
+        'source' => 'oracle-health',
+        'resource' => {
+          'resourceType' => 'MedicationRequest',
+          'id' => '12345',
+          'status' => 'active',
+          'medicationCodeableConcept' => { 'text' => 'Test Med' }
+        }
+      }
     end
 
-    let(:vista_prescription) do
-      OpenStruct.new(
-        prescription_id: '67890',
-        disp_status: 'Expired',
-        prescription_name: 'VistA Med'
-      )
+    let(:vista_record) do
+      {
+        'source' => 'vista',
+        'resource' => {
+          'id' => '67890',
+          'prescription_id' => '67890',
+          'disp_status' => 'Expired',
+          'prescription_name' => 'VistA Med'
+        }
+      }
     end
 
-    context 'with use_v2_statuses: false' do
+    context 'with use_v2_statuses: false (cerner_pilot feature flag disabled)' do
       let(:use_v2_statuses) { false }
 
       it 'preserves original status values' do
         allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
-          .to receive(:parse).and_return(OpenStruct.new(disp_status: 'Active'))
+          .to receive(:parse).and_return({ disp_status: 'Active' })
 
-        result = adapter.combine_prescriptions(
-          oracle_resources: [oracle_resource],
-          vista_prescriptions: [vista_prescription]
-        )
+        result = adapter.parse([oracle_record, vista_record])
 
-        expect(result[0].disp_status).to eq('Active')
-        expect(result[1].disp_status).to eq('Expired')
+        expect(result[0][:disp_status]).to eq('Active')
+        expect(result[1][:disp_status]).to eq('Expired')
       end
     end
 
-    context 'with use_v2_statuses: true' do
+    context 'with use_v2_statuses: true (cerner_pilot feature flag enabled)' do
       let(:use_v2_statuses) { true }
 
       it 'applies V2 status mapping to all prescriptions' do
         allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
           .to receive(:parse).and_return(OpenStruct.new(disp_status: 'Active: Refill in Process'))
 
-        result = adapter.combine_prescriptions(
-          oracle_resources: [oracle_resource],
-          vista_prescriptions: [vista_prescription]
-        )
+        vista_record_with_expired = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '67890',
+            'prescription_id' => '67890',
+            'disp_status' => 'Expired',
+            'prescription_name' => 'VistA Med'
+          }
+        }
+
+        result = adapter.parse([oracle_record, vista_record_with_expired])
 
         expect(result[0].disp_status).to eq('In progress')
-        expect(result[1].disp_status).to eq('Inactive')
+        expect(result[1][:disp_status]).to eq('Inactive')
       end
 
       it 'applies V2 status mapping consistently to combined prescriptions' do
-        # Test that both Oracle and VistA prescriptions get mapped in a single pass
         oracle_rx = OpenStruct.new(disp_status: 'Active: Submitted')
-        vista_rx = OpenStruct.new(
-          prescription_id: '67890',
-          disp_status: 'Discontinued',
-          prescription_name: 'VistA Med'
-        )
+
+        vista_record_with_discontinued = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '67890',
+            'prescription_id' => '67890',
+            'disp_status' => 'Discontinued',
+            'prescription_name' => 'VistA Med'
+          }
+        }
 
         allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
           .to receive(:parse).and_return(oracle_rx)
 
-        result = adapter.combine_prescriptions(
-          oracle_resources: [oracle_resource],
-          vista_prescriptions: [vista_rx]
-        )
+        result = adapter.parse([oracle_record, vista_record_with_discontinued])
 
         # Verify all prescriptions have V2 statuses (proves mapping was applied)
+        v2_statuses = ['Active', 'In progress', 'Inactive', 'Transferred', 'Status not available']
         result.each do |rx|
-          expect(rx.disp_status).to be_in(
-            ['Active', 'In progress', 'Inactive', 'Transferred', 'Status not available']
-          )
+          status = rx.respond_to?(:disp_status) ? rx.disp_status : rx[:disp_status]
+          expect(status).to be_in(v2_statuses)
         end
 
         # Verify specific mappings
         expect(result[0].disp_status).to eq('In progress')  # Active: Submitted → In progress
-        expect(result[1].disp_status).to eq('Inactive')     # Discontinued → Inactive
+        expect(result[1][:disp_status]).to eq('Inactive')   # Discontinued → Inactive
+      end
+    end
+
+    context 'with current_only filtering' do
+      let(:use_v2_statuses) { false }
+
+      it 'filters out old discontinued prescriptions when current_only is true' do
+        old_discontinued_record = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '11111',
+            'disp_status' => 'Discontinued',
+            'ordered_date' => 1.year.ago.iso8601
+          }
+        }
+
+        recent_discontinued_record = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '22222',
+            'disp_status' => 'Discontinued',
+            'ordered_date' => 30.days.ago.iso8601
+          }
+        }
+
+        active_record = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '33333',
+            'disp_status' => 'Active',
+            'ordered_date' => 1.year.ago.iso8601
+          }
+        }
+
+        result = adapter.parse(
+          [old_discontinued_record, recent_discontinued_record, active_record],
+          current_only: true
+        )
+
+        expect(result.length).to eq(2)
+        expect(result.map { |rx| rx[:id] }).to contain_exactly('22222', '33333')
+      end
+
+      it 'returns all prescriptions when current_only is false' do
+        old_discontinued_record = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '11111',
+            'disp_status' => 'Discontinued',
+            'ordered_date' => 1.year.ago.iso8601
+          }
+        }
+
+        result = adapter.parse([old_discontinued_record], current_only: false)
+
+        expect(result.length).to eq(1)
       end
     end
   end
@@ -159,38 +229,53 @@ RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
     end
   end
 
-  describe '#combine_prescriptions edge cases' do
+  describe '#parse edge cases' do
+    let(:oracle_record) do
+      {
+        'source' => 'oracle-health',
+        'resource' => {
+          'resourceType' => 'MedicationRequest',
+          'id' => '12345',
+          'status' => 'active',
+          'medicationCodeableConcept' => { 'text' => 'Test Med' }
+        }
+      }
+    end
+
+    let(:vista_record) do
+      {
+        'source' => 'vista',
+        'resource' => {
+          'id' => '67890',
+          'prescription_id' => '67890',
+          'disp_status' => 'Expired',
+          'prescription_name' => 'VistA Med'
+        }
+      }
+    end
+
     context 'with empty inputs' do
-      it 'handles empty oracle_resources' do
-        result = adapter.combine_prescriptions(
-          oracle_resources: [],
-          vista_prescriptions: [vista_prescription]
-        )
-
-        expect(result.length).to eq(1)
-        expect(result[0].disp_status).to eq('Expired')
-      end
-
-      it 'handles empty vista_prescriptions' do
-        allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
-          .to receive(:parse).and_return(OpenStruct.new(disp_status: 'Active'))
-
-        result = adapter.combine_prescriptions(
-          oracle_resources: [oracle_resource],
-          vista_prescriptions: []
-        )
-
-        expect(result.length).to eq(1)
-        expect(result[0].disp_status).to eq('Active')
-      end
-
-      it 'handles both inputs empty' do
-        result = adapter.combine_prescriptions(
-          oracle_resources: [],
-          vista_prescriptions: []
-        )
+      it 'handles empty combined_records' do
+        result = adapter.parse([])
 
         expect(result).to be_empty
+      end
+
+      it 'handles only oracle records' do
+        allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
+          .to receive(:parse).and_return({ disp_status: 'Active' })
+
+        result = adapter.parse([oracle_record])
+
+        expect(result.length).to eq(1)
+        expect(result[0][:disp_status]).to eq('Active')
+      end
+
+      it 'handles only vista records' do
+        result = adapter.parse([vista_record])
+
+        expect(result.length).to eq(1)
+        expect(result[0][:disp_status]).to eq('Expired')
       end
     end
 
@@ -199,14 +284,11 @@ RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
       it 'handles prescription with nil disp_status' do
         allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
-          .to receive(:parse).and_return(OpenStruct.new(disp_status: nil))
+          .to receive(:parse).and_return({ disp_status: nil })
 
-        result = adapter.combine_prescriptions(
-          oracle_resources: [oracle_resource],
-          vista_prescriptions: []
-        )
+        result = adapter.parse([oracle_record])
 
-        # Should not raise error, status remains nil or gets default
+        # Should not raise error
         expect(result.length).to eq(1)
       end
     end
@@ -215,18 +297,18 @@ RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       let(:use_v2_statuses) { true }
 
       it 'maps unmapped status to "Status not available"' do
-        vista_rx_with_unknown = OpenStruct.new(
-          prescription_id: '99999',
-          disp_status: 'SomeRandomStatus',
-          prescription_name: 'Unknown Med'
-        )
+        vista_record_with_unknown = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '99999',
+            'disp_status' => 'SomeRandomStatus',
+            'prescription_name' => 'Unknown Med'
+          }
+        }
 
-        result = adapter.combine_prescriptions(
-          oracle_resources: [],
-          vista_prescriptions: [vista_rx_with_unknown]
-        )
+        result = adapter.parse([vista_record_with_unknown])
 
-        expect(result[0].disp_status).to eq('Status not available')
+        expect(result[0][:disp_status]).to eq('Status not available')
       end
     end
   end
@@ -251,6 +333,8 @@ RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
   end
 
   describe 'all V2 status mappings' do
+    # V2 status mapping is only applied when cerner_pilot feature flag is enabled,
+    # which sets use_v2_statuses: true when initializing the adapter
     let(:use_v2_statuses) { true }
 
     # Test each original status maps to correct V2 status
@@ -267,18 +351,18 @@ RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'Unknown' => 'Status not available'
     }.each do |original_status, expected_v2_status|
       it "maps '#{original_status}' to '#{expected_v2_status}'" do
-        vista_rx = OpenStruct.new(
-          prescription_id: '12345',
-          disp_status: original_status,
-          prescription_name: 'Test Med'
-        )
+        vista_record = {
+          'source' => 'vista',
+          'resource' => {
+            'id' => '12345',
+            'disp_status' => original_status,
+            'prescription_name' => 'Test Med'
+          }
+        }
 
-        result = adapter.combine_prescriptions(
-          oracle_resources: [],
-          vista_prescriptions: [vista_rx]
-        )
+        result = adapter.parse([vista_record])
 
-        expect(result[0].disp_status).to eq(expected_v2_status)
+        expect(result[0][:disp_status]).to eq(expected_v2_status)
       end
     end
   end

@@ -77,14 +77,26 @@ module UnifiedHealthData
     #   Defaults to false to return all prescriptions without filtering
     # @return [Array<UnifiedHealthData::Prescription>] Array of prescription objects
     def get_prescriptions(current_only: false)
-      oracle_resources = fetch_oracle_health_prescriptions
-      vista_prescriptions = fetch_vista_prescriptions(current_only:)
+      with_monitoring do
+        start_date = default_start_date
+        end_date = default_end_date
+        response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
 
-      # V2 status mapping happens inside the adapter - SINGLE POINT
-      @prescriptions_adapter.combine_prescriptions(
-        oracle_resources:,
-        vista_prescriptions:
-      )
+        combined_records = fetch_combined_records(body)
+
+        # V2 status mapping happens inside the adapter - SINGLE POINT
+        prescriptions = @prescriptions_adapter.parse(combined_records, current_only:)
+
+        Rails.logger.info(
+          message: 'UHD prescriptions retrieved',
+          total_prescriptions: prescriptions.size,
+          current_filtering_applied: current_only,
+          service: 'unified_health_data'
+        )
+
+        prescriptions
+      end
     end
 
     def refill_prescription(orders)

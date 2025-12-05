@@ -34,12 +34,13 @@ module UnifiedHealthData
       # @param prescription [Object] A prescription object with disp_status attribute
       # @return [Object] Prescription with disp_status mapped to V2 value
       def apply_v2_status_mapping(prescription)
-        return prescription unless prescription.respond_to?(:disp_status) && prescription.disp_status.present?
+        return prescription unless prescription
 
-        original_status = prescription.disp_status
-        v2_status = map_to_v2_status(original_status)
+        current_status = get_disp_status(prescription)
+        return prescription if current_status.blank?
 
-        prescription.disp_status = v2_status if v2_status && prescription.respond_to?(:disp_status=)
+        v2_status = map_to_v2_status(current_status)
+        set_disp_status(prescription, v2_status)
 
         prescription
       end
@@ -60,6 +61,8 @@ module UnifiedHealthData
       # @param v2_status [String] V2 status value (e.g., 'Inactive')
       # @return [Array<String>] Array of original status values that map to this V2 status
       def original_statuses_for_v2_status(v2_status)
+        return [] if v2_status.blank?
+
         V2_STATUS_GROUPS[v2_status] || []
       end
 
@@ -68,7 +71,30 @@ module UnifiedHealthData
       # @param prescriptions [Array] Array of prescription objects
       # @return [Array] Array of prescriptions with V2 status mapping applied
       def apply_v2_status_mapping_to_collection(prescriptions)
-        prescriptions.map { |rx| apply_v2_status_mapping(rx) }
+        return prescriptions if prescriptions.blank?
+
+        prescriptions.each { |prescription| apply_v2_status_mapping(prescription) }
+        prescriptions
+      end
+
+      private
+
+      # Gets the disp_status from a prescription (handles Hash and OpenStruct)
+      def get_disp_status(prescription)
+        if prescription.is_a?(Hash)
+          prescription[:disp_status]
+        elsif prescription.respond_to?(:disp_status)
+          prescription.disp_status
+        end
+      end
+
+      # Sets the disp_status on a prescription (handles Hash and OpenStruct)
+      def set_disp_status(prescription, status)
+        if prescription.is_a?(Hash)
+          prescription[:disp_status] = status
+        elsif prescription.respond_to?(:disp_status=)
+          prescription.disp_status = status
+        end
       end
     end
   end

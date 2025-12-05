@@ -84,15 +84,12 @@ module MyHealth
       def list_refillable_prescriptions
         return unless validate_feature_flag
 
+        # Service returns prescriptions with V2 status mapping already applied when cerner_pilot is enabled
         prescriptions = service.get_prescriptions(current_only: false).compact
         recently_requested = get_recently_requested_prescriptions(prescriptions)
         refillable_prescriptions = filter_data_by_refill_and_renew(prescriptions)
 
-        # Map to V2 statuses when Cerner pilot is enabled
-        if cerner_pilot_enabled?
-          refillable_prescriptions = map_to_v2_statuses(refillable_prescriptions)
-          recently_requested = map_to_v2_statuses(recently_requested)
-        end
+        # V2 status mapping is handled by the service when cerner_pilot feature flag is enabled
 
         records, options = build_paginated_response(refillable_prescriptions,
                                                     { recently_requested: })
@@ -101,9 +98,16 @@ module MyHealth
 
       private
 
+      # V2 status mapping is controlled by the cerner_pilot feature flag.
+      # When enabled, prescriptions display simplified V2 statuses (Active, In progress, Inactive, etc.)
+      # instead of the original granular statuses (Active: Refill in Process, Expired, etc.)
+      def cerner_pilot_enabled?
+        Flipper.enabled?(:mhv_medications_display_cerner_pilot, @current_user)
+      end
+
       def service
-        # V2 controller always uses V2 statuses
-        @service ||= UnifiedHealthData::Service.new(@current_user, use_v2_statuses: true)
+        # V2 controller uses V2 statuses when cerner_pilot feature flag is enabled
+        @service ||= UnifiedHealthData::Service.new(@current_user, use_v2_statuses: cerner_pilot_enabled?)
       end
 
       def orders
@@ -148,13 +152,13 @@ module MyHealth
             prescriptions.select(&method(:renewable))
           else
             filters = disp_status[:eq].split(',').map(&:strip)
-            # Map V2 filter values to original status values for filtering
-            # V2 controller always has cerner_pilot enabled (enforced by validate_feature_flag)
-            original_filters = map_v2_filters_to_original(filters)
 
+            # When cerner_pilot is enabled, prescriptions already have V2 statuses
+            # When disabled, prescriptions have original statuses
+            # In both cases, we filter by matching the disp_status value
             prescriptions.select do |item|
               item.respond_to?(:disp_status) && item.disp_status &&
-                original_filters.include?(item.disp_status.downcase)
+                filters.any? { |f| item.disp_status.downcase == f.downcase }
             end
           end
         else
