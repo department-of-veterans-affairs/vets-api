@@ -12,7 +12,6 @@ RSpec.describe TravelClaim::TokenClient do
       tenant_id: 'tenant-123',
       travel_pay_client_id: 'client-id',
       travel_pay_client_secret: 'super-secret-123',
-      scope: 'scope.read',
       claims_url_v2: 'https://claims.example.test',
       service_name: 'check-in-travel-pay',
       mock: false,

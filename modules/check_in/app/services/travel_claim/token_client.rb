@@ -37,7 +37,6 @@ module TravelClaim
       body = URI.encode_www_form({
                                    client_id: settings.travel_pay_client_id,
                                    client_secret: settings.travel_pay_client_secret,
-                                   scope: settings.scope,
                                    grant_type: GRANT_TYPE
                                  })
 
