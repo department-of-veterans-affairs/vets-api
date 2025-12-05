@@ -107,7 +107,7 @@ module UnifiedHealthData
       end
 
       def build_dispenses_information(medication)
-        rf_records = medication['rxRFRecords'] || []
+        rf_records = medication.dig('rxRFRecords', 'rfRecord') || []
         return [] unless rf_records.is_a?(Array)
 
         rf_records.filter_map do |record|
@@ -120,8 +120,9 @@ module UnifiedHealthData
       def build_dispense_attributes(record)
         {
           status: record['refillStatus'],
+          dispensed_date: convert_to_iso8601(record['dispensedDate'], field_name: 'dispensed_date'),
           refill_date: convert_to_iso8601(record['refillDate'], field_name: 'refill_date'),
-          facility_name: record['facilityName'],
+          facility_name: record['facilityApiName'].presence || record['facilityName'],
           instructions: record['sig'],
           quantity: record['quantity'],
           medication_name: record['prescriptionName'],

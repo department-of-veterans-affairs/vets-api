@@ -80,7 +80,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and raises exception' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
         expect { subject.token }.to raise_exception(exception)
       end
     end
@@ -94,7 +94,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and raises exception' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
         expect { subject.token }.to raise_exception(exception)
       end
     end
@@ -132,7 +132,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
         expect(response.status).to eq(resp.status)
@@ -154,7 +154,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
         expect(response.status).to eq(resp.status)
@@ -171,7 +171,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
         expect(response.status).to eq(resp.status)
@@ -188,7 +188,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and raises exception' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
         expect(response.status).to eq(resp.status)
@@ -254,7 +254,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
         expect(response.status).to eq(resp.status)
@@ -315,7 +315,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim_v2(token, opts)
         expect(response.status).to eq(resp.status)
@@ -337,7 +337,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim_v2(token, opts)
         expect(response.status).to eq(resp.status)
@@ -354,7 +354,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim_v2(token, opts)
         expect(response.status).to eq(resp.status)
@@ -371,7 +371,7 @@ describe TravelClaim::Client do
       end
 
       it 'logs message and raises exception' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim_v2(token, opts)
         expect(response.status).to eq(resp.status)

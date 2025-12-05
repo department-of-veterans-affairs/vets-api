@@ -72,9 +72,9 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :form212680, only: [] do
+    resources :form212680, only: [:create] do
       collection do
-        post :download_pdf
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -401,7 +401,7 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
-    resources :medical_copays, only: %i[index]
+    resources :medical_copays, only: %i[index show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -443,6 +443,7 @@ Rails.application.routes.draw do
   mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
+  mount Vass::Engine, at: '/vass'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   mount DecisionReviews::Engine, at: '/decision_reviews'

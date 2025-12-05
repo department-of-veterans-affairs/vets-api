@@ -18,7 +18,7 @@ module VBADocuments
       end
       zip_file_name = "/tmp/#{submission.guid}.zip"
 
-      Zip::File.open(zip_file_name, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_name, create: true) do |zipfile|
         files.each do |file|
           zipfile.add(file[:name], file[:path])
         end
