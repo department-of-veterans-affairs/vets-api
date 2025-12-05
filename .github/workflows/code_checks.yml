@@ -419,7 +419,7 @@ jobs:
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "Critical: Vets-API Coverage Below 90% - Deployment Blocked"
+          message: "Critical: Vets-API Testing Coverage Below 90% - Deployment Blocked"
           blocks: |
             [
               { "type": "divider" },
@@ -427,7 +427,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":rotating_light: *CRITICAL: TEST COVERAGE TOO LOW* :rotating_light:\n\n*Vets-API deployment is BLOCKED until coverage reaches at least 90%*\n\n:chart_with_downwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:dart: *Required Minimum:* 90%\n :x: *Status:* Deployment Blocked\n\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n :writing_hand: *Action Required:* Add tests to reach 90% coverage before merge."
+                  "text": ":rotating_light: *CRITICAL: TEST COVERAGE TOO LOW* :rotating_light:\n\n*Vets-API deployment is BLOCKED until coverage reaches at least 90%*\n\n:chart_with_downwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:dart: *Required Minimum:* 90%\n :x: *Status:* Deployment Blocked\n\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n :writing_hand: *Action Required:* Increase test coverage to 90% to unblock deployment. \n How to Export Coverage Report Instructions:\n 1.Go to <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n 2. In the Artifacts section, click Coverage Report to download it.\n 3. After downloading, open the Coverage Report ZIP file (it will extract into a folder).\n 4. Open the extracted Coverage Report folder.\n 5.Inside the folder, double-click index.html to view the full coverage report."
                 }
               },
               { "type": "divider" }
@@ -435,12 +435,12 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Slack notify - low coverage warning
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 92
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "Warning: Vets-API Coverage Below Target"
+          message: "Warning: Vets-API Testing Coverage Below 92%"
           blocks: |
             [
               { "type": "divider" },
@@ -448,7 +448,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":warning: *Warning: Vets-API Coverage Below Target* :warning:\n\n:chart_with_upwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:white_check_mark: *Minimum Required:* 90% (MET)\n:star: *Target Coverage:* 90%+\n:large_green_circle: *Status:* Deployment Allowed\n\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n:bulb: *Recommendation:* Consider adding more tests to improve coverage."
+                  "text": ":warning: *Warning: Vets-API Coverage Below Target* :warning:\n\n:chart_with_upwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:white_check_mark: *Minimum Required:* 90% (MET)\n:star: *Target Coverage:* 90%+\n:large_green_circle: *Status:* Deployment Allowed\n\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n:bulb: *Recommendation:* Consider adding more tests to improve coverage.\n How to Export Coverage Report Instructions:\n 1.Go to <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n 2. In the Artifacts section, click Coverage Report to download it.\n 3. After downloading, open the Coverage Report ZIP file (it will extract into a folder).\n 4. Open the extracted Coverage Report folder.\n 5.Inside the folder, double-click index.html to view the full coverage report."
                 }
               },
               { "type": "divider" }
@@ -456,7 +456,7 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90 }}
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -469,7 +469,7 @@ jobs:
               Once coverage is improved, push another commit or rerun the workflow to update this report.
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && ${{ github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 93 && fromJSON(steps.coverage.outputs.percent) > 91 }}
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 92
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
