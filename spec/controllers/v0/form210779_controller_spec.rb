@@ -73,7 +73,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
     context 'InProgressForm cleanup' do
       let(:user) { create(:user, :loa3) }
-      let!(:in_progress_form) { create(:in_progress_form, form_id: form_id, user_account: user.user_account) }
+      let!(:in_progress_form) { create(:in_progress_form, form_id:, user_account: user.user_account) }
 
       before do
         sign_in_as(user)
