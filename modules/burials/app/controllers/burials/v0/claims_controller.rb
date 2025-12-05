@@ -3,6 +3,7 @@
 require 'burials/benefits_intake/submit_claim_job'
 require 'burials/monitor'
 require 'common/exceptions/validation_errors'
+require 'bpds/submission_handler'
 require 'persistent_attachments/sanitizer'
 
 module Burials
@@ -11,6 +12,8 @@ module Burials
     # The Burial claim controller that handles form submissions
     #
     class ClaimsController < ApplicationController
+      include BPDS::SubmissionHandler
+
       skip_before_action(:authenticate)
       before_action :load_user, only: :create
 
@@ -53,6 +56,9 @@ module Burials
           log_validation_error_to_metadata(in_progress_form, claim)
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
+
+        # See BPDS::SubmissionHandler
+        submit_claim_to_bpds(claim) if Flipper.enabled?(:burial_bpds_service_enabled)
 
         process_attachments(in_progress_form, claim)
 

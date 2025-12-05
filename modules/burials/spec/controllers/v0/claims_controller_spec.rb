@@ -3,6 +3,9 @@
 require 'rails_helper'
 require 'burials/monitor'
 require 'support/controller_spec_helper'
+require 'bpds/sidekiq/submit_to_bpds_job'
+require 'bpds/monitor'
+require 'bpds/submission'
 
 RSpec.describe Burials::V0::ClaimsController, type: :request do
   let(:monitor) { double('Burials::Monitor') }
