@@ -11,7 +11,7 @@
   "form1[0].#subform[0].EmailAddress[0]":                                "<%= form.data.dig('applicant_email_address') %>",
   "form1[0].#subform[0].Phone2[0]":                                      "<%= form.data.dig('applicant_phone') %>",
   "form1[0].#subform[0].NewAddressBox-1[0]":                             "<%= form.data.dig('applicant_new_address') != 'no' ? 1 : 0 %>",
-  "form1[0].#subform[0].applicantSexRadioButtons2[0]":                   "<%= form.data.dig('applicant_gender', 'gender') == 'male' ? 0 : 1 %>",
+  "form1[0].#subform[0].applicantSexRadioButtons2[0]":                   "<%= (form.data['applicant_gender'].is_a?(Hash) ? form.data.dig('applicant_gender', 'gender') : form.data['applicant_gender']) == 'male' ? 0 : 1 %>",
   "form1[0].#subform[0].PartARadioButtonList[0]":                        "<%= form.data.dig('medicare').blank? ? nil : ['a', 'ab', 'c'].include?(form.data.dig('medicare', 0, 'medicare_plan_type')) ? 0 : 1 %>",
   "form1[0].#subform[0].EffectiveDateA[0]":                              "<%= form.data.dig('medicare', 0, 'medicare_part_a_effective_date') %>",
   "form1[0].#subform[0].PartBRadioButtonList[0]":                        "<%= form.data.dig('medicare').blank? ? nil : ['ab', 'c'].include?(form.data.dig('medicare', 0, 'medicare_plan_type')) ? 0 : 1 %>",
