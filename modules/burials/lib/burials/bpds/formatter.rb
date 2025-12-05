@@ -238,7 +238,7 @@ module Burials
         first_name = previous_names.first
         return nil unless first_name
 
-        full_name = "#{first_name['first']} #{first_name['middle']} #{first_name['last']}".strip
+        full_name = [first_name['first'], first_name['middle'], first_name['last']].compact.join(' ')
         service_info = first_name['serviceBranch']
 
         {
