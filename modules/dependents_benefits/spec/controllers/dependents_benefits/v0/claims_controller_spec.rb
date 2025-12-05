@@ -96,7 +96,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
 
       it 'calls ClaimProcessor with correct parameters' do
-        expect(DependentsBenefits::ClaimProcessor).to receive(:create_proc_forms)
+        expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
           .with(a_kind_of(Integer))
 
         post(:create, params: test_form, as: :json)

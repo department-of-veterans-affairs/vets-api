@@ -119,7 +119,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
       it 'performs all success operations within transaction' do
         expect(job).to receive(:mark_parent_group_processing)
-        expect(job).to receive(:mark_submission_succeeded)
+        expect(job).to receive(:mark_submission_attempt_succeeded)
         expect(ActiveRecord::Base).to receive(:transaction).and_yield
         expect(failed_parent_group).to receive(:with_lock).and_yield
         job.handle_job_success
@@ -131,7 +131,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
       before do
         allow(job).to receive(:monitor).and_return(monitor_instance)
-        allow(job).to receive(:mark_submission_succeeded).and_raise(test_error)
+        allow(job).to receive(:mark_submission_attempt_succeeded).and_raise(test_error)
         job.instance_variable_set(:@claim_id, parent_claim.id)
       end
 

@@ -62,9 +62,8 @@ module DependentsBenefits
                                  parent_claim_id: claim.id, claim_id: claim.id,
                                  user_account_uuid: current_user&.user_account_uuid)
 
-        # Enqueue all proc jobs for the created claim.
-        # Success triggers further submission jobs.
-        DependentsBenefits::ClaimProcessor.create_proc_forms(claim.id)
+        # Enqueue all submission jobs for the created claim.
+        DependentsBenefits::ClaimProcessor.enqueue_submissions(claim.id)
 
         render json: SavedClaimSerializer.new(claim)
       end
