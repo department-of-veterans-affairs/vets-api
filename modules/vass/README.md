@@ -152,6 +152,65 @@ bundle exec rspec spec/services/vass/appointments_service_spec.rb
 
 ## Error Handling
 
+### Non-Standard Error Responses
+
+**IMPORTANT**: The VASS API uses a non-standard error handling pattern. Most endpoints return **HTTP 200 for both successful and error responses**. Errors are indicated by a `"success": false` field in the JSON response body rather than proper HTTP status codes.
+
+#### Error Response Format
+
+```json
+{
+  "success": false,
+  "message": "Provided veteranId does not have a valid GUID format",
+  "data": null,
+  "correlationId": "req123",
+  "timeStamp": "2025-12-02T12:00:00Z"
+}
+```
+
+Success responses have `"success": true`:
+
+```json
+{
+  "success": true,
+  "message": null,
+  "data": { "appointmentId": "abc-123" },
+  "correlationId": "req123",
+  "timeStamp": "2025-12-02T12:00:00Z"
+}
+```
+
+#### Affected Endpoints
+
+The following endpoints return HTTP 200 for errors:
+- `AppointmentAvailability`
+- `CancelAppointment`
+- `GetVeteran`
+- `GetVeteranAppointment`
+- `GetVeteranAppointments`
+- `SaveAppointment`
+
+**Exception**: `GetAgentSkills` returns proper HTTP 400 for authentication errors.
+
+#### Custom Middleware
+
+To handle this non-standard behavior, the module uses `Vass::ResponseMiddleware` (similar to `EVSS::ErrorMiddleware`). This Faraday middleware:
+
+1. Intercepts HTTP 200 responses with JSON content
+2. Checks the `success` field in the response body
+3. When `success == false`, raises a `Common::Exceptions::BackendServiceException`
+4. Maps error messages to appropriate HTTP status codes:
+   - "Missing Parameters" → 400 (Bad Request)
+   - "Invalid GUID format" → 422 (Unprocessable Entity)
+   - "not found" → 404 (Not Found)
+   - "not available" → 422 (Unprocessable Entity)
+   - "invalid date" → 422 (Unprocessable Entity)
+   - Unknown errors → 502 (Bad Gateway)
+
+This allows the existing error handlers to work correctly despite the non-standard API behavior.
+
+### Service Layer Error Types
+
 The service layer provides comprehensive error handling:
 
 - `Vass::Errors::AuthenticationError` - OAuth/authentication failures (401)
@@ -194,4 +253,3 @@ All failure metrics include error tags: `error:ErrorClassName` and `status:HTTPS
 ## Support
 
 For questions or issues, contact the VASS team.
-
