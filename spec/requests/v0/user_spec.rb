@@ -16,6 +16,7 @@ RSpec.describe 'V0::User', type: :request do
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
+      allow_any_instance_of(User).to receive(:mhv_user_account).and_return(build(:mhv_user_account))
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
@@ -137,6 +138,7 @@ RSpec.describe 'V0::User', type: :request do
       let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: mhv_user.idme_uuid) }
 
       before do
+        allow_any_instance_of(User).to receive(:mhv_user_account).and_return(nil)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end

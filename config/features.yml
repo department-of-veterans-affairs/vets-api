@@ -1469,7 +1469,7 @@ features:
     enable_in_development: true
   mhv_medical_records_new_eligibility_check:
     actor_type: user
-    description: Enables/disables Medical Records new access policy eligibility check endpoint
+    description: Enables/disables Medical Records new access policy
     enable_in_development: true
   mhv_medical_records_update_landing_page:
     actor_type: user

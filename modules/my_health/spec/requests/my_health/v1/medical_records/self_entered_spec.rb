@@ -28,6 +28,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
     )
 
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     allow(BBInternal::Client).to receive(:new).and_return(bb_internal_client)
     sign_in_as(current_user)
   end

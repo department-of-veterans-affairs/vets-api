@@ -58,15 +58,13 @@ RSpec.describe Users::Services do
       let(:user) { build(:user, :mhv) }
 
       before do
+        allow(user).to receive(:mhv_user_account).and_return(build(:mhv_user_account))
         Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
         VCR.insert_cassette('sm_client/session')
-        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                            match_requests_on: %i[method sm_user_ignoring_path_param])
       end
 
       after do
         VCR.eject_cassette(name: 'sm_client/session')
-        VCR.eject_cassette(name: 'user_eligibility_client/perform_an_eligibility_check_for_premium_user')
         Timecop.return
       end
 
