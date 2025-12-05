@@ -2,7 +2,6 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/prescriptions_refills_serializer'
-require 'unified_health_data/adapters/v2_status_mapper'
 require 'securerandom'
 require 'unique_user_events'
 require 'vets/collection'
@@ -15,19 +14,19 @@ module MyHealth
       include MyHealth::PrescriptionHelperV2::Sorting
       include MyHealth::RxGroupingHelperV2
       include JsonApiPaginationLinks
-      include UnifiedHealthData::Adapters::V2StatusMapper
 
       service_tag 'mhv-medications'
+
+      # Include V2StatusMapper to get access to V2_STATUS_GROUPS and ORIGINAL_TO_V2_STATUS_MAPPING constants
+      include UnifiedHealthData::Adapters::V2StatusMapper
+
+      before_action :validate_feature_flag
 
       # Add V2_STATUS_MAPPING for backward compatibility with tests
       # This provides a flat mapping from original status to V2 status
       V2_STATUS_MAPPING = V2_STATUS_GROUPS.each_with_object({}) do |(v2_status, originals), hash|
         originals.each { |original| hash[original] = v2_status }
       end.freeze
-
-      # Delegate V2 status constants to the adapter for consistency
-      # These are exposed for use in filtering and counting
-      delegate :V2_STATUS_GROUPS, :ORIGINAL_TO_V2_STATUS_MAPPING, to: :status_adapter, prefix: false
 
       def refill
         return unless validate_feature_flag
@@ -53,24 +52,21 @@ module MyHealth
       def index
         return unless validate_feature_flag
 
+        # Service returns prescriptions with V2 status mapping already applied
         prescriptions = service.get_prescriptions(current_only: false).compact
-        recently_requested = get_recently_requested_prescriptions(prescriptions)
-        raw_data = prescriptions.dup
+
+        # Grouping and other modifications (status mapping already done)
         prescriptions = resource_data_modifications(prescriptions).compact
 
-        filter_count = set_filter_metadata(prescriptions, raw_data)
+        # No need to call apply_v2_status_mapping here - already done in adapter
+
+        recently_requested = get_recently_requested_prescriptions(prescriptions)
+        filter_count = set_filter_metadata(prescriptions, prescriptions)
+
         prescriptions, sort_metadata = apply_filters_and_sorting(prescriptions)
-
-        # Map to V2 statuses when Cerner pilot is enabled
-        if cerner_pilot_enabled?
-          prescriptions = map_to_v2_statuses(prescriptions)
-          recently_requested = map_to_v2_statuses(recently_requested)
-        end
-
         records, options = build_response_data(prescriptions, filter_count, recently_requested, sort_metadata)
 
-        log_prescriptions_access
-        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
+        render json: serializer_class.new(records, options)
       end
 
       def show
@@ -80,9 +76,6 @@ module MyHealth
         resource = find_prescription_by_id(prescriptions, params[:id])
 
         raise Common::Exceptions::RecordNotFound, params[:id] if resource.blank?
-
-        # Map to V2 status when Cerner pilot is enabled
-        resource = map_prescription_to_v2_status(resource) if cerner_pilot_enabled?
 
         options = { meta: {} }
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(resource, options)
@@ -108,106 +101,9 @@ module MyHealth
 
       private
 
-      # Maps prescriptions to V2 statuses
-      # @param prescriptions [Array] Array of prescription objects
-      # @return [Array] Prescriptions with V2 status mapping applied
-      def map_to_v2_statuses(prescriptions)
-        apply_v2_status_mapping_to_collection(prescriptions)
-      end
-
-      # Maps a single prescription to V2 status
-      # @param prescription [Object] A prescription object
-      # @return [Object] Prescription with V2 status mapping applied
-      def map_prescription_to_v2_status(prescription)
-        apply_v2_status_mapping(prescription)
-      end
-
-      # Maps V2 filter values to original status values for filtering
-      # @param filters [Array<String>] Array of V2 status values from filter params
-      # @return [Array<String>] Array of original status values (lowercased)
-      def map_v2_filters_to_original(filters)
-        filters.flat_map do |filter|
-          original_statuses = original_statuses_for_v2_status(filter)
-          if original_statuses.any?
-            original_statuses.map(&:downcase)
-          else
-            [filter.downcase]
-          end
-        end.uniq
-      end
-
-      # Counts medications by V2 status category
-      # Includes: Active, Active: Parked, Active: Non-VA
-      # @param list [Array] List of prescriptions with original status values
-      # @return [Integer] Count of medications in V2 "Active" category
-      def count_v2_active_medications(list)
-        v2_active_originals = original_statuses_for_v2_status('Active').map(&:downcase)
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && rx.disp_status &&
-            v2_active_originals.include?(rx.disp_status.downcase)
-        end
-      end
-
-      # Counts medications that will be mapped to V2 "In progress" status
-      # Includes: Active: Submitted, Active: Refill in Process
-      # @param list [Array] List of prescriptions with original status values
-      # @return [Integer] Count of medications in V2 "In progress" category
-      def count_v2_in_progress_medications(list)
-        v2_in_progress_originals = original_statuses_for_v2_status('In progress').map(&:downcase)
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && rx.disp_status &&
-            v2_in_progress_originals.include?(rx.disp_status.downcase)
-        end
-      end
-
-      # Counts medications that will be mapped to V2 "Inactive" status
-      # Includes: Expired, Discontinued, Active: On hold
-      # Also includes Transferred and Unknown as non-active statuses
-      # @param list [Array] List of prescriptions with original status values
-      # @return [Integer] Count of medications in V2 "Inactive" category
-      def count_v2_inactive_medications(list)
-        inactive_statuses = original_statuses_for_v2_status('Inactive')
-        transferred_statuses = original_statuses_for_v2_status('Transferred')
-        unknown_statuses = original_statuses_for_v2_status('Status not available')
-
-        non_active_originals = (inactive_statuses + transferred_statuses + unknown_statuses).map(&:downcase)
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && rx.disp_status &&
-            non_active_originals.include?(rx.disp_status.downcase)
-        end
-      end
-
-      # Gets recently requested prescriptions (V2 "In progress" status)
-      # NOTE: Called BEFORE V2 mapping, checks for original status values
-      # Original statuses: "Active: Submitted", "Active: Refill in Process"
-      # @param prescriptions [Array] List of prescriptions with original status values
-      # @return [Array] Prescriptions that map to V2 "In progress" status
-      def get_recently_requested_prescriptions(prescriptions)
-        v2_in_progress_originals = original_statuses_for_v2_status('In progress').map(&:downcase)
-        prescriptions.select do |item|
-          item.respond_to?(:disp_status) && item.disp_status &&
-            v2_in_progress_originals.include?(item.disp_status.downcase)
-        end
-      end
-
-      def validate_feature_flag
-        return true if cerner_pilot_enabled?
-
-        render json: {
-          error: {
-            code: 'FEATURE_NOT_AVAILABLE',
-            message: 'This feature is not currently available'
-          }
-        }, status: :forbidden
-        false
-      end
-
-      def cerner_pilot_enabled?
-        Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
-      end
-
       def service
-        @service ||= UnifiedHealthData::Service.new(@current_user)
+        # V2 controller always uses V2 statuses
+        @service ||= UnifiedHealthData::Service.new(@current_user, use_v2_statuses: true)
       end
 
       def orders
@@ -378,5 +274,5 @@ module MyHealth
         Vets::Collection.new(prescriptions || [])
       end
     end
-  endend
-  
+  end
+end

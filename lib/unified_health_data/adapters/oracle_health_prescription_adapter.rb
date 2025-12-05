@@ -1,27 +1,19 @@
 # frozen_string_literal: true
 
 require_relative 'facility_name_resolver'
-require_relative 'v2_status_mapper'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
-      include V2StatusMapper
-
-      # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
+      # Parse Oracle Health FHIR resource into Prescription
+      # Returns raw prescription with ORIGINAL status - V2 mapping happens at PrescriptionsAdapter level
       #
-      # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
-      # @param use_v2_statuses [Boolean] Whether to apply V2 status mapping (default: false)
+      # @param resource [FHIR::MedicationRequest] Oracle Health FHIR resource
       # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
-      def parse(resource, use_v2_statuses: false)
-        return nil if resource.nil? || resource['id'].nil?
+      def parse(resource)
+        return nil unless resource&.id
 
-        prescription = UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
-
-        # Apply V2 status mapping if requested
-        apply_v2_status_mapping(prescription) if use_v2_statuses
-
-        prescription
+        build_prescription(resource)
       rescue => e
         Rails.logger.error("Error parsing Oracle Health prescription: #{e.message}")
         nil
@@ -29,7 +21,7 @@ module UnifiedHealthData
 
       private
 
-      def build_prescription_attributes(resource)
+      def build_prescription(resource)
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
 

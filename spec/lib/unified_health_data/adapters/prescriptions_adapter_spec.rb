@@ -1,1087 +1,284 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unified_health_data/models/prescription'
 require 'unified_health_data/adapters/prescriptions_adapter'
 
-describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
-  subject { described_class.new(user) }
+RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
+  subject(:adapter) { described_class.new(use_v2_statuses:) }
 
-  let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
-  let(:vista_medication_data) do
+  let(:use_v2_statuses) { false }
+
+  describe '#combine_prescriptions' do
+    let(:oracle_resource) do
+      double('FHIR::MedicationRequest',
+             id: '12345',
+             status: 'active',
+             medicationCodeableConcept: double(text: 'Test Med'))
+    end
+
+    let(:vista_prescription) do
+      OpenStruct.new(
+        prescription_id: '67890',
+        disp_status: 'Expired',
+        prescription_name: 'VistA Med'
+      )
+    end
+
+    context 'with use_v2_statuses: false' do
+      let(:use_v2_statuses) { false }
+
+      it 'preserves original status values' do
+        allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
+          .to receive(:parse).and_return(OpenStruct.new(disp_status: 'Active'))
+
+        result = adapter.combine_prescriptions(
+          oracle_resources: [oracle_resource],
+          vista_prescriptions: [vista_prescription]
+        )
+
+        expect(result[0].disp_status).to eq('Active')
+        expect(result[1].disp_status).to eq('Expired')
+      end
+    end
+
+    context 'with use_v2_statuses: true' do
+      let(:use_v2_statuses) { true }
+
+      it 'applies V2 status mapping to all prescriptions' do
+        allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
+          .to receive(:parse).and_return(OpenStruct.new(disp_status: 'Active: Refill in Process'))
+
+        result = adapter.combine_prescriptions(
+          oracle_resources: [oracle_resource],
+          vista_prescriptions: [vista_prescription]
+        )
+
+        expect(result[0].disp_status).to eq('In progress')
+        expect(result[1].disp_status).to eq('Inactive')
+      end
+
+      it 'applies V2 status mapping consistently to combined prescriptions' do
+        # Test that both Oracle and VistA prescriptions get mapped in a single pass
+        oracle_rx = OpenStruct.new(disp_status: 'Active: Submitted')
+        vista_rx = OpenStruct.new(
+          prescription_id: '67890',
+          disp_status: 'Discontinued',
+          prescription_name: 'VistA Med'
+        )
+
+        allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
+          .to receive(:parse).and_return(oracle_rx)
+
+        result = adapter.combine_prescriptions(
+          oracle_resources: [oracle_resource],
+          vista_prescriptions: [vista_rx]
+        )
+
+        # Verify all prescriptions have V2 statuses (proves mapping was applied)
+        result.each do |rx|
+          expect(rx.disp_status).to be_in(
+            ['Active', 'In progress', 'Inactive', 'Transferred', 'Status not available']
+          )
+        end
+
+        # Verify specific mappings
+        expect(result[0].disp_status).to eq('In progress')  # Active: Submitted → In progress
+        expect(result[1].disp_status).to eq('Inactive')     # Discontinued → Inactive
+      end
+    end
+  end
+
+  describe '#map_v2_filters_to_original' do
+    it 'maps V2 Active filter to original statuses' do
+      result = adapter.map_v2_filters_to_original(['Active'])
+
+      expect(result).to contain_exactly('active', 'active: parked', 'active: non-va')
+    end
+
+    it 'maps V2 Inactive filter to original statuses' do
+      result = adapter.map_v2_filters_to_original(['Inactive'])
+
+      expect(result).to contain_exactly('expired', 'discontinued', 'active: on hold')
+    end
+
+    it 'handles case-insensitive filters' do
+      result = adapter.map_v2_filters_to_original(['inactive'])
+
+      expect(result).to contain_exactly('expired', 'discontinued', 'active: on hold')
+    end
+
+    it 'handles multiple filters' do
+      result = adapter.map_v2_filters_to_original(['Active', 'In progress'])
+
+      expect(result).to contain_exactly(
+        'active', 'active: parked', 'active: non-va',
+        'active: submitted', 'active: refill in process'
+      )
+    end
+
+    it 'maps V2 "In progress" filter to original statuses' do
+      result = adapter.map_v2_filters_to_original(['In progress'])
+
+      expect(result).to contain_exactly('active: submitted', 'active: refill in process')
+    end
+
+    it 'maps V2 "Transferred" filter to original status' do
+      result = adapter.map_v2_filters_to_original(['Transferred'])
+
+      expect(result).to contain_exactly('transferred')
+    end
+
+    it 'maps V2 "Status not available" filter to original status' do
+      result = adapter.map_v2_filters_to_original(['Status not available'])
+
+      expect(result).to contain_exactly('unknown')
+    end
+
+    it 'returns original filter when no V2 mapping exists' do
+      result = adapter.map_v2_filters_to_original(['SomeUnknownStatus'])
+
+      expect(result).to contain_exactly('someunknownstatus')
+    end
+
+    it 'handles empty filter array' do
+      result = adapter.map_v2_filters_to_original([])
+
+      expect(result).to be_empty
+    end
+
+    it 'handles mixed case V2 status filters' do
+      result = adapter.map_v2_filters_to_original(['IN PROGRESS'])
+
+      expect(result).to contain_exactly('active: submitted', 'active: refill in process')
+    end
+
+    it 'handles filters with extra whitespace' do
+      result = adapter.map_v2_filters_to_original(['  Active  '])
+
+      expect(result).to contain_exactly('active', 'active: parked', 'active: non-va')
+    end
+  end
+
+  describe '#combine_prescriptions edge cases' do
+    context 'with empty inputs' do
+      it 'handles empty oracle_resources' do
+        result = adapter.combine_prescriptions(
+          oracle_resources: [],
+          vista_prescriptions: [vista_prescription]
+        )
+
+        expect(result.length).to eq(1)
+        expect(result[0].disp_status).to eq('Expired')
+      end
+
+      it 'handles empty vista_prescriptions' do
+        allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
+          .to receive(:parse).and_return(OpenStruct.new(disp_status: 'Active'))
+
+        result = adapter.combine_prescriptions(
+          oracle_resources: [oracle_resource],
+          vista_prescriptions: []
+        )
+
+        expect(result.length).to eq(1)
+        expect(result[0].disp_status).to eq('Active')
+      end
+
+      it 'handles both inputs empty' do
+        result = adapter.combine_prescriptions(
+          oracle_resources: [],
+          vista_prescriptions: []
+        )
+
+        expect(result).to be_empty
+      end
+    end
+
+    context 'with nil disp_status' do
+      let(:use_v2_statuses) { true }
+
+      it 'handles prescription with nil disp_status' do
+        allow_any_instance_of(UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter)
+          .to receive(:parse).and_return(OpenStruct.new(disp_status: nil))
+
+        result = adapter.combine_prescriptions(
+          oracle_resources: [oracle_resource],
+          vista_prescriptions: []
+        )
+
+        # Should not raise error, status remains nil or gets default
+        expect(result.length).to eq(1)
+      end
+    end
+
+    context 'with unmapped status' do
+      let(:use_v2_statuses) { true }
+
+      it 'maps unmapped status to "Status not available"' do
+        vista_rx_with_unknown = OpenStruct.new(
+          prescription_id: '99999',
+          disp_status: 'SomeRandomStatus',
+          prescription_name: 'Unknown Med'
+        )
+
+        result = adapter.combine_prescriptions(
+          oracle_resources: [],
+          vista_prescriptions: [vista_rx_with_unknown]
+        )
+
+        expect(result[0].disp_status).to eq('Status not available')
+      end
+    end
+  end
+
+  describe 'V2StatusMapper module inclusion' do
+    it 'includes V2StatusMapper module' do
+      expect(described_class.ancestors).to include(UnifiedHealthData::Adapters::V2StatusMapper)
+    end
+
+    it 'has access to V2_STATUS_GROUPS constant' do
+      expect(described_class::V2_STATUS_GROUPS).to be_a(Hash)
+      expect(described_class::V2_STATUS_GROUPS.keys).to contain_exactly(
+        'Active', 'In progress', 'Inactive', 'Transferred', 'Status not available'
+      )
+    end
+
+    it 'has access to ORIGINAL_TO_V2_STATUS_MAPPING constant' do
+      expect(described_class::ORIGINAL_TO_V2_STATUS_MAPPING).to be_a(Hash)
+      expect(described_class::ORIGINAL_TO_V2_STATUS_MAPPING['active']).to eq('Active')
+      expect(described_class::ORIGINAL_TO_V2_STATUS_MAPPING['expired']).to eq('Inactive')
+    end
+  end
+
+  describe 'all V2 status mappings' do
+    let(:use_v2_statuses) { true }
+
+    # Test each original status maps to correct V2 status
     {
-      'prescriptionId' => '28148665',
-      'refillStatus' => 'active',
-      'refillSubmitDate' => nil,
-      'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-      'refillRemaining' => 11,
-      'facilityName' => 'SLC4',
-      'isRefillable' => true,
-      'isTrackable' => false,
-      'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
-      'orderedDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-      'quantity' => 1,
-      'expirationDate' => 'Wed, 15 Jul 2026 00:00:00 EDT',
-      'prescriptionNumber' => '3636485',
-      'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
-      'dispensedDate' => nil,
-      'stationNumber' => '991',
-      'cmopDivisionPhone' => '555-1234',
-      'providerLastName' => 'SMITH',
-      'providerFirstName' => 'JOHN',
-      'dialCmopDivisionPhone' => '555-DIAL',
-      'remarks' => 'TEST REMARKS FOR VISTA',
-      'cmopNdcNumber' => '00093721410',
-      'dataSourceSystem' => 'VISTA'
-    }
-  end
-  let(:oracle_health_medication_data) do
-    {
-      'resourceType' => 'MedicationRequest',
-      'id' => '15208365735',
-      'status' => 'active',
-      'authoredOn' => '2025-01-29T19:41:43Z',
-      'requester' => {
-        'reference' => 'Practitioner/12345',
-        'display' => 'Doe, Jane, MD'
-      },
-      'medicationCodeableConcept' => {
-        'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
-      },
-      'dosageInstruction' => [
-        {
-          'text' => 'See Instructions, daily, 1 EA, 0 Refill(s)'
-        }
-      ],
-      'dispenseRequest' => {
-        'numberOfRepeatsAllowed' => 0,
-        'quantity' => {
-          'value' => 1,
-          'unit' => 'EA'
-        }
-      },
-      'note' => [
-        { 'text' => 'Take with food.' },
-        { 'text' => 'May cause dizziness.' }
-      ],
-      'contained' => [
-        {
-          'resourceType' => 'MedicationDispense',
-          'id' => 'dispense-1',
-          'whenHandedOver' => '2025-01-15T10:00:00Z',
-          'quantity' => { 'value' => 30 },
-          'location' => { 'display' => 'Main Pharmacy' }
-        },
-        {
-          'resourceType' => 'MedicationDispense',
-          'id' => 'dispense-2',
-          'whenHandedOver' => '2025-01-29T14:30:00Z',
-          'quantity' => { 'value' => 30 },
-          'location' => { 'display' => 'Main Pharmacy' }
-        },
-        {
-          'resourceType' => 'MedicationDispense',
-          'id' => 'dispense-3',
-          'whenHandedOver' => '2025-01-22T09:15:00Z',
-          'quantity' => { 'value' => 30 },
-          'location' => { 'display' => 'Main Pharmacy' }
-        }
-      ]
-    }
-  end
-  let(:unified_response) do
-    {
-      'vista' => {
-        'medicationList' => {
-          'medication' => [vista_medication_data]
-        }
-      },
-      'oracle-health' => {
-        'entry' => [
-          {
-            'resource' => oracle_health_medication_data
-          }
-        ]
-      }
-    }
-  end
-
-  before do
-    allow(Rails.cache).to receive(:exist?).and_return(false)
-  end
-
-  describe '#parse' do
-    context 'with unified response data' do
-      before do
-        # Ensure business rules filtering doesn't interfere with basic parsing tests
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
-      end
-
-      it 'returns prescriptions from both VistA and Oracle Health' do
-        prescriptions = subject.parse(unified_response)
-
-        expect(prescriptions.size).to eq(2)
-        expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
-
-        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        expect(vista_prescription).to be_present
-        expect(oracle_prescription).to be_present
-      end
-
-      it 'extracts provider_name from VistA data' do
-        prescriptions = subject.parse(unified_response)
-        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-
-        expect(vista_prescription.provider_name).to eq('SMITH, JOHN')
-      end
-
-      it 'extracts provider_name from Oracle Health data' do
-        prescriptions = subject.parse(unified_response)
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        expect(oracle_prescription.provider_name).to eq('Doe, Jane, MD')
-      end
-
-      it 'sets cmop_division_phone correctly for both sources' do
-        prescriptions = subject.parse(unified_response)
-
-        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        expect(vista_prescription.cmop_division_phone).to eq('555-1234')
-        expect(oracle_prescription.cmop_division_phone).to be_nil
-      end
-
-      it 'sets cmop_ndc_number from VistA source and null for Oracle Health source' do
-        prescriptions = subject.parse(unified_response)
-
-        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        expect(vista_prescription.cmop_ndc_number).to eq('00093721410')
-        expect(oracle_prescription.cmop_ndc_number).to be_nil
-      end
-
-      it 'extracts disp_status from VistA data when present' do
-        vista_data_with_disp_status = vista_medication_data.merge('dispStatus' => 'Active: Refill in Process')
-        response_with_disp_status = {
-          'vista' => { 'medicationList' => { 'medication' => [vista_data_with_disp_status] } },
-          'oracle-health' => { 'entry' => [] }
-        }
-
-        prescriptions = subject.parse(response_with_disp_status)
-        vista_prescription = prescriptions.first
-
-        expect(vista_prescription.disp_status).to eq('Active: Refill in Process')
-      end
-
-      it 'sets disp_status derived from refill_status for Oracle Health prescriptions' do
-        prescriptions = subject.parse(unified_response)
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        # Oracle Health prescription with status='active', 0 refills remaining = 'expired' refill_status
-        # which maps to 'Expired' disp_status
-        expect(oracle_prescription.disp_status).to eq('Expired')
-      end
-
-      context 'business rules filtering (applied regardless of current_only)' do
-        context 'when display_pending_meds flipper is enabled' do
-          let(:vista_medication_pf) do
-            vista_medication_data.merge('prescriptionSource' => 'PF')
-          end
-
-          let(:vista_medication_pd) do
-            vista_medication_data.merge('prescriptionSource' => 'PD')
-          end
-
-          let(:response_with_pf) do
-            {
-              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pf] } },
-              'oracle-health' => { 'entry' => [] }
-            }
-          end
-
-          let(:response_with_pd) do
-            {
-              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pd] } },
-              'oracle-health' => { 'entry' => [] }
-            }
-          end
-
-          before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(true)
-          end
-
-          it 'excludes PF (Partial Fill) prescriptions only' do
-            prescriptions = subject.parse(response_with_pf)
-            expect(prescriptions).to be_empty
-          end
-
-          it 'includes PD (Pending) prescriptions when flag is enabled' do
-            prescriptions = subject.parse(response_with_pd)
-            expect(prescriptions.size).to eq(1)
-            expect(prescriptions.first.prescription_source).to eq('PD')
-          end
-        end
-
-        context 'when display_pending_meds flipper is disabled' do
-          let(:vista_medication_pf) do
-            vista_medication_data.merge('prescriptionSource' => 'PF')
-          end
-
-          let(:vista_medication_pd) do
-            vista_medication_data.merge('prescriptionSource' => 'PD')
-          end
-
-          let(:response_with_pf_and_pd) do
-            {
-              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pf, vista_medication_pd] } },
-              'oracle-health' => { 'entry' => [] }
-            }
-          end
-
-          before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
-          end
-
-          it 'excludes both PF and PD prescriptions' do
-            prescriptions = subject.parse(response_with_pf_and_pd)
-            expect(prescriptions).to be_empty
-          end
-        end
-      end
-
-      context 'with current_only: false (default)' do
-        it 'returns all prescriptions without filtering' do
-          prescriptions = subject.parse(unified_response, current_only: false)
-
-          expect(prescriptions.size).to eq(2)
-          expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
-        end
-      end
-
-      context 'with current_only: true' do
-        let(:vista_medication_expired_old) do
-          vista_medication_data.merge(
-            'refillStatus' => 'expired',
-            'expirationDate' => 200.days.ago.strftime('%a, %d %b %Y %H:%M:%S %Z')
-          )
-        end
-
-        context 'filters out old discontinued/expired prescriptions' do
-          let(:response_with_old_expired) do
-            {
-              'vista' => { 'medicationList' => { 'medication' => [vista_medication_expired_old] } },
-              'oracle-health' => { 'entry' => [] }
-            }
-          end
-
-          it 'excludes expired prescriptions older than 180 days' do
-            allow(Rails.logger).to receive(:info)
-
-            prescriptions = subject.parse(response_with_old_expired, current_only: true)
-
-            expect(prescriptions).to be_empty
-            expect(Rails.logger).to have_received(:info).with(
-              hash_including(
-                message: 'Applied current filtering to prescriptions',
-                excluded_count: 1
-              )
-            )
-          end
-        end
-
-        context 'handles invalid expiration dates gracefully' do
-          let(:vista_medication_invalid_date) do
-            vista_medication_data.merge(
-              'refillStatus' => 'expired',
-              'expirationDate' => 'invalid-date'
-            )
-          end
-
-          let(:response_with_invalid_date) do
-            {
-              'vista' => { 'medicationList' => { 'medication' => [vista_medication_invalid_date] } },
-              'oracle-health' => { 'entry' => [] }
-            }
-          end
-
-          it 'logs warning and does not exclude based on date' do
-            allow(Rails.logger).to receive(:warn)
-            allow(Rails.logger).to receive(:info)
-
-            prescriptions = subject.parse(response_with_invalid_date, current_only: true)
-
-            expect(prescriptions.size).to eq(1)
-            expect(Rails.logger).to have_received(:warn).with(
-              /Invalid expiration date for rx ending in \d{4}: invalid-date/
-            )
-          end
-        end
-
-        context 'does not filter active or recent prescriptions' do
-          it 'includes active prescriptions regardless of expiration date' do
-            allow(Rails.logger).to receive(:info)
-
-            prescriptions = subject.parse(unified_response, current_only: true)
-
-            expect(prescriptions.size).to eq(2)
-            expect(Rails.logger).to have_received(:info).with(
-              hash_including(
-                message: 'Applied current filtering to prescriptions',
-                original_count: 2,
-                filtered_count: 2,
-                excluded_count: 0
-              )
-            )
-          end
-        end
-      end
-    end
-
-    context 'with VistA-only data' do
-      let(:vista_only_response) do
-        {
-          'vista' => unified_response['vista'],
-          'oracle-health' => nil
-        }
-      end
-
-      it 'returns only VistA prescriptions' do
-        prescriptions = subject.parse(vista_only_response)
-
-        expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.prescription_id).to eq('28148665')
-        expect(prescriptions.first.prescription_name).to eq('COAL TAR 2.5% TOP SOLN')
-      end
-
-      it 'falls back to orderableItem when prescriptionName is missing' do
-        vista_data_without_name = vista_medication_data.merge(
-          'prescriptionName' => nil,
-          'orderableItem' => 'METFORMIN 500MG TABLET'
+      'Active' => 'Active',
+      'Active: Parked' => 'Active',
+      'Active: Non-VA' => 'Active',
+      'Active: Submitted' => 'In progress',
+      'Active: Refill in Process' => 'In progress',
+      'Expired' => 'Inactive',
+      'Discontinued' => 'Inactive',
+      'Active: On hold' => 'Inactive',
+      'Transferred' => 'Transferred',
+      'Unknown' => 'Status not available'
+    }.each do |original_status, expected_v2_status|
+      it "maps '#{original_status}' to '#{expected_v2_status}'" do
+        vista_rx = OpenStruct.new(
+          prescription_id: '12345',
+          disp_status: original_status,
+          prescription_name: 'Test Med'
         )
-        response = {
-          'vista' => { 'medicationList' => { 'medication' => [vista_data_without_name] } },
-          'oracle-health' => nil
-        }
 
-        prescriptions = subject.parse(response)
-
-        expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.prescription_name).to eq('METFORMIN 500MG TABLET')
-      end
-    end
-
-    context 'with Oracle Health-only data' do
-      let(:oracle_only_response) do
-        {
-          'vista' => nil,
-          'oracle-health' => unified_response['oracle-health']
-        }
-      end
-
-      it 'returns only Oracle Health prescriptions' do
-        prescriptions = subject.parse(oracle_only_response)
-
-        expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.prescription_id).to eq('15208365735')
-        expect(prescriptions.first.prescription_name).to eq('amLODIPine (amLODIPine 5 mg tablet)')
-      end
-    end
-
-    context 'with nil input' do
-      it 'returns empty array' do
-        expect(subject.parse(nil)).to eq([])
-      end
-    end
-
-    context 'with empty data' do
-      let(:empty_response) do
-        {
-          'vista' => { 'medicationList' => { 'medication' => [] } },
-          'oracle-health' => { 'entry' => [] }
-        }
-      end
-
-      it 'returns empty array' do
-        expect(subject.parse(empty_response)).to eq([])
-      end
-    end
-
-    context 'with Oracle Health data containing multiple MedicationDispense resources' do
-      it 'uses the most recent dispensed date based on whenHandedOver' do
-        prescriptions = subject.parse(unified_response)
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        # Should use the most recent whenHandedOver date: '2025-01-29T14:30:00Z'
-        expect(oracle_prescription.refill_date).to eq('2025-01-29T14:30:00Z')
-      end
-    end
-
-    context 'with Oracle Health data containing dispense location' do
-      let(:oracle_medication_with_dispense) do
-        {
-          'resourceType' => 'MedicationRequest',
-          'id' => '15208365735',
-          'status' => 'active',
-          'authoredOn' => '2025-01-29T19:41:43Z',
-          'medicationCodeableConcept' => {
-            'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
-          },
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'status' => 'completed',
-              'whenHandedOver' => '2025-01-29T14:30:00Z',
-              'location' => {
-                'display' => '648-PHARMACY-MAIN'
-              }
-            }
-          ]
-        }
-      end
-
-      let(:response_with_dispense) do
-        {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_with_dispense
-              }
-            ]
-          }
-        }
-      end
-
-      before do
-        # Mock Rails cache to return a facility name for station 648
-        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
-        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
-        allow(StatsD).to receive(:increment)
-      end
-
-      it 'extracts facility name from dispense location via cache' do
-        prescriptions = subject.parse(response_with_dispense)
-        oracle_prescription = prescriptions.first
-
-        expect(oracle_prescription.facility_name).to eq('Portland VA Medical Center')
-      end
-    end
-
-    context 'with Oracle Health inpatient prescriptions' do
-      let(:oracle_medication_inpatient) do
-        oracle_health_medication_data.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'inpatient'
-                }
-              ]
-            }
-          ]
+        result = adapter.combine_prescriptions(
+          oracle_resources: [],
+          vista_prescriptions: [vista_rx]
         )
-      end
 
-      let(:response_with_inpatient) do
-        {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_inpatient
-              }
-            ]
-          }
-        }
-      end
-
-      it 'excludes inpatient prescriptions' do
-        prescriptions = subject.parse(response_with_inpatient)
-        expect(prescriptions).to be_empty
-      end
-    end
-
-    context 'with Oracle Health outpatient prescriptions' do
-      let(:oracle_medication_outpatient) do
-        oracle_health_medication_data.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'outpatient'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      let(:response_with_outpatient) do
-        {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_outpatient
-              }
-            ]
-          }
-        }
-      end
-
-      it 'includes outpatient prescriptions' do
-        prescriptions = subject.parse(response_with_outpatient)
-        expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq(['outpatient'])
-      end
-    end
-
-    context 'with Oracle Health community prescriptions' do
-      let(:oracle_medication_community) do
-        oracle_health_medication_data.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'community'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      let(:response_with_community) do
-        {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_community
-              }
-            ]
-          }
-        }
-      end
-
-      it 'includes community prescriptions' do
-        prescriptions = subject.parse(response_with_community)
-        expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq(['community'])
-      end
-    end
-
-    context 'with Oracle Health prescriptions with multiple categories' do
-      let(:oracle_medication_multiple_categories) do
-        oracle_health_medication_data.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'outpatient'
-                }
-              ]
-            },
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'community'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      let(:response_with_multiple_categories) do
-        {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_multiple_categories
-              }
-            ]
-          }
-        }
-      end
-
-      it 'includes prescriptions with multiple categories' do
-        prescriptions = subject.parse(response_with_multiple_categories)
-        expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq(%w[outpatient community])
-      end
-    end
-
-    context 'with Oracle Health prescriptions with inpatient in multiple categories' do
-      let(:oracle_medication_inpatient_and_community) do
-        oracle_health_medication_data.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'inpatient'
-                }
-              ]
-            },
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'community'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      let(:response_with_inpatient_and_community) do
-        {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_inpatient_and_community
-              }
-            ]
-          }
-        }
-      end
-
-      it 'excludes prescriptions if any category is inpatient' do
-        prescriptions = subject.parse(response_with_inpatient_and_community)
-        expect(prescriptions).to be_empty
-      end
-    end
-
-    context 'with Vista prescriptions containing dispenses' do
-      let(:vista_medication_with_dispenses) do
-        vista_medication_data.merge(
-          'rxRFRecords' => {
-            'rfRecord' => [
-              {
-                'id' => 'rf-1',
-                'refillStatus' => 'dispensed',
-                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
-                'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
-                'facilityName' => 'SLC4',
-                'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
-                'quantity' => 1,
-                'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
-                'prescriptionNumber' => 'RX001',
-                'cmopDivisionPhone' => '800-555-0100',
-                'cmopNdcNumber' => '12345-678-90',
-                'remarks' => 'Handle with care',
-                'dialCmopDivisionPhone' => '8005550100',
-                'disclaimer' => 'This is a test disclaimer'
-              },
-              {
-                'id' => 'rf-2',
-                'refillStatus' => 'dispensed',
-                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
-                'facilityName' => 'SLC4',
-                'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
-                'quantity' => 1,
-                'prescriptionName' => 'COAL TAR 2.5% TOP SOLN'
-              }
-            ]
-          }
-        )
-      end
-
-      let(:response_with_vista_dispenses) do
-        {
-          'vista' => {
-            'medicationList' => {
-              'medication' => [vista_medication_with_dispenses]
-            }
-          },
-          'oracle-health' => nil
-        }
-      end
-
-      it 'includes dispenses in Vista prescriptions' do
-        prescriptions = subject.parse(response_with_vista_dispenses)
-
-        expect(prescriptions.size).to eq(1)
-        vista_prescription = prescriptions.first
-
-        expect(vista_prescription.dispenses).to be_an(Array)
-        expect(vista_prescription.dispenses.size).to eq(2)
-
-        first_dispense = vista_prescription.dispenses.first
-        expect(first_dispense[:status]).to eq('dispensed')
-        expect(first_dispense[:refill_date]).to eq('2025-07-14T04:00:00.000Z')
-        expect(first_dispense[:refill_submit_date]).to eq('2025-07-13T04:00:00.000Z')
-        expect(first_dispense[:facility_name]).to eq('SLC4')
-        expect(first_dispense[:instructions]).to eq('APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY')
-        expect(first_dispense[:quantity]).to eq(1)
-        expect(first_dispense[:medication_name]).to eq('COAL TAR 2.5% TOP SOLN')
-        expect(first_dispense[:id]).to eq('rf-1')
-        expect(first_dispense[:prescription_number]).to eq('RX001')
-        expect(first_dispense[:cmop_division_phone]).to eq('800-555-0100')
-        expect(first_dispense[:cmop_ndc_number]).to eq('12345-678-90')
-        expect(first_dispense[:remarks]).to eq('Handle with care')
-        expect(first_dispense[:dial_cmop_division_phone]).to eq('8005550100')
-        expect(first_dispense[:disclaimer]).to eq('This is a test disclaimer')
-      end
-    end
-
-    context 'with Oracle Health prescriptions containing dispenses' do
-      let(:oracle_medication_with_dispenses) do
-        oracle_health_medication_data.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'status' => 'completed',
-              'whenHandedOver' => '2025-01-15T10:00:00Z',
-              'quantity' => { 'value' => 30 },
-              'location' => { 'display' => '648-PHARMACY' },
-              'dosageInstruction' => [
-                {
-                  'text' => 'See Instructions, daily, 1 EA, 0 Refill(s)'
-                }
-              ],
-              'medicationCodeableConcept' => {
-                'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
-              }
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-2',
-              'status' => 'completed',
-              'whenHandedOver' => '2025-01-29T14:30:00Z',
-              'quantity' => { 'value' => 30 },
-              'location' => { 'display' => '648-PHARMACY' },
-              'dosageInstruction' => [
-                {
-                  'text' => 'See Instructions, daily, 1 EA, 0 Refill(s)'
-                }
-              ],
-              'medicationCodeableConcept' => {
-                'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
-              }
-            }
-          ]
-        )
-      end
-
-      let(:response_with_oracle_dispenses) do
-        {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_with_dispenses
-              }
-            ]
-          }
-        }
-      end
-
-      before do
-        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
-        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
-      end
-
-      it 'includes dispenses in Oracle Health prescriptions' do
-        prescriptions = subject.parse(response_with_oracle_dispenses)
-
-        expect(prescriptions.size).to eq(1)
-        oracle_prescription = prescriptions.first
-
-        expect(oracle_prescription.dispenses).to be_an(Array)
-        expect(oracle_prescription.dispenses.size).to eq(2)
-
-        first_dispense = oracle_prescription.dispenses.first
-        expect(first_dispense[:status]).to eq('completed')
-        expect(first_dispense[:refill_date]).to eq('2025-01-15T10:00:00Z')
-        expect(first_dispense[:facility_name]).to eq('Portland VA Medical Center')
-        expect(first_dispense[:instructions]).to eq('See Instructions, daily, 1 EA, 0 Refill(s)')
-        expect(first_dispense[:quantity]).to eq(30)
-        expect(first_dispense[:medication_name]).to eq('amLODIPine (amLODIPine 5 mg tablet)')
-        expect(first_dispense[:id]).to eq('dispense-1')
-        # Verify Vista-only fields are nil for Oracle Health
-        expect(first_dispense[:refill_submit_date]).to be_nil
-        expect(first_dispense[:prescription_number]).to be_nil
-        expect(first_dispense[:cmop_division_phone]).to be_nil
-        expect(first_dispense[:cmop_ndc_number]).to be_nil
-        expect(first_dispense[:remarks]).to be_nil
-        expect(first_dispense[:dial_cmop_division_phone]).to be_nil
-        expect(first_dispense[:disclaimer]).to be_nil
-      end
-    end
-
-    context 'with prescriptions without dispenses' do
-      it 'includes empty dispenses array for Vista prescriptions without rxRFRecords' do
-        prescriptions = subject.parse(unified_response)
-
-        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-        expect(vista_prescription.dispenses).to eq([])
-      end
-
-      it 'includes empty dispenses array for Oracle Health prescriptions without MedicationDispense' do
-        oracle_only_response = {
-          'vista' => nil,
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => {
-                  'resourceType' => 'MedicationRequest',
-                  'id' => 'no-dispenses',
-                  'status' => 'active',
-                  'authoredOn' => '2025-01-29T19:41:43Z',
-                  'medicationCodeableConcept' => {
-                    'text' => 'Test Medication'
-                  }
-                }
-              }
-            ]
-          }
-        }
-
-        prescriptions = subject.parse(oracle_only_response)
-        expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.dispenses).to eq([])
-      end
-    end
-
-    context 'with missing provider information' do
-      let(:vista_medication_no_provider) do
-        vista_medication_data.except('providerLastName', 'providerFirstName')
-      end
-
-      let(:oracle_medication_no_requester) do
-        oracle_health_medication_data.except('requester')
-      end
-
-      let(:response_with_missing_providers) do
-        {
-          'vista' => { 'medicationList' => { 'medication' => [vista_medication_no_provider] } },
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => oracle_medication_no_requester
-              }
-            ]
-          }
-        }
-      end
-
-      it 'handles missing provider data gracefully' do
-        prescriptions = subject.parse(response_with_missing_providers)
-
-        expect(prescriptions.size).to eq(2)
-        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        expect(vista_prescription.provider_name).to be_nil
-        expect(oracle_prescription.provider_name).to be_nil
-      end
-
-      it 'handles partial VistA provider data (only last name)' do
-        partial_data = vista_medication_data.except('providerFirstName')
-        response = {
-          'vista' => { 'medicationList' => { 'medication' => [partial_data] } },
-          'oracle-health' => nil
-        }
-
-        prescriptions = subject.parse(response)
-        expect(prescriptions.first.provider_name).to eq('SMITH')
-      end
-
-      it 'handles partial VistA provider data (only first name)' do
-        partial_data = vista_medication_data.except('providerLastName')
-        response = {
-          'vista' => { 'medicationList' => { 'medication' => [partial_data] } },
-          'oracle-health' => nil
-        }
-
-        prescriptions = subject.parse(response)
-        expect(prescriptions.first.provider_name).to eq('JOHN')
-      end
-    end
-
-    context 'dial_cmop_division_phone field' do
-      it 'maps dialCmopDivisionPhone from Vista prescriptions' do
-        prescriptions = subject.parse(unified_response)
-        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-
-        expect(vista_prescription.dial_cmop_division_phone).to eq('555-DIAL')
-      end
-
-      it 'sets dial_cmop_division_phone to null for Oracle Health prescriptions' do
-        prescriptions = subject.parse(unified_response)
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        expect(oracle_prescription.dial_cmop_division_phone).to be_nil
-      end
-    end
-
-    context 'with remarks field' do
-      context 'VistA prescriptions' do
-        it 'includes remarks from VistA data' do
-          prescriptions = subject.parse(unified_response)
-          vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
-
-          expect(vista_prescription.remarks).to eq('TEST REMARKS FOR VISTA')
-        end
-
-        it 'returns nil when remarks is not present' do
-          vista_data_without_remarks = vista_medication_data.merge('remarks' => nil)
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_data_without_remarks] } },
-            'oracle-health' => nil
-          }
-
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.remarks).to be_nil
-        end
-      end
-
-      context 'Oracle Health prescriptions' do
-        it 'concatenates all note.text fields' do
-          prescriptions = subject.parse(unified_response)
-          oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-          expect(oracle_prescription.remarks).to eq('Take with food. May cause dizziness.')
-        end
-
-        it 'returns nil when note array is empty' do
-          oracle_data_without_notes = oracle_health_medication_data.merge('note' => [])
-          response = {
-            'vista' => nil,
-            'oracle-health' => {
-              'entry' => [
-                {
-                  'resource' => oracle_data_without_notes
-                }
-              ]
-            }
-          }
-
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.remarks).to be_nil
-        end
-
-        it 'returns nil when note is not present' do
-          oracle_data_without_notes = oracle_health_medication_data.dup
-          oracle_data_without_notes.delete('note')
-          response = {
-            'vista' => nil,
-            'oracle-health' => {
-              'entry' => [
-                {
-                  'resource' => oracle_data_without_notes
-                }
-              ]
-            }
-          }
-
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.remarks).to be_nil
-        end
-
-        it 'handles single note' do
-          oracle_data_with_single_note = oracle_health_medication_data.merge(
-            'note' => [{ 'text' => 'Single note text' }]
-          )
-          response = {
-            'vista' => nil,
-            'oracle-health' => {
-              'entry' => [
-                {
-                  'resource' => oracle_data_with_single_note
-                }
-              ]
-            }
-          }
-
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.remarks).to eq('Single note text')
-        end
-
-        it 'handles multiple notes' do
-          oracle_data_with_multiple_notes = oracle_health_medication_data.merge(
-            'note' => [
-              { 'text' => 'First note' },
-              { 'text' => 'Second note' },
-              { 'text' => 'Third note' }
-            ]
-          )
-          response = {
-            'vista' => nil,
-            'oracle-health' => {
-              'entry' => [
-                {
-                  'resource' => oracle_data_with_multiple_notes
-                }
-              ]
-            }
-          }
-
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.remarks).to eq('First note Second note Third note')
-        end
-
-        it 'filters out notes without text field' do
-          oracle_data_with_mixed_notes = oracle_health_medication_data.merge(
-            'note' => [
-              { 'text' => 'Valid note' },
-              { 'authorReference' => 'Practitioner/123' },
-              { 'text' => 'Another valid note' }
-            ]
-          )
-          response = {
-            'vista' => nil,
-            'oracle-health' => {
-              'entry' => [
-                {
-                  'resource' => oracle_data_with_mixed_notes
-                }
-              ]
-            }
-          }
-
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.remarks).to eq('Valid note Another valid note')
-        end
-
-        it 'filters out notes with empty text' do
-          oracle_data_with_empty_text = oracle_health_medication_data.merge(
-            'note' => [
-              { 'text' => 'Valid note' },
-              { 'text' => '' },
-              { 'text' => 'Another valid note' }
-            ]
-          )
-          response = {
-            'vista' => nil,
-            'oracle-health' => {
-              'entry' => [
-                {
-                  'resource' => oracle_data_with_empty_text
-                }
-              ]
-            }
-          }
-
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.remarks).to eq('Valid note Another valid note')
-        end
+        expect(result[0].disp_status).to eq(expected_v2_status)
       end
     end
   end

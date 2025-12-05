@@ -19,9 +19,11 @@ module UnifiedHealthData
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
 
-    def initialize(user)
+    def initialize(user, use_v2_statuses: false)
       super()
       @user = user
+      @use_v2_statuses = use_v2_statuses
+      @prescriptions_adapter = Adapters::PrescriptionsAdapter.new(use_v2_statuses:)
     end
 
     def get_labs(start_date:, end_date:)
@@ -75,24 +77,14 @@ module UnifiedHealthData
     #   Defaults to false to return all prescriptions without filtering
     # @return [Array<UnifiedHealthData::Prescription>] Array of prescription objects
     def get_prescriptions(current_only: false)
-      with_monitoring do
-        start_date = default_start_date
-        end_date = default_end_date
-        response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = response.body
+      oracle_resources = fetch_oracle_health_prescriptions
+      vista_prescriptions = fetch_vista_prescriptions(current_only:)
 
-        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
-        prescriptions = adapter.parse(body, current_only:)
-
-        Rails.logger.info(
-          message: 'UHD prescriptions retrieved',
-          total_prescriptions: prescriptions.size,
-          current_filtering_applied: current_only,
-          service: 'unified_health_data'
-        )
-
-        prescriptions
-      end
+      # V2 status mapping happens inside the adapter - SINGLE POINT
+      @prescriptions_adapter.combine_prescriptions(
+        oracle_resources:,
+        vista_prescriptions:
+      )
     end
 
     def refill_prescription(orders)
