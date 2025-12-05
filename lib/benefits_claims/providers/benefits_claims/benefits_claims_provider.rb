@@ -50,7 +50,6 @@
 # - get_claim(id): Returns a single claim by its ID
 #
 module BenefitsClaimsProvider
-
   # Retrieves all claims for the current user
   #
   # @return [Array<Hash>] Array of claim data transformed to ClaimResponse DTO format
