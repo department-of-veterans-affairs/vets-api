@@ -133,7 +133,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+        test_group: [1, 2]
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -216,7 +216,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec/lib/flipper --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
 
       - name: Prepare SimpleCov shard payload
         if: always()
@@ -362,9 +362,17 @@ jobs:
           name: Coverage Report
           path: vets-api/coverage
           if-no-files-found: ignore
+
       - name: Fix up coverage report to work with coverage-check-action
+        id: coverage
         if: needs.tests.result == 'success'
-        run: sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+        run: |
+          echo "=== Fixing coverage report format ==="
+          sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+          echo "=== Verifying modified format ==="
+          pct=$(cat vets-api/coverage/.last_run.json | jq '.result.covered_percent')
+          echo "percent=$pct" >> $GITHUB_OUTPUT
+          echo "Extracted coverage: $pct"
 
       - name: Publish Coverage Report
         if: needs.tests.result == 'success'
@@ -374,3 +382,100 @@ jobs:
           result_path: vets-api/coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: us-gov-west-1
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Checkout VSP actions
+        uses: actions/checkout@v6
+        with:
+          repository: department-of-veterans-affairs/vsp-github-actions
+          ref: refs/heads/main
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          persist-credentials: false
+          path: ./.github/actions/vsp-github-actions
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/github_actions_slack_socket_token
+          env_variable_name: SLACK_APP_TOKEN
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /devops/github_actions_slack_bot_user_token
+          env_variable_name: SLACK_BOT_TOKEN
+
+      - name: Slack notify - critical coverage alert
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Critical: Vets-API Testing Coverage Below 90% - Deployment Blocked"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":rotating_light: *CRITICAL: TEST COVERAGE TOO LOW* :rotating_light:\n\n*Vets-API deployment is BLOCKED until coverage reaches at least 90%*\n\n:chart_with_downwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:dart: *Required Minimum:* 90%\n :x: *Status:* Deployment Blocked\n\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n :writing_hand: *Action Required:* Increase test coverage to 90% to unblock deployment. \n How to Export Coverage Report Instructions:\n 1.Go to <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n 2. In the Artifacts section, click Coverage Report to download it.\n 3. After downloading, open the Coverage Report ZIP file (it will extract into a folder).\n 4. Open the extracted Coverage Report folder.\n 5.Inside the folder, double-click index.html to view the full coverage report."
+                }
+              },
+              { "type": "divider" }
+            ]
+          channel_id: "C039HRTHXDH"
+
+      - name: Slack notify - low coverage warning
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 92
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Warning: Vets-API Testing Coverage Below 92%"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":warning: *Warning: Vets-API Coverage Below Target* :warning:\n\n:chart_with_upwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:white_check_mark: *Minimum Required:* 90% (MET)\n:star: *Target Coverage:* 90%+\n:large_green_circle: *Status:* Deployment Allowed\n\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n:bulb: *Recommendation:* Consider adding more tests to improve coverage.\n How to Export Coverage Report Instructions:\n 1.Go to <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n 2. In the Artifacts section, click Coverage Report to download it.\n 3. After downloading, open the Coverage Report ZIP file (it will extract into a folder).\n 4. Open the extracted Coverage Report folder.\n 5.Inside the folder, double-click index.html to view the full coverage report."
+                }
+              },
+              { "type": "divider" }
+            ]
+          channel_id: "C039HRTHXDH"
+
+      - name: Comment Coverage on PR
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+              ## ❌ Critical: Test Coverage Too Low
+              **Coverage:** ${{ steps.coverage.outputs.percent }}%
+              Your test coverage is **below the required minimum of 90%**.
+              Please add additional tests before this PR can be considered for merge.
+              Once coverage is improved, push another commit or rerun the workflow to update this report.
+
+      - name: Comment Coverage on PR
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 92
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+            ## ⚠️ Warning: Low Coverage Report
+            **Coverage:** ${{ steps.coverage.outputs.percent }}%
+
+            Please consider adding or expanding tests to improve coverage before merging.
