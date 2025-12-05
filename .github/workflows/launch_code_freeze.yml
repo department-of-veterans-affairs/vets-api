@@ -1,0 +1,451 @@
+name: Create Production Bypass Branch for Code Freeze
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Name of the bypass branch (e.g., production-bypass-2025-shutdown)'
+        required: true
+        default: 'production-bypass'
+      freeze_reason:
+        description: 'Reason for code freeze (e.g., Government Shutdown, Holiday Freeze)'
+        required: true
+      argocd_deny_schedule:
+        description: 'Cron schedule for ArgoCD deny window (default: always deny)'
+        required: false
+        default: '* * * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-bypass-branch:
+    runs-on: ubuntu-latest
+    outputs:
+      branch_created: ${{ steps.create-branch.outputs.created }}
+      argocd_pr_number: ${{ steps.create-argocd-pr.outputs.pr_number }}
+
+    steps:
+      - name: Checkout vets-api repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "va-vsp-bot"
+          git config user.email "70344339+va-vsp-bot@users.noreply.github.com"
+
+      - name: Create production bypass branch
+        id: create-branch
+        run: |
+          BRANCH_NAME="${{ inputs.branch_name }}"
+
+          # Check if branch already exists
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "❌ Branch $BRANCH_NAME already exists!"
+            echo "created=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # Create branch from current master
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
+
+          echo "✅ Created branch: $BRANCH_NAME"
+          echo "created=true" >> $GITHUB_OUTPUT
+
+      - name: Enable branch protection for production bypass
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="${{ inputs.branch_name }}"
+
+          # Enable branch protection rules
+          gh api \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/branches/$BRANCH_NAME/protection" \
+            -f required_status_checks[strict]=true \
+            -f required_status_checks[contexts][]=build_and_push \
+            -f enforce_admins=true \
+            -f required_pull_request_reviews=null \
+            -f restrictions=null \
+            -f allow_force_pushes=true \
+            -f allow_deletions=false
+
+          echo "✅ Branch protection enabled for $BRANCH_NAME"
+
+      - name: Update build.yml workflow for dual deployment
+        run: |
+          BRANCH_NAME="${{ inputs.branch_name }}"
+
+          # This will be done in a separate PR to master
+          # For now, just log what needs to be updated
+          echo "⚠️  Manual step required:"
+          echo "1. Update .github/workflows/build.yml to watch branch: $BRANCH_NAME"
+          echo "2. Update .github/workflows/code_checks.yml to run on branch: $BRANCH_NAME"
+          echo "3. Split deployment jobs for lower/higher environments"
+
+      - name: Checkout ArgoCD repository
+        uses: actions/checkout@v6
+        with:
+          repository: department-of-veterans-affairs/vsp-infra-argocd
+          token: ${{ secrets.VA_VSP_BOT_GITHUB_TOKEN }}
+          fetch-depth: 1
+          path: vsp-infra-argocd
+          ref: main
+
+      - name: Create ArgoCD deny window changes
+        id: argocd-changes
+        working-directory: vsp-infra-argocd
+        run: |
+          # Create a new branch for the PR
+          FREEZE_BRANCH="freeze-argocd-${{ inputs.branch_name }}-$(date +%Y%m%d)"
+          git checkout -b "$FREEZE_BRANCH"
+
+          # Install yq for YAML manipulation
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O yq
+          chmod +x yq
+          sudo mv yq /usr/local/bin/
+
+          # Update chart/values.yaml to add deny window
+          VALUES_FILE="chart/values.yaml"
+
+          if [ -f "$VALUES_FILE" ]; then
+            # Find the vets-api section and update syncWindows
+            # Replace the allow window with deny window
+            yq e -i '
+              (.vets-api.syncWindows[] | select(.kind == "allow")) |= (
+                .kind = "deny" |
+                .schedule = "${{ inputs.argocd_deny_schedule }}" |
+                .duration = "24h" |
+                .applications = ["*"] |
+                .namespaces = ["*"] |
+                .clusters = ["*"]
+              )
+            ' "$VALUES_FILE"
+
+            echo "✅ Updated ArgoCD sync windows in $VALUES_FILE"
+
+            # Show the diff
+            git diff "$VALUES_FILE"
+          else
+            echo "❌ Could not find $VALUES_FILE"
+            exit 1
+          fi
+
+          # Commit changes
+          git add "$VALUES_FILE"
+          git commit -m "Add deny window for code freeze: ${{ inputs.freeze_reason }}
+
+This PR changes the ArgoCD sync window from 'allow' to 'deny' for all times
+to prevent automatic deployments to production and sandbox environments during
+the code freeze period.
+
+Freeze reason: ${{ inputs.freeze_reason }}
+Production bypass branch: ${{ inputs.branch_name }}
+Deny schedule: ${{ inputs.argocd_deny_schedule }}
+
+To revert: Change 'deny' back to 'allow' when freeze ends."
+
+          git push origin "$FREEZE_BRANCH"
+
+          echo "branch=$FREEZE_BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Create ArgoCD PR
+        id: create-argocd-pr
+        working-directory: vsp-infra-argocd
+        env:
+          GH_TOKEN: ${{ secrets.VA_VSP_BOT_GITHUB_TOKEN }}
+        run: |
+          FREEZE_BRANCH="${{ steps.argocd-changes.outputs.branch }}"
+
+          # Create PR body
+          cat > pr_body.md << 'EOF'
+          ## 🚨 Code Freeze: ${{ inputs.freeze_reason }}
+
+          This PR implements ArgoCD deployment restrictions for the code freeze period.
+
+          ### Changes Made
+          - ✅ Changed `vets-api` sync window from `allow` to `deny` in `chart/values.yaml`
+          - 📅 Schedule: `${{ inputs.argocd_deny_schedule }}` (deny all times)
+          - 🔒 Prevents automatic ArgoCD syncs to production and sandbox environments
+
+          ### File Changed
+```yaml
+          # chart/values.yaml
+          vets-api:
+            syncWindows:
+              - kind: deny          # Changed from 'allow'
+                schedule: '${{ inputs.argocd_deny_schedule }}'
+                duration: 24h
+                applications: ["*"]
+                namespaces: ["*"]
+                clusters: ["*"]
+```
+
+          ### Related Changes
+          - Production bypass branch created: `${{ inputs.branch_name }}`
+          - Branch protection enabled on vets-api repo
+
+          ### How This Works During Freeze
+
+          **Normal Development (Lower Environments):**
+          - ✅ Developers continue merging PRs to `master`
+          - ✅ Automatic deployments to `dev` and `staging` continue as normal
+
+          **Production Deployments (Higher Environments):**
+          - 🔒 ArgoCD automatic sync is **blocked** for `sandbox` and `prod`
+          - 🔑 Critical fixes: Cherry-pick to `${{ inputs.branch_name }}` branch
+          - 👤 Tier 2 manually deploys via ArgoCD UI when needed
+
+          ### To Deploy to Production During Freeze
+
+          1. Merge fix to `master` and verify in staging
+          2. Tier 2: Cherry-pick commit to `${{ inputs.branch_name }}`
+          3. CI builds and pushes image
+          4. Tier 2: Manually sync in ArgoCD UI for sandbox/prod
+
+          ### Ending the Freeze
+
+          When the freeze is over:
+          1. Create a new PR to revert this change (change `deny` back to `allow`)
+          2. Delete the `${{ inputs.branch_name }}` branch
+          3. Remove bypass branch from vets-api workflow files
+          4. Resume normal automatic deployments
+
+          ---
+
+          **Freeze Reason:** ${{ inputs.freeze_reason }}
+          **Created:** $(date +"%Y-%m-%d %H:%M UTC")
+          **Automated by:** vets-api code freeze workflow
+
+          ### Review Checklist
+          - [ ] Verify sync window changed from `allow` to `deny`
+          - [ ] Confirm schedule is set to deny all times
+          - [ ] Team has been notified about the freeze
+          - [ ] Manual deployment process is documented
+          EOF
+
+          # Create the PR
+          PR_URL=$(gh pr create \
+            --title "🚨 Code Freeze: Add ArgoCD Deny Window - ${{ inputs.freeze_reason }}" \
+            --body-file pr_body.md \
+            --base main \
+            --head "$FREEZE_BRANCH" \
+            --repo department-of-veterans-affairs/vsp-infra-argocd)
+
+          PR_NUMBER=$(echo "$PR_URL" | grep -oP '\d+$')
+
+          echo "✅ Created ArgoCD PR: $PR_URL"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+      - name: Create tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create an issue to track the code freeze
+          cat > issue_body.md << EOF
+          ## 🚨 Code Freeze Tracking Issue
+
+          **Reason:** ${{ inputs.freeze_reason }}
+          **Start Date:** $(date +%Y-%m-%d)
+          **Production Bypass Branch:** \`${{ inputs.branch_name }}\`
+
+          ## Setup Status
+          - [x] Production bypass branch created
+          - [x] Branch protection enabled
+          - [x] ArgoCD deny window PR created
+          - [ ] ArgoCD PR reviewed and merged
+          - [ ] Workflow files updated (build.yml, code_checks.yml)
+          - [ ] Team notified
+
+          ## ArgoCD Configuration PR
+          **PR Link:** ${{ steps.create-argocd-pr.outputs.pr_url }}
+
+          This PR changes the sync window in \`chart/values.yaml\` from \`allow\` to \`deny\`.
+
+          ## Manual Steps Required
+
+          ### 1. Review and Merge ArgoCD PR ⚠️ PRIORITY
+          - **Review:** ${{ steps.create-argocd-pr.outputs.pr_url }}
+          - **Action:** Merge to activate the deployment freeze
+          - **Effect:** Blocks automatic ArgoCD syncs to sandbox and prod
+
+          ### 2. Update vets-api Workflow Files
+
+          Update the following files to watch the \`${{ inputs.branch_name }}\` branch:
+
+          **\`.github/workflows/build.yml\`:**
+          \`\`\`yaml
+          on:
+            workflow_run:
+              workflows: ["Code Checks"]
+              branches: [master, ${{ inputs.branch_name }}]  # Add bypass branch
+              types: [completed]
+          \`\`\`
+
+          **\`.github/workflows/code_checks.yml\`:**
+          \`\`\`yaml
+          on:
+            push:
+              branches: [master, ${{ inputs.branch_name }}]  # Add bypass branch
+          \`\`\`
+
+          **Split deployment jobs in \`.github/workflows/build.yml\`:**
+          \`\`\`yaml
+          deploy_lower_envs:
+            if: \${{ github.event.workflow_run.head_branch == 'master' }}
+            # Deploy to: dev, staging
+
+          deploy_higher_envs:
+            if: \${{ github.event.workflow_run.head_branch == '${{ inputs.branch_name }}' }}
+            # Deploy to: sandbox, prod
+          \`\`\`
+
+          ### 3. Notify Team 📢
+
+          Send announcement to:
+          - [ ] Slack #vets-api channel
+          - [ ] Slack #vsp-platform-support
+          - [ ] Tier 1 and Tier 2 Support teams
+          - [ ] Platform leadership
+
+          **Announcement Template:**
+          \`\`\`
+          🚨 **Code Freeze Active: ${{ inputs.freeze_reason }}**
+
+          **What This Means:**
+          • ✅ Continue merging PRs to \`master\` as normal
+          • ✅ Automatic deployments to dev/staging continue
+          • 🔒 Production and sandbox are FROZEN - no automatic deployments
+          • 🔑 Critical prod fixes require Tier 2 cherry-pick to \`${{ inputs.branch_name }}\`
+
+          **Need to Deploy to Production?**
+          1. Merge your fix to \`master\` and test in staging
+          2. Contact Tier 2 Support
+          3. Tier 2 will cherry-pick to \`${{ inputs.branch_name }}\` and manually deploy
+
+          **Questions?** See tracking issue: [link to this issue]
+
+          **Duration:** Until further notice
+          \`\`\`
+
+          ## During Freeze: How to Deploy to Production
+
+          ### For Developers:
+          1. ✅ Merge your fix to \`master\` as normal
+          2. ✅ Verify it works in staging
+          3. 📞 Contact Tier 2 Support with:
+             - PR link
+             - Commit SHA
+             - Reason for production deployment
+
+          ### For Tier 2 Support:
+          1. Verify the fix is tested in staging
+          2. Cherry-pick the commit to \`${{ inputs.branch_name }}\`:
+             \`\`\`bash
+             git checkout ${{ inputs.branch_name }}
+             git cherry-pick <commit-sha>
+             git push origin ${{ inputs.branch_name }}
+             \`\`\`
+          3. Wait for CI to build and push images
+          4. Manually sync in ArgoCD UI for sandbox and prod
+          5. Log the deployment in the table below
+
+          ## Cherry-Pick Tracking
+
+          **⚠️ IMPORTANT:** Cherry-pick commits in chronological order to avoid dependency issues!
+
+          | Date | PR | Master Commit | Cherry-Picked By | Deployed To | Status | Notes |
+          |------|-------|---------------|------------------|-------------|--------|-------|
+          |      |       |               |                  |             |        |       |
+
+          ## Known Issues & Risks
+
+          - ⚠️ **Out-of-order cherry-picks:** Can cause broken dependencies (see [risks doc])
+          - ⚠️ **Image overwrites:** Same commit SHA on both branches overwrites images
+          - ⚠️ **Missing dependencies:** Cherry-picking commit F without its dependencies (D, E) breaks production
+
+          **Best Practice:** Always cherry-pick in the order commits were merged to master.
+
+          ## End of Freeze Checklist
+
+          When the freeze period ends:
+
+          - [ ] Create PR to revert ArgoCD deny window (change \`deny\` back to \`allow\`)
+          - [ ] Merge the revert PR
+          - [ ] Verify automatic deployments resume
+          - [ ] Delete \`${{ inputs.branch_name }}\` branch:
+            \`\`\`bash
+            git push origin --delete ${{ inputs.branch_name }}
+            \`\`\`
+          - [ ] Remove \`${{ inputs.branch_name }}\` from workflow files
+          - [ ] Notify team that freeze is over
+          - [ ] Document lessons learned
+          - [ ] Close this tracking issue
+
+          ## Resources
+
+          - ArgoCD Repo: https://github.com/department-of-veterans-affairs/vsp-infra-argocd
+          - Production Bypass Branch: https://github.com/${{ github.repository }}/tree/${{ inputs.branch_name }}
+          - ArgoCD PR: ${{ steps.create-argocd-pr.outputs.pr_url }}
+          EOF
+
+          ISSUE_URL=$(gh issue create \
+            --title "🚨 Code Freeze Tracking: ${{ inputs.freeze_reason }}" \
+            --body-file issue_body.md \
+            --label "code-freeze,operations,high-priority")
+
+          echo "✅ Created tracking issue: $ISSUE_URL"
+          echo "issue_url=$ISSUE_URL" >> $GITHUB_OUTPUT
+
+      - name: Post summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## ✅ Production Bypass Branch Setup Complete
+
+          ### Configuration
+          - **Branch Name:** \`${{ inputs.branch_name }}\`
+          - **Freeze Reason:** ${{ inputs.freeze_reason }}
+          - **ArgoCD Deny Schedule:** \`${{ inputs.argocd_deny_schedule }}\`
+
+          ### What Was Created
+          1. ✅ Production bypass branch: [\`${{ inputs.branch_name }}\`](https://github.com/${{ github.repository }}/tree/${{ inputs.branch_name }})
+          2. ✅ Branch protection rules enabled
+          3. ✅ ArgoCD deny window PR: ${{ steps.create-argocd-pr.outputs.pr_url }}
+          4. ✅ Tracking issue: ${{ steps.issue.outputs.issue_url }}
+
+          ### ⚠️ NEXT STEPS REQUIRED
+
+          #### 1. Merge ArgoCD PR (PRIORITY)
+          **Link:** ${{ steps.create-argocd-pr.outputs.pr_url }}
+
+          This PR changes \`chart/values.yaml\` in vsp-infra-argocd to add a deny window.
+          **The freeze is not active until this PR is merged!**
+
+          #### 2. Update Workflow Files
+          Add \`${{ inputs.branch_name }}\` to these files:
+          - \`.github/workflows/build.yml\`
+          - \`.github/workflows/code_checks.yml\`
+
+          See tracking issue for specific changes needed.
+
+          #### 3. Notify Team
+          Use the announcement template in the tracking issue to notify:
+          - Slack channels
+          - Support teams
+          - Leadership
+
+          ### During the Freeze
+          - ✅ Developers merge to \`master\` normally (dev/staging deploys continue)
+          - 🔒 Production/sandbox frozen (manual deploys only)
+          - 🔑 Tier 2 cherry-picks critical fixes to \`${{ inputs.branch_name }}\`
+
+          ### Full Details
+          See the tracking issue for complete documentation and checklists.
+          EOF
