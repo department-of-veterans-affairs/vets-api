@@ -1,18 +1,27 @@
 # frozen_string_literal: true
 
 require_relative 'facility_name_resolver'
+require_relative 'v2_status_mapper'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
+      include V2StatusMapper
+
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
+      # @param use_v2_statuses [Boolean] Whether to apply V2 status mapping (default: false)
       # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
-      def parse(resource)
+      def parse(resource, use_v2_statuses: false)
         return nil if resource.nil? || resource['id'].nil?
 
-        UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
+        prescription = UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
+
+        # Apply V2 status mapping if requested
+        apply_v2_status_mapping(prescription) if use_v2_statuses
+
+        prescription
       rescue => e
         Rails.logger.error("Error parsing Oracle Health prescription: #{e.message}")
         nil
@@ -188,10 +197,11 @@ module UnifiedHealthData
 
       # Maps refill_status to user-friendly disp_status for display
       # When disp_status is nil (UHD service), derive it from refill_status
+      # NOTE: This produces ORIGINAL statuses. For V2 statuses, use apply_v2_status_mapping
       #
       # @param refill_status [String] Internal refill status code
       # @param prescription_source [String] Source of prescription (VA, NV, etc.)
-      # @return [String] User-friendly display status
+      # @return [String] User-friendly display status (original format)
       def map_refill_status_to_disp_status(refill_status, prescription_source)
         # Special case: active + Non-VA source
         return 'Active: Non-VA' if refill_status == 'active' && prescription_source == 'NV'

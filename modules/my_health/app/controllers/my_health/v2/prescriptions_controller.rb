@@ -2,6 +2,7 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/prescriptions_refills_serializer'
+require 'unified_health_data/adapters/v2_status_mapper'
 require 'securerandom'
 require 'unique_user_events'
 require 'vets/collection'
@@ -14,24 +15,19 @@ module MyHealth
       include MyHealth::PrescriptionHelperV2::Sorting
       include MyHealth::RxGroupingHelperV2
       include JsonApiPaginationLinks
+      include UnifiedHealthData::Adapters::V2StatusMapper
 
       service_tag 'mhv-medications'
 
-      # V2 Status Categories - Single source of truth for status groupings
-      # Each V2 status maps to an array of original MHV statuses
-      V2_STATUS_GROUPS = {
-        'Active' => ['Active', 'Active: Parked', 'Active: Non-VA'].freeze,
-        'In progress' => ['Active: Submitted', 'Active: Refill in Process'].freeze,
-        'Inactive' => ['Expired', 'Discontinued', 'Active: On hold'].freeze,
-        'Transferred' => ['Transferred'].freeze,
-        'Status not available' => ['Unknown'].freeze
-      }.freeze
-
-      # Generated mapping from original status to V2 status (case-insensitive lookup)
-      # Example: { 'active' => 'Active', 'active: parked' => 'Active', ... }
-      ORIGINAL_TO_V2_STATUS_MAPPING = V2_STATUS_GROUPS.each_with_object({}) do |(v2_status, originals), hash|
-        originals.each { |original| hash[original.downcase] = v2_status }
+      # Add V2_STATUS_MAPPING for backward compatibility with tests
+      # This provides a flat mapping from original status to V2 status
+      V2_STATUS_MAPPING = V2_STATUS_GROUPS.each_with_object({}) do |(v2_status, originals), hash|
+        originals.each { |original| hash[original] = v2_status }
       end.freeze
+
+      # Delegate V2 status constants to the adapter for consistency
+      # These are exposed for use in filtering and counting
+      delegate :V2_STATUS_GROUPS, :ORIGINAL_TO_V2_STATUS_MAPPING, to: :status_adapter, prefix: false
 
       def refill
         return unless validate_feature_flag
@@ -80,18 +76,16 @@ module MyHealth
       def show
         return unless validate_feature_flag
 
-        prescriptions = service.get_prescriptions(current_only: false).compact
-        prescription = prescriptions.find do |p|
-          p.prescription_id.to_s == params[:id].to_s &&
-            p.station_number.to_s == params[:station_number].to_s
-        end
+        prescriptions = service.get_prescriptions(current_only: false, station_number: params[:station_number]).compact
+        resource = find_prescription_by_id(prescriptions, params[:id])
 
-        raise Common::Exceptions::RecordNotFound, params[:id] unless prescription
+        raise Common::Exceptions::RecordNotFound, params[:id] if resource.blank?
 
         # Map to V2 status when Cerner pilot is enabled
-        prescription = map_prescription_to_v2_status(prescription) if cerner_pilot_enabled?
+        resource = map_prescription_to_v2_status(resource) if cerner_pilot_enabled?
 
-        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
+        options = { meta: {} }
+        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(resource, options)
       end
 
       def list_refillable_prescriptions
@@ -107,18 +101,93 @@ module MyHealth
           recently_requested = map_to_v2_statuses(recently_requested)
         end
 
-        options = { meta: { recently_requested: } }
-        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(refillable_prescriptions, options)
+        records, options = build_paginated_response(refillable_prescriptions,
+                                                    { recently_requested: })
+        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
       end
 
       private
 
-      def service
-        @service ||= UnifiedHealthData::Service.new(@current_user)
+      # Maps prescriptions to V2 statuses
+      # @param prescriptions [Array] Array of prescription objects
+      # @return [Array] Prescriptions with V2 status mapping applied
+      def map_to_v2_statuses(prescriptions)
+        apply_v2_status_mapping_to_collection(prescriptions)
       end
 
-      def cerner_pilot_enabled?
-        Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
+      # Maps a single prescription to V2 status
+      # @param prescription [Object] A prescription object
+      # @return [Object] Prescription with V2 status mapping applied
+      def map_prescription_to_v2_status(prescription)
+        apply_v2_status_mapping(prescription)
+      end
+
+      # Maps V2 filter values to original status values for filtering
+      # @param filters [Array<String>] Array of V2 status values from filter params
+      # @return [Array<String>] Array of original status values (lowercased)
+      def map_v2_filters_to_original(filters)
+        filters.flat_map do |filter|
+          original_statuses = original_statuses_for_v2_status(filter)
+          if original_statuses.any?
+            original_statuses.map(&:downcase)
+          else
+            [filter.downcase]
+          end
+        end.uniq
+      end
+
+      # Counts medications by V2 status category
+      # Includes: Active, Active: Parked, Active: Non-VA
+      # @param list [Array] List of prescriptions with original status values
+      # @return [Integer] Count of medications in V2 "Active" category
+      def count_v2_active_medications(list)
+        v2_active_originals = original_statuses_for_v2_status('Active').map(&:downcase)
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && rx.disp_status &&
+            v2_active_originals.include?(rx.disp_status.downcase)
+        end
+      end
+
+      # Counts medications that will be mapped to V2 "In progress" status
+      # Includes: Active: Submitted, Active: Refill in Process
+      # @param list [Array] List of prescriptions with original status values
+      # @return [Integer] Count of medications in V2 "In progress" category
+      def count_v2_in_progress_medications(list)
+        v2_in_progress_originals = original_statuses_for_v2_status('In progress').map(&:downcase)
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && rx.disp_status &&
+            v2_in_progress_originals.include?(rx.disp_status.downcase)
+        end
+      end
+
+      # Counts medications that will be mapped to V2 "Inactive" status
+      # Includes: Expired, Discontinued, Active: On hold
+      # Also includes Transferred and Unknown as non-active statuses
+      # @param list [Array] List of prescriptions with original status values
+      # @return [Integer] Count of medications in V2 "Inactive" category
+      def count_v2_inactive_medications(list)
+        inactive_statuses = original_statuses_for_v2_status('Inactive')
+        transferred_statuses = original_statuses_for_v2_status('Transferred')
+        unknown_statuses = original_statuses_for_v2_status('Status not available')
+
+        non_active_originals = (inactive_statuses + transferred_statuses + unknown_statuses).map(&:downcase)
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && rx.disp_status &&
+            non_active_originals.include?(rx.disp_status.downcase)
+        end
+      end
+
+      # Gets recently requested prescriptions (V2 "In progress" status)
+      # NOTE: Called BEFORE V2 mapping, checks for original status values
+      # Original statuses: "Active: Submitted", "Active: Refill in Process"
+      # @param prescriptions [Array] List of prescriptions with original status values
+      # @return [Array] Prescriptions that map to V2 "In progress" status
+      def get_recently_requested_prescriptions(prescriptions)
+        v2_in_progress_originals = original_statuses_for_v2_status('In progress').map(&:downcase)
+        prescriptions.select do |item|
+          item.respond_to?(:disp_status) && item.disp_status &&
+            v2_in_progress_originals.include?(item.disp_status.downcase)
+        end
       end
 
       def validate_feature_flag
@@ -133,103 +202,128 @@ module MyHealth
         false
       end
 
-      # Maps a collection of prescriptions to V2 statuses
-      # @param prescriptions [Array] Array of prescription objects
-      # @return [Array] Prescriptions with disp_status mapped to V2 values
-      def map_to_v2_statuses(prescriptions)
-        prescriptions.map { |prescription| map_prescription_to_v2_status(prescription) }
+      def cerner_pilot_enabled?
+        Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
       end
 
-      # Maps a single prescription's disp_status to V2 status
-      # @param prescription [Object] A prescription object
-      # @return [Object] Prescription with disp_status mapped to V2 value
-      def map_prescription_to_v2_status(prescription)
-        return prescription unless prescription.respond_to?(:disp_status) && prescription.disp_status.present?
-
-        # Case-insensitive lookup
-        new_status = ORIGINAL_TO_V2_STATUS_MAPPING[prescription.disp_status.downcase]
-
-        prescription.disp_status = new_status if new_status && prescription.respond_to?(:disp_status=)
-
-        prescription
+      def service
+        @service ||= UnifiedHealthData::Service.new(@current_user)
       end
 
-      # Counts medications by V2 status category
-      # @param list [Array] List of prescriptions with original status values
-      # @param v2_status [String] The V2 status category to count
-      # @return [Integer] Count of medications matching the V2 category
-      def count_medications_by_v2_status(list, v2_status)
-        original_statuses = V2_STATUS_GROUPS[v2_status]&.map(&:downcase) || []
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && rx.disp_status &&
-            original_statuses.include?(rx.disp_status.downcase)
-        end
-      end
-
-      def count_v2_active_medications(list)
-        count_medications_by_v2_status(list, 'Active')
-      end
-
-      def count_v2_in_progress_medications(list)
-        count_medications_by_v2_status(list, 'In progress')
-      end
-
-      def count_v2_inactive_medications(list)
-        # Inactive includes Transferred and Status not available for non_active count
-        non_active_v2_statuses = ['Inactive', 'Transferred', 'Status not available']
-        non_active_v2_statuses.sum { |status| count_medications_by_v2_status(list, status) }
-      end
-
-      # Gets recently requested prescriptions (V2 "In progress" status)
-      # NOTE: Called BEFORE V2 mapping, checks for original status values
-      # Original statuses: "Active: Submitted", "Active: Refill in Process"
-      # @param prescriptions [Array] List of prescriptions with original status values
-      # @return [Array] Prescriptions that map to V2 "In progress" status
-      def get_recently_requested_prescriptions(prescriptions)
-        in_progress_originals = V2_STATUS_GROUPS['In progress'].map(&:downcase)
-        prescriptions.select do |item|
-          item.respond_to?(:disp_status) && item.disp_status &&
-            in_progress_originals.include?(item.disp_status.downcase)
-        end
-      end
-
-      # Maps V2 filter values to original status values for filtering
-      # @param filters [Array<String>] Array of V2 status values from filter params
-      # @return [Array<String>] Array of original status values (lowercased)
-      def map_v2_filters_to_original(filters)
-        filters.flat_map do |filter|
-          original_statuses = V2_STATUS_GROUPS[filter]
-          if original_statuses
-            original_statuses.map(&:downcase)
-          else
-            # If no mapping found, use the filter value as-is (backwards compatibility)
-            [filter.downcase]
+      def orders
+        @orders ||= begin
+          raw_orders = params.require(:orders)
+          unless raw_orders.is_a?(Array)
+            raise Common::Exceptions::InvalidFieldValue.new('orders', 'Expected an array of order objects')
           end
-        end.uniq
+
+          parsed_orders = raw_orders.map do |order|
+            order = order.permit(:stationNumber, :id) if order.respond_to?(:permit)
+            { station_number: order[:stationNumber] || order['stationNumber'], id: order[:id] || order['id'] }
+          end
+
+          parsed_orders
+        rescue JSON::ParserError
+          raise Common::Exceptions::InvalidFieldValue.new('orders', 'Invalid JSON format')
+        end
+      end
+
+      def pagination_params
+        {
+          page: params[:page]&.to_i || 1,
+          per_page: params[:per_page]&.to_i || 10
+        }
       end
 
       def apply_filters_and_sorting(prescriptions)
         prescriptions = apply_filters_to_list(prescriptions) if params[:filter].present?
-        prescriptions, sort_metadata = apply_sorting_to_list(prescriptions, params[:sort])
-        [sort_prescriptions_with_pd_at_top(prescriptions), sort_metadata]
+        sorted = apply_sorting_to_list(prescriptions)
+        sort_metadata = build_sort_metadata(params[:sort])
+        [sorted, sort_metadata]
       end
 
-      def build_response_data(prescriptions, filter_count, recently_requested, sort_metadata = {})
-        is_using_pagination = params[:page].present? || params[:per_page].present?
+      def apply_filters_to_list(prescriptions)
+        filter_params = params.require(:filter).permit(disp_status: [:eq])
+        disp_status = filter_params[:disp_status]
 
-        base_meta = filter_count.merge(recently_requested:)
-        # sort_metadata is the entire metadata hash from the resource, access the :sort key
-        base_meta[:sort] = sort_metadata[:sort] if sort_metadata.is_a?(Hash) && sort_metadata[:sort].present?
+        if disp_status.present?
+          if disp_status[:eq]&.downcase == 'active,expired'.downcase
+            # filter renewals
+            prescriptions.select(&method(:renewable))
+          else
+            filters = disp_status[:eq].split(',').map(&:strip)
+            # Map V2 filter values to original status values for filtering
+            # V2 controller always has cerner_pilot enabled (enforced by validate_feature_flag)
+            original_filters = map_v2_filters_to_original(filters)
 
-        if is_using_pagination
-          build_paginated_response(prescriptions, base_meta)
+            prescriptions.select do |item|
+              item.respond_to?(:disp_status) && item.disp_status &&
+                original_filters.include?(item.disp_status.downcase)
+            end
+          end
         else
-          [Array(prescriptions), { meta: base_meta }]
+          prescriptions
         end
       end
 
+      def apply_sorting_to_list(prescriptions)
+        sort_param = params[:sort]
+        return prescriptions if sort_param.blank?
+
+        sort_fields = sort_param.is_a?(Array) ? sort_param : [sort_param]
+        prescriptions.sort do |a, b|
+          compare_by_fields(a, b, sort_fields)
+        end
+      end
+
+      def compare_by_fields(item_a, item_b, sort_fields)
+        sort_fields.each do |field|
+          descending = field.start_with?('-')
+          field_name = descending ? field[1..] : field
+          comparison = compare_field_values(item_a, item_b, field_name)
+          comparison = -comparison if descending
+          return comparison unless comparison.zero?
+        end
+        0
+      end
+
+      def compare_field_values(item_a, item_b, field_name)
+        value_a = item_a.respond_to?(field_name) ? item_a.send(field_name) : nil
+        value_b = item_b.respond_to?(field_name) ? item_b.send(field_name) : nil
+        (value_a || '') <=> (value_b || '')
+      end
+
+      def build_sort_metadata(sort_param)
+        return {} if sort_param.blank?
+
+        { sort: sort_param }
+      end
+
+      def find_prescription_by_id(prescriptions, id)
+        prescriptions.find { |p| p.prescription_id.to_s == id.to_s }
+      end
+
+      def resource_data_modifications(prescriptions)
+        remove_pf_pd(prescriptions)
+      end
+
+      def build_response_data(prescriptions, filter_count, recently_requested, sort_metadata)
+        paginated = collection_resource(prescriptions).paginate(
+          page: pagination_params[:page],
+          per_page: pagination_params[:per_page]
+        )
+
+        options = {
+          meta: filter_count.merge(pagination: paginated.metadata[:pagination])
+                            .merge(sort_metadata)
+                            .merge(recently_requested:),
+          links: pagination_links(paginated)
+        }
+        [paginated.data, options]
+      end
+
       def build_paginated_response(prescriptions, base_meta)
-        collection = Vets::Collection.new(prescriptions)
+        collection = collection_resource(prescriptions)
         paginated = collection.paginate(
           page: pagination_params[:page],
           per_page: pagination_params[:per_page]
@@ -274,44 +368,15 @@ module MyHealth
       end
 
       def sort_prescriptions_with_pd_at_top(prescriptions)
-        pd_prescriptions = prescriptions.select do |med|
-          med.respond_to?(:prescription_source) && med.prescription_source == 'PD'
-        end
-        other_prescriptions = prescriptions.reject do |med|
-          med.respond_to?(:prescription_source) && med.prescription_source == 'PD'
-        end
+        pd_prescriptions = prescriptions.select { |rx| rx.prescription_source == 'PD' }
+        other_prescriptions = prescriptions.reject { |rx| rx.prescription_source == 'PD' }
 
         pd_prescriptions + other_prescriptions
       end
 
-      def orders
-        @orders ||= begin
-          parsed_orders = JSON.parse(request.body.read)
-
-          # Validate that orders is an array
-          unless parsed_orders.is_a?(Array)
-            raise Common::Exceptions::InvalidFieldValue.new('orders',
-                                                            'Must be an array')
-          end
-
-          # Validate that orders array is not empty (treat empty array same as missing required parameter)
-          raise Common::Exceptions::ParameterMissing, 'orders' if parsed_orders.empty?
-
-          # Validate that each order has required fields
-          parsed_orders.each_with_index do |order, index|
-            unless order.is_a?(Hash) && order['stationNumber'] && order['id']
-              raise Common::Exceptions::InvalidFieldValue.new(
-                "orders[#{index}]",
-                'Each order must contain stationNumber and id fields'
-              )
-            end
-          end
-
-          parsed_orders
-        rescue JSON::ParserError
-          raise Common::Exceptions::InvalidFieldValue.new('orders', 'Invalid JSON format')
-        end
+      def collection_resource(prescriptions = nil)
+        Vets::Collection.new(prescriptions || [])
       end
     end
-  end
-end
+  endend
+  
