@@ -64,7 +64,7 @@ module Vass
       #
       def initialize(opts = {})
         data = opts[:data] || {}
-        @uuid = opts[:uuid] || SecureRandom.uuid
+        @uuid = opts.key?(:uuid) ? opts[:uuid] : SecureRandom.uuid
         @contact_method = opts[:contact_method] || data[:contact_method]
         @contact_value = opts[:contact_value] || data[:contact_value]
         @otp_code = opts[:otp_code]
@@ -231,4 +231,3 @@ module Vass
     end
   end
 end
-
