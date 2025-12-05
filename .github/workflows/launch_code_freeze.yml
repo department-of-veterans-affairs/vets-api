@@ -1,0 +1,221 @@
+name: Launch Code Freeze
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Name of the bypass branch (e.g., production-bypass-2025-shutdown)'
+        required: true
+        default: 'production-bypass'
+      freeze_reason:
+        description: 'Reason for code freeze (e.g., Government Shutdown, Holiday Freeze)'
+        required: true
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  launch-freeze:
+    runs-on: ubuntu-latest
+    outputs:
+      branch_created: ${{ steps.create-branch.outputs.created }}
+      argocd_commit_sha: ${{ steps.get-commit-sha.outputs.commit_sha }}
+
+    steps:
+      - name: Checkout vets-api repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "va-vsp-bot"
+          git config user.email "70344339+va-vsp-bot@users.noreply.github.com"
+
+      - name: Create production bypass branch
+        id: create-branch
+        run: |
+          BRANCH_NAME="${{ inputs.branch_name }}"
+
+          # Check if branch already exists
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "❌ Branch $BRANCH_NAME already exists!"
+            echo "created=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # Create branch from current master
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
+
+          echo "✅ Created branch: $BRANCH_NAME"
+          echo "created=true" >> $GITHUB_OUTPUT
+
+      - name: Enable branch protection for production bypass
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="${{ inputs.branch_name }}"
+
+          # Enable branch protection rules
+          gh api \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/branches/$BRANCH_NAME/protection" \
+            -f required_status_checks[strict]=true \
+            -f required_status_checks[contexts][]=build_and_push \
+            -f enforce_admins=true \
+            -f required_pull_request_reviews=null \
+            -f restrictions=null \
+            -f allow_force_pushes=true \
+            -f allow_deletions=false
+
+          echo "✅ Branch protection enabled for $BRANCH_NAME"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Check out ArgoCD Manifest Repo
+        uses: actions/checkout@v6
+        with:
+          repository: department-of-veterans-affairs/vsp-infra-argocd
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          fetch-depth: 1
+          path: vsp-infra-argocd
+          ref: refs/heads/main
+
+      - name: Change sync window from allow to deny
+        id: update-argocd
+        working-directory: vsp-infra-argocd
+        run: |
+          VALUES_FILE="chart/values.yaml"
+
+          if [ -f "$VALUES_FILE" ]; then
+            # Simple string replacement: change "kind: allow" to "kind: deny"
+            sed -i.bak 's/kind: allow/kind: deny/g' "$VALUES_FILE"
+
+            # Remove backup file
+            rm -f "$VALUES_FILE.bak"
+
+            echo "✅ Changed sync window from 'allow' to 'deny' in $VALUES_FILE"
+
+            # Show the diff
+            git diff "$VALUES_FILE"
+          else
+            echo "❌ Could not find $VALUES_FILE"
+            exit 1
+          fi
+
+      - name: Commit and push ArgoCD changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          new_branch: main
+          add: "chart/values.yaml"
+          cwd: vsp-infra-argocd
+          author_name: va-vsp-bot
+          author_email: 70344339+va-vsp-bot@users.noreply.github.com
+          message: |
+            🚨 Code Freeze: Change sync window to deny - ${{ inputs.freeze_reason }}
+
+            Changed vets-api sync window from 'allow' to 'deny' to prevent automatic
+            deployments to production and sandbox environments during code freeze.
+
+            Freeze reason: ${{ inputs.freeze_reason }}
+            Production bypass branch: ${{ inputs.branch_name }}
+
+            To end freeze: Change 'deny' back to 'allow'
+
+      - name: Get ArgoCD commit SHA
+        id: get-commit-sha
+        working-directory: vsp-infra-argocd
+        run: |
+          COMMIT_SHA=$(git rev-parse HEAD)
+          echo "commit_sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+          echo "✅ ArgoCD changes committed: $COMMIT_SHA"
+
+      - name: Post summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## ✅ Code Freeze Launched
+
+          ### What Was Done
+          1. ✅ Created production bypass branch: [\`${{ inputs.branch_name }}\`](https://github.com/${{ github.repository }}/tree/${{ inputs.branch_name }})
+          2. ✅ Enabled branch protection rules
+          3. ✅ Changed ArgoCD sync window from \`allow\` to \`deny\`
+          4. ✅ Committed to vsp-infra-argocd: [View commit](https://github.com/department-of-veterans-affairs/vsp-infra-argocd/commit/${{ steps.get-commit-sha.outputs.commit_sha }})
+
+          ### 🚨 CODE FREEZE IS NOW ACTIVE
+
+          **Freeze Reason:** ${{ inputs.freeze_reason }}
+
+          Production and sandbox deployments are now blocked via ArgoCD deny window.
+
+          ---
+
+          ### ⚠️ NEXT STEPS REQUIRED
+
+          #### 1. Update Workflow Files
+
+          Update \`.github/workflows/build.yml\`:
+          - Add \`${{ inputs.branch_name }}\` to the \`branches\` trigger
+          - Add \`check_bypass_branch\` job
+          - Split deployment into \`deploy_all_envs\`, \`deploy_lower_envs\`, \`deploy_higher_envs\`
+
+          Update \`.github/workflows/code_checks.yml\`:
+          - Add \`${{ inputs.branch_name }}\` to the \`branches\` trigger
+
+          #### 2. Notify Team
+
+          Announce in:
+          - Slack #vets-api
+          - Slack #vsp-platform-support
+          - Tier 1 & Tier 2 Support
+
+          **Message:**
+          \`\`\`
+          🚨 Code Freeze Active: ${{ inputs.freeze_reason }}
+
+          • Merge PRs to master normally (dev/staging deploys continue)
+          • Production & sandbox are FROZEN
+          • Critical fixes: Contact Tier 2 for cherry-pick to ${{ inputs.branch_name }}
+          \`\`\`
+
+          ---
+
+          ### During Freeze
+
+          **For Developers:**
+          1. Continue merging to \`master\` as normal
+          2. Your changes deploy to dev/staging automatically
+          3. For prod fixes: contact Tier 2 Support
+
+          **For Tier 2:**
+          1. Verify fix is tested in staging
+          2. Cherry-pick to \`${{ inputs.branch_name }}\`:
+             \`\`\`bash
+             git checkout ${{ inputs.branch_name }}
+             git cherry-pick <commit-sha>
+             git push origin ${{ inputs.branch_name }}
+             \`\`\`
+          3. Manually sync in ArgoCD UI
+
+          ---
+
+          ### To End Freeze
+
+          1. Change \`deny\` back to \`allow\` in vsp-infra-argocd \`chart/values.yaml\`
+          2. Delete branch: \`git push origin --delete ${{ inputs.branch_name }}\`
+          3. Remove branch from workflow files
+          4. Notify team
+          EOF
