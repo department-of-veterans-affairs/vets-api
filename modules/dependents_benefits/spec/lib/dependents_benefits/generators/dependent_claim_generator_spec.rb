@@ -11,7 +11,7 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
   before do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
 
-    allow(generator).to receive(:claim_class).and_return(DependentsBenefits::SavedClaim)
+    allow(generator).to receive(:claim_class).and_return(DependentsBenefits::PrimaryDependencyClaim)
   end
 
   describe 'initialization' do
@@ -41,10 +41,10 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
 
     describe '#create_claim' do
       let(:extracted_data) { { 'extracted' => 'data' } }
-      let(:mock_claim) { instance_double(DependentsBenefits::SavedClaim, id: 456) }
+      let(:mock_claim) { instance_double(DependentsBenefits::PrimaryDependencyClaim, id: 456) }
 
       before do
-        allow(DependentsBenefits::SavedClaim).to receive(:new).and_return(mock_claim)
+        allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:new).and_return(mock_claim)
         allow(mock_claim).to receive(:validate!)
         allow(mock_claim).to receive(:save!)
       end
@@ -52,7 +52,7 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
       it 'creates a SavedClaim with the correct data and form_id' do
         generator.send(:create_claim, extracted_data)
 
-        expect(DependentsBenefits::SavedClaim).to have_received(:new).with(form: extracted_data.to_json)
+        expect(DependentsBenefits::PrimaryDependencyClaim).to have_received(:new).with(form: extracted_data.to_json)
         expect(mock_claim).to have_received(:save!)
       end
 

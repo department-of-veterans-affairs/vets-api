@@ -2,10 +2,13 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api_submission/metadata_validator'
+require 'logging/helper/parameter_filter'
 
 module SimpleFormsApi
   module V1
     class ScannedFormUploadsController < ApplicationController
+      include Logging::Helper::ParameterFilter
+
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
         check_for_changes
@@ -20,11 +23,16 @@ module SimpleFormsApi
       def upload_scanned_form
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
-        attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
-        attachment.save
+        attachment.file_attacher.attach(params['file'], validate: false)
+
+        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
+        processor.process!
+
         render json: PersistentAttachmentVAFormSerializer.new(attachment)
+      rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
+             SimpleFormsApi::ScannedFormProcessor::ValidationError => e
+        render json: { errors: e.errors }, status: :unprocessable_entity
       end
 
       def upload_supporting_documents
@@ -35,10 +43,10 @@ module SimpleFormsApi
 
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
-        attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
-        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment)
+        attachment.file_attacher.attach(params['file'], validate: false)
+
+        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
         processed_attachment = processor.process!
 
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
@@ -78,7 +86,10 @@ module SimpleFormsApi
 
         Rails.logger.info(
           'Simple forms api - scanned form uploaded',
-          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+          filter_params(
+            { form_number: params[:form_number], status:, confirmation_number:, file_size: },
+            allowlist: %w[form_number status confirmation_number file_size]
+          )
         )
         [status, confirmation_number]
       end
@@ -141,7 +152,13 @@ module SimpleFormsApi
 
       def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Simple forms api - preparing to upload scanned PDF to benefits intake', { location:, uuid: })
+        Rails.logger.info(
+          'Simple forms api - preparing to upload scanned PDF to benefits intake',
+          filter_params(
+            { location:, uuid: },
+            allowlist: %w[uuid]
+          )
+        )
       end
 
       def perform_pdf_upload(location, file_path, metadata)

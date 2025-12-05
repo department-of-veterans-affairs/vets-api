@@ -247,23 +247,33 @@
                       }
                     }
                   },
-                  "employerCertification": {
+                  "certification": {
                     "type": "object",
                     "required": [
-                      "signature"
+                      "signature",
+                      "certified"
                     ],
                     "properties": {
                       "signature": {
                         "type": "string",
                         "description": "Signature of employer or supervisor",
                         "example": "John Doe"
+                      },
+                      "certified": {
+                        "type": "boolean",
+                        "enum": [
+                          true
+                        ],
+                        "description": "Certified by the employer or supervisor (must be true)",
+                        "example": true
                       }
                     }
                   }
                 },
                 "required": [
                   "veteranInformation",
-                  "employmentInformation"
+                  "employmentInformation",
+                  "certification"
                 ]
               }
             }
@@ -506,23 +516,33 @@
                       }
                     }
                   },
-                  "employerCertification": {
+                  "certification": {
                     "type": "object",
                     "required": [
-                      "signature"
+                      "signature",
+                      "certified"
                     ],
                     "properties": {
                       "signature": {
                         "type": "string",
                         "description": "Signature of employer or supervisor",
                         "example": "John Doe"
+                      },
+                      "certified": {
+                        "type": "boolean",
+                        "enum": [
+                          true
+                        ],
+                        "description": "Certified by the employer or supervisor (must be true)",
+                        "example": true
                       }
                     }
                   }
                 },
                 "required": [
                   "veteranInformation",
-                  "employmentInformation"
+                  "employmentInformation",
+                  "certification"
                 ]
               }
             }
@@ -547,10 +567,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "375",
+                    "id": "40",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-11-03T16:52:41.568Z",
+                      "submitted_at": "2025-11-04T20:55:13.291Z",
                       "regional_office": [
                         "Department of Veterans Affairs",
                         "Pension Management Center",
@@ -795,8 +815,8 @@
                               },
                               "country": {
                                 "type": "string",
-                                "maxLength": 2,
-                                "description": "Country code (max 2 characters)",
+                                "maxLength": 3,
+                                "description": "Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)",
                                 "example": "US"
                               },
                               "postalCode": {
@@ -817,6 +837,11 @@
                   },
                   "certification": {
                     "type": "object",
+                    "required": [
+                      "titleOfStateOrTribalOfficial",
+                      "signature",
+                      "certified"
+                    ],
                     "properties": {
                       "titleOfStateOrTribalOfficial": {
                         "type": "string",
@@ -827,13 +852,26 @@
                         "type": "string",
                         "description": "Signature of state or tribal official",
                         "example": "John Doe"
+                      },
+                      "certified": {
+                        "type": "boolean",
+                        "enum": [
+                          true
+                        ],
+                        "description": "Certified by the state or tribal official (must be true)",
+                        "example": true
                       }
                     }
                   },
                   "remarks": {
                     "type": "string"
                   }
-                }
+                },
+                "required": [
+                  "veteranInformation",
+                  "burialInformation",
+                  "certification"
+                ]
               }
             }
           },
@@ -1065,8 +1103,8 @@
                               },
                               "country": {
                                 "type": "string",
-                                "maxLength": 2,
-                                "description": "Country code (max 2 characters)",
+                                "maxLength": 3,
+                                "description": "Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)",
                                 "example": "US"
                               },
                               "postalCode": {
@@ -1087,6 +1125,11 @@
                   },
                   "certification": {
                     "type": "object",
+                    "required": [
+                      "titleOfStateOrTribalOfficial",
+                      "signature",
+                      "certified"
+                    ],
                     "properties": {
                       "titleOfStateOrTribalOfficial": {
                         "type": "string",
@@ -1097,13 +1140,26 @@
                         "type": "string",
                         "description": "Signature of state or tribal official",
                         "example": "John Doe"
+                      },
+                      "certified": {
+                        "type": "boolean",
+                        "enum": [
+                          true
+                        ],
+                        "description": "Certified by the state or tribal official (must be true)",
+                        "example": true
                       }
                     }
                   },
                   "remarks": {
                     "type": "string"
                   }
-                }
+                },
+                "required": [
+                  "veteranInformation",
+                  "burialInformation",
+                  "certification"
+                ]
               }
             }
           },
@@ -1212,7 +1268,7 @@
           "street2": {
             "type": "string",
             "example": "4B",
-            "maxLength": 5
+            "maxLength": 30
           },
           "city": {
             "type": "string",

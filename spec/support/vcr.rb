@@ -8,6 +8,7 @@ VCR.configure do |c|
 
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
+  c.filter_sensitive_data('<BENEFITS_INTAKE_SERVICE_API_KEY>') { Settings.benefits_intake_service.api_key }
   c.filter_sensitive_data('<CLAIMS_API_BD_URL>') { Settings.claims_api.benefits_documents.host }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
   c.filter_sensitive_data('<DMC_BASE_URL>') { Settings.dmc.url }
@@ -88,6 +89,9 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM>') { Settings.hca.endpoint }
   c.filter_sensitive_data('<CASEFLOW_API_HOST>') { Settings.caseflow.host }
   c.filter_sensitive_data('<DGI_VETS_URL>') { Settings.dgi.vets.url }
+  c.filter_sensitive_data('<LIGHTHOUSE_HCC_HOST>') do
+    Settings.lighthouse.healthcare_cost_and_coverage.host
+  end
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

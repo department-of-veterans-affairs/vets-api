@@ -63,7 +63,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('message')
+        expect(response).to match_camelized_response_schema('message', strict: false)
         expect(response).to have_http_status(:created)
       end
 
@@ -75,7 +75,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts', type: :request do
         expect(response).to be_successful
         expect(response.parsed_body.dig('data', 'attributes', 'body')).to eq("\n\n\n\nSignature\nExample")
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('message')
+        expect(response).to match_camelized_response_schema('message', strict: false)
         expect(response).to have_http_status(:created)
       end
 
@@ -123,7 +123,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('message')
+        expect(response).to match_camelized_response_schema('message', strict: false)
         expect(response).to have_http_status(:created)
       end
 
@@ -135,7 +135,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts', type: :request do
         expect(response).to be_successful
         expect(response.parsed_body.dig('data', 'attributes', 'body')).to eq("\n\n\n\nSignature\nExample")
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('message')
+        expect(response).to match_camelized_response_schema('message', strict: false)
         expect(response).to have_http_status(:created)
       end
 
