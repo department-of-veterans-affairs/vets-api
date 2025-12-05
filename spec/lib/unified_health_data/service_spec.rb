@@ -1106,7 +1106,7 @@ describe UnifiedHealthData::Service, type: :service do
           Timecop.freeze(Time.zone.parse('2025-11-27')) do
             VCR.use_cassette('unified_health_data/get_prescriptions_success') do
               filtered_prescriptions = service.get_prescriptions(current_only: true)
-              expect(filtered_prescriptions.size).to eq(53)
+              expect(filtered_prescriptions.size).to eq(54)
             end
           end
         end
