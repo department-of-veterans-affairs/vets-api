@@ -273,90 +273,54 @@ describe TravelPay::ClaimsClient do
         allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
       end
 
-      it 'upgrades /documents endpoint' do
+      it 'upgrades GET /claims endpoint' do
         claim_id = 'uuid1'
-        @stubs.post("/api/v3/claims/#{claim_id}/documents") do
-          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
-        end
+        @stubs.get("/api/v3/claims") { [200, {}, {  }] }
 
         client = TravelPay::ClaimsClient.new
-        response = client.upload_document('veis_token', 'btsss_token', claim_id, 'document_body')
+        response = client.get_claims('veis_token', 'btsss_token')
 
-        expect(response.status).to eq(200)
-        expect(StatsD).to have_received(:measure)
-          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:upload_document'])
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
 
-      it 'upgrades /documents/{documentId} endpoint' do
+      it 'upgrades GET /claims/:id endpoint' do
         claim_id = 'uuid1'
-        document_id = 'doc-uuid'
-        @stubs.delete("/api/v3/claims/#{claim_id}/documents/#{document_id}") do
-          [200, {}, { 'success' => true }]
-        end
+        @stubs.get("/api/v3/claims/123") { [200, {}, {  }] }
 
         client = TravelPay::ClaimsClient.new
-        response = client.delete_document('veis_token', 'btsss_token', claim_id, document_id)
+        response = client.get_claim_by_id('veis_token', 'btsss_token', 123)
 
-        expect(response.status).to eq(200)
-        expect(StatsD).to have_received(:measure)
-          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:delete_document'])
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
 
-      it 'upgrades /documents/form-data endpoint' do
+      it 'upgrades GET claims_by_date endpoint' do
         claim_id = 'uuid1'
-        @stubs.post("/api/v3/claims/#{claim_id}/documents/form-data") do
-          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
-        end
+        @stubs.get("/api/v3/claims/search-by-appointment-date?startDate=123&endDate=123") { [200, {}, {  }] }
 
         client = TravelPay::ClaimsClient.new
-        response = client.upload_document_form_data('veis_token', 'btsss_token', claim_id, 'form_data')
+        response = client.get_claims_by_date('veis_token', 'btsss_token', {start_date: 123, end_date: 123})
 
-        expect(response.status).to eq(200)
-        expect(StatsD).to have_received(:measure)
-          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:upload_document_form_data'])
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
 
-      it 'upgrades /claims endpoint' do
-        @stubs.post('/api/v3/claims') do
-          [200, {}, { 'data' => { 'claimId' => 'uuid1' } }]
-        end
-
-        client = TravelPay::ClaimsClient.new
-        body = { 'appointmentId' => 'appt-id', 'claimName' => 'Test', 'claimantType' => 'Veteran' }.to_json
-        response = client.create_claim('veis_token', 'btsss_token', body)
-
-        expect(response.status).to eq(200)
-        expect(StatsD).to have_received(:measure)
-          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:create'])
-      end
-
-      it 'upgrades /claims/{claimId}/submit endpoint' do
+      it 'upgrades POST create_claim endpoint' do
         claim_id = 'uuid1'
-        @stubs.patch("/api/v3/claims/#{claim_id}/submit") do
-          [200, {}, { 'success' => true }]
-        end
+        @stubs.post("/api/v3/claims") { [200, {}, {  }] }
 
         client = TravelPay::ClaimsClient.new
-        response = client.submit_claim('veis_token', 'btsss_token', claim_id)
+        response = client.create_claim('veis_token', 'btsss_token', {})
 
-        expect(response.status).to eq(200)
-        expect(StatsD).to have_received(:measure)
-          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:submit'])
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
 
-      it 'upgrades /claims/search-by-appointment-date endpoint' do
-        @stubs.get('/api/v3/claims/search-by-appointment-date') do
-          [200, {}, { 'data' => [{ 'id' => 'uuid1' }], 'totalRecordCount' => 1 }]
-        end
+      it 'upgrades PATCH submit_claim endpoint' do
+        claim_id = 'uuid1'
+        @stubs.patch("api/v3/claims/123/submit") { [200, {}, {  }] }
 
         client = TravelPay::ClaimsClient.new
-        response = client.get_claims_by_date('veis_token', 'btsss_token',
-                                             { start_date: '2024-01-01', end_date: '2024-02-01',
-                                               page_number: 1, page_size: 50 })
+        response = client.submit_claim('veis_token', 'btsss_token', 123)
 
-        expect(response.status).to eq(200)
-        expect(StatsD).to have_received(:measure)
-          .with(expected_log_prefix, kind_of(Numeric), tags: ['travel_pay:get_by_date'])
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
     end
 
@@ -366,16 +330,54 @@ describe TravelPay::ClaimsClient do
         allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
       end
 
-      it 'uses v2 /claims endpoint' do
-        @stubs.post('/api/v2/claims') do
-          [200, {}, { 'data' => { 'claimId' => 'uuid1' } }]
-        end
+      it 'does not upgrade GET /claims endpoint' do
+        claim_id = 'uuid1'
+        @stubs.get("/api/v2/claims") { [200, {}, {  }] }
 
         client = TravelPay::ClaimsClient.new
-        body = { 'appointmentId' => 'appt-id', 'claimName' => 'Test', 'claimantType' => 'Veteran' }.to_json
-        response = client.create_claim('veis_token', 'btsss_token', body)
+        response = client.get_claims('veis_token', 'btsss_token')
 
-        expect(response.status).to eq(200)
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade GET /claims/:id endpoint' do
+        claim_id = 'uuid1'
+        @stubs.get("/api/v2/claims/123") { [200, {}, {  }] }
+
+        client = TravelPay::ClaimsClient.new
+        response = client.get_claim_by_id('veis_token', 'btsss_token', 123)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade GET claims_by_date endpoint' do
+        claim_id = 'uuid1'
+        @stubs.get("/api/v2/claims/search-by-appointment-date?startDate=123&endDate=123") { [200, {}, {  }] }
+
+        client = TravelPay::ClaimsClient.new
+        response = client.get_claims_by_date('veis_token', 'btsss_token', {start_date: 123, end_date: 123})
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade POST create_claim endpoint' do
+        claim_id = 'uuid1'
+        @stubs.post("/api/v2/claims") { [200, {}, {  }] }
+
+        client = TravelPay::ClaimsClient.new
+        response = client.create_claim('veis_token', 'btsss_token', {})
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade PATCH submit_claim endpoint' do
+        claim_id = 'uuid1'
+        @stubs.patch("api/v2/claims/123/submit") { [200, {}, {  }] }
+
+        client = TravelPay::ClaimsClient.new
+        response = client.submit_claim('veis_token', 'btsss_token', 123)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
     end
   end

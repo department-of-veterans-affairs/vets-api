@@ -307,4 +307,75 @@ describe TravelPay::DocumentsClient do
       end.to raise_error(Faraday::ServerError)
     end
   end
+
+  context 'v3 upgrade' do
+    context 'enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(true)
+      end
+
+      it 'upgrades /documents endpoint' do
+        claim_id = 'uuid1'
+        @stubs.get("/api/v3/claims/#{claim_id}/documents") do
+          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
+        end
+
+        client = TravelPay::DocumentsClient.new
+        response = client.get_document_ids('veis_token', 'btsss_token', claim_id)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'upgrades /documents/:docid endpoint' do
+        params = {
+          'claim_id' => 'uuid1',
+          'doc_id' => 'docid1'
+        }
+
+        @stubs.get("/api/v3/claims/#{params['claim_id']}/documents/#{params['doc_id']}") do
+          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
+        end
+
+        client = TravelPay::DocumentsClient.new
+        response = client.get_document_binary('veis_token', 'btsss_token', params)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+    end
+
+    context 'disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+      end
+
+      it 'upgrades /documents endpoint' do
+        claim_id = 'uuid1'
+        @stubs.get("/api/v2/claims/#{claim_id}/documents") do
+          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
+        end
+
+        client = TravelPay::DocumentsClient.new
+        response = client.get_document_ids('veis_token', 'btsss_token', claim_id)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'upgrades /documents/:docid endpoint' do
+        params = {
+          'claim_id' => 'uuid1',
+          'doc_id' => 'docid1'
+        }
+        
+        @stubs.get("/api/v2/claims/#{params['claim_id']}/documents/#{params['doc_id']}") do
+          [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
+        end
+
+        client = TravelPay::DocumentsClient.new
+        response = client.get_document_binary('veis_token', 'btsss_token', params)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+    end
+  end
 end

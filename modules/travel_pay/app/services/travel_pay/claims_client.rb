@@ -17,8 +17,15 @@ module TravelPay
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
+      # We must do this for every endpoint because the Travel Pay API
+      # uses per-endpoint versioning. I'd like to move at somepoint to
+      # a more dynamic, non-code change mapping.
+      # This is specifically to address a high-priority, deadline-driven
+      # change.
+      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+
       log_to_statsd('claims', 'get_all') do
-        connection(server_url: btsss_url).get('api/v2/claims', url_params) do |req|
+        connection(server_url: btsss_url).get("api/#{endpoint_version}/claims", url_params) do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -41,8 +48,16 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
+
+      # We must do this for every endpoint because the Travel Pay API
+      # uses per-endpoint versioning. I'd like to move at somepoint to
+      # a more dynamic, non-code change mapping.
+      # This is specifically to address a high-priority, deadline-driven
+      # change.
+      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+
       log_to_statsd('claims', 'get_by_id') do
-        connection(server_url: btsss_url).get("api/v2/claims/#{claim_id}") do |req|
+        connection(server_url: btsss_url).get("api/#{endpoint_version}/claims/#{claim_id}") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -70,9 +85,17 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
+
+      # We must do this for every endpoint because the Travel Pay API
+      # uses per-endpoint versioning. I'd like to move at somepoint to
+      # a more dynamic, non-code change mapping.
+      # This is specifically to address a high-priority, deadline-driven
+      # change.
+      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+
       log_to_statsd('claims', 'get_by_date') do
         connection(server_url: btsss_url)
-          .get('api/v2/claims/search-by-appointment-date', url_params) do |req|
+          .get("api/#{endpoint_version}/claims/search-by-appointment-date", url_params) do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -97,8 +120,16 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
+
+      # We must do this for every endpoint because the Travel Pay API
+      # uses per-endpoint versioning. I'd like to move at somepoint to
+      # a more dynamic, non-code change mapping.
+      # This is specifically to address a high-priority, deadline-driven
+      # change.
+      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+
       log_to_statsd('claims', 'create') do
-        connection(server_url: btsss_url).post('api/v2/claims') do |req|
+        connection(server_url: btsss_url).post("api/#{endpoint_version}/claims") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -126,8 +157,16 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
+
+      # We must do this for every endpoint because the Travel Pay API
+      # uses per-endpoint versioning. I'd like to move at somepoint to
+      # a more dynamic, non-code change mapping.
+      # This is specifically to address a high-priority, deadline-driven
+      # change.
+      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+
       log_to_statsd('claims', 'submit') do
-        connection(server_url: btsss_url).patch("api/v2/claims/#{claim_id}/submit") do |req|
+        connection(server_url: btsss_url).patch("api/#{endpoint_version}/claims/#{claim_id}/submit") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
