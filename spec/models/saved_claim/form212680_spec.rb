@@ -90,15 +90,14 @@ RSpec.describe SavedClaim::Form212680, type: :model do
     let(:pdf_path) { '/tmp/generated_form.pdf' }
 
     before do
-      allow(SecureRandom).to receive(:uuid).and_return('test-uuid-1234')
       allow(claim).to receive(:to_pdf).and_return(pdf_path)
       allow(claim).to receive(:update_metadata_with_pdf_generation)
     end
 
-    it 'generates a PDF with a UUID filename' do
+    it 'generates a PDF' do
       claim.generate_prefilled_pdf
 
-      expect(claim).to have_received(:to_pdf).with('test-uuid-1234')
+      expect(claim).to have_received(:to_pdf).with(no_args)
     end
 
     it 'updates metadata after PDF generation' do
