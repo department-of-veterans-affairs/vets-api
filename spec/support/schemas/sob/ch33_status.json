@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "first_name",
+            "last_name"
+          ],
+          "properties": {
+            "first_name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "last_name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "date_of_birth": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "va_file_number": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "regional_processing_office": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "eligibility_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "delimiting_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "percentage_benefit": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "original_entitlement": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "entitlement.json"
+                }
+              ]
+            },
+            "used_entitlement": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "entitlement.json"
+                }
+              ]
+            },
+            "remaining_entitlement": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "entitlement.json"
+                }
+              ]
+            },
+            "entitlement_transferred_out": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "entitlement.json"
+                }
+              ]
+            },
+            "veteran_is_eligible": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "active_duty": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
