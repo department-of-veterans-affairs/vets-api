@@ -253,7 +253,7 @@
     "blockNumber": "29A",
     "yes": "Boolean",
     "no": "Boolean"
-  }, 
+  },
   "alternateSignatureDate": {
     "blockNumber": "29B",
     "month":"String",
