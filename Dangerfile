@@ -505,7 +505,6 @@ module VSPDanger
 
   class ParameterFilteringAllowlistChecker
     FILTER_PARAM_FILE = 'config/initializers/filter_parameter_logging.rb'
-    ALLOWLIST_PATTERN = /^ALLOWLIST = %w\[/
 
     def run
       return Result.success('Parameter filtering allowlist is unchanged.') unless allowlist_changed?
@@ -518,19 +517,27 @@ module VSPDanger
     def allowlist_changed?
       return false if filter_params_diff.empty?
 
-      # Check if any lines in the ALLOWLIST array were added or removed
-      filter_params_diff.split("\n").any? do |line|
-        # Look for additions or deletions within the ALLOWLIST array
-        (line.start_with?('+', '-') && !line.start_with?('+++', '---')) &&
-          in_allowlist_section?(line)
-      end
-    end
+      in_allowlist = false
+      filter_params_diff.split("\n").each do |line|
+        # Track entry into ALLOWLIST array (handles both context and added/removed lines)
+        clean_line = line.sub(/^[+-]/, '')
+        if clean_line.include?('ALLOWLIST = %w[')
+          in_allowlist = true
+          next
+        elsif in_allowlist && clean_line.include?('].freeze')
+          in_allowlist = false
+          next
+        end
 
-    def in_allowlist_section?(line)
-      # Simple heuristic: if the line looks like an array element (indented word)
-      # This catches lines like "  action" or "  +  benefits_intake_uuid"
-      clean_line = line[1..].strip # Remove the leading '+' or '-'
-      clean_line.match?(/^[a-z_]+$/) # Single word, lowercase with underscores
+        next unless in_allowlist
+
+        # Look for additions or deletions of array elements within ALLOWLIST
+        next unless line.start_with?('+', '-') && !line.start_with?('+++', '---')
+
+        element = line[1..].strip
+        return true if element.match?(/^[a-z_]+$/)
+      end
+      false
     end
 
     def warning_message
