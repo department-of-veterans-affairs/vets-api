@@ -80,18 +80,18 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       end
 
       it 'deletes the InProgressForm after successful submission' do
-        expect {
+        expect do
           post(:create, body: form_data, as: :json)
-        }.to change(InProgressForm, :count).by(-1)
+        end.to change(InProgressForm, :count).by(-1)
 
         expect(response).to have_http_status(:ok)
         expect(InProgressForm.find_by(id: in_progress_form.id)).to be_nil
       end
 
       it 'does not delete IPF if submission fails' do
-        expect {
+        expect do
           post(:create, body: invalid_data, as: :json)
-        }.not_to change(InProgressForm, :count)
+        end.not_to change(InProgressForm, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
       end
