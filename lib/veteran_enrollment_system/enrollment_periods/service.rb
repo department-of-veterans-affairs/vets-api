@@ -39,7 +39,8 @@ module VeteranEnrollmentSystem
           end
         end
       rescue => e
-        StatsD.increment("#{STATSD_KEY_PREFIX}.get_enrollment_periods.failed")
+      # specs show that this is duplicative
+      # StatsD.increment("#{STATSD_KEY_PREFIX}.get_enrollment_periods.failed")
         Rails.logger.error(
           "get_enrollment_periods failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
         )

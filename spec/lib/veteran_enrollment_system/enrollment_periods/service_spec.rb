@@ -36,10 +36,13 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
       it 'logs and increments StatsD on error' do
         VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
                          { match_requests_on: %i[method uri] }) do
-          expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.fail', { tags: ["error:CommonExceptionsResourceNotFound"] })
+          expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.fail',
+                                                     { tags: ['error:CommonExceptionsResourceNotFound'] })
           expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.total')
-          expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.failed')
-          # expect(Rails.logger).to receive(:error).with(/get_enrollment_periods failed:/)
+          # expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.failed')
+          expect(Rails.logger).to receive(:error).with(
+            /get_enrollment_periods failed: No enrollments found for the provided ICN 1014361683V924543 with tax year 2024/
+          )
           expect do
             subject.get_enrollment_periods(icn:)
           end.to raise_error(Common::Exceptions::ResourceNotFound)

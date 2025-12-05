@@ -45,7 +45,7 @@ module VeteranEnrollmentSystem
           end
         end
       rescue => e
-        StatsD.increment("#{STATSD_KEY_PREFIX}.get_form_by_icn.failed")
+        # StatsD.increment("#{STATSD_KEY_PREFIX}.get_form_by_icn.failed")
         Rails.logger.error(
           "get_form_by_icn failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
         )
