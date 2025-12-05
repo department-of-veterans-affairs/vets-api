@@ -31,17 +31,12 @@ describe SM::Client, '#status' do
       it 'raises BackendServiceException on FAILED' do
         VCR.use_cassette('sm_client/messages/creates/status_failed') do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
-            error = nil
-            begin
-              client.post_create_message(message_params, poll_for_status: true)
-            rescue Common::Exceptions::BackendServiceException => e
-              error = e
+            expect { client.post_create_message(message_params, poll_for_status: true) }
+              .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+              expect(error.status_code).to eq(400)
+              expect(error.errors.first[:code]).to eq('SM98')
+              expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
             end
-
-            expect(error).to be_a(Common::Exceptions::BackendServiceException)
-            expect(error.status_code).to eq(400)
-            expect(error.errors.first[:code]).to eq('SM98')
-            expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
           end
         end
       end
@@ -49,17 +44,12 @@ describe SM::Client, '#status' do
       it 'raises BackendServiceException on INVALID' do
         VCR.use_cassette('sm_client/messages/creates/status_invalid') do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
-            error = nil
-            begin
-              client.post_create_message(message_params, poll_for_status: true)
-            rescue Common::Exceptions::BackendServiceException => e
-              error = e
+            expect { client.post_create_message(message_params, poll_for_status: true) }
+              .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+              expect(error.status_code).to eq(400)
+              expect(error.errors.first[:code]).to eq('SM98')
+              expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
             end
-
-            expect(error).to be_a(Common::Exceptions::BackendServiceException)
-            expect(error.status_code).to eq(400)
-            expect(error.errors.first[:code]).to eq('SM98')
-            expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
           end
         end
       end
