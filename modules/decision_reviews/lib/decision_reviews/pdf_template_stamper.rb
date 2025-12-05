@@ -24,58 +24,21 @@ module DecisionReviews
       @template_path = template_file_path
     end
 
-    def stamp_personalized_data(first_name:, submission_date:, email_address:, sent_date:,
-                                email_delivery_failure: false, evidence_filename: nil, **_unused)
-      # Build the form field data hash with PDF field names as keys
-      form_data = {
-        'Recipient name' => "#{first_name},",
-        'Original submission attempt timestamp' => format_timestamp(submission_date),
-        'Email delivered timestamp' => format_timestamp(sent_date),
-        'Recipient email address' => email_address,
-        'Original submission attempt date' => format_original_submission_attempt_date(submission_date),
-        'Email delivery status' => email_delivery_failure ? '✗ Failure' : '✓ Success'
-      }
-
-      # Add evidence filename if provided (only for evidence failure templates)
-      form_data['Evidence filename'] = evidence_filename if evidence_filename
-
+    # Stamp personalized data onto the PDF template
+    # @param data [Hash] Personalization data with keys:
+    #   - first_name [String] Recipient's first name
+    #   - submission_date [Time] Original submission timestamp
+    #   - email_address [String] Recipient's email
+    #   - sent_date [Time] Email sent timestamp
+    #   - email_delivery_failure [Boolean] Whether email delivery failed (default: false)
+    #   - evidence_filename [String] Evidence filename for evidence failure templates (optional)
+    # @return [String] Binary PDF content
+    def stamp_personalized_data(data)
+      form_data = build_form_data(data)
       output_path = "#{Common::FileHelpers.random_file_path}.pdf"
 
       begin
-        doc = HexaPDF::Document.open(@template_path)
-
-        # Fill each form field and set to read-only
-        form_data.each do |field_name, value|
-          field = doc.acro_form&.field_by_name(field_name)
-          next unless field
-
-          # Set color for Email Delivery field based on success/failure BEFORE setting value
-          if field_name == 'Email delivery status'
-            # Red for failure (RGB: 0.8, 0, 0), Green for success (RGB: 0, 0.5, 0)
-            color = email_delivery_failure ? [0.8, 0, 0] : [0, 0.5, 0]
-
-            # Set the text color in the field's default appearance string
-            # Format: /FontName FontSize Tf R G B rg
-            field[:DA] = "/Helv 12 Tf #{color[0]} #{color[1]} #{color[2]} rg"
-          end
-
-          # Set the field value (after DA is set)
-          field.field_value = value
-
-          # Set ReadOnly flag (bit 1) to prevent editing while preserving accessibility
-          field[:Ff] = (field[:Ff] || 0) | 0x1
-        end
-
-        # Regenerate all form field appearances with the updated DA strings
-        # doc.acro_form.create_appearances if doc.acro_form
-
-        # Disable NeedAppearances so PDF readers use our generated appearances
-        doc.acro_form[:NeedAppearances] = true if doc.acro_form
-
-        # Write the filled PDF with read-only fields
-        doc.write(output_path, validate: true)
-
-        # Read and return the filled PDF
+        fill_and_write_pdf(form_data, output_path, data[:email_delivery_failure])
         File.binread(output_path)
       ensure
         Common::FileHelpers.delete_file_if_exists(output_path)
@@ -83,6 +46,64 @@ module DecisionReviews
     end
 
     private
+
+    def build_form_data(data)
+      form_data = {
+        'Recipient name' => "#{data[:first_name]},",
+        'Original submission attempt timestamp' => format_timestamp(data[:submission_date]),
+        'Email delivered timestamp' => format_timestamp(data[:sent_date]),
+        'Recipient email address' => data[:email_address],
+        'Original submission attempt date' => format_original_submission_attempt_date(data[:submission_date]),
+        'Email delivery status' => data[:email_delivery_failure] ? '✗ Failure' : '✓ Success'
+      }
+
+      # Add evidence filename if provided (only for evidence failure templates)
+      form_data['Evidence filename'] = data[:evidence_filename] if data[:evidence_filename]
+
+      form_data
+    end
+
+    def fill_and_write_pdf(form_data, output_path, email_delivery_failure)
+      doc = HexaPDF::Document.open(@template_path)
+
+      fill_form_fields(doc, form_data, email_delivery_failure)
+      configure_pdf_form(doc)
+      doc.write(output_path, validate: true)
+    end
+
+    def fill_form_fields(doc, form_data, email_delivery_failure)
+      form_data.each do |field_name, value|
+        field = doc.acro_form&.field_by_name(field_name)
+        next unless field
+
+        apply_field_styling(field, field_name, email_delivery_failure)
+        field.field_value = value
+        make_field_readonly(field)
+      end
+    end
+
+    def apply_field_styling(field, field_name, email_delivery_failure)
+      return unless field_name == 'Email delivery status'
+
+      # Red for failure (RGB: 0.8, 0, 0), Green for success (RGB: 0, 0.5, 0)
+      color = email_delivery_failure ? [0.8, 0, 0] : [0, 0.5, 0]
+
+      # Set the text color in the field's default appearance string
+      # Format: /FontName FontSize Tf R G B rg
+      field[:DA] = "/Helv 12 Tf #{color[0]} #{color[1]} #{color[2]} rg"
+    end
+
+    def make_field_readonly(field)
+      # Set ReadOnly flag (bit 1) to prevent editing while preserving accessibility
+      field[:Ff] = (field[:Ff] || 0) | 0x1
+    end
+
+    def configure_pdf_form(doc)
+      return unless doc.acro_form
+
+      # Enable NeedAppearances so PDF readers use our generated appearances
+      doc.acro_form[:NeedAppearances] = true
+    end
 
     def template_file_path
       Rails.root.join('modules', 'decision_reviews', 'lib', 'decision_reviews', 'email_templates',
@@ -99,7 +120,8 @@ module DecisionReviews
 
     def format_original_submission_attempt_date(date)
       formatted_date = format_simple_date(date)
-      @template_type == 'nod_evidence_failure' ? "#{formatted_date}," : formatted_date
+      templates_with_comma = %w[nod_evidence_failure sc_evidence_failure sc_4142_failure]
+      templates_with_comma.include?(@template_type) ? "#{formatted_date}," : formatted_date
     end
   end
 end
