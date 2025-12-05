@@ -80,8 +80,8 @@ module SimpleFormsApi
           'Simple forms api - scanned form uploaded',
           { form_number: params[:form_number], status:, confirmation_number:, file_size: }
         )
-      [status, confirmation_number]
-    end
+        [status, confirmation_number]
+      end
 
       def upload_response_with_supporting_documents
         service = SimpleFormsApi::ScannedFormUploadService.new(

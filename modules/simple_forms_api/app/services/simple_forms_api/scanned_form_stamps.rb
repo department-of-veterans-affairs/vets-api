@@ -2,7 +2,6 @@
 
 module SimpleFormsApi
   class ScannedFormStamps
-    
     TIMESTAMP_LINE_1_COORDS = [460, 710].freeze
     TIMESTAMP_LINE_2_COORDS = [460, 690].freeze
     TIMESTAMP_FONT_SIZE = 12
