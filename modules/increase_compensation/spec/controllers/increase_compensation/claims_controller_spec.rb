@@ -5,6 +5,8 @@ require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'support/controller_spec_helper'
 
+MOCK_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+
 RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
   let(:monitor) { double('IncreaseCompensation::Monitor') }
   let(:user) { create(:user) }
@@ -80,10 +82,18 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
     it 'returns a serialized claim' do
       claim = build(:increase_compensation_claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find_by!).and_return(claim)
+      mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
+      allow_any_instance_of(IncreaseCompensation::V0::ClaimsController)
+        .to receive(:get_last_form_submission_attempt).and_return(mock_attempt)
+      allow_any_instance_of(IncreaseCompensation::V0::ClaimsController)
+        .to receive(:get_signed_url).and_return(MOCK_URL)
 
       get '/increase_compensation/v0/claims/:id', params: { id: 'increase_compensation_claim' }
+      attributes = JSON.parse(response.body)['data']['attributes']
 
+      expect(attributes['guid']).to eq(claim.guid)
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
+      expect(attributes['pdf_url']).to eq(MOCK_URL)
       expect(response).to have_http_status(:ok)
     end
   end
