@@ -9,6 +9,10 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
   let(:poa_code) { 'ABC' }
   let(:bad_b64_image) { File.read('modules/claims_api/spec/fixtures/signature_b64_prefix_bad.txt') }
+  let(:rep) do
+    create(:representative, representative_id: '1234', poa_codes: [poa_code], first_name: 'Bob',
+                            last_name: 'Representative')
+  end
 
   before do
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
@@ -182,32 +186,37 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
     let(:pdf_path) { 'some/path' }
     let(:doc_type) { 'L075' }
 
-    it 'calls the benefits document API upload instead of VBMS' do
+    before do
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
-      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
+    end
+
+    it 'calls the PoaDocumentService upload instead of VBMS' do
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+      expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
 
       subject.new.perform(power_of_attorney.id, action: 'post')
     end
 
-    it 'calls the benefits document API upload_document instead of upload' do
-      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
-      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
+    context "when the 'put' action param is included" do
+      it 'calls the PoaDocumentService upload_document instead of upload' do
+        expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
+        expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload).with(
+          poa: power_of_attorney,
+          pdf_path: anything,
+          doc_type: 'L075',
+          action: 'put'
+        )
 
-      expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
-      expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
-
-      subject.new.perform(power_of_attorney.id, 'post')
+        subject.new.perform(power_of_attorney.id, 'put')
+      end
     end
 
-    it 'rescues errors from BD and sets the status to errored' do
-      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
-
+    it 'rescues errors from PoaDocumentService and sets the status to errored' do
       VCR.use_cassette('claims_api/bd/upload_error') do
-        allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
-                                                    .and_raise(Common::Exceptions::BackendServiceException.new(errors))
+        allow(ClaimsApi::PoaDocumentService.new).to receive(:create_upload).with(
+          poa: power_of_attorney, pdf_path:, doc_type:, action: 'post'
+        ).and_raise(Common::Exceptions::BackendServiceException.new(errors))
+
         subject.new.perform(power_of_attorney.id, 'post')
       rescue
         power_of_attorney.reload
@@ -216,6 +225,12 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
         )
         expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
       end
+    end
+
+    it 'calls the PoaDocumentService' do
+      expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
+
+      subject.new.perform(power_of_attorney.id, 'post', '2122')
     end
   end
 end

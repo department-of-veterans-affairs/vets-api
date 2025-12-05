@@ -183,57 +183,57 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             }
           }
         }
+        power_of_attorney.auth_headers.deep_merge!(
+          {
+            'dependent' => {
+              'first_name' => 'Mitchell',
+              'last_name' => 'Jenkins'
+            }
+          }
+        )
         power_of_attorney.save
+      end
+
+      let(:data) do
+        power_of_attorney
+          .form_data
+          .deep_merge(
+            {
+              'veteran' => {
+                'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+              },
+              'text_signatures' => {
+                'page2' => [
+                  {
+                    'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 306
+                  },
+                  {
+                    'signature' => 'Bob Representative - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 200
+                  }
+                ]
+              },
+              'representative' => {
+                'firstName' => 'Bob',
+                'lastName' => 'Representative'
+              },
+              'dependent' => {
+                'first_name' => 'Mitchell',
+                'last_name' => 'Jenkins'
+              },
+              'appointmentDate' => power_of_attorney.created_at
+            }
+          )
       end
 
       it 'generates e-signatures correctly for a non-veteran claimant' do
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
-          data = power_of_attorney
-                 .form_data
-                 .deep_merge(
-                   {
-                     'veteran' => {
-                       'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
-                       'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
-                       'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
-                       'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                     },
-                     'text_signatures' => {
-                       'page2' => [
-                         {
-                           'signature' => 'Mitchell Jenkins - signed via api.va.gov',
-                           'x' => 35,
-                           'y' => 306
-                         },
-                         {
-                           'signature' => 'Bob Representative - signed via api.va.gov',
-                           'x' => 35,
-                           'y' => 200
-                         }
-                       ]
-                     },
-                     'representative' => {
-                       'firstName' => 'Bob',
-                       'lastName' => 'Representative'
-                     },
-                     'dependent' => {
-                       'first_name' => 'Mitchell',
-                       'last_name' => 'Jenkins'
-                     },
-                     'appointmentDate' => power_of_attorney.created_at
-                   }
-                 )
-
-          power_of_attorney.auth_headers.deep_merge!(
-            {
-              'dependent' => {
-                'first_name' => 'Mitchell',
-                'last_name' => 'Jenkins'
-              }
-            }
-          )
-          power_of_attorney.save!
-
           allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
             .to receive(:construct)
@@ -243,6 +243,21 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
           subject.new.perform(power_of_attorney.id, '2122A', 'post',
                               rep.id)
         end
+      end
+
+      it 'calls the PoaAssignDependentClaimantJob job for a dependent filing' do
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:upload_to_vbms).and_return(true)
+        expect(ClaimsApi::PoaAssignDependentClaimantJob).to receive(:perform_async)
+
+        subject.new.perform(power_of_attorney.id, '2122A', 'post',
+                            rep.id)
+      end
+
+      it 'detects a dependent filing correctly' do
+        result = subject.new.send(:dependent_filing?, power_of_attorney)
+
+        expect(result).to be(true)
       end
     end
 
@@ -472,34 +487,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
         allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:data).and_return({})
       end
 
-      it 'calls the Benefits Documents uploader instead of VBMS' do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
-        expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
-        expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+      it 'calls the PoaDocumentService instead of VBMS' do
+        expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
+
         subject.new.perform(power_of_attorney.id, '2122', 'post',
                             rep.id)
-      end
-    end
-
-    context 'when the BD upload and BD refactor feature flags are enabled' do
-      let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
-
-      before do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
-        pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
-        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
-          .and_return(pdf_constructor_double)
-        allow(pdf_constructor_double).to receive(:construct).and_return(pdf_path)
-        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:data).and_return({})
-        allow_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
-          .with(poa: power_of_attorney, pdf_path:, doc_type: 'L190', action: 'post').and_call_original
-      end
-
-      it 'calls the Benefits Documents upload_document instead of upload' do
-        expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
-        expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
-        subject.new.perform(power_of_attorney.id, '2122', 'post', rep.id)
       end
     end
   end
@@ -509,7 +501,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
 
     before do
       allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
-      allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
       pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
       allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
         .and_return(pdf_constructor_double)
@@ -525,6 +516,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
 
       it 'updates the process for the power of attorney with the success status' do
         subject.new.perform(power_of_attorney.id, '2122', 'post', rep.id)
+
         expect(ClaimsApi::Process.find_by(processable: power_of_attorney,
                                           step_type: 'PDF_SUBMISSION').step_status).to eq('SUCCESS')
       end
@@ -538,6 +530,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
 
       it 'updates the process for the power of attorney with the failed status' do
         subject.new.perform(power_of_attorney.id, '2122', 'post', rep.id)
+
         expect(ClaimsApi::Process.find_by(processable: power_of_attorney,
                                           step_type: 'PDF_SUBMISSION').step_status).to eq('FAILED')
       end
