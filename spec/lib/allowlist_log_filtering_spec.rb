@@ -61,7 +61,7 @@ RSpec.describe AllowlistLogFiltering do
 
     it 'allows multiple keys in log_allowlist' do
       data = { ssn: '123-45-6789', email: 'user@example.com', phone: '555-1234' }
-      logger_with_output.info(data, log_allowlist: [:email, :phone])
+      logger_with_output.info(data, log_allowlist: %i[email phone])
 
       output = log_output.string
       expect(output).to include('user@example.com')
@@ -203,7 +203,7 @@ RSpec.describe AllowlistLogFiltering do
 
     it 'handles allowlist keys that do not exist in data' do
       data = { ssn: '123-45-6789' }
-      logger_with_output.info(data, log_allowlist: [:email, :phone])
+      logger_with_output.info(data, log_allowlist: %i[email phone])
 
       output = log_output.string
       expect(output).not_to include('123-45-6789')

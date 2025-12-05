@@ -21,13 +21,13 @@ module AllowlistLogFiltering
 
     # If message is a hash, apply filtering (either per-call or default)
     if message.is_a?(Hash)
-      if allowlist.any?
-        # Apply per-call allowlist filtering
-        filtered_message = filter_with_allowlist(message, allowlist)
-      else
-        # Apply default Rails filtering (no per-call allowlist)
-        filtered_message = ParameterFilterHelper.filter_params(message)
-      end
+      filtered_message = if allowlist.any?
+                           # Apply per-call allowlist filtering
+                           filter_with_allowlist(message, allowlist)
+                         else
+                           # Apply default Rails filtering (no per-call allowlist)
+                           ParameterFilterHelper.filter_params(message)
+                         end
       return super(severity_int, filtered_message, progname)
     end
 
@@ -38,7 +38,7 @@ module AllowlistLogFiltering
   # Override all log level methods to support log_allowlist parameter
   %i[debug info warn error fatal unknown].each do |level|
     define_method(level) do |progname = nil, log_allowlist: [], &block|
-      add(level, progname, nil, log_allowlist: log_allowlist, &block)
+      add(level, progname, nil, log_allowlist:, &block)
     end
   end
 
@@ -62,16 +62,16 @@ module AllowlistLogFiltering
       data.each do |key, value|
         key_string = key.to_s
 
-        if allowlist.include?(key_string)
-          # Key is in the per-call allowlist, don't filter it
-          data[key] = value
-        elsif value.is_a?(Hash) || value.is_a?(Array)
-          # Recursively filter nested structures
-          data[key] = apply_allowlist_filter(value, allowlist, global_filter)
-        else
-          # Apply global filtering
-          data[key] = global_filter.call(key, value)
-        end
+        data[key] = if allowlist.include?(key_string)
+                      # Key is in the per-call allowlist, don't filter it
+                      value
+                    elsif value.is_a?(Hash) || value.is_a?(Array)
+                      # Recursively filter nested structures
+                      apply_allowlist_filter(value, allowlist, global_filter)
+                    else
+                      # Apply global filtering
+                      global_filter.call(key, value)
+                    end
       end
       data
     when Array
