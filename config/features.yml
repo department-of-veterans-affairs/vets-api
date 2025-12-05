@@ -2747,3 +2747,9 @@ features:
   survivors_benefits_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  letters_client_side_monitoring:
+    actor_type: cookie_id
+    description: Enables client side monitoring on the beneftis letters app.
+  letters_rum_dashboard:
+    actor_type: cookie_id
+    description: Enables RUM dashboard on the benefits letters app.
