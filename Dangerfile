@@ -589,7 +589,7 @@ module VSPDanger
   if $PROGRAM_NAME == __FILE__
     require 'minitest/autorun'
 
-    class ChangeLimiterTest < MiniTest::Test
+    class ChangeLimiterTest < Minitest::Test
       def test_rubocop
         assert system('rubocop --format simple')
       end
@@ -597,6 +597,69 @@ module VSPDanger
       # TODO: Remove dummy test
       def test_recommended_pr_size
         assert_equal ChangeLimiter::PR_SIZE[:recommended], 200
+      end
+    end
+
+    class ParameterFilteringAllowlistCheckerTest < Minitest::Test
+      def setup
+        @checker = ParameterFilteringAllowlistChecker.new
+      end
+
+      def test_detects_allowlist_addition
+        diff = <<~DIFF
+          diff --git a/config/initializers/filter_parameter_logging.rb b/config/initializers/filter_parameter_logging.rb
+          --- a/config/initializers/filter_parameter_logging.rb
+          +++ b/config/initializers/filter_parameter_logging.rb
+          @@ -5,6 +5,7 @@ ALLOWLIST = %w[
+             action
+             benefits_intake_uuid
+          +  new_param
+             bpds_uuid
+           ].freeze
+        DIFF
+        @checker.stub(:filter_params_diff, diff) do
+          result = @checker.run
+          assert_equal Result::WARNING, result.severity
+        end
+      end
+
+      def test_detects_allowlist_removal
+        diff = <<~DIFF
+          diff --git a/config/initializers/filter_parameter_logging.rb b/config/initializers/filter_parameter_logging.rb
+          --- a/config/initializers/filter_parameter_logging.rb
+          +++ b/config/initializers/filter_parameter_logging.rb
+          @@ -5,7 +5,6 @@ ALLOWLIST = %w[
+             action
+          -  benefits_intake_uuid
+             bpds_uuid
+           ].freeze
+        DIFF
+        @checker.stub(:filter_params_diff, diff) do
+          result = @checker.run
+          assert_equal Result::WARNING, result.severity
+        end
+      end
+
+      def test_ignores_changes_outside_allowlist
+        diff = <<~DIFF
+          diff --git a/config/initializers/filter_parameter_logging.rb b/config/initializers/filter_parameter_logging.rb
+          --- a/config/initializers/filter_parameter_logging.rb
+          +++ b/config/initializers/filter_parameter_logging.rb
+          @@ -1,5 +1,5 @@
+          -# Do NOT add keys that can contain PII/PHI/secrets.
+          +# Do NOT add parameters that can contain PII/PHI/secrets.
+        DIFF
+        @checker.stub(:filter_params_diff, diff) do
+          result = @checker.run
+          assert_equal Result::SUCCESS, result.severity
+        end
+      end
+
+      def test_no_changes_returns_success
+        @checker.stub(:filter_params_diff, '') do
+          result = @checker.run
+          assert_equal Result::SUCCESS, result.severity
+        end
       end
     end
   end
