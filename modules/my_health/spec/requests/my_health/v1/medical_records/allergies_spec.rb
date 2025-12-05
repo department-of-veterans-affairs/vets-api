@@ -6,7 +6,6 @@ require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 require 'support/shared_examples_for_mr'
-require 'ostruct'
 
 RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
   include MedicalRecords::ClientHelpers
