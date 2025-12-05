@@ -18,6 +18,8 @@ module SimpleFormsApi
         send_confirmation_email(params, confirmation_number) if status == 200
 
         render json: { status:, confirmation_number: }
+      rescue SimpleFormsApi::ScannedFormUploadService::UploadError => e
+        render json: { errors: e.errors }, status: e.http_status
       end
 
       def upload_scanned_form
@@ -41,10 +43,13 @@ module SimpleFormsApi
           return
         end
 
+        uploaded_file = extract_uploaded_file
+        return unless uploaded_file
+
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
 
-        attachment.file_attacher.attach(params['file'], validate: false)
+        attachment.file_attacher.attach(uploaded_file, validate: false)
 
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
         processed_attachment = processor.process!
@@ -53,6 +58,8 @@ module SimpleFormsApi
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
         render json: { errors: e.errors }, status: :unprocessable_entity
+      rescue SimpleFormsApi::ScannedFormProcessor::PersistenceError => e
+        render json: { errors: e.errors }, status: :internal_server_error
       end
 
       private
@@ -182,6 +189,31 @@ module SimpleFormsApi
         }
         notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
         notification_email.send
+      end
+
+      def extract_uploaded_file
+        file = params[:file] || params['file']
+        if file.blank?
+          render_upload_error('File missing', 'A file must be provided for upload.', :bad_request)
+          return nil
+        end
+
+        unless valid_uploaded_file?(file)
+          render_upload_error('Invalid file', 'The uploaded file is invalid or unreadable.', :unprocessable_entity)
+          return nil
+        end
+
+        file
+      end
+
+      def valid_uploaded_file?(file)
+        file.respond_to?(:read) && file.respond_to?(:size)
+      rescue
+        false
+      end
+
+      def render_upload_error(title, detail, status_code)
+        render json: { errors: [{ title:, detail: }] }, status: status_code
       end
     end
   end
