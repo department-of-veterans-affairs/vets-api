@@ -86,6 +86,10 @@ jobs:
           for env in ${envs[*]};
           do
             yq e -i '(."vets-api".image.tag) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+
+            yq e -i '("vets-api".sync_windows[]| select(.kind=="allow")) |= "deny"' chart/values.yaml
+
+
             yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
             yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
             yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
@@ -104,3 +108,25 @@ jobs:
           author_name: va-vsp-bot
           author_email: 70344339+va-vsp-bot@users.noreply.github.com
           message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."
+
+
+                    if [ -f "$VALUES_FILE" ]; then
+            # Replace the allow window with deny window
+            yq e -i '
+              (.vets-api.syncWindows[] | select(.kind == "allow")) |= (
+                .kind = "deny" |
+                .schedule = "* * * * *" |
+                .duration = "24h" |
+                .applications = ["*"] |
+                .namespaces = ["*"] |
+                .clusters = ["*"]
+              )
+            ' "$VALUES_FILE"
+
+            echo "✅ Updated ArgoCD sync windows in $VALUES_FILE"
+
+            git diff "$VALUES_FILE"
+          else
+            echo "❌ Could not find $VALUES_FILE"
+            exit 1
+          fi
