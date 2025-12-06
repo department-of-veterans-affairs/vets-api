@@ -70,7 +70,7 @@ module SignIn
     end
 
     def load_user_object
-      UserLoader.new(access_token:, request_ip: request.remote_ip).perform
+      UserLoader.new(access_token:, request_ip: request.remote_ip, cookies:).perform
     end
 
     def handle_authenticate_error(error, access_token_cookie_name: Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
