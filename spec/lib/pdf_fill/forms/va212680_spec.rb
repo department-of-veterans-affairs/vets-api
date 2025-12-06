@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/forms/va1010cg'
 require 'lib/pdf_fill/fill_form_examples'
 
 describe PdfFill::Forms::Va212680 do
