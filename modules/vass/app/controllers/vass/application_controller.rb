@@ -130,6 +130,27 @@ module Vass
       }.to_json)
     end
 
+    ##
+    # Logs VASS events with optional metadata (no PHI).
+    #
+    # @param action [String] Action name (e.g., 'otp_generated', 'identity_validation_failed')
+    # @param uuid [String, nil] Session UUID (optional)
+    # @param level [Symbol] Log level (:info, :warn, :error)
+    # @param metadata [Hash] Additional metadata to include
+    #
+    def log_vass_event(action:, uuid: nil, level: :info, **metadata)
+      log_data = {
+        service: 'vass',
+        action:,
+        controller: controller_name,
+        timestamp: Time.current.iso8601
+      }
+      log_data[:uuid] = uuid if uuid
+      log_data.merge!(metadata)
+
+      Rails.logger.public_send(level, log_data.to_json)
+    end
+
     # Render error response in JSON:API format
     def render_error_response(title:, detail:, status:)
       status_code = Rack::Utils.status_code(status)
