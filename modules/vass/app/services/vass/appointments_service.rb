@@ -192,22 +192,44 @@ module Vass
     end
 
     ##
-    # Retrieves veteran information.
+    # Retrieves veteran information by veteran ID (UUID).
     #
-    # @param veteran_id [String] Veteran ID in VASS system
+    # This method can be called without EDIPI - the VASS API returns EDIPI in the response.
+    # Used for OTC flow where we only have the UUID from the welcome email.
     #
-    # @return [Hash] Veteran data including name, contact info
+    # @param veteran_id [String] Veteran ID (UUID) in VASS system
+    # @param last_name [String, nil] Optional: Veteran's last name for validation
+    # @param date_of_birth [String, nil] Optional: Veteran's date of birth for validation
     #
-    # @example
-    #   service.get_veteran_info(veteran_id: 'vet-123')
+    # @return [Hash] Veteran data including firstName, lastName, dateOfBirth, edipi, notificationEmail
+    #   If validation params provided, also includes 'contact_method' and 'contact_value' keys
     #
-    def get_veteran_info(veteran_id:)
-      response = client.get_veteran(
-        edipi:,
-        veteran_id:
-      )
+    # @raise [Vass::Errors::VassApiError] if VASS API call fails
+    # @raise [Vass::Errors::IdentityValidationError] if validation params provided and identity doesn't match
+    # @raise [Vass::Errors::MissingContactInfoError] if validation params provided and no contact info available
+    #
+    # @example Basic usage (no validation)
+    #   service.get_veteran_info(veteran_id: 'da1e1a40-1e63-f011-bec2-001dd80351ea')
+    #
+    # @example With identity validation
+    #   service.get_veteran_info(
+    #     veteran_id: 'da1e1a40-1e63-f011-bec2-001dd80351ea',
+    #     last_name: 'Smith',
+    #     date_of_birth: '1990-01-15'
+    #   )
+    #
+    def get_veteran_info(veteran_id:, last_name: nil, date_of_birth: nil)
+      response = client.get_veteran(veteran_id:)
+      veteran_data = parse_response(response)
 
-      parse_response(response)
+      # If validation params provided, validate identity and extract contact info
+      if last_name.present? && date_of_birth.present?
+        validate_and_enrich_veteran_data(veteran_data, last_name, date_of_birth)
+      else
+        veteran_data
+      end
+    rescue Vass::Errors::IdentityValidationError, Vass::Errors::MissingContactInfoError
+      raise
     rescue => e
       handle_error(e, 'get_veteran_info')
     end
@@ -309,6 +331,116 @@ module Vass
         correlation_id:,
         timestamp: Time.current.iso8601
       }.to_json)
+    end
+
+    ##
+    # Validates veteran identity by comparing request data with VASS response.
+    #
+    # @param veteran_data [Hash] Veteran data from VASS API
+    # @param last_name [String] User-provided last name
+    # @param date_of_birth [String] User-provided date of birth
+    # @return [Boolean] true if identity matches
+    #
+    def validate_veteran_identity(veteran_data, last_name, date_of_birth)
+      return false unless veteran_data && veteran_data['data']
+
+      data = veteran_data['data']
+      last_name_match = normalize_name(data['lastName']) == normalize_name(last_name)
+      dob_match = normalize_date(data['dateOfBirth']) == normalize_date(date_of_birth)
+
+      last_name_match && dob_match
+    end
+
+    ##
+    # Validates veteran identity and enriches data with contact info.
+    #
+    # @param veteran_data [Hash] Veteran data from VASS API
+    # @param last_name [String] Veteran's last name for validation
+    # @param date_of_birth [String] Veteran's date of birth for validation
+    # @return [Hash] Enriched veteran data with contact_method and contact_value
+    # @raise [Vass::Errors::VassApiError] if data is invalid
+    # @raise [Vass::Errors::IdentityValidationError] if identity doesn't match
+    # @raise [Vass::Errors::MissingContactInfoError] if no contact info available
+    #
+    def validate_and_enrich_veteran_data(veteran_data, last_name, date_of_birth)
+      unless veteran_data && veteran_data['success'] && veteran_data['data']
+        raise Vass::Errors::VassApiError,
+              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
+      end
+
+      unless validate_veteran_identity(veteran_data, last_name, date_of_birth)
+        raise Vass::Errors::IdentityValidationError, 'Veteran identity could not be verified'
+      end
+
+      contact_method, contact_value = extract_contact_info(veteran_data)
+      unless contact_method && contact_value
+        raise Vass::Errors::MissingContactInfoError, 'Veteran contact information not found'
+      end
+
+      veteran_data.merge(
+        'contact_method' => contact_method,
+        'contact_value' => contact_value
+      )
+    end
+
+    ##
+    # Extracts contact method and value from VASS veteran data.
+    #
+    # Currently only supports email (SMS not supported for OTC flow).
+    #
+    # @param veteran_data [Hash] Veteran data from VASS API
+    # @return [Array<String, String>, Array[nil, nil]] [contact_method, contact_value] or [nil, nil]
+    #
+    def extract_contact_info(veteran_data)
+      return [nil, nil] unless veteran_data && veteran_data['data']
+
+      data = veteran_data['data']
+      email = data['notificationEmail']
+
+      if email.present?
+        ['email', email]
+      else
+        [nil, nil]
+      end
+    end
+
+    ##
+    # Normalizes name for comparison (uppercase, strip whitespace).
+    #
+    # @param name [String, nil] Name to normalize
+    # @return [String] Normalized name
+    #
+    def normalize_name(name)
+      name.to_s.upcase.strip
+    end
+
+    ##
+    # Normalizes date for comparison.
+    #
+    # @param date [String, nil] Date string (may be in various formats)
+    # @return [String] Normalized date string
+    #
+    def normalize_date(date)
+      return '' if date.blank?
+
+      parsed = parse_date_string(date)
+      parsed ? parsed.strftime('%Y-%m-%d') : date.to_s.strip
+    rescue
+      date.to_s.strip
+    end
+
+    ##
+    # Parses a date string, trying multiple formats.
+    #
+    # @param date [String] Date string to parse
+    # @return [Date, nil] Parsed date or nil if parsing fails
+    #
+    def parse_date_string(date)
+      Date.strptime(date, '%m/%d/%Y')
+    rescue ArgumentError
+      Date.parse(date)
+    rescue
+      nil
     end
   end
 end

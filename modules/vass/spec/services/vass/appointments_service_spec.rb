@@ -148,7 +148,21 @@ describe Vass::AppointmentsService do
   end
 
   describe '#get_veteran_info' do
-    context 'when successful' do
+    let(:veteran_id) { 'da1e1a40-1e63-f011-bec2-001dd80351ea' }
+    let(:veteran_response) do
+      {
+        'success' => true,
+        'data' => {
+          'firstName' => 'John',
+          'lastName' => 'Doe',
+          'dateOfBirth' => '1990-01-15',
+          'edipi' => edipi,
+          'notificationEmail' => 'john.doe@example.com'
+        }
+      }
+    end
+
+    context 'when called without validation params' do
       it 'retrieves veteran information' do
         VCR.use_cassette('vass/get_veteran_success') do
           result = subject.get_veteran_info(veteran_id:)
@@ -157,6 +171,162 @@ describe Vass::AppointmentsService do
           expect(result['data']['firstName']).to eq('John')
           expect(result['data']['lastName']).to eq('Doe')
           expect(result['data']['edipi']).to eq(edipi)
+        end
+      end
+    end
+
+    context 'when called with validation params' do
+      let(:last_name) { 'Doe' }
+      let(:date_of_birth) { '1990-01-15' }
+      let(:client) { instance_double(Vass::Client) }
+      let(:service_with_mock_client) do
+        service = described_class.build(edipi:, correlation_id:)
+        allow(service).to receive(:client).and_return(client)
+        service
+      end
+
+      before do
+        allow(client).to receive(:get_veteran).and_return(
+          double(body: veteran_response, status: 200)
+        )
+      end
+
+      context 'when identity validation succeeds' do
+        it 'returns enriched veteran data with contact info' do
+          result = service_with_mock_client.get_veteran_info(
+            veteran_id:,
+            last_name:,
+            date_of_birth:
+          )
+
+          expect(result['success']).to be true
+          expect(result['data']['firstName']).to eq('John')
+          expect(result['data']['lastName']).to eq('Doe')
+          expect(result['contact_method']).to eq('email')
+          expect(result['contact_value']).to eq('john.doe@example.com')
+        end
+
+        it 'normalizes names for comparison' do
+          result = service_with_mock_client.get_veteran_info(
+            veteran_id:,
+            last_name: '  doe  ',
+            date_of_birth:
+          )
+
+          expect(result['contact_method']).to eq('email')
+        end
+
+        it 'normalizes dates for comparison' do
+          result = service_with_mock_client.get_veteran_info(
+            veteran_id:,
+            last_name:,
+            date_of_birth: '01/15/1990'
+          )
+
+          expect(result['contact_method']).to eq('email')
+        end
+      end
+
+      context 'when identity validation fails' do
+        it 'raises IdentityValidationError for mismatched last name' do
+          expect do
+            service_with_mock_client.get_veteran_info(
+              veteran_id:,
+              last_name: 'Smith',
+              date_of_birth:
+            )
+          end.to raise_error(
+            Vass::Errors::IdentityValidationError,
+            'Veteran identity could not be verified'
+          )
+        end
+
+        it 'raises IdentityValidationError for mismatched date of birth' do
+          expect do
+            service_with_mock_client.get_veteran_info(
+              veteran_id:,
+              last_name:,
+              date_of_birth: '1991-01-15'
+            )
+          end.to raise_error(
+            Vass::Errors::IdentityValidationError,
+            'Veteran identity could not be verified'
+          )
+        end
+      end
+
+      context 'when contact info is missing' do
+        let(:veteran_response_no_email) do
+          {
+            'success' => true,
+            'data' => {
+              'firstName' => 'John',
+              'lastName' => 'Doe',
+              'dateOfBirth' => '1990-01-15',
+              'edipi' => edipi,
+              'notificationEmail' => nil
+            }
+          }
+        end
+
+        before do
+          allow(client).to receive(:get_veteran).and_return(
+            double(body: veteran_response_no_email, status: 200)
+          )
+        end
+
+        it 'raises MissingContactInfoError' do
+          expect do
+            service_with_mock_client.get_veteran_info(
+              veteran_id:,
+              last_name:,
+              date_of_birth:
+            )
+          end.to raise_error(
+            Vass::Errors::MissingContactInfoError,
+            'Veteran contact information not found'
+          )
+        end
+      end
+
+      context 'when API response is invalid' do
+        let(:invalid_response) do
+          {
+            'success' => false,
+            'message' => 'Veteran not found'
+          }
+        end
+
+        before do
+          allow(client).to receive(:get_veteran).and_return(
+            double(body: invalid_response, status: 200)
+          )
+        end
+
+        it 'raises ServiceError with wrapped VassApiError' do
+          expect do
+            service_with_mock_client.get_veteran_info(
+              veteran_id:,
+              last_name:,
+              date_of_birth:
+            )
+          end.to raise_error(
+            Vass::Errors::ServiceError,
+            /Service error in get_veteran_info: Vass::Errors::VassApiError/
+          )
+        end
+      end
+
+      context 'when only one validation param is provided' do
+        it 'does not perform validation' do
+          result = service_with_mock_client.get_veteran_info(
+            veteran_id:,
+            last_name:,
+            date_of_birth: nil
+          )
+
+          expect(result['success']).to be true
+          expect(result['contact_method']).to be_nil
         end
       end
     end
@@ -179,7 +349,10 @@ describe Vass::AppointmentsService do
 
   describe '#whoami' do
     it 'is not yet implemented' do
-      expect { subject.whoami }.to raise_error(NotImplementedError, /whoami endpoint not yet implemented/)
+      expect { subject.whoami }.to raise_error(
+        NotImplementedError,
+        /whoami endpoint not yet implemented/
+      )
     end
   end
 
