@@ -46,7 +46,9 @@ module MedicalExpenseReports
         @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
                                                                  omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
-        @metadata = generate_metadata
+        form = @claim.parsed_form
+        @metadata = generate_metadata(form)
+        @ibm_payload = build_ibm_payload(form)
 
         # upload must be performed within 15 minutes of this request
         upload_document
@@ -110,8 +112,7 @@ module MedicalExpenseReports
       # @see BenefitsIntake::Metadata
       #
       # @return [Hash]
-      def generate_metadata
-        form = @claim.parsed_form
+      def generate_metadata(form)
 
         # also validates/maniuplates the metadata
         ::BenefitsIntake::Metadata.generate(
@@ -123,6 +124,88 @@ module MedicalExpenseReports
           @claim.form_id,
           @claim.business_line
         )
+      end
+
+      def build_ibm_payload(form)
+        claimant_name = build_name(form['claimantFullName'])
+        veteran_name = build_name(form['veteranFullName'])
+        primary_phone = form['primaryPhone'] || {}
+        reporting_period = form['reportingPeriod'] || {}
+        use_va_rcvd_date = use_va_rcvd_date?(form)
+
+        {
+          'CLAIMANT_FIRST_NAME' => claimant_name[:first],
+          'CLAIMANT_LAST_NAME' => claimant_name[:last],
+          'CLAIMANT_MIDDLE_INITIAL' => claimant_name[:middle_initial],
+          'CLAIMANT_NAME' => claimant_name[:full],
+          'CLAIMANT_ADDRESS_FULL_BLOCK' => build_address_block(form['claimantAddress']),
+          'CLAIMANT_SIGNATURE' => form['statementOfTruthSignature'],
+          'CLAIMANT_SIGNATURE_X' => nil,
+          'CL_EMAIL' => form['claimantEmail'] || form['email'],
+          'CL_INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
+          'CL_PHONE_NUMBER' => us_phone_number(primary_phone),
+          'DATE_SIGNED' => form['dateSigned'],
+          'FORM_TYPE' => MedicalExpenseReports::FORM_ID,
+          'MED_EXPENSES_FROM_1' => use_va_rcvd_date ? nil : reporting_period['from'],
+          'MED_EXPENSES_TO_1' => use_va_rcvd_date ? nil : reporting_period['to'],
+          'USE_VA_RCVD_DATE' => use_va_rcvd_date,
+          'VA_FILE_NUMBER' => form['vaFileNumber'],
+          'VETERAN_FIRST_NAME' => veteran_name[:first],
+          'VETERAN_LAST_NAME' => veteran_name[:last],
+          'VETERAN_MIDDLE_INITIAL' => veteran_name[:middle_initial],
+          'VETERAN_NAME' => veteran_name[:full],
+          'VETERAN_SSN' => form['veteranSocialSecurityNumber']
+        }
+      end
+
+      def build_name(name_hash)
+        first = name_hash&.fetch('first', nil)
+        middle = name_hash&.fetch('middle', nil)
+        last = name_hash&.fetch('last', nil)
+
+        {
+          first: first,
+          last: last,
+          middle: middle,
+          middle_initial: middle&.slice(0, 1),
+          full: [first, middle, last].compact.join(' ').presence
+        }
+      end
+
+      def build_address_block(address)
+        return unless address
+
+        lines = []
+        street_line = [address['street'], address['street2']].compact.join(' ').strip
+        lines << street_line unless street_line.blank?
+        city_line = [address['city'], address['state'], address['postalCode']].compact.join(' ').strip
+        lines << city_line unless city_line.blank?
+        lines << address['country'] if address['country'].present?
+
+        lines.join("\n").presence
+      end
+
+      def us_phone_number(primary_phone)
+        return unless primary_phone['countryCode']&.casecmp?('US')
+
+        sanitize_phone(primary_phone['contact'])
+      end
+
+      def international_phone_number(form, primary_phone)
+        return form['internationalPhone'] if form['internationalPhone'].present?
+        return sanitize_phone(primary_phone['contact']) unless primary_phone['countryCode']&.casecmp?('US')
+
+        nil
+      end
+
+      def sanitize_phone(phone)
+        return unless phone
+
+        phone.to_s.gsub(/\D/, '')
+      end
+
+      def use_va_rcvd_date?(form)
+        form['firstTimeReporting'].present? ? form['firstTimeReporting'] : false
       end
 
       # Upload generated pdf to Benefits Intake API
@@ -137,8 +220,9 @@ module MedicalExpenseReports
           metadata: @metadata.to_json,
           attachments: @attachment_paths
         }
+        tracked_payload = payload.merge(ibm_payload: @ibm_payload)
 
-        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
+        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
         raise MedicalExpenseReportsBenefitIntakeError, response.to_s unless response.success?
       end

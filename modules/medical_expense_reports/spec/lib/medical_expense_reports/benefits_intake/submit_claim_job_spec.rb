@@ -118,6 +118,58 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
     # perform
   end
 
+  describe '#build_ibm_payload' do
+    let(:form_data) do
+      {
+        'claimantFullName' => { 'first' => 'Jane', 'middle' => 'Q', 'last' => 'Public' },
+        'claimantAddress' => {
+          'street' => '100 Main St',
+          'street2' => 'Apt 2',
+          'city' => 'City',
+          'state' => 'VA',
+          'postalCode' => '22206',
+          'country' => 'USA'
+        },
+        'claimantEmail' => 'claimant@example.com',
+        'primaryPhone' => { 'countryCode' => 'US', 'contact' => '5551234567' },
+        'veteranFullName' => { 'first' => 'John', 'middle' => 'Q', 'last' => 'Public' },
+        'veteranSocialSecurityNumber' => '123456789',
+        'vaFileNumber' => '987654321',
+        'statementOfTruthSignature' => 'Jane Public',
+        'dateSigned' => '2024-04-01',
+        'reportingPeriod' => { 'from' => '2024-01-01', 'to' => '2024-12-31' },
+        'firstTimeReporting' => false
+      }
+    end
+
+    it 'returns the IBM data dictionary mapping' do
+      payload = job.send(:build_ibm_payload, form_data)
+
+      expect(payload).to include(
+        'CLAIMANT_FIRST_NAME' => 'Jane',
+        'CLAIMANT_LAST_NAME' => 'Public',
+        'CLAIMANT_MIDDLE_INITIAL' => 'Q',
+        'CLAIMANT_NAME' => 'Jane Q Public',
+        'CLAIMANT_ADDRESS_FULL_BLOCK' => "100 Main St Apt 2\nCity VA 22206\nUSA",
+        'CL_EMAIL' => 'claimant@example.com',
+        'CL_PHONE_NUMBER' => '5551234567',
+        'CL_INT_PHONE_NUMBER' => nil,
+        'DATE_SIGNED' => '2024-04-01',
+        'FORM_TYPE' => MedicalExpenseReports::FORM_ID,
+        'MED_EXPENSES_FROM_1' => '2024-01-01',
+        'MED_EXPENSES_TO_1' => '2024-12-31',
+        'USE_VA_RCVD_DATE' => false,
+        'VA_FILE_NUMBER' => '987654321',
+        'VETERAN_FIRST_NAME' => 'John',
+        'VETERAN_LAST_NAME' => 'Public',
+        'VETERAN_MIDDLE_INITIAL' => 'Q',
+        'VETERAN_NAME' => 'John Q Public',
+        'VETERAN_SSN' => '123456789',
+        'CLAIMANT_SIGNATURE' => 'Jane Public'
+      )
+    end
+  end
+
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
