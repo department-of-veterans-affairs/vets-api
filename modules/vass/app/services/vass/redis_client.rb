@@ -135,6 +135,51 @@ module Vass
       )
     end
 
+    ##
+    # Saves veteran metadata (edipi, veteran_id) keyed by UUID.
+    # Used to avoid fetching veteran data again in the show flow.
+    #
+    # @param uuid [String] Veteran UUID
+    # @param edipi [String] Veteran EDIPI
+    # @param veteran_id [String] Veteran ID
+    # @return [Boolean] true if write succeeds
+    #
+    def save_veteran_metadata(uuid:, edipi:, veteran_id:)
+      metadata = {
+        edipi:,
+        veteran_id:
+      }
+
+      Rails.cache.write(
+        veteran_metadata_key(uuid),
+        Oj.dump(metadata),
+        namespace: 'vass-otc-cache',
+        expires_in: redis_otc_expiry
+      )
+    end
+
+    ##
+    # Retrieves veteran metadata by UUID.
+    #
+    # @param uuid [String] Veteran UUID
+    # @return [Hash, nil] Metadata hash with edipi and veteran_id, or nil if not found/expired
+    #
+    def veteran_metadata(uuid:)
+      cached = Rails.cache.read(
+        veteran_metadata_key(uuid),
+        namespace: 'vass-otc-cache'
+      )
+
+      return nil if cached.nil?
+
+      begin
+        Oj.load(cached).with_indifferent_access
+      rescue Oj::ParseError
+        Rails.logger.error('VASS RedisClient failed to parse veteran metadata from cache')
+        nil
+      end
+    end
+
     # ------------ Session Management ------------
 
     ##
