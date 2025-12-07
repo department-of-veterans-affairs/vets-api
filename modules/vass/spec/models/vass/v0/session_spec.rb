@@ -11,7 +11,7 @@ RSpec.describe Vass::V0::Session, type: :model do
 
   describe '.build' do
     it 'creates a new session instance' do
-      session = described_class.build(contact_method: 'email', contact_value: valid_email)
+      session = described_class.build(uuid:, last_name: 'Smith', date_of_birth: '1990-01-15')
       expect(session).to be_a(described_class)
     end
   end
@@ -21,26 +21,31 @@ RSpec.describe Vass::V0::Session, type: :model do
       it 'sets attributes from direct parameters' do
         session = described_class.new(
           uuid:,
-          contact_method: 'email',
-          contact_value: valid_email,
-          otp_code:
+          last_name: 'Smith',
+          date_of_birth: '1990-01-15',
+          otp_code:,
+          edipi: '1234567890',
+          veteran_id: uuid
         )
 
         expect(session.uuid).to eq(uuid)
-        expect(session.contact_method).to eq('email')
-        expect(session.contact_value).to eq(valid_email)
+        expect(session.last_name).to eq('Smith')
+        expect(session.date_of_birth).to eq('1990-01-15')
         expect(session.otp_code).to eq(otp_code)
+        expect(session.edipi).to eq('1234567890')
+        expect(session.veteran_id).to eq(uuid)
       end
     end
 
     context 'with data hash' do
       it 'sets attributes from data hash' do
         session = described_class.new(
-          data: { contact_method: 'sms', contact_value: valid_phone }
+          data: { uuid:, last_name: 'Smith', date_of_birth: '1990-01-15' }
         )
 
-        expect(session.contact_method).to eq('sms')
-        expect(session.contact_value).to eq(valid_phone)
+        expect(session.uuid).to eq(uuid)
+        expect(session.last_name).to eq('Smith')
+        expect(session.date_of_birth).to eq('1990-01-15')
       end
     end
 
@@ -56,54 +61,48 @@ RSpec.describe Vass::V0::Session, type: :model do
   end
 
   describe '#valid_for_creation?' do
-    context 'with valid email' do
-      it 'returns true' do
-        session = described_class.new(contact_method: 'email', contact_value: valid_email)
+    context 'with valid parameters' do
+      it 'returns true when uuid, last_name, and date_of_birth are present' do
+        session = described_class.new(uuid:, last_name: 'Smith', date_of_birth: '1990-01-15')
         expect(session.valid_for_creation?).to be true
       end
     end
 
-    context 'with valid SMS' do
-      it 'returns true for 10-digit phone' do
-        session = described_class.new(contact_method: 'sms', contact_value: valid_phone)
-        expect(session.valid_for_creation?).to be true
-      end
-
-      it 'returns true for phone with +1 prefix' do
-        session = described_class.new(contact_method: 'sms', contact_value: "+1#{valid_phone}")
-        expect(session.valid_for_creation?).to be true
-      end
-
-      it 'returns true for phone with formatting' do
-        session = described_class.new(contact_method: 'sms', contact_value: '(555) 555-1234')
-        expect(session.valid_for_creation?).to be true
-      end
-    end
-
-    context 'with invalid contact method' do
+    context 'with missing uuid' do
       it 'returns false' do
-        session = described_class.new(contact_method: 'invalid', contact_value: valid_email)
+        session = described_class.new(uuid: nil, last_name: 'Smith', date_of_birth: '1990-01-15')
+        session.instance_variable_set(:@uuid, nil)
         expect(session.valid_for_creation?).to be false
       end
     end
 
-    context 'with invalid email' do
-      it 'returns false for malformed email' do
-        session = described_class.new(contact_method: 'email', contact_value: 'not-an-email')
-        expect(session.valid_for_creation?).to be false
-      end
-    end
-
-    context 'with invalid phone' do
-      it 'returns false for too short phone' do
-        session = described_class.new(contact_method: 'sms', contact_value: '123')
-        expect(session.valid_for_creation?).to be false
-      end
-    end
-
-    context 'with blank contact value' do
+    context 'with missing last_name' do
       it 'returns false' do
-        session = described_class.new(contact_method: 'email', contact_value: '')
+        session = described_class.new(uuid:, date_of_birth: '1990-01-15')
+        expect(session.valid_for_creation?).to be false
+      end
+    end
+
+    context 'with missing date_of_birth' do
+      it 'returns false' do
+        session = described_class.new(uuid:, last_name: 'Smith')
+        expect(session.valid_for_creation?).to be false
+      end
+    end
+
+    context 'with blank values' do
+      it 'returns false for blank uuid' do
+        session = described_class.new(uuid: '', last_name: 'Smith', date_of_birth: '1990-01-15')
+        expect(session.valid_for_creation?).to be false
+      end
+
+      it 'returns false for blank last_name' do
+        session = described_class.new(uuid:, last_name: '', date_of_birth: '1990-01-15')
+        expect(session.valid_for_creation?).to be false
+      end
+
+      it 'returns false for blank date_of_birth' do
+        session = described_class.new(uuid:, last_name: 'Smith', date_of_birth: '')
         expect(session.valid_for_creation?).to be false
       end
     end
@@ -119,7 +118,9 @@ RSpec.describe Vass::V0::Session, type: :model do
 
     context 'without UUID' do
       it 'returns false' do
-        session = described_class.new(uuid: nil, otp_code:)
+        # UUID is auto-generated, so we need to explicitly set it to nil after initialization
+        session = described_class.new(otp_code:)
+        session.instance_variable_set(:@uuid, nil)
         expect(session.valid_for_validation?).to be false
       end
     end
@@ -263,6 +264,98 @@ RSpec.describe Vass::V0::Session, type: :model do
                                error: true,
                                message: 'Invalid OTP code'
                              })
+    end
+  end
+
+  describe '#set_contact_from_veteran_data' do
+    let(:veteran_data) do
+      {
+        'success' => true,
+        'data' => {
+          'edipi' => '1234567890',
+          'firstName' => 'John',
+          'lastName' => 'Smith'
+        },
+        'contact_method' => 'email',
+        'contact_value' => valid_email
+      }
+    end
+
+    it 'sets contact method and value' do
+      session = described_class.new(uuid:, redis_client:)
+      allow(redis_client).to receive(:save_veteran_metadata)
+      session.set_contact_from_veteran_data(veteran_data)
+
+      expect(session.contact_method).to eq('email')
+      expect(session.contact_value).to eq(valid_email)
+      expect(session.edipi).to eq('1234567890')
+      expect(session.veteran_id).to eq(uuid)
+    end
+
+    it 'saves veteran metadata when edipi is present' do
+      session = described_class.new(uuid:, edipi: '1234567890', redis_client:)
+      expect(redis_client).to receive(:save_veteran_metadata).with(
+        uuid:,
+        edipi: '1234567890',
+        veteran_id: uuid
+      )
+      session.set_contact_from_veteran_data(veteran_data)
+    end
+
+    it 'does not save metadata when edipi is not present' do
+      veteran_data_no_edipi = veteran_data.dup
+      veteran_data_no_edipi['data'] = { 'firstName' => 'John' }
+      session = described_class.new(uuid:, redis_client:)
+      expect(redis_client).not_to receive(:save_veteran_metadata)
+      session.set_contact_from_veteran_data(veteran_data_no_edipi)
+    end
+  end
+
+  describe '#save_veteran_metadata_for_session' do
+    it 'saves veteran metadata to Redis' do
+      session = described_class.new(uuid:, edipi: '1234567890', redis_client:)
+      expect(redis_client).to receive(:save_veteran_metadata).with(
+        uuid:,
+        edipi: '1234567890',
+        veteran_id: uuid
+      )
+      session.save_veteran_metadata_for_session
+    end
+
+    it 'returns false when edipi is not present' do
+      session = described_class.new(uuid:, redis_client:)
+      expect(redis_client).not_to receive(:save_veteran_metadata)
+      expect(session.save_veteran_metadata_for_session).to be false
+    end
+
+    it 'returns false when edipi is blank' do
+      session = described_class.new(uuid:, edipi: '', redis_client:)
+      expect(redis_client).not_to receive(:save_veteran_metadata)
+      expect(session.save_veteran_metadata_for_session).to be false
+    end
+  end
+
+  describe '#create_authenticated_session' do
+    let(:session_token) { SecureRandom.uuid }
+    let(:metadata) { { edipi: '1234567890', veteran_id: uuid } }
+
+    it 'creates session with veteran metadata from Redis' do
+      session = described_class.new(uuid:, redis_client:)
+      allow(redis_client).to receive(:veteran_metadata).with(uuid:).and_return(metadata)
+      expect(redis_client).to receive(:save_session).with(
+        session_token:,
+        edipi: '1234567890',
+        veteran_id: uuid,
+        uuid:
+      )
+      session.create_authenticated_session(session_token:)
+    end
+
+    it 'returns false when metadata is not found' do
+      session = described_class.new(uuid:, redis_client:)
+      allow(redis_client).to receive(:veteran_metadata).with(uuid:).and_return(nil)
+      expect(redis_client).not_to receive(:save_session)
+      expect(session.create_authenticated_session(session_token:)).to be false
     end
   end
 end

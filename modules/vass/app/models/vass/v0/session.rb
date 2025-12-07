@@ -12,7 +12,7 @@ module Vass
     # @!attribute uuid
     #   @return [String] Unique session identifier
     # @!attribute contact_method
-    #   @return [String] Method of contact (email or sms)
+    #   @return [String] Method of contact (email)
     # @!attribute contact_value
     #   @return [String] Email address or phone number
     # @!attribute otp_code
@@ -22,26 +22,24 @@ module Vass
     #
     class Session
       # Valid contact methods for OTP delivery
-      VALID_CONTACT_METHODS = %w[email sms].freeze
+      VALID_CONTACT_METHODS = %w[email].freeze
 
       # Email validation regex (basic RFC 5322 compliant)
       EMAIL_REGEX = /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/
 
-      # Phone number validation regex (10-11 digits, optional +1 prefix)
-      PHONE_REGEX = /\A(\+?1)?[0-9]{10}\z/
-
       # OTP code length
       OTP_LENGTH = 6
 
-      attr_reader :uuid, :contact_method, :contact_value, :otp_code, :redis_client
+      attr_accessor :contact_method, :contact_value, :edipi, :veteran_id
+      attr_reader :uuid, :last_name, :date_of_birth, :otp_code, :redis_client
 
       ##
       # Builds a Session instance.
       #
       # @param opts [Hash] Options to create the session
-      # @option opts [String] :uuid Session UUID
-      # @option opts [String] :contact_method Contact method (email/sms)
-      # @option opts [String] :contact_value Email or phone number
+      # @option opts [String] :uuid Veteran UUID (veteran_id from welcome email)
+      # @option opts [String] :last_name Veteran's last name for validation
+      # @option opts [String] :date_of_birth Veteran's date of birth for validation
       # @option opts [String] :otp_code User-provided OTP for validation
       # @option opts [Vass::RedisClient] :redis_client Optional Redis client
       #
@@ -55,19 +53,23 @@ module Vass
       # Initializes a new Session.
       #
       # @param opts [Hash] Options for initialization
-      # @option opts [String] :uuid Session UUID
-      # @option opts [Hash] :data Data hash containing contact_method and contact_value
-      # @option opts [String] :contact_method Contact method (email/sms)
-      # @option opts [String] :contact_value Email or phone number
+      # @option opts [String] :uuid Veteran UUID (veteran_id from welcome email)
+      # @option opts [Hash] :data Data hash containing uuid, last_name, date_of_birth
+      # @option opts [String] :last_name Veteran's last name
+      # @option opts [String] :date_of_birth Veteran's date of birth
       # @option opts [String] :otp_code User-provided OTP for validation
       # @option opts [Vass::RedisClient] :redis_client Optional Redis client
       #
       def initialize(opts = {})
         data = opts[:data] || {}
-        @uuid = opts.key?(:uuid) ? opts[:uuid] : SecureRandom.uuid
+        @uuid = opts[:uuid] || data[:uuid] || SecureRandom.uuid
+        @last_name = opts[:last_name] || data[:last_name]
+        @date_of_birth = opts[:date_of_birth] || data[:date_of_birth]
         @contact_method = opts[:contact_method] || data[:contact_method]
         @contact_value = opts[:contact_value] || data[:contact_value]
         @otp_code = opts[:otp_code]
+        @edipi = opts[:edipi] || data[:edipi]
+        @veteran_id = opts[:veteran_id] || data[:veteran_id]
         @redis_client = opts[:redis_client] || Vass::RedisClient.build
       end
 
@@ -77,7 +79,7 @@ module Vass
       # @return [Boolean] true if valid, false otherwise
       #
       def valid_for_creation?
-        valid_contact_method? && valid_contact_value?
+        uuid.present? && last_name.present? && date_of_birth.present?
       end
 
       ##
@@ -190,6 +192,94 @@ module Vass
         }
       end
 
+      ##
+      # Sets contact information and veteran data from VASS response.
+      #
+      # Expects veteran_data to contain 'contact_method' and 'contact_value' keys
+      # (extracted by AppointmentsService) along with 'data' key containing veteran info.
+      #
+      # @param veteran_data [Hash] Veteran data from VASS API with 'data', 'contact_method',
+      #   and 'contact_value' keys
+      #
+      def set_contact_from_veteran_data(veteran_data)
+        return unless veteran_data && veteran_data['contact_method'] && veteran_data['contact_value']
+
+        self.contact_method = veteran_data['contact_method']
+        self.contact_value = veteran_data['contact_value']
+        self.edipi = veteran_data.dig('data', 'edipi')
+        self.veteran_id = uuid
+
+        # Store veteran metadata in Redis to avoid fetching again in show flow
+        save_veteran_metadata_for_session if edipi.present?
+      end
+
+      ##
+      # Saves veteran metadata to Redis for later retrieval during session creation.
+      #
+      # @return [Boolean] true if write succeeds, false otherwise
+      #
+      def save_veteran_metadata_for_session
+        return false unless edipi.present? && uuid.present?
+
+        redis_client.save_veteran_metadata(
+          uuid:,
+          edipi:,
+          veteran_id: uuid
+        )
+      end
+
+      ##
+      # Generates OTP, saves it, and sends it via VANotify.
+      #
+      # @param vanotify_service [Vass::VANotifyService] VANotify service instance
+      # @raise [VANotify::Error] if VANotify fails to send the OTP
+      #
+      def generate_and_send_otp(vanotify_service:)
+        otp_code = generate_otp
+        save_otp(otp_code)
+        vanotify_service.send_otp(
+          contact_method:,
+          contact_value:,
+          otp_code:
+        )
+      end
+
+      ##
+      # Validates OTP, deletes it, and generates a session token.
+      #
+      # @return [String] Generated session token
+      # @raise [StandardError] if OTP is invalid
+      #
+      def validate_and_process_otp
+        raise StandardError, 'Invalid OTP' unless valid_otp?
+
+        delete_otp
+        generate_session_token
+      end
+
+      ##
+      # Creates an authenticated session after OTP validation.
+      #
+      # Retrieves veteran metadata from Redis (stored during create flow) and saves it
+      # to a session keyed by the session token.
+      #
+      # @param session_token [String] Generated session token
+      # @return [Boolean] true if session created successfully, false if metadata not found
+      #
+      def create_authenticated_session(session_token:)
+        # Retrieve veteran metadata from Redis (stored during create flow)
+        metadata = redis_client.veteran_metadata(uuid:)
+
+        return false unless metadata
+
+        redis_client.save_session(
+          session_token:,
+          edipi: metadata[:edipi],
+          veteran_id: metadata[:veteran_id],
+          uuid:
+        )
+      end
+
       private
 
       ##
@@ -212,9 +302,6 @@ module Vass
         case contact_method
         when 'email'
           EMAIL_REGEX.match?(contact_value)
-        when 'sms'
-          normalized_phone = contact_value.gsub(/\D/, '')
-          PHONE_REGEX.match?(normalized_phone)
         else
           false
         end
