@@ -269,7 +269,7 @@ module Vass
     ##
     # Retrieves the current rate limit count for an identifier.
     #
-    # @param identifier [String] Contact value (email/phone) to rate limit
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
     # @return [Integer] Current attempt count
     #
     def rate_limit_count(identifier:)
@@ -282,16 +282,15 @@ module Vass
     ##
     # Increments the rate limit counter for an identifier.
     #
-    # @param identifier [String] Contact value (email/phone) to rate limit
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
     # @return [Integer] New attempt count
     #
     def increment_rate_limit(identifier:)
-      key = rate_limit_key(identifier)
       current = rate_limit_count(identifier:)
       new_count = current + 1
 
       Rails.cache.write(
-        key,
+        rate_limit_key(identifier),
         new_count,
         namespace: 'vass-rate-limit-cache',
         expires_in: rate_limit_expiry
@@ -303,7 +302,7 @@ module Vass
     ##
     # Checks if the identifier has exceeded the rate limit.
     #
-    # @param identifier [String] Contact value (email/phone) to check
+    # @param identifier [String] UUID to check (rate limited per veteran)
     # @return [Boolean] true if rate limit exceeded
     #
     def rate_limit_exceeded?(identifier:)
@@ -313,7 +312,7 @@ module Vass
     ##
     # Resets the rate limit counter for an identifier.
     #
-    # @param identifier [String] Contact value (email/phone) to reset
+    # @param identifier [String] UUID to reset (rate limited per veteran)
     # @return [void]
     #
     def reset_rate_limit(identifier:)
@@ -336,6 +335,16 @@ module Vass
     end
 
     ##
+    # Generates a cache key for veteran metadata storage.
+    #
+    # @param uuid [String] Veteran UUID
+    # @return [String] Cache key
+    #
+    def veteran_metadata_key(uuid)
+      "veteran_metadata_#{uuid}"
+    end
+
+    ##
     # Generates a cache key for session storage.
     #
     # @param session_token [String] Session token
@@ -349,7 +358,7 @@ module Vass
     # Generates a cache key for rate limiting.
     # Uses SHA256 hash to avoid storing PII directly in Redis keys.
     #
-    # @param identifier [String] Contact value to hash
+    # @param identifier [String] UUID to hash
     # @return [String] Cache key
     #
     def rate_limit_key(identifier)
