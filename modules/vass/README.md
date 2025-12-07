@@ -7,7 +7,7 @@ The VASS (Veterans Affairs Scheduling System) module enables non-authenticated, 
 ## Features
 
 - **One-Time Code (OTC) Authentication**: Secure verification for non-authenticated users
-- **VANotify Integration**: OTP delivery via email and SMS
+- **VANotify Integration**: OTP delivery via email
 - **VASS API Integration**: External service integration for appointment scheduling
 - **Redis Storage**: Session and OTC management, OAuth token caching
 - **RESTful API**: JSON API endpoints following vets-api patterns
@@ -52,10 +52,12 @@ This module follows the Rails Engine pattern used throughout vets-api. It provid
 ### v0 API
 
 #### Session Management
+
 - `POST /vass/v0/sessions` - Create session and send OTP
 - `GET /vass/v0/sessions/:id` - Validate OTP
 
 #### Appointment Management (existing endpoints)
+
 - `GET /vass/v0/appointments` - List available appointment slots
 - `POST /vass/v0/appointments` - Book an appointment
 - `GET /vass/v0/appointments/:id` - Get appointment details
@@ -116,16 +118,16 @@ The module requires the following settings in `config/settings.yml`:
 
 ```yaml
 vass:
-  auth_url: 'https://login.microsoftonline.com'
-  tenant_id: 'your-tenant-id'
-  client_id: 'your-client-id'
-  client_secret: 'your-client-secret'
-  scope: 'https://api.va.gov/.default'
-  api_url: 'https://vass-api.va.gov'
-  subscription_key: 'your-subscription-key'
-  service_name: 'vass_api'
+  auth_url: "https://login.microsoftonline.com"
+  tenant_id: "your-tenant-id"
+  client_id: "your-client-id"
+  client_secret: "your-client-secret"
+  scope: "https://api.va.gov/.default"
+  api_url: "https://vass-api.va.gov"
+  subscription_key: "your-subscription-key"
+  service_name: "vass_api"
   timeout: 30
-  forward_proxy_url: 'your-proxy-url'
+  forward_proxy_url: "your-proxy-url"
   mock: false
 ```
 
@@ -133,7 +135,7 @@ vass:
 
 To test the service layer:
 
-```bash
+````bash
 cd modules/vass
 bundle exec rspec spec/services/vass/appointments_service_spec.rb
 
@@ -166,7 +168,7 @@ bundle exec rspec spec/services/vass/appointments_service_spec.rb
   "correlationId": "req123",
   "timeStamp": "2025-12-02T12:00:00Z"
 }
-```
+````
 
 Success responses have `"success": true`:
 
@@ -183,6 +185,7 @@ Success responses have `"success": true`:
 #### Affected Endpoints
 
 The following endpoints return HTTP 200 for errors:
+
 - `AppointmentAvailability`
 - `CancelAppointment`
 - `GetVeteran`
@@ -231,6 +234,7 @@ All endpoints and service calls are instrumented with StatsD. Metrics are availa
 All VASS API operations are tracked via the `Common::Client::Concerns::Monitoring` module in the client layer:
 
 **Client Layer Metrics:**
+
 - `api.vass.oauth_token_request.total`
 - `api.vass.oauth_token_request.fail`
 - `api.vass.get_appointment_availability.total`
