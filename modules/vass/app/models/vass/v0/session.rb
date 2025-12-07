@@ -229,19 +229,14 @@ module Vass
       end
 
       ##
-      # Generates OTP, saves it, and sends it via VANotify.
+      # Generates and saves an OTP code.
       #
-      # @param vanotify_service [Vass::VANotifyService] VANotify service instance
-      # @raise [VANotify::Error] if VANotify fails to send the OTP
+      # @return [String] Generated OTP code
       #
-      def generate_and_send_otp(vanotify_service:)
+      def generate_and_save_otp
         otp_code = generate_otp
         save_otp(otp_code)
-        vanotify_service.send_otp(
-          contact_method:,
-          contact_value:,
-          otp_code:
-        )
+        otp_code
       end
 
       ##
