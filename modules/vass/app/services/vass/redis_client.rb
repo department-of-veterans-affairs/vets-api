@@ -10,11 +10,7 @@ module Vass
   # - Session data (EDIPI, veteran_id) after successful OTC verification
   #
   class RedisClient
-    extend Forwardable
-
     attr_reader :settings
-
-    def_delegators :settings, :redis_token_expiry, :redis_otc_expiry, :redis_session_expiry
 
     # Rate limiting defaults
     RATE_LIMIT_MAX_ATTEMPTS = 5
@@ -32,6 +28,39 @@ module Vass
     def initialize
       @settings = Settings.vass
     end
+
+    # ------------ Settings Accessors ------------
+    # Note: Using explicit methods instead of delegate to avoid Ruby 3.3 warnings
+    # about forwarding to private OpenStruct methods
+
+    ##
+    # Returns the OAuth token expiry time from settings.
+    #
+    # @return [ActiveSupport::Duration] Token expiry duration
+    #
+    # rubocop:disable Rails/Delegate
+    def redis_token_expiry
+      @settings.redis_token_expiry
+    end
+
+    ##
+    # Returns the OTC expiry time from settings.
+    #
+    # @return [ActiveSupport::Duration] OTC expiry duration
+    #
+    def redis_otc_expiry
+      @settings.redis_otc_expiry
+    end
+
+    ##
+    # Returns the session expiry time from settings.
+    #
+    # @return [ActiveSupport::Duration] Session expiry duration
+    #
+    def redis_session_expiry
+      @settings.redis_session_expiry
+    end
+    # rubocop:enable Rails/Delegate
 
     # ------------ OAuth Token Management ------------
 
