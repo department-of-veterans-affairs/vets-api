@@ -165,6 +165,7 @@ check_in:
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     travel_pay_client_id: ~
     travel_pay_client_secret: secret
+    travel_pay_client_secret_oh: secret
     travel_pay_resource: ~
   vaos:
     mock: false
@@ -408,6 +409,8 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+email_verification:
+  jwt_secret: "b0a06b58cc2674005f300f5ca1bc3fbb29813b73ebcfd3dd2f8d4bede0b6ec34"
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
@@ -833,6 +836,7 @@ maintenance:
     coe: PSY4HU1
     community_care_ds: ~
     decision_reviews: ~
+    dgi_claimants: ~
     disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV
@@ -945,7 +949,7 @@ mhv:
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
     facilities_ready_for_info_alert: 612, 555
-    pretransitioned_oh_facilities: 612, 357, 555
+    pretransitioned_oh_facilities: 612, 357, 555, 757
   rx:
     app_token: ~
     base_path: mhv-api/patient/v1/
@@ -1410,9 +1414,15 @@ vanotify:
         received_686c_only:
           flipper_id: dependents_benefits_received_email_notification
           template_id: form686c_only_received_email_template_id
-        submitted:
+        submitted674_only:
           flipper_id: dependents_benefits_submitted_email_notification
-          template_id: form686c_674_submitted_email_template_id
+          template_id: form674_only_submitted_email_template_id
+        submitted686c674:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c674_submitted_email_template_id
+        submitted686c_only:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c_only_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
