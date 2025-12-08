@@ -404,7 +404,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         )
 
         expect { post(path, params: { file: }, headers:) }
-          .not_to change(Form21aAttachment, :count)
+          .not_to change(AccreditedRepresentativePortal::Form21aAttachment, :count)
 
         expect(response).to have_http_status(:not_found)
         expect(parsed_response).to match(
@@ -420,14 +420,17 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
     context 'with a valid slug and file' do
       it 'creates an attachment, updates the in-progress form, and returns confirmation data' do
-        expect(Rails.logger).to receive(:info).with(
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        expect {
+          make_post_request
+        }.to change(AccreditedRepresentativePortal::Form21aAttachment, :count).by(1)
+
+        expect(Rails.logger).to have_received(:info).with(
           a_string_including(
             "Form21aController: Received details upload for slug=#{slug} user_uuid=#{representative_user.uuid}"
           )
         )
-
-        expect { make_post_request }
-          .to change(Form21aAttachment, :count).by(1)
 
         expect(response).to have_http_status(:ok)
 
