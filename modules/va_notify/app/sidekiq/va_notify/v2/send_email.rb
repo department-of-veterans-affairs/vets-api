@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VANotify
   module V2
     class SendEmail
@@ -9,13 +11,13 @@ module VANotify
 
         VaNotify::Service.new(api_key, callback_options).send_email(
           email_address: email,
-          template_id: template_id,
-          personalisation: personalisation
+          template_id:,
+          personalisation:
         )
       end
 
       def self.enqueue(email, template_id, personalisation, api_key, callback_options = {})
-        key = Sidekiq::AttrPackage.create(attrs: { personalisation: personalisation })
+        key = Sidekiq::AttrPackage.create(attrs: { personalisation: })
         perform_async(email, template_id, key, api_key, callback_options)
       end
 
