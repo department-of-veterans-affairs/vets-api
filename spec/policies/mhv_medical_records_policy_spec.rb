@@ -44,14 +44,14 @@ describe MHVMedicalRecordsPolicy do
       context 'and user is champ_va eligible' do
         let(:champ_va) { true }
 
-        it 'returns true' do
-          expect(described_class.new(user, mhv_medical_records).access?).to be(true)
+        it 'returns false' do
+          # CHAMPVA status does not grant access to medical records
+          expect(described_class.new(user, mhv_medical_records).access?).to be(false)
         end
       end
 
-      context 'and user is not a patient or champ_va eligible' do
+      context 'and user is not a patient' do
         let(:patient) { false }
-        let(:champ_va) { false }
 
         it 'returns false' do
           expect(described_class.new(user, mhv_medical_records).access?).to be(false)
