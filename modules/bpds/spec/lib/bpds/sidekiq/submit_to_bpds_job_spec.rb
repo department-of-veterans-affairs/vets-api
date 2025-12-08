@@ -46,15 +46,11 @@ RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
     end
 
     context 'when the submission is successful' do
-      before do
-        allow(service).to receive(:submit_json).with(claim).and_return(response)
-      end
-
       context 'and participant_id is provided' do
         it 'submits the BPDS submission and creates a successful attempt' do
           described_class.new.perform(claim.id, encrypted_payload)
 
-          expect(service).to have_received(:submit_json).with(claim, participant_id, nil)
+          expect(service).to have_received(:submit_json).with(claim.parsed_form, claim.form_id, participant_id, nil)
           expect(bpds_submission.submission_attempts).to have_received(:create).with(
             status: 'submitted',
             response: response.to_json,
@@ -68,7 +64,7 @@ RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
         it 'submits the BPDS submission and creates a successful attempt' do
           described_class.new.perform(claim.id, encrypted_payload_file_number)
 
-          expect(service).to have_received(:submit_json).with(claim, nil, file_number)
+          expect(service).to have_received(:submit_json).with(claim.parsed_form, claim.form_id, nil, file_number)
           expect(bpds_submission.submission_attempts).to have_received(:create).with(
             status: 'submitted',
             response: response.to_json,
@@ -111,6 +107,42 @@ RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
           error_message: 'Submission failed'
         )
         expect(monitor).to have_received(:track_submit_failure).with(claim.id, error)
+      end
+    end
+
+    context 'when a formatter is registered for the form' do
+      let(:burial_claim) { create(:burials_saved_claim) }
+      let(:formatter) { double('Formatter') }
+      let(:formatted_data) { { 'formatted' => 'data' } }
+      let(:formatter_class) do
+        Class.new do
+          def initialize(_parsed_form); end
+          def format; end
+        end
+      end
+
+      before do
+        allow(SavedClaim).to receive(:find).with(burial_claim.id).and_return(burial_claim)
+        allow(BPDS::Submission).to receive(:find_or_create_by).and_return(bpds_submission)
+        stub_const('Burials::BPDS::Formatter', formatter_class)
+        allow(formatter_class).to receive(:new).with(burial_claim.parsed_form).and_return(formatter)
+        allow(formatter).to receive(:format).and_return(formatted_data)
+      end
+
+      it 'uses the formatter to format the claim data' do
+        described_class.new.perform(burial_claim.id, encrypted_payload)
+
+        expect(formatter_class).to have_received(:new).with(burial_claim.parsed_form)
+        expect(formatter).to have_received(:format)
+        expect(service).to have_received(:submit_json).with(formatted_data, '21P-530EZ', participant_id, nil)
+      end
+    end
+
+    context 'when no formatter is registered for the form' do
+      it 'uses the parsed_form directly' do
+        described_class.new.perform(claim.id, encrypted_payload)
+
+        expect(service).to have_received(:submit_json).with(claim.parsed_form, claim.form_id, participant_id, nil)
       end
     end
   end
