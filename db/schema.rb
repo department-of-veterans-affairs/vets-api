@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_25_141602) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_06_032553) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -899,7 +899,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_25_141602) do
   end
 
   create_table "event_bus_gateway_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "va_notify_id", null: false
     t.string "template_id", null: false
     t.datetime "created_at", null: false
@@ -909,7 +909,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_25_141602) do
   end
 
   create_table "event_bus_gateway_push_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "template_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

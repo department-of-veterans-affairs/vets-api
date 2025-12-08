@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class EventBusGatewayNotification < ApplicationRecord
-  belongs_to :user_account
+  belongs_to :user_account, optional: true
 
   validates :va_notify_id, presence: true
   validates :template_id, presence: true
