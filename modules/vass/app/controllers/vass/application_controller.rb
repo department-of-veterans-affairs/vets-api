@@ -135,10 +135,13 @@ module Vass
     #
     # @param action [String] Action name (e.g., 'otp_generated', 'identity_validation_failed')
     # @param uuid [String, nil] Session UUID (optional)
-    # @param level [Symbol] Log level (:info, :warn, :error)
+    # @param level [Symbol] Log level (:debug, :info, :warn, :error, :fatal)
     # @param metadata [Hash] Additional metadata to include
     #
     def log_vass_event(action:, uuid: nil, level: :info, **metadata)
+      valid_levels = %i[debug info warn error fatal]
+      level = :info unless valid_levels.include?(level)
+
       log_data = {
         service: 'vass',
         action:,
