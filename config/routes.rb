@@ -273,6 +273,7 @@ Rails.application.routes.draw do
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
       resource :military_occupations, only: :show
+      resource :scheduling_preferences, only: %i[show create update destroy]
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
