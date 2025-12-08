@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/cscs/v1/configurations?ccEnabled=true&facilityIds=489,984&pageSize=0
+    uri: https://veteran.apps.va.gov/cscs/v1/configurations?facilityIds=12345678&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 06 Jan 2023 17:39:09 GMT
+      - Fri, 11 Jun 2021 03:20:25 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -35,23 +35,21 @@ http_interactions:
       Server:
       - openresty
       X-Vamf-Version:
-      - 2.19.2
+      - 2.5.2
       B3:
-      - '0219a3f40c86fc3029cacdb1de9d4fe3-eca22b68e8f26a27-0'
+      - d6b2ec58eadce0aa-c77028e9f385fe2b-0
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - c6b7977
+      - cc1bce1
       X-Vamf-Timestamp:
-      - '2022-12-22T22:03:26+0000'
+      - '2021-05-30T22:09:53+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
       - GET,OPTIONS
       Access-Control-Max-Age:
       - '3600'
-      X-Envoy-Upstream-Service-Time:
-      - '32'
       Strict-Transport-Security:
       - max-age=63072000; includeSubDomains; preload
     body:
@@ -59,13 +57,12 @@ http_interactions:
       string: |-
         {
           "data" : [ {
-            "facilityId" : "984",
+            "facilityId" : "12345678",
             "services" : [ {
               "id" : "amputation",
               "name" : "Amputation Services",
               "stopCodes" : [ {
-                "primary" : "211",
-                "defaultForRequests" : false
+                "primary" : "211"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
@@ -75,17 +72,17 @@ http_interactions:
               },
               "request" : {
                 "patientHistoryRequired" : false,
-                "patientHistoryDuration" : 1095,
-                "submittedRequestLimit" : 1,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
-                "enabled" : true
+                "enabled" : false
               }
             }, {
               "id" : "covid",
               "name" : "COVID Vaccine",
               "stopCodes" : [ {
-                "secondary" : "710",
-                "defaultForRequests" : false
+                "secondary" : "710"
               } ],
               "char4" : "CDQC",
               "direct" : {
@@ -101,7 +98,7 @@ http_interactions:
                 "patientHistoryRequired" : false,
                 "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
-                "enabled" : true,
+                "enabled" : false,
                 "schedulingDays" : [ {
                   "day" : "MONDAY",
                   "canSchedule" : false
@@ -130,48 +127,25 @@ http_interactions:
               "name" : "Outpatient Mental Health",
               "stopCodes" : [ {
                 "primary" : "502",
-                "defaultForRequests" : false
-              } ],
-              "direct" : {
-                "patientHistoryRequired" : true,
-                "patientHistoryDuration" : 365,
-                "canCancel" : true,
-                "enabled" : true
-              },
-              "request" : {
-                "patientHistoryRequired" : true,
-                "patientHistoryDuration" : 365,
-                "submittedRequestLimit" : 1,
-                "enterpriseSubmittedRequestLimit" : 2,
-                "enabled" : true
-              }
-            }, {
-              "id" : "audiology",
-              "name" : "Audiology",
-              "stopCodes" : [ {
-                "primary" : "203",
-                "defaultForRequests" : false
-              } ],
-              "direct" : {
-                "patientHistoryRequired" : false,
-                "patientHistoryDuration" : 0,
-                "canCancel" : true,
-                "enabled" : true
-              },
-              "request" : {
-                "patientHistoryRequired" : true,
-                "patientHistoryDuration" : 1095,
-                "submittedRequestLimit" : 1,
-                "enterpriseSubmittedRequestLimit" : 2,
-                "enabled" : true
-              }
-            }, {
-              "id" : "clinicalPharmacyPrimaryCare",
-              "name" : "Clinical Pharmacy-Primary Care",
-              "stopCodes" : [ {
-                "primary" : "160",
-                "secondary" : "323",
-                "defaultForRequests" : false
+                "secondary" : "125"
+              }, {
+                "primary" : "502",
+                "secondary" : "179"
+              }, {
+                "primary" : "502",
+                "secondary" : "185"
+              }, {
+                "primary" : "502",
+                "secondary" : "186"
+              }, {
+                "primary" : "502",
+                "secondary" : "187"
+              }, {
+                "primary" : "502",
+                "secondary" : "509"
+              }, {
+                "primary" : "502",
+                "secondary" : "510"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
@@ -182,7 +156,49 @@ http_interactions:
               "request" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
-                "submittedRequestLimit" : 1,
+                "canCancel" : true,
+                "submittedRequestLimit" : 2,
+                "enterpriseSubmittedRequestLimit" : 2,
+                "enabled" : false
+              }
+            }, {
+              "id" : "audiology",
+              "name" : "Audiology",
+              "stopCodes" : [ {
+                "primary" : "203"
+              } ],
+              "direct" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "enabled" : false
+              },
+              "request" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "submittedRequestLimit" : 2,
+                "enterpriseSubmittedRequestLimit" : 2,
+                "enabled" : false
+              }
+            }, {
+              "id" : "clinicalPharmacyPrimaryCare",
+              "name" : "Clinical Pharmacy-Primary Care",
+              "stopCodes" : [ {
+                "primary" : "160",
+                "secondary" : "323"
+              } ],
+              "direct" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "enabled" : false
+              },
+              "request" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
                 "enabled" : false
               }
@@ -190,36 +206,11 @@ http_interactions:
               "id" : "primaryCare",
               "name" : "Primary Care",
               "stopCodes" : [ {
-                "primary" : "322",
-                "defaultForRequests" : false
+                "primary" : "322"
               }, {
-                "primary" : "323",
-                "defaultForRequests" : false
+                "primary" : "323"
               }, {
-                "primary" : "350",
-                "defaultForRequests" : false
-              } ],
-              "direct" : {
-                "patientHistoryRequired" : false,
-                "canCancel" : true,
-                "enabled" : true
-              },
-              "request" : {
-                "patientHistoryRequired" : false,
-                "patientHistoryDuration" : 0,
-                "submittedRequestLimit" : 1,
-                "enterpriseSubmittedRequestLimit" : 1,
-                "enabled" : true
-              }
-            }, {
-              "id" : "moveProgram",
-              "name" : "MOVE! program",
-              "stopCodes" : [ {
-                "primary" : "372",
-                "defaultForRequests" : false
-              }, {
-                "primary" : "373",
-                "defaultForRequests" : false
+                "primary" : "350"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
@@ -230,6 +221,29 @@ http_interactions:
               "request" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "submittedRequestLimit" : 1,
+                "enterpriseSubmittedRequestLimit" : 1,
+                "enabled" : false
+              }
+            }, {
+              "id" : "moveProgram",
+              "name" : "MOVE! program",
+              "stopCodes" : [ {
+                "primary" : "372"
+              }, {
+                "primary" : "373"
+              } ],
+              "direct" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "enabled" : false
+              },
+              "request" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
                 "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
                 "enabled" : false
@@ -239,8 +253,7 @@ http_interactions:
               "name" : "CPAP Clinic",
               "stopCodes" : [ {
                 "primary" : "349",
-                "secondary" : "116",
-                "defaultForRequests" : false
+                "secondary" : "116"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
@@ -251,7 +264,8 @@ http_interactions:
               "request" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
-                "submittedRequestLimit" : 1,
+                "canCancel" : true,
+                "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
                 "enabled" : false
               }
@@ -260,31 +274,7 @@ http_interactions:
               "name" : "Social Work",
               "stopCodes" : [ {
                 "primary" : "125",
-                "secondary" : "323",
-                "defaultForRequests" : false
-              } ],
-              "direct" : {
-                "patientHistoryRequired" : false,
-                "patientHistoryDuration" : 0,
-                "canCancel" : true,
-                "enabled" : true
-              },
-              "request" : {
-                "patientHistoryRequired" : false,
-                "patientHistoryDuration" : 365,
-                "submittedRequestLimit" : 1,
-                "enterpriseSubmittedRequestLimit" : 2,
-                "enabled" : true
-              }
-            }, {
-              "id" : "foodAndNutrition",
-              "name" : "Food and Nutrition",
-              "stopCodes" : [ {
-                "primary" : "123",
-                "defaultForRequests" : false
-              }, {
-                "primary" : "124",
-                "defaultForRequests" : false
+                "secondary" : "323"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
@@ -295,6 +285,49 @@ http_interactions:
               "request" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "submittedRequestLimit" : 2,
+                "enterpriseSubmittedRequestLimit" : 2,
+                "enabled" : false
+              }
+            }, {
+              "id" : "411",
+              "name" : "Podiatry",
+              "stopCodes" : [ {
+                "primary" : "411"
+              } ],
+              "direct" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "enabled" : false
+              },
+              "request" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "submittedRequestLimit" : 2,
+                "enterpriseSubmittedRequestLimit" : 2,
+                "enabled" : false
+              }
+            }, {
+              "id" : "foodAndNutrition",
+              "name" : "Food and Nutrition",
+              "stopCodes" : [ {
+                "primary" : "123"
+              }, {
+                "primary" : "124"
+              } ],
+              "direct" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
+                "enabled" : false
+              },
+              "request" : {
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
                 "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
                 "enabled" : false
@@ -303,8 +336,7 @@ http_interactions:
               "id" : "ophthalmology",
               "name" : "Ophthalmology",
               "stopCodes" : [ {
-                "primary" : "407",
-                "defaultForRequests" : false
+                "primary" : "407"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
@@ -315,6 +347,7 @@ http_interactions:
               "request" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
+                "canCancel" : true,
                 "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
                 "enabled" : false
@@ -323,50 +356,46 @@ http_interactions:
               "id" : "optometry",
               "name" : "Optometry",
               "stopCodes" : [ {
-                "primary" : "408",
-                "defaultForRequests" : false
+                "primary" : "408"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
                 "canCancel" : true,
-                "enabled" : true
+                "enabled" : false
               },
               "request" : {
-                "patientHistoryRequired" : true,
-                "patientHistoryDuration" : 365,
+                "patientHistoryRequired" : false,
+                "patientHistoryDuration" : 0,
+                "canCancel" : true,
                 "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
-                "enabled" : true
+                "enabled" : false
               }
             }, {
               "id" : "homeSleepTesting",
               "name" : "Sleep Medicine – Home Sleep Testing",
               "stopCodes" : [ {
                 "primary" : "143",
-                "secondary" : "189",
-                "defaultForRequests" : false
+                "secondary" : "189"
               } ],
               "direct" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
                 "canCancel" : true,
-                "enabled" : true
+                "enabled" : false
               },
               "request" : {
                 "patientHistoryRequired" : false,
                 "patientHistoryDuration" : 0,
+                "canCancel" : true,
                 "submittedRequestLimit" : 2,
                 "enterpriseSubmittedRequestLimit" : 2,
                 "enabled" : false
               }
             } ],
-            "communityCare" : true,
-            "creationDate" : "2023-01-05T16:07:16.68Z",
-            "creationUser" : "GREEN, ANNA",
-            "lastModifiedDate" : "2023-01-06T16:20:05.187Z",
-            "lastModifiedUser" : "GREEN, ANNA"
+            "communityCare" : false
           } ]
         }
-  recorded_at: Fri, 06 Jan 2023 17:39:09 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 11 Jun 2021 03:20:25 GMT
+recorded_with: VCR 6.0.0

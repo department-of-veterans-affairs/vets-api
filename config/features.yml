@@ -2035,6 +2035,10 @@ features:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
     enable_in_development: true
+  va_online_scheduling_cscs_migration:
+    actor_type: user
+    description: swaps the scheduling configurations endpoint from MFS to CSCS
+    enable_in_development: true
   va_online_scheduling_direct:
     actor_type: user
     description: Allows veterans to directly schedule VA appointments
@@ -2359,6 +2363,9 @@ features:
   burial_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  burial_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Burial
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
