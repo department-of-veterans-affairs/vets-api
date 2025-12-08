@@ -2746,6 +2746,11 @@ features:
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  meb_1995_instruction_page_update_v3:
+    actor_type: user
+    description: Updated verbiage for instruction page for 5490
+    enable_in_development: true
+
   survivors_benefits_form_enabled:
     actor_type: user
     description: Enables the Medical Expense Reports form (Form 21P-534EZ)
