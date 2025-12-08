@@ -427,7 +427,7 @@ jobs:
                 "type": "header",
                 "text": {
                   "type": "plain_text",
-                  "text": "THIS IS A TEST. PLEASE IGNORE 🚨 CRITICAL: Test Coverage Too Low",
+                  "text": "THIS IS A TEST :rotating_light: CRITICAL: Test Coverage Too Low",
                   "emoji": true
                 }
               },
@@ -451,11 +451,7 @@ jobs:
                   },
                   {
                     "type": "mrkdwn",
-                    "text": ":x: *Deployment Status*\nBlocked"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": ":triangular_flag_on_post: *Gap*\n${{ format('{0:.1f}', 90 - fromJSON(steps.coverage.outputs.percent)) }}%"
+                    "text": ":x: *Status*\nDeployment Blocked"
                   }
                 ]
               },
@@ -463,7 +459,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":git: *Branch:* `${{ github.ref_name }}`\n:label: *Commit:* <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>\n:bust_in_silhouette: *Author:* ${{ github.event.head_commit.author.name }}"
+                  "text": ":git: *Branch:* `${{ github.ref_name }}`\n:label: *Commit:* <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>\n:bust_in_silhouette: *Author:* ${{ github.actor }}"
                 }
               },
               {
@@ -483,7 +479,7 @@ jobs:
                     "type": "button",
                     "text": {
                       "type": "plain_text",
-                      "text": ":chart: View Commit",
+                      "text": ":memo: View Commit",
                       "emoji": true
                     },
                     "url": "${{ github.event.head_commit.url }}"
