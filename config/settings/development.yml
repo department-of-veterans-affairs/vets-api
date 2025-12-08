@@ -303,10 +303,10 @@ dgi:
   sob:
     claimants:
       mock: ~
-      url: ~
+      url: https://fake.sob.com
     jwt:
-      private_key_path: ~
-      public_key_path: ~
+      private_key_path: modules/sob/spec/fixtures/test_private_key.pem
+      public_key_path: modules/sob/spec/fixtures/test_public_key.pem
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
