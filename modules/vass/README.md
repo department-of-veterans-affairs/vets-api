@@ -168,7 +168,7 @@ bundle exec rspec spec/services/vass/appointments_service_spec.rb
   "correlationId": "req123",
   "timeStamp": "2025-12-02T12:00:00Z"
 }
-````
+```
 
 Success responses have `"success": true`:
 
