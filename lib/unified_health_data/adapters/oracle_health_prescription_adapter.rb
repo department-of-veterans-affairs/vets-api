@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'facility_name_resolver'
-require_relative '../prescription'
 
 module UnifiedHealthData
   module Adapters
