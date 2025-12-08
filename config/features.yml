@@ -538,6 +538,10 @@ features:
     actor_type: user
     description: Feature gates the certificate of eligibility application
     enable_in_development: true
+  coe_form_rebuild_cveteam:
+    actor_type: user
+    description: Enables rebuild of Certificate of Eligibility form
+    enable_in_development: true
   combined_debt_portal_access:
     actor_type: user
     description: Enables users to interact with combined debt portal experience
@@ -1447,6 +1451,10 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
+  mhv_medical_records_merge_cvix_into_scdf:
+    actor_type: user
+    description: Combines CVIX lab record list with the SCDF/Unified lab record list
+    enable_in_development: true
   mhv_medical_records_migrate_ccd_to_s3:
     actor_type: user
     description: Enables the switch to an s3 bucket for the CCD endpoints
@@ -2031,6 +2039,10 @@ features:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
     enable_in_development: true
+  va_online_scheduling_cscs_migration:
+    actor_type: user
+    description: swaps the scheduling configurations endpoint from MFS to CSCS
+    enable_in_development: true
   va_online_scheduling_direct:
     actor_type: user
     description: Allows veterans to directly schedule VA appointments
@@ -2355,6 +2367,9 @@ features:
   burial_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  burial_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Burial
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
