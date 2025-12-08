@@ -41,6 +41,7 @@ Rails.application.reloader.to_prepare do
     config.show_feature_description_in_list = true
     config.confirm_disable = true
     config.confirm_fully_enable = true
+    config.add_actor_placeholder = "actor ID (or comma-separated list)"
     config.descriptions_source = lambda do |_keys|
       FLIPPER_FEATURE_CONFIG['features'].transform_values { |value| value['description'] }
     end

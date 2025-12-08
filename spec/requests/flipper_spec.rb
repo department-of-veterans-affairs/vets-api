@@ -393,4 +393,32 @@ RSpec.describe 'flipper', type: :request do
       end
     end
   end
+
+  context 'Flipper UI placeholder text for actors' do
+    before do
+      allow_any_instance_of(ActionDispatch::Request).to receive(:session) { { flipper_user: user } }
+      allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
+      allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
+      Flipper.disable(:this_is_only_a_test)
+    end
+
+    it 'displays placeholder text indicating comma-separated values are supported' do
+      get '/flipper/features/this_is_only_a_test'
+      body = Nokogiri::HTML(response.body)
+      actor_input = body.at_css('input[name="value"][placeholder*="comma"]')
+      expect(actor_input).not_to be_nil
+      expect(actor_input['placeholder']).to include('comma')
+      assert_response :success
+    end
+
+    it 'displays help text explaining comma-separated functionality' do
+      get '/flipper/features/this_is_only_a_test'
+      body = Nokogiri::HTML(response.body)
+      help_text = body.at_css('small.text-muted')
+      expect(help_text).not_to be_nil
+      expect(help_text.text).to include('multiple actor IDs')
+      expect(help_text.text).to include('separating them with commas')
+      assert_response :success
+    end
+  end
 end
