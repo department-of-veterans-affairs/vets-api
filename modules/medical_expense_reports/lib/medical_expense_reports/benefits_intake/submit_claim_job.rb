@@ -6,6 +6,8 @@ require 'medical_expense_reports/notification_email'
 require 'medical_expense_reports/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
+require 'bigdecimal'
+
 module MedicalExpenseReports
   module BenefitsIntake
     # Sidekiq job to send pension pdf to Lighthouse:BenefitsIntake API
@@ -66,6 +68,10 @@ module MedicalExpenseReports
       end
 
       private
+      IN_HOME_ROW_COUNT = 8
+      MED_EXPENSE_ROW_COUNT = 14
+      TRAVEL_ROW_COUNT = 12
+      CHILD_RECIPIENTS = %w[CHILD DEPENDENT].freeze
 
       # Instantiate instance variables for _this_ job
       def init(saved_claim_id, user_account_uuid)
@@ -138,13 +144,13 @@ module MedicalExpenseReports
           'CLAIMANT_LAST_NAME' => claimant_name[:last],
           'CLAIMANT_MIDDLE_INITIAL' => claimant_name[:middle_initial],
           'CLAIMANT_NAME' => claimant_name[:full],
-          'CLAIMANT_ADDRESS_FULL_BLOCK' => build_address_block(form['claimantAddress']),
+          'CLAIMANT_ADDRESS_FULL_BLOCK' => claimant_address_block(form),
           'CLAIMANT_SIGNATURE' => form['statementOfTruthSignature'],
           'CLAIMANT_SIGNATURE_X' => nil,
           'CL_EMAIL' => form['claimantEmail'] || form['email'],
           'CL_INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
-          'CL_PHONE_NUMBER' => us_phone_number(primary_phone),
-          'DATE_SIGNED' => form['dateSigned'],
+          'CL_PHONE_NUMBER' => claimant_phone_number(form),
+          'DATE_SIGNED' => claim_date_signed(form),
           'FORM_TYPE' => MedicalExpenseReports::FORM_ID,
           'MED_EXPENSES_FROM_1' => use_va_rcvd_date ? nil : reporting_period['from'],
           'MED_EXPENSES_TO_1' => use_va_rcvd_date ? nil : reporting_period['to'],
@@ -155,7 +161,10 @@ module MedicalExpenseReports
           'VETERAN_MIDDLE_INITIAL' => veteran_name[:middle_initial],
           'VETERAN_NAME' => veteran_name[:full],
           'VETERAN_SSN' => form['veteranSocialSecurityNumber']
-        }
+        }.merge(build_in_home_fields(form))
+         .merge(build_medical_expense_fields(form))
+         .merge(build_travel_fields(form))
+         .merge(build_witness_fields)
       end
 
       def build_name(name_hash)
@@ -185,10 +194,37 @@ module MedicalExpenseReports
         lines.join("\n").presence
       end
 
+      def claimant_address_block(form)
+        address = form['claimantAddress'] || fallback_claimant_address(form)
+        build_address_block(address)
+      end
+
+      def fallback_claimant_address(form)
+        veteran_address = form['veteranAddress']
+        return unless veteran_address
+
+        {
+          'street' => veteran_address['street'],
+          'street2' => veteran_address['street2'],
+          'city' => veteran_address['city'],
+          'state' => veteran_address['state'],
+          'postalCode' => veteran_address['postalCode'],
+          'country' => veteran_address['country']
+        }
+      end
+
       def us_phone_number(primary_phone)
         return unless primary_phone['countryCode']&.casecmp?('US')
 
         sanitize_phone(primary_phone['contact'])
+      end
+
+      def claimant_phone_number(form)
+        primary_phone = form['primaryPhone'] || {}
+        number = sanitize_phone(primary_phone['contact'])
+        return unless number.present?
+
+        primary_phone['countryCode']&.casecmp?('US') ? number : nil
       end
 
       def international_phone_number(form, primary_phone)
@@ -196,6 +232,10 @@ module MedicalExpenseReports
         return sanitize_phone(primary_phone['contact']) unless primary_phone['countryCode']&.casecmp?('US')
 
         nil
+      end
+
+      def claim_date_signed(form)
+        form['dateSigned'] || form['signatureDate']
       end
 
       def sanitize_phone(phone)
@@ -206,6 +246,145 @@ module MedicalExpenseReports
 
       def use_va_rcvd_date?(form)
         form['firstTimeReporting'].present? ? form['firstTimeReporting'] : false
+      end
+
+      def build_in_home_fields(form)
+        care_entries = form['careExpenses'] || []
+        (1..IN_HOME_ROW_COUNT).each_with_object({}) do |index, hash|
+          entry = care_entries[index - 1]
+          hash["IN_HM_VTRN_PAID_#{index}"] = recipient_flag(entry, %w[VETERAN])
+          hash["IN_HM_SPSE_PAID_#{index}"] = recipient_flag(entry, %w[SPOUSE])
+          hash["IN_HM_CHLD_PAID_#{index}"] = recipient_flag(entry, CHILD_RECIPIENTS)
+          hash["IN_HM_OTHR_PAID_#{index}"] = recipient_flag(entry, %w[OTHER])
+          hash["IN_HM_CHLD_OTHR_NAME_#{index}"] = child_other_name(entry)
+          hash["IN_HM_PROVIDER_NAME_#{index}"] = entry&.dig('provider')
+          hash["IN_HM_DATE_START_#{index}"] = entry&.dig('careDate', 'from')
+          hash["IN_HM_DATE_END_#{index}"] = entry&.dig('careDate', 'to')
+          hash["IN_HM_AMT_PAID_#{index}"] = format_currency(entry&.dig('monthlyAmount'))
+          hash["IN_HM_HRLY_RATE_#{index}"] = entry&.dig('hourlyRate')
+          hash["IN_HM_NBR_HRS_#{index}"] = entry&.dig('weeklyHours')
+        end
+      end
+
+      def build_medical_expense_fields(form)
+        entries = form['medicalExpenses'] || []
+        (1..MED_EXPENSE_ROW_COUNT).each_with_object({}) do |index, hash|
+          entry = entries[index - 1]
+          hash["MED_EXP_PAID_VTRN_#{index}"] = recipient_flag(entry, %w[VETERAN])
+          hash["MED_EXP_PAID_SPSE_#{index}"] = recipient_flag(entry, %w[SPOUSE])
+          hash["MED_EXP_PAID_CHLD_#{index}"] = recipient_flag(entry, CHILD_RECIPIENTS)
+          hash["MED_EXP_PAID_OTHR_#{index}"] = recipient_flag(entry, %w[OTHER])
+          hash["MED_EXP_CHLD_OTHR_NAME_#{index}"] = child_other_name(entry)
+          hash["MED_EXP_DATE_PAID_#{index}"] = entry&.dig('paymentDate')
+          hash["MED_EXP_AMT_PAID_#{index}"] = format_currency(entry&.dig('paymentAmount'))
+          hash["MED_EXP_PRVDR_NAME_#{index}"] = entry&.dig('provider')
+          hash["MED_EXPENSE_#{index}"] = entry&.dig('purpose')
+          hash.merge!(payment_frequency_fields(entry&.dig('paymentFrequency'), index))
+        end
+      end
+
+      def build_travel_fields(form)
+        entries = form['mileageExpenses'] || []
+        (1..TRAVEL_ROW_COUNT).each_with_object({}) do |index, hash|
+          entry = entries[index - 1]
+          traveler = normalized_traveler(entry)
+          hash["VTRN_RQD_TRVL_#{index}"] = traveler_flag(traveler, 'VETERAN', entry)
+          hash["SPSE_RQD_TRVL_#{index}"] = traveler_flag(traveler, 'SPOUSE', entry)
+          hash["CHLD_RQD_TRVL_#{index}"] = traveler_flag(traveler, 'CHILD', entry)
+          hash["OTHR_RQD_TRVL_#{index}"] = traveler_flag(traveler, 'OTHER', entry)
+          hash["TRVL_CHLD_OTHR_NAME_#{index}"] = traveler_name_child_other(entry, traveler)
+          hash["MDCL_FCLTY_NAME_#{index}"] = travel_location(entry)
+          hash["TTL_MLS_TRVLD_#{index}"] = entry&.dig('travelMilesTraveled')
+          hash["DATE_TRVLD_#{index}"] = entry&.dig('travelDate')
+          hash["OTHER_SRC_RMBRSD_#{index}"] = format_currency(entry&.dig('travelReimbursementAmount'))
+        end
+      end
+
+      def build_witness_fields
+        {
+          'WITNESS_1_NAME' => nil,
+          'WITNESS_1_SIGNATURE' => nil,
+          'WITNESS_1_ADDRESS' => nil,
+          'WITNESS_2_NAME' => nil,
+          'WITNESS_2_ADDRESS' => nil,
+          'WITNESS_2_SIGNATURE' => nil
+        }
+      end
+
+      def recipient_flag(entry, types)
+        return nil unless entry
+
+        normalized = normalized_recipient(entry)
+        return nil unless normalized
+
+        types.include?(normalized)
+      end
+
+      def traveler_flag(traveler, type, entry)
+        return nil unless entry
+
+        traveler == type
+      end
+
+      def child_other_name(entry)
+        recipient = normalized_recipient(entry)
+        return nil unless recipient && (CHILD_RECIPIENTS.include?(recipient) || recipient == 'OTHER')
+
+        entry&.dig('recipientName')
+      end
+
+      def travel_location(entry)
+        return nil unless entry
+
+        entry['travelLocationOther'].presence || entry['travelLocation']
+      end
+
+      def traveler_name_child_other(entry, traveler)
+        return nil unless entry && %w[CHILD OTHER].include?(traveler)
+
+        entry['travelerName']
+      end
+
+      def normalized_recipient(entry)
+        return unless entry
+
+        value = entry['recipient']
+        return unless value
+
+        normalized = value.to_s.strip.upcase
+        normalized == 'DEPENDENT' ? 'CHILD' : normalized
+      end
+
+      def normalized_traveler(entry)
+        return unless entry
+
+        value = entry['traveler']
+        return unless value
+
+        normalized = value.to_s.strip.upcase
+        normalized == 'DEPENDENT' ? 'CHILD' : normalized
+      end
+
+      def payment_frequency_fields(frequency, index)
+        frequency = frequency&.to_s&.strip&.upcase
+        {
+          "CB_PAYMENT_MONTHLY#{index}" => frequency ? frequency == 'ONCE_MONTH' : nil,
+          "CB_PAYMENT_ANNUALLY#{index}" => frequency ? frequency == 'ONCE_YEAR' : nil,
+          "CB_PAYMENT_SINGLE#{index}" => frequency ? frequency == 'ONE_TIME' : nil
+        }
+      end
+
+      def format_currency(value)
+        return unless value
+
+        cleaned = value.to_s.gsub(/[^\d\.-]/, '')
+        number = BigDecimal(cleaned)
+        formatted = format('%.2f', number)
+        parts = formatted.split('.')
+        whole = parts[0].reverse.scan(/\d{1,3}/).join(',').reverse
+        "#{whole}.#{parts[1]}"
+      rescue ArgumentError
+        nil
       end
 
       # Upload generated pdf to Benefits Intake API
