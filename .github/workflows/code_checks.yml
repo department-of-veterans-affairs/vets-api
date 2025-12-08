@@ -566,7 +566,6 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -580,7 +579,6 @@ jobs:
               **View detailed coverage:** [Open test run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) → Scroll to **Artifacts** → Download **Coverage Report** → Open **index.html**
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
