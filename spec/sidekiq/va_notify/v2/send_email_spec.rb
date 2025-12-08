@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'sidekiq/attr_package'
 
-RSpec.describe VANotify::SecureNotificationJob, type: :job do
+RSpec.describe VANotify::V2::SendEmail, type: :job do
   let(:personalisation) { { first_name: "Jane", date_submitted: "May 1, 2024" } }
   let(:email) { "user@example.com" }
   let(:template_id) { "template-id-123" }
@@ -21,7 +21,7 @@ RSpec.describe VANotify::SecureNotificationJob, type: :job do
       expect(Sidekiq::AttrPackage.find(key)).to eq(attrs: { personalisation: personalisation })
 
       expect {
-        VANotify::SecureNotificationJob.perform_async(email, template_id, key, api_key, callback_options)
+        VANotify::V2::SendEmail.perform_async(email, template_id, key, api_key, callback_options)
       }.to change { Sidekiq::AttrPackage.find(key) }.from(attrs: { personalisation: personalisation }).to(nil)
     end
   end
