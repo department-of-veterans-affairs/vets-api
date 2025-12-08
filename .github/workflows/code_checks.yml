@@ -164,7 +164,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Configure AWS Credentials
-        if: needs.tests.result == 'success' && github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
@@ -385,6 +384,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
@@ -566,13 +566,12 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           header: coverage
           message: |
-              ## ❌ Critical: Test Coverage Too Low
+              ## :x: Critical: Test Coverage Too Low
               **Coverage:** ${{ steps.coverage.outputs.percent }}%
               Your test coverage is **below the required minimum of 90%**.
               Please add additional tests before this PR can be considered for merge.
@@ -580,13 +579,12 @@ jobs:
               **View detailed coverage:** [Open test run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) → Scroll to **Artifacts** → Download **Coverage Report** → Open **index.html**
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           header: coverage
           message: |
-            ## ⚠️ Warning: Low Coverage Report
+            ## :warning: Warning: Low Coverage Report
             **Coverage:** ${{ steps.coverage.outputs.percent }}%
 
             Please add or expand tests to improve coverage before merging.
