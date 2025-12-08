@@ -357,7 +357,6 @@ app/policies/sign_in/ @department-of-veterans-affairs/octo-identity
 app/policies/va_profile_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/policies/vet360_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/policies/vye_policy.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
-app/serializers/appointment_serializer.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 app/serializers/async_transaction @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/async_transaction/base_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/backend_statuses_serializer.rb @department-of-veterans-affairs/backend-review-group
@@ -1753,7 +1752,6 @@ spec/requests/root_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/statsd_middleware_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/requests/swagger_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/appeals_spec.rb @department-of-veterans-affairs/backend-review-group
-spec/requests/v0/appointments_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/benefits_claims_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/backend_status_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/caregivers_assistance_claims_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
