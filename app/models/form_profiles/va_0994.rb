@@ -34,14 +34,14 @@ class FormProfiles::VA0994 < FormProfile
   private
 
   def initialize_payment_information
-    return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+    {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
 
-    VA0994::FormPaymentAccountInformation.new(
-      account_type: raw_account&.account_type&.capitalize,
-      account_number: mask(raw_account&.account_number),
-      routing_number: mask(raw_account&.financial_institution_routing_number),
-      bank_name: raw_account&.financial_institution_name
-    )
+    # VA0994::FormPaymentAccountInformation.new(
+    #   account_type: raw_account&.account_type&.capitalize,
+    #   account_number: mask(raw_account&.account_number),
+    #   routing_number: mask(raw_account&.financial_institution_routing_number),
+    #   bank_name: raw_account&.financial_institution_name
+    # )
   rescue => e
     Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
     {}
