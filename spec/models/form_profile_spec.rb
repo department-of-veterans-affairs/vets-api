@@ -2073,6 +2073,112 @@ RSpec.describe FormProfile, type: :model do
                 expect(dependents.first['dateOfBirth']).to be_nil
               end
             end
+
+            context 'with address prefill' do
+              let(:user) { create(:evss_user, :loa3) }
+              let(:form_profile) do
+                FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
+              end
+              let(:contact_info_service) { instance_double(VAProfileRedis::V2::ContactInformation) }
+              let(:dependent_service) { instance_double(BGS::DependentService) }
+              let(:email_double) { instance_double(VAProfile::Models::Email, email_address: 'test@example.com') }
+              let(:home_phone_double) { instance_double(VAProfile::Models::Telephone, formatted_phone: '5035551234') }
+              let(:mobile_phone_double) { instance_double(VAProfile::Models::Telephone, formatted_phone: '5035555678') }
+
+              before do
+                # Mock VAProfile contact info for both user and form profile usage
+                allow(VAProfileRedis::V2::ContactInformation).to receive(:for_user).with(user).and_return(
+                  contact_info_service
+                )
+                allow(contact_info_service).to receive_messages(email: email_double, home_phone: home_phone_double,
+                                                                mobile_phone: mobile_phone_double)
+
+                # Mock dependent service to avoid BGS calls
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+                allow(dependent_service).to receive(:get_dependents).and_return({ persons: [] })
+
+                # Mock BID awards service
+                allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_return(
+                  OpenStruct.new(body: { 'awards_pension' => { 'is_in_receipt_of_pension' => false } })
+                )
+              end
+
+              context 'with domestic address' do
+                let(:domestic_address) do
+                  build(:va_profile_address,
+                        :mailing,
+                        :domestic,
+                        address_line1: '123 Main St',
+                        address_line2: 'Apt 4B',
+                        address_line3: 'Building C',
+                        city: 'Portland',
+                        state_code: 'OR',
+                        zip_code: '97201',
+                        country_code_iso3: 'USA')
+                end
+
+                it 'prefills address with zip_code when available' do
+                  allow(contact_info_service).to receive(:mailing_address).and_return(domestic_address)
+
+                  result = form_profile.prefill
+
+                  expect(result[:form_data]).to have_key('veteranContactInformation')
+                  vet_contact = result[:form_data]['veteranContactInformation']
+                  expect(vet_contact).to have_key('veteranAddress')
+                  vet_address = vet_contact['veteranAddress']
+                  expect(vet_address['street']).to eq('123 Main St')
+                  expect(vet_address['street2']).to eq('Apt 4B')
+                  expect(vet_address['street3']).to eq('Building C')
+                  expect(vet_address['city']).to eq('Portland')
+                  expect(vet_address['state']).to eq('OR')
+                  expect(vet_address['postalCode']).to eq('97201')
+                  expect(vet_address['country']).to eq('USA')
+                end
+              end
+
+              context 'with international address' do
+                let(:international_address) do
+                  build(:va_profile_address,
+                        :mailing,
+                        :international,
+                        address_line1: '10 Downing Street',
+                        city: 'London',
+                        province: 'Greater London',
+                        international_postal_code: 'SW1A 2AA',
+                        country_code_iso3: 'GBR',
+                        zip_code: nil,
+                        state_code: nil)
+                end
+
+                it 'prefills address with international_postal_code when zip_code is nil' do
+                  allow(contact_info_service).to receive(:mailing_address).and_return(international_address)
+
+                  result = form_profile.prefill
+
+                  expect(result[:form_data]).to have_key('veteranContactInformation')
+                  vet_contact = result[:form_data]['veteranContactInformation']
+                  expect(vet_contact).to have_key('veteranAddress')
+                  vet_address = vet_contact['veteranAddress']
+                  expect(vet_address['street']).to eq('10 Downing Street')
+                  expect(vet_address['city']).to eq('London')
+                  expect(vet_address['postalCode']).to eq('SW1A 2AA')
+                  expect(vet_address['country']).to eq('GBR')
+                  expect(vet_address['state']).to be_nil
+                end
+              end
+
+              context 'when mailing address is blank' do
+                it 'does not prefill address' do
+                  allow(contact_info_service).to receive(:mailing_address).and_return(nil)
+
+                  result = form_profile.prefill
+
+                  expect(result[:form_data]).to have_key('veteranContactInformation')
+                  # veteranContactInformation will have other fields but not veteranAddress
+                  expect(result[:form_data]['veteranContactInformation']).not_to have_key('veteranAddress')
+                end
+              end
+            end
           end
         end
 
@@ -2288,7 +2394,7 @@ RSpec.describe FormProfile, type: :model do
 
   describe 'loading 10-7959C form mappings' do
     it "doesn't raise an IOError" do
-      expect { FormProfile.load_form_mapping('10-7959C') }.not_to raise_error(IOError)
+      expect { FormProfile.load_form_mapping('10-7959C') }.not_to raise_error
     end
 
     it 'loads the correct data' do
