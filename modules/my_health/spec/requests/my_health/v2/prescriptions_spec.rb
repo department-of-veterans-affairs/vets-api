@@ -545,7 +545,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       it 'accepts disp_status filter parameter' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # Test with Active filter - use query string format
-          get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active', headers:)
+          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
@@ -565,7 +565,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'filters and paginates prescriptions' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active&page=1&per_page=2', headers:)
+          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active&page=1&per_page=2', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
@@ -579,7 +579,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'filters prescriptions with multiple disp_status values' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active,Expired', headers:)
+          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
