@@ -135,7 +135,7 @@ vass:
 
 To test the service layer:
 
-````bash
+```bash
 cd modules/vass
 bundle exec rspec spec/services/vass/appointments_service_spec.rb
 
