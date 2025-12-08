@@ -113,15 +113,16 @@ module Vass
     ##
     # Retrieves veteran information by veteran ID.
     #
+    # Used in the OTC flow where we only have the UUID from the welcome email.
+    # The VASS API returns EDIPI in the response, so it's not required in the request.
+    #
     # @param veteran_id [String] Veteran ID (UUID) in VASS system
-    # @param edipi [String, nil] Veteran EDIPI (optional, only needed for some endpoints)
     # @return [Faraday::Response] HTTP response containing veteran data including EDIPI
     #
-    def get_veteran(veteran_id:, edipi: nil)
+    def get_veteran(veteran_id:)
       with_auth do
         with_monitoring do
           headers = default_headers.merge('veteranId' => veteran_id)
-          headers['EDIPI'] = edipi if edipi.present?
           perform(:get, 'api/GetVeteran', nil, headers)
         end
       end
