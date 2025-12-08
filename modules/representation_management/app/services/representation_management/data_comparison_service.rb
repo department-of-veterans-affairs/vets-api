@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'roo'
+require 'octokit'
 
 # rubocop:disable Rails/Output
 module RepresentationManagement
@@ -21,6 +22,11 @@ module RepresentationManagement
   # This service is designed for console use and outputs progress via puts
   # to ensure visibility in the Rails console environment.
   class DataComparisonService
+    # Constants for GitHub file location
+    GITHUB_ORG = 'department-of-veterans-affairs'
+    GITHUB_REPO = 'va.gov-team-sensitive'
+    GITHUB_PATH = 'products/accredited-representation-management/data/rep-org-addresses.xlsx'
+
     def initialize
       @results = {}
     end
@@ -103,15 +109,34 @@ module RepresentationManagement
     # Downloads the Excel file from GitHub
     # @return [String, nil] File content or nil if download failed
     def download_file
-      file_content = Representatives::XlsxFileFetcher.new.fetch(force: true)
+      setup_github_client
+      file_info = fetch_github_file_info
+      fetch_file_content(file_info.download_url)
+    rescue => e
+      puts "[#{Time.zone.now}]   ERROR: Failed to download file from GitHub"
+      puts "[#{Time.zone.now}]   Error: #{e.message}"
+      puts "[#{Time.zone.now}]   Check GitHub access token and network connectivity"
+      nil
+    end
 
-      if file_content.nil?
-        puts "[#{Time.zone.now}]   ERROR: Failed to download file from GitHub"
-        puts "[#{Time.zone.now}]   Check GitHub access token and network connectivity"
-        return nil
-      end
+    # Sets up the Octokit GitHub client with an access token
+    def setup_github_client
+      @github_client = Octokit::Client.new(access_token: Settings.xlsx_file_fetcher.github_access_token)
+    end
 
-      file_content
+    # Retrieves the file information for the XLSX file from GitHub
+    # @return [Sawyer::Resource] The file information resource from GitHub
+    def fetch_github_file_info
+      @github_client.contents("#{GITHUB_ORG}/#{GITHUB_REPO}", path: GITHUB_PATH)
+    end
+
+    # Downloads the file content from a given URL
+    # @param url [String] The URL to download the file content from
+    # @return [String] The body of the HTTP response, or nil if not successful
+    def fetch_file_content(url)
+      uri = URI.parse(url)
+      response = Net::HTTP.get_response(uri)
+      response.body if response.is_a?(Net::HTTPSuccess)
     end
 
     # Extracts all unique registration numbers and POA codes from the Excel file
