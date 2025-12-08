@@ -322,3 +322,7 @@ properties:
         items:
           $ref: "./AvsPdf.yml"
         nullable: true
+      avsError:
+        type: string
+        nullable: true
+        example: "Error generating AVS PDF"
