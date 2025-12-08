@@ -28,7 +28,7 @@ class SavedClaim::Form212680 < SavedClaim
 
   # Generate pre-filled PDF with veteran sections
   def generate_prefilled_pdf
-    pdf_path = to_pdf(SecureRandom.uuid)
+    pdf_path = to_pdf
 
     # Update metadata to track PDF generation
     update_metadata_with_pdf_generation
@@ -58,6 +58,19 @@ class SavedClaim::Form212680 < SavedClaim
   # Attachment keys (not used in this workflow, but required by SavedClaim)
   def attachment_keys
     [].freeze
+  end
+
+  # Override to_pdf to add veteran signature stamp
+  def to_pdf(file_name = nil, fill_options = {})
+    pdf_path = PdfFill::Filler.fill_form(self, file_name, fill_options)
+    PdfFill::Forms::Va212680.stamp_signature(pdf_path, parsed_form)
+  end
+
+  def veteran_first_last_name
+    full_name = parsed_form.dig('veteranInformation', 'fullName')
+    return 'Veteran' unless full_name.is_a?(Hash)
+
+    "#{full_name['first']} #{full_name['last']}"
   end
 
   private
