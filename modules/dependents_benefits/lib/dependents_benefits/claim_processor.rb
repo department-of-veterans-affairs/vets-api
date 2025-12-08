@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'dependents_benefits/sidekiq/bgs_proc_job'
-require 'dependents_benefits/sidekiq/bgs_674_job'
-require 'dependents_benefits/sidekiq/bgs_686c_job'
-require 'dependents_benefits/sidekiq/claims_686c_job'
-require 'dependents_benefits/sidekiq/claims_674_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_proc_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_674_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_686c_job'
+require 'dependents_benefits/sidekiq/claims_evidence/claims_686c_job'
+require 'dependents_benefits/sidekiq/claims_evidence/claims_674_job'
 require 'dependents_benefits/monitor'
 
 module DependentsBenefits
@@ -42,7 +42,7 @@ module DependentsBenefits
     #
     # @return [String] Sidekiq job ID
     def create_proc_forms
-      DependentsBenefits::Sidekiq::BGSProcJob.perform_async(parent_claim_id)
+      DependentsBenefits::Sidekiq::BGS::BGSProcJob.perform_async(parent_claim_id)
     end
 
     # Synchronously enqueues all (async) submission jobs for 686c and 674 claims
@@ -122,10 +122,10 @@ module DependentsBenefits
       jobs_count = 0
 
       # Enqueue primary 686c submission jobs
-      Sidekiq::BGS686cJob.perform_async(claim.id, proc_id)
+      DependentsBenefits::Sidekiq::BGS::BGS686cJob.perform_async(claim.id, proc_id)
       jobs_count += 1
 
-      Sidekiq::Claims686cJob.perform_async(claim.id, proc_id)
+      DependentsBenefits::Sidekiq::ClaimsEvidence::Claims686cJob.perform_async(claim.id, proc_id)
       jobs_count += 1
 
       # @todo Add calls to submission jobs here as they are implemented
@@ -146,10 +146,10 @@ module DependentsBenefits
       jobs_count = 0
 
       # Enqueue primary 674 submission job
-      Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
+      DependentsBenefits::Sidekiq::BGS::BGS674Job.perform_async(claim.id, proc_id)
       jobs_count += 1
 
-      Sidekiq::Claims674Job.perform_async(claim.id, proc_id)
+      DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job.perform_async(claim.id, proc_id)
       jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',

@@ -90,21 +90,13 @@ module ZeroSilentFailures
       # assemble metadata for _claim_
       # - inheritor should append to _super_ if needed
       def generate_metadata
-        form = claim.parsed_form
-        address = form['claimantAddress'] || form['veteranAddress']
-
         {
           claimId: claim.id,
           docType: claim.form_id,
           formStartDate: claim.form_start_date,
           claimSubmissionDate: claim.created_at,
-          claimConfirmation: claim.guid,
-          veteranFirstName: form['veteranFullName']['first'],
-          veteranLastName: form['veteranFullName']['last'],
-          fileNumber: form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-          zipCode: address['postalCode'],
-          businessLine: claim.business_line
-        }
+          claimConfirmation: claim.guid
+        }.merge(claim.metadata_for_benefits_intake)
       end
 
       # create the _claim_ metadata.json file
@@ -179,7 +171,7 @@ module ZeroSilentFailures
       # package all _files_ for _claim_
       # @raise Error if unable to add a file to the zip
       def zip_files
-        Zip::File.open(zipfile, Zip::File::CREATE) do |zip|
+        Zip::File.open(zipfile, create: true) do |zip|
           files.each do |file|
             Rails.logger.info("Adding to zip: #{file}")
             zip.add(file[:name], file[:path])
