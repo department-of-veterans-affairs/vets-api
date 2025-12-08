@@ -2,6 +2,7 @@
 
 require 'ostruct'
 require 'open3'
+
 require_relative 'lib/vsp_danger/parameter_filtering_allowlist_checker'
 
 module VSPDanger
@@ -18,7 +19,7 @@ module VSPDanger
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
         GemfileLockPlatformChecker.new.run,
-        ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
+        ::ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
       ]
     end
 

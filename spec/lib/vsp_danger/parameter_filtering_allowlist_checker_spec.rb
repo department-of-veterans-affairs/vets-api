@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'vsp_danger/parameter_filtering_allowlist_checker'
 
-RSpec.describe VSPDanger::ParameterFilteringAllowlistChecker do
+RSpec.describe ParameterFilteringAllowlistChecker do
   subject(:checker) { described_class.new }
 
   describe '#allowlist_changed?' do
@@ -110,7 +110,7 @@ RSpec.describe VSPDanger::ParameterFilteringAllowlistChecker do
       it 'returns a warning result' do
         checker.filter_params_diff = diff
         result = checker.run
-        expect(result.severity).to eq(VSPDanger::Result::WARNING)
+        expect(result.severity).to eq(Result::WARNING)
       end
 
       it 'includes PII risk warning in message' do
@@ -130,7 +130,7 @@ RSpec.describe VSPDanger::ParameterFilteringAllowlistChecker do
       it 'returns a success result' do
         checker.filter_params_diff = ''
         result = checker.run
-        expect(result.severity).to eq(VSPDanger::Result::SUCCESS)
+        expect(result.severity).to eq(Result::SUCCESS)
       end
     end
   end
