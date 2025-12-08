@@ -10,9 +10,7 @@ describe PdfFill::HashConverter do
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
   let(:placeholder_text) { 'special placeholder text' }
 
-  before do
-    allow(extras_generator).to receive_messages(placeholder_text:, use_hexapdf: false)
-  end
+  before { allow(extras_generator).to receive(:placeholder_text).and_return(placeholder_text) }
 
   def verify_extras_text(text, metadata)
     metadata[:overflow] = true unless metadata.key?(:overflow)
@@ -212,35 +210,6 @@ describe PdfFill::HashConverter do
           )
           verify_hash('key1' => placeholder_text, 'key2' => placeholder_text)
         end
-      end
-    end
-
-    context 'with use_hexapdf enabled and placeholder text truncation' do
-      before do
-        allow(extras_generator).to receive_messages(placeholder_text:, use_hexapdf: true)
-      end
-
-      it 'truncates placeholder text when field limit is less than placeholder length' do
-        verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil)
-
-        call_set_value(
-          { key: :foo, limit: 2, question_num: 1, question_text: 'foo' },
-          nil
-        )
-
-        verify_hash(foo: 'sp')
-      end
-
-      it 'uses full placeholder text when field limit is greater than placeholder length' do
-        verify_extras_text('super special valueable text', question_num: 1, question_text: 'foo', i: nil)
-
-        call_set_custom_value(
-          'super special valueable text',
-          { key: :foo, limit: 25, question_num: 1, question_text: 'foo' },
-          nil
-        )
-
-        verify_hash(foo: placeholder_text)
       end
     end
   end
