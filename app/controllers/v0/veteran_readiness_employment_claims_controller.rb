@@ -7,7 +7,8 @@ module V0
     skip_before_action :load_user
 
     def create
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
+      user_account = UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
+      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
 
       if claim.save
         if Flipper.enabled?(:vre_modular_api)
