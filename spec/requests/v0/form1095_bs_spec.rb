@@ -35,7 +35,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      it 'returns not found when 404 is received from enrollment system' do
+      it 'returns error from enrollment system' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
@@ -97,7 +97,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      it 'returns not found when 404 is received from enrollment system' do
+      it 'returns error from enrollment system' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_txt/2024'

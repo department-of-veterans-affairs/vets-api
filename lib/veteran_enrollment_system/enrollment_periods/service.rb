@@ -19,6 +19,7 @@ module VeteranEnrollmentSystem
       include Common::Client::Concerns::Monitoring
 
       configuration VeteranEnrollmentSystem::EnrollmentPeriods::Configuration
+
       STATSD_KEY_PREFIX = 'api.enrollment_periods'
       ERROR_MAP = {
         400 => Common::Exceptions::BadRequest,
@@ -41,12 +42,10 @@ module VeteranEnrollmentSystem
           if response.status == 200
             response.body['data']['mecPeriods']
           else
-            raise_error(response, statsd_key_prefix: STATSD_KEY_PREFIX, operation: 'get_enrollment_periods')
+            raise_error(response)
           end
         end
       rescue => e
-      # specs show that this is duplicative
-      # StatsD.increment("#{STATSD_KEY_PREFIX}.get_enrollment_periods.failed")
         Rails.logger.error(
           "get_enrollment_periods failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
         )
@@ -57,15 +56,8 @@ module VeteranEnrollmentSystem
 
       # Raises mapped error, logs, and increments StatsD for error cases.
       # Optionally accepts a statsd_key_prefix and operation name for metrics/logging.
-      def raise_error(response, statsd_key_prefix: nil, operation: nil)
+      def raise_error(response)
         message = response.body['messages']&.pluck('description')&.join(', ') || response.body
-
-        # if statsd_key_prefix && operation
-        #   # StatsD.increment("#{statsd_key_prefix}.#{operation}.failed")
-        #   Rails.logger.error(
-        #     "#{operation} failed: #{message}"
-        #   )
-        # end
 
         # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
         raise ERROR_MAP[response.status]&.new(detail: message) ||
