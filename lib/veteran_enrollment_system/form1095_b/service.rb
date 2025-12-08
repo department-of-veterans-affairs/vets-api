@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'veteran_enrollment_system/form1095_b/configuration'
-require 'veteran_enrollment_system/error_handling'
 
 module VeteranEnrollmentSystem
   module Form1095B
@@ -18,10 +17,17 @@ module VeteranEnrollmentSystem
     #
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
-      include VeteranEnrollmentSystem::ErrorHandling
 
       configuration VeteranEnrollmentSystem::Form1095B::Configuration
       STATSD_KEY_PREFIX = 'api.form1095b_enrollment'
+      ERROR_MAP = {
+        400 => Common::Exceptions::BadRequest,
+        403 => Common::Exceptions::Forbidden,
+        404 => Common::Exceptions::ResourceNotFound,
+        500 => Common::Exceptions::ExternalServerInternalServerError,
+        502 => Common::Exceptions::BadGateway,
+        504 => Common::Exceptions::GatewayTimeout
+      }.freeze
 
       # Fetch Form 1095-B data by ICN and year from the enrollment system
       #
@@ -50,6 +56,25 @@ module VeteranEnrollmentSystem
           "get_form_by_icn failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
         )
         raise e
+      end
+
+      private
+
+      # Raises mapped error, logs, and increments StatsD for error cases.
+      # Optionally accepts a statsd_key_prefix and operation name for metrics/logging.
+      def raise_error(response, statsd_key_prefix: nil, operation: nil)
+        message = response.body['messages']&.pluck('description')&.join(', ') || response.body
+
+        # if statsd_key_prefix && operation
+        #   # StatsD.increment("#{statsd_key_prefix}.#{operation}.failed")
+        #   Rails.logger.error(
+        #     "#{operation} failed: #{message}"
+        #   )
+        # end
+
+        # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
+        raise ERROR_MAP[response.status]&.new(detail: message) ||
+              Common::Exceptions::BackendServiceException.new(nil, detail: message)
       end
     end
   end
