@@ -1,0 +1,31 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.vass.va.gov/api/AppointmentAvailability
+    body:
+      encoding: UTF-8
+      string: '{"correlationId":"test-correlation-id","veteranId":"vet-123","dtStartUtc":"2025-11-27T00:00:00Z","dtEndUtc":"2025-12-04T23:59:59Z"}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-token
+      Correlationid:
+      - test-correlation-id
+      Edipi:
+      - '1234567890'
+      Ocp-Apim-Subscription-Key:
+      - test-subscription-key
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: '{"success":true,"message":"Availability retrieved successfully","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z","data":{"appointmentDuration":30,"availableTimeSlots":[{"timeStartUTC":"2025-11-27T10:00:00Z","timeEndUTC":"2025-11-27T10:30:00Z","capacity":5},{"timeStartUTC":"2025-11-27T11:00:00Z","timeEndUTC":"2025-11-27T11:30:00Z","capacity":3},{"timeStartUTC":"2025-11-28T14:00:00Z","timeEndUTC":"2025-11-28T14:30:00Z","capacity":4}]}}'
+  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+recorded_with: VCR 6.0.0
