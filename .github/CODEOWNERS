@@ -887,7 +887,6 @@ lib/evss/documents_service.rb @department-of-veterans-affairs/backend-review-gro
 lib/evss/error_middleware.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 lib/evss/letters @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 lib/evss/logged_service_exception.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
-lib/evss/ppiu @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 lib/evss/response.rb @department-of-veterans-affairs/backend-review-group
 lib/evss/service_exception.rb @department-of-veterans-affairs/backend-review-group
 lib/evss/service.rb @department-of-veterans-affairs/backend-review-group
@@ -1309,8 +1308,6 @@ spec/factories/organizations.rb @department-of-veterans-affairs/accredited-repre
 spec/factories/pagerduty_services.rb @department-of-veterans-affairs/backend-review-group
 spec/factories/persistent_attachments @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 spec/factories/persistent_attachments.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
-spec/factories/ppiu_payment_account.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
-spec/factories/ppiu_payment_information_responses.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/factories/ppms @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
 spec/factories/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 spec/factories/prescription_details.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
@@ -2213,7 +2210,6 @@ spec/support/vcr_cassettes/evss/claims @department-of-veterans-affairs/disabilit
 spec/support/vcr_cassettes/evss/disability_compensation_form @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/evss/documents/get_claim_documents.yml @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/evss/letters @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/evss/ppiu @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/evss/reference_data @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/facilities @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/form_10203/gi_bill_status_200_response.yml @department-of-veterans-affairs/backend-review-group
