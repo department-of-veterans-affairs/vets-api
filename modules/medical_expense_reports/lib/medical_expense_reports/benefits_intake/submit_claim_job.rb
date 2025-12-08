@@ -152,7 +152,7 @@ module MedicalExpenseReports
           'CL_INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
           'CL_PHONE_NUMBER' => claimant_phone_number(form),
           'DATE_SIGNED' => claim_date_signed(form),
-          'FORM_TYPE' => MedicalExpenseReports::FORM_ID,
+          'FORM_TYPE' => MedicalExpenseReports::FORM_TYPE_LABEL,
           'MED_EXPENSES_FROM_1' => use_va_rcvd_date ? nil : format_date(reporting_period['from']),
           'MED_EXPENSES_TO_1' => use_va_rcvd_date ? nil : format_date(reporting_period['to']),
           'USE_VA_RCVD_DATE' => use_va_rcvd_date,
@@ -192,7 +192,7 @@ module MedicalExpenseReports
         lines << city_line unless city_line.blank?
         lines << address['country'] if address['country'].present?
 
-        lines.join("\n").presence
+        lines.reject(&:blank?).join(' ').presence
       end
 
       def claimant_address_block(form)

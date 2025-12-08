@@ -202,12 +202,12 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
         'CLAIMANT_LAST_NAME' => 'Public',
         'CLAIMANT_MIDDLE_INITIAL' => 'Q',
         'CLAIMANT_NAME' => 'Jane Q Public',
-        'CLAIMANT_ADDRESS_FULL_BLOCK' => "100 Main St Apt 2\nCity VA 22206\nUSA",
+        'CLAIMANT_ADDRESS_FULL_BLOCK' => "100 Main St Apt 2 City VA 22206 USA",
         'CL_EMAIL' => 'claimant@example.com',
         'CL_PHONE_NUMBER' => '5551234567',
         'CL_INT_PHONE_NUMBER' => nil,
         'DATE_SIGNED' => '2024-04-01',
-        'FORM_TYPE' => MedicalExpenseReports::FORM_ID,
+        'FORM_TYPE' => MedicalExpenseReports::FORM_TYPE_LABEL,
         'MED_EXPENSES_FROM_1' => '01/01/2024',
         'MED_EXPENSES_TO_1' => '12/31/2024',
         'USE_VA_RCVD_DATE' => false,
@@ -249,7 +249,7 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
       it 'falls back to the veteran address' do
         payload = job.send(:build_ibm_payload, form_data)
 
-        expect(payload['CLAIMANT_ADDRESS_FULL_BLOCK']).to eq("1 Main Street A1\nCity VA 22206\nUSA")
+        expect(payload['CLAIMANT_ADDRESS_FULL_BLOCK']).to eq("1 Main Street A1 City VA 22206 USA")
       end
     end
   end
