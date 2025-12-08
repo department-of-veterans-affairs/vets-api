@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'medical_records/user_eligibility/client'
-
 MHVMedicalRecordsPolicy = Struct.new(:user, :mhv_medical_records) do
   MR_ACCOUNT_TYPES = %w[Premium].freeze
 
