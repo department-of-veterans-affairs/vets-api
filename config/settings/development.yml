@@ -842,6 +842,7 @@ maintenance:
     coe: PSY4HU1
     community_care_ds: ~
     decision_reviews: ~
+    dgi_claimants: ~
     disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV
