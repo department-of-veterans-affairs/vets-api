@@ -793,7 +793,6 @@ module SM
         raise Common::Exceptions::BackendServiceException.new(
           'SM98',
           {
-            status: 400,
             detail: "OH message send failure with recipient_id #{message.recipient_id} and status #{status}",
             source: self.class.to_s
           }
