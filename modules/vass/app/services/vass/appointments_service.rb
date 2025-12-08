@@ -272,10 +272,11 @@ module Vass
     ##
     # Formats a date/time object to ISO8601 format for VASS API.
     #
-    # @param datetime [Time, String] DateTime to format
-    # @return [String] ISO8601 formatted datetime string
+    # @param datetime [Time, String, nil] DateTime to format
+    # @return [String, nil] ISO8601 formatted datetime string, or nil if input is nil
     #
     def format_datetime(datetime)
+      return nil if datetime.nil?
       return datetime if datetime.is_a?(String)
 
       datetime.utc.iso8601
@@ -418,12 +419,24 @@ module Vass
     ##
     # Normalizes date from VASS API format (M/D/YYYY) to Date object for comparison.
     #
+    # Attempts to parse using the expected VASS format (M/D/YYYY) first,
+    # falling back to Date.parse for other formats. Logs a warning when
+    # fallback is used to help identify data quality issues.
+    #
     # @param date [String] Date string from VASS API (e.g., "1/15/1990")
     # @return [Date] Parsed date object
     #
     def normalize_vass_date(date)
       Date.strptime(date, '%m/%d/%Y')
     rescue ArgumentError, TypeError
+      Rails.logger.warn({
+        service: 'vass_appointments_service',
+        action: 'date_format_fallback',
+        message: 'VASS API date not in expected M/D/YYYY format, using Date.parse fallback',
+        date_format: date.class.name,
+        correlation_id:,
+        timestamp: Time.current.iso8601
+      }.to_json)
       Date.parse(date)
     end
   end

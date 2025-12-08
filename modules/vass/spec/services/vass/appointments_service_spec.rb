@@ -225,6 +225,33 @@ describe Vass::AppointmentsService do
 
           expect(result['contact_method']).to eq('email')
         end
+
+        it 'logs warning when VASS API date format differs from expected M/D/YYYY' do
+          veteran_response_custom_date = {
+            'success' => true,
+            'data' => {
+              'firstName' => 'John',
+              'lastName' => 'Doe',
+              'dateOfBirth' => '1990-01-15', # ISO format instead of M/D/YYYY
+              'edipi' => edipi,
+              'notificationEmail' => 'john.doe@example.com'
+            }
+          }
+
+          allow(client).to receive(:get_veteran).and_return(
+            double(body: veteran_response_custom_date, status: 200)
+          )
+
+          expect(Rails.logger).to receive(:warn).with(
+            a_string_matching(/date_format_fallback/)
+          )
+
+          service_with_mock_client.get_veteran_info(
+            veteran_id:,
+            last_name:,
+            date_of_birth: '1990-01-15'
+          )
+        end
       end
 
       context 'when identity validation fails' do
@@ -381,6 +408,11 @@ describe Vass::AppointmentsService do
       datetime_str = '2025-11-27T10:00:00Z'
       formatted = subject.send(:format_datetime, datetime_str)
       expect(formatted).to eq(datetime_str)
+    end
+
+    it 'returns nil when given nil' do
+      formatted = subject.send(:format_datetime, nil)
+      expect(formatted).to be_nil
     end
   end
 end
