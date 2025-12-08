@@ -360,7 +360,7 @@ module DependentsBenefits::Sidekiq
     #
     # @return [DependentsBenefits::NotificationEmail] Notification email instance
     def notification_email
-      @notification_email ||= DependentsBenefits::NotificationEmail.new(claim_id)
+      @notification_email ||= DependentsBenefits::NotificationEmail.new(parent_claim_id, generate_user_struct)
     end
 
     # Returns the memoized form submission record
