@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'facility_name_resolver'
+require_relative '../prescription'
 
 module UnifiedHealthData
   module Adapters
@@ -25,10 +26,12 @@ module UnifiedHealthData
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
 
-        build_core_attributes(resource)
-          .merge(build_tracking_attributes(tracking_data))
-          .merge(build_contact_and_source_attributes(resource))
-          .merge(dispenses: dispenses_data)
+        attributes = build_core_attributes(resource)
+                     .merge(build_tracking_attributes(tracking_data))
+                     .merge(build_contact_and_source_attributes(resource))
+                     .merge(dispenses: dispenses_data)
+
+        ::UnifiedHealthData::Prescription.new(attributes)
       end
 
       def build_core_attributes(resource)

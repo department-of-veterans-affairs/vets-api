@@ -301,7 +301,7 @@ RSpec.describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
           'source' => 'vista',
           'resource' => {
             'id' => '99999',
-            'disp_status' => 'SomeRandomStatus',
+            'disp_status' => 'Unknown',
             'prescription_name' => 'Unknown Med'
           }
         }

@@ -39,15 +39,22 @@ module UnifiedHealthData
         V2_STATUS_GROUPS[v2_status] || []
       end
 
-      # Applies V2 status mapping to a single prescription object
-      # Mutates the prescription's disp_status in place
-      # @param prescription [Object] A prescription object with disp_status attribute
-      # @return [Object] The same prescription object with mapped disp_status
+      # Applies V2 status mapping to a single prescription object or hash
+      # @param prescription [Object, Hash] A prescription object or hash with disp_status attribute
+      # @return [Object, Hash] The same prescription with mapped disp_status
       def apply_v2_status_mapping(prescription)
-        return prescription unless prescription.respond_to?(:disp_status) && prescription.respond_to?(:disp_status=)
-        return prescription if prescription.disp_status.nil? || prescription.disp_status.to_s.empty?
+        if prescription.is_a?(Hash)
+          # Handle hash-based prescriptions (Vista)
+          original_status = prescription[:disp_status]
+          return prescription if original_status.nil? || original_status.to_s.empty?
 
-        prescription.disp_status = map_to_v2_status(prescription.disp_status)
+          prescription[:disp_status] = map_to_v2_status(original_status)
+        elsif prescription.respond_to?(:disp_status) && prescription.respond_to?(:disp_status=)
+          # Handle object-based prescriptions (OpenStruct/Oracle)
+          return prescription if prescription.disp_status.nil? || prescription.disp_status.to_s.empty?
+
+          prescription.disp_status = map_to_v2_status(prescription.disp_status)
+        end
         prescription
       end
 

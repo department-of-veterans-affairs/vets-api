@@ -5,7 +5,10 @@ require 'unified_health_data/service'
 require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
-  let(:current_user) { build(:user, :mhv) }
+  include SchemaMatchers
+
+  let(:mhv_account_type) { 'Premium' }
+  let(:current_user) { build(:user, :mhv, mhv_account_type:) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:refill_path) { '/my_health/v2/prescriptions/refill' }
   let(:service) { instance_double(UnifiedHealthData::Service) }
@@ -16,6 +19,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_new_policy, anything).and_return(false)
+    # Stub prescriptions access policy to allow access
+    allow_any_instance_of(User).to receive(:authorize).with(:mhv_prescriptions, :access?).and_return(true)
   end
 
   # Helper methods for V2 status mapping tests
