@@ -536,6 +536,11 @@ en:
         code: 'SM915'
         detail: 'No messages in the requested folder'
         status: 400
+      SM98: # 'Oracle Health message send failure'
+        <<: *external_defaults
+        code: 'SM98'
+        detail: 'Oracle Health message send failed'
+        status: 400
       SM99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'SM99'
