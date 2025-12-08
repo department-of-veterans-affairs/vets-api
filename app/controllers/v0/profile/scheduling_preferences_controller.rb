@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Controller for managing user scheduling preferences in VA.gov profile.
+# This controller is still under development, with stubbed transaction responses gated
+# behind the profile_health_care_settings_page feature flag.
+
 module V0
   module Profile
     class SchedulingPreferencesController < ApplicationController
