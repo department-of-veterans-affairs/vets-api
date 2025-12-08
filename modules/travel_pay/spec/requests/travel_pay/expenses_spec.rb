@@ -119,8 +119,8 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         {
           'content_type' => 'application/pdf',
           'content_length' => '1446',
-          'file_data' => Base64.strict_encode64(File.read(Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures',
-                                                                          'documents', 'test.pdf'))),
+          'file_data' => Base64.strict_encode64(Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures',
+                                                                'documents', 'test.pdf').read),
           'file_type' => 'pdf'
         }
       end
