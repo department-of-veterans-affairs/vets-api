@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-Rspec.describe SOB::DGI::Configuration do
+RSpec.describe SOB::DGI::Configuration do
   subject(:config) { described_class.instance }
 
   describe '#service_name' do
