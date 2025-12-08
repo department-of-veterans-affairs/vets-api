@@ -427,7 +427,7 @@ jobs:
                 "type": "header",
                 "text": {
                   "type": "plain_text",
-                  "text": "THIS IS A TEST :rotating_light: CRITICAL: Test Coverage Too Low",
+                  "text": ":rotating_light: CRITICAL: Test Coverage Too Low",
                   "emoji": true
                 }
               },
@@ -459,7 +459,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":git: *Branch:* `${{ github.ref_name }}`\n:label: *Commit:* <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>\n:bust_in_silhouette: *Author:* ${{ github.actor }}"
+                  "text": ":bust_in_silhouette: *Author:* ${{ github.actor }}"
                 }
               },
               {
@@ -490,8 +490,8 @@ jobs:
             ]
           channel_id: "C039HRTHXDH"
 
-      - name: Slack notify - critical coverage alert
-        if: needs.tests.result == 'success' && github.event_name != 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
+      - name: Slack notify - warning low coverage alert
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
@@ -504,7 +504,7 @@ jobs:
                 "type": "header",
                 "text": {
                   "type": "plain_text",
-                  "text": ":warning: *Warning: Vets-API Coverage Below Target*",
+                  "text": ":warning: Warning: Vets-API Coverage Below Target",
                   "emoji": true
                 }
               },
@@ -529,7 +529,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":git: *Branch:* `${{ github.ref_name }}`\n:label: *Commit:* <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>\n:bust_in_silhouette: *Author:* ${{ github.actor }}"
+                  "text": ":bust_in_silhouette: *Author:* ${{ github.actor }}"
                 }
               },
               {
