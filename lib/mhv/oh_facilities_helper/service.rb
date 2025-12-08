@@ -9,12 +9,16 @@ module MHV
       end
 
       def user_at_pretransitioned_oh_facility?
+        return false if @current_user.va_treatment_facility_ids.blank?
+
         @current_user.va_treatment_facility_ids.any? do |facility|
           pretransitioned_oh_facilities.include?(facility.to_s)
         end
       end
 
       def user_facility_ready_for_info_alert?
+        return false if @current_user.va_treatment_facility_ids.blank?
+
         @current_user.va_treatment_facility_ids.any? do |facility|
           facilities_ready_for_info_alert.include?(facility.to_s)
         end
@@ -23,13 +27,21 @@ module MHV
       private
 
       def pretransitioned_oh_facilities
-        @pretransitioned_oh_facilities ||=
-          Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities.split(',').map(&:strip)
+        @pretransitioned_oh_facilities ||= parse_facility_setting(
+          Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities
+        )
       end
 
       def facilities_ready_for_info_alert
-        @facilities_ready_for_info_alert ||=
-          Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert.split(',').map(&:strip)
+        @facilities_ready_for_info_alert ||= parse_facility_setting(
+          Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert
+        )
+      end
+
+      def parse_facility_setting(value)
+        return [] unless ActiveModel::Type::Boolean.new.cast(value)
+
+        value.to_s.split(',').map(&:strip).compact_blank
       end
     end
   end
