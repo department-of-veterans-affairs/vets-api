@@ -13,7 +13,7 @@ RSpec.describe SOB::DGI::Response do
       'first_name' => 'Jane',
       'last_name' => 'Smith',
       'date_of_birth' => '1988-03-01',
-      'va_file_number' => '374374377',
+      'va_file_number' => '123456789',
       'regional_processing_office' => 'Muskogee, OK',
       'active_duty' => true,
       'veteran_is_eligible' => true,
