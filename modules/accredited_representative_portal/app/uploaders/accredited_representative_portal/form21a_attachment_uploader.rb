@@ -62,13 +62,15 @@ module AccreditedRepresentativePortal
     end
 
     def set_aws_params
-      self.aws_credentials = {
-        region: Settings.ogc.form21a_service_url.s3.region
-      }
-      self.aws_acl = 'private'
-      self.aws_bucket = Settings.ogc.form21a_service_url.s3.bucket
-      self.aws_attributes = { server_side_encryption: 'AES256' }
-      self.class.storage = :aws
+      if Rails.env.production?
+        self.aws_credentials = {
+          region: Settings.ogc.form21a_service_url.s3.region
+        }
+        self.aws_acl = 'private'
+        self.aws_bucket = Settings.ogc.form21a_service_url.s3.bucket
+        self.aws_attributes = { server_side_encryption: 'AES256' }
+        self.class.storage = :aws
+      end
     end
   end
 end

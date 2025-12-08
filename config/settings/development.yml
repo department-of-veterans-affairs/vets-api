@@ -1038,6 +1038,11 @@ ogc:
   form21a_service_url:
     api_key: fake_key
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
+    s3:
+      aws_access_key_id: fake_access_key_id
+      aws_secret_access_key: fake_secret_access_key
+      region: us-gov-west-1
+      bucket: dava-vetsgov-staging-form21a-uploads
 oidc:
   isolated_audience:
     claims: ~
