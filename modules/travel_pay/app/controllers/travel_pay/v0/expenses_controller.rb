@@ -151,6 +151,9 @@ module TravelPay
         expense_class = expense_class_for_type(params[:expense_type])
         expense_params = permitted_params.to_h
 
+        # Manually extract the 'receipt' object from the raw params, bypassing Strong Params filtering
+        expense_params[:receipt] = params[:receipt] if params[:receipt].present?
+
         # Only add claim_id if it exists in params
         expense_params[:claim_id] = params[:claim_id] if params[:claim_id].present?
 
