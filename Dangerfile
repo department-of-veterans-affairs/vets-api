@@ -2,6 +2,7 @@
 
 require 'ostruct'
 require 'open3'
+require_relative 'lib/vsp_danger/parameter_filtering_allowlist_checker'
 
 module VSPDanger
   HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"
@@ -17,7 +18,7 @@ module VSPDanger
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
         GemfileLockPlatformChecker.new.run,
-        ParameterFilteringAllowlistChecker.new.run
+        ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
       ]
     end
 
@@ -503,89 +504,6 @@ module VSPDanger
     end
   end
 
-  class ParameterFilteringAllowlistChecker
-    FILTER_PARAM_FILE = 'config/initializers/filter_parameter_logging.rb'
-
-    def run
-      return Result.success('Parameter filtering allowlist is unchanged.') unless allowlist_changed?
-
-      Result.warn(warning_message)
-    end
-
-    private
-
-    def allowlist_changed?
-      return false if filter_params_diff.empty?
-
-      in_allowlist = false
-      filter_params_diff.split("\n").each do |line|
-        # Track entry into ALLOWLIST array (handles both context and added/removed lines)
-        clean_line = line.sub(/^[+-]/, '')
-        if clean_line.include?('ALLOWLIST = %w[')
-          in_allowlist = true
-          next
-        elsif in_allowlist && clean_line.include?('].freeze')
-          in_allowlist = false
-          next
-        end
-
-        next unless in_allowlist
-
-        # Look for additions or deletions of array elements within ALLOWLIST
-        next unless line.start_with?('+', '-') && !line.start_with?('+++', '---')
-
-        element = line[1..].strip
-        return true if element.match?(/^[a-z_]+$/)
-      end
-      false
-    end
-
-    def warning_message
-      <<~EMSG
-        ⚠️ **Parameter Filtering ALLOWLIST Modified**
-
-        This PR modifies the `ALLOWLIST` constant in `config/initializers/filter_parameter_logging.rb`.
-
-        **⚠️ CRITICAL: PII RISK**
-
-        Adding keys to the ALLOWLIST means those parameters will **NOT** be filtered in logs across **ALL** of vets-api.
-        This could expose sensitive data (PII/PHI/secrets) in:
-        - Application logs
-        - DataDog
-        - Sentry
-        - Other logging destinations
-
-        **Before approving this PR, verify:**
-        - [ ] The added key(s) **CANNOT** contain PII, PHI, or secrets
-        - [ ] The key name is generic enough that it won't accidentally expose sensitive data
-        - [ ] There's a documented business need for unfiltering this parameter
-        - [ ] Consider using the new `log_allowlist` parameter for per-call filtering instead (see #121130)
-
-        **Per-call filtering alternative:**
-        ```ruby
-        # Instead of adding to global ALLOWLIST, use per-call allowlist:
-        Rails.logger.info(data, log_allowlist: [:specific_key])
-        ```
-
-        **Documentation:**
-        - [PII Guidelines](https://depo-platform-documentation.scrollhelp.site/developer-docs/personal-identifiable-information-pii-guidelines)
-        - [Filter Parameter Logging](https://github.com/department-of-veterans-affairs/vets-api/blob/master/config/initializers/filter_parameter_logging.rb)
-
-        <details>
-          <summary>Modified ALLOWLIST diff</summary>
-
-          ```diff
-          #{filter_params_diff}
-          ```
-        </details>
-      EMSG
-    end
-
-    def filter_params_diff
-      @filter_params_diff ||= `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{FILTER_PARAM_FILE}`
-    end
-  end
-
   if $PROGRAM_NAME == __FILE__
     require 'minitest/autorun'
 
@@ -597,69 +515,6 @@ module VSPDanger
       # TODO: Remove dummy test
       def test_recommended_pr_size
         assert_equal ChangeLimiter::PR_SIZE[:recommended], 200
-      end
-    end
-
-    class ParameterFilteringAllowlistCheckerTest < Minitest::Test
-      def setup
-        @checker = ParameterFilteringAllowlistChecker.new
-      end
-
-      def test_detects_allowlist_addition
-        diff = <<~DIFF
-          diff --git a/config/initializers/filter_parameter_logging.rb b/config/initializers/filter_parameter_logging.rb
-          --- a/config/initializers/filter_parameter_logging.rb
-          +++ b/config/initializers/filter_parameter_logging.rb
-          @@ -5,6 +5,7 @@ ALLOWLIST = %w[
-             action
-             benefits_intake_uuid
-          +  new_param
-             bpds_uuid
-           ].freeze
-        DIFF
-        @checker.stub(:filter_params_diff, diff) do
-          result = @checker.run
-          assert_equal Result::WARNING, result.severity
-        end
-      end
-
-      def test_detects_allowlist_removal
-        diff = <<~DIFF
-          diff --git a/config/initializers/filter_parameter_logging.rb b/config/initializers/filter_parameter_logging.rb
-          --- a/config/initializers/filter_parameter_logging.rb
-          +++ b/config/initializers/filter_parameter_logging.rb
-          @@ -5,7 +5,6 @@ ALLOWLIST = %w[
-             action
-          -  benefits_intake_uuid
-             bpds_uuid
-           ].freeze
-        DIFF
-        @checker.stub(:filter_params_diff, diff) do
-          result = @checker.run
-          assert_equal Result::WARNING, result.severity
-        end
-      end
-
-      def test_ignores_changes_outside_allowlist
-        diff = <<~DIFF
-          diff --git a/config/initializers/filter_parameter_logging.rb b/config/initializers/filter_parameter_logging.rb
-          --- a/config/initializers/filter_parameter_logging.rb
-          +++ b/config/initializers/filter_parameter_logging.rb
-          @@ -1,5 +1,5 @@
-          -# Do NOT add keys that can contain PII/PHI/secrets.
-          +# Do NOT add parameters that can contain PII/PHI/secrets.
-        DIFF
-        @checker.stub(:filter_params_diff, diff) do
-          result = @checker.run
-          assert_equal Result::SUCCESS, result.severity
-        end
-      end
-
-      def test_no_changes_returns_success
-        @checker.stub(:filter_params_diff, '') do
-          result = @checker.run
-          assert_equal Result::SUCCESS, result.severity
-        end
       end
     end
   end
