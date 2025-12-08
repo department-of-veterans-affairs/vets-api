@@ -71,6 +71,21 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
       expect(resp_body['data'][0]['attributes']['station_number']).to eq('612A4')
     end
 
+    it 'replaces health care system names for hardcoded stations' do
+      # rubocop:disable Layout/LineLength
+      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_complex_teams') do
+        get '/my_health/v1/messaging/allrecipients'
+      end
+      # rubocop:enable Layout/LineLength
+      expect(response).to be_successful
+      resp_body = JSON.parse(response.body)
+      resp_body['data'].each do |team|
+        station_number = team['attributes']['station_number']
+        expected_name = MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS[station_number]
+        expect(team['attributes']['health_care_system_name']).to eq(expected_name) if expected_name
+      end
+    end
+
     it 'does not replace existing health care system names but does replace non-prod station_numbers' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
         get '/my_health/v1/messaging/allrecipients'

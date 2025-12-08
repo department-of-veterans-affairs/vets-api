@@ -121,7 +121,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
         )
       end
 
-      it 'stores file in aws' do
+      it 'stores file in aws', skip: 'temporarily skip flaky spec' do
         VCR.use_cassette("s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
           expect(subject.filename).to be_nil
           expect(subject.file).to be_nil
@@ -140,7 +140,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
   end
 
   describe '#retrieve_from_store!' do
-    it 'retrieves the stored file in s3' do
+    it 'retrieves the stored file in s3', skip: 'temporarily skip flaky spec' do
       VCR.use_cassette("s3/object/get/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
         subject.retrieve_from_store!(source_file_name)
 

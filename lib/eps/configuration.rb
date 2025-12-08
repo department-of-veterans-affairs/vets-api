@@ -5,6 +5,8 @@ require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/snakecase'
 require 'faraday/multipart'
+require_relative '../../modules/vaos/app/services/vaos/middleware/response/errors'
+require_relative '../../modules/vaos/app/services/eps/middleware/response/errors'
 
 module Eps
   class Configuration < Common::Client::Configuration::REST
@@ -38,7 +40,7 @@ module Eps
         conn.response :betamocks if mock_enabled?
         conn.response :snakecase
         conn.response :json_parser
-        conn.response :vaos_errors
+        conn.response :eps_errors
         conn.adapter Faraday.default_adapter
       end
     end

@@ -331,4 +331,137 @@ RSpec.describe BGS::SubmissionAttempt, type: :model do
         .to change { submission.reload.latest_status }.from('pending').to('submitted')
     end
   end
+
+  describe '.by_claim_group' do
+    let(:parent_claim) { create(:dependents_claim) }
+    let(:child_claim1) { create(:add_remove_dependents_claim) }
+    let(:child_claim2) { create(:student_claim) }
+    let(:other_parent_claim) { create(:dependents_claim) }
+    let(:other_child_claim) { create(:add_remove_dependents_claim) }
+
+    let!(:claim_group1) do
+      create(:saved_claim_group,
+             parent_claim:,
+             saved_claim: child_claim1,
+             status: 'pending')
+    end
+
+    let!(:claim_group2) do
+      create(:saved_claim_group,
+             parent_claim:,
+             saved_claim: child_claim2,
+             status: 'pending')
+    end
+
+    let!(:other_claim_group) do
+      create(:saved_claim_group,
+             parent_claim: other_parent_claim,
+             saved_claim: other_child_claim,
+             status: 'pending')
+    end
+
+    let!(:submission1) { create(:bgs_submission, saved_claim: child_claim1) }
+    let!(:submission2) { create(:bgs_submission, saved_claim: child_claim2) }
+    let!(:other_submission) { create(:bgs_submission, saved_claim: other_child_claim) }
+
+    let!(:attempt1) { create(:bgs_submission_attempt, submission: submission1, status: 'pending') }
+    let!(:attempt2) { create(:bgs_submission_attempt, submission: submission2, status: 'pending') }
+    let!(:submitted_attempt) { create(:bgs_submission_attempt, submission: submission1, status: 'submitted') }
+    let!(:other_attempt) { create(:bgs_submission_attempt, submission: other_submission, status: 'pending') }
+
+    it 'returns submission attempts for a specific parent claim group' do
+      results = described_class.by_claim_group(parent_claim.id)
+
+      expect(results).to include(attempt1, attempt2, submitted_attempt)
+      expect(results).not_to include(other_attempt)
+    end
+
+    it 'can be chained with .pending to filter by status' do
+      results = described_class.by_claim_group(parent_claim.id).pending
+
+      expect(results).to include(attempt1, attempt2)
+      expect(results).not_to include(submitted_attempt)
+      expect(results.pluck(:status).uniq).to eq(['pending'])
+    end
+
+    it 'returns empty relation when no matching claim groups exist' do
+      non_existent_parent_id = parent_claim.id + 9999
+      results = described_class.by_claim_group(non_existent_parent_id)
+
+      expect(results).to be_empty
+    end
+
+    it 'is chainable with other scopes' do
+      results = described_class.by_claim_group(parent_claim.id).where(id: attempt1.id)
+
+      expect(results).to contain_exactly(attempt1)
+    end
+
+    it 'joins through submission, saved_claim, and claim groups correctly' do
+      results = described_class.by_claim_group(parent_claim.id)
+
+      expect(results.to_sql).to include('saved_claim_groups')
+      expect(results.to_sql).to include('saved_claims')
+      expect(results.to_sql).to include('bgs_submissions')
+    end
+  end
+
+  describe '#claim_type_end_product' do
+    context 'when metadata contains claim_type_end_product' do
+      let(:submission_attempt) do
+        create(:bgs_submission_attempt, metadata: { claim_type_end_product: '130' }.to_json)
+      end
+
+      it 'returns the claim_type_end_product value' do
+        expect(submission_attempt.claim_type_end_product).to eq('130')
+      end
+    end
+
+    context 'when metadata does not contain claim_type_end_product' do
+      let(:submission_attempt) do
+        create(:bgs_submission_attempt, metadata: { form_id: '21-686C' }.to_json)
+      end
+
+      it 'returns nil' do
+        expect(submission_attempt.claim_type_end_product).to be_nil
+      end
+    end
+
+    context 'when metadata is nil' do
+      let(:submission_attempt) do
+        create(:bgs_submission_attempt, metadata: nil)
+      end
+
+      it 'returns nil without raising an error' do
+        expect(submission_attempt.claim_type_end_product).to be_nil
+      end
+    end
+
+    context 'when metadata is an empty string' do
+      let(:submission_attempt) do
+        create(:bgs_submission_attempt, metadata: '')
+      end
+
+      it 'returns nil without raising an error' do
+        expect(submission_attempt.claim_type_end_product).to be_nil
+      end
+    end
+
+    context 'when metadata contains complex nested structure' do
+      let(:submission_attempt) do
+        create(:bgs_submission_attempt)
+      end
+
+      before do
+        metadata = submission_attempt.metadata || {}
+        metadata['claim_type_end_product'] = '134'
+        submission_attempt.metadata = metadata.to_json
+        submission_attempt.save!
+      end
+
+      it 'correctly extracts claim_type_end_product' do
+        expect(submission_attempt.claim_type_end_product).to eq('134')
+      end
+    end
+  end
 end

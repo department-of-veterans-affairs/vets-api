@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'fitbit/client'
+require 'vets/shared_logging'
 
 module DhpConnectedDevices
   module Fitbit
     class FitbitController < ApplicationController
-      include SentryLogging
+      include Vets::SharedLogging
       service_tag 'connected-devices'
       before_action :feature_enabled
       before_action :user_verified
@@ -72,6 +73,7 @@ module DhpConnectedDevices
       def connection_unavailable_error
         Rails.logger.warn('Device connection unavailable for Veterans without an ICN')
         log_message_to_sentry('User with an invalid ICN value attempted to connect their Fitbit', 'warn')
+        log_message_to_rails('User with an invalid ICN value attempted to connect their Fitbit', 'warn')
         raise Common::Exceptions::Forbidden.new(
           detail: 'User with an invalid ICN value attempted to connect their Fitbit',
           source: 'FitbitController'
@@ -89,6 +91,8 @@ module DhpConnectedDevices
             icn: @current_user&.icn
           }
         )
+
+        log_exception_to_rails(error)
       end
     end
   end

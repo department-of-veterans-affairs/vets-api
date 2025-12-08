@@ -10,7 +10,7 @@ require 'common/client/base'
 module ClaimsEvidenceApi
   module Service
     # Base service class for API
-    class Base < Common::Client::Base
+    class Base < ::Common::Client::Base
       configuration ClaimsEvidenceApi::Configuration
 
       include ClaimsEvidenceApi::Exceptions::Service
@@ -29,14 +29,14 @@ module ClaimsEvidenceApi
         call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
         headers = headers.merge(request_headers)
 
+        requested_api = endpoint || path.split('/').first
         response = super(method, path, params, headers, options) # returns Faraday::Env
 
-        requested_api = endpoint || path.split('/').first
         monitor.track_api_request(method, requested_api, response.status, response.reason_phrase, call_location:)
         response
       rescue => e
         code = e.try(:status) || 500
-        monitor.track_api_request(method, path, code, e.message, call_location:)
+        monitor.track_api_request(method, requested_api, code, e.message, call_location:)
         raise e
       end
 

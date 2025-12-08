@@ -57,7 +57,7 @@ Rails.application.routes.draw do
 
     resources :form210779, only: [:create] do
       collection do
-        post :download_pdf
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -66,10 +66,15 @@ Rails.application.routes.draw do
         post :download_pdf
       end
     end
-
     resources :form21p530a, only: [:create] do
       collection do
         post :download_pdf
+      end
+    end
+
+    resources :form212680, only: [:create] do
+      collection do
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -268,6 +273,7 @@ Rails.application.routes.draw do
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
       resource :military_occupations, only: :show
+      resource :scheduling_preferences, only: %i[show create update destroy]
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
@@ -396,6 +402,7 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
+    resources :medical_copays, only: %i[index show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -420,6 +427,7 @@ Rails.application.routes.draw do
   mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
+  mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IncreaseCompensation::Engine, at: '/increase_compensation'
@@ -436,6 +444,7 @@ Rails.application.routes.draw do
   mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
+  mount Vass::Engine, at: '/vass'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   mount DecisionReviews::Engine, at: '/decision_reviews'
