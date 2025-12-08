@@ -424,11 +424,80 @@ jobs:
             [
               { "type": "divider" },
               {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "THIS IS A TEST. PLEASE IGNORE 🚨 CRITICAL: Test Coverage Too Low",
+                  "emoji": true
+                }
+              },
+              {
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":rotating_light: *CRITICAL: TEST COVERAGE TOO LOW* :rotating_light:\n\n*Vets-API deployment is BLOCKED until coverage reaches at least 90%*\n\n:chart_with_downwards_trend: *Current Coverage:* ${{ steps.coverage.outputs.percent }}%\n:dart: *Required Minimum:* 90%\n :x: *Status:* Deployment Blocked\n\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n :writing_hand: *Action Required:* Increase test coverage to 90% to unblock deployment. \n How to Export Coverage Report Instructions:\n 1.Go to <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n 2. In the Artifacts section, click Coverage Report to download it.\n 3. After downloading, open the Coverage Report ZIP file (it will extract into a folder).\n 4. Open the extracted Coverage Report folder.\n 5.Inside the folder, double-click index.html to view the full coverage report."
+                  "text": "*Vets-API deployment is BLOCKED until coverage reaches 90%*"
                 }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": ":chart_with_downwards_trend: *Current Coverage*\n${{ steps.coverage.outputs.percent }}%"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ":dart: *Required Minimum*\n90%"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ":x: *Deployment Status*\nBlocked"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ":triangular_flag_on_post: *Gap*\n${{ format('{0:.1f}', 90 - fromJSON(steps.coverage.outputs.percent)) }}%"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":git: *Branch:* `${{ github.ref_name }}`\n:label: *Commit:* <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>\n:bust_in_silhouette: *Author:* ${{ github.event.head_commit.author.name }}"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "🔍 View Test Run",
+                      "emoji": true
+                    },
+                    "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "style": "danger"
+                  },
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "📊 View Commit",
+                      "emoji": true
+                    },
+                    "url": "${{ github.event.head_commit.url }}"
+                  }
+                ]
+              },
+              {
+                "type": "context",
+                "elements": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "💡 *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open `index.html`"
+                  }
+                ]
               },
               { "type": "divider" }
             ]
