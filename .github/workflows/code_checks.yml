@@ -414,7 +414,7 @@ jobs:
           env_variable_name: SLACK_BOT_TOKEN
 
       - name: Slack notify - critical coverage alert
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
@@ -491,7 +491,7 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Slack notify - warning low coverage alert
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request'
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
