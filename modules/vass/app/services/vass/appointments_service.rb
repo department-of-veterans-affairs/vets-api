@@ -82,7 +82,8 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::Errors::VassApiError, Vass::Errors::ServiceError,
+           Common::Exceptions::BackendServiceException => e
       handle_error(e, 'get_availability')
     end
 
