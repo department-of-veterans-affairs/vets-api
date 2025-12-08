@@ -522,7 +522,6 @@ describe Vass::RedisClient do
     end
 
     it 'does not error when resetting non-existent counter' do
-      redis_client.reset_rate_limit(identifier: 'nonexistent@example.com')
       expect { redis_client.reset_rate_limit(identifier: 'nonexistent@example.com') }.not_to raise_error
     end
   end
