@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/concerns/service_status'
+require 'mhv/oh_facilities_helper/service'
 
 module Users
   class Profile
@@ -10,12 +11,13 @@ module Users
     HTTP_OK = 200
     HTTP_SOME_ERRORS = 296
 
-    attr_reader :user, :scaffold
+    attr_reader :user, :scaffold, :oh_facilities_helper
 
     def initialize(user, session = nil)
       @user = validate!(user)
       @session = session || {}
       @scaffold = Users::Scaffold.new([], HTTP_OK)
+      @oh_facilities_helper = MHV::OhFacilitiesHelper::Service.new(user)
     end
 
     # Fetches and serializes all of the initialized user's profile data that
@@ -83,6 +85,7 @@ module Users
         authn_context: user.authn_context,
         claims:,
         icn: user.icn,
+        npi_id: user.npi_id,
         birls_id: user.birls_id,
         edipi: user.edipi,
         sec_id: user.sec_id,
@@ -135,14 +138,24 @@ module Users
         fax_number: person.fax_number
       }
     rescue => e
-      error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
-      scaffold.errors << error_hash
-      log_external_service_error(error_hash)
+      handle_service_error(e, 'VAProfile', 'vet360_contact_information')
       nil
     end
 
     # rubocop:disable Metrics/MethodLength
     def mpi_profile
+      unless user.loa3?
+        error_hash = {
+          external_service: 'MVI',
+          description: 'User is not LOA3, MPI access denied',
+          user_uuid: user.uuid,
+          loa: user.loa,
+          method: 'mpi_profile'
+        }
+        log_external_service_error(error_hash)
+        return { status: RESPONSE_STATUS[:ok] }
+      end
+
       status = user.mpi_status
       if status == :ok
         {
@@ -155,29 +168,29 @@ module Users
           cerner_id: user.cerner_id,
           cerner_facility_ids: user.cerner_facility_ids,
           facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
+          user_at_pretransitioned_oh_facility: oh_facilities_helper.user_at_pretransitioned_oh_facility?,
+          user_facility_ready_for_info_alert: oh_facilities_helper.user_facility_ready_for_info_alert?,
           va_patient: user.va_patient?,
           mhv_account_state: user.mhv_account_state,
           active_mhv_ids: user.active_mhv_ids
         }
       else
-        error_hash = Users::ExceptionHandler.new(user.mpi_error, 'MVI').serialize_error
-        scaffold.errors << error_hash
-        log_external_service_error(error_hash)
+        handle_service_error(user.mpi_error, 'MVI', 'mpi_profile')
         nil
       end
     end
     # rubocop:enable Metrics/MethodLength
 
     def veteran_status
-      {
-        status: RESPONSE_STATUS[:ok],
-        is_veteran: user.veteran?,
-        served_in_military: user.served_in_military?
-      }
+      if user.edipi.blank?
+        log_for_missing_edipi
+
+        return build_veteran_status_object(nil, nil)
+      end
+
+      build_veteran_status_object(user.veteran?, user.served_in_military?)
     rescue => e
-      error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
-      scaffold.errors << error_hash
-      log_external_service_error(error_hash)
+      handle_service_error(e, 'VAProfile', 'veteran_status')
       nil
     end
 
@@ -204,6 +217,8 @@ module Users
     def update_status_and_errors
       if scaffold.errors.present?
         scaffold.status = HTTP_SOME_ERRORS
+      elsif user.edipi.blank? || !user.loa3?
+        scaffold.errors = []
       else
         scaffold.errors = nil
       end
@@ -233,12 +248,36 @@ module Users
 
     def log_external_service_error(error_hash)
       Rails.logger.warn(
+        'Users::Profile external service error',
         {
           error: error_hash,
           user_uuid: user.uuid,
           loa: user.loa
         }.to_json
       )
+    end
+
+    def log_for_missing_edipi
+      Rails.logger.info(
+        'Skipping VAProfile veteran status call, No EDIPI present',
+        user_uuid: user.uuid,
+        loa: user.loa
+      )
+    end
+
+    def build_veteran_status_object(is_veteran, served_in_military)
+      {
+        status: RESPONSE_STATUS[:ok],
+        is_veteran:,
+        served_in_military:
+      }
+    end
+
+    def handle_service_error(error, service, method_name)
+      error_hash = Users::ExceptionHandler.new(error, service).serialize_error
+      error_hash[:method] = method_name
+      scaffold.errors << error_hash
+      log_external_service_error(error_hash)
     end
   end
 end

@@ -24,14 +24,22 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
       expect(extracted_data['veteran_information'].keys).to eq(%w[birth_date full_name ssn va_file_number])
     end
 
+    it 'preserves top level fields' do
+      expect(extracted_data.keys).to include(
+        'statement_of_truth_signature',
+        'statement_of_truth_certified',
+        'view:selectable686_options'
+      )
+    end
+
     it 'includes student-specific data in dependents_application for the specific student' do
       expect(extracted_data['dependents_application']).to have_key('student_information')
 
       # student_information should contain only this specific student as an array
-      expect(extracted_data['dependents_application']['student_information']).to eq(student_data)
+      expect(extracted_data['dependents_application']['student_information']).to eq([student_data])
 
       # Verify the student data structure
-      student = extracted_data['dependents_application']['student_information']
+      student = extracted_data['dependents_application']['student_information'].first
       expect(student['full_name']['first']).to eq('test')
       expect(student['full_name']['last']).to eq('student')
       expect(student['ssn']).to eq('987654321')
@@ -58,10 +66,11 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
   end
 
   describe '#generate' do
-    let(:mock_group) { create(:saved_claim_group) }
-
-    before do
-      allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
+    let!(:parent_claim_group) do
+      create(:saved_claim_group,
+             claim_group_guid: parent_claim.guid,
+             parent_claim_id: parent_claim.id,
+             saved_claim_id: parent_claim.id)
     end
 
     it 'creates a 674 claim with extracted student data' do
@@ -69,7 +78,15 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
       expect(created_claim.form_id).to eq('21-674')
 
       parsed_form = JSON.parse(created_claim.form)
-      expect(parsed_form['dependents_application']['student_information']).to eq(student_data)
+      expect(parsed_form['dependents_application']['student_information']).to eq([student_data])
+
+      # Verify that a new claim group was created linking the new claim to the parent
+      new_claim_group = SavedClaimGroup.find_by(
+        parent_claim_id: parent_claim.id,
+        saved_claim_id: created_claim.id
+      )
+      expect(new_claim_group).to be_present
+      expect(new_claim_group.claim_group_guid).to eq(parent_claim.guid)
     end
   end
 end

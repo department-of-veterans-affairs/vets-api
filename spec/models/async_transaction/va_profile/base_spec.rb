@@ -82,7 +82,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   end
 
   describe '.start' do
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :legacy_icn) }
     let(:address) { build(:va_profile_address, :mobile) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do

@@ -51,6 +51,7 @@ module ClaimsEvidenceApi
       # POST overwrite a file in a vbms folder, but retain the uuid
       # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/update
       #
+      # @param uuid [String] The UUID of the file data
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def overwrite(uuid, file_path, provider_data:)
@@ -64,7 +65,32 @@ module ClaimsEvidenceApi
         perform :post, "files/#{uuid}", params, headers
       end
 
+      # GET retrieve the associated period of service record to from a document
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Period%20Of%20Service
+      #
+      # only certain documents will have associated period of service records
+      #
+      # @param uuid [String] The UUID of the file data
+      def period_of_service(uuid)
+        perform :get, "files/#{uuid}/periodOfService", {}
+      end
+
+      # GET file content for a given version as a pdf
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/Version%20Content
+      #
+      # @param uuid [String] The UUID of the file data
+      # @param version [String] version UUID of the file data
+      def download(uuid, version)
+        headers = { 'Accept' => 'application/pdf' }
+        perform :get, "files/#{uuid}/#{version}/content", {}, headers
+      end
+
       private
+
+      # @see ClaimsEvidenceApi::Service::Base#endpoint
+      def endpoint
+        'files'
+      end
 
       # construct the body for POST requests
       #

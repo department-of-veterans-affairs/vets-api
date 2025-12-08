@@ -10,6 +10,7 @@ module IvcChampva
 
     include Vets::Model
     include Attachments
+    include StampableLogging
 
     attribute :data, Hash
     attr_reader :form_id
@@ -21,9 +22,11 @@ module IvcChampva
     end
 
     def metadata
+      name_prefix = Flipper.enabled?(:champva_update_metadata_keys) ? 'sponsor' : 'veteran'
+
       {
-        'veteranFirstName' => @data.dig('applicant_name', 'first'),
-        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        "#{name_prefix}FirstName" => @data.dig('applicant_name', 'first'),
+        "#{name_prefix}LastName" => @data.dig('applicant_name', 'last'),
         'zipCode' => @data.dig('applicant_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
@@ -66,7 +69,15 @@ module IvcChampva
     end
 
     def desired_stamps
-      [{ coords: [250, 105], text: data['statement_of_truth_signature'], page: 0 }]
+      signature = data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => {
+                                 value: signature.present? ? 'present' : nil
+                               }
+                             })
+
+      [{ coords: [250, 105], text: signature, page: 0 }]
     end
 
     def submission_date_stamps

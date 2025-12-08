@@ -1,0 +1,129 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.6'
+          bundler-cache: false
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libpq-dev \
+            imagemagick \
+            poppler-utils \
+            pdftk \
+            postgresql-client
+
+      - name: Set up PostgreSQL with PostGIS
+        run: |
+          # Install PostgreSQL 15 and PostGIS for Ubuntu 24.04
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+          echo "deb http://apt.postgresql.org/pub/repos/apt/ noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          
+          # Install PostgreSQL 15 and PostGIS 3 for PostgreSQL 15
+          sudo apt-get install -y postgresql-15 postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-client-15
+          
+          # Remove any default PostgreSQL clusters and create PostgreSQL 15 cluster
+          sudo systemctl stop postgresql || true
+          sudo pg_dropcluster --stop 16 main || true
+          sudo pg_dropcluster --stop 14 main || true
+          sudo pg_createcluster 15 main --start
+          
+          # Configure PostgreSQL 15 for development
+          sudo -u postgres psql -p 5432 -c "ALTER USER postgres PASSWORD 'password';"
+          sudo -u postgres createuser --superuser runner || true
+          sudo -u postgres createdb vets_api_development -O runner || true
+          sudo -u postgres createdb vets_api_test -O runner || true
+          
+          # Enable PostGIS extension in PostgreSQL 15
+          sudo -u postgres psql -p 5432 -d vets_api_development -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          sudo -u postgres psql -p 5432 -d vets_api_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+
+      - name: Set up Redis
+        run: |
+          sudo apt-get install -y redis-server
+          sudo systemctl start redis-server
+          sudo systemctl enable redis-server
+
+      - name: Configure database connection
+        run: |
+          # Set environment variables for database connection
+          echo "DATABASE_URL=postgis://runner:@localhost:5432/vets_api_development" >> $GITHUB_ENV
+          echo "TEST_DATABASE_URL=postgis://runner:@localhost:5432/vets_api_test" >> $GITHUB_ENV
+
+      - name: Install Ruby dependencies
+        run: |
+          gem install bundler
+          # Configure bundler to not be in frozen mode and allow missing Sidekiq Enterprise gems
+          # This is expected - Sidekiq Enterprise requires a license that's not available in CI
+          bundle config set frozen false
+          bundle install --jobs 4 --retry 3
+
+      - name: Setup configuration files
+        run: |
+          # Create necessary config files
+          cp config/settings.local.yml.example config/settings.local.yml || echo "config/settings.local.yml.example not found, skipping"
+          mkdir -p config/certs
+          touch config/certs/vetsgov-localhost.crt
+          touch config/certs/vetsgov-localhost.key
+
+      - name: Setup databases
+        run: |
+          # Setup development database
+          RAILS_ENV=development bundle exec rails db:setup db:migrate || bundle exec rails db:create db:migrate
+          
+          # Setup test database  
+          RAILS_ENV=test bundle exec rails db:setup db:migrate || bundle exec rails db:create db:migrate
+
+      - name: Verify setup
+        run: |
+          # Verify PostgreSQL version and connection  
+          sudo -u postgres psql -p 5432 -c "SELECT version();"
+          bundle exec rails runner "ActiveRecord::Base.connection.execute('SELECT 1')"
+          
+          # Verify PostGIS extension
+          bundle exec rails runner "puts ActiveRecord::Base.connection.execute('SELECT PostGIS_version()').first['postgis_version']"
+          
+          # Verify Redis connection
+          bundle exec rails runner "Rails.cache.write('test', 'ok'); puts Rails.cache.read('test')"
+          
+          # Verify RuboCop is available
+          bundle exec rubocop --version
+          
+          # Verify RSpec is available
+          bundle exec rspec --version
+
+      - name: Environment summary
+        run: |
+          echo "=== Environment Summary ==="
+          echo "Ruby version: $(ruby --version)"
+          echo "Bundler version: $(bundle --version)"
+          echo "PostgreSQL version: $(psql --version)"
+          echo "Redis version: $(redis-server --version)"
+          echo "=== Available Commands ==="
+          echo "Tests: bundle exec rspec spec/ OR make spec"
+          echo "Linting: bundle exec rubocop OR make lint"
+          echo "Console: bundle exec rails console OR make console"
+          echo "Server: bundle exec rails server OR make server"

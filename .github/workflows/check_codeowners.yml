@@ -3,11 +3,12 @@ name: Check CODEOWNERS Entries
 on:
   pull_request:
     branches:
-      - '*'
+      - master
     types:
       - opened
       - synchronize
       - reopened
+      - edited
 permissions:
   id-token: write
   contents: read
@@ -18,7 +19,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 2
 
@@ -69,7 +70,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 2
 

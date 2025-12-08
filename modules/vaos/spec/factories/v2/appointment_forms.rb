@@ -389,5 +389,19 @@ FactoryBot.define do
         }
       end
     end
+
+    trait :cerner_telehealth do
+      va_proposed_base
+      kind { 'telehealth' }
+    end
+
+    trait :cerner_telehealth_url do
+      cerner_telehealth
+      telehealth do
+        {
+          url: 'https://vvc.va.gov/clinical/guest/appointment/52499028'
+        }
+      end
+    end
   end
 end

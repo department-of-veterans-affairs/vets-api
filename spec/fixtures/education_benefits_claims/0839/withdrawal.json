@@ -1,0 +1,65 @@
+{
+  "authorizedOfficial": {
+    "fullName": {
+      "first": "John",
+      "last": "Doe"
+    },
+    "title": "Captain",
+    "phoneNumber": "5551231234"
+  },
+  "agreementType": "withdrawFromYellowRibbonProgram",
+  "yellowRibbonProgramTerms": {
+    "firstAcknowledgement": "AB",
+    "secondAcknowledgement": "AB",
+    "thirdAcknowledgement": "AB",
+    "fourthAcknowledgement": "AB",
+    "agreeToProvideYellowRibbonProgramContributions": true
+  },
+  "withdrawFromYellowRibbonProgram": [
+    {
+      "facilityCode": "12345678",
+      "institutionName": "Test University",
+      "institutionAddress": {
+        "country": "USA",
+        "state": "CA",
+        "city": "Some City",
+        "street": "123 Main St",
+        "postalCode": "12345"
+      },
+      "isForeignCountry": false
+    },
+    {
+      "facilityCode": "87654321",
+      "institutionName": "Polytestnic Institute",
+      "institutionAddress": {
+        "country": "USA",
+        "state": "IA",
+        "city": "Another City",
+        "street": "123 Main St",
+        "postalCode": "87654"
+      },
+      "isForeignCountry": false
+    }
+  ],
+  "pointOfContact": {
+    "fullName": {
+      "first": "Jane",
+      "last": "Doe"
+    },
+    "phoneNumber": "5551231234",
+    "emailAddress": "fake1@example.com",
+    "role": "YellowRibbonProgramPOC"
+  },
+  "pointOfContactTwo": {
+    "fullName": {
+      "first": "Jane",
+      "last": "Doe2"
+    },
+    "phoneNumber": "5551231234",
+    "emailAddress": "fake1@example.com",
+    "role": "YellowRibbonProgramPOC"
+  },
+  "statementOfTruthSignature": "John Hancock",
+  "dateSigned": "2025-03-10",
+  "isAuthenticated": true
+}

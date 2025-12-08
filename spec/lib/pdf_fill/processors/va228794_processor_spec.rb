@@ -34,6 +34,9 @@ describe PdfFill::Processors::VA228794Processor do
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-8794.pdf')
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
+        expect(get_field_value(fields, 'signature_name')).to eq 'John A Doe'
+        expect(get_field_value(fields, 'additional_certifying_officials_0_phone')).to eq '5556071235'
+        expect(get_field_value(fields, 'additional_certifying_officials_1_phone')).to eq '3334445555'
       end
     end
 
@@ -51,6 +54,7 @@ describe PdfFill::Processors::VA228794Processor do
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-8794_final.pdf')
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
+        expect(get_field_value(fields, 'additional_certifying_officials_6_email')).to eq 'john_official6@example.com'
       end
     end
   end

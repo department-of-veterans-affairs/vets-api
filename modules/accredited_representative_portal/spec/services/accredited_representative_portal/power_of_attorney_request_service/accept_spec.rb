@@ -9,7 +9,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
   let!(:creator)     { create(:representative_user) }
   let!(:poa_request) { create(:power_of_attorney_request) }
 
-  let(:monitor) { instance_spy(Monitoring) }
+  let(:monitor) { instance_spy(AccreditedRepresentativePortal::Monitoring, track_duration: nil, track_count: nil, trace: nil) }
 
   let(:memberships) do
     memo =
@@ -38,8 +38,10 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
   end
 
   before do
-    stub_const('Monitoring', Class.new) unless Object.const_defined?('Monitoring')
-    allow(Monitoring).to receive(:new).and_return(monitor)
+    monitoring_class = class_double(AccreditedRepresentativePortal::Monitoring).as_stubbed_const
+    allow(monitoring_class).to receive(:new).and_return(monitor)
+
+    allow(Rails.logger).to receive(:error)
 
     creator.define_singleton_method(:get_registration_number) { |_holder_type| 'REG-777' }
 
@@ -229,6 +231,20 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
         .with('ar.poa.submission.duration', from: poa_request.created_at)
       expect(monitor).to have_received(:track_duration)
         .with('ar.poa.submission.enqueue_failed.duration', from: poa_request.created_at)
+      expect(monitor).to have_received(:track_count).with(
+        'ar.poa.submission.enqueue_failed.count',
+        tags: array_including("error_class:#{fatal_klass.name}")
+      )
+
+      expect(Rails.logger).to have_received(:error).with(
+        include(
+          '[AR::POA] enqueue_failed',
+          "poa_request_id=#{poa_request.id}",
+          "poa_code=#{poa_request.power_of_attorney_holder_poa_code}",
+          "error_class=#{fatal_klass.name}",
+          'message=bad request'
+        )
+      )
     end
 
     it 'handles configured TRANSIENT errors: raises Accept::Error(:gateway_timeout)' do
@@ -260,6 +276,41 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
       expect(Rails.logger).to have_received(:error)
         .with(/Unexpected error in Accept#call: RuntimeError - boom/)
       expect(Rails.logger).to have_received(:error).at_least(:twice)
+    end
+  end
+
+  describe '#create_error_form_submission' do
+    before do
+      allow_any_instance_of(described_class)
+        .to receive(:create_error_form_submission)
+        .and_call_original
+    end
+
+    it 'stores string response bodies as-is' do
+      instance = described_class.new(poa_request, creator.uuid, memberships)
+
+      expect do
+        instance.send(:create_error_form_submission, 'boom', 'raw-string-body')
+      end.to change(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission, :count).by(1)
+
+      failed = AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.order(:created_at).last
+      expect(failed.status).to eq('enqueue_failed')
+      expect(failed.error_message).to eq('boom')
+      expect(failed.service_response).to eq('raw-string-body')
+    end
+
+    it 'serializes non-string response bodies to JSON' do
+      instance = described_class.new(poa_request, creator.uuid, memberships)
+      body = { 'foo' => 'bar', 'baz' => [1, 2, 3] }
+
+      expect do
+        instance.send(:create_error_form_submission, 'oops', body)
+      end.to change(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission, :count).by(1)
+
+      failed = AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.order(:created_at).last
+      expect(failed.status).to eq('enqueue_failed')
+      expect(failed.error_message).to eq('oops')
+      expect(failed.service_response).to eq(body.to_json)
     end
   end
 end

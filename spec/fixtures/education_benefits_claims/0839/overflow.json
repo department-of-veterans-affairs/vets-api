@@ -25,18 +25,68 @@
         "city": "Some City",
         "street": "123 Main St",
         "postalCode": "12345"
-      }
+      },
+      "isForeignCountry": false
     },
     {
       "facilityCode": "87654321",
-      "institutionName": "Polytestnic Institute",
+      "institutionName": "Polytestnic Institute 1",
       "institutionAddress": {
         "country": "USA",
         "state": "IA",
         "city": "Another City",
         "street": "123 Main St",
         "postalCode": "87654"
-      }
+      },
+      "isForeignCountry": false
+    },
+    {
+      "facilityCode": "87654322",
+      "institutionName": "Polytestnic Institute 2",
+      "institutionAddress": {
+        "country": "USA",
+        "state": "IA",
+        "city": "Another City",
+        "street": "123 Main St",
+        "postalCode": "87654"
+      },
+      "isForeignCountry": false
+    },
+    {
+      "facilityCode": "87654323",
+      "institutionName": "Polytestnic Institute 3",
+      "institutionAddress": {
+        "country": "USA",
+        "state": "IA",
+        "city": "Another City",
+        "street": "123 Main St",
+        "postalCode": "87654"
+      },
+      "isForeignCountry": false
+    },
+    {
+      "facilityCode": "87654324",
+      "institutionName": "Polytestnic Institute 4",
+      "institutionAddress": {
+        "country": "USA",
+        "state": "IA",
+        "city": "Another City",
+        "street": "123 Main St",
+        "postalCode": "87654"
+      },
+      "isForeignCountry": false
+    },
+    {
+      "facilityCode": "87654325",
+      "institutionName": "Polytestnic Institute 5",
+      "institutionAddress": {
+        "country": "USA",
+        "state": "IA",
+        "city": "Another City",
+        "street": "123 Main St",
+        "postalCode": "87654"
+      },
+      "isForeignCountry": false
     }
   ],
   "yellowRibbonProgramAgreementRequest": [

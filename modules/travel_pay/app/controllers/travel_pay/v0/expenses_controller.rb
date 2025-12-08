@@ -9,7 +9,7 @@ module TravelPay
       include IdValidation
 
       before_action :validate_claim_id!, only: %i[create show]
-      before_action :validate_expense_id!, only: %i[destroy show]
+      before_action :validate_expense_id!, only: %i[destroy show update]
       before_action :validate_expense_type!
       before_action :check_feature_flag
 
@@ -37,7 +37,6 @@ module TravelPay
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
-
         expense = create_and_validate_expense
         created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
@@ -50,6 +49,25 @@ module TravelPay
         TravelPay::ServiceError.raise_mapped_error(e)
       end
 
+      def update
+        expense_type = params[:expense_type]
+        expense_id = params[:expense_id]
+        Rails.logger.info(
+          message: "Updating expense of type '#{expense_type}' with expense id #{expense_id&.first(8)}"
+        )
+        expense = create_and_validate_expense
+        response_data = expense_service.update_expense(expense_id, expense_type, expense_params_for_service(expense))
+
+        render json: { id: response_data['id'] }, status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        TravelPay::ServiceError.raise_mapped_error(e)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error("Error updating expense: #{e.message}")
+        render json: { error: 'Error updating expense' }, status: e.original_status
+      end
+
       def destroy
         expense_type = params[:expense_type]
         expense_id = params[:expense_id]
@@ -59,7 +77,7 @@ module TravelPay
         )
         response_data = expense_service.delete_expense(expense_id:, expense_type:)
 
-        render json: { expenseId: response_data['id'] }, status: :ok
+        render json: { id: response_data['id'] }, status: :ok
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, detail: e.message
       rescue Faraday::ClientError, Faraday::ServerError => e
@@ -131,49 +149,48 @@ module TravelPay
 
       def build_expense_from_params
         expense_class = expense_class_for_type(params[:expense_type])
-        expense_params = permitted_params.merge(claim_id: params[:claim_id])
+        expense_params = permitted_params.to_h
+
+        # Manually extract the 'receipt' object from the raw params, bypassing Strong Params filtering
+        expense_params[:receipt] = params[:receipt] if params[:receipt].present?
+
+        # Only add claim_id if it exists in params
+        expense_params[:claim_id] = params[:claim_id] if params[:claim_id].present?
 
         expense_class.new(expense_params)
       end
 
-      def expense_class_for_type(_expense_type)
-        # TODO: Implement specific expense models (MileageExpense, LodgingExpense, MealExpense)
-        # For now, all expense types use BaseExpense
-        TravelPay::BaseExpense
+      def expense_class_for_type(expense_type)
+        return TravelPay::BaseExpense if expense_type.nil?
+
+        case expense_type.to_sym
+        when :airtravel
+          TravelPay::FlightExpense
+        when :common_carrier
+          TravelPay::CommonCarrierExpense
+        when :lodging
+          TravelPay::LodgingExpense
+        when :meal
+          TravelPay::MealExpense
+        when :mileage
+          TravelPay::MileageExpense
+        when :parking
+          TravelPay::ParkingExpense
+        when :toll
+          TravelPay::TollExpense
+        else
+          # :other or any unknown type defaults to BaseExpense
+          TravelPay::BaseExpense
+        end
       end
 
       def permitted_params
-        params.require(:expense).permit(
-          :purchase_date,
-          :description,
-          :cost_requested,
-          :receipt
-        )
+        expense_class = expense_class_for_type(params[:expense_type])
+        params.require(:expense).permit(*expense_class.permitted_params)
       end
 
       def expense_params_for_service(expense)
-        {
-          'claim_id' => expense.claim_id,
-          'purchase_date' => format_purchase_date(expense.purchase_date),
-          'description' => expense.description,
-          'cost_requested' => expense.cost_requested,
-          'expense_type' => expense.expense_type
-        }
-      end
-
-      # Ensures purchase_date is formatted as ISO8601, regardless of input type
-      def format_purchase_date(purchase_date)
-        return nil if purchase_date.nil?
-
-        if purchase_date.is_a?(Date) || purchase_date.is_a?(Time) || purchase_date.is_a?(DateTime)
-          purchase_date.iso8601
-        elsif purchase_date.is_a?(String)
-          begin
-            Date.iso8601(purchase_date).iso8601
-          rescue ArgumentError
-            nil
-          end
-        end
+        expense.to_service_params
       end
     end
   end

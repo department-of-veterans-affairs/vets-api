@@ -87,7 +87,7 @@ module PdfFill
             key: 'signature_email'
           },
           'signatureName' => {
-            key: 'signature_print_name'
+            key: 'signature_name'
           },
           'phoneNumber' => {
             key: 'signature_phone'
@@ -105,6 +105,8 @@ module PdfFill
           #{combine_full_address(form_data.dig('institutionDetails', 'institutionAddress')) || ''}
         TEXT
 
+        form_data['institutionDetails']['facilityCode'] = '' unless form_data['institutionDetails']['hasVaFacilityCode']
+
         format_primary_official(form_data)
         format_additional_officials(form_data)
         format_read_only_officials(form_data)
@@ -118,6 +120,10 @@ module PdfFill
         form_data['primaryOfficialDetails']['signature'] = form_data['primaryOfficialDetails']['fullName']
         form_data['primaryOfficialDetails']['receivesBenefits'] =
           form_data.dig('primaryOfficialBenefitStatus', 'hasVaEducationBenefits') ? 'Yes' : 'No'
+
+        if form_data['primaryOfficialTraining']['trainingExempt']
+          form_data['primaryOfficialTraining']['trainingCompletionDate'] = 'EXEMPT'
+        end
       end
 
       def format_additional_officials(form_data)
@@ -128,9 +134,9 @@ module PdfFill
           data['signature'] = full_name
           data['receivesBenefits'] = details['hasVaEducationBenefits'] ? 'Yes' : 'No'
           data['title'] = details['title']
-          data['phoneNumber'] = details['phoneNumber']
+          data['phoneNumber'] = details['internationalPhoneNumber'].presence || details['phoneNumber']
           data['emailAddress'] = details['emailAddress']
-          data['trainingCompletionDate'] = details['trainingCompletionDate']
+          data['trainingCompletionDate'] = details['trainingExempt'] ? 'EXEMPT' : details['trainingCompletionDate']
         end
       end
 

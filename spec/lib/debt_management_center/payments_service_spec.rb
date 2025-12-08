@@ -41,8 +41,8 @@ describe DebtManagementCenter::PaymentsService do
     described_class.new(user)
   end
 
-  it 'includes SentryLogging' do
-    expect(described_class.ancestors).to include(SentryLogging)
+  it 'includes Vets::SharedLogging' do
+    expect(described_class.ancestors).to include(Vets::SharedLogging)
   end
 
   describe '::new' do

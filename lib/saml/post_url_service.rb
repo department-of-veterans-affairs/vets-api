@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/routing_error'
-require 'sentry_logging'
 require_relative 'url_service'
 
 module SAML
@@ -12,8 +11,6 @@ module SAML
   # @see SAML::URLService
   #
   class PostURLService < URLService
-    include SentryLogging
-
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
@@ -71,11 +68,6 @@ module SAML
       end
     end
 
-    # logout URL for SSOe
-    def ssoe_slo_url
-      IdentitySettings.saml_ssoe.logout_url
-    end
-
     private
 
     def terms_of_use_enabled_application
@@ -108,7 +100,7 @@ module SAML
       current_application = @tracker&.payload_attr(:application)
 
       base_url = if Settings.review_instance_slug.present?
-                   "http://#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
+                   "http://#{Settings.review_instance_slug}.vfs.va.gov/terms-of-use"
                  else
                    "#{base_redirect_url}/terms-of-use"
                  end

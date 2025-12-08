@@ -87,6 +87,7 @@ module V1
       Swagger::V1::Requests::Post911GIBillStatuses,
       Swagger::V1::Requests::IvcChampvaForms,
       Swagger::V1::Requests::Gibct::VersionPublicExports,
+      Swagger::V1::Requests::MedicalCopays,
       self
     ].freeze
 

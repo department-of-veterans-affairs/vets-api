@@ -11,7 +11,7 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
   before do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
 
-    allow(generator).to receive(:claim_class).and_return(DependentsBenefits::SavedClaim)
+    allow(generator).to receive(:claim_class).and_return(DependentsBenefits::PrimaryDependencyClaim)
   end
 
   describe 'initialization' do
@@ -41,10 +41,10 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
 
     describe '#create_claim' do
       let(:extracted_data) { { 'extracted' => 'data' } }
-      let(:mock_claim) { instance_double(DependentsBenefits::SavedClaim, id: 456) }
+      let(:mock_claim) { instance_double(DependentsBenefits::PrimaryDependencyClaim, id: 456) }
 
       before do
-        allow(DependentsBenefits::SavedClaim).to receive(:new).and_return(mock_claim)
+        allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:new).and_return(mock_claim)
         allow(mock_claim).to receive(:validate!)
         allow(mock_claim).to receive(:save!)
       end
@@ -52,7 +52,7 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
       it 'creates a SavedClaim with the correct data and form_id' do
         generator.send(:create_claim, extracted_data)
 
-        expect(DependentsBenefits::SavedClaim).to have_received(:new).with(form: extracted_data.to_json)
+        expect(DependentsBenefits::PrimaryDependencyClaim).to have_received(:new).with(form: extracted_data.to_json)
         expect(mock_claim).to have_received(:save!)
       end
 
@@ -63,26 +63,24 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
     end
 
     describe '#create_claim_group_item' do
-      let!(:parent_claim) { create(:dependents_claim, id: parent_id) }
-      let(:mock_claim) { create(:dependents_claim) }
-      let(:claim_group_guid) { SecureRandom.uuid }
-      let(:mock_group) do
-        instance_double(SavedClaimGroup, parent_claim_id: parent_id, claim_group_guid:)
+      let(:parent_claim) { create(:dependents_claim) }
+      let(:child_claim) { create(:student_claim) }
+      let(:parent_claim_group) do
+        create(:saved_claim_group,
+               claim_group_guid: parent_claim.guid,
+               parent_claim_id: parent_claim.id,
+               saved_claim_id: parent_claim.id)
       end
+      let(:parent_id) { parent_claim.id }
 
-      before do
-        allow(Rails.logger).to receive(:info)
-        allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
-      end
-
-      it 'creates a claim group' do
+      it 'creates a claim group child item' do
         expect(SavedClaimGroup).to receive(:new).with(
-          claim_group_guid: mock_group.claim_group_guid,
-          parent_claim_id: parent_id,
-          saved_claim_id: mock_claim.id
+          claim_group_guid: parent_claim_group.claim_group_guid,
+          parent_claim_id: parent_claim.id,
+          saved_claim_id: child_claim.id
         ).and_call_original
 
-        result = generator.send(:create_claim_group_item, mock_claim)
+        result = generator.send(:create_claim_group_item, child_claim)
         expect(result).to be_a(SavedClaimGroup)
       end
     end
