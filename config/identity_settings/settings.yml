@@ -68,6 +68,9 @@ saml_ssoe:
 
 session_cookie:
   secure: false
+  # Enable logging when secure cookies cannot be committed due to SSL mismatch
+  # Useful for debugging proxy header issues (e.g., Rack 3 upgrade)
+  warn_on_ssl_mismatch: false
 
 sign_in:
   arp_client_id: arp
