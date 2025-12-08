@@ -346,7 +346,7 @@ module Vass
 
       data = veteran_data['data']
       last_name_match = normalize_name(data['lastName']) == normalize_name(last_name)
-      dob_match = normalize_date(data['dateOfBirth']) == normalize_date(date_of_birth)
+      dob_match = normalize_vass_date(data['dateOfBirth']) == Date.parse(date_of_birth)
 
       last_name_match && dob_match
     end
@@ -415,32 +415,15 @@ module Vass
     end
 
     ##
-    # Normalizes date for comparison.
+    # Normalizes date from VASS API format (M/D/YYYY) to Date object for comparison.
     #
-    # @param date [String, nil] Date string (may be in various formats)
-    # @return [String] Normalized date string
+    # @param date [String] Date string from VASS API (e.g., "1/15/1990")
+    # @return [Date] Parsed date object
     #
-    def normalize_date(date)
-      return '' if date.blank?
-
-      parsed = parse_date_string(date)
-      parsed ? parsed.strftime('%Y-%m-%d') : date.to_s.strip
-    rescue
-      date.to_s.strip
-    end
-
-    ##
-    # Parses a date string, trying multiple formats.
-    #
-    # @param date [String] Date string to parse
-    # @return [Date, nil] Parsed date or nil if parsing fails
-    #
-    def parse_date_string(date)
+    def normalize_vass_date(date)
       Date.strptime(date, '%m/%d/%Y')
-    rescue ArgumentError
+    rescue ArgumentError, TypeError
       Date.parse(date)
-    rescue
-      nil
     end
   end
 end

@@ -216,11 +216,11 @@ describe Vass::AppointmentsService do
           expect(result['contact_method']).to eq('email')
         end
 
-        it 'normalizes dates for comparison' do
+        it 'normalizes VASS API dates for comparison' do
           result = service_with_mock_client.get_veteran_info(
             veteran_id:,
             last_name:,
-            date_of_birth: '01/15/1990'
+            date_of_birth: '1990-01-15'
           )
 
           expect(result['contact_method']).to eq('email')
