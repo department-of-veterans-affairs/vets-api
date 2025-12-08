@@ -93,38 +93,6 @@ module AccreditedRepresentativePortal
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
       end
 
-      # def get_file_paths_and_metadata(parsed_form_data)
-      #   attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
-
-      #   # Use the actual form ID for PDF generation, but legacy form ID for S3/metadata
-      #   actual_form_id = form.form_id
-      #   legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(actual_form_id)
-
-      #   filler = IvcChampva::PdfFiller.new(form_number: actual_form_id, form:, uuid: form.uuid, name: legacy_form_id)
-
-      #   file_path = if @current_user
-      #                 filler.generate(@current_user.loa[:current])
-      #               else
-      #                 filler.generate
-      #               end
-
-      #   # Get validated metadata
-      #   metadata = IvcChampva::MetadataValidator.validate(form.metadata)
-
-      #   file_paths = form.handle_attachments(file_path)
-
-      #   # Generate VES JSON file and add to file_paths if conditions are met
-      #   if should_generate_ves_json?(form.form_id)
-      #     ves_json_path = generate_ves_json_file(form, parsed_form_data)
-      #     if ves_json_path
-      #       file_paths << ves_json_path
-      #       attachment_ids << 'VES JSON'
-      #     end
-      #   end
-
-      #   [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
-      # end
-
       def current_in_progress_form_or_routing_error
         current_in_progress_form || routing_error
       end
