@@ -473,7 +473,7 @@ jobs:
                     "type": "button",
                     "text": {
                       "type": "plain_text",
-                      "text": "🔍 View Test Run",
+                      "text": ":mag_right: View Test Run",
                       "emoji": true
                     },
                     "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
@@ -483,7 +483,7 @@ jobs:
                     "type": "button",
                     "text": {
                       "type": "plain_text",
-                      "text": "📊 View Commit",
+                      "text": ":chart: View Commit",
                       "emoji": true
                     },
                     "url": "${{ github.event.head_commit.url }}"
@@ -495,7 +495,7 @@ jobs:
                 "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": "💡 *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open `index.html`"
+                    "text": ":bulb: *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open `index.html`"
                   }
                 ]
               },
