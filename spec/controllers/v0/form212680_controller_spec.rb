@@ -110,6 +110,9 @@ RSpec.describe V0::Form212680Controller, type: :controller do
     end
 
     it 'deletes temporary PDF file after sending' do
+      allow_any_instance_of(SavedClaim::Form212680).to receive(:generate_prefilled_pdf).and_return(temp_file_path)
+      allow(File).to receive(:exist?).with(temp_file_path).and_return(true)
+      allow(File).to receive(:read).with(temp_file_path).and_return('PDF content')
       expect(File).to receive(:delete).with(temp_file_path)
       get(:download_pdf, params: { guid: claim.guid })
     end
@@ -126,6 +129,8 @@ RSpec.describe V0::Form212680Controller, type: :controller do
     end
 
     it 'deletes temporary file even when file read fails' do
+      allow_any_instance_of(SavedClaim::Form212680).to receive(:generate_prefilled_pdf).and_return(temp_file_path)
+      allow(File).to receive(:exist?).with(temp_file_path).and_return(true)
       allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
       expect(File).to receive(:delete).with(temp_file_path)
 
