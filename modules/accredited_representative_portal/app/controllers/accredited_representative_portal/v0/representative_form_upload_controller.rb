@@ -193,7 +193,8 @@ module AccreditedRepresentativePortal
           default_tags: [
             "controller:#{controller_name}",
             "action:#{action_name}",
-            org_tag
+            org_tag,
+            ('org_resolve:failed' if with_organization && org_tag.nil?)
           ].compact
         )
       end
@@ -204,6 +205,8 @@ module AccreditedRepresentativePortal
 
       def organization
         claimant_representative&.power_of_attorney_holder&.poa_code
+      rescue AccreditedRepresentativePortal::ClaimantRepresentative::Finder::Error
+        nil
       end
 
       def trace_key_tags(span, **tags)

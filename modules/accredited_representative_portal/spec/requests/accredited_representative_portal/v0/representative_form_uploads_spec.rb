@@ -563,6 +563,45 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         end
       end
     end
+
+    describe 'submit adds org_resolve:failed when organization resolution fails' do
+      before do
+        allow_any_instance_of(described_class).to receive(:verify_authorized).and_return(true)
+
+        # Force org resolution to fail so org_resolve:failed is added
+        allow_any_instance_of(described_class).to receive(:organization).and_return(nil)
+        # Spy on Monitoring.new, allow real behavior
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_call_original
+
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
+      end
+
+      it 'includes org_resolve:failed in Monitoring.new default_tags' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+                expect(response).to have_http_status(:ok)
+
+                # Assert AccreditedRepresentativePortal::Monitoring constructor saw org_resolve:failed in default_tags
+                expect(AccreditedRepresentativePortal::Monitoring).to have_received(:new).with(
+                  AccreditedRepresentativePortal::Monitoring::NAME,
+                  hash_including(default_tags: array_including('org_resolve:failed'))
+                ).exactly(2).times
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#upload_scanned_form' do
