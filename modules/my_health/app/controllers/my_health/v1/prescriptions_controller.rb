@@ -74,6 +74,21 @@ module MyHealth
         resource
       end
 
+      # Determines if a prescription is renewable (can request renewal from provider)
+      # Checks disp_status for both original and V2 status values:
+      # - Original: 'Active', 'Expired'
+      # - V2: 'Active', 'Inactive' (Expired maps to Inactive in V2)
+      #
+      # @param prescription [PrescriptionDetails] The prescription to check
+      # @return [Boolean] True if prescription is renewable
+      def renewable(prescription)
+        # Include both original ('Expired') and V2 ('Inactive') status values
+        renewable_statuses = %w[Active Expired Inactive]
+        renewable_statuses.include?(prescription.disp_status) &&
+          !prescription.is_refillable &&
+          prescription.refill_remaining.positive?
+      end
+
       def refill_prescriptions
         ids = params[:ids]
         successful_ids = []
@@ -174,7 +189,8 @@ module MyHealth
         disp_status = filter_params[:disp_status]
 
         if disp_status.present?
-          if disp_status[:eq]&.downcase == 'active,expired'.downcase
+          # Support both V1 ('Active,Expired') and V2 ('Active,Inactive') renewal filter values
+          if renewal_filter?(disp_status[:eq])
             filter_renewals(resource)
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
@@ -242,6 +258,18 @@ module MyHealth
         other_prescriptions = prescriptions.reject { |med| med.prescription_source == 'PD' }
 
         pd_prescriptions + other_prescriptions
+      end
+
+      # Checks if the filter value is a renewal filter
+      # Supports both V1 ('Active,Expired') and V2 ('Active,Inactive') filter values
+      #
+      # @param filter_value [String] The disp_status filter value
+      # @return [Boolean] True if this is a renewal filter
+      def renewal_filter?(filter_value)
+        return false if filter_value.blank?
+
+        normalized = filter_value.downcase
+        ['active,expired', 'active,inactive'].include?(normalized)
       end
     end
   end
