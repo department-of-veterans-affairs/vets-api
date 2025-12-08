@@ -165,6 +165,7 @@ check_in:
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
     travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
     travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
+    travel_pay_client_secret_oh: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret_oh'] %>
     travel_pay_resource: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_resource'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
@@ -408,6 +409,8 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+email_verification:
+  jwt_secret: <%= ENV['email_verification__jwt_secret'] %>
 # Settings for EVSS
 evss:
   alternate_service_name: wss-form526-services-web-v2
@@ -935,6 +938,9 @@ mhv:
     x_api_key: <%= ENV['mhv__medical_records__x_api_key'] %>
     x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
+  oh_facility_checks:
+    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] || '612, 555' %>
+    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] || '612, 357, 555' %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
@@ -1400,9 +1406,15 @@ vanotify:
         received_686c_only:
           flipper_id: dependents_benefits_received_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__received_686c_only__template_id'] %>
-        submitted:
+        submitted674_only:
           flipper_id: dependents_benefits_submitted_email_notification
-          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted__template_id'] %>
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted674_only__template_id'] %>
+        submitted686c674:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c674__template_id'] %>
+        submitted686c_only:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c_only__template_id'] %>
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:
