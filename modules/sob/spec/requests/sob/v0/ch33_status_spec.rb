@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe 'SOB::V0::Ch33Status', type: :request do
   include SchemaMatchers
 
+  let(:user) { create(:user, ssn: '123456789') }
+
   before { sign_in_as(user) }
 
   describe 'GET sob/v0/ch33_status' do
     context 'when claimant exists' do
-      let(:user) { create(:user, ssn: '374374377') }
-
       it 'returns 200 response' do
         VCR.use_cassette('sob/ch33_status/200') do
           get '/sob/v0/ch33_status'
@@ -32,8 +32,6 @@ RSpec.describe 'SOB::V0::Ch33Status', type: :request do
     end
 
     context 'when claimant not found' do
-      let(:user) { create(:user, ssn: '374374375') }
-
       it 'converts 204 to 404 response' do
         VCR.use_cassette('sob/ch33_status/204') do
           get '/sob/v0/ch33_status'
@@ -45,8 +43,6 @@ RSpec.describe 'SOB::V0::Ch33Status', type: :request do
     end
 
     context 'when upstream error' do
-      let(:user) { create(:user, ssn: '374374376') }
-
       it 'returns 500 response' do
         VCR.use_cassette('sob/ch33_status/500') do
           get '/sob/v0/ch33_status'

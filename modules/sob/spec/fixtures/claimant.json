@@ -3,8 +3,8 @@
   "claimant": {
     "id": 3000000010002241,
     "vaId": null,
-    "vaFileNumber": "374374377",
-    "socialSecurityNumber": "374374377",
+    "vaFileNumber": "123456789",
+    "socialSecurityNumber": "123456789",
     "firstName": "Jane",
     "middleName": "M",
     "lastName": "Smith",
