@@ -47,7 +47,10 @@ describe ClaimsApi::ReportRecipientsReader do
       end
 
       it 'returns an empty array and logs a warning' do
-        expect(Rails.logger).to receive(:warn).with(/Recipients file is empty or invalid/)
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'ReportRecipientsReader',
+          { message: "Recipients file is empty or invalid: #{recipient_file_path}", level: :warn }
+        )
         expect(report.load_recipients('submission_report_mailer')).to eq([])
       end
     end
@@ -58,7 +61,10 @@ describe ClaimsApi::ReportRecipientsReader do
       end
 
       it 'returns an empty array and logs a warning' do
-        expect(Rails.logger).to receive(:warn).with(/Recipients file does not exist/)
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'ReportRecipientsReader',
+          { message: "Recipients file does not exist: #{recipient_file_path}", level: :warn }
+        )
         expect(report.load_recipients('submission_report_mailer')).to eq([])
       end
     end
@@ -72,7 +78,10 @@ describe ClaimsApi::ReportRecipientsReader do
       end
 
       it 'returns an empty array and logs the error' do
-        expect(Rails.logger).to receive(:error).with(/Failed to load recipients/)
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'ReportRecipientsReader',
+          hash_including(message: /Failed to load recipients from #{recipient_file_path}:.*syntax error/, level: :warn)
+        )
         expect(report.load_recipients('submission_report_mailer')).to eq([])
       end
     end
@@ -84,7 +93,10 @@ describe ClaimsApi::ReportRecipientsReader do
       end
 
       it 'returns an empty array and logs a warning' do
-        expect(Rails.logger).to receive(:warn).with(/Recipients file is empty or invalid/)
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'ReportRecipientsReader',
+          { message: "Recipients file is empty or invalid: #{recipient_file_path}", level: :warn }
+        )
         expect(report.load_recipients('submission_report_mailer')).to eq([])
       end
     end
