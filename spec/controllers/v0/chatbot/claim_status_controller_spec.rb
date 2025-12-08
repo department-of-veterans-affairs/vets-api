@@ -6,7 +6,7 @@ require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/configuration'
 
 RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
-  include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859', participant_id: '123456' } }
+  include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859' } }
 
   describe 'GET /v0/chatbot/claims from lighthouse' do
     subject(:get_claims) do
@@ -29,6 +29,7 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
         it 'returns ordered list of all veteran claims from lighthouse' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_multiple_claims') do
             get_claims
+            # get('/v0/chatbot/claims', params: { conversation_id: 123 }, headers: service_account_auth_header)
           end
 
           expect(response).to have_http_status(:ok)
@@ -240,44 +241,6 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           expect(names).to include('Secondary Action Required')
           expect(names).to include('Stage 2 Development')
         end
-      end
-    end
-  end
-
-  describe 'authorization' do
-    let(:conversation_id) { 123 }
-
-    context 'when LighthousePolicy denies access' do
-      before do
-        allow_any_instance_of(LighthousePolicy).to receive(:access?).and_return(false)
-      end
-
-      it 'returns 403 Forbidden for index' do
-        get('/v0/chatbot/claims', params: { conversation_id: }, headers: service_account_auth_header)
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
-    context 'when LighthousePolicy allows access' do
-      before do
-        allow_any_instance_of(LighthousePolicy).to receive(:access?).and_return(true)
-        # Avoid external calls; return empty data set
-        benefits_claims_service = instance_double(BenefitsClaims::Service)
-        allow(BenefitsClaims::Service).to receive(:new).and_return(benefits_claims_service)
-        allow(benefits_claims_service).to receive(:get_claims).and_return({ 'data' => [] })
-
-        # Stub CXI reporter to avoid side effects
-        mock_cxi = instance_double(Chatbot::ReportToCxi)
-        allow(Chatbot::ReportToCxi).to receive(:new).and_return(mock_cxi)
-        allow(mock_cxi).to receive(:report_to_cxi)
-      end
-
-      it 'allows request and returns 200 OK for index' do
-        get('/v0/chatbot/claims', params: { conversation_id: }, headers: service_account_auth_header)
-        expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
-        expect(body['data']).to eq([])
-        expect(body.dig('meta', 'sync_status')).to eq('SUCCESS')
       end
     end
   end

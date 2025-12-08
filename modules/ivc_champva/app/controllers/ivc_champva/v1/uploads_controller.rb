@@ -766,8 +766,7 @@ module IvcChampva
 
       def get_attachment_ids_and_form(parsed_form_data)
         base_form_id = get_form_id
-        form_id = IvcChampva::FormVersionManager.resolve_form_version(base_form_id, @current_user)
-        form = IvcChampva::FormVersionManager.create_form_instance(form_id, parsed_form_data, @current_user)
+        form = IvcChampva::FormVersionManager.create_form_instance(base_form_id, parsed_form_data, @current_user)
 
         form_class = form.class
         additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1

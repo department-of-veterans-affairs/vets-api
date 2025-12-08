@@ -82,6 +82,11 @@ RSpec.describe SOB::V2::Post911GIBillStatusesController, type: :controller do
       allow_any_instance_of(BenefitsEducation::Configuration).to receive(:get).and_raise(mock_exception)
     end
 
+    after do
+      # Clear RSpec mocks to prevent pollution of subsequent tests
+      RSpec::Mocks.space.proxy_for(BenefitsEducation::Configuration).reset
+    end
+
     it 'returns a 503 status code' do
       get :show
       expect(response).to have_http_status(:service_unavailable)
