@@ -41,6 +41,7 @@ saml_ssoe:
 
 session_cookie:
   secure: true
+  warn_on_ssl_mismatch: true
 
 sign_in:
   cookies_secure: true

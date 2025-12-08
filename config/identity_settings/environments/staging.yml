@@ -48,6 +48,7 @@ saml_ssoe:
 
 session_cookie:
   secure: true
+  warn_on_ssl_mismatch: true
 
 sign_in:
   arp_client_id: ce6db4d7974daf061dccdd21ba9add14
