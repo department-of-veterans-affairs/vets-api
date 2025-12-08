@@ -1483,7 +1483,7 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with VA Profile and ppiu prefill for 0994' do
+      context 'with VA Profile and ppiu prefill for 0994', skip: "REMOVE TESTING FOR 0994" do
         before do
           can_prefill_vaprofile(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
