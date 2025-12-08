@@ -79,7 +79,7 @@ module Mobile
 
         def calculate_vaccine_group_lengths(vaccine_codes)
           vaccine_codes[:coding]&.map do |v|
-            next unless v[:display]&.include?('VACCINE GROUP')
+            next unless v[:display]&.start_with?('VACCINE GROUP:')
 
             # Count characters after "VACCINE GROUP:" including any whitespace (before stripping)
             text_after_group = v[:display].split('VACCINE GROUP').last
