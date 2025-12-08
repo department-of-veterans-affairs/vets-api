@@ -12,18 +12,27 @@ module VcrMcp
   module Inspector
     CASSETTE_ROOT = Constants::CASSETTE_ROOT
 
+    # Resolves and validates a path to prevent directory traversal attacks.
+    # Returns nil if the path resolves outside CASSETTE_ROOT.
+    def self.resolve_safe_path(path)
+      resolved = File.expand_path(path, CASSETTE_ROOT)
+      return nil unless resolved.start_with?(CASSETTE_ROOT)
+
+      resolved
+    end
+
     def self.find_cassette(query)
-      return query if File.exist?(query)
+      # First, try the query as a path relative to CASSETTE_ROOT
+      path = resolve_safe_path(query)
+      return path if path && File.exist?(path)
 
-      # Try relative to CASSETTE_ROOT
-      path = File.join(CASSETTE_ROOT, query)
-      return path if File.exist?(path)
+      # Try with .yml extension
+      path_with_ext = resolve_safe_path("#{query}.yml")
+      return path_with_ext if path_with_ext && File.exist?(path_with_ext)
 
-      path = File.join(CASSETTE_ROOT, "#{query}.yml")
-      return path if File.exist?(path)
-
-      # Try searching
-      matches = Dir.glob(File.join(CASSETTE_ROOT, "**/*#{query}*.yml"))
+      # Try searching by basename only (ignore any path components in query for security)
+      search_term = File.basename(query)
+      matches = Dir.glob(File.join(CASSETTE_ROOT, "**/*#{search_term}*.yml"))
 
       if matches.empty?
         nil
@@ -31,7 +40,7 @@ module VcrMcp
         matches.first
       else
         # If exact match exists in the list, return it
-        exact_match = matches.find { |m| File.basename(m, '.yml') == query }
+        exact_match = matches.find { |m| File.basename(m, '.yml') == search_term }
         return exact_match if exact_match
 
         # Otherwise return list of matches
