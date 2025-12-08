@@ -38,11 +38,6 @@ class FormProfiles::VA0994 < FormProfile
 
     # Return empty hash since EVSS PPIU is deprecated
     # Payment information is now handled by Lighthouse
-    {}
-  rescue => e
-    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
-    {}
-  end
 
     # VA0994::FormPaymentAccountInformation.new(
     #   account_type: raw_account&.account_type&.capitalize,
@@ -50,6 +45,7 @@ class FormProfiles::VA0994 < FormProfile
     #   routing_number: mask(raw_account&.financial_institution_routing_number),
     #   bank_name: raw_account&.financial_institution_name
     # )
+    {}
   rescue => e
     Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
     {}
