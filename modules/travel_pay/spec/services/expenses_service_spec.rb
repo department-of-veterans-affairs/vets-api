@@ -388,11 +388,17 @@ describe TravelPay::ExpensesService do
       end
 
       it 'handles special mappings for receipt' do
-        params = { 'receipt' => 'base64encodeddata' }
+        receipt_hash = {
+          'content_type' => 'application/pdf',
+          'content_length' => '12345',
+          'file_data' => 'base64encodeddata',
+          'file_type' => 'pdf'
+        }
+        params = { 'receipt' => receipt_hash }
 
         result = build_request_body(params)
 
-        expect(result['expenseReceipt']).to eq('base64encodeddata')
+        expect(result['expenseReceipt']).to eq(receipt_hash)
         expect(result['receipt']).to be_nil
       end
 
@@ -639,18 +645,24 @@ describe TravelPay::ExpensesService do
 
     context 'with receipts' do
       it 'converts receipt field to expenseReceipt' do
+        receipt_hash = {
+          'content_type' => 'application/pdf',
+          'content_length' => '12345',
+          'file_data' => 'base64encodeddata',
+          'file_type' => 'pdf'
+        }
         params = {
           'expense_type' => 'lodging',
           'purchase_date' => '2024-11-01',
           'description' => 'Hotel stay',
           'cost_requested' => 150.00,
-          'receipt' => 'base64encodeddata',
+          'receipt' => receipt_hash,
           'claim_id' => 'claim-123'
         }
 
         result = build_request_body(params)
 
-        expect(result['expenseReceipt']).to eq('base64encodeddata')
+        expect(result['expenseReceipt']).to eq(receipt_hash)
         expect(result).not_to have_key('receipt')
       end
     end
