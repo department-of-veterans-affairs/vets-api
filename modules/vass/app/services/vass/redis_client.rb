@@ -356,14 +356,12 @@ module Vass
 
     ##
     # Generates a cache key for rate limiting.
-    # Uses SHA256 hash to avoid storing PII directly in Redis keys.
     #
-    # @param identifier [String] UUID to hash
+    # @param identifier [String] UUID for rate limiting
     # @return [String] Cache key
     #
     def rate_limit_key(identifier)
-      hashed = Digest::SHA256.hexdigest(identifier.to_s.downcase.strip)
-      "rate_limit_#{hashed}"
+      "rate_limit_#{identifier}"
     end
 
     ##

@@ -550,34 +550,33 @@ describe Vass::RedisClient do
     end
   end
 
-  describe 'rate limit key hashing' do
-    it 'hashes identifiers to avoid storing PII in keys' do
-      identifier = 'sensitive@email.com'
+  describe 'rate limit key generation' do
+    it 'uses identifier directly in cache key' do
+      identifier = 'da1e1a40-1e63-f011-bec2-001dd80351ea'
       redis_client.increment_rate_limit(identifier:)
 
-      # The key should be hashed, not the raw identifier
-      hashed_key = Digest::SHA256.hexdigest(identifier.downcase.strip)
       expect(
         Rails.cache.exist?(
-          "rate_limit_#{hashed_key}",
+          "rate_limit_#{identifier}",
           namespace: 'vass-rate-limit-cache'
         )
       ).to be true
     end
 
-    it 'normalizes identifiers (case insensitive)' do
-      redis_client.increment_rate_limit(identifier: 'TEST@EXAMPLE.COM')
-      redis_client.increment_rate_limit(identifier: 'test@example.com')
-      redis_client.increment_rate_limit(identifier: 'Test@Example.Com')
+    it 'treats identifiers as case-sensitive' do
+      redis_client.increment_rate_limit(identifier: 'TEST-UUID-123')
+      redis_client.increment_rate_limit(identifier: 'test-uuid-123')
 
-      expect(redis_client.rate_limit_count(identifier: 'test@example.com')).to eq(3)
+      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(1)
+      expect(redis_client.rate_limit_count(identifier: 'TEST-UUID-123')).to eq(1)
     end
 
-    it 'strips whitespace from identifiers' do
-      redis_client.increment_rate_limit(identifier: '  test@example.com  ')
-      redis_client.increment_rate_limit(identifier: 'test@example.com')
+    it 'preserves whitespace in identifiers' do
+      redis_client.increment_rate_limit(identifier: '  test-uuid-123  ')
+      redis_client.increment_rate_limit(identifier: 'test-uuid-123')
 
-      expect(redis_client.rate_limit_count(identifier: 'test@example.com')).to eq(2)
+      expect(redis_client.rate_limit_count(identifier: '  test-uuid-123  ')).to eq(1)
+      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(1)
     end
   end
 
