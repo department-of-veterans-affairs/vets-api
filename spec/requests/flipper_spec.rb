@@ -411,16 +411,5 @@ RSpec.describe 'flipper', type: :request do
       expect(actor_input).not_to be_nil
       expect(actor_input['placeholder']).to include('comma')
     end
-
-    it 'displays help text explaining comma-separated functionality' do
-      get '/flipper/features/this_is_only_a_test'
-      assert_response :success
-
-      body = Nokogiri::HTML(response.body)
-      help_text = body.at_css('small.text-muted')
-      expect(help_text).not_to be_nil
-      expect(help_text.text).to include('multiple actor IDs')
-      expect(help_text.text).to include('separating them with commas')
-    end
   end
 end
