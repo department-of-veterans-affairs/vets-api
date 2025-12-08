@@ -243,10 +243,10 @@ module Vass
       # Validates OTP, deletes it, and generates a session token.
       #
       # @return [String] Generated session token
-      # @raise [StandardError] if OTP is invalid
+      # @raise [Vass::Errors::AuthenticationError] if OTP is invalid
       #
       def validate_and_process_otp
-        raise StandardError, 'Invalid OTP' unless valid_otp?
+        raise Vass::Errors::AuthenticationError, 'Invalid OTP' unless valid_otp?
 
         delete_otp
         generate_session_token
