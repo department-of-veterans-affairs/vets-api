@@ -7,6 +7,7 @@ require 'medical_expense_reports/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
 require 'bigdecimal'
+require 'date'
 
 module MedicalExpenseReports
   module BenefitsIntake
@@ -152,8 +153,8 @@ module MedicalExpenseReports
           'CL_PHONE_NUMBER' => claimant_phone_number(form),
           'DATE_SIGNED' => claim_date_signed(form),
           'FORM_TYPE' => MedicalExpenseReports::FORM_ID,
-          'MED_EXPENSES_FROM_1' => use_va_rcvd_date ? nil : reporting_period['from'],
-          'MED_EXPENSES_TO_1' => use_va_rcvd_date ? nil : reporting_period['to'],
+          'MED_EXPENSES_FROM_1' => use_va_rcvd_date ? nil : format_date(reporting_period['from']),
+          'MED_EXPENSES_TO_1' => use_va_rcvd_date ? nil : format_date(reporting_period['to']),
           'USE_VA_RCVD_DATE' => use_va_rcvd_date,
           'VA_FILE_NUMBER' => form['vaFileNumber'],
           'VETERAN_FIRST_NAME' => veteran_name[:first],
@@ -216,26 +217,30 @@ module MedicalExpenseReports
       def us_phone_number(primary_phone)
         return unless primary_phone['countryCode']&.casecmp?('US')
 
-        sanitize_phone(primary_phone['contact'])
+        format_phone(primary_phone['contact'])
       end
 
       def claimant_phone_number(form)
         primary_phone = form['primaryPhone'] || {}
-        number = sanitize_phone(primary_phone['contact'])
+        number = format_phone(primary_phone['contact'])
         return unless number.present?
 
         primary_phone['countryCode']&.casecmp?('US') ? number : nil
       end
 
       def international_phone_number(form, primary_phone)
-        return form['internationalPhone'] if form['internationalPhone'].present?
-        return sanitize_phone(primary_phone['contact']) unless primary_phone['countryCode']&.casecmp?('US')
+        return format_phone(form['internationalPhone']) if form['internationalPhone'].present?
+        return format_phone(primary_phone['contact']) unless primary_phone['countryCode']&.casecmp?('US')
 
         nil
       end
 
+      def format_phone(value)
+        sanitize_phone(value)
+      end
+
       def claim_date_signed(form)
-        form['dateSigned'] || form['signatureDate']
+        format_date(form['dateSigned'] || form['signatureDate'])
       end
 
       def sanitize_phone(phone)
@@ -258,8 +263,8 @@ module MedicalExpenseReports
           hash["IN_HM_OTHR_PAID_#{index}"] = recipient_flag(entry, %w[OTHER])
           hash["IN_HM_CHLD_OTHR_NAME_#{index}"] = child_other_name(entry)
           hash["IN_HM_PROVIDER_NAME_#{index}"] = entry&.dig('provider')
-          hash["IN_HM_DATE_START_#{index}"] = entry&.dig('careDate', 'from')
-          hash["IN_HM_DATE_END_#{index}"] = entry&.dig('careDate', 'to')
+          hash["IN_HM_DATE_START_#{index}"] = format_date(entry&.dig('careDate', 'from'))
+          hash["IN_HM_DATE_END_#{index}"] = format_date(entry&.dig('careDate', 'to'))
           hash["IN_HM_AMT_PAID_#{index}"] = format_currency(entry&.dig('monthlyAmount'))
           hash["IN_HM_HRLY_RATE_#{index}"] = entry&.dig('hourlyRate')
           hash["IN_HM_NBR_HRS_#{index}"] = entry&.dig('weeklyHours')
@@ -275,7 +280,7 @@ module MedicalExpenseReports
           hash["MED_EXP_PAID_CHLD_#{index}"] = recipient_flag(entry, CHILD_RECIPIENTS)
           hash["MED_EXP_PAID_OTHR_#{index}"] = recipient_flag(entry, %w[OTHER])
           hash["MED_EXP_CHLD_OTHR_NAME_#{index}"] = child_other_name(entry)
-          hash["MED_EXP_DATE_PAID_#{index}"] = entry&.dig('paymentDate')
+          hash["MED_EXP_DATE_PAID_#{index}"] = format_date(entry&.dig('paymentDate'))
           hash["MED_EXP_AMT_PAID_#{index}"] = format_currency(entry&.dig('paymentAmount'))
           hash["MED_EXP_PRVDR_NAME_#{index}"] = entry&.dig('provider')
           hash["MED_EXPENSE_#{index}"] = entry&.dig('purpose')
@@ -295,7 +300,7 @@ module MedicalExpenseReports
           hash["TRVL_CHLD_OTHR_NAME_#{index}"] = traveler_name_child_other(entry, traveler)
           hash["MDCL_FCLTY_NAME_#{index}"] = travel_location(entry)
           hash["TTL_MLS_TRVLD_#{index}"] = entry&.dig('travelMilesTraveled')
-          hash["DATE_TRVLD_#{index}"] = entry&.dig('travelDate')
+          hash["DATE_TRVLD_#{index}"] = format_date(entry&.dig('travelDate'))
           hash["OTHER_SRC_RMBRSD_#{index}"] = format_currency(entry&.dig('travelReimbursementAmount'))
         end
       end
@@ -383,6 +388,15 @@ module MedicalExpenseReports
         parts = formatted.split('.')
         whole = parts[0].reverse.scan(/\d{1,3}/).join(',').reverse
         "#{whole}.#{parts[1]}"
+      rescue ArgumentError
+        nil
+      end
+
+      def format_date(value)
+        return unless value
+
+        parsed = Date.parse(value.to_s)
+        parsed.strftime('%m/%d/%Y')
       rescue ArgumentError
         nil
       end
