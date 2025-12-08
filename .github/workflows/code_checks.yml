@@ -443,15 +443,15 @@ jobs:
                 "fields": [
                   {
                     "type": "mrkdwn",
-                    "text": ":chart_with_downwards_trend: *Current Coverage*\n${{ steps.coverage.outputs.percent }}%"
+                    "text": ":chart_with_downwards_trend: *Current Coverage*: ${{ steps.coverage.outputs.percent }}%"
                   },
                   {
                     "type": "mrkdwn",
-                    "text": ":dart: *Required Minimum*\n90%"
+                    "text": ":dart: *Required Minimum*: 90%"
                   },
                   {
                     "type": "mrkdwn",
-                    "text": ":x: *Status*\nDeployment Blocked"
+                    "text": ":x: *Status*: Deployment Blocked"
                   }
                 ]
               },
@@ -482,7 +482,7 @@ jobs:
                 "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": ":bulb: *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open `index.html`"
+                    "text": ":bulb: *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open *index.html*"
                   }
                 ]
               },
@@ -504,7 +504,7 @@ jobs:
                 "type": "header",
                 "text": {
                   "type": "plain_text",
-                  "text": ":warning: *Warning: Vets-API Coverage Below Target* :warning:",
+                  "text": ":warning: *Warning: Vets-API Coverage Below Target*",
                   "emoji": true
                 }
               },
@@ -513,15 +513,15 @@ jobs:
                 "fields": [
                   {
                     "type": "mrkdwn",
-                    "text": ":chart_with_downwards_trend: *Current Coverage*\n${{ steps.coverage.outputs.percent }}%"
+                    "text": ":chart_with_downwards_trend: *Current Coverage*: ${{ steps.coverage.outputs.percent }}%"
                   },
                   {
                     "type": "mrkdwn",
-                    "text": ":dart: *Required Minimum*\n90%"
+                    "text": ":dart: *Required Minimum*: 90%"
                   },
                   {
                     "type": "mrkdwn",
-                    "text": ":large_green_circle: *Status*\nDeployment Allowed"
+                    "text": ":large_green_circle: *Status*: Deployment Allowed"
                   }
                 ]
               },
@@ -552,7 +552,7 @@ jobs:
                 "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": ":bulb: *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open `index.html`"
+                    "text": ":bulb: *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open *index.html*"
                   }
                 ]
               },
