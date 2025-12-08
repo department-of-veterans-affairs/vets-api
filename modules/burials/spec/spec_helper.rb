@@ -1,21 +1,12 @@
 # frozen_string_literal: true
 
-require 'rspec/rails'
+# Load SimpleCov configuration first (must be before any application code is loaded)
+require_relative '../../spec/simplecov_helper'
 
-RSpec.configure { |config| config.use_transactional_fixtures = true }
+# Load the root spec_helper which contains shared RSpec configuration
+require_relative '../../spec/spec_helper'
 
-# By default run SimpleCov, but allow an environment variable to disable.
-unless ENV['NOCOVERAGE']
-  require 'simplecov'
-
-  SimpleCov.start 'rails' do
-    track_files '**/{app,lib}/**/*.rb'
-
-    add_filter 'app/swagger'
-
-    if ENV['CI']
-      SimpleCov.minimum_coverage 90
-      SimpleCov.refuse_coverage_drop
-    end
-  end
-end
+# Module-specific configuration can be added below if needed
+# RSpec.configure do |config|
+#   # Add burials-specific configuration here
+# end
