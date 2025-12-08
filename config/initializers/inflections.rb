@@ -28,7 +28,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'NCA' # National Cemetery Administration
   inflect.acronym 'OAuth'
   inflect.acronym 'PagerDuty'
-  inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
   inflect.acronym 'SAML'
