@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../app/services/vass/vanotify_service'
+require_relative '../../../app/services/vass/va_notify_service'
 
 RSpec.describe Vass::VANotifyService do
   let(:api_key) { 'test-api-key' }
