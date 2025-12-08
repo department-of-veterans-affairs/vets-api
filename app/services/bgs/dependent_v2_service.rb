@@ -316,7 +316,8 @@ module BGS
         end
 
         # Safely extract file number from BGS response as an instance variable for later use;
-        # prefer explicit presence check (missing file number is the primary concern)
+        # For more details on why this matters, see dependents_veteran_identifiers.md
+        # The short version is that we need the file number to be present for RBPS, but we are retrieving by PID.
         if bgs_person.respond_to?(:[]) && bgs_person[:file_nbr].present?
           @file_number = bgs_person[:file_nbr]
         else

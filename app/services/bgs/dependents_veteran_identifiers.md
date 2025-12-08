@@ -51,7 +51,9 @@ This piece of code here seems to make assumptions that aren't backed up in conve
 
 > "...only Veterans have a file number – persons can be anyone – spouses, children, etc. but remember; a spouse, child, etc. could be a Veteran also… hence why we abandoned file number as a  key a long time ago in favor of PTCPNT_ID – file number is a TRAIT – and we should avoid using it (like avoiding using SSN) as much as possible."
 
-In the case above where we try to extract `@file_number = bgs_person[:file_nbr]` but the file_number is not the same as the participant ID.  This probably hasn't been a big issue because the primary users of the 686c form are veterans who have a file number.  Instead of the current approach, it would be better to do:
+In the case above where we try to extract `@file_number = bgs_person[:file_nbr]` but the file_number is not the same as the participant ID.  This probably hasn't been a big issue because the primary users of the 686c form are veterans who have a file number.    Back in app/controllers/v0/benefits_claims_controller.rb#31, we do a check to see if file number is present in `check_for_file_number()`, but it seems like we only log it and don't do anything else.
+
+It might seem redundant. but this change seems to better capture the issue in our own code, rather than a shared file.
 
 ```
         # Safely extract file number from BGS response as an instance variable for later use;
