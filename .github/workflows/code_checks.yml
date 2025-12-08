@@ -491,7 +491,7 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Slack notify - warning low coverage alert
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request'
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) <= 92
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
@@ -561,7 +561,7 @@ jobs:
           channel_id: "C039HRTHXDH"
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -574,7 +574,7 @@ jobs:
               Once coverage is improved, push another commit or rerun the workflow to update this report.
 
       - name: Comment Coverage on PR
-        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 92
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
