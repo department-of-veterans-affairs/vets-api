@@ -272,4 +272,89 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       end
     end
   end
+
+  describe 'POST #create with retry logic' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_notify_custom_bearer_tokens).and_return(false)
+    end
+
+    context 'when notification is created during retry window' do
+      it 'finds notification after retries and tracks metrics' do
+        call_count = 0
+        allow(VANotify::Notification).to receive(:find_by) do |args|
+          call_count += 1
+          if call_count >= 3
+            VANotify::Notification.create(
+              notification_id: args[:notification_id],
+              source_location: 'some_location',
+              callback_metadata: 'some_callback_metadata',
+              template_id: SecureRandom.uuid
+            )
+          end
+        end
+
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:debug)
+
+        post(callback_route,
+             params: callback_params.to_json,
+             headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
+
+        expect(response).to have_http_status(:ok)
+        expect(call_count).to eq(4)
+        expect(StatsD).to have_received(:increment)
+          .with('va_notify.callback.notification_found', { tags: ['attempt: 3'] })
+        expect(Rails.logger).to have_received(:debug).at_least(:once)
+                                                     .with(/Notification not found with id #{notification_id}/)
+      end
+    end
+
+    context 'when notification is never found after all retries' do
+      it 'returns success but logs warning and tracks failure metric' do
+        allow(VANotify::Notification).to receive(:find_by).and_return(nil)
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:debug)
+        allow(Rails.logger).to receive(:error)
+
+        post(callback_route,
+             params: callback_params.to_json,
+             headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('success')
+
+        expect(Rails.logger).to have_received(:error)
+          .with("va_notify callbacks - Notification not found with id #{notification_id} after 5 attempts")
+      end
+    end
+
+    context 'retry timing behavior' do
+      it 'uses exponential backoff delays' do
+        allow(VANotify::Notification).to receive(:find_by).and_return(nil)
+        allow(Rails.logger).to receive(:debug)
+        allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:increment)
+
+        # Track sleep calls to verify exponential backoff
+        sleep_durations = []
+        allow_any_instance_of(VANotify::CallbacksController).to receive(:sleep) do |_, duration|
+          sleep_durations << duration
+        end
+
+        post(callback_route,
+             params: callback_params.to_json,
+             headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
+
+        # Should have 4 sleep calls (not on final attempt)
+        # Exponential backoff: 0.05, 0.1, 0.2, 0.4 seconds
+        expect(sleep_durations.length).to eq(4)
+        expect(sleep_durations[0]).to eq(0.05)
+        expect(sleep_durations[1]).to eq(0.1)
+        expect(sleep_durations[2]).to eq(0.2)
+        expect(sleep_durations[3]).to eq(0.4)
+      end
+    end
+  end
 end
