@@ -35,6 +35,7 @@ class FormProfiles::VA0994 < FormProfile
 
   def initialize_payment_information
     return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+
     VA0994::FormPaymentAccountInformation.new(
       account_type: raw_account&.account_type&.capitalize,
       account_number: mask(raw_account&.account_number),

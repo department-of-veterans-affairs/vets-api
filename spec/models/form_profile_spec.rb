@@ -1494,7 +1494,7 @@ RSpec.describe FormProfile, type: :model do
           VCR.use_cassette('va_profile/v2/contact_information/get_address') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                                allow_playback_repeats: true) do
+                               allow_playback_repeats: true) do
                 expect_prefilled('22-0994')
               end
             end
