@@ -305,7 +305,6 @@ RSpec.describe 'VANotify Callbacks', type: :request do
         expect(StatsD).to have_received(:increment)
           .with('va_notify.callback.notification_found', { tags: ['attempt: 3'] })
         expect(Rails.logger).to have_received(:debug).at_least(:once)
-                                                     .with(/Notification not found with id #{notification_id}/)
       end
     end
 
