@@ -34,7 +34,15 @@ class FormProfiles::VA0994 < FormProfile
   private
 
   def initialize_payment_information
-    {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+    return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+
+    # Return empty hash since EVSS PPIU is deprecated
+    # Payment information is now handled by Lighthouse
+    {}
+  rescue => e
+    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
+    {}
+  end
 
     # VA0994::FormPaymentAccountInformation.new(
     #   account_type: raw_account&.account_type&.capitalize,
