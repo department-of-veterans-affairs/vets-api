@@ -17,7 +17,7 @@ Health Coverage
 
 Part I Responsible Individual
 
-1 Name of responsible individual-First name, middle name, last name ---- %{first_name} %{middle_name} %{last_name}
+1 Name of responsible individual-First name, middle name, last name ---- %{full_name}
 2 Social security number (SSN) or other TIN ---- %{last_4_ssn}
 3 Date of birth (if SSN or other TIN is not available) ---- %{birth_date_field}
 4 Street address (including apartment no.) ---- %{address}
@@ -49,7 +49,7 @@ Part III Issuer or Other Coverage Provider (see instructions)
 Part IV Covered Individuals (Enter the information for each covered individual.)
 
 23
-(a) Name of covered individual(s) First name, middle initial, last name ---- %{first_name} %{middle_init} %{last_name}
+(a) Name of covered individual(s) First name, middle initial, last name ---- %{name_with_middle_initial}
 (b) SSN or other TIN ---- %{last_4_ssn}
 (c) DOB (if SSN or other TIN is not available) ---- %{birth_date_field}
 (d) Covered all 12 months %{coverage_month_0} 
