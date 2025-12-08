@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 08fafa871952f8fad201222c630dc6dc38d8e337
-  branch: arc/multiform_upload_21a_confirmation_code
+  revision: 7e2c6209a14ba77402609055866b3923acf9c70f
+  branch: master
   specs:
-    vets_json_schema (25.2.25)
+    vets_json_schema (25.2.32)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -733,7 +733,7 @@ GEM
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
-    multi_json (1.17.0)
+    multi_json (1.18.0)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
