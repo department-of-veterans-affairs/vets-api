@@ -246,7 +246,8 @@ module TravelClaim
     def client
       @client ||= TravelClaim::TravelPayClient.new(
         check_in_uuid: @check_in_uuid,
-        appointment_date_time: normalized_appointment_datetime
+        appointment_date_time: normalized_appointment_datetime,
+        facility_type: @facility_type
       )
     end
 

@@ -165,6 +165,7 @@ check_in:
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     travel_pay_client_id: ~
     travel_pay_client_secret: secret
+    travel_pay_client_secret_oh: secret
     travel_pay_resource: ~
   vaos:
     mock: false
@@ -1418,9 +1419,15 @@ vanotify:
         received_686c_only:
           flipper_id: dependents_benefits_received_email_notification
           template_id: form686c_only_received_email_template_id
-        submitted:
+        submitted674_only:
           flipper_id: dependents_benefits_submitted_email_notification
-          template_id: form686c_674_submitted_email_template_id
+          template_id: form674_only_submitted_email_template_id
+        submitted686c674:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c674_submitted_email_template_id
+        submitted686c_only:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c_only_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:

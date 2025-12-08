@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DependentsBenefits::Sidekiq::BGSProcJob, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSProcJob, type: :job do
   before do
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     # Set up job with parent claim ID and initialize required instance variables
