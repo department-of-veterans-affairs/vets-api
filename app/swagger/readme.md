@@ -4,4 +4,4 @@
 To view locally go to http://localhost:3000/v0/swagger/ and "Select a definition" on the upper right.
 
 - The Swagger 2.0 doc is served from the endpoint: `GET` `/v0/apidocs`
-- the OpenAPI 3.0 doc is served from `GET` `/v0/openapi`
+- The OpenAPI 3.0 doc is served from `GET` `/v0/openapi`
