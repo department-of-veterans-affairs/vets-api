@@ -1411,6 +1411,42 @@ features:
     actor_type: user
     description: Enables CCD downloads in XML, HTML, PDF w/ support for OH and VistA facilities
     enable_in_development: true
+  mhv_medical_records_display_conditions:
+    actor_type: user
+    description: Show/hide content related to Health Conditions in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_domains:
+    actor_type: user
+    description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_display_labs_and_tests:
+    actor_type: user
+    description: Show/hide content related to Labs & Tests in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_notes:
+    actor_type: user
+    description: Show/hide content related to Notes in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_sidenav:
+    actor_type: user
+    description: Show/hide the Medical Records side navigation
+    enable_in_development: true
+  mhv_medical_records_display_vaccines:
+    actor_type: user
+    description: Show/hide content related to Vaccines in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_settings_page:
+    actor_type: user
+    description: Show/hide the Settings Page in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_vitals:
+    actor_type: user
+    description: Show/hide content related to Vitals in Medical Records
+    enable_in_development: true
+  mhv_medical_records_merge_cvix_into_scdf:
+    actor_type: user
+    description: Combines CVIX lab record list with the SCDF/Unified lab record list
+    enable_in_development: true
   mhv_medical_records_migrate_ccd_to_s3:
     actor_type: user
     description: Enables the switch to an s3 bucket for the CCD endpoints
@@ -1975,6 +2011,10 @@ features:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
     enable_in_development: true
+  va_online_scheduling_cscs_migration:
+    actor_type: user
+    description: swaps the scheduling configurations endpoint from MFS to CSCS
+    enable_in_development: true
   va_online_scheduling_direct:
     actor_type: user
     description: Allows veterans to directly schedule VA appointments
@@ -2299,6 +2339,9 @@ features:
   burial_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  burial_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Burial
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
