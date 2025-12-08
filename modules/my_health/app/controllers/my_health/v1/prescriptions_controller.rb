@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'unique_user_events'
-require 'unified_health_data/adapters/v2_status_mapper'
 
 module MyHealth
   module V1
@@ -75,19 +74,6 @@ module MyHealth
         resource
       end
 
-      # Determines if a prescription is renewable (can request renewal from provider)
-      # Checks disp_status for both original and V2 status values:
-      # - Original: 'Active', 'Expired'
-      # - V2: 'Active', 'Inactive' (Expired maps to Inactive in V2)
-      #
-      # @param prescription [PrescriptionDetails] The prescription to check
-      # @return [Boolean] True if prescription is renewable
-      def renewable(prescription)
-        renewable_statuses.include?(prescription.disp_status) &&
-          !prescription.is_refillable &&
-          prescription.refill_remaining.positive?
-      end
-
       def refill_prescriptions
         ids = params[:ids]
         successful_ids = []
@@ -127,7 +113,9 @@ module MyHealth
       private
 
       def get_recently_requested_prescriptions(data)
-        data.select { |item| in_progress_statuses.include?(item.disp_status) }
+        data.select do |item|
+          ['Active: Refill in Process', 'Active: Submitted'].include?(item.disp_status)
+        end
       end
 
       # rubocop:disable ThreadSafety/NewThread
@@ -186,8 +174,7 @@ module MyHealth
         disp_status = filter_params[:disp_status]
 
         if disp_status.present?
-          # Support both V1 ('Active,Expired') and V2 ('Active,Inactive') renewal filter values
-          if renewal_filter?(disp_status[:eq])
+          if disp_status[:eq]&.downcase == 'active,expired'.downcase
             filter_renewals(resource)
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
@@ -232,11 +219,16 @@ module MyHealth
       end
 
       def count_active_medications(list)
-        list.count { |rx| active_statuses.include?(rx.disp_status) }
+        active_statuses = [
+          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+          'Active: Parked', 'Active: Submitted'
+        ]
+        list.select { |rx| active_statuses.include?(rx.disp_status) }.length
       end
 
       def count_non_active_medications(list)
-        list.count { |rx| non_active_statuses.include?(rx.disp_status) }
+        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
+        list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
       end
 
       # TODO: remove once pf and pd are allowed on va.gov
@@ -250,71 +242,6 @@ module MyHealth
         other_prescriptions = prescriptions.reject { |med| med.prescription_source == 'PD' }
 
         pd_prescriptions + other_prescriptions
-      end
-
-      # Checks if the filter value is a renewal filter
-      # Supports both V1 ('Active,Expired') and V2 ('Active,Inactive') filter values
-      #
-      # @param filter_value [String] The disp_status filter value
-      # @return [Boolean] True if this is a renewal filter
-      def renewal_filter?(filter_value)
-        return false if filter_value.blank?
-
-        normalized = filter_value.downcase
-        ['active,expired', 'active,inactive'].include?(normalized)
-      end
-
-      # @return [Boolean] True if V2 statuses are enabled (cerner_pilot flag)
-      def use_v2_statuses?
-        Flipper.enabled?(:mhv_medications_display_cerner_pilot, current_user)
-      end
-
-      # Returns statuses considered "active" based on V1/V2 mode
-      # V1: Active, Active: Refill in Process, Active: Non-VA, etc.
-      # V2: Active, In progress
-      def active_statuses
-        if use_v2_statuses?
-          UnifiedHealthData::Adapters::V2StatusMapper::V2_STATUS_GROUPS['Active'] +
-            UnifiedHealthData::Adapters::V2StatusMapper::V2_STATUS_GROUPS['In progress']
-        else
-          ['Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
-           'Active: Parked', 'Active: Submitted']
-        end
-      end
-
-      # Returns statuses considered "non-active" based on V1/V2 mode
-      # V1: Discontinued, Expired, Transferred, Unknown
-      # V2: Inactive, Transferred, Status not available
-      def non_active_statuses
-        if use_v2_statuses?
-          UnifiedHealthData::Adapters::V2StatusMapper::V2_STATUS_GROUPS['Inactive'] +
-            UnifiedHealthData::Adapters::V2StatusMapper::V2_STATUS_GROUPS['Transferred'] +
-            UnifiedHealthData::Adapters::V2StatusMapper::V2_STATUS_GROUPS['Status not available']
-        else
-          %w[Discontinued Expired Transferred Unknown]
-        end
-      end
-
-      # Returns statuses indicating a refill is in progress (recently requested)
-      # V1: Active: Refill in Process, Active: Submitted
-      # V2: In progress
-      def in_progress_statuses
-        if use_v2_statuses?
-          ['In progress']
-        else
-          ['Active: Refill in Process', 'Active: Submitted']
-        end
-      end
-
-      # Returns statuses eligible for renewal requests
-      # V1: Active, Expired
-      # V2: Active, Inactive
-      def renewable_statuses
-        if use_v2_statuses?
-          %w[Active Inactive]
-        else
-          %w[Active Expired]
-        end
       end
     end
   end
