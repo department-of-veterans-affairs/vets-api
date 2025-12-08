@@ -146,23 +146,26 @@ module MyHealth
         filter_params = params.require(:filter).permit(disp_status: [:eq])
         disp_status = filter_params[:disp_status]
 
-        if disp_status.present?
-          if disp_status[:eq]&.downcase == 'active,expired'.downcase
-            # filter renewals
-            prescriptions.select(&method(:renewable))
-          else
-            filters = disp_status[:eq].split(',').map(&:strip)
+        return prescriptions if disp_status.blank?
 
-            # When cerner_pilot is enabled, prescriptions already have V2 statuses
-            # When disabled, prescriptions have original statuses
-            # In both cases, we filter by matching the disp_status value
-            prescriptions.select do |item|
-              item.respond_to?(:disp_status) && item.disp_status &&
-                filters.any? { |f| item.disp_status.downcase == f.downcase }
-            end
-          end
+        if renewal_filter?(disp_status[:eq])
+          prescriptions.select(&method(:renewable))
         else
-          prescriptions
+          filter_by_disp_status(prescriptions, disp_status[:eq])
+        end
+      end
+
+      def renewal_filter?(filter_value)
+        normalized = filter_value&.downcase
+        ['active,expired', 'active,inactive'].include?(normalized)
+      end
+
+      def filter_by_disp_status(prescriptions, filter_value)
+        expanded_filters = expand_status_filters(filter_value)
+
+        prescriptions.select do |item|
+          item.respond_to?(:disp_status) && item.disp_status &&
+            expanded_filters.any? { |f| item.disp_status.casecmp(f).zero? }
         end
       end
 
@@ -247,12 +250,37 @@ module MyHealth
         {
           filter_count: {
             all_medications: count_grouped_prescriptions(non_modified_collection),
-            active: count_v2_active_medications(list),
-            recently_requested: count_v2_in_progress_medications(list),
+            active: count_by_status(list, 'Active'),
+            in_progress: count_by_status(list, 'In progress'),
+            shipped: count_shipped_prescriptions(list),
             renewal: list.count { |item| renewable(item) },
-            non_active: count_v2_inactive_medications(list)
+            inactive: count_by_status(list, 'Inactive'),
+            transferred: count_by_status(list, 'Transferred'),
+            unknown: count_by_status(list, ['Unknown', 'Status not available'])
           }
         }
+      end
+
+      def count_by_status(prescriptions, statuses)
+        statuses = Array(statuses)
+        prescriptions.count do |item|
+          item.respond_to?(:disp_status) && item.disp_status &&
+            statuses.any? { |s| item.disp_status.casecmp(s).zero? }
+        end
+      end
+
+      def count_shipped_prescriptions(prescriptions)
+        prescriptions.count do |item|
+          active_status?(item) && trackable?(item)
+        end
+      end
+
+      def active_status?(item)
+        item.respond_to?(:disp_status) && item.disp_status&.casecmp('Active')&.zero?
+      end
+
+      def trackable?(item)
+        item.respond_to?(:is_trackable) && item.is_trackable == true
       end
 
       def count_grouped_prescriptions(prescriptions)
