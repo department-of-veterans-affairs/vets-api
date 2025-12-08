@@ -338,12 +338,12 @@ module TravelClaim
     def veis_token!
       return @current_veis_token if @current_veis_token.present?
 
-      cached = redis_client.token
+      cached = redis_client.v1_veis_token
       if cached.present?
         @current_veis_token = cached
       else
         @current_veis_token = mint_veis_token
-        redis_client.save_token(token: @current_veis_token)
+        redis_client.save_v1_veis_token(token: @current_veis_token)
       end
 
       @current_veis_token
@@ -362,7 +362,7 @@ module TravelClaim
     def refresh_tokens!
       @current_veis_token  = nil
       @current_btsss_token = nil
-      redis_client.save_token(token: nil)
+      redis_client.save_v1_veis_token(token: nil)
       ensure_tokens!
     end
 
