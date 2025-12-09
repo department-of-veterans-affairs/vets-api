@@ -422,9 +422,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       it 'creates an attachment, updates the in-progress form, and returns confirmation data' do
         allow(Rails.logger).to receive(:info).and_call_original
 
-        expect {
+        expect do
           make_post_request
-        }.to change(AccreditedRepresentativePortal::Form21aAttachment, :count).by(1)
+        end.to change(AccreditedRepresentativePortal::Form21aAttachment, :count).by(1)
 
         expect(Rails.logger).to have_received(:info).with(
           a_string_including(
