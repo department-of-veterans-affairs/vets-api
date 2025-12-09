@@ -14,7 +14,14 @@ module DecisionReviews
     def perform
       return unless enabled?
 
-      deleted_records = ::SavedClaim.where(delete_date: ..DateTime.now).destroy_all
+      deleted_records = ::SavedClaim
+                        .where(type: [
+                                 'SavedClaim::HigherLevelReview',
+                                 'SavedClaim::NoticeOfDisagreement',
+                                 'SavedClaim::SupplementalClaim'
+                               ])
+                        .where(delete_date: ..DateTime.now)
+                        .destroy_all
       StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_records.size)
 
       nil
