@@ -55,7 +55,7 @@ module VRE
         StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
         if Flipper.enabled?(:vre_track_submissions) && submission_id
-          attempt.success!
+          attempt.succeed!
           Rails.logger.info(
             'VRE::VRESubmit1900Job Succeeded',
             num_attempts: submission.form_submission_attempts.count,
@@ -64,7 +64,7 @@ module VRE
           duplicate_submission_check(claim.user_account)
         end
       rescue => e
-        attempt&.failure! if Flipper.enabled?(:vre_track_submissions) && submission_id
+        attempt&.fail! if Flipper.enabled?(:vre_track_submissions) && submission_id
         Rails.logger.warn("VRE::VRESubmit1900Job failed, retrying...: #{e.message}")
         raise
       end
