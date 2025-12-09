@@ -604,12 +604,6 @@ iam_ssoe:
   client_key_path: <%= ENV['iam_ssoe__client_key_path'] %>
   oauth_url: <%= ENV['iam_ssoe__oauth_url'] %>
   timeout: 20
-ihub:
-  appointments:
-    mock: <%= ENV['ihub__appointments__mock'] %>
-    timeout: 30
-  in_production: <%= ENV['ihub__in_production'] %>
-  url: <%= ENV['ihub__url'] %>
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -1580,6 +1574,7 @@ vanotify:
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
+      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: <%= ENV['vanotify__services__ivc_champva__pega_inbox_address'] %>
       template_id:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
