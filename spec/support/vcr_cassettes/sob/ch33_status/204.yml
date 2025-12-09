@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake.sob.com/external-api-service/api/v1/claimants
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"123456789","benefitType":"CH33","enrollment":"NO"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJzb2IiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJuYmYiOjE3NjQ3MTI0NTksImV4cCI6MTc2NDcxMjc1OSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIlNPQiJdfX0.CbD7dJiYgFQy6vHAJhK2U1V_I09rm9RhX9N-KCG_D5Yq1rul-0V7J8V9x3cw15htUf-ypnE5Iz0_m_t9ZKN1Pno4-V1DybzxxQNsDWNz_EiNqxz-U3NzqgefhH2XUM5SIavMvN4RBQ5OuOU1Rz8iIDkwGn87UTz-QZk0CbOxLxQo7JR5PGeGpBbZIp7HsUKYSlo22lCfTb7vHxgOkyPMpbNeenAw91gjFVMjvTeedwPWJs51261wsUciVhpwWqPTvyspYOTGYGQX7rts7TbuiPhAVJq3Q5ZB5mgkRNN5CKb4TSJbuA7mGhkwMPc7gY0ytuwIVZYHNxJ8Xm3lSL-Nwg
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      date:
+      - Tue, 02 Dec 2025 21:54:19 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload, max-age=31536000; includeSubDomains;
+        preload, max-age=31536000; includeSubDomains; preload
+      x-xss-protection:
+      - 1; mode=block, 1; mode=block, 1; mode=block
+      x-frame-options:
+      - SAMEORIGIN, SAMEORIGIN, SAMEORIGIN
+      x-content-type-options:
+      - nosniff, nosniff, nosniff
+      referrer-policy:
+      - strict-origin, strict-origin, strict-origin
+      access-control-allow-origin:
+      - "*"
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, DELETE
+      last-modified:
+      - Tuesday, 02-Dec-2025 21:54:19 GMT
+      cache-control:
+      - no-store, no-cache, no-store, no-cache
+    body:
+      encoding: UTF-8
+      string: '{"status":204,"claimant":null}'
+  recorded_at: Tue, 02 Dec 2025 21:54:19 GMT
+recorded_with: VCR 6.3.1
