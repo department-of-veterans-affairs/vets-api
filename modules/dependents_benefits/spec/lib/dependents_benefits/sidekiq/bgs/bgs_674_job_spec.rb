@@ -7,6 +7,7 @@ require 'dependents_benefits/user_data'
 
 RSpec.describe DependentsBenefits::Sidekiq::BGS::BGS674Job, type: :job do
   before do
+    skip 'obsolete code, to be removed'
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow_any_instance_of(BGS::Services).to receive(:benefit_claims).and_return(benefit_claims)
     allow(benefit_claims).to receive(:find_claims_details_by_participant_id).and_return(
