@@ -20,7 +20,7 @@ module AccreditedRepresentativePortal
     attribute :last_signed_in, Vets::Type::UTCTime
     attribute :loa, String
     attribute :logingov_uuid, String
-    attribute :all_emails, Array
+    attribute :all_emails, Hash, array: true
     attribute :sign_in, Hash
     attribute :user_account_uuid, String
     attribute :uuid, String
