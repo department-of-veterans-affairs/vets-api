@@ -302,10 +302,10 @@ dgi:
   sob:
     claimants:
       mock: ~
-      url: ~
+      url: https://fake.sob.com
     jwt:
       private_key_path: modules/sob/spec/fixtures/test_private_key.pem
-      public_key_path: ~
+      public_key_path: modules/sob/spec/fixtures/test_public_key.pem
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -841,6 +841,7 @@ maintenance:
     coe: PSY4HU1
     community_care_ds: ~
     decision_reviews: ~
+    dgi_claimants: ~
     disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV

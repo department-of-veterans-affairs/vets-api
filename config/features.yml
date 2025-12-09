@@ -538,6 +538,10 @@ features:
     actor_type: user
     description: Feature gates the certificate of eligibility application
     enable_in_development: true
+  coe_form_rebuild_cveteam:
+    actor_type: user
+    description: Enables rebuild of Certificate of Eligibility form
+    enable_in_development: true
   combined_debt_portal_access:
     actor_type: user
     description: Enables users to interact with combined debt portal experience
@@ -1920,6 +1924,9 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_1995_re_reroute:
+    actor_type: user
+    description: Show the questionnaire to determine where to re-route the user
   meb_parent_guardian_step:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
@@ -2034,6 +2041,10 @@ features:
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
+    enable_in_development: true
+  va_online_scheduling_cscs_migration:
+    actor_type: user
+    description: swaps the scheduling configurations endpoint from MFS to CSCS
     enable_in_development: true
   va_online_scheduling_direct:
     actor_type: user
@@ -2359,6 +2370,9 @@ features:
   burial_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  burial_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Burial
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -2732,6 +2746,11 @@ features:
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  meb_1995_instruction_page_update_v3:
+    actor_type: user
+    description: Updated verbiage for instruction page for 5490
+    enable_in_development: true
+
   survivors_benefits_form_enabled:
     actor_type: user
     description: Enables the Medical Expense Reports form (Form 21P-534EZ)
