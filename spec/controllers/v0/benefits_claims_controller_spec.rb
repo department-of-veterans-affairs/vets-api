@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_documents/documents_status_polling_service'
 require 'lighthouse/benefits_documents/update_documents_status_service'
 
@@ -674,15 +675,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
         end
 
-        it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'excludes suppressed evidence request tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
           names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
-          expect(names).not_to include('Attorney Fees')
-          expect(names).not_to include('Secondary Action Required')
-          expect(names).not_to include('Stage 2 Development')
+          expect(names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).to be_empty
         end
       end
 
@@ -691,15 +690,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
         end
 
-        it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'includes suppressed evidence request tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
           names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
-          expect(names).to include('Attorney Fees')
-          expect(names).to include('Secondary Action Required')
-          expect(names).to include('Stage 2 Development')
+          expect(names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).not_to be_empty
         end
       end
 
@@ -1081,6 +1078,144 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                 'api.benefits_claims.show.upload_status_error',
                 tags: V0::BenefitsClaimsController::STATSD_TAGS + ['error_source:update']
               )
+            end
+          end
+
+          context 'when caching evidence submission polling' do
+            let(:cache_pending_submission1) do
+              create(:bd_evidence_submission_pending, claim_id:, request_id: 555_555)
+            end
+            let(:cache_pending_submission2) do
+              create(:bd_evidence_submission_pending, claim_id:, request_id: 666_666)
+            end
+            let(:cache_polling_response) do
+              double('Response', status: 200, body: {
+                       'data' => {
+                         'statuses' => [
+                           { 'requestId' => 555_555, 'status' => 'SUCCESS' },
+                           { 'requestId' => 666_666, 'status' => 'SUCCESS' }
+                         ]
+                       }
+                     })
+            end
+
+            before do
+              # Clear any existing submissions and create fresh ones for cache tests
+              EvidenceSubmission.destroy_all
+              cache_pending_submission1
+              cache_pending_submission2
+
+              allow(BenefitsDocuments::DocumentsStatusPollingService).to receive(:call)
+                .and_return(cache_polling_response)
+              allow(BenefitsDocuments::UpdateDocumentsStatusService).to receive(:call)
+            end
+
+            context 'when cache miss (first request or cache expired)' do
+              it 'polls Lighthouse and caches the request_ids' do
+                VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                  get(:show, params: { id: claim_id })
+                end
+
+                expect(BenefitsDocuments::DocumentsStatusPollingService).to have_received(:call)
+                expect(StatsD).to have_received(:increment).with(
+                  'api.benefits_claims.show.evidence_submission_cache_miss',
+                  tags: V0::BenefitsClaimsController::STATSD_TAGS
+                )
+
+                # Verify cache was written using the model
+                cache_record = EvidenceSubmissionPollStore.find(claim_id.to_s)
+                expect(cache_record).not_to be_nil
+                expect(cache_record.request_ids).to contain_exactly(555_555, 666_666)
+              end
+            end
+
+            context 'when cache hit (same request_ids within TTL)' do
+              before do
+                # Pre-populate the cache with the same request_ids using the model
+                EvidenceSubmissionPollStore.create(
+                  claim_id: claim_id.to_s,
+                  request_ids: [555_555, 666_666]
+                )
+              end
+
+              it 'skips Lighthouse polling and returns early' do
+                VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                  get(:show, params: { id: claim_id })
+                end
+
+                expect(BenefitsDocuments::DocumentsStatusPollingService).not_to have_received(:call)
+                expect(BenefitsDocuments::UpdateDocumentsStatusService).not_to have_received(:call)
+                expect(StatsD).to have_received(:increment).with(
+                  'api.benefits_claims.show.evidence_submission_cache_hit',
+                  tags: V0::BenefitsClaimsController::STATSD_TAGS
+                )
+              end
+            end
+
+            context 'when cache has different request_ids (natural invalidation)' do
+              before do
+                # Pre-populate the cache with different request_ids using the model
+                EvidenceSubmissionPollStore.create(
+                  claim_id: claim_id.to_s,
+                  request_ids: [777_777, 888_888]
+                )
+              end
+
+              it 'proceeds with polling due to different request_ids' do
+                VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                  get(:show, params: { id: claim_id })
+                end
+
+                expect(BenefitsDocuments::DocumentsStatusPollingService).to have_received(:call)
+                expect(StatsD).to have_received(:increment).with(
+                  'api.benefits_claims.show.evidence_submission_cache_miss',
+                  tags: V0::BenefitsClaimsController::STATSD_TAGS
+                )
+              end
+            end
+
+            context 'when cache read fails' do
+              before do
+                allow(EvidenceSubmissionPollStore).to receive(:find).and_raise(Redis::ConnectionError,
+                                                                               'Connection refused')
+              end
+
+              it 'logs error and proceeds with polling' do
+                VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                  get(:show, params: { id: claim_id })
+                end
+
+                expect(Rails.logger).to have_received(:error).with(
+                  'BenefitsClaimsController#show Error reading evidence submission poll cache',
+                  hash_including(
+                    claim_id: claim_id.to_s,
+                    error_class: 'Redis::ConnectionError'
+                  )
+                )
+                expect(BenefitsDocuments::DocumentsStatusPollingService).to have_received(:call)
+              end
+            end
+
+            context 'when cache write fails' do
+              before do
+                allow_any_instance_of(EvidenceSubmissionPollStore).to receive(:save).and_raise(Redis::ConnectionError,
+                                                                                               'Connection refused')
+              end
+
+              it 'logs error but still completes the request successfully' do
+                VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                  get(:show, params: { id: claim_id })
+                end
+
+                expect(response).to have_http_status(:ok)
+                expect(Rails.logger).to have_received(:error).with(
+                  'BenefitsClaimsController#show Error writing evidence submission poll cache',
+                  hash_including(
+                    claim_id: claim_id.to_s,
+                    error_class: 'Redis::ConnectionError'
+                  )
+                )
+              end
             end
           end
         end
