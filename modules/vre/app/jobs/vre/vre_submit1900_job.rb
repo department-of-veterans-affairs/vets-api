@@ -34,10 +34,9 @@ module VRE
       )
 
       if submissions.count > 1
-        Rails.logger.warn(
-          "Duplicate VRE 1900 submissions detected for user_account #{user_account.id}:" \
-          "#{submissions.count} submissions in last #{threshold_hours} hours"
-        )
+        Rails.logger.warn("Duplicate VRE 1900 submissions detected for user_account #{user_account.id}:",
+                          duplicate_count: submissions.count,
+                          threshold_hours:)
         StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission")
       end
     end
@@ -45,7 +44,7 @@ module VRE
     def perform(claim_id, encrypted_user, submission_id = nil)
       if Flipper.enabled?(:vre_track_submissions) && submission_id
         submission = FormSubmission.find(submission_id)
-        attempt = submission.submission_attempts.create!
+        attempt = submission.form_submission_attempts.create!
       end
 
       begin
@@ -60,7 +59,7 @@ module VRE
           Rails.logger.info(
             'VRE::VRESubmit1900Job Succeeded',
             num_attempts: submission.form_submission_attempts.count,
-            user_account_id: claim&.user_account&.id
+            user_account_id: claim.user_account&.id
           )
           duplicate_submission_check(claim.user_account)
         end

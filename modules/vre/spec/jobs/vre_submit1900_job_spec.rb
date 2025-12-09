@@ -130,7 +130,9 @@ describe VRE::VRESubmit1900Job do
 
     context 'with submissions outside threshold window' do
       it 'does not count old submissions as duplicates' do
-        allow(Settings.veteran_readiness_and_employment).to receive(:duplicate_submission_threshold_hours).and_return(24)
+        allow(Settings.veteran_readiness_and_employment)
+          .to receive(:duplicate_submission_threshold_hours)
+          .and_return(24)
 
         # Create 1 old submission (outside 24hr window) and 1 recent
         create(:form_submission,
