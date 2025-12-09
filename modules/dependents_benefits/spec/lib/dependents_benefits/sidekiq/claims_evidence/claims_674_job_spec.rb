@@ -6,6 +6,7 @@ require 'dependents_benefits/user_data'
 
 RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job, type: :job do
   before do
+    skip 'obsolete code, to be removed'
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 

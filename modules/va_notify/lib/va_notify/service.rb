@@ -21,6 +21,9 @@ module VaNotify
 
     attr_reader :notify_client, :callback_options, :template_id
 
+    # API keys for email/SMS often differ from keys for push notifications.
+    # Initialize separate service instances with the appropriate API key for each channel type.
+    # Each instance only supports the channels its API key is authorized for.
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
       @api_key = api_key
