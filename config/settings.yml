@@ -150,6 +150,7 @@ check_in:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__auth_url_v2'] %>
     claims_base_path: <%= ENV['check_in__travel_reimbursement_api_v2__claims_base_path'] %>
+    claims_base_path_v2: <%= ENV['check_in__travel_reimbursement_api_v2__claims_base_path_v2'] %>
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__claims_url_v2'] %>
     client_id: <%= ENV['check_in__travel_reimbursement_api_v2__client_id'] %>
