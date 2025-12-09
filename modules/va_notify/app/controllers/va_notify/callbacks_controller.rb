@@ -48,7 +48,36 @@ module VANotify
 
     def set_notification
       notification_id = params[:id]
-      @notification = VANotify::Notification.find_by(notification_id:)
+      # @notification = VANotify::Notification.find_by(notification_id:)
+      @notification = find_notification_with_retry(notification_id:)
+    end
+
+    def find_notification_with_retry(notification_id:, max_attempts: 5, initial_delay: 0.05)
+      # loop
+      max_attempts.times do |attempt|
+        notification = VANotify::Notification.find_by(notification_id:)
+
+        if notification
+          StatsD.increment('va_notify.callback.notification_found', tags: ["attempt: #{attempt + 1}"])
+          return notification
+        end
+
+        # log
+        Rails.logger.debug do
+          "va_notify callbacks - Notification not found with id #{notification_id}, " \
+            "attempt #{attempt + 1}}/#{max_attempts}}"
+        end
+
+        delay = initial_delay * (2**attempt)
+        sleep(delay) unless attempt == max_attempts - 1
+      end
+
+      StatsD.increment('va_notify.callback.notification_not_found_after_retries')
+      Rails.logger.error(
+        "va_notify callbacks - Notification not found with id #{notification_id} after " \
+        "#{max_attempts} attempts"
+      )
+      nil
     end
 
     def authenticate_callback!
