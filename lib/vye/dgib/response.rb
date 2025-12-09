@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
-require 'common/models/base'
+require 'vets/model'
 
 module Vye
   module DGIB
-    class Response < Common::Base
+    class Response
+      include Vets::Model
       include Common::Client::Concerns::ServiceStatus
 
       attribute :status, Integer
@@ -78,7 +79,7 @@ module Vye
       attribute :delimiting_date, String
       attribute :enrollment_verifications, Array
       attribute :verified_details, Array
-      attribute :payment_on_hold, Boolean
+      attribute :payment_on_hold, Bool
 
       def initialize(status, response = nil)
         attributes = {
