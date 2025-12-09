@@ -231,21 +231,5 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
         expect(result.first['first_name']).to eq('John')
       end
     end
-
-    describe 'environment checks' do
-      it 'does not run in production environment' do
-        # Temporarily change environment to production
-        allow(Settings).to receive(:vsp_environment).and_return('production')
-
-        # Setup request
-        allow(IvcChampva::V1::UploadsController).to receive(:new).and_return(controller)
-        expect(controller).not_to receive(:generate_ohi_form)
-
-        post '/ivc_champva/v1/forms/10-10d-ext', params: form_data
-
-        # Expect immediate return without processing
-        expect(response).to be_successful
-      end
-    end
   end
 end

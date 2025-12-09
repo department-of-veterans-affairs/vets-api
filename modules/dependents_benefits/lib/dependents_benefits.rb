@@ -49,4 +49,10 @@ module DependentsBenefits
   # Custom error class for missing veteran information in a claim
   # Usually caused by failing to add veteran info to the form data
   class MissingVeteranInfoError < StandardError; end
+
+  # Exception raised when 674 claim validation fails
+  class Invalid674Claim < StandardError; end
+
+  # Exception raised when 686c claim validation fails
+  class Invalid686cClaim < StandardError; end
 end
