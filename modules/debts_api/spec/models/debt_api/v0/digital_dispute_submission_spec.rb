@@ -29,7 +29,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     let(:message) { 'Test error message' }
 
     it 'saves and logs error message and sets failed state' do
-      expect(Rails.logger).to receive(:error).with("DigitalDisputeSubmission error_message: Test error message")
+      expect(Rails.logger).to receive(:error).with('DigitalDisputeSubmission error_message: Test error message')
       form_submission.register_failure(message)
       expect(form_submission.error_message).to eq(message)
       expect(form_submission.failed?).to be(true)

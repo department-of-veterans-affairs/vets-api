@@ -161,11 +161,11 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       it 'returns generic failure result' do
         VCR.use_cassette('bgs/people_service/person_data') do
           allow_any_instance_of(described_class).to receive(:send_to_dmc)
-                                                      .and_raise(StandardError.new('Unexpected error'))
+            .and_raise(StandardError.new('Unexpected error'))
 
-          expect(Rails.logger).to receive(:error).with("DigitalDisputeSubmission error_message: Unexpected error")
+          expect(Rails.logger).to receive(:error).with('DigitalDisputeSubmission error_message: Unexpected error')
 
-          metadata = { disputes: [ { composite_debt_id: 12 }, { composite_debt_id: 34 }, { composite_debt_id: 56 } ] }
+          metadata = { disputes: [{ composite_debt_id: 12 }, { composite_debt_id: 34 }, { composite_debt_id: 56 }] }
           service = described_class.new(user, [pdf_file_one], metadata)
           result = service.call
 
