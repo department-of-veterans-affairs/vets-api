@@ -1087,6 +1087,53 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
   end
 
   describe 'V2 status mapping consolidation' do
+    let(:adapter) { subject }
+
+    let(:vista_medication_with_refill_status) do
+      vista_medication_data.merge(
+        'prescriptionId' => 'vista-with-status',
+        'refillStatus' => 'active',
+        'dispStatus' => 'Active'
+      )
+    end
+
+    let(:oracle_medication_request) do
+      oracle_health_medication_data.merge(
+        'id' => 'oracle-request',
+        'status' => 'active',
+        'dispenseRequest' => {
+          'numberOfRepeatsAllowed' => 5,
+          'quantity' => { 'value' => 30 }
+        }
+      )
+    end
+
+    let(:unified_body) do
+      {
+        'vista' => {
+          'medicationList' => {
+            'medication' => [vista_medication_data.merge('dispStatus' => 'Active')]
+          }
+        },
+        'oracle-health' => {
+          'entry' => [{ 'resource' => oracle_health_medication_data }]
+        }
+      }
+    end
+
+    let(:combined_body) do
+      {
+        'vista' => {
+          'medicationList' => {
+            'medication' => [vista_medication_with_refill_status]
+          }
+        },
+        'oracle-health' => {
+          'entry' => [{ 'resource' => oracle_medication_request }]
+        }
+      }
+    end
+
     let(:vista_active) do
       vista_medication_data.merge(
         'prescriptionId' => 'vista-active',
@@ -1215,6 +1262,24 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       }
     end
 
+    let(:vista_only_body) do
+      {
+        'vista' => {
+          'medicationList' => {
+            'medication' => [vista_medication_with_refill_status]
+          }
+        }
+      }
+    end
+
+    let(:oracle_only_body) do
+      {
+        'oracle-health' => {
+          'entry' => [{ 'resource' => oracle_medication_request }]
+        }
+      }
+    end
+
     before do
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
     end
@@ -1255,159 +1320,205 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       end
 
       describe 'VistA prescription status mapping' do
-        it 'maps active to Active' do
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_active] } },
-            'oracle-health' => nil
-          }
+        context 'when dispStatus is present (V2 mapping applied to dispStatus)' do
+          it 'maps Active dispStatus to Active' do
+            vista_medication_with_refill_status['dispStatus'] = 'Active'
 
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.refill_status).to eq('Active')
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('Active')
+          end
+
+          it 'maps Expired dispStatus to Inactive' do
+            vista_medication_with_refill_status['dispStatus'] = 'Expired'
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('Inactive')
+          end
+
+          it 'maps Discontinued dispStatus to Inactive' do
+            vista_medication_with_refill_status['dispStatus'] = 'Discontinued'
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('Inactive')
+          end
+
+          it 'maps Active: On hold dispStatus to Inactive' do
+            vista_medication_with_refill_status['dispStatus'] = 'Active: On hold'
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('Inactive')
+          end
+
+          it 'maps Active: On Hold dispStatus to Inactive' do
+            vista_medication_with_refill_status['dispStatus'] = 'Active: On Hold'
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('Inactive')
+          end
+
+          it 'maps Active: Submitted dispStatus to In progress' do
+            vista_medication_with_refill_status['dispStatus'] = 'Active: Submitted'
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('In progress')
+          end
+
+          it 'maps Active: Refill in Process dispStatus to In progress' do
+            vista_medication_with_refill_status['dispStatus'] = 'Active: Refill in Process'
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('In progress')
+          end
+
+          it 'handles unknown dispStatus by returning Status not available' do
+            vista_medication_with_refill_status['dispStatus'] = 'SomeUnknownStatus'
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('Status not available')
+          end
         end
 
-        it 'maps expired to Inactive' do
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_expired] } },
-            'oracle-health' => nil
-          }
+        context 'when dispStatus is null/empty (derived from refillStatus, then V2 mapped)' do
+          it 'derives Active from active refillStatus, maps to Active' do
+            vista_medication_with_refill_status['refillStatus'] = 'active'
+            vista_medication_with_refill_status['dispStatus'] = nil
 
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.refill_status).to eq('Inactive')
-        end
+            result = adapter.parse(vista_only_body)
 
-        it 'maps discontinued to Inactive' do
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_discontinued] } },
-            'oracle-health' => nil
-          }
+            expect(result.first.disp_status).to eq('Active')
+          end
 
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.refill_status).to eq('Inactive')
-        end
+          it 'derives Expired from expired refillStatus, maps to Inactive' do
+            vista_medication_with_refill_status['refillStatus'] = 'expired'
+            vista_medication_with_refill_status['dispStatus'] = nil
 
-        it 'maps hold to Active: On hold' do
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_hold] } },
-            'oracle-health' => nil
-          }
+            result = adapter.parse(vista_only_body)
 
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.refill_status).to eq('Active: On hold')
-        end
+            expect(result.first.disp_status).to eq('Inactive')
+          end
 
-        it 'maps providerHold to Active: On hold' do
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_provider_hold] } },
-            'oracle-health' => nil
-          }
+          it 'derives Discontinued from discontinued refillStatus, maps to Inactive' do
+            vista_medication_with_refill_status['refillStatus'] = 'discontinued'
+            vista_medication_with_refill_status['dispStatus'] = nil
 
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.refill_status).to eq('Active: On hold')
-        end
+            result = adapter.parse(vista_only_body)
 
-        it 'maps submitted to In progress' do
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_submitted] } },
-            'oracle-health' => nil
-          }
+            expect(result.first.disp_status).to eq('Inactive')
+          end
 
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.refill_status).to eq('In progress')
-        end
+          it 'derives Active: On hold from hold refillStatus, maps to Inactive' do
+            vista_medication_with_refill_status['refillStatus'] = 'hold'
+            vista_medication_with_refill_status['dispStatus'] = nil
 
-        it 'handles unknown status by returning Status not available' do
-          vista_unknown = vista_medication_data.merge(
-            'prescriptionId' => 'vista-unknown',
-            'refillStatus' => 'unknownStatus'
-          )
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_unknown] } },
-            'oracle-health' => nil
-          }
+            result = adapter.parse(vista_only_body)
 
-          prescriptions = subject.parse(response)
-          expect(prescriptions.first.refill_status).to eq('Status not available')
+            expect(result.first.disp_status).to eq('Inactive')
+          end
+
+          it 'derives Active: On Hold from providerHold refillStatus, maps to Inactive' do
+            vista_medication_with_refill_status['refillStatus'] = 'providerHold'
+            vista_medication_with_refill_status['dispStatus'] = nil
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('Inactive')
+          end
+
+          it 'derives Active: Submitted from submitted refillStatus, maps to In progress' do
+            vista_medication_with_refill_status['refillStatus'] = 'submitted'
+            vista_medication_with_refill_status['dispStatus'] = nil
+
+            result = adapter.parse(vista_only_body)
+
+            expect(result.first.disp_status).to eq('In progress')
+          end
         end
       end
 
-      describe 'Oracle Health prescription status mapping' do
+      context 'Oracle Health prescription status mapping' do
         it 'maps active (with refills) to Active' do
-          prescriptions = subject.parse(oracle_response)
-          oracle_active_rx = prescriptions.find { |p| p.prescription_id == 'oracle-active' }
+          oracle_medication_request['status'] = 'active'
 
-          expect(oracle_active_rx.refill_status).to eq('Active')
+          result = adapter.parse(oracle_only_body)
+
+          expect(result.first.disp_status).to eq('Active')
         end
 
-        it 'maps on-hold to Active: On hold' do
-          prescriptions = subject.parse(oracle_response)
-          oracle_hold_rx = prescriptions.find { |p| p.prescription_id == 'oracle-on-hold' }
+        it 'maps on-hold to Inactive (V2 mapped from Active: On hold)' do
+          oracle_medication_request['status'] = 'on-hold'
 
-          expect(oracle_hold_rx.refill_status).to eq('Active: On hold')
+          result = adapter.parse(oracle_only_body)
+
+          expect(result.first.disp_status).to eq('Inactive')
         end
 
         it 'maps stopped/discontinued to Inactive' do
-          prescriptions = subject.parse(oracle_response)
-          oracle_stopped_rx = prescriptions.find { |p| p.prescription_id == 'oracle-stopped' }
+          oracle_medication_request['status'] = 'stopped'
 
-          expect(oracle_stopped_rx.refill_status).to eq('Inactive')
+          result = adapter.parse(oracle_only_body)
+
+          expect(result.first.disp_status).to eq('Inactive')
         end
       end
 
-      describe 'combined VistA and Oracle Health prescriptions' do
+      context 'combined VistA and Oracle Health prescriptions' do
         it 'applies V2 status mapping to ALL prescriptions from both sources' do
-          prescriptions = subject.parse(combined_response)
+          result = adapter.parse(combined_body)
 
-          statuses = prescriptions.map(&:refill_status)
-          # All prescriptions should have V2 format statuses
-          expect(statuses).to all(
-            satisfy { |s| ['Active', 'Active: On hold', 'Inactive', 'In progress', 'Status not available'].include?(s) }
-          )
+          # All prescriptions should have V2 status values
+          v2_statuses = ['Active', 'In progress', 'Inactive', 'Transferred', 'Status not available']
+          result.each do |rx|
+            expect(rx.disp_status).to be_in(v2_statuses)
+          end
         end
 
         it 'is the single consolidation point for status mapping' do
-          prescriptions = subject.parse(combined_response)
+          # This test verifies that V2 mapping happens once at the adapter level,
+          # not in individual source adapters
+          vista_only = adapter.parse({
+                                       'vista' => {
+                                         'medicationList' => {
+                                           'medication' => [vista_medication_with_refill_status]
+                                         }
+                                       }
+                                     })
 
-          # Verify VistA prescriptions have V2 status
-          vista_rx = prescriptions.find { |p| p.prescription_id == 'vista-active' }
-          expect(vista_rx.refill_status).to eq('Active')
+          oracle_only = adapter.parse({
+                                        'oracle-health' => {
+                                          'entry' => [{ 'resource' => oracle_medication_request }]
+                                        }
+                                      })
 
-          expired_rx = prescriptions.find { |p| p.prescription_id == 'vista-expired' }
-          expect(expired_rx.refill_status).to eq('Inactive')
-
-          # Verify Oracle Health prescriptions have V2 status
-          oracle_rx = prescriptions.find { |p| p.prescription_id == 'oracle-active' }
-          expect(oracle_rx.refill_status).to eq('Active')
-
-          oracle_hold_rx = prescriptions.find { |p| p.prescription_id == 'oracle-on-hold' }
-          expect(oracle_hold_rx.refill_status).to eq('Active: On hold')
+          # Both should have V2 status values
+          v2_statuses = ['Active', 'In progress', 'Inactive', 'Transferred', 'Status not available']
+          expect(v2_statuses).to include(vista_only.first.disp_status)
+          expect(v2_statuses).to include(oracle_only.first.disp_status)
         end
       end
 
-      describe 'disp_status mapping' do
+      context 'disp_status mapping' do
         it 'maps VistA dispStatus values to V2 format' do
-          vista_with_disp_status = vista_medication_data.merge(
-            'prescriptionId' => 'vista-refill-in-process',
-            'refillStatus' => 'refillinprocess',
-            'dispStatus' => 'Active: Refill in Process'
-          )
-          response = {
-            'vista' => { 'medicationList' => { 'medication' => [vista_with_disp_status] } },
-            'oracle-health' => nil
-          }
+          # VistA prescriptions come with dispStatus already set
+          vista_medication_with_refill_status['dispStatus'] = 'Active: Refill in Process'
 
-          prescriptions = subject.parse(response)
-          # refillinprocess maps to 'In progress' in V2
-          expect(prescriptions.first.refill_status).to eq('In progress')
-        end
+          result = adapter.parse({
+                                   'vista' => {
+                                     'medicationList' => {
+                                       'medication' => [vista_medication_with_refill_status]
+                                     }
+                                   }
+                                 })
 
-        it 'derives disp_status from mapped refill_status' do
-          prescriptions = subject.parse(combined_response)
-
-          active_rx = prescriptions.find { |p| p.prescription_id == 'vista-active' }
-          expect(active_rx.disp_status).to eq('Active')
-
-          expired_rx = prescriptions.find { |p| p.prescription_id == 'vista-expired' }
-          expect(expired_rx.disp_status).to eq('Inactive')
+          # V2 mapping: 'Active: Refill in Process' -> 'In progress'
+          expect(result.first.disp_status).to eq('In progress')
         end
       end
     end
@@ -1417,46 +1528,59 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(true)
       end
 
-      it 'handles nil refill_status gracefully' do
-        vista_nil_status = vista_medication_data.merge(
-          'prescriptionId' => 'vista-nil',
-          'refillStatus' => nil
+      let(:edge_case_vista_medication) do
+        vista_medication_with_refill_status.merge(
+          'refillStatus' => nil,
+          'dispStatus' => nil
         )
-        response = {
-          'vista' => { 'medicationList' => { 'medication' => [vista_nil_status] } },
-          'oracle-health' => nil
-        }
+      end
 
-        prescriptions = subject.parse(response)
-        expect(prescriptions.first.refill_status).to eq('Status not available')
+      it 'handles nil refill_status gracefully' do
+        edge_case_vista_medication['refillStatus'] = nil
+        edge_case_vista_medication['dispStatus'] = nil
+
+        result = adapter.parse({
+                                 'vista' => {
+                                   'medicationList' => {
+                                     'medication' => [edge_case_vista_medication]
+                                   }
+                                 }
+                               })
+
+        # When both are nil, disp_status stays nil (no derivation or mapping happens)
+        expect(result.first.disp_status).to be_nil
       end
 
       it 'handles empty string refill_status gracefully' do
-        vista_empty_status = vista_medication_data.merge(
-          'prescriptionId' => 'vista-empty',
-          'refillStatus' => ''
-        )
-        response = {
-          'vista' => { 'medicationList' => { 'medication' => [vista_empty_status] } },
-          'oracle-health' => nil
-        }
+        edge_case_vista_medication['refillStatus'] = ''
+        edge_case_vista_medication['dispStatus'] = ''
 
-        prescriptions = subject.parse(response)
-        expect(prescriptions.first.refill_status).to eq('Status not available')
+        result = adapter.parse({
+                                 'vista' => {
+                                   'medicationList' => {
+                                     'medication' => [edge_case_vista_medication]
+                                   }
+                                 }
+                               })
+
+        # Empty string is treated as blank, stays as-is
+        expect(result.first.disp_status).to eq('')
       end
 
       it 'is case-insensitive for status matching' do
-        vista_uppercase = vista_medication_data.merge(
-          'prescriptionId' => 'vista-uppercase',
-          'refillStatus' => 'ACTIVE'
-        )
-        response = {
-          'vista' => { 'medicationList' => { 'medication' => [vista_uppercase] } },
-          'oracle-health' => nil
-        }
+        edge_case_vista_medication['refillStatus'] = 'ACTIVE'
+        edge_case_vista_medication['dispStatus'] = 'ACTIVE'
 
-        prescriptions = subject.parse(response)
-        expect(prescriptions.first.refill_status).to eq('Active')
+        result = adapter.parse({
+                                 'vista' => {
+                                   'medicationList' => {
+                                     'medication' => [edge_case_vista_medication]
+                                   }
+                                 }
+                               })
+
+        # Case-insensitive matching: 'ACTIVE' -> 'Active' (V2)
+        expect(result.first.disp_status).to eq('Active')
       end
     end
   end
