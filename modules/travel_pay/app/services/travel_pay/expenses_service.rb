@@ -5,6 +5,8 @@ require 'base64'
 
 module TravelPay
   class ExpensesService
+    include ExpenseNormalizer
+
     def initialize(auth_manager)
       @auth_manager = auth_manager
     end
@@ -54,7 +56,10 @@ module TravelPay
       Rails.logger.info("Getting expense of type: #{expense_type} with ID: #{expense_id}")
 
       response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
-      response.body['data']
+      expense = response.body['data']
+
+      # Normalize expense type
+      normalize_expense(expense)
     rescue Faraday::Error => e
       Rails.logger.error("Failed to get expense via API: #{e.message}")
       TravelPay::ServiceError.raise_mapped_error(e)
