@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7e2c6209a14ba77402609055866b3923acf9c70f
+  revision: cd89087b891145844528a0e735be488ab6cba3a5
   branch: master
   specs:
-    vets_json_schema (25.2.32)
+    vets_json_schema (25.2.24)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -139,6 +139,17 @@ PATH
     veteran (0.0.1)
     vre (0.1.0)
     vye (0.1.0)
+
+GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (7.3.4)
+      einhorn (~> 1.0)
+      gserver
+      sidekiq (>= 7.3.7, < 8)
+      sidekiq-pro (>= 7.3.4, < 8)
+    sidekiq-pro (7.3.6)
+      sidekiq (>= 7.3.7, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -734,7 +745,7 @@ GEM
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
-    multi_json (1.18.0)
+    multi_json (1.17.0)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
