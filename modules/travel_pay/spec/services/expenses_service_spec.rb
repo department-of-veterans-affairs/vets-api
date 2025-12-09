@@ -398,8 +398,15 @@ describe TravelPay::ExpensesService do
 
         result = build_request_body(params)
 
-        expect(result['expenseReceipt']).to eq(receipt_hash)
+        # Verify receipt is renamed to expenseReceipt
+        expect(result['expenseReceipt']).to be_present
         expect(result['receipt']).to be_nil
+
+        # Verify nested keys are also camelCased
+        expect(result['expenseReceipt']['contentType']).to eq('application/pdf')
+        expect(result['expenseReceipt']['contentLength']).to eq('12345')
+        expect(result['expenseReceipt']['fileData']).to eq('base64encodeddata')
+        expect(result['expenseReceipt']['fileType']).to eq('pdf')
       end
 
       it 'skips nil values' do
@@ -662,8 +669,15 @@ describe TravelPay::ExpensesService do
 
         result = build_request_body(params)
 
-        expect(result['expenseReceipt']).to eq(receipt_hash)
+        # Verify receipt is renamed to expenseReceipt
+        expect(result['expenseReceipt']).to be_present
         expect(result).not_to have_key('receipt')
+
+        # Verify nested keys are also camelCased
+        expect(result['expenseReceipt']['contentType']).to eq('application/pdf')
+        expect(result['expenseReceipt']['contentLength']).to eq('12345')
+        expect(result['expenseReceipt']['fileData']).to eq('base64encodeddata')
+        expect(result['expenseReceipt']['fileType']).to eq('pdf')
       end
     end
   end
