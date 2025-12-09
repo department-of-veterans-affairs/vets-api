@@ -120,7 +120,7 @@ module UnifiedHealthData
 
       def derive_disp_status_from_refill_status_hash(prescription)
         return if prescription[:disp_status].present?
-        return unless prescription[:refill_status].present?
+        return if prescription[:refill_status].blank?
 
         refill_status = prescription[:refill_status].to_s.downcase
         prescription[:disp_status] = REFILL_STATUS_TO_DISP_STATUS[refill_status] || 'Unknown'
