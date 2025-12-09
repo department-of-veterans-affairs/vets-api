@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# KEEP UNTIL Common::Client Removed
-
 module Common
   # This is a custom type class for ensuring Time is always coerced as UTC
   class UTCTime < Virtus::Attribute
