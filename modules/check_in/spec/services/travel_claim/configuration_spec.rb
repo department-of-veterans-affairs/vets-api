@@ -18,19 +18,19 @@ RSpec.describe TravelClaim::Configuration do
     end
 
     it 'combines claims_url_v2 and claims_base_path_v2 when both are present' do
-      allow(Settings.check_in.travel_reimbursement_api_v2).to receive(:claims_url_v2)
-        .and_return('https://example.com')
-      allow(Settings.check_in.travel_reimbursement_api_v2).to receive(:claims_base_path_v2)
-        .and_return('eis/api/btsss/travelclaim')
+      allow(Settings.check_in.travel_reimbursement_api_v2).to receive_messages(
+        claims_url_v2: 'https://example.com',
+        claims_base_path_v2: 'eis/api/btsss/travelclaim'
+      )
 
       expect(subject.base_path).to eq('https://example.com/eis/api/btsss/travelclaim')
     end
 
     it 'returns only claims_url_v2 when claims_base_path_v2 is blank' do
-      allow(Settings.check_in.travel_reimbursement_api_v2).to receive(:claims_url_v2)
-        .and_return('https://example.com')
-      allow(Settings.check_in.travel_reimbursement_api_v2).to receive(:claims_base_path_v2)
-        .and_return('')
+      allow(Settings.check_in.travel_reimbursement_api_v2).to receive_messages(
+        claims_url_v2: 'https://example.com',
+        claims_base_path_v2: ''
+      )
 
       expect(subject.base_path).to eq('https://example.com')
     end
