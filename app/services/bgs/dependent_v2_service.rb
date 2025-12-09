@@ -56,7 +56,7 @@ module BGS
       end
     end
 
-    def submit_686c_form(claim)
+    def submit_686c_form(claim:, current_user:)
       # Set email for BGS service and notification emails from form email if va_profile_email is not available
       # Form email is required
       if @notification_email.nil?
@@ -70,7 +70,7 @@ module BGS
       InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
 
       encrypted_vet_info = setup_vet_info(claim)
-      submit_pdf_job(claim:)
+      submit_pdf_job(claim:, current_user:)
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
@@ -150,11 +150,11 @@ module BGS
       @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
     end
 
-    def submit_pdf_job(claim:)
+    def submit_pdf_job(claim:, current_user:)
       @monitor = init_monitor(claim&.id)
       @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                            "#{STATS_KEY}.submit_pdf.begin")
-      form_id = submit_claim_via_claims_evidence(claim)
+      form_id = submit_claim_via_claims_evidence(claim:, current_user:)
       submit_attachments_via_claims_evidence(form_id, claim)
 
       @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job completed',
@@ -167,13 +167,13 @@ module BGS
       raise PDFSubmissionError
     end
 
-    def submit_claim_via_claims_evidence(claim)
+    def submit_claim_via_claims_evidence(claim:, current_user:)
       form_id = claim.form_id
       doctype = claim.document_type
 
       if claim.submittable_686?
         form_id = '686C-674-V2'
-        file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        file_path = claim.process_pdf(claim.to_pdf(form_id:, current_user:), claim.created_at, form_id)
         @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{claim.id}",
                              "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])
         claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)

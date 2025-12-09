@@ -2048,7 +2048,7 @@ module DependentsBenefits
       def add_household_income
         net_worth = @form_data.dig('dependents_application', 'household_income')
 
-        "Did the household have a net worth greater than $130,773 in the last tax year? #{format_boolean(net_worth)}"
+        "Did the household have a net worth greater than $163,699 in the last tax year? #{format_boolean(net_worth)}"
       end
 
       ##

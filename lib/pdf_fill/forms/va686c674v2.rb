@@ -1956,8 +1956,10 @@ module PdfFill
 
       def add_household_income
         net_worth = @form_data.dig('dependents_application', 'household_income')
+        flipped_value = Flipper.enabled?(:va_dependents_net_worth_and_pension, current_user) ? !net_worth : net_worth
 
-        "Did the household have a net worth greater than $130,773 in the last tax year? #{format_boolean(net_worth)}"
+        # If flipper is on, reverse value
+        "Did the household have a net worth greater than $163,699 in the last tax year? #{format_boolean(flipped_value)}"
       end
 
       def add_dependent_income(dependent_name, dependent_income)
