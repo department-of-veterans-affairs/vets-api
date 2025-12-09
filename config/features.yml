@@ -1331,21 +1331,21 @@ features:
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
-  mhv_landing_page_show_priority_group:
+  mhv_landing_page_aal_notice:
     actor_type: user
-    description: Shows Veterans their Priority Group on the MHV Landing Page
+    description: Enables AAL help content on the My HealtheVet landing page.
     enable_in_development: true
   mhv_landing_page_personalization:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
+  mhv_landing_page_show_priority_group:
+    actor_type: user
+    description: Shows Veterans their Priority Group on the MHV Landing Page
+    enable_in_development: true
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
-  mhv_landing_page_aal_notice:
-    actor_type: user
-    description: Enables AAL help content on the My HealtheVet landing page.
-    enable_in_development: true
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
