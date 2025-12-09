@@ -3,6 +3,7 @@
 module AccreditedRepresentativePortal
   module V0
     class Form21aController < ApplicationController
+      include AccreditedRepresentativePortal::V0::Form21aUploadConcern
       skip_after_action :verify_pundit_authorization
 
       class SchemaValidationError < StandardError
@@ -31,24 +32,22 @@ module AccreditedRepresentativePortal
           "user_uuid=#{current_user&.uuid}"
         )
 
-        ActiveRecord::Base.transaction do
-          form_attachment = Form21aAttachment.new
-          form_attachment.set_file_data!(file)
-          form_attachment.save!
-          update_in_progress_form(details_slug, file, form_attachment)
+        form_attachment = AccreditedRepresentativePortal::Form21aAttachment.new
+        form_attachment.set_file_data!(file)
+        form_attachment.save!
+        update_in_progress_form(details_slug, file, form_attachment)
 
-          render json: {
-            data: {
-              attributes: {
-                errorMessage: '',
-                confirmationCode: form_attachment.guid,
-                name: file.original_filename,
-                size: file.size,
-                type: file.content_type
-              }
+        render json: {
+          data: {
+            attributes: {
+              errorMessage: '',
+              confirmationCode: form_attachment.guid,
+              name: file.original_filename,
+              size: file.size,
+              type: file.content_type
             }
-          }, status: :ok
-        end
+          }
+        }, status: :ok
       rescue CarrierWave::IntegrityError => e
         Rails.logger.error(
           "Form21aController: File upload integrity error for user_uuid=#{current_user&.uuid} " \
@@ -99,10 +98,6 @@ module AccreditedRepresentativePortal
 
       def current_in_progress_form
         InProgressForm.form_for_user(FORM_ID, current_user)
-      end
-
-      def documents_key_for(slug)
-        "#{slug.tr('-', '_').camelize(:lower)}Documents"
       end
 
       def update_in_progress_form(details_slug, file, form_attachment)

@@ -2,8 +2,6 @@
 
 module AccreditedRepresentativePortal
   class Form21aAttachmentUploader < CarrierWave::Uploader::Base
-    include SetAWSConfig
-
     include UploaderVirusScan
     include CarrierWave::MiniMagick
 
