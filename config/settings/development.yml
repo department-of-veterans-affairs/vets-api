@@ -1047,6 +1047,8 @@ ogc:
     s3:
       bucket: fake_bucket
       region: us-gov-west-1
+      type: s3
+      uploads_enabled: true
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
 oidc:
   isolated_audience:
