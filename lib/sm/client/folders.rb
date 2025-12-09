@@ -74,7 +74,7 @@ module SM
       ##
       # Get a collection of Messages
       #
-      # @return [Common::Collection]
+      # @return [Vets::Collection]
       #
       def get_folder_messages(user_uuid, folder_id, use_cache)
         cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
@@ -107,7 +107,7 @@ module SM
       # @param sort_field [String] field to sort results by (SENDER_NAME or RECIPIENT_NAME or SENT_DATE or DRAFT_DATE)
       # @param sort_order [String] order to sort results by (ASC for Ascending or DESC for Descending)
       #
-      # @return [Common::Collection]
+      # @return [Vets::Collection]
       #
       def get_folder_threads(folder_id, params)
         base_path = "folder/threadlistview/#{folder_id}"
@@ -132,7 +132,7 @@ module SM
       # @param page_num [Fixnum] page number of results to return
       # @param page_size [Fixnum] number of messages per page
       # @param args [Hash] arguments for the message search
-      # @return [Common::Collection]
+      # @return [Vets::Collection]
       #
       def post_search_folder(folder_id, page_num, page_size, args = {})
         page_num ||= 1
