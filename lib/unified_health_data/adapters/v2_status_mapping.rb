@@ -5,8 +5,8 @@ module UnifiedHealthData
     # Module providing V2 status mapping functionality for prescription adapters
     # Maps original VistA/Oracle Health statuses to simplified V2 status groups
     #
-    # This mapping is applied at the PrescriptionsAdapter level when the Cerner pilot feature flag is enabled, consolidating status logic in one place for both
-    # VistA and Oracle Health prescriptions.
+    # This mapping is applied at the PrescriptionsAdapter level when the Cerner pilot feature flag is enabled,
+    # consolidating status logic in one place for both VistA and Oracle Health prescriptions.
     module V2StatusMapping
       # V2 status groupings - maps V2 status to array of original statuses
       # Based on VA.gov Status Chart mapping requirements
@@ -27,7 +27,7 @@ module UnifiedHealthData
           'Expired',
           'Discontinued',
           'Active: On hold',
-          'Active: On Hold'  # Handle case variations
+          'Active: On Hold'
         ],
         'Transferred' => ['Transferred'],
         'Status not available' => ['Unknown']
