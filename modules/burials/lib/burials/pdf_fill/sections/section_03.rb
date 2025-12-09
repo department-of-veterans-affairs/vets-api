@@ -66,7 +66,7 @@ module Burials
           question_num: 15,
           question_label: 'Other Names Veteran Served Under',
           question_text: 'OTHER NAMES VETERAN SERVED UNDER',
-          limit: 3
+          limit: 20
         }
       }.freeze
       ##
