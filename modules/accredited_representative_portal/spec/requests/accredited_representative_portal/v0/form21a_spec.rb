@@ -482,7 +482,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         in_progress_form.reload
         form_data = JSON.parse(in_progress_form.form_data)
 
-        documents = form_data['convictionDetailsDocuments']
+        documents = form_data['imprisonedDetailsDocuments']
         expect(documents).to be_an(Array)
         expect(documents.size).to eq(1)
 
