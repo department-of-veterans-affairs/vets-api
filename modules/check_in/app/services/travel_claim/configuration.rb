@@ -32,7 +32,7 @@ module TravelClaim
       path = Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2
       return url if path.blank?
 
-      "#{url}/#{path}"
+      "#{url.delete_suffix('/')}/#{path.delete_prefix('/')}"
     end
 
     ##
