@@ -1044,10 +1044,10 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: fake_key
-    url: http://localhost:5000/api/v1/accreditation/applications/form21a
     s3:
       region: us-gov-west-1
       bucket: fake_bucket
+    url: http://localhost:5000/api/v1/accreditation/applications/form21a
 oidc:
   isolated_audience:
     claims: ~

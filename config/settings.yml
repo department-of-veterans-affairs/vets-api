@@ -1030,13 +1030,12 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
-    url: <%= ENV['ogc__form21a_service_url__url'] %>
-    document_upload_url: <%= ENV['ogc__form21a_service_url__upload_url'] %>
     s3:
-      uploads_enabled: true
-      type: s3
-      region: us-gov-west-1
       bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: true
+    url: <%= ENV['ogc__form21a_service_url__url'] %>
 oidc:
   isolated_audience:
     claims: <%= ENV['oidc__isolated_audience__claims'] %>
