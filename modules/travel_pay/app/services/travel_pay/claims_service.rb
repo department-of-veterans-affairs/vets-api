@@ -68,6 +68,15 @@ module TravelPay
         claim['claimStatus'] = claim['claimStatus'].underscore.humanize
         claim['documents'] = documents
 
+        # finish transposing document/expense ids
+        expenses_with_docids = transpose_doc_exp_ids(documents)
+
+        claim['expenses'].map do |exp|
+          # Our current approach results in a single document with a single expense
+          expenses_with_docids[exp['id']]
+          exp['document_id'] = .first
+        end
+
         # Add decision letter reason for denied or partial payment claims
         if Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
           decision_document = find_decision_letter_document(claim)
@@ -247,6 +256,18 @@ module TravelPay
         Rails.logger.error(message:
         "#{e}. Retrieved #{data.size} of #{total_record_count} claims, ending on page #{page_number}.")
         build_claims_response({ **claims, status: 206 })
+      end
+    end
+
+    # Switches from documents having an expense ID to 
+    # expenses having a document ID
+    def transpose_doc_exp_ids(expenses, documents)
+      
+    end
+
+    def extract_doc_idsdocuments.inject({}) do |doc, acc|
+        acc[doc['expenseId']] = (acc[doc['expenseId']] || []).push(doc['id'])
+        acc
       end
     end
 

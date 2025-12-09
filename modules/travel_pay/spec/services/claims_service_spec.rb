@@ -147,7 +147,7 @@ describe TravelPay::ClaimsService do
                 'costSubmitted' => 10.00
               },
               {
-                'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                'id' => '4fa85f64-5717-4562-b3fc-2c963f66afa6',
                 'expenseType' => 'Mileage',
                 'name' => '',
                 'dateIncurred' => '2024-01-01T16:45:34.465Z',
@@ -278,6 +278,31 @@ describe TravelPay::ClaimsService do
 
       expect { service.get_claim_details(claim_id) }
         .to raise_error(ArgumentError, /valid UUID/i)
+    end
+
+    context 'expense ID comes back on document summaries' do
+      let(:documents_with_expense_ids) do
+        {
+          'data' => [
+            {
+              'documentId' => 'uuid1',
+              'filename' => 'DecisionLetter.pdf',
+              'mimetype' => 'application/pdf',
+              'createdon' => '2025-03-24T14:00:52.893Z',
+              'expenseId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+            }
+          ]
+        }
+      end
+
+      it 'transposes expense IDs and document IDs so that document ids are on expenses' do
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+        actual_expense = actual_claim['expenses'].first
+
+        expect(actual_expense.document_ids.length).to eq(1)
+        expect(actual_expense.document_ids.first).to eq('uuid1')
+      end
     end
   end
 
