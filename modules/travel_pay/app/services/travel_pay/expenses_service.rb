@@ -114,7 +114,7 @@ module TravelPay
         api_key = special_mappings[key_str] || key_str.camelize(:lower)
 
         # Transform hashes (like receipt)
-        request_body[api_key] = transform_hash(value)
+        request_body[api_key] = camelize_hash_keys(value)
       end
 
       request_body
@@ -127,7 +127,7 @@ module TravelPay
     # @param value [Object] The value to transform
     # @return [Object] The transformed value
     #
-    def transform_hash(value)
+    def camelize_hash_keys(value)
       case value
       when Hash
         value.transform_keys { |k| k.to_s.camelize(:lower) }
