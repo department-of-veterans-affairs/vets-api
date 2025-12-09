@@ -2,7 +2,6 @@
 
 module AccreditedRepresentativePortal
   class RepresentativeUser < Common::RedisStore
-
     redis_store REDIS_CONFIG[:representative_user_store][:namespace]
     redis_ttl REDIS_CONFIG[:representative_user_store][:each_ttl]
     redis_key :uuid
@@ -18,7 +17,7 @@ module AccreditedRepresentativePortal
     attribute :last_signed_in, Vets::Type::UTCTime
     attribute :loa, String
     attribute :logingov_uuid, String
-    attribute :all_emails, Hash, array: true
+    attribute :all_emails, Array
     attribute :sign_in, Hash
     attribute :user_account_uuid, String
     attribute :uuid, String
