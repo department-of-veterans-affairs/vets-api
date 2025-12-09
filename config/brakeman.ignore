@@ -3,7 +3,7 @@
     {
       "warning_type": "Command Injection",
       "warning_code": 14,
-      "fingerprint": "c6b323c0d60f76b8c0e14268d297a7cf6ddc58fd84edc86a159904e45dab4b79",
+      "fingerprint": "84625a733d7f2ffd270fcf6e18f67c453923d824339a5f2cf1a52aa9e376fdcf",
       "check_name": "Execute",
       "message": "Possible command injection",
       "file": "lib/dangerfile/parameter_filtering_allowlist_checker.rb",
@@ -13,7 +13,7 @@
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "ParameterFilteringAllowlistChecker",
+        "class": "Dangerfile::ParameterFilteringAllowlistChecker",
         "method": "filter_params_diff"
       },
       "user_input": "@base_sha",
