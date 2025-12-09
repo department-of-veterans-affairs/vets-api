@@ -3,6 +3,8 @@ require 'vets/model'
 
 module AccreditedRepresentativePortal
   class RepresentativeUser < Common::RedisStore
+    include Vets::Model
+
     redis_store REDIS_CONFIG[:representative_user_store][:namespace]
     redis_ttl REDIS_CONFIG[:representative_user_store][:each_ttl]
     redis_key :uuid
