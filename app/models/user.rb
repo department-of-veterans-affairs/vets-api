@@ -9,7 +9,6 @@ require 'saml/user'
 require 'formatters/date_formatter'
 require 'va_profile/configuration'
 require 'va_profile/veteran_status/service'
-require 'vets/model'
 
 class User < Common::RedisStore
   include Authorization
@@ -25,13 +24,13 @@ class User < Common::RedisStore
   validates :uuid, presence: true
 
   attribute :uuid
-  attribute :last_signed_in, Vets::Type::UTCTime # vaafi attributes
-  attribute :mhv_last_signed_in, Vets::Type::UTCTime # MHV audit logging
+  attribute :last_signed_in, Common::UTCTime # vaafi attributes
+  attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
   attribute :user_account_uuid, String
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
-  attribute :needs_accepted_terms_of_use, Bool
-  attribute :credential_lock, Bool
+  attribute :needs_accepted_terms_of_use, Boolean
+  attribute :credential_lock, Boolean
   attribute :session_handle, String
 
   def initial_sign_in
@@ -427,7 +426,7 @@ class User < Common::RedisStore
   # someone can be ex-military by having a discharge status higher than
   # 'Other Than Honorable'.
   #
-  # @return [Bool]
+  # @return [Boolean]
   #
   def served_in_military?
     (edipi.present? && veteran?) || military_person?
