@@ -7,7 +7,7 @@ require_relative 'v2_status_mapping'
 module UnifiedHealthData
   module Adapters
     class PrescriptionsAdapter
-      include V2StatusMapper
+      include V2StatusMapping
 
       def initialize(current_user = nil)
         @current_user = current_user
@@ -36,9 +36,7 @@ module UnifiedHealthData
 
         # Apply V2 status mapping to all prescriptions when Cerner pilot flag is enabled
         # This is the single point where V2 status mapping is applied for both VistA and Oracle Health
-        prescriptions = apply_v2_status_mapping_if_enabled(prescriptions)
-
-        prescriptions
+        apply_v2_status_mapping_if_enabled(prescriptions)
       end
 
       private
@@ -125,7 +123,7 @@ module UnifiedHealthData
       def apply_v2_status_mapping_if_enabled(prescriptions)
         return prescriptions unless Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
 
-        apply_v2_status_mapping_to_collection(prescriptions)
+        apply_v2_status_mapping_to_all(prescriptions)
       end
     end
   end
