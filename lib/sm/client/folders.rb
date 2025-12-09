@@ -9,7 +9,7 @@ module SM
       ##
       # Get a collection of Folders
       #
-      # @return [Common::Collection[Folder]]
+      # @return [Vets::Collection[Folder]]
       #
       def get_folders(user_uuid, use_cache)
         path = 'folder'
