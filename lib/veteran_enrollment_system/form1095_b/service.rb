@@ -47,19 +47,12 @@ module VeteranEnrollmentSystem
             raise_error(response)
           end
         end
-      rescue => e
-        Rails.logger.error(
-          "get_form_by_icn failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
-        )
-        raise e
       end
 
       private
 
-      # Raises mapped error, logs, and increments StatsD for error cases.
       def raise_error(response)
         message = response.body['messages']&.pluck('description')&.join(', ') || response.body
-        # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
         raise ERROR_MAP[response.status]&.new(detail: message) ||
               Common::Exceptions::BackendServiceException.new(nil, detail: message)
       end
