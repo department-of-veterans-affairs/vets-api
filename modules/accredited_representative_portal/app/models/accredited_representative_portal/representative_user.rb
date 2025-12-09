@@ -14,7 +14,7 @@ module AccreditedRepresentativePortal
     attribute :icn, String
     attribute :idme_uuid, String
     attribute :last_name, String
-    attribute :last_signed_in, Vets::Type::UTCTime
+    attribute :last_signed_in, Common::UTCTime
     attribute :loa, String
     attribute :logingov_uuid, String
     attribute :all_emails, Array
