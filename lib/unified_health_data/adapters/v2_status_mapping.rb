@@ -40,6 +40,20 @@ module UnifiedHealthData
         end
       end.freeze
 
+      # Mapping from refill_status to disp_status
+      # Used when disp_status is nil/empty but refill_status is present
+      REFILL_STATUS_TO_DISP_STATUS = {
+        'active' => 'Active',
+        'refillinprocess' => 'Active: Refill in Process',
+        'submitted' => 'Active: Submitted',
+        'hold' => 'Active: On hold',
+        'providerhold' => 'Active: On hold',
+        'expired' => 'Expired',
+        'discontinued' => 'Discontinued',
+        'transferred' => 'Transferred',
+        'unknown' => 'Unknown'
+      }.freeze
+
       # Maps an original disp_status to its V2 status equivalent
       # @param original_status [String, nil] The original disp_status value
       # @return [String] The V2 status value
@@ -85,6 +99,9 @@ module UnifiedHealthData
       private
 
       def apply_v2_status_mapping_to_hash(prescription)
+        # First, derive disp_status from refill_status if disp_status is blank
+        derive_disp_status_from_refill_status_hash(prescription)
+
         current_disp_status = prescription[:disp_status]
         return if current_disp_status.blank?
 
@@ -92,10 +109,30 @@ module UnifiedHealthData
       end
 
       def apply_v2_status_mapping_to_object(prescription)
+        # First, derive disp_status from refill_status if disp_status is blank
+        derive_disp_status_from_refill_status_object(prescription)
+
         current_disp_status = prescription.disp_status
         return if current_disp_status.blank?
 
         prescription.disp_status = map_to_v2_status(current_disp_status)
+      end
+
+      def derive_disp_status_from_refill_status_hash(prescription)
+        return if prescription[:disp_status].present?
+        return unless prescription[:refill_status].present?
+
+        refill_status = prescription[:refill_status].to_s.downcase
+        prescription[:disp_status] = REFILL_STATUS_TO_DISP_STATUS[refill_status] || 'Unknown'
+      end
+
+      def derive_disp_status_from_refill_status_object(prescription)
+        return if prescription.disp_status.present?
+        return unless prescription.respond_to?(:refill_status) && prescription.refill_status.present?
+
+        refill_status = prescription.refill_status.to_s.downcase
+        derived_status = REFILL_STATUS_TO_DISP_STATUS[refill_status] || 'Unknown'
+        prescription.disp_status = derived_status if prescription.respond_to?(:disp_status=)
       end
     end
   end
