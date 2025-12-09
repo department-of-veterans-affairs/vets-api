@@ -1353,14 +1353,6 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
             expect(result.first.disp_status).to eq('Inactive')
           end
 
-          it 'maps Active: On Hold dispStatus to Inactive' do
-            vista_medication_with_refill_status['dispStatus'] = 'Active: On Hold'
-
-            result = adapter.parse(vista_only_body)
-
-            expect(result.first.disp_status).to eq('Inactive')
-          end
-
           it 'maps Active: Submitted dispStatus to In progress' do
             vista_medication_with_refill_status['dispStatus'] = 'Active: Submitted'
 
@@ -1416,15 +1408,6 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
           it 'derives Active: On hold from hold refillStatus, maps to Inactive' do
             vista_medication_with_refill_status['refillStatus'] = 'hold'
-            vista_medication_with_refill_status['dispStatus'] = nil
-
-            result = adapter.parse(vista_only_body)
-
-            expect(result.first.disp_status).to eq('Inactive')
-          end
-
-          it 'derives Active: On Hold from providerHold refillStatus, maps to Inactive' do
-            vista_medication_with_refill_status['refillStatus'] = 'providerHold'
             vista_medication_with_refill_status['dispStatus'] = nil
 
             result = adapter.parse(vista_only_body)

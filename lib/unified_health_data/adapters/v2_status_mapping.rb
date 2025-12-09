@@ -26,8 +26,7 @@ module UnifiedHealthData
         'Inactive' => [
           'Expired',
           'Discontinued',
-          'Active: On hold',
-          'Active: On Hold'
+          'Active: On hold'
         ],
         'Transferred' => ['Transferred'],
         'Status not available' => ['Unknown']

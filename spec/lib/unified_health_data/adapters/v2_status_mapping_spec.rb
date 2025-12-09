@@ -61,10 +61,6 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
       it 'maps "Active: On hold" to "Inactive"' do
         expect(mapper.map_to_v2_status('Active: On hold')).to eq('Inactive')
       end
-
-      it 'maps "Active: On Hold" (uppercase) to "Inactive"' do
-        expect(mapper.map_to_v2_status('Active: On Hold')).to eq('Inactive')
-      end
     end
 
     context 'Transferred status mappings' do
@@ -135,7 +131,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
     it 'returns Inactive statuses array' do
       result = mapper.original_statuses_for_v2_status('Inactive')
 
-      expect(result).to include('Expired', 'Discontinued', 'Active: On hold', 'Active: On Hold')
+      expect(result).to include('Expired', 'Discontinued', 'Active: On hold')
     end
 
     it 'returns Transferred statuses array' do
