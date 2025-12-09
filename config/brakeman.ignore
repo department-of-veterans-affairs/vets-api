@@ -1,5 +1,28 @@
 {
   "ignored_warnings": [
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "c6b323c0d60f76b8c0e14268d297a7cf6ddc58fd84edc86a159904e45dab4b79",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/vsp_danger/parameter_filtering_allowlist_checker.rb",
+      "line": 49,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "`git diff #{@base_sha}...#{@head_sha} -- #{FILTER_PARAM_FILE}`",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ParameterFilteringAllowlistChecker",
+        "method": "filter_params_diff"
+      },
+      "user_input": "@base_sha",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "Variables are set from trusted CI environment variables (GITHUB_HEAD_REF, GITHUB_BASE_REF) in Dangerfile, not user input"
+    },
         {
       "warning_type": "SQL Injection",
       "warning_code": 0,
