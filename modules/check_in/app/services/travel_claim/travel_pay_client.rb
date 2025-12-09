@@ -85,7 +85,7 @@ module TravelClaim
         perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
       end
     rescue *API_EXCEPTIONS => e
-      handle_backend_service_exception(e, endpoint: 'VEIS')
+      handle_backend_service_exception(e, endpoint: 'VEIS', is_auth_request: true)
     end
 
     ##
@@ -114,7 +114,7 @@ module TravelClaim
         perform(:post, 'api/v4/auth/system-access-token', body, headers)
       end
     rescue *API_EXCEPTIONS => e
-      handle_backend_service_exception(e, endpoint: 'BTSSS')
+      handle_backend_service_exception(e, endpoint: 'BTSSS', is_auth_request: true)
     end
 
     ##
@@ -482,11 +482,11 @@ module TravelClaim
       nil
     end
 
-    def handle_backend_service_exception(error, endpoint: nil)
-      status = extract_error_status(error)
+    def handle_backend_service_exception(error, endpoint: nil, is_auth_request: false)
+      status = extract_actual_status(error)
       body = error.respond_to?(:original_body) ? error.original_body : error.try(:body)
 
-      log_api_error(status, body, endpoint:)
+      log_api_error(status, body, endpoint:, is_auth_request:)
 
       # Extract message from original body if detail is nil (only for BackendServiceException)
       if error.is_a?(Common::Exceptions::BackendServiceException) &&
@@ -504,15 +504,15 @@ module TravelClaim
       raise
     end
 
-    def extract_error_status(error)
-      return error.original_status if error.respond_to?(:original_status)
+    def extract_actual_status(error)
+      return error.original_status if error.respond_to?(:original_status) && !error.original_status.nil?
       return error.status if error.respond_to?(:status)
       return error.status_code if error.respond_to?(:status_code)
 
       nil
     end
 
-    def log_api_error(status, body, endpoint: nil)
+    def log_api_error(status, body, endpoint: nil, is_auth_request: false)
       return if status == 401 # Already logged in with_auth method
 
       if status == 400
@@ -523,12 +523,15 @@ module TravelClaim
         end
       end
 
-      log_api_error_with_status(status, endpoint:)
+      # Only extract and log message for authentication requests
+      error_message = is_auth_request ? extract_and_redact_message(body) : nil
+      log_api_error_with_status(status, endpoint:, error_message:)
     end
 
-    def log_api_error_with_status(status, endpoint: nil)
+    def log_api_error_with_status(status, endpoint: nil, error_message: nil)
       log_data = { status: }
       log_data[:endpoint] = endpoint if endpoint
+      log_data[:message] = error_message if error_message
 
       message = if endpoint == 'VEIS'
                   'TravelPayClient VEIS endpoint error'
@@ -539,6 +542,20 @@ module TravelClaim
                 end
 
       log_with_context(message, **log_data)
+    end
+
+    def extract_and_redact_message(body)
+      return nil unless body
+
+      parsed = body.is_a?(String) ? JSON.parse(body) : body
+      message = parsed['message'] || parsed['error'] || parsed['detail']
+      return nil unless message.is_a?(String)
+
+      # Remove ICN if present (ICN format: digits + optional V + digits)
+      # Pattern matches: 10+ digits, optional V, then 6 digits (full ICN)
+      message.gsub(/\b\d{10,}V?\d{6}\b/, '')
+    rescue JSON::ParserError
+      nil
     end
   end
 end
