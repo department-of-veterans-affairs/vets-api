@@ -1735,6 +1735,7 @@ spec/policies/hca_disability_rating_policy_spec.rb @department-of-veterans-affai
 spec/policies/lighthouse_policy_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/policies/meb_policy_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/backend-review-group
 spec/policies/medical_copays_policy_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/policies/mhv_medical_records_policy_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/policies/mhv_prescriptions_policy_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/policies/mhv_user_account_policy_spec.rb @department-of-veterans-affairs/octo-identity
 spec/policies/mpi_policy_spec.rb @department-of-veterans-affairs/octo-identity
@@ -2172,6 +2173,7 @@ spec/support/schemas/vre @department-of-veterans-affairs/govcio-vfep-codereviewe
 spec/support/serializer_spec_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/support/shared_examples_for_labs_and_tests.rb @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/support/shared_examples_for_mhv.rb @department-of-veterans-affairs/octo-identity
+spec/support/shared_examples_for_mr.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/support/sidekiq/batch.rb @department-of-veterans-affairs/backend-review-group
 spec/support/sign_in @department-of-veterans-affairs/octo-identity
 spec/support/sign_in.rb @department-of-veterans-affairs/octo-identity
