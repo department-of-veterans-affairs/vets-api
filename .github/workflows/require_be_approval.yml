@@ -213,7 +213,7 @@ jobs:
 
             # Get most recent review state per user
             readarray -t APPROVALS < <(
-              gh api /department-of-veterans-affairs/vets-api//pulls/${PR_NUMBER}/reviews --jq '
+              gh api /repos/department-of-veterans-affairs/vets-api/pulls/${PR_NUMBER}/reviews --jq '
                 [.[] | select(.state == "APPROVED")]
                 | sort_by(.submitted_at)
                 | reverse
