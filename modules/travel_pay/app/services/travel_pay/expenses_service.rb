@@ -113,7 +113,7 @@ module TravelPay
         key_str = key.to_s
         api_key = special_mappings[key_str] || key_str.camelize(:lower)
 
-        # Recursively transform nested hashes (like receipt)
+        # Transform hashes (like receipt)
         request_body[api_key] = transform_hash(value)
       end
 
