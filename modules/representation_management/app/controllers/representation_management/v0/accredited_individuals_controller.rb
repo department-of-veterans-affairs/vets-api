@@ -27,7 +27,7 @@ module RepresentationManagement
             model_class = AccreditedIndividual
           end
 
-          collection = Vets::Collection.new(data:, model_class)
+          collection = Vets::Collection.new(data:, model_class:)
           resource = collection.paginate(**pagination_params)
           options = { meta: resource.metadata }
 
