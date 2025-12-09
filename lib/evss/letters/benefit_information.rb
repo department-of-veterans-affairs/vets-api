@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module EVSS
   module Letters
@@ -16,11 +16,13 @@ module EVSS
     # @!attribute has_chapter35_eligiblity
     #   @return [Boolean] Returns true if the user is Chapter 35-eligible
     #
-    class BenefitInformation < Common::Base
+    class BenefitInformation
+      include Vets::Model
+
       attribute :monthly_award_amount, Float
       attribute :service_connected_percentage, Integer
       attribute :award_effective_date, DateTime
-      attribute :has_chapter35_eligibility, Boolean
+      attribute :has_chapter35_eligibility, Bool
     end
   end
 end
