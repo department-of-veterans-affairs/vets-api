@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'vets/collection'
 
 module RepresentationManagement
   module V0
@@ -26,7 +27,7 @@ module RepresentationManagement
             model_class = AccreditedIndividual
           end
 
-          collection = Common::Collection.new(model_class, data:)
+          collection = Vets::Collection.new(data:, model_class)
           resource = collection.paginate(**pagination_params)
           options = { meta: resource.metadata }
 

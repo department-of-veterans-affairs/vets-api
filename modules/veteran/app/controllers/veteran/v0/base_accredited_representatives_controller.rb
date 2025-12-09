@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/collection'
+
 module Veteran
   module V0
     class BaseAccreditedRepresentativesController < ApplicationController
@@ -19,7 +21,7 @@ module Veteran
                                           last_name_desc].freeze
 
       def index
-        collection = Common::Collection.new(Veteran::Service::Representative, data: representative_query)
+        collection = Vets::Collection.new(representative_query, Veteran::Service::Representative)
         resource = collection.paginate(**pagination_params)
         render json: serializer_class.new(resource.data, { meta: resource.metadata })
       end
