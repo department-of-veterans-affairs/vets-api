@@ -1868,6 +1868,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_bank_info_confirmation_field:
+    actor_type: user
+    description: Enables additional confirmation field for bank information pages across MEB applications
+    enable_in_development: true
   meb_1995_re_reroute:
     actor_type: user
     description: Show the questionnaire to determine where to re-route the user
