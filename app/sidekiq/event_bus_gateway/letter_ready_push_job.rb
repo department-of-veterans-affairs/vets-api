@@ -61,29 +61,14 @@ module EventBusGateway
         personalisation: {}
       )
 
-      create_push_notification_record(template_id, icn)
-    end
-
-    def create_push_notification_record(template_id, icn)
-      notification = EventBusGatewayPushNotification.create(
+      EventBusGatewayPushNotification.create!(
         user_account: user_account(icn),
         template_id:
-      )
-
-      return if notification.persisted?
-
-      ::Rails.logger.warn(
-        'LetterReadyPushJob notification record failed to save',
-        {
-          errors: notification.errors.full_messages,
-          template_id:
-        }
       )
     end
 
     def notify_client
-      # Push notifications require a separate API key from email and sms
-      @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.push_api_key)
+      @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.api_key)
     end
   end
 end
