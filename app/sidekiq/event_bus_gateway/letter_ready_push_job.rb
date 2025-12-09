@@ -61,9 +61,23 @@ module EventBusGateway
         personalisation: {}
       )
 
-      EventBusGatewayPushNotification.create!(
+      create_push_notification_record(template_id, icn)
+    end
+
+    def create_push_notification_record(template_id, icn)
+      notification = EventBusGatewayPushNotification.create(
         user_account: user_account(icn),
         template_id:
+      )
+
+      return if notification.persisted?
+
+      ::Rails.logger.warn(
+        'LetterReadyPushJob notification record failed to save',
+        {
+          errors: notification.errors.full_messages,
+          template_id:
+        }
       )
     end
 
