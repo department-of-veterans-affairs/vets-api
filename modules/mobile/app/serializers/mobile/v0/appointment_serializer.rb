@@ -35,7 +35,8 @@ module Mobile
                  :travel_pay_eligible,
                  :show_schedule_link,
                  :is_cerner,
-                 :avs_pdf
+                 :avs_pdf,
+                 :avs_error
     end
   end
 end

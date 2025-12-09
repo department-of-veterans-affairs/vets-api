@@ -530,6 +530,96 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       end
     end
 
+    context 'with VES JSON files' do
+      let(:form_uuid) { '12345678-1234-5678-1234-567812345678' }
+      let(:different_uuid) { '87654321-4321-8765-4321-876543210987' }
+      let(:created_time) { 30.minutes.ago }
+      let(:default_form_attrs) do
+        {
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false,
+          created_at: created_time
+        }
+      end
+
+      before do
+        allow_any_instance_of(IvcChampva::Email).to receive(:valid_environment?).and_return(true)
+      end
+
+      after do
+        # Clean up only the records created in this context
+        IvcChampvaForm.where(form_uuid:).delete_all
+        IvcChampvaForm.where(form_uuid: different_uuid).delete_all
+      end
+
+      it 'updates VES JSON files even when Pega does not send VES JSON file names' do
+        # Create main form, VES JSON, and supporting document
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid:, file_name: "#{form_uuid}_vha_10_10d.pdf"))
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid:, file_name: "#{form_uuid}_vha_10_10d_ves.json"))
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid:,
+                                                        file_name: "#{form_uuid}_vha_10_10d_supporting_doc-1.pdf"))
+
+        # Pega only sends the main form and supporting doc file names, NOT the VES JSON
+        payload = {
+          'form_uuid' => form_uuid,
+          'file_names' => [
+            "#{form_uuid}_vha_10_10d.pdf",
+            "#{form_uuid}_vha_10_10d_supporting_doc-1.pdf"
+          ],
+          'case_id' => 'ABC-1234',
+          'status' => 'Processed'
+        }
+
+        post '/ivc_champva/v1/forms/status_updates', params: payload
+
+        # Verify all 3 records were updated, including the VES JSON file
+        updated_forms = IvcChampvaForm.where(form_uuid:, pega_status: 'Processed')
+        expect(updated_forms.count).to eq(3)
+        expect(updated_forms.pluck(:file_name).sort).to eq([
+          "#{form_uuid}_vha_10_10d.pdf",
+          "#{form_uuid}_vha_10_10d_supporting_doc-1.pdf",
+          "#{form_uuid}_vha_10_10d_ves.json"
+        ].sort)
+
+        # Verify all have the same case_id
+        expect(updated_forms.pluck(:case_id).uniq).to eq(['ABC-1234'])
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'does not update VES JSON files when no files match the UUID' do
+        # Create form and VES JSON with different UUID
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid: different_uuid,
+                                                        file_name: "#{different_uuid}_vha_10_10d.pdf"))
+        IvcChampvaForm.create!(default_form_attrs.merge(form_uuid: different_uuid,
+                                                        file_name: "#{different_uuid}_vha_10_10d_ves.json"))
+
+        # Send payload for form_uuid that doesn't exist
+        payload = {
+          'form_uuid' => form_uuid,
+          'file_names' => ["#{form_uuid}_vha_10_10d.pdf"],
+          'case_id' => 'ABC-1234',
+          'status' => 'Processed'
+        }
+
+        post '/ivc_champva/v1/forms/status_updates', params: payload
+
+        # Verify no forms were updated (wrong UUID)
+        updated_forms = IvcChampvaForm.where(pega_status: 'Processed')
+        expect(updated_forms.count).to eq(0)
+
+        # Verify response indicates no forms found
+        expect(response).to have_http_status(:not_found)
+        expect(response.body).to include('No form(s) found')
+      end
+    end
+
     context 'with invalid payload' do
       let(:invalid_payload) { { status: 'invalid' } }
 

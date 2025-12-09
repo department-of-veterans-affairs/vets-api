@@ -758,6 +758,28 @@ RSpec.describe FormProfile, type: :model do
       }
     }
   end
+
+  let(:v21_2680_expected) do
+    { veteranInformation: {
+      veteranFullName: {
+        first: 'Abraham',
+        last: 'Lincoln',
+        suffix: 'Jr.'
+      },
+      veteranDob: '1809-02-12',
+      phoneNumber: '3035551234',
+      email: user.va_profile_email,
+      veteranAddress: {
+        street: '140 Rock Creek Rd',
+        city: 'Washington',
+        state: 'DC',
+        country: 'USA',
+        postalCode: '20011'
+      },
+      veteranSsn: '796111863'
+    } }
+  end
+
   let(:v26_1880_expected) do
     {
       'fullName' => {
@@ -1466,22 +1488,14 @@ RSpec.describe FormProfile, type: :model do
           can_prefill_vaprofile(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-          v22_0994_expected['bankAccount'] = {
-            'bankAccountNumber' => '*********1234',
-            'bankAccountType' => 'Checking',
-            'bankName' => 'Comerica',
-            'bankRoutingNumber' => '*****2115'
-          }
         end
 
         it 'prefills 0994 with VA Profile and payment information' do
           VCR.use_cassette('va_profile/v2/contact_information/get_address') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              VCR.use_cassette('evss/ppiu/payment_information') do
-                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                                 allow_playback_repeats: true) do
-                  expect_prefilled('22-0994')
-                end
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true) do
+                expect_prefilled('22-0994')
               end
             end
           end
@@ -2071,6 +2085,7 @@ RSpec.describe FormProfile, type: :model do
           26-4555
           21-22
           21-22A
+          21-2680
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
