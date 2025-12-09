@@ -40,7 +40,7 @@ class ParameterFilteringAllowlistChecker
       next unless line.start_with?('+', '-') && !line.start_with?('+++', '---')
 
       element = line[1..].strip
-      return true if element.match?(/^[a-z_]+$/)
+      return true if element.match?(/^[a-z0-9_]+$/)
     end
     false
   end
@@ -62,18 +62,13 @@ class ParameterFilteringAllowlistChecker
 
       **⚠️ CRITICAL: PII RISK**
 
-      Adding keys to the ALLOWLIST means those parameters will **NOT** be filtered in logs across **ALL** of vets-api.
-      This could expose sensitive data (PII/PHI/secrets) in:
-      - Application logs
-      - DataDog
-      - Sentry
-      - Other logging destinations
+      Adding keys to the ALLOWLIST means those parameters will **NOT** be filtered in logs across **ALL** of vets-api. This could expose sensitive data (PII/PHI/secrets) in logs.
 
       **Before approving this PR, verify:**
-      - [ ] The added key(s) **CANNOT** contain PII, PHI, or secrets
-      - [ ] The key name is generic enough that it won't accidentally expose sensitive data
-      - [ ] There's a documented business need for unfiltering this parameter
-      - [ ] Consider using the new `log_allowlist` parameter for per-call filtering instead (see #121130)
+      - The added key(s) **CANNOT** contain PII, PHI, or secrets
+      - The key name is generic enough that it won't accidentally expose sensitive data in another part of the application
+      - The business need for unfiltering this parameter is documented in the PR description
+      - Consider using the new `log_allowlist` parameter for per-call filtering instead (see #121130)
 
       **Per-call filtering alternative:**
       ```ruby

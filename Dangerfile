@@ -3,7 +3,7 @@
 require 'ostruct'
 require 'open3'
 
-require_relative 'lib/vsp_danger/parameter_filtering_allowlist_checker'
+require_relative 'lib/dangerfile/parameter_filtering_allowlist_checker'
 
 module VSPDanger
   HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"

@@ -785,8 +785,8 @@ config/ssoe_idp_int_metadata_isam.xml @department-of-veterans-affairs/octo-ident
 config/storage.yml @department-of-veterans-affairs/backend-review-group
 Dangerfile @department-of-veterans-affairs/backend-review-group
 datadog-service-catalog/ @department-of-veterans-affairs/backend-review-group
-lib/vsp_danger/ @department-of-veterans-affairs/backend-review-group
-spec/lib/vsp_danger/ @department-of-veterans-affairs/backend-review-group
+lib/dangerfile/ @department-of-veterans-affairs/backend-review-group
+spec/lib/dangerfile/ @department-of-veterans-affairs/backend-review-group
 db/audit_migrate @department-of-veterans-affairs/octo-identity
 db/audit_schema.rb @department-of-veterans-affairs/octo-identity
 db/migrate @department-of-veterans-affairs/backend-review-group

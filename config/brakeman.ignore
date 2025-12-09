@@ -6,7 +6,7 @@
       "fingerprint": "c6b323c0d60f76b8c0e14268d297a7cf6ddc58fd84edc86a159904e45dab4b79",
       "check_name": "Execute",
       "message": "Possible command injection",
-      "file": "lib/vsp_danger/parameter_filtering_allowlist_checker.rb",
+      "file": "lib/dangerfile/parameter_filtering_allowlist_checker.rb",
       "line": 49,
       "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
       "code": "`git diff #{@base_sha}...#{@head_sha} -- #{FILTER_PARAM_FILE}`",

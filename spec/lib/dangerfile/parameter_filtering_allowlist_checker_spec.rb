@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vsp_danger/parameter_filtering_allowlist_checker'
+require 'dangerfile/parameter_filtering_allowlist_checker'
 
 RSpec.describe ParameterFilteringAllowlistChecker do
   subject(:checker) { described_class.new }
