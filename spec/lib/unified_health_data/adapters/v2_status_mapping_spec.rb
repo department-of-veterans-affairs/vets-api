@@ -3,12 +3,12 @@
 require 'rails_helper'
 require 'unified_health_data/adapters/v2_status_mapping'
 
-RSpec.describe UnifiedHealthData::Adapters::V2StatusMapper do
+RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
   subject(:mapper) { test_class.new }
 
   let(:test_class) do
     Class.new do
-      include UnifiedHealthData::Adapters::V2StatusMapper
+      include UnifiedHealthData::Adapters::V2StatusMapping
     end
   end
 
@@ -259,7 +259,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapper do
     end
   end
 
-  describe '#apply_v2_status_mapping_to_collection' do
+  describe '#apply_v2_status_mapping_to_all' do
     it 'applies mapping to all prescriptions in collection' do
       prescriptions = [
         OpenStruct.new(disp_status: 'Active', prescription_id: '1'),
@@ -268,7 +268,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapper do
         OpenStruct.new(disp_status: 'Discontinued', prescription_id: '4')
       ]
 
-      result = mapper.apply_v2_status_mapping_to_collection(prescriptions)
+      result = mapper.apply_v2_status_mapping_to_all(prescriptions)
 
       expect(result[0].disp_status).to eq('Active')
       expect(result[1].disp_status).to eq('Inactive')
@@ -282,14 +282,14 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapper do
         OpenStruct.new(disp_status: 'Expired', prescription_id: '2')
       ]
 
-      result = mapper.apply_v2_status_mapping_to_collection(prescriptions)
+      result = mapper.apply_v2_status_mapping_to_all(prescriptions)
 
       expect(result[0][:disp_status]).to eq('Active')
       expect(result[1].disp_status).to eq('Inactive')
     end
 
     it 'returns empty array for empty input' do
-      result = mapper.apply_v2_status_mapping_to_collection([])
+      result = mapper.apply_v2_status_mapping_to_all([])
 
       expect(result).to eq([])
     end
@@ -300,7 +300,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapper do
         OpenStruct.new(disp_status: 'Active', prescription_id: '2')
       ]
 
-      result = mapper.apply_v2_status_mapping_to_collection(prescriptions)
+      result = mapper.apply_v2_status_mapping_to_all(prescriptions)
 
       expect(result[0].disp_status).to be_nil
       expect(result[1].disp_status).to eq('Active')
@@ -312,7 +312,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapper do
         OpenStruct.new(disp_status: 'Active', prescription_id: '2')
       ]
 
-      result = mapper.apply_v2_status_mapping_to_collection(prescriptions)
+      result = mapper.apply_v2_status_mapping_to_all(prescriptions)
 
       expect(result[0].disp_status).to eq('Status not available')
       expect(result[1].disp_status).to eq('Active')

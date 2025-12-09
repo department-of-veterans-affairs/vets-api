@@ -5,10 +5,9 @@ module UnifiedHealthData
     # Module providing V2 status mapping functionality for prescription adapters
     # Maps original VistA/Oracle Health statuses to simplified V2 status groups
     #
-    # This mapper is applied at the PrescriptionsAdapter level when the Cerner pilot
-    # feature flag is enabled, consolidating status logic in one place for both
+    # This mapping is applied at the PrescriptionsAdapter level when the Cerner pilot feature flag is enabled, consolidating status logic in one place for both
     # VistA and Oracle Health prescriptions.
-    module V2StatusMapper
+    module V2StatusMapping
       # V2 status groupings - maps V2 status to array of original statuses
       # Based on VA.gov Status Chart mapping requirements
       V2_STATUS_GROUPS = {
@@ -60,20 +59,15 @@ module UnifiedHealthData
       end
 
       # Applies V2 status mapping to a single prescription object or hash
+      # If disp_status is nil/empty but refill_status is present, first derives disp_status from refill_status
+      # Then maps the disp_status to V2 format
       # @param prescription [Object, Hash] A prescription object or hash with disp_status attribute
       # @return [Object, Hash] The same prescription with mapped disp_status
       def apply_v2_status_mapping(prescription)
         if prescription.is_a?(Hash)
-          # Handle hash-based prescriptions (Vista)
-          original_status = prescription[:disp_status]
-          return prescription if original_status.nil? || original_status.to_s.empty?
-
-          prescription[:disp_status] = map_to_v2_status(original_status)
+          apply_v2_status_mapping_to_hash(prescription)
         elsif prescription.respond_to?(:disp_status) && prescription.respond_to?(:disp_status=)
-          # Handle object-based prescriptions (OpenStruct/Oracle)
-          return prescription if prescription.disp_status.nil? || prescription.disp_status.to_s.empty?
-
-          prescription.disp_status = map_to_v2_status(prescription.disp_status)
+          apply_v2_status_mapping_to_object(prescription)
         end
         prescription
       end
@@ -81,8 +75,27 @@ module UnifiedHealthData
       # Applies V2 status mapping to a collection of prescriptions
       # @param prescriptions [Array] Array of prescription objects
       # @return [Array] The same array with all prescriptions mapped
-      def apply_v2_status_mapping_to_collection(prescriptions)
+      def apply_v2_status_mapping_to_all(prescriptions)
+        return prescriptions unless prescriptions.is_a?(Array)
+
         prescriptions.each { |rx| apply_v2_status_mapping(rx) }
+        prescriptions
+      end
+
+      private
+
+      def apply_v2_status_mapping_to_hash(prescription)
+        current_disp_status = prescription[:disp_status]
+        return if current_disp_status.blank?
+
+        prescription[:disp_status] = map_to_v2_status(current_disp_status)
+      end
+
+      def apply_v2_status_mapping_to_object(prescription)
+        current_disp_status = prescription.disp_status
+        return if current_disp_status.blank?
+
+        prescription.disp_status = map_to_v2_status(current_disp_status)
       end
     end
   end
