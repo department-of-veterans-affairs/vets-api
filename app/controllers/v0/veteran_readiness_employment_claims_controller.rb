@@ -25,8 +25,7 @@ module V0
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")
-        Rails.logger.error('VR&E claim was not saved', { vre_modular_api_used: Flipper.enabled?(:vre_modular_api),
-                                                         error_messages: claim.errors,
+        Rails.logger.error('VR&E claim was not saved', { error_messages: claim.errors,
                                                          user_logged_in: current_user.present?,
                                                          current_user_uuid: current_user&.uuid })
         raise Common::Exceptions::ValidationErrors, claim
