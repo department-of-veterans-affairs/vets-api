@@ -114,26 +114,23 @@ module TravelPay
         api_key = special_mappings[key_str] || key_str.camelize(:lower)
 
         # Recursively transform nested hashes (like receipt)
-        request_body[api_key] = transform_value(value)
+        request_body[api_key] = transform_hash(value)
       end
 
       request_body
     end
 
     ##
-    # Recursively transforms hash values to camelCase
-    # Handles nested hashes and arrays
+    # Transforms hash values to camelCase
+    # For receipt parameter which is a hash with properties
     #
     # @param value [Object] The value to transform
     # @return [Object] The transformed value
     #
-    def transform_value(value)
+    def transform_hash(value)
       case value
       when Hash
         value.transform_keys { |k| k.to_s.camelize(:lower) }
-             .transform_values { |v| transform_value(v) }
-      when Array
-        value.map { |v| transform_value(v) }
       else
         value
       end
