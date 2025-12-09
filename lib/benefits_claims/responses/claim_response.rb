@@ -4,7 +4,6 @@ require 'vets/model'
 
 module BenefitsClaims
   module Responses
-
     class ClaimPhaseDates
       include Vets::Model
 
