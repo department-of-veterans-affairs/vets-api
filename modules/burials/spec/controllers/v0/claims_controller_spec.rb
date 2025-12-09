@@ -132,8 +132,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
       before do
         allow(Burials::SavedClaim).to receive(:new).and_return(claim)
-        allow(claim).to receive(:save).and_return(false)
-        allow(claim).to receive(:errors).and_return(validation_errors)
+        allow(claim).to receive_messages(save: false, errors: validation_errors)
         validation_errors.add(:base, 'Validation failed')
       end
 
