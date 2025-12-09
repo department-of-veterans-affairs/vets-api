@@ -27,7 +27,8 @@
   },
   "payeeNumber": "AB",
   "ssn": "123456789",
-  "vaBenefitProgram": "chapter30",
+  "vaFileNumber": "987654321",
+  "vaBenefitProgram": "chapter35",
   "hasPreviouslyApplied": true,
   "statementOfTruthSignature": "Jackie Doe",
   "dateSigned": "2025-01-01"
