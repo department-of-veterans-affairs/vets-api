@@ -603,12 +603,6 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
-ihub:
-  appointments:
-    mock: true
-    timeout: 30
-  in_production: false
-  url: https://qacrmdac.np.crm.vrm.vba.va.gov
 intent_to_file:
   prefill: true
 ivc_champva:
