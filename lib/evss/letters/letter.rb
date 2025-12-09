@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vets/model'
+require 'common/models/base'
 
 module EVSS
   module Letters
@@ -14,8 +14,7 @@ module EVSS
     # @!attribute letter_type
     #   @return [String] The letter type (must be one of LETTER_TYPES)
     #
-    class Letter
-      include Vets::Model
+    class Letter < Common::Base
       # if you update LETTER_TYPES, update LETTER_TYPES in vets-website src/applications/letters/utils/constants.js
       LETTER_TYPES = %w[
         benefit_summary

@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require 'vets/model'
+require 'common/models/base'
 
 module EVSS
   module Letters
-    include Vets::Model
     ##
     # Model for a user's military service
     #
@@ -18,7 +17,7 @@ module EVSS
     # @!attribute released_date
     #   @return [DateTime] The date the veteran was released from service
     #
-    class MilitaryService
+    class MilitaryService < Common::Base
       attribute :branch, String
       attribute :character_of_service, String
       attribute :entered_date, DateTime

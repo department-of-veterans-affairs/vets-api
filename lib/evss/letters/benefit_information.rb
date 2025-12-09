@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require 'vets/model'
-
+require 'common/models/base'
 
 module EVSS
   module Letters
-    include Vets::Model
     ##
     # Model for benefit information
     #
@@ -16,13 +14,13 @@ module EVSS
     # @!attribute award_effective_date
     #   @return [DateTime] The date and time that the user's benefit award goes into effect
     # @!attribute has_chapter35_eligiblity
-    #   @return [Bool] Returns true if the user is Chapter 35-eligible
+    #   @return [Boolean] Returns true if the user is Chapter 35-eligible
     #
-    class BenefitInformation
+    class BenefitInformation < Common::Base
       attribute :monthly_award_amount, Float
       attribute :service_connected_percentage, Integer
       attribute :award_effective_date, DateTime
-      attribute :has_chapter35_eligibility, Bool
+      attribute :has_chapter35_eligibility, Boolean
     end
   end
 end
