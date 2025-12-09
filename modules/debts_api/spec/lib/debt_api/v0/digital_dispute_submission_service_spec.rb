@@ -163,9 +163,10 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
           allow_any_instance_of(described_class).to receive(:send_to_dmc)
                                                       .and_raise(StandardError.new('Unexpected error'))
 
-          expect(Rails.logger).to receive(:error).with("Unexpected error")
+          expect(Rails.logger).to receive(:error).with("DigitalDisputeSubmission error_message: Unexpected error")
 
-          service = described_class.new(user, [pdf_file_one])
+          metadata = { disputes: [ { composite_debt_id: 12 }, { composite_debt_id: 34 }, { composite_debt_id: 56 } ] }
+          service = described_class.new(user, [pdf_file_one], metadata)
           result = service.call
 
           expect(result[:success]).to be false

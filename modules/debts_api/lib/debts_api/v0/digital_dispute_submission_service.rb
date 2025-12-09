@@ -97,6 +97,7 @@ module DebtsApi
 
           # Extract and store debt identifiers for duplicate checking
           disputes = @metadata[:disputes] || []
+
           submission.store_debt_identifiers(disputes)
 
           # Store non-PII data in public_metadata
