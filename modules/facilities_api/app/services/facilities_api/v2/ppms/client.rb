@@ -80,11 +80,7 @@ module FacilitiesApi
 
         def provider_locator_params(params)
           if params[:page].present? && params[:per_page].present?
-            _page, _per_page, max_results = fetch_pagination(params)
-
-            base_location_params(params)
-              .merge({ maxResults: max_results })
-              .merge(specialty_codes(params))
+            base_location_params(params).merge(specialty_codes(params))
           else
             base_params(params).merge(specialty_codes(params))
           end
@@ -114,7 +110,7 @@ module FacilitiesApi
           {
             address: [latitude, longitude].join(','),
             radius:,
-            maxResults: per_page,
+            maxResults: per_page.clamp(RESULTS_MIN, RESULTS_MAX),
             pageNumber: page,
             pageSize: per_page,
             telehealthSearch: 0,
