@@ -19,7 +19,7 @@ module VSPDanger
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
         GemfileLockPlatformChecker.new.run,
-        ::ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
+        ::Dangerfile::ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
       ]
     end
 

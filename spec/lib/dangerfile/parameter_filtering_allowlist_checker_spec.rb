@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'dangerfile/parameter_filtering_allowlist_checker'
 
-RSpec.describe ParameterFilteringAllowlistChecker do
+RSpec.describe Dangerfile::ParameterFilteringAllowlistChecker do
   subject(:checker) { described_class.new }
 
   describe '#allowlist_changed?' do
@@ -110,7 +110,7 @@ RSpec.describe ParameterFilteringAllowlistChecker do
       it 'returns a warning result' do
         checker.filter_params_diff = diff
         result = checker.run
-        expect(result.severity).to eq(Result::WARNING)
+        expect(result.severity).to eq(Dangerfile::Result::WARNING)
       end
 
       it 'includes PII risk warning in message' do
@@ -130,7 +130,7 @@ RSpec.describe ParameterFilteringAllowlistChecker do
       it 'returns a success result' do
         checker.filter_params_diff = ''
         result = checker.run
-        expect(result.severity).to eq(Result::SUCCESS)
+        expect(result.severity).to eq(Dangerfile::Result::SUCCESS)
       end
     end
   end
