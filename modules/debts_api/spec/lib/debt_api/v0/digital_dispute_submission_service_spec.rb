@@ -159,15 +159,18 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
 
     context 'when unexpected error occurs' do
       it 'returns generic failure result' do
-        allow_any_instance_of(described_class)
-          .to receive(:validate_files_present)
-          .and_raise(StandardError.new('Unexpected error'))
+        VCR.use_cassette('bgs/people_service/person_data') do
+          allow_any_instance_of(described_class).to receive(:send_to_dmc)
+                                                      .and_raise(StandardError.new('Unexpected error'))
 
-        service = described_class.new(user, [pdf_file_one])
-        result = service.call
+          expect(Rails.logger).to receive(:error).with("Unexpected error")
 
-        expect(result[:success]).to be false
-        expect(result[:errors][:base]).to include('An error occurred processing your submission')
+          service = described_class.new(user, [pdf_file_one])
+          result = service.call
+
+          expect(result[:success]).to be false
+          expect(result[:errors][:base]).to include('An error occurred processing your submission')
+        end
       end
     end
 
