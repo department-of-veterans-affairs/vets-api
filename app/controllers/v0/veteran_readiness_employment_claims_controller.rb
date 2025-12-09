@@ -9,11 +9,19 @@ module V0
     def create
       user_account = UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
       claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
+      submission_id = nil
 
       if claim.save
+        if Flipper.enabled?(:vre_track_submissions)
+          submission_id = claim.form_submissions.create!(
+            form_type: claim.form_id,
+            user_account:
+          ).id
+        end
+
         if Flipper.enabled?(:vre_modular_api)
           Rails.logger.info 'Submitting VR&E claim via modular VRE API'
-          VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user)
+          VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
         else
           Rails.logger.info 'Submitting VR&E claim via legacy VRE API'
           VRE::Submit1900Job.perform_async(claim.id, encrypted_user)

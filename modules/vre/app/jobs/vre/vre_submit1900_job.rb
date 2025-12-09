@@ -12,6 +12,9 @@ module VRE
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     RETRY = 16
 
+    FORM_TYPE = '28-1900'
+    FORM_TYPE_V2 = '28-1900-V2'
+
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
@@ -26,7 +29,7 @@ module VRE
       threshold_hours = Settings.veteran_readiness_and_employment.duplicate_submission_threshold_hours || 24
       threshold = threshold_hours.hours.ago
       submissions = user_account.form_submissions.where(
-        form_type: SavedClaim::VeteranReadinessEmploymentClaim::FORM,
+        form_type: [FORM_TYPE, FORM_TYPE_V2],
         created_at: threshold..
       )
 
@@ -39,51 +42,44 @@ module VRE
       end
     end
 
-    def perform(claim_id, encrypted_user, submission_attempt_id = nil)
-      # TODO: Change this to use new modular VRE claim class
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.find claim_id
-      user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
-      claim.send_to_vre(user)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+    def perform(claim_id, encrypted_user, submission_id = nil)
+      if Flipper.enabled?(:vre_track_submissions) && submission_id
+        submission = FormSubmission.find(submission_id)
+        attempt = submission.submission_attempts.create!
+      end
 
-      if Flipper.enabled?(:vre_track_submissions) && submission_attempt_id
-        submission_attempt = FormSubmissionAttempt.find(submission_attempt_id)
+      begin
+        # TODO: Change this to use new modular VRE claim class
+        claim = SavedClaim::VeteranReadinessEmploymentClaim.find claim_id
+        user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
+        claim.send_to_vre(user)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
-        if submission_attempt
-          form_submission = FormSubmission.create!(
-            saved_claim: claim,
-            form_type: claim.form_id,
-            user_account: claim.user_account,
-            form_submission_attempt_id: submission_attempt_id
+        if Flipper.enabled?(:vre_track_submissions) && submission_id
+          attempt.success!
+          Rails.logger.info(
+            'VRE::VRESubmit1900Job Succeeded',
+            num_attempts: submission.form_submission_attempts.count,
+            user_account_id: claim&.user_account&.id
           )
-
-          submission_attempt.form_submission = form_submission
-          submission_attempt.save!
-          submission_attempt.succeed!
           duplicate_submission_check(claim.user_account)
         end
+      rescue => e
+        attempt&.failure! if Flipper.enabled?(:vre_track_submissions) && submission_id
+        Rails.logger.warn("VRE::VRESubmit1900Job failed, retrying...: #{e.message}")
+        raise
       end
-    rescue => e
-      Rails.logger.warn("VRE::VRESubmit1900Job failed, retrying...: #{e.message}")
-      raise
     end
 
     def self.trigger_failure_events(msg)
       claim_id = msg['args'][0]
       claim = ::SavedClaim.find(claim_id)
 
-      submission_attempt_id = msg['args'][2]
-
       if Flipper.enabled?(:vre_use_new_vfs_notification_library)
         VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
       else
         VRE::Monitor.new.track_submission_exhaustion(msg, claim.email)
         claim.send_failure_email
-      end
-
-      if Flipper.enabled?(:vre_track_submissions) && submission_attempt_id
-        form_submission_attempt = FormSubmissionAttempt.find submission_attempt_id
-        form_submission_attempt.fail! if form_submission_attempt
       end
     end
   end
