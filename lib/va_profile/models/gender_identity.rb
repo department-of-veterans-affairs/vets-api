@@ -2,13 +2,11 @@
 
 require_relative 'base'
 require 'va_profile/concerns/defaultable'
-require 'vets/model'
 
 module VAProfile
   module Models
     class GenderIdentity < Base
       include VAProfile::Concerns::Defaultable
-      include Vets::Model
 
       CODES = %w[M F TM TF B N O].freeze
       OPTIONS = {

@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-require 'vets/model'
+≈# frozen_string_literal: true
 
 # Preneeds namespace
 #
@@ -34,7 +32,6 @@ module Preneeds
   #   @return [Preneeds::Veteran] Veteran object.  Veteran is the person who is the owner of the benefit.
   #
   class BurialForm < Preneeds::Base
-    include Vets::Model
     # Preneeds Burial Form official form id
     #
     FORM = '40-10007'
