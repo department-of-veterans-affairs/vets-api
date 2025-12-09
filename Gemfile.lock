@@ -1235,7 +1235,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
-    yard (0.9.37)
+    yard (0.9.38)
     zeitwerk (2.7.3)
 
 PLATFORMS
