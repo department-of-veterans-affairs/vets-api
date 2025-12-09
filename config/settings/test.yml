@@ -149,6 +149,7 @@ check_in:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: https://login.microsoftonline.us
     claims_base_path: EC/ClaimIngestSvc
+    claims_base_path_v2: eis/api/btsss/travelclaim
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: https://dev.integration.d365.va.gov
     client_id: fake_client_id

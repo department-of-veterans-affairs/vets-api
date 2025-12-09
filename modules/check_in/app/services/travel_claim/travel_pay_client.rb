@@ -31,7 +31,7 @@ module TravelClaim
     attr_reader :settings
 
     def_delegators :settings, :auth_url, :tenant_id, :travel_pay_client_id, :travel_pay_client_secret,
-                   :travel_pay_client_secret_oh, :claims_url_v2, :subscription_key,
+                   :travel_pay_client_secret_oh, :claims_url_v2, :claims_base_path_v2, :subscription_key,
                    :e_subscription_key, :s_subscription_key, :client_number, :travel_pay_resource,
                    :client_secret
 
