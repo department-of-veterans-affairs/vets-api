@@ -586,6 +586,17 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
         end
+
+        context 'with CIE facility type' do
+          let(:facility_type) { 'cie' }
+
+          it 'increments both timeout and failure metrics for CIE facility' do
+            expect { service.submit_claim }.to raise_error(Net::ReadTimeout)
+
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)
+          end
+        end
       end
 
       context 'when ClientError is raised' do
