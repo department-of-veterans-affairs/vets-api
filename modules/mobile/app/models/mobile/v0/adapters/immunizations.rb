@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'uri'
+
 module Mobile
   module V0
     module Adapters
@@ -120,8 +122,18 @@ module Mobile
           cvx_entry = non_prefixed.find { |v| v[:system] == 'http://hl7.org/fhir/sid/cvx' && v[:display].present? }
           return cvx_entry[:display] if cvx_entry
 
-          # Priority 2: system contains "fhir.cerner.com"
-          cerner_entry = non_prefixed.find { |v| v[:system]&.include?('fhir.cerner.com') && v[:display].present? }
+          # Priority 2: system host is fhir.cerner.com or subdomain
+          cerner_entry = non_prefixed.find do |v|
+            next false unless v[:display].present? && v[:system].present?
+
+            begin
+              uri = URI.parse(v[:system])
+              host = uri.host
+              host == 'fhir.cerner.com' || host&.end_with?('.fhir.cerner.com')
+            rescue URI::InvalidURIError
+              false
+            end
+          end
           return cerner_entry[:display] if cerner_entry
 
           # Priority 3: system = "http://hl7.org/fhir/sid/ndc"
