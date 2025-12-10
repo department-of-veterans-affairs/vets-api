@@ -112,10 +112,28 @@ module TravelPay
         # Use special mapping if it exists, otherwise convert to camelCase
         key_str = key.to_s
         api_key = special_mappings[key_str] || key_str.camelize(:lower)
-        request_body[api_key] = value
+
+        # Transform hashes (like receipt)
+        request_body[api_key] = camelize_hash_keys(value)
       end
 
       request_body
+    end
+
+    ##
+    # Transforms hash values to camelCase
+    # For receipt parameter which is a hash with properties
+    #
+    # @param value [Object] The value to transform
+    # @return [Object] The transformed value
+    #
+    def camelize_hash_keys(value)
+      case value
+      when Hash
+        value.transform_keys { |k| k.to_s.camelize(:lower) }
+      else
+        value
+      end
     end
 
     def client
