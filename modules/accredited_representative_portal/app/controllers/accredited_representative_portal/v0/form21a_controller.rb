@@ -63,6 +63,7 @@ module AccreditedRepresentativePortal
       end
       # rubocop:enable Metrics/MethodLength
 
+      # rubocop:disable Metrics/MethodLength
       def submit
         form_hash = JSON.parse(@parsed_request_body)
 
@@ -74,7 +75,9 @@ module AccreditedRepresentativePortal
               enqueue_document_uploads(response)
               InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy
             rescue => e
+              # rubocop:disable Layout/LineLength
               Rails.logger.error("Failed to enqueue uploads: #{e.class} #{e.message} for user_uuid=#{@current_user&.uuid}")
+              # rubocop:enable Layout/LineLength
               # Don't destroy form if upload enqueueing fails
             end
           end
@@ -92,6 +95,7 @@ module AccreditedRepresentativePortal
           render json: { errors: 'Internal server error' }, status: :internal_server_error
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

@@ -20,15 +20,21 @@ class AccreditationService
     Rails.logger.error(
       "Accreditation Service connection failed for user with user_uuid=#{user_uuid}: #{e.message}, URL: #{service_url}"
     )
-    Faraday::Response.new(status: :service_unavailable, body: { errors: 'Accreditation Service unavailable' }.to_json)
+    Faraday::Response.new(
+      status: :service_unavailable,
+      body: { errors: 'Accreditation Service unavailable' }.to_json
+    )
   rescue Faraday::TimeoutError => e
     Rails.logger.error("Accreditation Service request timed out for user with user_uuid=#{user_uuid}: #{e.message}")
-    Faraday::Response.new(status: :request_timeout, body: { errors: 'Accreditation Service request timed out' }.to_json)
+    Faraday::Response.new(
+      status: :request_timeout,
+      body: { errors: 'Accreditation Service request timed out' }.to_json
+    )
   end
 
   # self.connection: Creates and returns a Faraday connection configured with JSON request and response handling.
   def self.connection
-    @connection ||= Faraday.new(url: document_upload_url) do |conn|
+    Faraday.new(url: document_upload_url) do |conn|
       conn.request :json
       conn.response :json, content_type: /\bjson$/
       conn.options.timeout = 30      # 30 second read timeout

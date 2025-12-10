@@ -32,7 +32,6 @@ module AccreditedRepresentativePortal
         "to application_id=#{application_id}"
       )
 
-
       attachment = find_attachment
       return unless attachment
 
@@ -62,16 +61,20 @@ module AccreditedRepresentativePortal
     def retrieve_file(attachment)
       attachment.get_file
     rescue Aws::S3::Errors::ServiceError, IOError => e
+      # rubocop:disable Layout/LineLength
       Rails.logger.error(
         "UploadForm21aDocumentToGclawsJob: Retryable error retrieving file from S3 for guid=#{form21a_attachment_guid}. " \
         "Error: #{e.class} - #{e.message}"
       )
+      # rubocop:enable Layout/LineLength
       raise
-    rescue StandardError => e
+    rescue => e
+      # rubocop:disable Layout/LineLength
       Rails.logger.error(
         "UploadForm21aDocumentToGclawsJob: Non-retryable error retrieving file from S3 for guid=#{form21a_attachment_guid}. " \
         "Error: #{e.class} - #{e.message}"
       )
+      # rubocop:enable Layout/LineLength
       # Do not re-raise to avoid pointless retries
       nil
     end
@@ -139,7 +142,7 @@ module AccreditedRepresentativePortal
       @connection ||= Faraday.new(url: document_upload_url) do |conn|
         conn.request :json
         conn.response :json, content_type: /\bjson$/
-                conn.adapter Faraday.default_adapter
+        conn.adapter Faraday.default_adapter
       end
     end
 

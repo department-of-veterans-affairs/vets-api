@@ -38,6 +38,7 @@ module AccreditedRepresentativePortal
 
     attr_reader :in_progress_form, :application_id
 
+    # rubocop:disable Metrics/MethodLength
     def extract_all_documents
       form_data = parse_form_data
       documents = []
@@ -60,13 +61,14 @@ module AccreditedRepresentativePortal
             confirmation_code: doc['confirmationCode'],
             original_file_name: doc['name'],
             content_type: doc['type'],
-            document_type: document_type
+            document_type:
           }
         end
       end
 
       documents
     end
+    # rubocop:enable Metrics/MethodLength
 
     def parse_form_data
       return {} if in_progress_form.form_data.blank?
