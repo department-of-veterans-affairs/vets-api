@@ -2,8 +2,13 @@
 
 module UnifiedHealthData
   module Adapters
-    # Helper methods for determining Oracle Health prescription renewability
-    # See spec/support/vcr_cassettes/unified_health_data/# Oracle Health VA Dispensed Medications.md
+    # Helper methods for determining Oracle Health prescription renewability.
+    #
+    # @note This module is designed to be included in OracleHealthPrescriptionAdapter.
+    #   It depends on the following methods from the including class:
+    #   - extract_category(resource) - Returns Array<String> of category codes
+    #   - extract_refill_remaining(resource) - Returns Integer of remaining refills
+    #   - parse_expiration_date_utc(resource) - Returns Time or nil for expiration date
     module RenewabilityHelper
       # Determines if an Oracle Health VA-dispensed medication is renewable.
       # A medication is renewable only if ALL gate conditions are met.
@@ -11,6 +16,8 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] true if medication is renewable, false otherwise
       def extract_is_renewable(resource)
+        return false if resource.nil? || !resource.is_a?(Hash)
+
         # Gate 1: MedicationRequest.status must be 'active'
         return false unless resource['status'] == 'active'
 
