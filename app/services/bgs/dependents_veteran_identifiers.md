@@ -52,7 +52,7 @@ In the case above where we try to extract `@file_number = bgs_person[:file_nbr]`
 
 It might seem redundant. but this change seems to better capture the issue in our own code, rather than a shared file.
 
-```
+```ruby
         # Safely extract file number from BGS response as an instance variable for later use;
         # handle malformed bgs_person gracefully
         begin
