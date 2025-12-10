@@ -294,26 +294,13 @@ module BGS
     # - Attempts lookup by participant_id then SSN
     # - Extracts and normalizes va file number when present
     # - Logs and continues on BGS failures
-    # gi
     # Additional notes on this method can be found in app/services/bgs/dependents_veteran_identifiers.md
     def get_form_hash_686c
       begin
-        #  The inclusion of ssn as a parameter is necessary for test/development environments, but really isn't needed in production
+        #  SSN is required in test/dev environments but unnecessary in production
         #  This will be fixed in an upcoming refactor by @TaiWilkin
 
-        # Try to locate the BGS person by participant id (preferred)
-        bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
-        if bgs_person.present?
-          # logging to support Fully Digital Forms initiative in order to determine how often we find by participant_id vs ssn
-          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
-                               "#{STATS_KEY}.find_by_participant_id")
-          # See dependents_veteran_identifiers.md for more information on this.
-        else
-          # Fallback: try to find by SSN when participant_id lookup fails.
-          bgs_person = service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
-          @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
-                               "#{STATS_KEY}.find_by_ssn")
-        end
+        bgs_person = lookup_bgs_person
 
         # Safely extract file number from BGS response as an instance variable for later use;
         # For more details on why this matters, see dependents_veteran_identifiers.md
@@ -346,6 +333,22 @@ module BGS
       end
 
       generate_hash_from_details
+    end
+
+    # Lookup BGS person record by participant_id (preferred) or SSN (fallback)
+    def lookup_bgs_person
+      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+
+      if bgs_person.present?
+        @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+                             "#{STATS_KEY}.find_by_participant_id")
+      else
+        bgs_person = service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+        @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+                             "#{STATS_KEY}.find_by_ssn")
+      end
+
+      bgs_person
     end
 
     # Compose the final payload hash used by submission jobs.

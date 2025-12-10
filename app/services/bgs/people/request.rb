@@ -1,4 +1,19 @@
+# frozen_string_literal: true
+
 module BGS
+  # The People module provides Redis-backed caching for BGS (Benefits Gateway Service)
+  # person lookups. It wraps remote calls to BGS and caches responses to minimize
+  # repeated network requests for the same participant identifiers.
+  #
+  # This module contains classes that handle both the request logic (via Request)
+  # and response handling (via Response) for BGS person data retrieval operations.
+  #
+  # @example Using the People::Request service
+  #   request = BGS::People::Request.new
+  #   response = request.find_person_by_participant_id(user: current_user)
+  #   if response.ok?
+  #     person_data = response.person
+  #   end
   module People
     # Request is a Redis-backed wrapper around the BGS People lookup.
     # It provides a cached entrypoint for `find_person_by_participant_id`
