@@ -6,6 +6,7 @@ module V0
     before_action :authenticate
     skip_before_action :load_user
 
+    # rubocop:disable Metrics/MethodLength
     def create
       user_account = UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
       claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
@@ -38,6 +39,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

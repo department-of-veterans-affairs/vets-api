@@ -41,6 +41,7 @@ module VRE
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def perform(claim_id, encrypted_user, submission_id = nil)
       if Flipper.enabled?(:vre_track_submissions) && submission_id
         submission = FormSubmission.find(submission_id)
@@ -69,6 +70,7 @@ module VRE
         raise
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.trigger_failure_events(msg)
       claim_id = msg['args'][0]
