@@ -58,7 +58,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
     end
 
     context 'when an error status is received' do
-      it 'logs appropriately to statsd and raises a mapped error (ResourceNotFound)' do
+      it 'increments StatsD and raises the appropriate error' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
           expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.fail',
@@ -66,7 +66,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
           expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.total')
           expect do
             subject.get_form_by_icn(icn:, tax_year:)
-          end.to raise_error(Common::Exceptions::ResourceNotFound)
+          end.to raise_error(Common::Exceptions::ResourceNotFound, 'Resource not found')
         end
       end
     end

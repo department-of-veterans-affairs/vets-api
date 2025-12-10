@@ -50,9 +50,16 @@ module VeteranEnrollmentSystem
       private
 
       def raise_error(response)
-        message = response.body['messages']&.pluck('description')&.join(', ') || response.body
+        message = error_message(response)
         raise ERROR_MAP[response.status]&.new(detail: message) ||
               Common::Exceptions::BackendServiceException.new(nil, detail: message)
+      end
+
+      def error_message(response)
+        # the upstream service returns the ICN on 404
+        return 'Record not found' if response.status == 404
+
+        response.body&.dig('messages')&.pluck('description')&.join(', ') || response.body
       end
     end
   end
