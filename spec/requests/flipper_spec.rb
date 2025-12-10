@@ -399,10 +399,13 @@ RSpec.describe 'flipper', type: :request do
       allow_any_instance_of(ActionDispatch::Request).to receive(:session) { { flipper_user: user } }
       allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
       allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
-      Flipper.disable(:this_is_only_a_test)
     end
 
     it 'displays placeholder text indicating comma-separated values are supported' do
+      feature = Flipper[:this_is_only_a_test]
+      allow(feature).to receive(:boolean_value).and_return(false)
+      allow(feature).to receive(:actors_value).and_return([])
+
       get '/flipper/features/this_is_only_a_test'
       assert_response :success
 
