@@ -70,8 +70,6 @@ module VANotify
                                attr_package_key_present: attr_package_key.present?
                              })
           raise ArgumentError, 'Missing personalisation data in Redis'
-
-          nil
         end
       end
       # rubocop:enable Metrics/MethodLength

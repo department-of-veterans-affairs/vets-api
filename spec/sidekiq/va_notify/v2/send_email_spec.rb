@@ -5,7 +5,7 @@ require 'sidekiq/attr_package'
 
 RSpec.describe VANotify::V2::SendEmail, type: :job do
   let(:personalisation) { { first_name: 'Jane', date_submitted: 'May 1, 2024' } }
-  let!(:email) { 'user@example.com' }
+  let(:email) { 'user@example.com' }
   let(:template_id) { 'template-id-123' }
   let(:api_key) { 'fake-api-key' }
   let(:callback_options) { { callback_metadata: { notification_type: 'confirmation' } } }
@@ -18,7 +18,7 @@ RSpec.describe VANotify::V2::SendEmail, type: :job do
     )
   end
 
-  it "stores and retrieves personalisation securely" do
+  it 'stores and retrieves personalisation securely' do
     allow(VaNotify::Service).to receive(:new).and_return(instance_double(VaNotify::Service, send_email: true))
     Sidekiq::Testing.inline! do
       key = Sidekiq::AttrPackage.create(attrs: { personalisation: })
@@ -29,29 +29,34 @@ RSpec.describe VANotify::V2::SendEmail, type: :job do
     end
   end
 
-  context "when errors occur" do
+  context 'when errors occur' do
     before do
       allow(Sidekiq::AttrPackage).to receive(:delete).with(key)
     end
 
-    it "raises ArgumentError and logs when AttrPackage.find raises Sidekiq::AttrPackageError" do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_raise(Sidekiq::AttrPackageError.new('find', 'redis down'))
-      expect(Rails.logger).to receive(:error).with('VANotify::V2::SendEmail AttrPackage error', hash_including(error: /redis down/))
-      expect {
+    it 'raises ArgumentError and logs when AttrPackage.find raises Sidekiq::AttrPackageError' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_raise(Sidekiq::AttrPackageError.new('find',
+                                                                                                      'redis down'))
+      expect(Rails.logger).to receive(:error).with('VANotify::V2::SendEmail AttrPackage error',
+                                                   hash_including(error: /redis down/))
+      expect do
         described_class.new.perform(email, template_id, key, api_key, callback_options)
-      }.to raise_error(ArgumentError, /redis down/)
+      end.to raise_error(ArgumentError, /redis down/)
     end
 
-    it "raises ArgumentError and logs when personalisation data is missing" do
+    it 'raises ArgumentError and logs when personalisation data is missing' do
       allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(nil)
-      expect(Rails.logger).to receive(:error).with('VANotify::V2::SendEmail failed: Missing personalisation data in Redis', hash_including(email: email, template_id: template_id, attr_package_key_present: true))
-      expect {
+      expect(Rails.logger).to receive(:error).with(
+        'VANotify::V2::SendEmail failed: Missing personalisation data in Redis',
+        hash_including(email:, template_id:, attr_package_key_present: true)
+      )
+      expect do
         described_class.new.perform(email, template_id, key, api_key, callback_options)
-      }.to raise_error(ArgumentError, /Missing personalisation data in Redis/)
+      end.to raise_error(ArgumentError, /Missing personalisation data in Redis/)
     end
 
-    it "handles VANotify::Error (400) and calls handle_backend_exception" do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { personalisation: personalisation })
+    it 'handles VANotify::Error (400) and calls handle_backend_exception' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { personalisation: })
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::BadRequest.new(400, 'bad request')
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
@@ -61,41 +66,51 @@ RSpec.describe VANotify::V2::SendEmail, type: :job do
       described_class.new.perform(email, template_id, key, api_key, callback_options)
     end
 
-    it "raises and logs for VANotify::Error (5xx)" do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { personalisation: personalisation })
+    it 'raises and logs for VANotify::Error (5xx)' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { personalisation: })
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::ServerError.new(500, 'server error')
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
       allow(va_notify_service).to receive(:send_email).and_raise(error)
       expect(StatsD).to receive(:increment).with('api.vanotify.v2.send_email.failure')
-      expect {
+      expect do
         described_class.new.perform(email, template_id, key, api_key, callback_options)
-      }.to raise_error(VANotify::ServerError)
+      end.to raise_error(VANotify::ServerError)
     end
 
-    it "deletes package after retries exhausted" do
+    it 'deletes package after retries exhausted' do
       msg = {
         'jid' => '123',
         'class' => described_class.name,
         'error_class' => 'ArgumentError',
         'error_message' => 'Missing personalisation data in Redis'
       }
-      expect(Rails.logger).to receive(:error).with(/retries exhausted/, hash_including(job_id: '123', error_class: 'ArgumentError', error_message: 'Missing personalisation data in Redis'))
-      expect(StatsD).to receive(:increment).with("sidekiq.jobs.va_notify/v2/send_email.retries_exhausted")
-      described_class.sidekiq_retries_exhausted_block.call(msg, ArgumentError.new('Missing personalisation data in Redis'))
+      expect(Rails.logger).to receive(:error)
+        .with(
+          /retries exhausted/,
+          hash_including(
+            job_id: '123',
+            error_class: 'ArgumentError',
+            error_message: 'Missing personalisation data in Redis'
+          )
+        )
+      expect(StatsD).to receive(:increment).with('sidekiq.jobs.va_notify/v2/send_email.retries_exhausted')
+      described_class.sidekiq_retries_exhausted_block.call(msg,
+                                                           ArgumentError.new('Missing personalisation data in Redis'))
     end
 
-    it "logs an error if delete raises Sidekiq::AttrPackageError during cleanup" do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { personalisation: personalisation })
+    it 'logs an error if delete raises Sidekiq::AttrPackageError during cleanup' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { personalisation: })
       va_notify_service = instance_double(VaNotify::Service)
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
       allow(va_notify_service).to receive(:send_email)
-      allow(Sidekiq::AttrPackage).to receive(:delete).with(key).and_raise(Sidekiq::AttrPackageError.new('delete', 'redis down'))
+      allow(Sidekiq::AttrPackage).to receive(:delete).with(key).and_raise(Sidekiq::AttrPackageError.new('delete',
+                                                                                                        'redis down'))
 
       expect(StatsD).to receive(:increment).with('api.vanotify.v2.send_email.failure')
-      expect {
+      expect do
         described_class.new.perform(email, template_id, key, api_key, callback_options)
-      }.to raise_error(Sidekiq::AttrPackageError, /redis down/)
+      end.to raise_error(Sidekiq::AttrPackageError, /redis down/)
     end
   end
 end
