@@ -117,9 +117,10 @@ describe VRE::VRESubmit1900Job do
                form_type:,
                created_at: 1.hour.ago)
 
-        expect(Rails.logger).to receive(:warn).with(
-          "Duplicate VRE 1900 submissions detected for user_account #{user_account.id}:",
-          hash_including(duplicate_count: 2, threshold_hours: 24)
+        expect(Rails.logger).to receive(:info).with(
+          'VRE::VRESubmit1900Job - Duplicate Submission Check',
+          hash_including(user_account_id: user_account.id, submission_count: 2, threshold_hours: 24,
+                         duplicates_detected: true)
         )
 
         subject.send(:duplicate_submission_check, user_account)
