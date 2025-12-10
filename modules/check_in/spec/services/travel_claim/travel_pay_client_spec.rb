@@ -272,6 +272,51 @@ RSpec.describe TravelClaim::TravelPayClient do
           )
         end
       end
+
+      it 'logs original_status (downstream HTTP status) instead of transformed status' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          # Simulate a 405 Method Not Allowed from downstream API
+          # BackendServiceException will transform this to 502 (VA900) for API responses,
+          # but we want to log the original 405
+          error_body = { 'message' => 'Method not allowed' }.to_json
+          exception = Common::Exceptions::BackendServiceException.new('VA900', {}, 405, error_body)
+          allow(client).to receive(:perform).and_raise(exception)
+
+          expect do
+            client.send(:system_access_token_request,
+                        veis_access_token: 'test-veis-token',
+                        icn: test_icn)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+
+          # Verify we log the original_status (405), not the transformed status (502)
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient BTSSS endpoint error',
+            hash_including(
+              correlation_id: be_present,
+              status: 405, # original_status, not the transformed status
+              endpoint: 'BTSSS'
+            )
+          )
+        end
+      end
+    end
+  end
+
+  describe '#extract_and_redact_message' do
+    it 'removes ICN from error message' do
+      icn = '1234567890V123456'
+      body = { 'message' => "Error occurred for patient #{icn}" }.to_json
+      result = client.send(:extract_and_redact_message, body)
+
+      expect(result).to eq('Error occurred for patient ')
+      expect(result).not_to include(icn)
+      expect(result).not_to include('****')
+    end
+
+    it 'returns nil when body is nil' do
+      result = client.send(:extract_and_redact_message, nil)
+      expect(result).to be_nil
     end
   end
 
@@ -668,8 +713,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Set up tokens
         client.instance_variable_set(:@current_veis_token, test_veis_token)
         client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: test_veis_token)
 
         # First call raises 401, second call succeeds
         call_count = 0
@@ -737,8 +782,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Set up tokens
         client.instance_variable_set(:@current_veis_token, test_veis_token)
         client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: test_veis_token)
 
         # First call raises 401, second call succeeds
         call_count = 0
@@ -775,8 +820,8 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'uses cached VEIS token from Redis when available' do
         cached_veis_token = 'cached-veis'
-        allow(client.redis_client).to receive(:token).and_return(cached_veis_token)
-        allow(client.redis_client).to receive(:save_token).with(token: cached_veis_token)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(cached_veis_token)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: cached_veis_token)
         expect(client).to receive(:btsss_token!)
 
         client.send(:ensure_tokens!)
@@ -798,10 +843,10 @@ RSpec.describe TravelClaim::TravelPayClient do
       end
 
       it 'fetches fresh tokens when none are cached' do
-        allow(client.redis_client).to receive(:token).and_return(nil)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(nil)
         allow(client).to receive(:veis_token_request)
           .and_return(double('Response', body: { 'access_token' => 'new-token' }))
-        allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: 'new-token')
         expect(client).to receive(:btsss_token!)
 
         client.send(:ensure_tokens!)
@@ -812,11 +857,11 @@ RSpec.describe TravelClaim::TravelPayClient do
         old_btsss_token = 'old-btsss'
         client.instance_variable_set(:@current_veis_token, old_veis_token)
         client.instance_variable_set(:@current_btsss_token, old_btsss_token)
-        allow(client.redis_client).to receive(:save_token).with(token: nil)
-        allow(client.redis_client).to receive(:token).and_return(nil)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: nil)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(nil)
         allow(client).to receive(:veis_token_request)
           .and_return(double('Response', body: { 'access_token' => 'new-token' }))
-        allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: 'new-token')
         allow(client).to receive(:system_access_token_request) do
           client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
           double('Response', body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
@@ -847,8 +892,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Mock the Redis client that will be lazily created
         lazy_redis_client = instance_double(TravelClaim::RedisClient)
         allow(TravelClaim::RedisClient).to receive(:build).and_return(lazy_redis_client)
-        allow(lazy_redis_client).to receive(:token).and_return(nil)
-        allow(lazy_redis_client).to receive(:save_token)
+        allow(lazy_redis_client).to receive(:v1_veis_token).and_return(nil)
+        allow(lazy_redis_client).to receive(:save_v1_veis_token)
 
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
                       auth_url:,
@@ -876,8 +921,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Mock the Redis client that will be lazily created
         lazy_redis_client = instance_double(TravelClaim::RedisClient)
         allow(TravelClaim::RedisClient).to receive(:build).and_return(lazy_redis_client)
-        allow(lazy_redis_client).to receive(:token).and_return(nil)
-        allow(lazy_redis_client).to receive(:save_token)
+        allow(lazy_redis_client).to receive(:v1_veis_token).and_return(nil)
+        allow(lazy_redis_client).to receive(:save_v1_veis_token)
 
         allow(direct_client).to receive_messages(
           veis_token_request: veis_response,
