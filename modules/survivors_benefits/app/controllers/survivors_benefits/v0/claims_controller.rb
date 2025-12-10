@@ -23,14 +23,6 @@ module SurvivorsBenefits
         SurvivorsBenefits::SavedClaim
       end
 
-      def config
-        Settings.bio.survivors_benefits
-      end
-
-      def pdf_url(guid)
-        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
-      end
-
       # GET serialized survivors benefits form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
@@ -118,6 +110,14 @@ module SurvivorsBenefits
       #
       def monitor
         @monitor ||= SurvivorsBenefits::Monitor.new
+      end
+
+      def config
+        Settings.bio.survivors_benefits
+      end
+
+      def pdf_url(guid)
+        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
       end
     end
   end

@@ -23,16 +23,6 @@ module MedicalExpenseReports
         MedicalExpenseReports::SavedClaim
       end
 
-      # points to S3 settings, where PDFs are archived
-      def config
-        Settings.bio.medical_expense_reports
-      end
-
-      # returns the URL to the PDF in S3 so the person completing the forms can download them
-      def pdf_url(guid)
-        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
-      end
-
       # GET serialized medical expense reports form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
@@ -120,6 +110,16 @@ module MedicalExpenseReports
       #
       def monitor
         @monitor ||= MedicalExpenseReports::Monitor.new
+      end
+
+      # points to S3 settings, where PDFs are archived
+      def config
+        Settings.bio.medical_expense_reports
+      end
+
+      # returns the URL to the PDF in S3 so the person completing the forms can download them
+      def pdf_url(guid)
+        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
       end
     end
   end
