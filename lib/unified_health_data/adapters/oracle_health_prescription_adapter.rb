@@ -165,8 +165,8 @@ module UnifiedHealthData
         contained_resources = resource['contained'] || []
         medication_request_id = resource['id']
 
-        # Find refill tasks: intent='order', status='requested', matching focus reference
-        refill_tasks = contained_resources.select do |c|
+        # Find successful refill tasks: intent='order', status='requested', matching focus reference
+        successful_refill_tasks = contained_resources.select do |c|
           c.is_a?(Hash) &&
             c['resourceType'] == 'Task' &&
             c['intent'] == 'order' &&
@@ -174,10 +174,10 @@ module UnifiedHealthData
             task_references_medication_request?(c, medication_request_id)
         end
 
-        return {} if refill_tasks.empty?
+        return {} if successful_refill_tasks.empty?
 
         # Get most recent task by executionPeriod.start
-        most_recent_task = refill_tasks.max_by do |task|
+        most_recent_task = successful_refill_tasks.max_by do |task|
           parse_date_or_epoch(task.dig('executionPeriod', 'start'))
         end
 
@@ -260,8 +260,8 @@ module UnifiedHealthData
         contained_resources = resource['contained'] || []
         medication_request_id = resource['id']
 
-        # Find refill tasks: intent='order', status='requested', matching focus reference
-        refill_tasks = contained_resources.select do |c|
+        # Find successful refill tasks: intent='order', status='requested', matching focus reference
+        successful_refill_tasks = contained_resources.select do |c|
           c.is_a?(Hash) &&
             c['resourceType'] == 'Task' &&
             c['intent'] == 'order' &&
@@ -269,9 +269,9 @@ module UnifiedHealthData
             task_references_medication_request?(c, medication_request_id)
         end
 
-        if refill_tasks.any?
+        if successful_refill_tasks.any?
           # Get most recent task by executionPeriod.start
-          most_recent_task = refill_tasks.max_by do |task|
+          most_recent_task = successful_refill_tasks.max_by do |task|
             parse_date_or_epoch(task.dig('executionPeriod', 'start'))
           end
 
