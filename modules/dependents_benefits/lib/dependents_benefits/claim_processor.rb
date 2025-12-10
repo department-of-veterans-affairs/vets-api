@@ -54,6 +54,7 @@ module DependentsBenefits
 
       monitor.track_processor_info('Successfully enqueued all submission jobs', 'enqueue_success',
                                    parent_claim_id:, jobs_count: jobs_enqueued)
+      record_enqueue_completion
       { data: { jobs_enqueued: }, error: nil }
     rescue => e
       handle_enqueue_failure(e)
@@ -121,7 +122,7 @@ module DependentsBenefits
 
       ActiveRecord::Base.transaction do
         parent_claim_group.with_lock do
-          if child_claims.all?(&:submissions_succeeded?)
+          if child_claims.all?(&:submissions_succeeded?) && !parent_claim_group.completed?
             monitor.track_processor_info('All claim submissions succeeded', 'success', parent_claim_id:)
             mark_parent_claim_group_succeeded
             notification_email.send_received_notification
