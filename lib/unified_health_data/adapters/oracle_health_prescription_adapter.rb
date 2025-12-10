@@ -207,13 +207,13 @@ module UnifiedHealthData
       # Checks if there's a MedicationDispense with whenPrepared or whenHandedOver
       # date after the Task.executionPeriod.start
       #
-      # @param task_submit_date [String] ISO 8601 date string from Task.executionPeriod.start
+      # @param task_start_time [String] ISO 8601 date string from Task.executionPeriod.start
       # @param dispenses_data [Array<Hash>] Array of dispense data with when_prepared and when_handed_over
       # @return [Boolean] True if a subsequent dispense exists
-      def subsequent_dispense?(task_submit_date, dispenses_data)
-        return false unless dispenses_data.present? && task_submit_date.present?
+      def subsequent_dispense?(task_start_time, dispenses_data)
+        return false unless dispenses_data.present? && task_start_time.present?
 
-        task_time = parse_date_or_epoch(task_submit_date)
+        task_time = parse_date_or_epoch(task_start_time)
 
         dispenses_data.any? do |dispense|
           when_prepared = dispense[:when_prepared]
