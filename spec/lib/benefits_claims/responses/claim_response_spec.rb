@@ -63,7 +63,7 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.lighthouse_id).to be_nil
       expect(claim.status).to eq('COMPLETE')
       expect(claim.tracked_items).to be_an(Array)
-      expect(claim.tracked_items.length).to eq(2)
+      expect(claim.tracked_items.length).to eq(1)
       expect(claim.tracked_items.first).to be_a(BenefitsClaims::Responses::TrackedItem)
       expect(claim.tracked_items.first.display_name).to eq('PMR Pending')
       expect(claim.tracked_items.first.status).to eq('NEEDED_FROM_YOU')
