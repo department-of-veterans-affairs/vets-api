@@ -254,7 +254,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
               .with(kind_of(Hash), poll_for_status: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
-            # Note: NO query param is_oh_triage_group - it's only inside the JSON string
+            # NOTE: NO query param is_oh_triage_group - it's only inside the JSON string
             post '/mobile/v0/messaging/health/messages',
                  headers: sis_headers,
                  params: { message: stringified_message, uploads: }
