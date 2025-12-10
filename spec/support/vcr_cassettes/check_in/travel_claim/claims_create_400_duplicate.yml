@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "https://dev.integration.d365.va.gov/api/v3/claims"
+    uri: "https://dev.integration.d365.va.gov/eis/api/btsss/travelclaim/api/v3/claims"
     body:
       encoding: UTF-8
       string: '{"appointmentId":"appt-123"}'

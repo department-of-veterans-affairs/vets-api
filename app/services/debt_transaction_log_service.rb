@@ -39,15 +39,15 @@ class DebtTransactionLogService
     private
 
     def create_transaction_log(transactionable:, transaction_type:, user_uuid:, debt_identifiers:, summary_data:)
-      log = DebtTransactionLog.create!(
+      attributes = build_transaction_log_attributes(
         transactionable:,
         transaction_type:,
         user_uuid:,
         debt_identifiers:,
-        summary_data:,
-        state: 'pending',
-        transaction_started_at: Time.current
+        summary_data:
       )
+
+      log = DebtTransactionLog.create!(attributes)
 
       StatsD.increment("#{STATS_KEY}.#{transaction_type}.created")
       log
@@ -56,6 +56,28 @@ class DebtTransactionLogService
       Rails.logger.error(e.backtrace.join("\n"))
       StatsD.increment("#{STATS_KEY}.#{transaction_type}.creation_failed")
       nil
+    end
+
+    def build_transaction_log_attributes(transactionable:, transaction_type:, user_uuid:, debt_identifiers:,
+                                         summary_data:)
+      {
+        transactionable_type: transactionable.class.name,
+        transactionable_id: resolve_transactionable_id(transactionable),
+        transaction_type:,
+        user_uuid:,
+        debt_identifiers:,
+        summary_data:,
+        state: 'pending',
+        transaction_started_at: Time.current
+      }
+    end
+
+    def resolve_transactionable_id(transactionable)
+      if transactionable.is_a?(DebtsApi::V0::DigitalDisputeSubmission)
+        transactionable.guid
+      else
+        transactionable.id
+      end
     end
 
     def update_state(transaction_log, new_state, external_reference_id: nil, completed_at: nil)

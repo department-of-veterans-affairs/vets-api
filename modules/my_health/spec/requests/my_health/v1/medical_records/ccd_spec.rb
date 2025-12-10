@@ -18,6 +18,7 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
 
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(AAL::MRClient).to receive(:new).and_return(aal_client)
@@ -37,15 +38,6 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
 
   context 'Authorized user' do
     let(:mhv_account_type) { 'Premium' }
-
-    before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
-    end
-
-    after do
-      VCR.eject_cassette
-    end
 
     describe 'GET #generate' do
       it 'succeeds' do
