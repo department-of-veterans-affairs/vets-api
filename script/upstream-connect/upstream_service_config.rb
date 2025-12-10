@@ -36,46 +36,8 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
         Test Connection:
           - Health Check: https://localhost:4437/health-check
           - Test User: vets.gov.user+0@gmail.com (Hector) <TODO no longer valid?>
-          - endpoint: /mobile/v0/appeal/:id, A6223
+          - endpoints: /mobile/v0/appeal/:id, A6223
 
-      TEXT
-    },
-    'labs_and_tests' => {
-      name: 'Patient Health API (FHIR) (Lighthouse)',
-      aliases: ['allergies_v0'],
-      description: 'Search for an individual patients appointments, conditions, medications, observations including vital signs and lab tests, and more.', # rubocop:disable Layout/LineLength
-      ports: [4492],
-      settings_namespaces: ['lighthouse.veterans_health'],
-      skipped_settings: [['fast_tracker.api_key', 'fast_tracker.client_id']],
-      tunnel_setting: ['url'],
-      mock_mpi: true,
-      instructions: <<~TEXT
-        Patient Health API Connection Instructions:
-
-        (One-time setup)
-        1. Generate Public key/JWK: https://developer.va.gov/explore/api/patient-health/client-credentials
-          - Same key can be used for all Lighthouse Health APIs
-        2. Sign up for Patient Health API Sandbox access and retrieve credentials.
-          - https://developer.va.gov/explore/api/patient-health/sandbox-access
-        3. Update Local Settings with client_id and api_key:
-          ```
-          # config/settings.local.yml
-
-          lighthouse:
-            veterans_health:
-              fast_tracker:
-                api_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
-                client_id: 0oaaxkp0aeXEJkMFw2p7
-          ```
-
-        Test Connection:
-          - Test User: judy.morrison@id.me
-          - endpoints: /mobile/v0/health/allergy-intolerances
-                       /mobile/v0/health/labs-and-tests
-
-        Additional Notes:
-        - See the Lighthouse documentation for more info
-          - https://developer.va.gov/explore/api/patient-health
       TEXT
     },
     'awards' => {
@@ -95,14 +57,14 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
         # config/settings.local.yml
 
         bgs:
-          ssl_verify_mode: none
+        ssl_verify_mode: none
         ```
 
         Test Connection:
-          - Test User: vets.gov.user+137@gmail.com (Martin)
-          - endpoints: /mobile/v0/awards <TODO: data parsing issue?>
-                       /mobile/v0/dependents
-                       /mobile/v0/payment_history
+        - Test User: vets.gov.user+137@gmail.com (Martin)
+        - endpoints: /mobile/v0/awards <TODO: data parsing issue?>
+                     /mobile/v0/dependents
+                     /mobile/v0/payment_history
 
       TEXT
     },
@@ -134,48 +96,11 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: <Test Case Needed>
-          - endpoint: <Test Case Needed>
+          - endpoints: <Test Case Needed>
 
         Additional Notes:
         - See the Lighthouse documentation for more info
           - https://developer.va.gov/explore/api/benefits-intake
-      TEXT
-    },
-    'decision_letters' => {
-      name: 'Benefits Documents API (Lighthouse)',
-      aliases: %w[benefits_documents],
-      description: 'Connect to VA Benefits Documents API for decision letters and doc uploads',
-      ports: [4492],
-      settings_namespaces: ['lighthouse.benefits_documents'],
-      skipped_settings: [['timeout']],
-      tunnel_setting: ['host'],
-      mock_mpi: false,
-      instructions: <<~TEXT
-        Benefits Documents API Connection Instructions:
-
-        (One-time setup)
-        1. Generate Public key/JWK: https://developer.va.gov/explore/api/benefits-documents/client-credentials
-          - Same key can be used for all Lighthouse Health APIs
-        2. Sign up for VA Benefits Documents API Sandbox access and retrieve credentials.
-          - https://developer.va.gov/explore/api/benefits-documents/sandbox-access
-        3. Update Local Settings with client_id and rsa_key:
-          ```
-          # config/settings.local.yml
-
-          lighthouse:
-            auth:
-              ccg:
-                client_id: 'your-client-id'
-                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
-          ```
-
-        Test Connection:
-          - Test User: judy.morrison@id.me
-          - endpoint: /mobile/v0/claims/decision-letters
-
-        Additional Notes:
-        - See the Lighthouse documentation for more info
-          - https://developer.va.gov/explore/api/benefits-documents
       TEXT
     },
     'claims' => {
@@ -214,6 +139,43 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
           - https://developer.va.gov/explore/api/benefits-claims
       TEXT
     },
+    'decision_letters' => {
+      name: 'Benefits Documents API (Lighthouse)',
+      aliases: %w[benefits_documents],
+      description: 'Connect to VA Benefits Documents API for decision letters and doc uploads',
+      ports: [4492],
+      settings_namespaces: ['lighthouse.benefits_documents'],
+      skipped_settings: [['timeout']],
+      tunnel_setting: ['host'],
+      mock_mpi: false,
+      instructions: <<~TEXT
+        Benefits Documents API Connection Instructions:
+
+        (One-time setup)
+        1. Generate Public key/JWK: https://developer.va.gov/explore/api/benefits-documents/client-credentials
+          - Same key can be used for all Lighthouse Health APIs
+        2. Sign up for VA Benefits Documents API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/benefits-documents/sandbox-access
+        3. Update Local Settings with client_id and rsa_key:
+          ```
+          # config/settings.local.yml
+
+          lighthouse:
+            auth:
+              ccg:
+                client_id: 'your-client-id'
+                rsa_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
+          ```
+
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - endpoints: /mobile/v0/claims/decision-letters
+
+        Additional Notes:
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/benefits-documents
+      TEXT
+    },
     'direct_deposit' => {
       name: 'Direct Deposit Management API (Lighthouse)',
       description: 'Connect to VA Direct Deposit Management API for direct deposit abnking data',
@@ -242,7 +204,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: <TODO Test Case Needed>
-          - endpoint: /mobile/v0/payment-information/benefits
+          - endpoints: /mobile/v0/payment-information/benefits
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -300,6 +262,44 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
           - https://developer.va.gov/explore/api/patient-health
       TEXT
     },
+    'labs_and_tests' => {
+      name: 'Patient Health API (FHIR) (Lighthouse)',
+      aliases: ['allergies_v0'],
+      description: 'Search for an individual patients appointments, conditions, medications, observations including vital signs and lab tests, and more.', # rubocop:disable Layout/LineLength
+      ports: [4492],
+      settings_namespaces: ['lighthouse.veterans_health'],
+      skipped_settings: [['fast_tracker.api_key', 'fast_tracker.client_id']],
+      tunnel_setting: ['url'],
+      mock_mpi: true,
+      instructions: <<~TEXT
+        Patient Health API Connection Instructions:
+
+        (One-time setup)
+        1. Generate Public key/JWK: https://developer.va.gov/explore/api/patient-health/client-credentials
+          - Same key can be used for all Lighthouse Health APIs
+        2. Sign up for Patient Health API Sandbox access and retrieve credentials.
+          - https://developer.va.gov/explore/api/patient-health/sandbox-access
+        3. Update Local Settings with client_id and api_key:
+          ```
+          # config/settings.local.yml
+
+          lighthouse:
+            veterans_health:
+              fast_tracker:
+                api_key: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
+                client_id: 0oaaxkp0aeXEJkMFw2p7
+          ```
+
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - endpoints: /mobile/v0/health/allergy-intolerances
+                       /mobile/v0/health/labs-and-tests
+
+        Additional Notes:
+        - See the Lighthouse documentation for more info
+          - https://developer.va.gov/explore/api/patient-health
+      TEXT
+    },
     'letters' => {
       name: 'Letter Generator API (Lighthouse)',
       description: 'Connect to VA Letter Generator API for official VA letters',
@@ -328,7 +328,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: vets.gov.user+54@gmail.com
-          - endpoint: /mobile/v0/letters
+          - endpoints: /mobile/v0/letters
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -340,7 +340,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       aliases: %w[mpi],
       description: 'Connect to Benefits Eligibility Platform for awards and payment history data',
       ports: [4492],
-      settings_namespaces: ['lighthouse.facilities'], # TODO
+      settings_namespaces: ['lighthouse.facilities'],
       skipped_settings: [[]],
       tunnel_setting: ['url'],
       mock_mpi: false,
@@ -356,22 +356,22 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       TEXT
     },
     'vet_verification' => {
-      name: 'Vet Service History and Elegibility API (Lighthouse)',
+      name: 'Vet Service History and Eligibility API (Lighthouse)',
       aliases: ['disability_rating'],
-      description: 'Connect to Vet Service History and Elegibility API for the service history, certain enrolled benefits, and disability rating information of a veteran', # rubocop:disable Layout/LineLength
+      description: 'Connect to Vet Service History and Eligibility API for the service history, certain enrolled benefits, and disability rating information of a veteran', # rubocop:disable Layout/LineLength
       ports: [4492], # Judy has information for LH staging, i.e. 4475
       settings_namespaces: ['lighthouse.veteran_verification'],
       skipped_settings: [['form526.access_token', 'status']],
       tunnel_setting: ['host'],
       instructions: <<~TEXT
-        Letter Generator API Connection Instructions:
+        Vet Service History and Eligibility API Connection Instructions:
 
         TODO
 
         (One-time setup)
         1. Generate Public key/JWK: https://developer.va.gov/explore/api/veteran-service-history-and-eligibility/client-credentials
           - Same key can be used for all Lighthouse Health APIs
-        2. Sign up for Vet Service History and Elegibility API Sandbox access and retrieve credentials.
+        2. Sign up for Vet Service History and Eligibility API Sandbox access and retrieve credentials.
           - https://developer.va.gov/explore/api/veteran-service-history-and-eligibility/sandbox-access
         3. Update Local Settings with client_id and rsa_key:
           ```
