@@ -15,7 +15,7 @@ RSpec.describe Vye::DGIB::AuthenticationTokenService do
           true,
           {
             algorithm: described_class::ALGORITHM_TYPE,
-            kid: described_class::KID,
+            kid: Settings.dgi.vye.jwt.kid,
             typ: described_class::TYP
           }
         )
