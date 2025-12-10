@@ -119,6 +119,7 @@ module V0
     end
 
     def handle_general_error(error, claim)
+      StatsD.increment("#{stats_key}.failure")
       Rails.logger.error(
         'Form21p530a: error submitting claim',
         { error: error.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
