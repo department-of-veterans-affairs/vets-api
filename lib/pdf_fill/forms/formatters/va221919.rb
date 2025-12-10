@@ -17,7 +17,21 @@ module PdfFill
             return unless official['role']
 
             role = official['role']
-            official['role']['displayRole'] = role['level'] == 'other' ? role['other'] : role['level']
+            official['role']['displayRole'] = if role['level'] == 'other'
+                                                role['other']&.upcase
+                                              else
+                                                role['level']&.upcase
+                                              end
+          end
+
+          def process_institution_address(form_data)
+            return unless form_data['institutionDetails'] && form_data['institutionDetails']['institutionAddress']
+
+            address = form_data['institutionDetails']['institutionAddress']
+            street = address['street']
+            city_state_zip = "#{address['city']}, #{address['state']} #{address['postalCode']}"
+
+            form_data['institutionDetails']['institutionAddress']['street'] = "#{street} #{city_state_zip}".strip
           end
 
           def convert_boolean_fields(form_data)
@@ -33,9 +47,15 @@ module PdfFill
             conflicts = form_data['proprietaryProfitConflicts'].first(2)
             conflicts.each_with_index do |conflict, index|
               individuals = conflict['affiliatedIndividuals']
+              name = "#{individuals['first']} #{individuals['last']}"
+              name += ", #{individuals['title']}" if individuals['title'].present?
+
+              association = individuals['individualAssociationType']
+              association = "#{association} employee" if %w[va saa].include?(association&.downcase)
+
               form_data["proprietaryProfitConflicts#{index}"] = {
-                'employeeName' => "#{individuals['first']} #{individuals['last']}",
-                'association' => individuals['individualAssociationType']&.upcase
+                'employeeName' => name,
+                'association' => association&.upcase
               }
             end
           end
@@ -46,11 +66,14 @@ module PdfFill
             conflicts = form_data['allProprietaryProfitConflicts'].first(2)
             conflicts.each_with_index do |conflict, index|
               official = conflict['certifyingOfficial']
+              name = "#{official['first']} #{official['last']}"
+              name += ", #{official['title']}" if official['title'].present?
+
               form_data["allProprietaryProfitConflicts#{index}"] = {
-                'officialName' => "#{official['first']} #{official['last']}",
+                'officialName' => name,
                 'fileNumber' => conflict['fileNumber'],
-                'enrollmentDateRange' => conflict['enrollmentPeriod']['from'],
-                'enrollmentDateRangeEnd' => conflict['enrollmentPeriod']['to']
+                'enrollmentDateRange' => format_date(conflict['enrollmentPeriod']['from']),
+                'enrollmentDateRangeEnd' => format_date(conflict['enrollmentPeriod']['to'])
               }
             end
           end
@@ -59,6 +82,14 @@ module PdfFill
             return 'N/A' if value.nil?
 
             value ? 'YES' : 'NO'
+          end
+
+          def format_date(date_str)
+            return nil if date_str.blank?
+
+            Date.parse(date_str).strftime('%m/%d/%Y')
+          rescue
+            date_str
           end
         end
       end

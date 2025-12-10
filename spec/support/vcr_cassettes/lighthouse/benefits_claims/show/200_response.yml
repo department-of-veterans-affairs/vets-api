@@ -268,7 +268,7 @@ http_interactions:
           {
           "closedDate": null,
           "description": "This evidence request should never be surfaced to the end user.",
-          "displayName": "Attorney Fees",
+          "displayName": "Attorney Fee",
           "overdue": false,
           "receivedDate": "2023-03-15",
           "requestedDate": "2023-04-14",
