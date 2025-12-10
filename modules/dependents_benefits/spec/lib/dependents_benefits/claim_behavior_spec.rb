@@ -5,7 +5,7 @@ require 'dependents_benefits/claim_behavior'
 
 RSpec.describe DependentsBenefits::ClaimBehavior do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 
   let(:claim) { create(:dependents_claim) }

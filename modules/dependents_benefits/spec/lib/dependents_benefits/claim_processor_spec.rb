@@ -4,6 +4,15 @@ require 'rails_helper'
 require 'dependents_benefits/claim_processor'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
+    allow(mock_monitor).to receive(:track_processor_info)
+    allow(mock_monitor).to receive(:track_processor_error)
+
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:parent_claim) { create(:dependents_claim) }
   let(:form_674_claim) { create(:student_claim) }
   let(:form_686_claim) { create(:add_remove_dependents_claim) }
@@ -11,14 +20,6 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   let(:proc_id) { 'proc-123-456' }
   let(:processor) { described_class.new(parent_claim_id) }
   let(:mock_monitor) { instance_double(DependentsBenefits::Monitor) }
-
-  before do
-    allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
-    allow(mock_monitor).to receive(:track_processor_info)
-    allow(mock_monitor).to receive(:track_processor_error)
-
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-  end
 
   describe '.enqueue_submissions' do
     it 'creates processor instance and delegates to instance method' do
