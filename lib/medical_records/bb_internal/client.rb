@@ -506,8 +506,7 @@ module BBInternal
         sleep(0.1)
       end
 
-      Rails.logger.error('Failed to acquire study map lock')
-      yield
+      raise Common::Exceptions::ServiceError.new(detail: 'Failed to acquire study map lock')
     end
 
     ##

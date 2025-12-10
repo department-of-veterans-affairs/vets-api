@@ -524,13 +524,14 @@ describe BBInternal::Client do
     end
 
     context 'when lock cannot be acquired' do
-      it 'logs an error and yields anyway' do
+      it 'logs an error and raises ServiceError' do
         expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: 30).exactly(50).times.and_return(false)
         expect(redis).not_to receive(:del).with(lock_key)
         expect(client).to receive(:sleep).with(0.1).exactly(50).times
         expect(Rails.logger).to receive(:error).with('Failed to acquire study map lock')
 
-        expect { |b| client.send(:with_study_map_lock, &b) }.to yield_control
+        expect { client.send(:with_study_map_lock) { 'block content' } }
+          .to raise_error(Common::Exceptions::ServiceError)
       end
     end
   end
