@@ -16,7 +16,7 @@ require 'vets/model'
 # @!attribute attachment
 #   @return [Boolean]
 # @!attribute sent_date
-#   @return [Common::UTCTime]
+#   @return [Vets::Type::UTCTime]
 # @!attribute sender_id
 #   @return [Integer]
 # @!attribute sender_name

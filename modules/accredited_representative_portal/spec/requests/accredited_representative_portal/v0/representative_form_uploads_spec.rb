@@ -355,6 +355,253 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         end
       end
     end
+
+    describe 'track_count is called for a submission attempt' do
+      let(:monitor_instance) do
+        AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: []
+        )
+      end
+
+      before do
+        allow_any_instance_of(described_class).to receive(:verify_authorized).and_return(true)
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_count)
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
+      end
+
+      it 'increments ar.claims.form_upload.submit.attempt once per request' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+                expect(response).to have_http_status(:ok)
+                expect(monitor_instance).to have_received(:track_count).with(
+                  'ar.claims.form_upload.submit.attempt',
+                  tags: array_including("form_id:#{form_number}")
+                ).once
+              end
+            end
+          end
+        end
+      end
+    end
+
+    describe 'track_count is called for a submission success' do
+      let(:monitor_instance) do
+        AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: []
+        )
+      end
+
+      before do
+        allow_any_instance_of(described_class).to receive(:verify_authorized).and_return(true)
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_count)
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
+      end
+
+      it 'increments ar.claims.form_upload.submit.success once per submission success' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+                expect(response).to have_http_status(:ok)
+                expect(monitor_instance).to have_received(:track_count).with(
+                  'ar.claims.form_upload.submit.success',
+                  tags: array_including("form_id:#{form_number}")
+                ).once
+              end
+            end
+          end
+        end
+      end
+    end
+
+    describe 'track_count is called for a submission error (RecordInvalidError)' do
+      let(:monitor_instance) do
+        AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: []
+        )
+      end
+
+      before do
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_count)
+
+        record = double('invalid_record', errors: double(full_messages: ['some error']))
+        allow(AccreditedRepresentativePortal::SavedClaimService::Create)
+          .to receive(:perform)
+          .and_raise(AccreditedRepresentativePortal::SavedClaimService::Create::RecordInvalidError.new(record))
+      end
+
+      it 'increments ar.claims.form_upload.submit.error once per RecordInvalidError error' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+            expect(monitor_instance).to have_received(:track_count).with(
+              'ar.claims.form_upload.submit.error',
+              tags: array_including("form_id:#{form_number}", 'reason:record_invalid')
+            )
+          end
+        end
+      end
+    end
+
+    describe 'track_count is called for a submission error (WrongAttachmentsError)' do
+      let(:monitor_instance) do
+        AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: []
+        )
+      end
+
+      before do
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_count)
+
+        record = double('wrong_attachment', errors: double(full_messages: ['some error']))
+        allow(AccreditedRepresentativePortal::SavedClaimService::Create)
+          .to receive(:perform)
+          .and_raise(AccreditedRepresentativePortal::SavedClaimService::Create::WrongAttachmentsError.new(record))
+      end
+
+      it 'increments ar.claims.form_upload.submit.error once per WrongAttachmentsError error' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+            expect(monitor_instance).to have_received(:track_count).with(
+              'ar.claims.form_upload.submit.error',
+              tags: array_including("form_id:#{form_number}", 'reason:wrong_attachments')
+            )
+          end
+        end
+      end
+    end
+
+    describe 'track_count is called for a submission error (TooManyRequestsError)' do
+      let(:monitor_instance) do
+        AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: []
+        )
+      end
+
+      before do
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_count)
+
+        record = double('too_many_requests', errors: double(full_messages: ['some error']))
+        allow(AccreditedRepresentativePortal::SavedClaimService::Create)
+          .to receive(:perform)
+          .and_raise(AccreditedRepresentativePortal::SavedClaimService::Create::TooManyRequestsError.new(record))
+      end
+
+      it 'increments ar.claims.form_upload.submit.error once per TooManyRequestsError error' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+            expect(monitor_instance).to have_received(:track_count).with(
+              'ar.claims.form_upload.submit.error',
+              tags: array_including("form_id:#{form_number}", 'reason:too_many_requests')
+            )
+          end
+        end
+      end
+    end
+
+    describe 'track_count is called for a submission error (UnknownError)' do
+      let(:monitor_instance) do
+        AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: []
+        )
+      end
+
+      before do
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_count)
+
+        record = double('unknown_error', errors: double(full_messages: ['some error']))
+        allow(AccreditedRepresentativePortal::SavedClaimService::Create)
+          .to receive(:perform)
+          .and_raise(AccreditedRepresentativePortal::SavedClaimService::Create::UnknownError.new(record))
+      end
+
+      it 'increments ar.claims.form_upload.submit.error once per UnknownError error' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+            expect(monitor_instance).to have_received(:track_count).with(
+              'ar.claims.form_upload.submit.error',
+              tags: array_including("form_id:#{form_number}", 'reason:unknown_error')
+            )
+          end
+        end
+      end
+    end
+
+    describe 'submit adds org_resolve:failed when organization resolution fails' do
+      before do
+        allow_any_instance_of(described_class).to receive(:verify_authorized).and_return(true)
+
+        # Force org resolution to fail so org_resolve:failed is added
+        allow_any_instance_of(described_class).to receive(:organization).and_return(nil)
+        # Spy on Monitoring.new, allow real behavior
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_call_original
+
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
+      end
+
+      it 'includes org_resolve:failed in Monitoring.new default_tags' do
+        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
+          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+                expect(response).to have_http_status(:ok)
+
+                # Assert AccreditedRepresentativePortal::Monitoring constructor saw org_resolve:failed in default_tags
+                expect(AccreditedRepresentativePortal::Monitoring).to have_received(:new).with(
+                  AccreditedRepresentativePortal::Monitoring::NAME,
+                  hash_including(default_tags: array_including('org_resolve:failed'))
+                ).exactly(2).times
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#upload_scanned_form' do

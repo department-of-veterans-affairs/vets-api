@@ -27,15 +27,6 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
   end
 
   context 'Authorized user' do
-    before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
-    end
-
-    after do
-      VCR.eject_cassette
-    end
-
     describe 'responds to GET #refresh' do
       it 'successfully refreshes' do
         VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
