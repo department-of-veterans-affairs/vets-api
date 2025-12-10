@@ -36,9 +36,16 @@ module AllowlistLogFiltering
   end
 
   # Override all log level methods to support log_allowlist parameter
+  # while passing through other keyword arguments as the message payload
   %i[debug info warn error fatal unknown].each do |level|
-    define_method(level) do |progname = nil, log_allowlist: [], &block|
-      add(level, progname, nil, log_allowlist:, &block)
+    define_method(level) do |progname = nil, log_allowlist: [], **payload, &block|
+      if payload.any?
+        # If keyword arguments were passed (other than log_allowlist),
+        # treat them as the message hash
+        add(level, payload, progname, log_allowlist:, &block)
+      else
+        add(level, progname, nil, log_allowlist:, &block)
+      end
     end
   end
 
