@@ -156,6 +156,7 @@ check_in:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: https://login.microsoftonline.us
     claims_base_path: EC/ClaimIngestSvc
+    claims_base_path_v2: eis/api/btsss/travelclaim
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: https://dev.integration.d365.va.gov
     client_id: fake_client_id
@@ -171,6 +172,7 @@ check_in:
     tenant_id: fake_template_id
     travel_pay_client_id: fake_travel_pay_client_id
     travel_pay_client_secret: fake_travel_pay_client_secret
+    travel_pay_client_secret_oh: fake_travel_pay_client_secret_oh
     travel_pay_resource: fake_travel_pay_resource
   vaos:
     mock: false
@@ -308,10 +310,10 @@ dgi:
   sob:
     claimants:
       mock: ~
-      url: ~
+      url: https://fake.sob.com
     jwt:
       private_key_path: modules/sob/spec/fixtures/test_private_key.pem
-      public_key_path: ~
+      public_key_path: modules/sob/spec/fixtures/test_public_key.pem
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
@@ -414,6 +416,8 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+email_verification:
+  jwt_secret: "EV_TEST_KEY_1234567890"
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
@@ -606,12 +610,6 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
-ihub:
-  appointments:
-    mock: true
-    timeout: 30
-  in_production: false
-  url: https://qacrmdac.np.crm.vrm.vba.va.gov
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -845,6 +843,7 @@ maintenance:
     coe: PSY4HU1
     community_care_ds: ~
     decision_reviews: ~
+    dgi_claimants: ~
     disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV
@@ -1422,9 +1421,15 @@ vanotify:
         received_686c_only:
           flipper_id: dependents_benefits_received_email_notification
           template_id: form686c_only_received_email_template_id
-        submitted:
+        submitted674_only:
           flipper_id: dependents_benefits_submitted_email_notification
-          template_id: form686c_674_submitted_email_template_id
+          template_id: form674_only_submitted_email_template_id
+        submitted686c674:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c674_submitted_email_template_id
+        submitted686c_only:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c_only_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
@@ -1543,6 +1548,7 @@ vanotify:
         form526_submission_failure_notification_template_id: form526_submission_failure_notification_template_id
     benefits_management_tools:
       api_key: fake_secret
+      push_api_key: fake_secret
       template_id:
         decision_letter_ready_email: fake_template_id
         evidence_submission_failure_email: fake_template_id

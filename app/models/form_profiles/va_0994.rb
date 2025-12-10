@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/ppiu/service'
 require 'vets/model'
 
 module VA0994
@@ -37,20 +36,16 @@ class FormProfiles::VA0994 < FormProfile
   def initialize_payment_information
     return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
 
-    service = EVSS::PPIU::Service.new(user)
-    response = service.get_payment_information
-    raw_account = response.responses.first&.payment_account
+    # Return empty hash since EVSS PPIU is deprecated
+    # Payment information is now handled by Lighthouse
 
-    if raw_account
-      VA0994::FormPaymentAccountInformation.new(
-        account_type: raw_account&.account_type&.capitalize,
-        account_number: mask(raw_account&.account_number),
-        routing_number: mask(raw_account&.financial_institution_routing_number),
-        bank_name: raw_account&.financial_institution_name
-      )
-    else
-      {}
-    end
+    # VA0994::FormPaymentAccountInformation.new(
+    #   account_type: raw_account&.account_type&.capitalize,
+    #   account_number: mask(raw_account&.account_number),
+    #   routing_number: mask(raw_account&.financial_institution_routing_number),
+    #   bank_name: raw_account&.financial_institution_name
+    # )
+    {}
   rescue => e
     Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
     {}

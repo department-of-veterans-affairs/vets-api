@@ -149,6 +149,31 @@ describe VaNotify::Service do
         expect(service_object.callback_options).to eq(callback_options)
       end
     end
+
+    it 'supports separate service instances for email and push channels' do
+      email_api_key = 'email-aaaa-bbbb-cccc-dddd-eeeeeeeeeeee-ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj'
+      push_api_key = 'push-1111-2222-3333-4444-555555555555-66666666-7777-8888-9999-000000000000'
+      test_base_url = 'https://fakishapi.com'
+
+      with_settings(Settings.vanotify, client_url: test_base_url) do
+        # Email service uses email API key
+        email_notification_client = instance_double(Notifications::Client)
+        allow(Notifications::Client).to receive(:new).with(email_api_key, test_base_url)
+                                                     .and_return(email_notification_client)
+        email_service = VaNotify::Service.new(email_api_key)
+        expect(email_service.notify_client).to eq(email_notification_client)
+
+        # Push service uses push API key
+        push_notification_client = instance_double(Notifications::Client)
+        push_va_notify_client = instance_double(VaNotify::Client)
+        allow(Notifications::Client).to receive(:new).with(push_api_key, test_base_url)
+                                                     .and_return(push_notification_client)
+        allow(VaNotify::Client).to receive(:new).with(push_api_key, {})
+                                                .and_return(push_va_notify_client)
+        push_service = VaNotify::Service.new(push_api_key)
+        expect(push_service.push_client).to eq(push_va_notify_client)
+      end
+    end
   end
 
   describe '#send_email', test_service: false do
