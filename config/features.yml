@@ -22,9 +22,9 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_intent_to_file_api:
+  accredited_representative_portal_intent_to_file:
     actor_type: user
-    description: Enables the endpoints of the accredited representative portal intent to file
+    description: Enables accredited representative portal intent to file (0966)
     enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
@@ -166,6 +166,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
+  event_bus_gateway_letter_ready_push_notifications:
+    description: Percentage rollout flag for push notifications in LetterReadyNotificationJob
   event_bus_gateway_pension_email_template:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
@@ -538,6 +540,10 @@ features:
     actor_type: user
     description: Feature gates the certificate of eligibility application
     enable_in_development: true
+  coe_form_rebuild_cveteam:
+    actor_type: user
+    description: Enables rebuild of Certificate of Eligibility form
+    enable_in_development: true
   combined_debt_portal_access:
     actor_type: user
     description: Enables users to interact with combined debt portal experience
@@ -844,9 +850,6 @@ features:
     actor_type: user
     description: enables sending the claim date to Lighthouse when submitting a Form 526EZ when present
     enable_in_development: true
-  disability_526_block_banking_info_retrieval:
-    actor_type: user
-    description: disables call to Lighthouse Direct Deposit API to fill in banking information without Veteran consent
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -1183,6 +1186,9 @@ features:
   ha_cpap_supplies_cta:
     actor_type: user
     description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
+  in_progress_form_atomicity:
+    actor_type: user
+    description: Prevents multiple form creations for in_progress_form updates
   in_progress_form_reminder:
     actor_type: user
     description: Enable/disable in progress form reminders (sent via VaNotify)
@@ -1407,45 +1413,13 @@ features:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
     enable_in_development: true
-  mhv_medical_records_allow_txt_downloads:
-    actor_type: user
-    description: Allows users to download Medical Records data in TXT format
-    enable_in_development: true
   mhv_medical_records_ccd_extended_file_types:
     actor_type: user
     description: Enables CCD downloads in XML, HTML, PDF w/ support for OH and VistA facilities
     enable_in_development: true
-  mhv_medical_records_display_conditions:
+  mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
-    description: Show/hide content related to Health Conditions in Medical Records
-    enable_in_development: true
-  mhv_medical_records_display_domains:
-    actor_type: user
-    description: Show/hide in-progress Medical Records domains
-    enable_in_development: true
-  mhv_medical_records_display_labs_and_tests:
-    actor_type: user
-    description: Show/hide content related to Labs & Tests in Medical Records
-    enable_in_development: true
-  mhv_medical_records_display_notes:
-    actor_type: user
-    description: Show/hide content related to Notes in Medical Records
-    enable_in_development: true
-  mhv_medical_records_display_sidenav:
-    actor_type: user
-    description: Show/hide the Medical Records side navigation
-    enable_in_development: true
-  mhv_medical_records_display_vaccines:
-    actor_type: user
-    description: Show/hide content related to Vaccines in Medical Records
-    enable_in_development: true
-  mhv_medical_records_display_settings_page:
-    actor_type: user
-    description: Show/hide the Settings Page in Medical Records
-    enable_in_development: true
-  mhv_medical_records_display_vitals:
-    actor_type: user
-    description: Show/hide content related to Vitals in Medical Records
+    description: Combines CVIX lab record list with the SCDF/Unified lab record list
     enable_in_development: true
   mhv_medical_records_migrate_ccd_to_s3:
     actor_type: user
@@ -1455,37 +1429,17 @@ features:
     actor_type: user
     description: Enables the switch to an s3 bucket for the DICOM endpoint
     enable_in_development: true
-  mhv_medical_records_migrate_to_api_gateway:
-    actor_type: user
-    description: Enables the switch to the new MHV API Gateway endpoints
-    enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
     description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
-  mhv_medical_records_to_va_gov_release:
-    actor_type: user
-    description: Enables/disables Medical Records on VA.gov (intial transition from MHV to VA.gov)
-    enable_in_development: true
   mhv_medical_records_new_eligibility_check:
     actor_type: user
-    description: Enables/disables Medical Records new access policy eligibility check endpoint
-    enable_in_development: true
-  mhv_medical_records_update_landing_page:
-    actor_type: user
-    description: Enables/disables Medical Records new landing page content
+    description: Enables/disables Medical Records new access policy
     enable_in_development: true
   mhv_medical_records_filter_and_sort:
     actor_type: user
     description: Enables/disables Medical Records new filter and sort changes
-    enable_in_development: true
-  mhv_medical_records_use_unified_sei_api:
-    actor_type: user
-    description: Enables/disables use of the unified API call self-entered information
-    enable_in_development: true
-  mhv_medical_records_milestone_two:
-    actor_type: user
-    description: Enables/disables Medical Records new Milestone 2 changes
     enable_in_development: true
   mhv_medical_records_retry_next_page:
     actor_type: user
@@ -1916,6 +1870,9 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_1995_re_reroute:
+    actor_type: user
+    description: Show the questionnaire to determine where to re-route the user
   meb_parent_guardian_step:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
@@ -2030,6 +1987,10 @@ features:
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
+    enable_in_development: true
+  va_online_scheduling_cscs_migration:
+    actor_type: user
+    description: swaps the scheduling configurations endpoint from MFS to CSCS
     enable_in_development: true
   va_online_scheduling_direct:
     actor_type: user
@@ -2355,6 +2316,9 @@ features:
   burial_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  burial_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Burial
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -2728,6 +2692,11 @@ features:
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  meb_1995_instruction_page_update_v3:
+    actor_type: user
+    description: Updated verbiage for instruction page for 5490
+    enable_in_development: true
+
   survivors_benefits_form_enabled:
     actor_type: user
     description: Enables the Medical Expense Reports form (Form 21P-534EZ)
@@ -2747,3 +2716,6 @@ features:
   survivors_benefits_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  sob_claimant_service:
+    actor_type: user
+    description: If enabled, use the new claimant service for SOB

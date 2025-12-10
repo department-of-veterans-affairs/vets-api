@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 require 'dependents_benefits/claim_processor'
-require 'dependents_benefits/sidekiq/bgs_674_job'
-require 'dependents_benefits/sidekiq/bgs_686c_job'
-require 'dependents_benefits/sidekiq/claims_686c_job'
-require 'dependents_benefits/sidekiq/claims_674_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_674_job'
+require 'dependents_benefits/sidekiq/bgs/bgs_686c_job'
+require 'dependents_benefits/sidekiq/claims_evidence/claims_686c_job'
+require 'dependents_benefits/sidekiq/claims_evidence/claims_674_job'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   let(:parent_claim) { create(:dependents_claim) }
@@ -13,7 +13,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   let(:form_686_claim) { create(:add_remove_dependents_claim) }
   let(:parent_claim_id) { parent_claim.id }
   let(:proc_id) { 'proc-123-456' }
-  let(:processor) { described_class.new(parent_claim_id, proc_id) }
+  let(:processor) { described_class.new(parent_claim_id) }
   let(:mock_monitor) { instance_double(DependentsBenefits::Monitor) }
 
   before do
@@ -26,55 +26,48 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '.enqueue_submissions' do
     it 'creates processor instance and delegates to instance method' do
-      expect(described_class).to receive(:new).with(parent_claim_id, proc_id).and_return(processor)
+      expect(described_class).to receive(:new).with(parent_claim_id, nil).and_return(processor)
       expect(processor).to receive(:enqueue_submissions)
-      described_class.enqueue_submissions(parent_claim_id, proc_id)
+      described_class.enqueue_submissions(parent_claim_id, nil)
     end
   end
 
   describe '#enqueue_submissions' do
     before do
-      allow(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).and_return(true)
-      allow(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).and_return(true)
-      allow(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).and_return(true)
-      allow(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::BGS::BGSFormJob).to receive(:perform_async).and_return(true)
+      allow(DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJob).to receive(:perform_async).and_return(
+        true
+      )
       allow(processor).to receive(:collect_child_claims).and_return([form_686_claim, form_674_claim])
     end
 
     it 'processes claims' do
-      expect(DependentsBenefits::Sidekiq::BGS686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::BGS674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::Claims686cJob).to receive(:perform_async).with(form_686_claim.id, proc_id)
-      expect(DependentsBenefits::Sidekiq::Claims674Job).to receive(:perform_async).with(form_674_claim.id, proc_id)
+      expect(DependentsBenefits::Sidekiq::BGS::BGSFormJob).to receive(:perform_async).with(parent_claim_id)
+      expect(DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJob).to receive(:perform_async).with(
+        parent_claim_id
+      )
 
       result = processor.enqueue_submissions
 
-      expect(result).to eq({ data: { jobs_enqueued: 4 }, error: nil })
+      expect(result).to eq({ data: { jobs_enqueued: 2 }, error: nil })
     end
 
     it 'monitors submissions' do
-      expect(processor).to receive(:enqueue_686c_submission).with(form_686_claim).and_return(2)
-      expect(processor).to receive(:enqueue_674_submission).with(form_674_claim).and_return(2)
-
       processor.enqueue_submissions
-
       expect(mock_monitor).to have_received(:track_processor_info).with(
         'Starting claim submission processing', 'start', { parent_claim_id: }
       )
       expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Successfully enqueued all submission jobs', 'enqueue_success', { parent_claim_id:, jobs_count: 4 }
+        'Successfully enqueued all submission jobs', 'enqueue_success', { parent_claim_id:, jobs_count: 2 }
       )
     end
 
     it 'handles enqueue failures' do
       error = StandardError.new('Enqueue failed')
-      allow(processor).to receive(:enqueue_686c_submission).and_raise(error)
-      allow(processor).to receive(:handle_enqueue_failure)
+      allow(mock_monitor).to receive(:track_processor_info).and_raise(error)
 
-      expect(processor).not_to receive(:enqueue_674_submission)
-
+      expect(processor).to receive(:handle_enqueue_failure).with(error)
       expect { processor.enqueue_submissions }.to raise_error(StandardError, 'Enqueue failed')
-      expect(processor).to have_received(:handle_enqueue_failure).with(error)
     end
   end
 
