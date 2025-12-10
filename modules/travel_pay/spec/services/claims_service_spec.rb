@@ -273,11 +273,11 @@ describe TravelPay::ClaimsService do
         .to raise_error(Common::Exceptions::ResourceNotFound, /not found/i)
     end
 
-    it 'throws an ArgumentException if claim_id is invalid format' do
+    it 'throws an ArgumentError if claim_id is invalid format' do
       claim_id = 'this-is-definitely-a-uuid-right'
 
       expect { service.get_claim_details(claim_id) }
-        .to raise_error(ArgumentError, /valid UUID/i)
+        .to raise_error(ArgumentError, /Claim ID is invalid/i)
     end
 
     it 'overwrites expenseType with name value for parking expenses' do

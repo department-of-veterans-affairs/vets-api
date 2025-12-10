@@ -3,6 +3,7 @@
 module TravelPay
   class ClaimsService
     include ExpenseNormalizer
+    include IdValidation
 
     def initialize(auth_manager, user)
       @auth_manager = auth_manager
@@ -52,7 +53,11 @@ module TravelPay
 
     # Retrieves expanded claim details with additional fields
     def get_claim_details(claim_id)
-      validate_uuid_format!(claim_id)
+      begin
+        validate_uuid_exists!(claim_id, 'Claim')
+      rescue Common::Exceptions::BadRequest => e
+        raise ArgumentError, e.errors.first.detail
+      end
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       claim_response = client.get_claim_by_id(veis_token, btsss_token, claim_id)
@@ -115,13 +120,6 @@ module TravelPay
     end
 
     private
-
-    def validate_uuid_format!(claim_id)
-      uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
-      return if uuid_all_version_format.match?(claim_id)
-
-      raise ArgumentError, message: "Expected claim id to be a valid UUID, got #{claim_id}."
-    end
 
     def include_decision_reason?
       Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
