@@ -496,7 +496,7 @@ module BBInternal
 
       # Attempt to acquire lock. Wait up to 5 seconds.
       50.times do
-        if bb_redis.set(lock_key, 1, nx: true, ex: 30)
+        if bb_redis.set(lock_key, 1, nx: true, ex: 15)
           begin
             return yield
           ensure

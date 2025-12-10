@@ -505,7 +505,7 @@ describe BBInternal::Client do
 
     context 'when lock is acquired successfully' do
       it 'yields the block and releases the lock' do
-        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: 30).and_return(true)
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: 15).and_return(true)
         expect(redis).to receive(:del).with(lock_key)
 
         expect { |b| client.send(:with_study_map_lock, &b) }.to yield_control
@@ -515,7 +515,7 @@ describe BBInternal::Client do
     context 'when lock is not acquired immediately' do
       it 'retries and eventually acquires the lock' do
         # Fail first time, succeed second time
-        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: 30).and_return(false, true)
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: 15).and_return(false, true)
         expect(redis).to receive(:del).with(lock_key)
         expect(client).to receive(:sleep).with(0.1).once
 
@@ -525,7 +525,7 @@ describe BBInternal::Client do
 
     context 'when lock cannot be acquired' do
       it 'logs an error and raises ServiceError' do
-        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: 30).exactly(50).times.and_return(false)
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: 15).exactly(50).times.and_return(false)
         expect(redis).not_to receive(:del).with(lock_key)
         expect(client).to receive(:sleep).with(0.1).exactly(50).times
         expect(Rails.logger).to receive(:error).with('Failed to acquire study map lock')
