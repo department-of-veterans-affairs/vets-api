@@ -28,6 +28,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:travel_pay_client_secret_oh) { 'fake_client_secret_oh' }
   let(:travel_pay_resource) { 'fake_resource' }
   let(:claims_url_v2) { 'https://dev.integration.d365.va.gov' }
+  let(:claims_base_path_v2) { 'eis/api/btsss/travelclaim' }
   let(:subscription_key) { 'sub-key' }
   let(:e_subscription_key) { 'e-sub' }
   let(:s_subscription_key) { 's-sub' }
@@ -134,7 +135,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when GatewayTimeout is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::GatewayTimeout.new('Timeout::Error')
           )
@@ -159,7 +160,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   describe '#system_access_token_request' do
     it 'makes system access token request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/system_access_token_200') do
           result = client.send(:system_access_token_request,
                                veis_access_token: 'test-veis-token',
@@ -178,7 +179,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when BackendServiceException is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::BackendServiceException.new('TEST', {}, 500, 'Internal Server Error')
           )
@@ -202,7 +203,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when 502 Bad Gateway error occurs' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::BackendServiceException.new('VA900', {}, 502, 'Bad Gateway')
           )
@@ -226,7 +227,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when ClientError is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Client::Errors::ClientError.new('Connection failed', 503)
           )
@@ -250,7 +251,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when GatewayTimeout is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::GatewayTimeout.new('Timeout::Error')
           )
@@ -286,7 +287,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes appointment request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_200') do
           result = client.send_appointment_request
 
@@ -299,7 +300,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when invalid parameters are provided' do
       it 'raises BackendServiceException for invalid appointment date' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_400') do
             expect { client.send_appointment_request }.to raise_error(
               Common::Exceptions::BackendServiceException
@@ -321,7 +322,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes claim request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_create_200') do
           result = client.send_claim_request(appointment_id:)
 
@@ -342,7 +343,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when claim creation fails' do
       it 'raises BackendServiceException for duplicate appointment' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/claims_create_400_duplicate') do
             expect do
               client.send_claim_request(appointment_id: 'duplicate-appt-id')
@@ -364,7 +365,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes get claim request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_get_200') do
           result = client.send_get_claim_request(claim_id:)
 
@@ -392,7 +393,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when claim is not found' do
       it 'raises BackendServiceException for 404 response' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/claims_get_404') do
             expect do
               client.send_get_claim_request(claim_id: 'non-existent-claim')
@@ -405,7 +406,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when server error occurs' do
       it 'raises BackendServiceException for 500 response' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/claims_get_500') do
             expect do
               client.send_get_claim_request(claim_id:)
@@ -428,7 +429,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes mileage expense request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/expenses_mileage_200') do
           result = client.send_mileage_expense_request(
             claim_id:,
@@ -461,7 +462,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes claim submission request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
           result = client.send_claim_submission_request(claim_id:)
 
@@ -972,7 +973,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'successfully makes PATCH requests for claim submission' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
           result = client.send_claim_submission_request(claim_id: test_claim_id)
 
