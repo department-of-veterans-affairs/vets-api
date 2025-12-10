@@ -855,7 +855,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               call_endpoint
 
               expect(response.headers['set-cookie']).to include('domain=some-domain')
-              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(cookies[cerner_eligible_cookie]).to eq(eligible.to_s)
               expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
             end
           end
@@ -867,7 +867,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'sets the cookie and logs the cerner eligibility' do
               call_endpoint
 
-              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(cookies[cerner_eligible_cookie]).to eq(eligible.to_s)
               expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
             end
           end
@@ -878,7 +878,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           let(:previous_value) { true }
 
           before do
-            cookies.signed[cerner_eligible_cookie] = true
+            cookies[cerner_eligible_cookie] = true
           end
 
           it 'logs the cerner eligibility with the previous value' do
