@@ -55,9 +55,12 @@ module AllowlistLogFiltering
     # Get the global filter lambda from Rails config
     global_filter = Rails.application.config.filter_parameters.first
 
-    return data unless global_filter
+    # Fallback to standard filtering when no global filter exists
+    return ParameterFilterHelper.filter_params(data) unless global_filter
 
     # Create a custom filter that respects the per-call allowlist
+    # Note: deep_dup is necessary to avoid mutating the caller's data,
+    # but may have performance implications for large data structures
     filtered_data = data.deep_dup
 
     apply_allowlist_filter(filtered_data, allowlist, global_filter)
@@ -66,25 +69,31 @@ module AllowlistLogFiltering
   def apply_allowlist_filter(data, allowlist, global_filter)
     case data
     when Hash
-      data.each do |key, value|
-        key_string = key.to_s
-
-        data[key] = if allowlist.include?(key_string)
-                      # Key is in the per-call allowlist, don't filter it
-                      value
-                    elsif value.is_a?(Hash) || value.is_a?(Array)
-                      # Recursively filter nested structures
-                      apply_allowlist_filter(value, allowlist, global_filter)
-                    else
-                      # Apply global filtering
-                      global_filter.call(key, value)
-                    end
-      end
-      data
+      filter_hash(data, allowlist, global_filter)
     when Array
       data.map { |element| apply_allowlist_filter(element, allowlist, global_filter) }
     else
       data
+    end
+  end
+
+  def filter_hash(data, allowlist, global_filter)
+    data.each do |key, value|
+      data[key] = filter_value(key.to_s, value, allowlist, global_filter)
+    end
+    data
+  end
+
+  def filter_value(key_string, value, allowlist, global_filter)
+    if value.is_a?(Hash) || value.is_a?(Array)
+      # Always filter nested structures, even if parent key is allowlisted
+      apply_allowlist_filter(value, allowlist, global_filter)
+    elsif allowlist.include?(key_string)
+      # Key is allowlisted and value is not a nested structure
+      value
+    else
+      # Apply global filtering
+      global_filter.call(key_string, value)
     end
   end
 end

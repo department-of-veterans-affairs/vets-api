@@ -7,5 +7,5 @@ require 'allowlist_log_filtering'
 # Usage: Rails.logger.info(data, log_allowlist: [:email, :phone])
 Rails.application.config.after_initialize do
   Rails.logger.extend(AllowlistLogFiltering)
-  Rails.logger.info('AllowlistLogFiltering enabled - log_allowlist parameter now available')
+  Rails.logger.debug('AllowlistLogFiltering enabled - log_allowlist parameter now available')
 end

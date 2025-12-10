@@ -136,6 +136,24 @@ RSpec.describe AllowlistLogFiltering do
       expect(output).to include('nested@example.com')
       expect(output).not_to include('123-45-6789')
     end
+
+    it 'filters nested sensitive data even when parent key is allowlisted' do
+      data = {
+        user: {
+          name: 'John Doe',
+          ssn: '123-45-6789',
+          email: 'user@example.com'
+        }
+      }
+      # Allowlist only the parent 'user' key - nested sensitive data should still be filtered
+      logger_with_output.info(data, log_allowlist: [:user])
+
+      output = log_output.string
+      # Even though 'user' is allowlisted, nested sensitive fields should still be filtered
+      expect(output).not_to include('123-45-6789')
+      expect(output).not_to include('John Doe')
+      expect(output).not_to include('user@example.com')
+    end
   end
 
   describe 'interaction with global ALLOWLIST' do
@@ -247,12 +265,15 @@ RSpec.describe AllowlistLogFiltering do
       expect { logger_with_output.info(data, log_allowlist: [:email]) }.not_to raise_error
     end
 
-    it 'returns unfiltered data when no global filter exists' do
+    it 'falls back to ParameterFilterHelper when no global filter exists' do
       data = { ssn: '123-45-6789', email: 'user@example.com' }
       logger_with_output.info(data, log_allowlist: [:email])
 
       output = log_output.string
-      # Without global filter, data passes through
+      # When filter_parameters is empty, ParameterFilterHelper.filter_params
+      # also has no filters configured, so data passes through unfiltered.
+      # This is an edge case that should never occur in production since
+      # filter_parameter_logging.rb always configures the global filter.
       expect(output).to include('123-45-6789')
       expect(output).to include('user@example.com')
     end
