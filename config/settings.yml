@@ -150,6 +150,7 @@ check_in:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__auth_url_v2'] %>
     claims_base_path: <%= ENV['check_in__travel_reimbursement_api_v2__claims_base_path'] %>
+    claims_base_path_v2: <%= ENV['check_in__travel_reimbursement_api_v2__claims_base_path_v2'] %>
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__claims_url_v2'] %>
     client_id: <%= ENV['check_in__travel_reimbursement_api_v2__client_id'] %>
@@ -1575,7 +1576,6 @@ vanotify:
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
-      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: <%= ENV['vanotify__services__ivc_champva__pega_inbox_address'] %>
       template_id:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
