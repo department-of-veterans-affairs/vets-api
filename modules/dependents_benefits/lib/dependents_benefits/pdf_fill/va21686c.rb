@@ -2019,26 +2019,38 @@ module DependentsBenefits
       #
       # @return [void]
       def merge_addendum_helpers
+        pension_flipper = Flipper.enabled?(:va_dependents_net_worth_and_pension)
         addendum_text = add_household_income
 
         # income question when adding spouse
         spouse_name = combine_full_name(@form_data.dig('dependents_application', 'spouse_information', 'full_name'))
         spouse_income = @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_income')
-        addendum_text += add_dependent_income(spouse_name, spouse_income)
+        spouse_income_exists = @form_data.dig('dependents_application', 'does_live_with_spouse').key?('spouse_income')
+        # Queston will only be asked if va_dependents_net_worth_and_pension FF is off
+        # OR if FF is on and veteran receives pension benefits
+        unless pension_flipper && !spouse_income_exists
+          addendum_text += add_dependent_income(spouse_name, spouse_income)
+        end
 
         # income questions when adding children
         children_to_add = @form_data.dig('dependents_application', 'children_to_add')
         addendum_text += add_dependents(children_to_add, 'income_in_last_year')
 
         # income question when reporting a divorce
-        spouse_name = combine_full_name(@form_data.dig('dependents_application', 'report_divorce', 'full_name'))
-        spouse_income = @form_data.dig('dependents_application', 'report_divorce', 'spouse_income')
-        addendum_text += add_dependent_income(spouse_name, spouse_income)
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        unless pension_flipper
+          spouse_name = combine_full_name(@form_data.dig('dependents_application', 'report_divorce', 'full_name'))
+          spouse_income = @form_data.dig('dependents_application', 'report_divorce', 'spouse_income')
+          addendum_text += add_dependent_income(spouse_name, spouse_income)
+        end
 
         # income questions when reporting deaths
-        deaths = @form_data.dig('dependents_application', 'deaths')
-        addendum_text += add_dependents(deaths, 'deceased_dependent_income')
-        @form_data['addendum'] = addendum_text
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        unless pension_flipper
+          deaths = @form_data.dig('dependents_application', 'deaths')
+          addendum_text += add_dependents(deaths, 'deceased_dependent_income')
+          @form_data['addendum'] = addendum_text
+        end
       end
 
       ##
@@ -2047,11 +2059,14 @@ module DependentsBenefits
       # @return [String] Formatted household income question with answer
       def add_household_income
         net_worth = @form_data.dig('dependents_application', 'household_income')
-        pension_flipper = Flipper.enabled?(:va_dependents_net_worth_and_pension)
 
         # If va_dependents_net_worth_and_pension FF is off, show "greater than" wording
         # If on, show "less than" wording (reversed logic for UI versus RBPS value)
-        if pension_flipper
+        # Queston will only be asked if va_dependents_net_worth_and_pension FF is off
+        # OR if FF is on and veteran receives pension benefits
+        if Flipper.enabled?(:va_dependents_net_worth_and_pension)
+          return '' unless @form_data['dependents_application'].key?('household_income')
+
           "Did the household have a net worth less than $163,699 in the last tax year? #{format_boolean(!net_worth)}"
         else
           "Did the household have a net worth greater than $163,699 in the last tax year? #{format_boolean(net_worth)}"
@@ -2078,6 +2093,9 @@ module DependentsBenefits
       # @return [String] Combined income questions for all dependents, or empty string if none
       def add_dependents(dependents_hash, income_attr)
         return '' if dependents_hash.blank?
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        # OR if FF is on and veteran receives pension benefits
+        return '' if Flipper.enabled?(:va_dependents_net_worth_and_pension) && !dependents_hash.first.key?(income_attr)
 
         dependent_text = ''
         dependents_hash.each do |dependent|
