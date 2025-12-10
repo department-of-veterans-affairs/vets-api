@@ -403,8 +403,7 @@ RSpec.describe 'flipper', type: :request do
 
     it 'displays placeholder text indicating comma-separated values are supported' do
       feature = Flipper[:this_is_only_a_test]
-      allow(feature).to receive(:boolean_value).and_return(false)
-      allow(feature).to receive(:actors_value).and_return([])
+      allow(feature).to receive_messages(boolean_value: false, actors_value: [])
 
       get '/flipper/features/this_is_only_a_test'
       assert_response :success
