@@ -3,6 +3,7 @@
 module AccreditedRepresentativePortal
   module V0
     class Form21aController < ApplicationController
+      include AccreditedRepresentativePortal::V0::Form21aUploadConcern
       skip_after_action :verify_pundit_authorization
 
       class SchemaValidationError < StandardError
@@ -31,24 +32,22 @@ module AccreditedRepresentativePortal
           "user_uuid=#{current_user&.uuid}"
         )
 
-        ActiveRecord::Base.transaction do
-          form_attachment = Form21aAttachment.new(type: 'Form21aAttachment')
-          form_attachment.set_file_data!(file)
-          form_attachment.save!
-          update_in_progress_form(details_slug, file, form_attachment)
+        form_attachment = AccreditedRepresentativePortal::Form21aAttachment.new
+        form_attachment.set_file_data!(file)
+        form_attachment.save!
+        update_in_progress_form(details_slug, file, form_attachment)
 
-          render json: {
-            data: {
-              attributes: {
-                errorMessage: '',
-                confirmationCode: form_attachment.guid,
-                name: file.original_filename,
-                size: file.size,
-                type: file.content_type
-              }
+        render json: {
+          data: {
+            attributes: {
+              errorMessage: '',
+              confirmationCode: form_attachment.guid,
+              name: file.original_filename,
+              size: file.size,
+              type: file.content_type
             }
-          }, status: :ok
-        end
+          }
+        }, status: :ok
       rescue CarrierWave::IntegrityError => e
         Rails.logger.error(
           "Form21aController: File upload integrity error for user_uuid=#{current_user&.uuid} " \
@@ -97,74 +96,12 @@ module AccreditedRepresentativePortal
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
       end
 
-      # def get_file_paths_and_metadata(parsed_form_data)
-      #   attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
-
-      #   # Use the actual form ID for PDF generation, but legacy form ID for S3/metadata
-      #   actual_form_id = form.form_id
-      #   legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(actual_form_id)
-
-      #   filler = IvcChampva::PdfFiller.new(form_number: actual_form_id, form:, uuid: form.uuid, name: legacy_form_id)
-
-      #   file_path = if @current_user
-      #                 filler.generate(@current_user.loa[:current])
-      #               else
-      #                 filler.generate
-      #               end
-
-      #   # Get validated metadata
-      #   metadata = IvcChampva::MetadataValidator.validate(form.metadata)
-
-      #   file_paths = form.handle_attachments(file_path)
-
-      #   # Generate VES JSON file and add to file_paths if conditions are met
-      #   if should_generate_ves_json?(form.form_id)
-      #     ves_json_path = generate_ves_json_file(form, parsed_form_data)
-      #     if ves_json_path
-      #       file_paths << ves_json_path
-      #       attachment_ids << 'VES JSON'
-      #     end
-      #   end
-
-      #   [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
-      # end
-
-      def enqueue_document_uploads(response)
-        in_progress_form = current_in_progress_form
-        return unless in_progress_form
-
-        application_id = extract_application_id(response)
-        return unless application_id
-
-        Form21aDocumentUploadService.enqueue_uploads(
-          in_progress_form:,
-          application_id:
-        )
-      end
-
-      def extract_application_id(response)
-        application_id = response.body['applicationId']
-
-        unless application_id
-          Rails.logger.warn(
-            "Form21aController: No applicationId in GCLAWS response for user_uuid=#{@current_user&.uuid}. " \
-            'Document uploads will not be processed.'
-          )
-        end
-
-        application_id
-      end
-
       def current_in_progress_form_or_routing_error
         current_in_progress_form || routing_error
       end
 
       def current_in_progress_form
         InProgressForm.form_for_user(FORM_ID, current_user)
-      end
-
-      def documents_key_for(slug)
-        "#{slug.tr('-', '_').camelize(:lower)}Documents"
       end
 
       def update_in_progress_form(details_slug, file, form_attachment)

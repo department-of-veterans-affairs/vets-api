@@ -495,7 +495,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         )
 
         expect { post(path, params: { file: }, headers:) }
-          .not_to change(Form21aAttachment, :count)
+          .not_to change(AccreditedRepresentativePortal::Form21aAttachment, :count)
 
         expect(response).to have_http_status(:not_found)
         expect(parsed_response).to match(
@@ -509,12 +509,51 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       end
     end
 
+    context 'when attachment fails validation' do
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::Form21aAttachment)
+          .to receive(:save!)
+          .and_raise(ActiveRecord::RecordInvalid.new(
+                       AccreditedRepresentativePortal::Form21aAttachment.new
+                     ))
+      end
+
+      it 'returns unprocessable entity with generic error message' do
+        make_post_request
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response['errors']).to eq('Unable to store document')
+      end
+    end
+
+    context 'when file upload fails integrity checks' do
+      let(:file) do
+        fixture_file_upload(
+          Rails.root.join('modules',
+                          'accredited_representative_portal',
+                          'spec',
+                          'fixtures',
+                          'files',
+                          'invalid_21a_extension.png'),
+          'image/png'
+        )
+      end
+
+      it 'returns unprocessable entity with error message' do
+        make_post_request
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response['errors']).to be_present
+      end
+    end
+
     context 'with a valid slug and file' do
       it 'creates an attachment, updates the in-progress form, and returns confirmation data' do
         allow(Rails.logger).to receive(:info).and_call_original
 
-        expect { make_post_request }
-          .to change(Form21aAttachment, :count).by(1)
+        expect do
+          make_post_request
+        end.to change(AccreditedRepresentativePortal::Form21aAttachment, :count).by(1)
 
         expect(Rails.logger).to have_received(:info).with(
           a_string_including(
@@ -534,7 +573,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         in_progress_form.reload
         form_data = JSON.parse(in_progress_form.form_data)
 
-        documents = form_data['convictionDetailsDocuments']
+        documents = form_data['imprisonedDetailsDocuments']
         expect(documents).to be_an(Array)
         expect(documents.size).to eq(1)
 
