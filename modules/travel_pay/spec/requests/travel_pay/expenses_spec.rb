@@ -112,6 +112,78 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         expect(response).to have_http_status(:service_unavailable)
       end
     end
+
+    context 'with receipt attachment' do
+      let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
+      let(:receipt_hash) do
+        {
+          'content_type' => 'application/pdf',
+          'content_length' => '1446',
+          'file_data' => Base64.strict_encode64(Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures',
+                                                                'documents', 'test.pdf').read),
+          'file_type' => 'pdf'
+        }
+      end
+      let(:expense_params_with_receipt) do
+        {
+          expense: {
+            purchase_date: 1.day.ago.iso8601,
+            description: 'Parking with receipt',
+            cost_requested: 15.00
+          },
+          receipt: receipt_hash
+        }
+      end
+
+      before do
+        allow(TravelPay::ExpensesService).to receive(:new).and_return(expenses_service)
+      end
+
+      it 'sends receipt in the correct body structure to create_expense' do
+        # Simpler verification - just capture and verify key elements
+        received_params = nil
+        allow(expenses_service).to receive(:create_expense) do |params|
+          received_params = params
+          { 'id' => expense_id }
+        end
+
+        post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+             params: expense_params_with_receipt,
+             headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(response).to have_http_status(:created)
+
+        # Verify receipt structure after the request
+        expect(received_params).not_to be_nil
+        expect(received_params['receipt']).to be_present
+        expect(received_params['receipt']['content_type']).to eq('application/pdf')
+        expect(received_params['receipt']['file_type']).to eq('pdf')
+        expect(received_params['receipt']['file_data']).to be_present
+        expect(received_params['receipt']['content_length']).to eq('1446')
+      end
+
+      it 'excludes receipt from body when not provided' do
+        expect(expenses_service).to receive(:create_expense) do |params|
+          # Verify params structure - should NOT have receipt
+          expect(params).to be_a(Hash)
+          expect(params['claim_id']).to eq(claim_id)
+          expect(params['purchase_date']).to be_a(String)
+          expect(params['description']).to eq('Test expense description')
+          expect(params['cost_requested']).to eq(25.50)
+          expect(params['expense_type']).to eq('other')
+          expect(params).not_to have_key('receipt')
+
+          # Return mock response
+          { 'id' => expense_id }
+        end
+
+        post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
+             params: expense_params,
+             headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(response).to have_http_status(:created)
+      end
+    end
   end
 
   # GET /travel_pay/v0/claims/:claim_id/expenses/:expense_type/:expense_id
