@@ -60,7 +60,7 @@ module AccreditedRepresentativePortal
     end
 
     def set_aws_params
-      if Rails.env.production?
+      if ActiveModel::Type::Boolean.new.cast(Settings.ogc.form21a_service_url.s3.uploads_enabled)
         self.aws_credentials = {
           region: Settings.ogc.form21a_service_url.s3.region
         }
@@ -68,6 +68,8 @@ module AccreditedRepresentativePortal
         self.aws_bucket = Settings.ogc.form21a_service_url.s3.bucket
         self.aws_attributes = { server_side_encryption: 'AES256' }
         self.class.storage = :aws
+      else
+        self.class.storage = :file
       end
     end
   end

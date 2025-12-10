@@ -69,6 +69,15 @@ module AccreditedRepresentativePortal
         begin
           response = AccreditationService.submit_form21a([form_hash], @current_user&.uuid)
 
+          if response.success?
+            begin
+              enqueue_document_uploads(response)
+              InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy
+            rescue => e
+              Rails.logger.error("Failed to enqueue uploads: #{e.class} #{e.message} for user_uuid=#{@current_user&.uuid}")
+              # Don't destroy form if upload enqueueing fails
+            end
+          end
           InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy if response.success?
           render_ogc_service_response(response)
         rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
@@ -90,6 +99,32 @@ module AccreditedRepresentativePortal
 
       def schema
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
+      end
+
+      def enqueue_document_uploads(response)
+        in_progress_form = current_in_progress_form
+        return unless in_progress_form
+
+        application_id = extract_application_id(response)
+        return unless application_id
+
+        Form21aDocumentUploadService.enqueue_uploads(
+          in_progress_form:,
+          application_id:
+        )
+      end
+
+      def extract_application_id(response)
+        application_id = response.body['applicationId']
+
+        unless application_id
+          Rails.logger.warn(
+            "Form21aController: No applicationId in GCLAWS response for user_uuid=#{@current_user&.uuid}. " \
+            'Document uploads will not be processed.'
+          )
+        end
+
+        application_id
       end
 
       def current_in_progress_form_or_routing_error

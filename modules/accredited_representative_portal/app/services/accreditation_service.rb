@@ -28,9 +28,11 @@ class AccreditationService
 
   # self.connection: Creates and returns a Faraday connection configured with JSON request and response handling.
   def self.connection
-    Faraday.new(url: service_url) do |conn|
+    @connection ||= Faraday.new(url: document_upload_url) do |conn|
       conn.request :json
       conn.response :json, content_type: /\bjson$/
+      conn.options.timeout = 30      # 30 second read timeout
+      conn.options.open_timeout = 10 # 10 second connection timeout
       conn.adapter Faraday.default_adapter
     end
   end
