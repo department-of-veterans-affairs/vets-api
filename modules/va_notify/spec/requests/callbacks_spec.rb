@@ -59,14 +59,28 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       end
 
       context 'with missing notification' do
-        it 'logs info' do
+        it 'logs info and enqueues retry job' do
           allow(Rails.logger).to receive(:info)
+          allow(VANotify::NotificationLookupJob).to receive(:perform_in)
+
           post(callback_route,
                params: callback_params.to_json,
                headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
 
           expect(Rails.logger).to have_received(:info).with(
-            "va_notify callbacks - Received update for unknown notification #{notification_id}"
+            "va_notify callbacks - Received update for unknown notification #{notification_id}\n\n" \
+            '        , enqueuing retry job'
+          )
+
+          expect(VANotify::NotificationLookupJob).to have_received(:perform_in).with(
+            5.seconds,
+            notification_id,
+            hash_including(
+              'status' => 'delivered',
+              'notification_type' => 'email',
+              'to' => 'user@example.com',
+              'status_reason' => ''
+            )
           )
 
           expect(response.body).to include('success')
