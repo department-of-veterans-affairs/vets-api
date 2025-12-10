@@ -155,7 +155,7 @@ RSpec.describe Mobile::V0::Adapters::Immunizations, type: :model do
             'Immunizations group_name processing',
             hash_including(
               coding_count: 2,
-              vaccine_group_lengths: [13]
+              vaccine_group_lengths: []
             )
           )
 
