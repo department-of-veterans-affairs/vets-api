@@ -24,9 +24,6 @@ def get_form_hash_686c
           @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
                                "#{STATS_KEY}.find_by_participant_id")
 ```
-
-
-
 After the check `bgs_person.present?`, we currently have a second check for lookup by SSN.    A couple versions (one liner vs if/else) of this lookup has been in place for a while, but it seems to serve no purpose.  Even after logging was added to DataDog ([PR here](https://github.com/department-of-veterans-affairs/vets-api/commit/ec5602459650d16dcc509d65dc78c25a76e77662)), there were no instances of the else being hit in the [logs](https://vagov.ddog-gov.com/logs?query=%22BGS%3A%3ADependentV2Service%23get_form_hash_686c%20found%20bgs_person%20by%20ssn%22&agg_m=count&agg_m_source=base&agg_t=count&cols=host%2Cservice&messageDisplay=inline&refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1763921404855&to_ts=1765217404855&live=true).
 
   else
