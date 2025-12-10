@@ -72,14 +72,19 @@ module TravelClaim
 
       result
     rescue Common::Exceptions::BackendServiceException => e
-      # Check if this is a duplicate claim error
       handle_duplicate_claim_error if duplicate_claim_error?(e)
-      # Send error notification if feature flag is enabled
+      increment_failure_metric
       send_error_notification_if_enabled(e)
       raise e
-    rescue => e
-      log_message(:error, 'Unexpected error', error_class: e.class.name)
-      # Send error notification if feature flag is enabled
+    rescue Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError, Net::ReadTimeout => e
+      log_message(:error, 'Timeout error', error_class: e.class.name)
+      increment_timeout_metric
+      increment_failure_metric
+      send_error_notification_if_enabled(e)
+      raise e
+    rescue Common::Client::Errors::ClientError => e
+      log_message(:error, 'Client error', error_class: e.class.name)
+      increment_failure_metric
       send_error_notification_if_enabled(e)
       raise e
     end
@@ -397,6 +402,26 @@ module TravelClaim
       increment_metric_by_facility_type(
         CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
         CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+      )
+    end
+
+    ##
+    # Increments the appropriate timeout metric based on facility type
+    #
+    def increment_timeout_metric
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT,
+        CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT
+      )
+    end
+
+    ##
+    # Increments the appropriate failure metric based on facility type
+    #
+    def increment_failure_metric
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_ERROR,
+        CheckIn::Constants::OH_STATSD_BTSSS_ERROR
       )
     end
 
