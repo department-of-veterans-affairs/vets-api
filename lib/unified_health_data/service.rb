@@ -213,7 +213,7 @@ module UnifiedHealthData
         body = response.body
         combined_records = fetch_combined_records(body)
 
-        immunizations_adapter.parse(combined_records)
+        immunization_adapter.parse(combined_records)
       end
     end
 

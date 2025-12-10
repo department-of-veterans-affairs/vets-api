@@ -27,12 +27,11 @@ module UnifiedHealthData
         parsed.compact
       end
 
-      def parse_single_immunization(record)
+      def parse_single_immunization(record) # rubocop:disable Metrics/MethodLength
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
-        # I think this was being used for the sorting function?
-        # date_value = resource['occurrenceDateTime'] || resource['recordedDate'] || nil
+        date_value = resource['occurrenceDateTime'] || resource['recordedDate'] || nil
         vaccine_code = resource['vaccineCode'] || {}
         protocol_applied = resource['protocolApplied'] || []
         group_name = extract_group_name(vaccine_code) # PROBLEMATICAL
@@ -40,7 +39,8 @@ module UnifiedHealthData
         UnifiedHealthData::Immunization.new(
           id: resource['id'],
           cvx_code: extract_cvx_code(vaccine_code),
-          date: resource['occurrenceDateTime'],
+          date: date_value,
+          sort_date: normalize_date_for_sorting(date_value),
           dose_number: extract_dose_number(protocol_applied),
           dose_series: extract_dose_series(protocol_applied),
           group_name:,
@@ -51,7 +51,7 @@ module UnifiedHealthData
           reaction: extract_reaction(resource['reaction']), # PROBLEMATICAL
           short_description: vaccine_code['text']
         )
-      end
+      end # rubocop:enable Metrics/MethodLength
 
       private
 

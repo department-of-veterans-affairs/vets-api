@@ -8,7 +8,8 @@ module UnifiedHealthData
 
     attribute :id, String
     attribute :cvx_code, Integer
-    attribute :date, String # This might be a full datetime object or just the year or year-month or year-month-day
+    attribute :date, String # This might be a full ISO string or just the year or year-month or year-month-day
+    attribute :sort_date, String # Normalized date for sorting (internal use only)
     attribute :dose_number, String
     attribute :dose_series, String
     attribute :group_name, String
@@ -18,5 +19,7 @@ module UnifiedHealthData
     attribute :note, String
     attribute :reaction, String
     attribute :short_description, String
+
+    default_sort_by sort_date: :desc
   end
 end

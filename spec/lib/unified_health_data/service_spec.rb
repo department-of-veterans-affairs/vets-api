@@ -1843,6 +1843,155 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  # Vaccines
+  describe '#get_immunizations' do
+    let(:vaccines_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'immunizations_sample.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: vaccines_sample_response
+      )
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all vaccines' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(sample_client_response)
+
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(22)
+
+          # Verify specific vaccine exists (not checking position due to sorting)
+          polio_vaccine = vaccines.find { |v| v.id == 'M20875036615' }
+          expect(polio_vaccine).to have_attributes(
+            {
+              'cvx_code' => 112_324_773,
+              'date' => '1990-10-31',
+              'dose_number' => 'Unknown',
+              'dose_series' => 'Unknown',
+              'group_name' => 'poliovirus vaccine, unspecified formulation',
+              'location' => '556 JAL IL VA',
+              'location_id' => '353977013',
+              'manufacturer' => nil,
+              'note' => nil,
+              'reaction' => nil,
+              'short_description' => 'poliovirus vaccine, unspecified'
+            }
+          )
+          expect(vaccines).to all(have_attributes(
+                                    {
+                                      'cvx_code' => be_a(Integer),
+                                      'date' => be_a(String),
+                                      'dose_number' => be_a(String).or(be_nil),
+                                      'dose_series' => be_a(String).or(be_nil),
+                                      'group_name' => be_a(String).or(be_nil),
+                                      'location' => be_a(String).or(be_nil),
+                                      'location_id' => be_a(String).or(be_nil),
+                                      'manufacturer' => be_a(String).or(be_nil),
+                                      'note' => be_a(String).or(be_nil),
+                                      'reaction' => be_a(String).or(be_nil),
+                                      'short_description' => be_a(String).or(be_nil)
+                                    }
+                                  ))
+        end
+
+        it 'returns vaccines sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(sample_client_response)
+
+          vaccines = service.get_immunizations.sort
+
+          vaccines_with_dates = vaccines.select { |vaccine| vaccine.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = vaccines_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          vaccines_without_dates = vaccines.select { |vaccine| vaccine.date.nil? }
+          if vaccines_without_dates.any?
+            expect(vaccines.last(vaccines_without_dates.size)).to eq(vaccines_without_dates)
+          end
+        end
+      end
+
+      context 'when data exists for only VistA or OH' do
+        it 'returns vaccines for VistA only' do
+          modified_response = vaccines_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(15)
+
+          expect(vaccines).to all(have_attributes(
+                                    {
+                                      'cvx_code' => be_a(Integer),
+                                      'date' => be_a(String),
+                                      'dose_number' => be_a(String).or(be_nil),
+                                      'dose_series' => be_a(String).or(be_nil),
+                                      'group_name' => be_a(String).or(be_nil),
+                                      'location' => be_a(String).or(be_nil),
+                                      'location_id' => be_a(String).or(be_nil),
+                                      'manufacturer' => be_a(String).or(be_nil),
+                                      'note' => be_a(String).or(be_nil),
+                                      'reaction' => be_a(String).or(be_nil),
+                                      'short_description' => be_a(String).or(be_nil)
+                                    }
+                                  ))
+        end
+
+        it 'returns vaccines for OH only' do
+          modified_response = vaccines_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(7)
+
+          expect(vaccines).to all(have_attributes(
+                                    {
+                                      'cvx_code' => be_a(Integer),
+                                      'date' => be_a(String),
+                                      'dose_number' => be_a(String).or(be_nil),
+                                      'dose_series' => be_a(String).or(be_nil),
+                                      'group_name' => be_a(String).or(be_nil),
+                                      'location' => be_a(String).or(be_nil),
+                                      'location_id' => be_a(String).or(be_nil),
+                                      'manufacturer' => be_a(String).or(be_nil),
+                                      'note' => be_a(String).or(be_nil),
+                                      'reaction' => be_a(String).or(be_nil),
+                                      'short_description' => be_a(String).or(be_nil)
+                                    }
+                                  ))
+        end
+      end
+
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array vaccines' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(Faraday::Response.new(
+                          body: { 'vista' => {}, 'oracle-health' => {} }
+                        ))
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(0)
+        end
+      end
+    end
+  end
+
   describe '#get_ccd_binary' do
     let(:ccd_fixture) do
       JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)
