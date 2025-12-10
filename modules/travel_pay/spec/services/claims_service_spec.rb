@@ -282,7 +282,7 @@ describe TravelPay::ClaimsService do
 
     context 'expense ID comes back on document summaries' do
       let(:documents_with_expense_ids) do
-        {
+        Faraday::Response.new(body: {
           'data' => [
             {
               'documentId' => 'uuid1',
@@ -292,7 +292,13 @@ describe TravelPay::ClaimsService do
               'expenseId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
             }
           ]
-        }
+        })
+      end
+
+      before do
+        allow_any_instance_of(TravelPay::DocumentsClient)
+        .to receive(:get_document_ids)
+        .and_return(documents_with_expense_ids)
       end
 
       it 'transposes expense IDs and document IDs so that document ids are on expenses' do
@@ -300,8 +306,7 @@ describe TravelPay::ClaimsService do
         actual_claim = service.get_claim_details(claim_id)
         actual_expense = actual_claim['expenses'].first
 
-        expect(actual_expense.document_ids.length).to eq(1)
-        expect(actual_expense.document_ids.first).to eq('uuid1')
+        expect(actual_expense['document_id']).to eq('uuid1')
       end
     end
   end

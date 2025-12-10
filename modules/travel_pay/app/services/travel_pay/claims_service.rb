@@ -69,13 +69,7 @@ module TravelPay
         claim['documents'] = documents
 
         # finish transposing document/expense ids
-        expenses_with_docids = transpose_doc_exp_ids(documents)
-
-        claim['expenses'].map do |exp|
-          # Our current approach results in a single document with a single expense
-          expenses_with_docids[exp['id']]
-          exp['document_id'] = .first
-        end
+        claim['expenses'] = transpose_doc_exp_ids(claim['expenses'], documents)
 
         # Add decision letter reason for denied or partial payment claims
         if Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
@@ -262,11 +256,18 @@ module TravelPay
     # Switches from documents having an expense ID to 
     # expenses having a document ID
     def transpose_doc_exp_ids(expenses, documents)
-      
+      expenses_with_docids = extract_doc_ids(documents)
+
+      expenses.map do |exp|
+        # Our current approach results in a single document with a single expense
+        exp.merge('document_id' => expenses_with_docids[exp['id']]&.first)
+      end
     end
 
-    def extract_doc_idsdocuments.inject({}) do |doc, acc|
-        acc[doc['expenseId']] = (acc[doc['expenseId']] || []).push(doc['id'])
+    # Returns a hash of expenseId => array of document_ids
+    def extract_doc_ids(documents)
+      documents.each_with_object({}) do |doc, acc|
+        acc[doc['expenseId']] = (acc[doc['expenseId']] || []).push(doc['documentId'])
         acc
       end
     end
