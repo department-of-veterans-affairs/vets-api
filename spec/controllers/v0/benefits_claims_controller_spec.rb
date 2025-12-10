@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_documents/documents_status_polling_service'
 require 'lighthouse/benefits_documents/update_documents_status_service'
 
@@ -674,15 +675,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
         end
 
-        it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'excludes suppressed evidence request tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
           names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
-          expect(names).not_to include('Attorney Fees')
-          expect(names).not_to include('Secondary Action Required')
-          expect(names).not_to include('Stage 2 Development')
+          expect(names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).to be_empty
         end
       end
 
@@ -691,15 +690,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
         end
 
-        it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'includes suppressed evidence request tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
           names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
-          expect(names).to include('Attorney Fees')
-          expect(names).to include('Secondary Action Required')
-          expect(names).to include('Stage 2 Development')
+          expect(names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).not_to be_empty
         end
       end
 

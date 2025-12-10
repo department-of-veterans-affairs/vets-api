@@ -5,6 +5,8 @@ require 'survivors_benefits/benefits_intake/submit_claim_job'
 require 'survivors_benefits/monitor'
 require 'support/controller_spec_helper'
 
+MOCK_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+
 RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
   let(:monitor) { double('SurvivorsBenefits::Monitor') }
   let(:user) { create(:user) }
@@ -74,10 +76,14 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
     it 'returns a serialized claim' do
       claim = build(:survivors_benefits_claim)
       allow(SurvivorsBenefits::SavedClaim).to receive(:find_by!).and_return(claim)
+      allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_URL)
 
       get '/survivors_benefits/v0/form534ez/:id', params: { id: 'survivors_benefits_claim' }
 
-      expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
+      attributes = JSON.parse(response.body)['data']['attributes']
+
+      expect(attributes['guid']).to eq(claim.guid)
+      expect(attributes['pdf_url']).to eq(MOCK_URL)
       expect(response).to have_http_status(:ok)
     end
   end
