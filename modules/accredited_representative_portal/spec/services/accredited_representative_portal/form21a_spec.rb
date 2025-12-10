@@ -18,7 +18,7 @@ RSpec.describe AccreditedRepresentativePortal::Form21aDocumentUploadService do
     context 'when form_data contains documents' do
       let(:form_data) do
         {
-          'convictionDetailsDocuments' => [
+          'imprisonedDetailsDocuments' => [
             {
               'name' => 'conviction_doc.pdf',
               'confirmationCode' => 'guid-111',
@@ -26,7 +26,7 @@ RSpec.describe AccreditedRepresentativePortal::Form21aDocumentUploadService do
               'type' => 'application/pdf'
             }
           ],
-          'courtMartialedDetailsDocuments' => [
+          'militaryConvictionDetailsDocuments' => [
             {
               'name' => 'court_martial.docx',
               'confirmationCode' => 'guid-222',
@@ -128,8 +128,8 @@ RSpec.describe AccreditedRepresentativePortal::Form21aDocumentUploadService do
     context 'when form_data contains empty document arrays' do
       let(:form_data) do
         {
-          'convictionDetailsDocuments' => [],
-          'courtMartialedDetailsDocuments' => []
+          'imprisonedDetailsDocuments' => [],
+          'militaryConvictionDetailsDocuments' => []
         }
       end
 
@@ -160,23 +160,23 @@ RSpec.describe AccreditedRepresentativePortal::Form21aDocumentUploadService do
     context 'with all document types' do
       let(:pdf_type) { 'application/pdf' }
       let(:form_data) do
-        # Build form_data for all 14 document types
-        document_types = Form21aDocumentUploadConstants::DOCUMENT_TYPES
+        # Build form_data for all 13 document types
+        document_types = AccreditedRepresentativePortal::Form21aDocumentUploadConstants::DOCUMENT_TYPES
         document_types.keys.each_with_index.to_h do |key, idx|
           [key, [{ 'name' => "#{idx + 1}.pdf", 'confirmationCode' => "guid-#{idx + 1}", 'type' => pdf_type }]]
         end
       end
 
-      it 'enqueues jobs for all 14 document types with correct document type codes' do
+      it 'enqueues jobs for all 13 document types with correct document type codes' do
         allow(AccreditedRepresentativePortal::UploadForm21aDocumentToGCLAWSJob)
           .to receive(:perform_async)
 
-        expect(enqueue_uploads).to eq(14)
+        expect(enqueue_uploads).to eq(13)
       end
 
       it 'maps each document key to the correct GCLAWS document type code' do
-        # Expect perform_async to be called for each of the 14 document types
-        (1..14).each do |idx|
+        # Expect perform_async to be called for each of the 3 document types
+        (1..13).each do |idx|
           expect(AccreditedRepresentativePortal::UploadForm21aDocumentToGCLAWSJob)
             .to receive(:perform_async)
             .with("guid-#{idx}", application_id, idx, anything, anything)

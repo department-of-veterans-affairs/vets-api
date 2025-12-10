@@ -108,7 +108,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
     context 'when response includes applicationId and form has document uploads' do
       let(:in_progress_form_data) do
         {
-          'convictionDetailsDocuments' => [
+          'imprisonedDetailsDocuments' => [
             {
               'name' => 'test_doc.pdf',
               'confirmationCode' => 'guid-123',
@@ -203,7 +203,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
           form_id: '21a',
           user_uuid: representative_user.uuid,
           form_data: {
-            'convictionDetailsDocuments' => [
+            'imprisonedDetailsDocuments' => [
               {
                 'name' => 'test_doc.pdf',
                 'confirmationCode' => 'guid-123',
