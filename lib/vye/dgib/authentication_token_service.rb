@@ -9,7 +9,7 @@ module Vye
       # TODO: Check with security team if these can be removed
       E = 'AQAB'
       TYP = 'JWT'
-      KID = 'vye'
+      KID = Settings.dgi.vye.jwt.kid
       USE = 'sig'
       SIGNING_KEY = Settings.dgi.vye.jwt.private_key_path
       RSA_PRIVATE = OpenSSL::PKey::RSA.new(File.read(SIGNING_KEY))
