@@ -152,6 +152,19 @@ To add a new service, edit `script/upstream-connect/upstream_service_config.rb` 
   - Displayed after successful connection setup
   - Should include test user and endpoint for which user has data
 
+- **`mock_mpi`**: Boolean flag controlling MVI (Master Veteran Index) connection mode (optional, defaults to `true`)
+  - `false`: Sets up port forwarding to the MVI service (port 4434) and configures `config/identity_settings/settings.local.yml` for real MVI connection
+  - `true`: Uses mocked MVI data (default behavior)
+
+## MVI Connection Management
+
+Some services include `mock_mvi` configuration to control whether to use real or mock MVI data:
+
+- **Mock Mode** (`mock_mpi: true`, default): Sets `mvi.mock: true` in identity settings
+- **Real MVI Mode** (`mock_mpi: false`): 
+  - Adds port 4434 forwarding to MVI service
+  - Sets `mvi.mock: false` and `mvi.url: https://localhost:4434/psim_webservice/IdMWebService` in `config/identity_settings/settings.local.yml`
+
 ## Implementation Notes
 
 ### AWS Authentication

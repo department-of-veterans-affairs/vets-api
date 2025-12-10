@@ -374,6 +374,84 @@ sync_service_settings() {
   fi
 }
 
+setup_mpi_identity_settings() {
+  local service="$1"
+  local mock_mode="$2"  # true or false
+  
+  log_info "Setting up MPI identity settings for service: $service (mock: $mock_mode)"
+  
+  local identity_settings_file="config/identity_settings/settings.local.yml"
+  
+  if [[ -n "$DRY_RUN" ]]; then
+    log_info "[DRY RUN] Would update identity settings file: $identity_settings_file"
+    if [[ "$mock_mode" == "true" ]]; then
+      log_info "[DRY RUN] Would set mvi.mock = true"
+    else
+      log_info "[DRY RUN] Would set mvi.mock = false and mvi.url = https://localhost:4434/psim_webservice/IdMWebService"
+    fi
+    return 0
+  fi
+  
+  # Create the directory if it doesn't exist
+  local identity_settings_dir="config/identity_settings"
+  if [[ ! -d "$identity_settings_dir" ]]; then
+    log_info "Creating identity settings directory: $identity_settings_dir"
+    mkdir -p "$identity_settings_dir"
+  fi
+  
+  # Backup the existing file if it exists
+  if [[ -f "$identity_settings_file" ]]; then
+    cp "$identity_settings_file" "$identity_settings_file.backup"
+  fi
+  
+  # Check if file exists and has mvi section
+  if [[ -f "$identity_settings_file" ]] && grep -q "^mvi:" "$identity_settings_file"; then
+    log_info "Updating existing MVI configuration in place"
+    
+    # Update mock value in place
+    if grep -q "mock:" "$identity_settings_file"; then
+      sed -i '' "s/mock: .*/mock: $mock_mode/" "$identity_settings_file"
+    else
+      # Add mock line after mvi: line
+      sed -i '' "/^mvi:/a\\
+  mock: $mock_mode" "$identity_settings_file"
+    fi
+    
+    # Handle URL based on mock mode
+    if [[ "$mock_mode" == "false" ]]; then
+      # Add or update URL for real connection
+      if grep -q "url:" "$identity_settings_file"; then
+        sed -i '' "s|url: .*|url: https://localhost:4434/psim_webservice/IdMWebService|" "$identity_settings_file"
+      else
+        # Add URL line after mock line
+        sed -i '' "/mock: $mock_mode/a\\
+  url: https://localhost:4434/psim_webservice/IdMWebService" "$identity_settings_file"
+      fi
+    fi
+    # Note: We don't remove URL when mock=true, just leave it as is
+    
+  else
+    log_info "Creating new MVI configuration"
+    # Create new file or add mvi section
+    if [[ "$mock_mode" == "true" ]]; then
+      cat >> "$identity_settings_file" << EOF
+
+mvi:
+  mock: true
+EOF
+    else
+      cat >> "$identity_settings_file" << EOF
+
+mvi:
+  mock: false
+  url: https://localhost:4434/psim_webservice/IdMWebService
+EOF
+    fi
+  fi
+  
+  log_success "MPI identity settings configured (mock: $mock_mode)"
+}
+
 setup_port_forwarding() {
   local service="$1"
   
@@ -383,9 +461,23 @@ setup_port_forwarding() {
   local service_config
   service_config=$(ruby "$CONFIG_SCRIPT" --config "$service")
   
+  # Check if service has mock_mpi flag
+  local mock_mpi
+  mock_mpi=$(echo "$service_config" | ruby -rjson -e '
+    config = JSON.parse(STDIN.read)
+    # Default to true if not specified
+    puts config.has_key?("mock_mpi") ? (config["mock_mpi"] == true ? "true" : "false") : "true"
+  ')
+  
   # Extract ports array
   local ports
   ports=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["ports"].join(" ")')
+  
+  # Add port 4434 if mock_mpi is false (real MPI connection)
+  if [[ "$mock_mpi" == "false" ]]; then
+    ports="$ports 4434"
+    log_info "Adding MPI port 4434 for real connection (mock_mpi: false)"
+  fi
   
   if [[ -z "$ports" ]]; then
     log_warning "No ports configured for service: $service"
@@ -394,7 +486,12 @@ setup_port_forwarding() {
   
   # Set up port forwarding for each port
   for port in $ports; do
-    log_info "Setting up port forwarding: localhost:$port → staging:$port"
+    # Handle MPI port (4434) with special messaging
+    if [[ "$port" == "4434" ]]; then
+      log_info "Setting up MPI port forwarding (real connection): localhost:$port → staging:$port"
+    else
+      log_info "Setting up port forwarding: localhost:$port → staging:$port"
+    fi
     
     if [[ -n "$DRY_RUN" ]]; then
       log_info "[DRY RUN] Would start SSM port forwarding: forward-proxy staging $port $port"
@@ -402,6 +499,15 @@ setup_port_forwarding() {
       start_ssm_port_forwarding "forward-proxy" "staging" "$port" "$port"
     fi
   done
+  
+  # Handle MPI identity settings if mock_mpi is set (either true or false)
+  if echo "$service_config" | ruby -rjson -e 'config = JSON.parse(STDIN.read); exit(config.has_key?("mock_mpi") ? 0 : 1)' 2>/dev/null; then
+    if [[ "$mock_mpi" == "false" ]]; then
+      setup_mpi_identity_settings "$service" "false"
+    else
+      setup_mpi_identity_settings "$service" "true"
+    fi
+  fi
   
   log_success "Port forwarding setup complete"
 }
@@ -564,14 +670,58 @@ show_connection_info() {
     echo ""
   fi
   
+  # Check if service has mock_mpi flag and show MPI instructions
+  local mock_mpi
+  mock_mpi=$(echo "$service_config" | ruby -rjson -e '
+    config = JSON.parse(STDIN.read)
+    # Default to true if not specified
+    puts config.has_key?("mock_mpi") ? (config["mock_mpi"] == true ? "true" : "false") : "true"
+  ')
+  
+  # Show MPI instructions if service has mock_mpi configured
+  if echo "$service_config" | ruby -rjson -e 'config = JSON.parse(STDIN.read); exit(config.has_key?("mock_mpi") ? 0 : 1)' 2>/dev/null; then
+    # Get MPI-specific instructions from the MPI_SERVICE configuration
+    local mpi_instructions
+    mpi_instructions=$(ruby "$CONFIG_SCRIPT" --mpi-instructions)
+    
+    if [[ -n "$mpi_instructions" ]]; then
+      if [[ "$mock_mpi" == "false" ]]; then
+        echo -e "${BLUE}MPI Setup Instructions (mock_mpi disabled - real connection):${NC}"
+        echo "$mpi_instructions"
+        echo ""
+        echo -e "${YELLOW}Identity Settings:${NC}"
+        echo "  MPI configuration added to: config/identity_settings/settings.local.yml"
+        echo "  URL: https://localhost:4434/psim_webservice/IdMWebService"
+        echo "  Mock mode: false"
+      else
+        echo -e "${BLUE}MPI Setup Instructions (mock_mpi enabled - mock mode):${NC}"
+        echo "MPI is running in mock mode - no tunnel connection required."
+        echo ""
+        echo -e "${YELLOW}Identity Settings:${NC}"
+        echo "  MPI configuration added to: config/identity_settings/settings.local.yml"
+        echo "  Mock mode: true"
+      fi
+      echo ""
+    fi
+  fi
+  
   # Show port mappings
   local ports
   ports=$(echo "$service_config" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["ports"].join(" ")')
   
+  # Add port 4434 to display if mock_mpi is false (real MPI connection)
+  if [[ "$mock_mpi" == "false" ]]; then
+    ports="$ports 4434"
+  fi
+  
   if [[ -n "$ports" ]]; then
     echo -e "${BLUE}Port Mappings:${NC}"
     for port in $ports; do
-      echo "  localhost:$port → staging:$port"
+      if [[ "$port" == "4434" ]]; then
+        echo "  localhost:$port → staging:$port (MPI Service)"
+      else
+        echo "  localhost:$port → staging:$port"
+      fi
     done
     echo ""
   fi
@@ -660,6 +810,17 @@ show_status() {
           all_ports+=("$port")
         fi
       done
+      
+      # Add port 4434 if service has mock_mpi: false
+      local mock_mpi
+      mock_mpi=$(echo "$service_config" | ruby -rjson -e '
+        config = JSON.parse(STDIN.read)
+        puts config.has_key?("mock_mpi") ? (config["mock_mpi"] == true ? "true" : "false") : "true"
+      ' 2>/dev/null)
+      
+      if [[ "$mock_mpi" == "false" ]] && [[ " ${all_ports[@]} " != *" 4434 "* ]]; then
+        all_ports+=("4434")
+      fi
     fi
   done
   
@@ -668,7 +829,11 @@ show_status() {
     if lsof -i :$port > /dev/null 2>&1; then
       local pid
       pid=$(get_process_pid "$port")
-      echo "  Port $port: Active (PID $pid)"
+      if [[ "$port" == "4434" ]]; then
+        echo "  Port $port: Active (PID $pid) - MPI Service"
+      else
+        echo "  Port $port: Active (PID $pid)"
+      fi
       found_tunnels=true
     fi
   done

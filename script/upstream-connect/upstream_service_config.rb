@@ -6,6 +6,18 @@ require 'optparse'
 
 # Service configuration for upstream connections
 class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
+  # MPI service configuration
+  MPI_SERVICE = {
+    port: 4434,
+    instructions: <<~TEXT
+      MPI Connection instructions:
+
+      For MPI, we must make the following TEMPORARY changes:
+      1. In lib/common/client/configuration/soap.rb, adjust `#allow_missing_certs?` to return true
+      2. In lib/mpi/configuration.rb, adjust `#ssl_options` to return `{ verify: false }`
+    TEXT
+  }.freeze
+
   # Service definitions with their required settings and ports
   SERVICES = {
     'appeals' => {
@@ -15,14 +27,15 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       settings_namespaces: ['caseflow'],
       skipped_settings: [[]],
       tunnel_setting: ['host'],
+      mock_mpi: true,
       instructions: <<~TEXT
-        Appeals/Caseflow Connection Instructions:
+        MPI Connection Instructions:
 
         1. No additional steps needed.
 
         Test Connection:
           - Health Check: https://localhost:4437/health-check
-          - Test User: vets.gov.user+0@gmail.com (Hector)
+          - Test User: vets.gov.user+0@gmail.com (Hector) <TODO no longer valid?>
           - endpoint: /mobile/v0/appeal/:id, A6223
 
       TEXT
@@ -35,6 +48,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       settings_namespaces: ['lighthouse.veterans_health'],
       skipped_settings: [['fast_tracker.api_key', 'fast_tracker.client_id']],
       tunnel_setting: ['url'],
+      mock_mpi: true,
       instructions: <<~TEXT
         Patient Health API Connection Instructions:
 
@@ -56,7 +70,8 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: judy.morrison@id.me
-          - endpoint: /mobile/v0/health/allergy-intolerances
+          - endpoints: /mobile/v0/health/allergy-intolerances
+                       /mobile/v0/health/labs-and-tests
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -67,20 +82,25 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       name: 'Benefits Eligibility Platform (BEP/BGS)',
       aliases: %w[payment_history bep bgs dependents],
       description: 'Connect to Benefits Eligibility Platform for awards and payment history data',
-      ports: [4447, 4434],
+      ports: [4447],
       settings_namespaces: ['bgs'],
-      skipped_settings: [[]],
+      skipped_settings: [['ssl_verify_mode']],
       tunnel_setting: ['url'],
+      mock_mpi: false,
       instructions: <<~TEXT
-        Appeals/Caseflow Connection Instructions:
+        BEP/BGS Instructions:
 
-        For MPI, we must make the following TEMPORARY changes:
-        1. In lib/common/client/configuration/soap.rb, adjust `#allow_missing_certs?` to return true
-        2. In lib/mpi/configuration.rb, adjust `#ssl_options` to return `{ verify: false }`
+        Update Local Settings with SSL setting:
+        ```
+        # config/settings.local.yml
+
+        bgs:
+          ssl_verify_mode: none
+        ```
 
         Test Connection:
           - Test User: vets.gov.user+137@gmail.com (Martin)
-          - endpoints: /mobile/v0/awards
+          - endpoints: /mobile/v0/awards <TODO: data parsing issue?>
                        /mobile/v0/dependents
                        /mobile/v0/payment_history
 
@@ -129,6 +149,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       settings_namespaces: ['lighthouse.benefits_documents'],
       skipped_settings: [['timeout']],
       tunnel_setting: ['host'],
+      mock_mpi: false,
       instructions: <<~TEXT
         Benefits Documents API Connection Instructions:
 
@@ -185,7 +206,8 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: judy.morrison@id.me
-          - endpoint: /mobile/v0/claim/:id, id: 600810891
+          - endpoints: /mobile/v0/claims-and-appeals-overview?
+                       /mobile/v0/claim/:id, id: 600810891
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -219,7 +241,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
           ```
 
         Test Connection:
-          - Test User: <Test Case Needed>
+          - Test User: <TODO Test Case Needed>
           - endpoint: /mobile/v0/payment-information/benefits
 
         Additional Notes:
@@ -235,6 +257,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       settings_namespaces: ['lighthouse_health_immunization'],
       skipped_settings: [%w[client_id key_path scopes]],
       tunnel_setting: ['url'],
+      mock_mpi: true,
       instructions: <<~TEXT
         Patient Health API Connection Instructions:
 
@@ -251,7 +274,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
             client_id: 'your-client-id'
             key_path: your/path/to/private.pem # e.g. config/certs/lighthouse/private.pem
           ```
-        4. Update Local Settings to use localhost instead of fwdproxy
+        4. Update Local Settings to use localhost (LH sandbox) instead of fwdproxy (LH staging):
           ```
           # config/settings.local.yml
 
@@ -269,8 +292,8 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
         Test Connection:
           - Test User: judy.morrison@id.me
           - endpoints: /mobile/v0/health/immunizations
-                       /mobile/v0/health/locations/:id, id: <unknown>
-                       /mobile/v1/health/immunizations
+                       /mobile/v0/health/locations/:id, id: <TODO>
+
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -316,28 +339,27 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       name: 'MPI',
       aliases: %w[mpi],
       description: 'Connect to Benefits Eligibility Platform for awards and payment history data',
-      ports: [4434, 4428, 4492],
-      settings_namespaces: [''], # TODO
+      ports: [4492],
+      settings_namespaces: ['lighthouse.facilities'], # TODO
       skipped_settings: [[]],
-      tunnel_setting: [''],
+      tunnel_setting: ['url'],
+      mock_mpi: false,
       instructions: <<~TEXT
-        Appeals/Caseflow Connection Instructions:
+        MPI Connection Instructions:
 
-        TODO
+        No additional steps needed.
 
-        # 1. No additional steps needed.
-
-        # Test Connection:
-        #   - Test User: vets.gov.user+0@gmail.com (Hector)
-          # - endpoint: /mobile/v0/appeal/:id, A6223
-
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - endpoints: /mobile/v0/user
+                       /mobile/v0/user/authorized-services
       TEXT
     },
     'vet_verification' => {
       name: 'Vet Service History and Elegibility API (Lighthouse)',
       aliases: ['disability_rating'],
       description: 'Connect to Vet Service History and Elegibility API for the service history, certain enrolled benefits, and disability rating information of a veteran', # rubocop:disable Layout/LineLength
-      ports: [4475],
+      ports: [4492], # Judy has information for LH staging, i.e. 4475
       settings_namespaces: ['lighthouse.veteran_verification'],
       skipped_settings: [['form526.access_token', 'status']],
       tunnel_setting: ['host'],
@@ -364,7 +386,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
           ```
 
         Test Connection:
-          - Test User: Judy? TBD
+          - Test User: <Need good test case>
           - endpoints: /mobile/v0/disability_rating
                        /mobile/v0/vet_verification_status
 
@@ -389,6 +411,8 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       validate_service(@options[:service])
     when :config
       show_service_config(@options[:service])
+    when :mpi_instructions
+      show_mpi_instructions
     when :check_settings
       check_local_settings
     else
@@ -418,6 +442,10 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       opts.on('--config SERVICE', 'Get configuration for a service (JSON)') do |service|
         @options[:action] = :config
         @options[:service] = service
+      end
+
+      opts.on('--mpi-instructions', 'Get MPI setup instructions') do
+        @options[:action] = :mpi_instructions
       end
 
       opts.on('--check-settings', 'Check which services have settings present in local config') do
@@ -488,10 +516,15 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       ports: config[:ports],
       tunnel_setting: config[:tunnel_setting],
       skipped_settings: config[:skipped_settings],
+      mock_mpi: config.has_key?(:mock_mpi) ? config[:mock_mpi] : true,
       instructions: config[:instructions]&.strip
     }
 
     puts JSON.pretty_generate(output)
+  end
+
+  def show_mpi_instructions
+    puts MPI_SERVICE[:instructions].strip
   end
 
   def check_local_settings # rubocop:disable Metrics/MethodLength
