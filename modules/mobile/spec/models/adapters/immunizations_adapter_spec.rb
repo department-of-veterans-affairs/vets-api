@@ -451,7 +451,8 @@ RSpec.describe Mobile::V0::Adapters::Immunizations, type: :model do
                       coding: [
                         { code: '001', system: 'http://hl7.org/fhir/sid/ndc', display: 'NDC Display' },
                         { code: '002',
-                          system: 'https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72', display: 'Cerner Display' },
+                          system: 'https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72',
+                          display: 'Cerner Display' },
                         { code: '003', system: 'http://other.system.com', display: 'Other Display' }
                       ]
                     },
