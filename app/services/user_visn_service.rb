@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UserVisnService
   # Hardcoded pilot VISNs for MVP - easy to update as pilot expands
   PILOT_VISNS = %w[2 15 21].freeze

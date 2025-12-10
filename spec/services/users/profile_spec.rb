@@ -706,6 +706,7 @@ RSpec.describe Users::Profile do
     describe '#healthcare_settings_pilot_eligible' do
       let(:users_profile) { Users::Profile.new(user) }
       let(:visn_service) { instance_double(UserVisnService) }
+      let(:result) { users_profile.send(:healthcare_settings_pilot_eligible) }
 
       before do
         allow(UserVisnService).to receive(:new).with(user).and_return(visn_service)
@@ -718,7 +719,6 @@ RSpec.describe Users::Profile do
 
         it 'returns false' do
           expect(visn_service).not_to receive(:in_pilot_visn?)
-          result = users_profile.send(:healthcare_settings_pilot_eligible)
           expect(result).to be false
         end
       end
@@ -734,7 +734,6 @@ RSpec.describe Users::Profile do
           end
 
           it 'returns true' do
-            result = users_profile.send(:healthcare_settings_pilot_eligible)
             expect(result).to be true
           end
         end
@@ -745,7 +744,6 @@ RSpec.describe Users::Profile do
           end
 
           it 'returns false' do
-            result = users_profile.send(:healthcare_settings_pilot_eligible)
             expect(result).to be false
           end
         end
@@ -759,8 +757,9 @@ RSpec.describe Users::Profile do
           end
 
           it 'logs the error and returns false' do
-            expect(Rails.logger).to receive(:error).with("Error checking healthcare settings pilot eligibility: #{error_message}")
-            result = users_profile.send(:healthcare_settings_pilot_eligible)
+            expect(Rails.logger)
+              .to receive(:error)
+              .with("Error checking healthcare settings pilot eligibility: #{error_message}")
             expect(result).to be false
           end
         end
@@ -772,8 +771,7 @@ RSpec.describe Users::Profile do
       let(:mpi_profile_result) { users_profile.send(:mpi_profile) }
 
       before do
-        allow(user).to receive(:loa3?).and_return(true)
-        allow(user).to receive(:mpi_status).and_return(:ok)
+        allow(user).to receive_messages(loa3?: true, mpi_status: :ok)
         allow(user).to receive_messages(
           birth_date_mpi: '1980-01-01',
           last_name_mpi: 'Doe',

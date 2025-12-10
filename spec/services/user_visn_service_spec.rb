@@ -12,6 +12,26 @@ RSpec.describe UserVisnService do
     allow(user).to receive(:va_treatment_facility_ids).and_return(facility_ids)
   end
 
+  describe 'PILOT_VISNS constant' do
+    let(:pilot_visns) do
+      %w[2 15 21]
+    end
+
+    it 'contains the expected pilot VISNs' do
+      expect(described_class::PILOT_VISNS).to eq(pilot_visns)
+    end
+
+    it 'is frozen' do
+      expect(described_class::PILOT_VISNS).to be_frozen
+    end
+  end
+
+  describe 'CACHE_KEY_PREFIX constant' do
+    it 'has the expected prefix' do
+      expect(described_class::CACHE_KEY_PREFIX).to eq('va_profile:facility_visn')
+    end
+  end
+
   describe '#initialize' do
     it 'stores the user' do
       expect(service.instance_variable_get(:@user)).to eq(user)
@@ -29,7 +49,7 @@ RSpec.describe UserVisnService do
 
     context 'when user has treatment facilities' do
       before do
-        # Mock VCR responses or stub the client calls
+        # Stubbing the external API calls to control return values
         allow(service).to receive(:get_cached_visn_for_facility).with('402').and_return('2')  # Pilot VISN
         allow(service).to receive(:get_cached_visn_for_facility).with('515').and_return('15') # Pilot VISN
         allow(service).to receive(:get_cached_visn_for_facility).with('635').and_return('6')  # Non-pilot VISN
@@ -127,6 +147,7 @@ RSpec.describe UserVisnService do
     let(:facility_id) { '402' }
     let(:lighthouse_client) { instance_double(Lighthouse::Facilities::V1::Client) }
     let(:attributes) { { 'visn' => 2 } }
+    let(:result) { service.send(:fetch_visn_from_lighthouse, facility_id) }
 
     before do
       allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_client)
@@ -136,11 +157,13 @@ RSpec.describe UserVisnService do
       let(:facility_mock) { double('facility', attributes:) }
 
       before do
-        allow(lighthouse_client).to receive(:get_facilities).with(facilityIds: "vha_#{facility_id}").and_return([facility_mock])
+        allow(lighthouse_client)
+          .to receive(:get_facilities)
+          .with(facilityIds: "vha_#{facility_id}")
+          .and_return([facility_mock])
       end
 
       it 'returns VISN as string' do
-        result = service.send(:fetch_visn_from_lighthouse, facility_id)
         expect(result).to eq('2')
       end
 
@@ -148,7 +171,6 @@ RSpec.describe UserVisnService do
         let(:attributes) { { 'visn' => nil } }
 
         it 'returns nil' do
-          result = service.send(:fetch_visn_from_lighthouse, facility_id)
           expect(result).to be_nil
         end
       end
@@ -157,7 +179,6 @@ RSpec.describe UserVisnService do
         let(:attributes) { {} }
 
         it 'returns nil' do
-          result = service.send(:fetch_visn_from_lighthouse, facility_id)
           expect(result).to be_nil
         end
       end
@@ -169,7 +190,6 @@ RSpec.describe UserVisnService do
       end
 
       it 'returns nil' do
-        result = service.send(:fetch_visn_from_lighthouse, facility_id)
         expect(result).to be_nil
       end
     end
@@ -178,11 +198,13 @@ RSpec.describe UserVisnService do
       let(:facility_mock) { double('facility', attributes: nil) }
 
       before do
-        allow(lighthouse_client).to receive(:get_facilities).with(facilityIds: "vha_#{facility_id}").and_return([facility_mock])
+        allow(lighthouse_client)
+          .to receive(:get_facilities)
+          .with(facilityIds: "vha_#{facility_id}")
+          .and_return([facility_mock])
       end
 
       it 'returns nil' do
-        result = service.send(:fetch_visn_from_lighthouse, facility_id)
         expect(result).to be_nil
       end
     end
@@ -196,32 +218,16 @@ RSpec.describe UserVisnService do
       end
 
       it 'logs warning and returns nil' do
-        expect(Rails.logger).to receive(:warn).with("Failed to fetch VISN for facility #{facility_id}: #{error_message}")
-        result = service.send(:fetch_visn_from_lighthouse, facility_id)
+        expect(Rails.logger)
+          .to receive(:warn)
+          .with("Failed to fetch VISN for facility #{facility_id}: #{error_message}")
         expect(result).to be_nil
       end
     end
   end
 
-  describe 'PILOT_VISNS constant' do
-    it 'contains the expected pilot VISNs' do
-      expect(described_class::PILOT_VISNS).to eq(%w[2 15 21])
-    end
-
-    it 'is frozen' do
-      expect(described_class::PILOT_VISNS).to be_frozen
-    end
-  end
-
-  describe 'CACHE_KEY_PREFIX constant' do
-    it 'has the expected prefix' do
-      expect(described_class::CACHE_KEY_PREFIX).to eq('va_profile:facility_visn')
-    end
-  end
-
   describe 'integration scenarios' do
     before do
-      # Clear cache to ensure clean state
       Rails.cache.clear
     end
 
