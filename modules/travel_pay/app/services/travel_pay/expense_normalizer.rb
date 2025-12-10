@@ -2,15 +2,15 @@
 
 module TravelPay
   module ExpenseNormalizer
-    # Normalizes expense data by overwriting expenseType with name when name is present
-    # This corrects cases where expenseType is incorrect (e.g., Parking returning as "Other")
+    # Normalizes expense data by overwriting expenseType with name for Parking expenses
+    # This corrects the TP API response where the Parking expenseType is returned as "Other"
     #
     # @param expense [Hash] Single expense hash
     # @return [Hash] The normalized expense
     def normalize_expense(expense)
       return expense unless expense.is_a?(Hash)
 
-      expense['expenseType'] = expense['name'] if expense['name'].present?
+      expense['expenseType'] = expense['name'] if expense['name']&.downcase == 'parking'
       expense
     end
 
