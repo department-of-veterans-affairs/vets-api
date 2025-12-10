@@ -13,7 +13,7 @@ module DependentsBenefits
   # Tracks submission status and handles failures during the enqueueing process.
   #
   class ClaimProcessor
-    attr_reader :parent_claim_id, :child_claims
+    attr_reader :parent_claim_id
 
     # Initializes a new ClaimProcessor
     #
@@ -203,6 +203,10 @@ module DependentsBenefits
     # @return [Boolean] result of the update operation
     def mark_parent_claim_group_failed
       parent_claim_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
+    end
+
+    def child_claims
+      @child_claims ||= collect_child_claims
     end
   end
 end
