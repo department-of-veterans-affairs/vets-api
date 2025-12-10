@@ -32,14 +32,12 @@ module VRE
         form_type: [FORM_TYPE, FORM_TYPE_V2],
         created_at: threshold..
       )
-      Rails.logger.info("VRE::VRESubmit1900Job - Duplicate Submission Check",
-                        user_account_id: user_account.id
+      Rails.logger.info('VRE::VRESubmit1900Job - Duplicate Submission Check',
+                        user_account_id: user_account.id,
                         duplicate_count: submissions.count,
                         threshold_hours:)
 
-      if submissions.count > 1
-        StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission")
-      end
+      StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission") if submissions.count > 1
     end
 
     # rubocop:disable Metrics/MethodLength
