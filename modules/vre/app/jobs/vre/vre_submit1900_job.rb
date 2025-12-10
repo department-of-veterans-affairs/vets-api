@@ -32,11 +32,12 @@ module VRE
         form_type: [FORM_TYPE, FORM_TYPE_V2],
         created_at: threshold..
       )
+      Rails.logger.info("VRE::VRESubmit1900Job - Duplicate Submission Check",
+                        user_account_id: user_account.id
+                        duplicate_count: submissions.count,
+                        threshold_hours:)
 
       if submissions.count > 1
-        Rails.logger.warn("Duplicate VRE 1900 submissions detected for user_account #{user_account.id}:",
-                          duplicate_count: submissions.count,
-                          threshold_hours:)
         StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission")
       end
     end
@@ -46,6 +47,13 @@ module VRE
       if Flipper.enabled?(:vre_track_submissions) && submission_id
         submission = FormSubmission.find(submission_id)
         attempt = submission.form_submission_attempts.create!
+        Rails.logger.info(
+          'VRE::VRESubmit1900Job - Submission Attempt Created',
+          claim_id:,
+          submission_id:,
+          submission_attempt_id: attempt.id
+        )
+
       end
 
       begin
@@ -58,7 +66,7 @@ module VRE
         if Flipper.enabled?(:vre_track_submissions) && submission_id
           attempt.succeed!
           Rails.logger.info(
-            'VRE::VRESubmit1900Job Succeeded',
+            'VRE::VRESubmit1900Job - Submission Attempt Succeeded',
             num_attempts: submission.form_submission_attempts.count,
             user_account_id: claim.user_account&.id
           )

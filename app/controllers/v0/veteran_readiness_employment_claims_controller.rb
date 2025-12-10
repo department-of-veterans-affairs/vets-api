@@ -18,6 +18,12 @@ module V0
             form_type: claim.form_id,
             user_account:
           ).id
+          Rails.logger.info(
+            'VR&E Form Submission created',
+            claim_id: claim.id,
+            form_type: claim.form_id,
+            submission_id:
+          )
         end
 
         if Flipper.enabled?(:vre_modular_api)
