@@ -149,6 +149,7 @@ check_in:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: https://login.microsoftonline.us
     claims_base_path: EC/ClaimIngestSvc
+    claims_base_path_v2: eis/api/btsss/travelclaim
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: https://dev.integration.d365.va.gov
     client_id: fake_client_id
@@ -1593,7 +1594,6 @@ vanotify:
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
-      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: fake_email_address
       template_id:
         form_10_10d_email: form_10_10d_email
