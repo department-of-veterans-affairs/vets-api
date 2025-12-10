@@ -67,7 +67,7 @@ module Burials
           question_num: 15,
           question_label: 'If Veteran Served Under Name Other Than That Shown In Item 1, Give Full Name And Service Rendered Under That Name',
           question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
-          limit: 20
+          limit: 120
         }
       }.freeze
       # rubocop:enable Layout/LineLength
