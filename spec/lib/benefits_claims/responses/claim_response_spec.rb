@@ -11,6 +11,15 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
     )
   end
 
+  let(:tracked_items) do
+    [
+      BenefitsClaims::Responses::TrackedItem.new(
+        display_name: 'PMR Pending',
+        status: 'NEEDED_FROM_YOU'
+      )
+    ]
+  end
+
   let(:valid_params) do
     {
       id: '555555555',
@@ -27,7 +36,8 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       end_product_code: '404',
       evidence_waiver_submitted5103: false,
       lighthouse_id: nil,
-      status: 'COMPLETE'
+      status: 'COMPLETE',
+      tracked_items:
     }
   end
 
@@ -52,6 +62,11 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.evidence_waiver_submitted5103).to be(false)
       expect(claim.lighthouse_id).to be_nil
       expect(claim.status).to eq('COMPLETE')
+      expect(claim.tracked_items).to be_an(Array)
+      expect(claim.tracked_items.length).to eq(2)
+      expect(claim.tracked_items.first).to be_a(BenefitsClaims::Responses::TrackedItem)
+      expect(claim.tracked_items.first.display_name).to eq('PMR Pending')
+      expect(claim.tracked_items.first.status).to eq('NEEDED_FROM_YOU')
     end
 
     it 'defaults type to "claim" if not provided' do
