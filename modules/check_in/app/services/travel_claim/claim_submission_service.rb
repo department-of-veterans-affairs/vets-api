@@ -76,7 +76,7 @@ module TravelClaim
       increment_failure_metric
       send_error_notification_if_enabled(e)
       raise e
-    rescue Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError, Net::ReadTimeout => e
+    rescue Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError => e
       log_message(:error, 'Timeout error', error_class: e.class.name)
       increment_timeout_metric
       increment_failure_metric
