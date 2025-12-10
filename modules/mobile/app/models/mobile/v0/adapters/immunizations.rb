@@ -100,15 +100,36 @@ module Mobile
           group_name = if filtered_codes.empty?
                          fallback_group_name(vaccine_codes)
                        else
-                         extract_prefixed_group_name(filtered_codes)
+                         extracted = extract_prefixed_group_name(filtered_codes)
+                         # If extraction results in blank/nil, fall back to first non-prefixed display
+                         extracted.presence || fallback_group_name(vaccine_codes)
                        end
 
           group_name.presence
         end
 
         def fallback_group_name(vaccine_codes)
-          # Fallback: try index 1 first, then index 0
-          vaccine_codes.dig(:coding, 1, :display) || vaccine_codes.dig(:coding, 0, :display)
+          # Return coding entry based on system priority (excluding VACCINE GROUP entries)
+          coding = vaccine_codes[:coding]
+          return nil if coding.nil?
+
+          # Filter out VACCINE GROUP entries
+          non_prefixed = coding.reject { |v| v[:display]&.start_with?('VACCINE GROUP:') }
+
+          # Priority 1: system = "http://hl7.org/fhir/sid/cvx"
+          cvx_entry = non_prefixed.find { |v| v[:system] == 'http://hl7.org/fhir/sid/cvx' && v[:display].present? }
+          return cvx_entry[:display] if cvx_entry
+
+          # Priority 2: system contains "fhir.cerner.com"
+          cerner_entry = non_prefixed.find { |v| v[:system]&.include?('fhir.cerner.com') && v[:display].present? }
+          return cerner_entry[:display] if cerner_entry
+
+          # Priority 3: system = "http://hl7.org/fhir/sid/ndc"
+          ndc_entry = non_prefixed.find { |v| v[:system] == 'http://hl7.org/fhir/sid/ndc' && v[:display].present? }
+          return ndc_entry[:display] if ndc_entry
+
+          # Priority 4: First entry without VACCINE GROUP and with a display value
+          non_prefixed.find { |v| v[:display].present? }&.dig(:display)
         end
 
         def extract_prefixed_group_name(filtered_codes)
