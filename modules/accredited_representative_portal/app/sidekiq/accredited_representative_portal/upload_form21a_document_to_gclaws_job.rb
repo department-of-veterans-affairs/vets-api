@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class UploadForm21aDocumentToGCLAWSJob
+  class UploadForm21aDocumentToGclawsJob
     include Sidekiq::Job
 
     # 3 total attempts: 1 initial + 2 retries

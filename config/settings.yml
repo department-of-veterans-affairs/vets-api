@@ -1029,6 +1029,7 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
+    document_upload_url: http://localhost:5000/api/v1/accreditation/applications/form21a/documents
     s3:
       bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
       region: us-gov-west-1

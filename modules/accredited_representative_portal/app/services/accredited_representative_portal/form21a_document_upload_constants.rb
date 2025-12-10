@@ -16,20 +16,19 @@ module AccreditedRepresentativePortal
 
     # DEBUGGER LOOK AT THESE LATER
     DOCUMENT_TYPES = {
-      'convictionDetailsDocuments' => 1,
-      'courtMartialedDetailsDocuments' => 2,
-      'underChargesDetailsDocuments' => 3,
-      'resignedFromEducationDetailsDocuments' => 4,
-      'withdrawnFromEducationDetailsDocuments' => 5,
-      'disciplinedForDishonestyDetailsDocuments' => 6,
-      'resignedForDishonestyDetailsDocuments' => 7,
-      'representativeForAgencyDetailsDocuments' => 8,
-      'reprimandedInAgencyDetailsDocuments' => 9,
-      'resignedFromAgencyDetailsDocuments' => 10,
-      'appliedForVaAccreditationDetailsDocuments' => 11,
-      'terminatedByVsorgDetailsDocuments' => 12,
-      'conditionThatAffectsRepresentationDetailsDocuments' => 13,
-      'conditionThatAffectsExaminationDetailsDocuments' => 14
+      'imprisonedDetailsDocuments' => 1,
+      'militaryConvictionDetailsDocuments' => 2,
+      'currentlyChargedDetailsDocuments' => 3,
+      'suspendedDetailsDocuments' => 4,
+      'withdrawnDetailsDocuments' => 5,
+      'disciplinedDetailsDocuments' => 6,
+      'resignedRetiredDetailsDocuments' => 7,
+      'agentAttorneyDetailsDocuments' => 8,
+      'reprimandedDetailsDocuments' => 9,
+      'resignedToAvoidReprimandDetailsDocuments' => 10,
+      'appliedForAccreditationDetailsDocuments' => 11,
+      'accreditationTerminatedDetailsDocuments' => 12,
+      'impairmentsDetailsDocuments' => 13
     }.freeze
 
     # Returns the GCLAWS file type code for a given content type

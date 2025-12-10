@@ -81,7 +81,7 @@ module AccreditedRepresentativePortal
               # Don't destroy form if upload enqueueing fails
             end
           end
-          InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy if response.success?
+
           render_ogc_service_response(response)
         rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
           Rails.logger.error(
