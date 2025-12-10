@@ -83,7 +83,7 @@ module AccreditedRepresentativePortal
     end
 
     def enqueue_upload_job(document)
-      UploadForm21aDocumentToGclawsJob.perform_async(
+      UploadForm21aDocumentToGCLAWSJob.perform_async(
         document[:confirmation_code],
         application_id,
         document[:document_type],

@@ -105,6 +105,224 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       end
     end
 
+    context 'when response includes applicationId and form has document uploads' do
+      let(:in_progress_form_data) do
+        {
+          'convictionDetailsDocuments' => [
+            {
+              'name' => 'test_doc.pdf',
+              'confirmationCode' => 'guid-123',
+              'size' => 12_345,
+              'type' => 'application/pdf'
+            }
+          ]
+        }.to_json
+      end
+
+      let!(:in_progress_form) do
+        create(
+          :in_progress_form,
+          form_id: '21a',
+          user_uuid: representative_user.uuid,
+          form_data: in_progress_form_data
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+      end
+
+      it 'enqueues document upload jobs when applicationId is present' do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'applicationId' => '12345', 'result' => 'success' },
+            status: 201
+          )
+        )
+
+        expect(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .to receive(:enqueue_uploads)
+          .with(in_progress_form:, application_id: '12345')
+          .and_return(1)
+
+        make_post_request
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'destroys in-progress form after enqueuing uploads' do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'applicationId' => '12345', 'result' => 'success' },
+            status: 201
+          )
+        )
+
+        allow(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .to receive(:enqueue_uploads)
+          .and_return(1)
+
+        expect { make_post_request }.to change(InProgressForm, :count).by(-1)
+      end
+
+      it 'logs a warning and skips uploads when applicationId is missing' do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'result' => 'success' },
+            status: 201
+          )
+        )
+
+        expect(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .not_to receive(:enqueue_uploads)
+
+        allow(Rails.logger).to receive(:warn).and_call_original
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        make_post_request
+
+        expect(response).to have_http_status(:created)
+        expect(Rails.logger).to have_received(:warn).with(
+          a_string_including('No applicationId in GCLAWS response')
+        )
+      end
+    end
+
+    context 'when enqueueing document uploads raises an error' do
+      let!(:in_progress_form) do
+        create(
+          :in_progress_form,
+          form_id: '21a',
+          user_uuid: representative_user.uuid,
+          form_data: {
+            'convictionDetailsDocuments' => [
+              {
+                'name' => 'test_doc.pdf',
+                'confirmationCode' => 'guid-123',
+                'size' => 123,
+                'type' => 'application/pdf'
+              }
+            ]
+          }.to_json
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'applicationId' => '12345', 'result' => 'success' },
+            status: 201
+          )
+        )
+
+        allow(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .to receive(:enqueue_uploads)
+          .and_raise(StandardError, 'boom')
+      end
+
+      it 'logs the error and does not destroy the in-progress form' do
+        expect(Rails.logger).to receive(:error)
+          .with(a_string_including('Failed to enqueue uploads: StandardError boom'))
+
+        expect { make_post_request }.not_to change(InProgressForm, :count)
+      end
+    end
+
+    context 'when applicationId is present but no in-progress form exists' do
+      before do
+        InProgressForm.where(form_id: '21a', user_uuid: representative_user.uuid).delete_all
+
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_form_21a)
+          .and_return(true)
+
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(
+            Faraday::Response,
+            success?: true,
+            body: { 'applicationId' => '12345', 'result' => 'success' },
+            status: 201
+          )
+        )
+      end
+
+      it 'does not enqueue uploads and does not raise' do
+        expect(AccreditedRepresentativePortal::Form21aDocumentUploadService)
+          .not_to receive(:enqueue_uploads)
+
+        expect { make_post_request }.not_to change(InProgressForm, :count)
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    context 'when service returns 400 and form should not be destroyed' do
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
+
+      before do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(Faraday::Response, success?: false, status: 400, body: { 'error' => 'bad' })
+        )
+      end
+
+      it 'does not destroy the in-progress form' do
+        expect { make_post_request }.not_to change(InProgressForm, :count)
+      end
+    end
+
+    context 'when service returns 503 and form should not be destroyed' do
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
+
+      before do
+        allow(AccreditationService).to receive(:submit_form21a).and_return(
+          instance_double(Faraday::Response, success?: false, status: 503, body: { 'error' => 'nope' })
+        )
+      end
+
+      it 'does not destroy the form' do
+        expect { make_post_request }.not_to change(InProgressForm, :count)
+      end
+    end
+
+    context 'when network error occurs and form should not be destroyed' do
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
+
+      before do
+        allow(AccreditationService).to receive(:submit_form21a)
+          .and_raise(Faraday::TimeoutError.new('timeout'))
+      end
+
+      it 'does not destroy the form' do
+        expect { make_post_request }.not_to change(InProgressForm, :count)
+      end
+    end
+
+    context 'when unexpected error occurs and form should not be destroyed' do
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
+
+      before do
+        allow(AccreditationService).to receive(:submit_form21a)
+          .and_raise(StandardError.new('boom'))
+      end
+
+      it 'does not destroy the form' do
+        expect { make_post_request }.not_to change(InProgressForm, :count)
+      end
+    end
+
     context 'with invalid JSON' do
       let(:payload) { 'invalid_json' }
 
@@ -300,7 +518,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       let(:payload) do
         {
           form21aSubmission: {
-            form: 'not-json' # will raise JSON::ParserError inside parse_request_body
+            form: 'not-json'
           }
         }.to_json
       end
@@ -453,6 +671,40 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed_response['errors']).to be_present
+      end
+    end
+
+    context 'when uploading multiple documents for the same slug' do
+      let!(:in_progress_form) do
+        create(
+          :in_progress_form,
+          form_id: '21a',
+          user_uuid: representative_user.uuid,
+          form_data: {
+            'imprisonedDetailsDocuments' => [
+              {
+                'name' => 'existing.pdf',
+                'confirmationCode' => 'old-guid',
+                'size' => 123,
+                'type' => 'application/pdf'
+              }
+            ]
+          }.to_json
+        )
+      end
+
+      it 'appends new document instead of overwriting' do
+        make_post_request
+
+        expect(response).to have_http_status(:ok)
+
+        in_progress_form.reload
+        data = JSON.parse(in_progress_form.form_data)
+        docs = data['imprisonedDetailsDocuments']
+
+        expect(docs.size).to eq(2)
+        confirmation_codes = docs.map { |d| d['confirmationCode'] }
+        expect(confirmation_codes).to include('old-guid')
       end
     end
 
