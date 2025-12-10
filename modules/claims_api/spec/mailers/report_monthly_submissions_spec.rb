@@ -14,6 +14,7 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
       described_class.build(
         from,
         to,
+        expected_recipients,
         consumer_claims_totals: [],
         poa_totals: [],
         ews_totals: [],
@@ -21,31 +22,15 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
       ).deliver_now
     end
 
+    let(:recipient_loader) { Class.new { include ClaimsApi::ReportRecipientsReader }.new }
+    let(:expected_recipients) { recipient_loader.load_recipients('submission_report_mailer') }
+
     it 'sends the email' do
       expect(subject.subject).to eq('Benefits Claims Monthly Submission Report')
     end
 
     it 'sends to the right people' do
-      expect(subject.to).to match_array(
-        %w[
-          david.mazik@va.gov
-          drew.fisher@adhocteam.us
-          eshvimmer@deloitte.com
-          janet.coutinho@va.gov
-          jgreene@technatomy.com
-          mbavanaka@deloitte.com
-          mchristianson@technatomy.com
-          michael.clement@adhocteam.us
-          michael.harlow@va.gov
-          mughumman@deloitte.com
-          mzanaty@technatomy.com
-          robert.perea-martinez@adhocteam.us
-          rrice@technatomy.com
-          slamsal@deloitte.com
-          stone_christopher@bah.com
-          zachary.goldfine@va.gov
-        ]
-      )
+      expect(subject.to).to match_array(expected_recipients)
     end
   end
 end
