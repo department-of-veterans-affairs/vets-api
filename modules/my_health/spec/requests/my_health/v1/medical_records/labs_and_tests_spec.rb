@@ -5,6 +5,7 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
+require 'support/shared_examples_for_mr'
 
 RSpec.describe 'MyHealth::V1::MedicalRecords::LabsAndTests', type: :request do
   include MedicalRecords::ClientHelpers
@@ -17,8 +18,13 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::LabsAndTests', type: :request do
   before do
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     sign_in_as(current_user)
   end
+
+  include_examples 'medical records new eligibility check',
+                   '/my_health/v1/medical_records/labs_and_tests',
+                   'mr_client/get_a_list_of_chemhem_labs'
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
@@ -40,15 +46,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::LabsAndTests', type: :request do
 
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
-
-    before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
-    end
-
-    after do
-      VCR.eject_cassette
-    end
 
     context 'not a va patient' do
       before { get '/my_health/v1/medical_records/labs_and_tests' }

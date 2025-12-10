@@ -366,6 +366,12 @@
                     },
                     "active_mhv_ids": {
                       "type": "array"
+                    },
+                    "user_at_pretransitioned_oh_facility": {
+                      "type": "boolean"
+                    },
+                    "user_facility_ready_for_info_alert": {
+                      "type": "boolean"
                     }
                   }
                 }

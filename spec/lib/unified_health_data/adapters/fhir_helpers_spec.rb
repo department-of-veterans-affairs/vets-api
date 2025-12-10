@@ -27,16 +27,16 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
       expect(result).to eq(Time.zone.at(0))
     end
 
-    it 'returns nil when date_string is empty (Time.zone.parse behavior)' do
+    it 'returns epoch when date_string is empty' do
       result = subject.parse_date_or_epoch('')
-      # Time.zone.parse('') returns nil, not epoch
-      expect(result).to be_nil
+      # parse_date_or_epoch returns epoch for invalid dates per commit cb4123e
+      expect(result).to eq(Time.zone.at(0))
     end
 
-    it 'returns nil for invalid date format (Time.zone.parse behavior)' do
+    it 'returns epoch for invalid date format' do
       result = subject.parse_date_or_epoch('invalid-date')
-      # Time.zone.parse('invalid-date') returns nil
-      expect(result).to be_nil
+      # parse_date_or_epoch returns epoch for invalid dates per commit cb4123e
+      expect(result).to eq(Time.zone.at(0))
     end
 
     it 'handles date with timezone offset' do
