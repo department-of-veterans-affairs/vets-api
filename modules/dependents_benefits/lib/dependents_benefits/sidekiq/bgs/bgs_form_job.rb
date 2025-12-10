@@ -9,6 +9,7 @@ require 'bgsv2/form674'
 module DependentsBenefits
   # Background jobs for dependent benefits claim processing
   module Sidekiq
+    # Submodule for BGS-related submission jobs
     module BGS
       ##
       # Submission job for dependent benefits forms via BGS

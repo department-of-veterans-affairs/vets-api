@@ -7,6 +7,7 @@ require 'claims_evidence_api/uploader'
 module DependentsBenefits
   # Background jobs for dependent benefits claim processing
   module Sidekiq
+    # Submodule for Claims Evidence API-related submission jobs
     module ClaimsEvidence
       ##
       # Submission job for dependent benefits forms via Claims Evidence API
@@ -18,7 +19,6 @@ module DependentsBenefits
       # This is an abstract base class that requires subclasses to implement:
       # - {#submit_686c_form}
       # - {#submit_674_form}
-      # - {#form_id}
       #
       # @abstract Subclasses must implement abstract methods
       # @see DependentSubmissionJob
