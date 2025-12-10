@@ -98,7 +98,7 @@ module Burials
         return if previous_names.blank?
 
         formatted_names = previous_names.map do |previous_name|
-          service_info = previous_name['serviceBranch'].present? ? " (#{previous_name['serviceBranch']})" : ""
+          service_info = previous_name['serviceBranch'].present? ? " (#{previous_name['serviceBranch']})" : ''
           "#{combine_full_name(previous_name)}#{service_info}"
         end
 
