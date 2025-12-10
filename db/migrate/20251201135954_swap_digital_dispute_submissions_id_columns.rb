@@ -9,16 +9,6 @@ class SwapDigitalDisputeSubmissionsIdColumns < ActiveRecord::Migration[7.2]
     end
   end
 
-  def down
-    safety_assured do
-      execute 'ALTER TABLE digital_dispute_submissions ALTER COLUMN id DROP DEFAULT;'
-      execute 'ALTER TABLE digital_dispute_submissions DROP CONSTRAINT digital_dispute_submissions_pkey;'
-      rename_column :digital_dispute_submissions, :id, :new_id
-      rename_column :digital_dispute_submissions, :old_uuid_id, :id
-      execute 'ALTER TABLE digital_dispute_submissions ADD PRIMARY KEY (id);'
-    end
-  end
-
   private
 
   def drop_uuid_primary_key
