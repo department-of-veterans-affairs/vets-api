@@ -155,10 +155,7 @@ module MyHealth
             prescriptions.select(&method(:renewable))
           elsif disp_status[:eq]&.downcase == 'shipped'
             # filter shipped: Active status AND is_trackable is true
-            prescriptions.select do |item|
-              item.respond_to?(:disp_status) && item.disp_status == 'Active' &&
-                item.respond_to?(:is_trackable) && item.is_trackable == true
-            end
+            prescriptions.select { |item| shipped_medication?(item) }
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
             prescriptions.select do |item|
@@ -214,10 +211,12 @@ module MyHealth
       end
 
       def count_shipped_medications(list)
-        list.count do |rx|
-          rx.respond_to?(:disp_status) && rx.disp_status == 'Active' &&
-            rx.respond_to?(:is_trackable) && rx.is_trackable == true
-        end
+        list.count { |rx| shipped_medication?(rx) }
+      end
+
+      def shipped_medication?(item)
+        item.respond_to?(:disp_status) && item.disp_status == 'Active' &&
+          item.respond_to?(:is_trackable) && item.is_trackable
       end
 
       def remove_pf_pd(data)
