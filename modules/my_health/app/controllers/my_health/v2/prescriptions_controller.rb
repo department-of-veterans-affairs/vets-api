@@ -141,8 +141,7 @@ module MyHealth
 
       def get_recently_requested_prescriptions(prescriptions)
         prescriptions.select do |item|
-          item.respond_to?(:disp_status) && ['Active: Refill in Process',
-                                             'Active: Submitted'].include?(item.disp_status)
+          item.respond_to?(:disp_status) && item.disp_status == 'In progress'
         end
       end
 
@@ -154,6 +153,12 @@ module MyHealth
           if disp_status[:eq]&.downcase == 'active,expired'.downcase
             # filter renewals
             prescriptions.select(&method(:renewable))
+          elsif disp_status[:eq]&.downcase == 'shipped'
+            # filter shipped: Active status AND is_trackable is true
+            prescriptions.select do |item|
+              item.respond_to?(:disp_status) && item.disp_status == 'Active' &&
+                item.respond_to?(:is_trackable) && item.is_trackable == true
+            end
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
             prescriptions.select do |item|
@@ -193,25 +198,26 @@ module MyHealth
         {
           filter_count: {
             all_medications: count_grouped_prescriptions(non_modified_collection),
-            active: count_active_medications(list),
-            recently_requested: get_recently_requested_prescriptions(list).length,
-            renewal: list.select { |item| renewable(item) }.length,
-            non_active: count_non_active_medications(list)
+            active: count_by_disp_status(list, 'Active'),
+            in_progress: count_by_disp_status(list, 'In progress'),
+            shipped: count_shipped_medications(list),
+            renewal: list.count { |item| check_renewable(item) },
+            inactive: count_by_disp_status(list, 'Inactive'),
+            transferred: count_by_disp_status(list, 'Transferred'),
+            status_not_available: count_by_disp_status(list, 'Status not available')
           }
         }
       end
 
-      def count_active_medications(list)
-        active_statuses = [
-          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
-          'Active: Parked', 'Active: Submitted'
-        ]
-        list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
+      def count_by_disp_status(list, status)
+        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == status }
       end
 
-      def count_non_active_medications(list)
-        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
-        list.count { |rx| rx.respond_to?(:disp_status) && non_active_statuses.include?(rx.disp_status) }
+      def count_shipped_medications(list)
+        list.count do |rx|
+          rx.respond_to?(:disp_status) && rx.disp_status == 'Active' &&
+            rx.respond_to?(:is_trackable) && rx.is_trackable == true
+        end
       end
 
       def remove_pf_pd(data)

@@ -280,13 +280,39 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify filter_count includes all expected fields
           filter_count = json_response['meta']['filter_count']
           expect(filter_count).to include(
-            'all_medications', 'active', 'recently_requested', 'renewal', 'non_active'
+            'all_medications', 'active', 'in_progress', 'shipped', 'renewal',
+            'inactive', 'transferred', 'status_not_available'
           )
           expect(filter_count['all_medications']).to be >= 0
           expect(filter_count['active']).to be >= 0
-          expect(filter_count['recently_requested']).to be >= 0
+          expect(filter_count['in_progress']).to be >= 0
+          expect(filter_count['shipped']).to be >= 0
           expect(filter_count['renewal']).to be >= 0
-          expect(filter_count['non_active']).to be >= 0
+          expect(filter_count['inactive']).to be >= 0
+          expect(filter_count['transferred']).to be >= 0
+          expect(filter_count['status_not_available']).to be >= 0
+        end
+      end
+
+      it 'counts renewable prescriptions using is_renewable attribute' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          filter_count = json_response['meta']['filter_count']
+
+          # The renewal count should match prescriptions where is_renewable is true
+          renewable_prescriptions_count = json_response['data'].count do |rx|
+            rx['attributes']['is_renewable'] == true
+          end
+
+          # Verify renewal count is present and reflects prescriptions with is_renewable = true
+          expect(filter_count['renewal']).to be >= 0
+
+          # The filter_count uses check_renewable which checks the is_renewable attribute
+          # The count may be equal or greater if there are grouped prescriptions
+          # that have is_renewable = true
+          expect(filter_count['renewal']).to be >= renewable_prescriptions_count
         end
       end
 
@@ -554,7 +580,8 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify filter_count metadata exists and contains expected fields
           expect(json_response['meta']).to have_key('filter_count')
           expect(json_response['meta']['filter_count']).to include(
-            'all_medications', 'active', 'recently_requested', 'renewal', 'non_active'
+            'all_medications', 'active', 'in_progress', 'shipped', 'renewal',
+            'inactive', 'transferred', 'status_not_available'
           )
 
           # Verify all returned prescriptions match the filter (Active)
@@ -620,11 +647,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
 
-          # Verify recently_requested contains prescriptions with specific disp_status values
-          # These should be prescriptions with 'Active: Refill in Process' or 'Active: Submitted'
+          # Verify recently_requested contains prescriptions with 'In progress' disp_status
           recently_requested.each do |rx|
             status = rx['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            expect(status).to eq('In progress') if status.present?
           end
         end
       end
@@ -739,10 +765,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
 
-          # Verify recently_requested contains prescriptions with specific disp_status values
+          # Verify recently_requested contains prescriptions with 'In progress' disp_status
           recently_requested.each do |prescription|
             status = prescription['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            expect(status).to eq('In progress') if status.present?
           end
         end
       end
@@ -938,6 +964,28 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
               expect(dispense.keys).to include('dispensed_date') if dispense['dispensed_date'].present?
               expect(dispense.keys).to include('quantity') if dispense['quantity'].present?
             end
+          end
+        end
+      end
+
+      it 'includes prescriptions with is_renewable = true' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+
+          # The endpoint uses filter_data_by_refill_and_renew which checks:
+          # item.is_refillable || check_renewable(item)
+          # check_renewable returns item.is_renewable if the attribute exists
+          json_response['data'].each do |rx|
+            attrs = rx['attributes']
+            is_refillable = attrs['is_refillable'] == true
+            is_renewable = attrs['is_renewable'] == true
+
+            # Each prescription should be either refillable or renewable
+            expect(is_refillable || is_renewable).to be(true),
+                                                     "Prescription #{attrs['prescription_id']} should have " \
+                                                     'is_refillable=true or is_renewable=true'
           end
         end
       end
