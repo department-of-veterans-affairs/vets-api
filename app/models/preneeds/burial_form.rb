@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 # Preneeds namespace
 #
 module Preneeds
@@ -32,6 +34,7 @@ module Preneeds
   #   @return [Preneeds::Veteran] Veteran object.  Veteran is the person who is the owner of the benefit.
   #
   class BurialForm < Preneeds::Base
+    include Vets::Model
     # Preneeds Burial Form official form id
     #
     FORM = '40-10007'
@@ -41,7 +44,7 @@ module Preneeds
     attribute :has_currently_buried, String
     attribute :sending_application, String, default: 'vets.gov'
     attribute :sending_code, String, default: ''
-    attribute :sent_time, Common::UTCTime, default: :current_time
+    attribute :sent_time, Vets::Type::UTCTime, default: :current_time
     attribute :tracking_number, String, default: :generate_tracking_number
     attribute :applicant, Preneeds::Applicant
     attribute :claimant, Preneeds::Claimant
@@ -49,7 +52,7 @@ module Preneeds
     attribute :veteran, Preneeds::Veteran
 
     # keeping this name because it matches the previous attribute
-    # @return [Boolean]
+    # @return [Bool]
     #
     def has_attachments
       preneed_attachments.present?

@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: cd89087b891145844528a0e735be488ab6cba3a5
+  revision: eb3f0d8e1667713777465e7df059a5ab541dba79
   branch: master
   specs:
-    vets_json_schema (25.2.24)
+    vets_json_schema (25.2.35)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -747,7 +747,7 @@ GEM
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
-    multi_json (1.17.0)
+    multi_json (1.18.0)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
