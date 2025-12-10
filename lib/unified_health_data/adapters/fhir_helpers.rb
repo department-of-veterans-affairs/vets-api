@@ -12,9 +12,8 @@ module UnifiedHealthData
       def parse_date_or_epoch(date_string)
         return Time.zone.at(0) unless date_string
 
-        Time.zone.parse(date_string)
-      rescue ArgumentError
-        Time.zone.at(0)
+        parsed_time = Time.zone.parse(date_string)
+        parsed_time || Time.zone.at(0)
       end
 
       # Calculates days since a given date

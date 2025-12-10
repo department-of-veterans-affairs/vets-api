@@ -36,12 +36,17 @@ module UnifiedHealthData
           .merge(refill_metadata)
       end
 
+      # Builds core prescription attributes from the FHIR MedicationRequest resource.
+      # Note: refill_submit_date is set to nil here and later overridden by
+      # extract_refill_submission_metadata_from_tasks in build_prescription_attributes.
+      # This allows refill_metadata to be computed after dispenses_data is available
+      # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
         {
           id: resource['id'],
           type: 'Prescription',
           refill_status: extract_refill_status(resource, dispenses_data),
-          refill_submit_date: nil, # Set by extract_refill_submission_metadata_from_tasks if Task resources present
+          refill_submit_date: nil,
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
           facility_name: extract_facility_name(resource),
@@ -163,8 +168,8 @@ module UnifiedHealthData
         contained_resources = resource['contained'] || []
         medication_request_id = resource['id']
 
-        # Find refill tasks: intent='order', status='requested', matching focus reference
-        refill_tasks = contained_resources.select do |c|
+        # Find successful refill tasks: intent='order', status='requested', matching focus reference
+        successful_refill_tasks = contained_resources.select do |c|
           c.is_a?(Hash) &&
             c['resourceType'] == 'Task' &&
             c['intent'] == 'order' &&
@@ -172,10 +177,10 @@ module UnifiedHealthData
             task_references_medication_request?(c, medication_request_id)
         end
 
-        return {} if refill_tasks.empty?
+        return {} if successful_refill_tasks.empty?
 
         # Get most recent task by executionPeriod.start
-        most_recent_task = refill_tasks.max_by do |task|
+        most_recent_task = successful_refill_tasks.max_by do |task|
           parse_date_or_epoch(task.dig('executionPeriod', 'start'))
         end
 
@@ -205,13 +210,13 @@ module UnifiedHealthData
       # Checks if there's a MedicationDispense with whenPrepared or whenHandedOver
       # date after the Task.executionPeriod.start
       #
-      # @param task_submit_date [String] ISO 8601 date string from Task.executionPeriod.start
+      # @param task_start_time [String] ISO 8601 date string from Task.executionPeriod.start
       # @param dispenses_data [Array<Hash>] Array of dispense data with when_prepared and when_handed_over
       # @return [Boolean] True if a subsequent dispense exists
-      def subsequent_dispense?(task_submit_date, dispenses_data)
-        return false unless dispenses_data.present? && task_submit_date.present?
+      def subsequent_dispense?(task_start_time, dispenses_data)
+        return false unless dispenses_data.present? && task_start_time.present?
 
-        task_time = parse_date_or_epoch(task_submit_date)
+        task_time = parse_date_or_epoch(task_start_time)
 
         dispenses_data.any? do |dispense|
           when_prepared = dispense[:when_prepared]
@@ -258,8 +263,8 @@ module UnifiedHealthData
         contained_resources = resource['contained'] || []
         medication_request_id = resource['id']
 
-        # Find refill tasks: intent='order', status='requested', matching focus reference
-        refill_tasks = contained_resources.select do |c|
+        # Find successful refill tasks: intent='order', status='requested', matching focus reference
+        successful_refill_tasks = contained_resources.select do |c|
           c.is_a?(Hash) &&
             c['resourceType'] == 'Task' &&
             c['intent'] == 'order' &&
@@ -267,9 +272,9 @@ module UnifiedHealthData
             task_references_medication_request?(c, medication_request_id)
         end
 
-        if refill_tasks.any?
+        if successful_refill_tasks.any?
           # Get most recent task by executionPeriod.start
-          most_recent_task = refill_tasks.max_by do |task|
+          most_recent_task = successful_refill_tasks.max_by do |task|
             parse_date_or_epoch(task.dig('executionPeriod', 'start'))
           end
 

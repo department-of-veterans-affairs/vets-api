@@ -3266,5 +3266,59 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       expect(result).to be false
     end
+
+    context 'with multiple dispenses' do
+      it 'iterates all dispenses and returns true when last dispense has date after task date' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: '2025-06-20T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-22T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-26T12:00:00.000Z', when_handed_over: nil } # After task date
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be true
+      end
+
+      it 'iterates all dispenses and returns true when middle dispense has date after task date' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: '2025-06-20T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-26T12:00:00.000Z', when_handed_over: nil }, # After task date
+          { when_prepared: '2025-06-22T12:00:00.000Z', when_handed_over: nil }
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be true
+      end
+
+      it 'iterates all dispenses and returns false when no dispense has date after task date' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: '2025-06-20T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-22T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-23T12:00:00.000Z', when_handed_over: nil }
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be false
+      end
+
+      it 'checks whenHandedOver for each dispense when whenPrepared is nil' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: nil, when_handed_over: '2025-06-20T12:00:00.000Z' },
+          { when_prepared: nil, when_handed_over: '2025-06-22T12:00:00.000Z' },
+          { when_prepared: nil, when_handed_over: '2025-06-26T12:00:00.000Z' } # After task date
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be true
+      end
+    end
   end
 end
