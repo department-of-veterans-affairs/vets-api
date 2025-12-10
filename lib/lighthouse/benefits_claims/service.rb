@@ -23,8 +23,6 @@ module BenefitsClaims
     }.freeze
     # rubocop:enable Naming/VariableNumber
 
-    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
-
     def initialize(icn)
       @icn = icn
       if icn.blank?

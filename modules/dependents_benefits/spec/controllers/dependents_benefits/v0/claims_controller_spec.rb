@@ -64,7 +64,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
         expect do
           post(:create, params: test_form, as: :json)
         end.to change(
-          DependentsBenefits::SavedClaim, :count
+          DependentsBenefits::PrimaryDependencyClaim, :count
         ).by(1)
           .and change(
             DependentsBenefits::AddRemoveDependent, :count
@@ -96,7 +96,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
 
       it 'calls ClaimProcessor with correct parameters' do
-        expect(DependentsBenefits::ClaimProcessor).to receive(:create_proc_forms)
+        expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
           .with(a_kind_of(Integer))
 
         post(:create, params: test_form, as: :json)
@@ -115,7 +115,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       it 'does not create a saved claim' do
         expect do
           post(:create, params: invalid_params, as: :json)
-        end.not_to change(DependentsBenefits::SavedClaim, :count)
+        end.not_to change(DependentsBenefits::PrimaryDependencyClaim, :count)
       end
     end
 
@@ -132,7 +132,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       it 'does not create a saved claim' do
         expect do
           post(:create, params: test_form, as: :json)
-        end.not_to change(DependentsBenefits::SavedClaim, :count)
+        end.not_to change(DependentsBenefits::PrimaryDependencyClaim, :count)
       end
     end
   end
