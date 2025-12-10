@@ -26,8 +26,8 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
 
   describe 'POST create with vre_modular_api feature toggle enabled' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:vre_track_submissions).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:vre_modular_api).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:vre_track_submissions).and_return(false)
     end
 
     context 'logged in user with vre_modular_api feature toggle enabled' do

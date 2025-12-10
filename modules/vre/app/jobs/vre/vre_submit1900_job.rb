@@ -26,54 +26,70 @@ module VRE
       return nil unless user_account
 
       # query for other formsubmission records for the same user in XXX hours
-      threshold_hours = Settings.veteran_readiness_and_employment.duplicate_submission_threshold_hours || 24
-      threshold = threshold_hours.hours.ago
+      threshold_hours = Settings.veteran_readiness_and_employment.duplicate_submission_threshold_hours.to_i
+      threshold_hours = 24 unless threshold_hours.positive?
       submissions = user_account.form_submissions.where(
         form_type: [FORM_TYPE, FORM_TYPE_V2],
-        created_at: threshold..
+        created_at: threshold_hours.hours.ago..
       )
-      Rails.logger.info('VRE::VRESubmit1900Job - Duplicate Submission Check',
-                        user_account_id: user_account.id,
-                        submission_count: submissions.count,
-                        duplicates_detected: submissions.count > 1,
-                        threshold_hours:)
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission") if submissions.count > 1
+      submissions_count = submissions.count
+      duplicates_detected = submissions_count > 1
+      log_payload = {
+        user_account_id: user_account.id,
+        submission_count: submissions_count,
+        duplicates_detected:,
+        threshold_hours:
+      }
+
+      log_message = 'VRE::VRESubmit1900Job - Duplicate Submission Check'
+      log_level   = log_payload[:duplicates_detected] ? :warn : :info
+
+      Rails.logger.public_send(log_level, log_message, log_payload)
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission") if duplicates_detected
     end
 
     # rubocop:disable Metrics/MethodLength
     def perform(claim_id, encrypted_user, submission_id = nil)
-      if Flipper.enabled?(:vre_track_submissions) && submission_id
-        submission = FormSubmission.find(submission_id)
-        attempt = submission.form_submission_attempts.create!
-        Rails.logger.info(
-          'VRE::VRESubmit1900Job - Submission Attempt Created',
-          claim_id:,
-          submission_id:,
-          submission_attempt_id: attempt.id
-        )
+      submission_tracking_enabled = Flipper.enabled?(:vre_track_submissions)
 
+      submission = nil
+      attempt = nil
+
+      if submission_tracking_enabled && submission_id
+        submission, attempt = setup_submission_tracking(claim_id, submission_id)
       end
 
       begin
         # TODO: Change this to use new modular VRE claim class
-        claim = SavedClaim::VeteranReadinessEmploymentClaim.find claim_id
+        claim = SavedClaim::VeteranReadinessEmploymentClaim.find(claim_id)
         user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
         claim.send_to_vre(user)
         StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
-        if Flipper.enabled?(:vre_track_submissions) && submission_id
-          attempt.succeed!
+        if submission_tracking_enabled && submission && attempt
+          attempt.succeed
           Rails.logger.info(
             'VRE::VRESubmit1900Job - Submission Attempt Succeeded',
-            num_attempts: submission.form_submission_attempts.count,
+            claim_id:,
+            submission_id:,
+            submission_attempt_id: attempt.id,
+            num_attempts: submission.form_submission_attempts.size,
             user_account_id: claim.user_account&.id
           )
           duplicate_submission_check(claim.user_account)
         end
       rescue => e
-        attempt&.fail! if Flipper.enabled?(:vre_track_submissions) && submission_id
-        Rails.logger.warn("VRE::VRESubmit1900Job failed, retrying...: #{e.message}")
+        attempt.fail if submission_tracking_enabled && submission && attempt
+
+        Rails.logger.warn(
+          'VRE::VRESubmit1900Job failed, retrying...',
+          claim_id:,
+          submission_id:,
+          error_class: e.class.name,
+          error_message: e.message
+        )
         raise
       end
     end
@@ -90,5 +106,46 @@ module VRE
         claim.send_failure_email
       end
     end
+  end
+
+  private
+
+  def setup_submission_tracking(claim_id, submission_id)
+    attempt = nil
+    submission = nil
+
+    begin
+      submission = FormSubmission.find(submission_id)
+
+      attempt = submission.form_submission_attempts.create
+      if attempt.persisted?
+        Rails.logger.info(
+          'VRE::VRESubmit1900Job - Submission Attempt Created',
+          claim_id:,
+          submission_id:,
+          submission_attempt_id: attempt.id
+        )
+      else
+        Rails.logger.warn(
+          'VRE::VRESubmit1900Job - Submission Attempt Creation Failed - continuing without tracking',
+          claim_id:,
+          submission_id:,
+          errors: attempt.errors.full_messages
+        )
+        attempt = nil
+      end
+    rescue => e
+      Rails.logger.error(
+        'VRE::VRESubmit1900Job - Submission Attempt Creation Failed - continuing without tracking',
+        claim_id:,
+        submission_id:,
+        error_class: e.class.name,
+        errors: e.message
+      )
+      attempt = nil
+      submission = nil
+    end
+
+    [submission, attempt]
   end
 end

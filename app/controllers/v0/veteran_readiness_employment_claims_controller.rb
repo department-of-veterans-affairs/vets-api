@@ -8,25 +8,14 @@ module V0
 
     # rubocop:disable Metrics/MethodLength
     def create
+      modular_api_enabled = Flipper.enabled?(:vre_modular_api)
       user_account = UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
       claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
-      submission_id = nil
 
       if claim.save
-        if Flipper.enabled?(:vre_track_submissions)
-          submission_id = claim.form_submissions.create!(
-            form_type: claim.form_id,
-            user_account:
-          ).id
-          Rails.logger.info(
-            'VR&E Form Submission created',
-            claim_id: claim.id,
-            form_type: claim.form_id,
-            submission_id:
-          )
-        end
+        submission_id = setup_form_submission_tracking(claim, user_account)
 
-        if Flipper.enabled?(:vre_modular_api)
+        if modular_api_enabled
           Rails.logger.info 'Submitting VR&E claim via modular VRE API'
           VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
         else
@@ -38,7 +27,7 @@ module V0
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")
-        Rails.logger.error('VR&E claim was not saved', { vre_modular_api_used: Flipper.enabled?(:vre_modular_api),
+        Rails.logger.error('VR&E claim was not saved', { vre_modular_api_used: modular_api_enabled,
                                                          error_messages: claim.errors,
                                                          user_logged_in: current_user.present?,
                                                          current_user_uuid: current_user&.uuid })
@@ -48,6 +37,29 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     private
+
+    def setup_form_submission_tracking(claim, user_account)
+      return nil unless Flipper.enabled?(:vre_track_submissions)
+
+      submission = claim.form_submissions.create(
+        form_type: claim.form_id,
+        user_account:
+      )
+
+      if submission.persisted?
+        Rails.logger.info('VR&E Form Submission created',
+                          claim_id: claim.id,
+                          form_type: claim.form_id,
+                          submission_id: submission.id)
+        submission.id
+      else
+        Rails.logger.warn('VR&E Form Submission creation failed - continuing without tracking',
+                          claim_id: claim.id,
+                          form_type: claim.form_id,
+                          errors: submission.errors.full_messages)
+        nil
+      end
+    end
 
     def filtered_params
       if params[:veteran_readiness_employment_claim]
