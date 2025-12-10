@@ -13,33 +13,13 @@ module DependentsBenefits
   # Tracks submission status and handles failures during the enqueueing process.
   #
   class ClaimProcessor
-    attr_reader :parent_claim_id, :proc_id, :child_claims
+    attr_reader :parent_claim_id, :child_claims
 
     # Initializes a new ClaimProcessor
     #
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
-    # @param proc_id [String, nil] Optional processing ID for job tracking
-    def initialize(parent_claim_id, proc_id = nil)
+    def initialize(parent_claim_id)
       @parent_claim_id = parent_claim_id
-      @proc_id = proc_id
-    end
-
-    # Creates processing forms for a parent claim
-    #
-    # Factory method that instantiates a processor and triggers form creation.
-    #
-    # @param parent_claim_id [Integer] ID of the parent SavedClaim
-    # @return [String] Sidekiq job ID
-    def self.create_proc_forms(parent_claim_id)
-      processor = new(parent_claim_id, nil)
-      processor.create_proc_forms
-    end
-
-    # Enqueues a BGS processing job for the parent claim
-    #
-    # @return [String] Sidekiq job ID
-    def create_proc_forms
-      DependentsBenefits::Sidekiq::BGS::BGSProcJob.perform_async(parent_claim_id)
     end
 
     # Synchronously enqueues all (async) submission jobs for 686c and 674 claims
@@ -48,11 +28,10 @@ module DependentsBenefits
     # enqueueing for a parent claim and its child claims.
     #
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
-    # @param proc_id [String] Processing ID for job tracking
     # @return [Hash] Success result with :jobs_enqueued count and :error nil
     # @raise [StandardError] If any submission job fails to enqueue
-    def self.enqueue_submissions(parent_claim_id, proc_id = nil)
-      processor = new(parent_claim_id, proc_id)
+    def self.enqueue_submissions(parent_claim_id)
+      processor = new(parent_claim_id)
       processor.enqueue_submissions
     end
 

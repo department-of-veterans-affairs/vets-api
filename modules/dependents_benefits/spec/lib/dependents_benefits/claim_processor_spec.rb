@@ -22,9 +22,9 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '.enqueue_submissions' do
     it 'creates processor instance and delegates to instance method' do
-      expect(described_class).to receive(:new).with(parent_claim_id, nil).and_return(processor)
+      expect(described_class).to receive(:new).with(parent_claim_id).and_return(processor)
       expect(processor).to receive(:enqueue_submissions)
-      described_class.enqueue_submissions(parent_claim_id, nil)
+      described_class.enqueue_submissions(parent_claim_id)
     end
   end
 
