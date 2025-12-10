@@ -20,6 +20,10 @@ module BBInternal
     USERMGMT_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/".freeze
     BLUEBUTTON_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/".freeze
 
+    LOCK_RETRY_COUNT = 50
+    LOCK_TTL_SECONDS = 15
+    LOCK_RETRY_DELAY = 0.1
+
     ################################################################################
     # User Management APIs
     ################################################################################
@@ -495,15 +499,15 @@ module BBInternal
       lock_key = "study_map_lock:#{session.patient_id}"
 
       # Attempt to acquire lock. Wait up to 5 seconds.
-      50.times do
-        if bb_redis.set(lock_key, 1, nx: true, ex: 15)
+      LOCK_RETRY_COUNT.times do
+        if bb_redis.set(lock_key, 1, nx: true, ex: LOCK_TTL_SECONDS)
           begin
             return yield
           ensure
             bb_redis.del(lock_key)
           end
         end
-        sleep(0.1)
+        sleep(LOCK_RETRY_DELAY)
       end
 
       raise Common::Exceptions::ServiceError.new(detail: 'Failed to acquire study map lock')
