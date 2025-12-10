@@ -4,6 +4,11 @@ module Mobile
   module V0
     class LocationsController < ApplicationController
       def show
+        if Flipper.enabled?(:mhv_vaccine_mobile_return_empty_location_data, @current_user)
+          render json: {}
+          return
+        end
+
         lh_location = service.get_location(params[:id])
         if lh_location[:identifier].nil?
           raise Common::Exceptions::BackendServiceException, 'validation_errors_bad_request'
