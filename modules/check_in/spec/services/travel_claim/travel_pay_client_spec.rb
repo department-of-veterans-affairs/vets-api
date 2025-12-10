@@ -28,6 +28,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:travel_pay_client_secret_oh) { 'fake_client_secret_oh' }
   let(:travel_pay_resource) { 'fake_resource' }
   let(:claims_url_v2) { 'https://dev.integration.d365.va.gov' }
+  let(:claims_base_path_v2) { 'eis/api/btsss/travelclaim' }
   let(:subscription_key) { 'sub-key' }
   let(:e_subscription_key) { 'e-sub' }
   let(:s_subscription_key) { 's-sub' }
@@ -134,7 +135,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when GatewayTimeout is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::GatewayTimeout.new('Timeout::Error')
           )
@@ -159,7 +160,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   describe '#system_access_token_request' do
     it 'makes system access token request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/system_access_token_200') do
           result = client.send(:system_access_token_request,
                                veis_access_token: 'test-veis-token',
@@ -178,7 +179,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when BackendServiceException is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::BackendServiceException.new('TEST', {}, 500, 'Internal Server Error')
           )
@@ -202,7 +203,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when 502 Bad Gateway error occurs' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::BackendServiceException.new('VA900', {}, 502, 'Bad Gateway')
           )
@@ -226,7 +227,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when ClientError is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Client::Errors::ClientError.new('Connection failed', 503)
           )
@@ -250,7 +251,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'logs error when GatewayTimeout is raised' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           allow(client).to receive(:perform).and_raise(
             Common::Exceptions::GatewayTimeout.new('Timeout::Error')
           )
@@ -271,6 +272,51 @@ RSpec.describe TravelClaim::TravelPayClient do
           )
         end
       end
+
+      it 'logs original_status (downstream HTTP status) instead of transformed status' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:) do
+          # Simulate a 405 Method Not Allowed from downstream API
+          # BackendServiceException will transform this to 502 (VA900) for API responses,
+          # but we want to log the original 405
+          error_body = { 'message' => 'Method not allowed' }.to_json
+          exception = Common::Exceptions::BackendServiceException.new('VA900', {}, 405, error_body)
+          allow(client).to receive(:perform).and_raise(exception)
+
+          expect do
+            client.send(:system_access_token_request,
+                        veis_access_token: 'test-veis-token',
+                        icn: test_icn)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+
+          # Verify we log the original_status (405), not the transformed status (502)
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient BTSSS endpoint error',
+            hash_including(
+              correlation_id: be_present,
+              status: 405, # original_status, not the transformed status
+              endpoint: 'BTSSS'
+            )
+          )
+        end
+      end
+    end
+  end
+
+  describe '#extract_and_redact_message' do
+    it 'removes ICN from error message' do
+      icn = '1234567890V123456'
+      body = { 'message' => "Error occurred for patient #{icn}" }.to_json
+      result = client.send(:extract_and_redact_message, body)
+
+      expect(result).to eq('Error occurred for patient ')
+      expect(result).not_to include(icn)
+      expect(result).not_to include('****')
+    end
+
+    it 'returns nil when body is nil' do
+      result = client.send(:extract_and_redact_message, nil)
+      expect(result).to be_nil
     end
   end
 
@@ -286,7 +332,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes appointment request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_200') do
           result = client.send_appointment_request
 
@@ -299,7 +345,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when invalid parameters are provided' do
       it 'raises BackendServiceException for invalid appointment date' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_400') do
             expect { client.send_appointment_request }.to raise_error(
               Common::Exceptions::BackendServiceException
@@ -321,7 +367,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes claim request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_create_200') do
           result = client.send_claim_request(appointment_id:)
 
@@ -342,7 +388,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when claim creation fails' do
       it 'raises BackendServiceException for duplicate appointment' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/claims_create_400_duplicate') do
             expect do
               client.send_claim_request(appointment_id: 'duplicate-appt-id')
@@ -364,7 +410,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes get claim request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_get_200') do
           result = client.send_get_claim_request(claim_id:)
 
@@ -392,7 +438,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when claim is not found' do
       it 'raises BackendServiceException for 404 response' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/claims_get_404') do
             expect do
               client.send_get_claim_request(claim_id: 'non-existent-claim')
@@ -405,7 +451,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when server error occurs' do
       it 'raises BackendServiceException for 500 response' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2:) do
+                      claims_url_v2:, claims_base_path_v2:) do
           VCR.use_cassette('check_in/travel_claim/claims_get_500') do
             expect do
               client.send_get_claim_request(claim_id:)
@@ -428,7 +474,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes mileage expense request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/expenses_mileage_200') do
           result = client.send_mileage_expense_request(
             claim_id:,
@@ -461,7 +507,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes claim submission request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
           result = client.send_claim_submission_request(claim_id:)
 
@@ -667,8 +713,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Set up tokens
         client.instance_variable_set(:@current_veis_token, test_veis_token)
         client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: test_veis_token)
 
         # First call raises 401, second call succeeds
         call_count = 0
@@ -736,8 +782,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Set up tokens
         client.instance_variable_set(:@current_veis_token, test_veis_token)
         client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-        allow(client.redis_client).to receive(:token).and_return(test_veis_token)
-        allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(test_veis_token)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: test_veis_token)
 
         # First call raises 401, second call succeeds
         call_count = 0
@@ -774,8 +820,8 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       it 'uses cached VEIS token from Redis when available' do
         cached_veis_token = 'cached-veis'
-        allow(client.redis_client).to receive(:token).and_return(cached_veis_token)
-        allow(client.redis_client).to receive(:save_token).with(token: cached_veis_token)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(cached_veis_token)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: cached_veis_token)
         expect(client).to receive(:btsss_token!)
 
         client.send(:ensure_tokens!)
@@ -797,10 +843,10 @@ RSpec.describe TravelClaim::TravelPayClient do
       end
 
       it 'fetches fresh tokens when none are cached' do
-        allow(client.redis_client).to receive(:token).and_return(nil)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(nil)
         allow(client).to receive(:veis_token_request)
           .and_return(double('Response', body: { 'access_token' => 'new-token' }))
-        allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: 'new-token')
         expect(client).to receive(:btsss_token!)
 
         client.send(:ensure_tokens!)
@@ -811,11 +857,11 @@ RSpec.describe TravelClaim::TravelPayClient do
         old_btsss_token = 'old-btsss'
         client.instance_variable_set(:@current_veis_token, old_veis_token)
         client.instance_variable_set(:@current_btsss_token, old_btsss_token)
-        allow(client.redis_client).to receive(:save_token).with(token: nil)
-        allow(client.redis_client).to receive(:token).and_return(nil)
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: nil)
+        allow(client.redis_client).to receive(:v1_veis_token).and_return(nil)
         allow(client).to receive(:veis_token_request)
           .and_return(double('Response', body: { 'access_token' => 'new-token' }))
-        allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: 'new-token')
         allow(client).to receive(:system_access_token_request) do
           client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
           double('Response', body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
@@ -846,8 +892,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Mock the Redis client that will be lazily created
         lazy_redis_client = instance_double(TravelClaim::RedisClient)
         allow(TravelClaim::RedisClient).to receive(:build).and_return(lazy_redis_client)
-        allow(lazy_redis_client).to receive(:token).and_return(nil)
-        allow(lazy_redis_client).to receive(:save_token)
+        allow(lazy_redis_client).to receive(:v1_veis_token).and_return(nil)
+        allow(lazy_redis_client).to receive(:save_v1_veis_token)
 
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
                       auth_url:,
@@ -875,8 +921,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Mock the Redis client that will be lazily created
         lazy_redis_client = instance_double(TravelClaim::RedisClient)
         allow(TravelClaim::RedisClient).to receive(:build).and_return(lazy_redis_client)
-        allow(lazy_redis_client).to receive(:token).and_return(nil)
-        allow(lazy_redis_client).to receive(:save_token)
+        allow(lazy_redis_client).to receive(:v1_veis_token).and_return(nil)
+        allow(lazy_redis_client).to receive(:save_v1_veis_token)
 
         allow(direct_client).to receive_messages(
           veis_token_request: veis_response,
@@ -972,7 +1018,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'successfully makes PATCH requests for claim submission' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2:) do
+                    claims_url_v2:, claims_base_path_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
           result = client.send_claim_submission_request(claim_id: test_claim_id)
 
