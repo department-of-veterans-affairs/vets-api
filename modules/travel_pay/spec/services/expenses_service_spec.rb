@@ -257,7 +257,7 @@ describe TravelPay::ExpensesService do
       result = service.get_expense('mileage', expense_id)
 
       expect(result['expenseType']).to eq('Mileage')
-      expect(result['name']).to eq('Mileage')
+      expect(result['name']).to eq('Mileage Expense')
     end
 
     it 'does not overwrite expenseType when name is blank' do
