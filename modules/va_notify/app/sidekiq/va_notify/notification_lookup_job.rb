@@ -11,16 +11,16 @@ module VANotify
     sidekiq_options retry: 5, unique_for: 30.seconds
 
     sidekiq_retries_exhausted do |msg, _ex|
-      job_id = msg["jid"]
-      job_class = msg["class"]
-      error_class = msg["error_class"]
-      error_message = msg["error_message"]
-      args = msg["args"] || []
+      job_id = msg['jid']
+      job_class = msg['class']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+      args = msg['args'] || []
 
       notification_id = args[0]
       notification_params = args[1] || {}
-      notification_type = notification_params["notification_type"]
-      status = notification_params["status"]
+      notification_type = notification_params['notification_type']
+      status = notification_params['status']
 
       context = {
         job_id:,
@@ -50,21 +50,21 @@ module VANotify
         notification.update(notification_params_hash)
 
         Rails.logger.info("va_notify notification_lookup_job - Found and updated notification: #{notification.id}", {
-          notification_id: notification.id,
-          source_location: notification.source_location,
-          template_id: notification.template_id,
-          callback_metadata: notification.callback_metadata,
-          status: notification.status,
-          status_reason: notification.status_reason
-        })
+                            notification_id: notification.id,
+                            source_location: notification.source_location,
+                            template_id: notification.template_id,
+                            callback_metadata: notification.callback_metadata,
+                            status: notification.status,
+                            status_reason: notification.status_reason
+                          })
 
         VANotify::DefaultCallback.new(notification).call
         VANotify::CustomCallback.new(notification_params_hash.merge(id: notification_id)).call
 
-        StatsD.increment("sidekiq.jobs.va_notify_notification_lookup_job.success")
+        StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.success')
       else
         Rails.logger.warn("va_notify notification_lookup_job - Notification still not found: #{notification_id}")
-        StatsD.increment("sidekiq.jobs.va_notify_notification_lookup_job.not_found")
+        StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.not_found')
       end
     end
   end

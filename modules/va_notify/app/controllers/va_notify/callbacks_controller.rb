@@ -38,7 +38,8 @@ module VANotify
         VANotify::DefaultCallback.new(@notification).call
         VANotify::CustomCallback.new(notification_params.merge(id: notification_id)).call
       else
-        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}, enqueuing retry job" )
+        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}\n
+        , enqueuing retry job")
         VANotify::NotificationLookupJob.perform_in(5.seconds, notification_id, notification_params)
       end
 
