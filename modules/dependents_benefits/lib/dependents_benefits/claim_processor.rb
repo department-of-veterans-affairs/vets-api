@@ -103,52 +103,6 @@ module DependentsBenefits
       @child_claims
     end
 
-    # Enqueues submission jobs for a 686c claim
-    #
-    # Enqueues both BGS and Claims submission jobs for the 686c form.
-    #
-    # @param claim [SavedClaim] The 686c claim to submit
-    # @return [Integer] Number of jobs enqueued (currently 2)
-    def enqueue_686c_submission(claim)
-      jobs_count = 0
-
-      # Enqueue primary 686c submission jobs
-      DependentsBenefits::Sidekiq::BGS::BGS686cJob.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      DependentsBenefits::Sidekiq::ClaimsEvidence::Claims686cJob.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      # @todo Add calls to submission jobs here as they are implemented
-
-      monitor.track_processor_info('Enqueued 686c submission jobs', 'enqueue_686c',
-                                   parent_claim_id:, claim_id: claim.id)
-
-      jobs_count
-    end
-
-    # Enqueues submission jobs for a 674 claim
-    #
-    # Enqueues both BGS and Claims submission jobs for the 674 form.
-    #
-    # @param claim [SavedClaim] The 674 claim to submit
-    # @return [Integer] Number of jobs enqueued (currently 2)
-    def enqueue_674_submission(claim)
-      jobs_count = 0
-
-      # Enqueue primary 674 submission job
-      DependentsBenefits::Sidekiq::BGS::BGS674Job.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',
-                                   parent_claim_id:, claim_id: claim.id)
-
-      jobs_count
-    end
-
     # Handle permanent submission failure
     #
     # Marks parent group as failed and enqueues backup job if not already completed.
