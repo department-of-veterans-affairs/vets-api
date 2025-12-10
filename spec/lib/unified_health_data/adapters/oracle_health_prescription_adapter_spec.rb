@@ -372,16 +372,23 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#extract_is_renewable' do
-    # Base renewable resource: active status, VA med, outpatient category,
+    # Base renewable resource: active status, VA Prescription classification
+    # (reportedBoolean=false, intent='order', community + discharge categories),
     # has dispense, zero refills remaining, no active processing, within 120 days
     let(:base_renewable_resource) do
       {
         'status' => 'active',
         'reportedBoolean' => false,
+        'intent' => 'order',
         'category' => [
           {
             'coding' => [
-              { 'code' => 'outpatient' }
+              { 'code' => 'community' }
+            ]
+          },
+          {
+            'coding' => [
+              { 'code' => 'discharge' }
             ]
           }
         ],
@@ -408,7 +415,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       }
     end
 
-    context 'with all conditions met for renewable prescription' do
+    context 'with all conditions met for renewable VA prescription' do
       it 'returns true' do
         expect(subject.send(:extract_is_renewable, base_renewable_resource)).to be true
       end
@@ -425,19 +432,63 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    # Gate 2: Must NOT be documented/Non-VA medication
-    context 'Gate 2: with non-VA medication (reportedBoolean true)' do
+    # Gate 2: Must be classified as VA Prescription or Clinic Administered Medication
+    context 'Gate 2: with Documented/Non-VA medication classification' do
       let(:non_va_resource) do
-        base_renewable_resource.merge('reportedBoolean' => true)
+        base_renewable_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patient-specified' }] }
+          ]
+        )
       end
 
-      it 'returns false for non-VA medications' do
+      it 'returns false for Documented/Non-VA medications' do
         expect(subject.send(:extract_is_renewable, non_va_resource)).to be false
       end
     end
 
-    # Gate 3: Category must be outpatient, community, or discharge
-    context 'Gate 3: with inpatient category' do
+    context 'Gate 2: with unclassified medication (wrong intent)' do
+      let(:wrong_intent_resource) do
+        base_renewable_resource.merge('intent' => 'plan')
+      end
+
+      it 'returns false when intent is not order' do
+        expect(subject.send(:extract_is_renewable, wrong_intent_resource)).to be false
+      end
+    end
+
+    context 'Gate 2: with unclassified medication (missing discharge category for VA Prescription)' do
+      let(:missing_discharge_resource) do
+        base_renewable_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] }
+          ]
+        )
+      end
+
+      it 'returns false when community category without discharge' do
+        expect(subject.send(:extract_is_renewable, missing_discharge_resource)).to be false
+      end
+    end
+
+    context 'Gate 2: with Clinic Administered medication (outpatient category)' do
+      let(:clinic_administered_resource) do
+        base_renewable_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'outpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns true for Clinic Administered medications' do
+        expect(subject.send(:extract_is_renewable, clinic_administered_resource)).to be true
+      end
+    end
+
+    context 'Gate 2: with inpatient category (unclassified)' do
       let(:inpatient_resource) do
         base_renewable_resource.merge(
           'category' => [
@@ -455,43 +506,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 3: with community category' do
-      let(:community_resource) do
-        base_renewable_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                { 'code' => 'community' }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns true for community category' do
-        expect(subject.send(:extract_is_renewable, community_resource)).to be true
-      end
-    end
-
-    context 'Gate 3: with discharge category' do
-      let(:discharge_resource) do
-        base_renewable_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                { 'code' => 'discharge' }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns true for discharge category' do
-        expect(subject.send(:extract_is_renewable, discharge_resource)).to be true
-      end
-    end
-
-    context 'Gate 3: with no category' do
+    context 'Gate 2: with no category (unclassified)' do
       let(:no_category_resource) do
         base_renewable_resource.merge('category' => [])
       end
@@ -501,8 +516,18 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    # Gate 4: Must have at least one dispense
-    context 'Gate 4: with no dispenses' do
+    context 'Gate 2: with reportedBoolean true but correct VA Prescription categories' do
+      let(:reported_with_va_categories) do
+        base_renewable_resource.merge('reportedBoolean' => true)
+      end
+
+      it 'returns false because reportedBoolean must be false for VA Prescription' do
+        expect(subject.send(:extract_is_renewable, reported_with_va_categories)).to be false
+      end
+    end
+
+    # Gate 3: Must have at least one dispense
+    context 'Gate 3: with no dispenses' do
       let(:no_dispense_resource) do
         base_renewable_resource.merge('contained' => [])
       end
@@ -512,7 +537,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 4: with nil contained resources' do
+    context 'Gate 3: with nil contained resources' do
       let(:nil_contained_resource) do
         base_renewable_resource.except('contained')
       end
@@ -522,8 +547,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    # Gate 5: Must have zero refills remaining
-    context 'Gate 5: with refills remaining' do
+    # Gate 4: Must have zero refills remaining
+    context 'Gate 4: with refills remaining' do
       let(:refills_remaining_resource) do
         base_renewable_resource.merge(
           'dispenseRequest' => {
@@ -540,8 +565,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    # Gate 6: No active processing
-    context 'Gate 6: with in-progress dispense' do
+    # Gate 5: No active processing
+    context 'Gate 5: with in-progress dispense' do
       let(:in_progress_resource) do
         base_renewable_resource.merge(
           'contained' => [
@@ -566,7 +591,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 6: with preparation dispense' do
+    context 'Gate 5: with preparation dispense' do
       let(:preparation_resource) do
         base_renewable_resource.merge(
           'contained' => [
@@ -591,7 +616,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 6: with web/mobile refill request extension' do
+    context 'Gate 5: with web/mobile refill request extension' do
       let(:refill_requested_resource) do
         base_renewable_resource.merge(
           'extension' => [
@@ -608,8 +633,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    # Gate 7: Within 120 days of validity period end
-    context 'Gate 7: expired more than 120 days ago' do
+    # Gate 6: Within 120 days of validity period end
+    context 'Gate 6: expired more than 120 days ago' do
       let(:old_expired_resource) do
         base_renewable_resource.merge(
           'dispenseRequest' => {
@@ -626,7 +651,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 7: expired exactly 120 days ago' do
+    context 'Gate 6: expired exactly 120 days ago' do
       let(:boundary_expired_resource) do
         # Use 119 days to avoid floating-point precision issues at the boundary
         base_renewable_resource.merge(
@@ -644,7 +669,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 7: not yet expired' do
+    context 'Gate 6: not yet expired' do
       let(:not_expired_resource) do
         base_renewable_resource.merge(
           'dispenseRequest' => {
@@ -661,7 +686,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 7: with no validity period' do
+    context 'Gate 6: with no validity period' do
       let(:no_validity_resource) do
         resource = base_renewable_resource.dup
         resource['dispenseRequest'] = { 'numberOfRepeatsAllowed' => 1 }
