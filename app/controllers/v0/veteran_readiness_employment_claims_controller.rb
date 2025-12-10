@@ -23,12 +23,14 @@ module V0
           VRE::Submit1900Job.perform_async(claim.id, encrypted_user)
         end
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        clear_saved_form(claim.form_id)
+        # FIXME: revert to this with issue CVE-2253
+        # clear_saved_form(claim.form_id)
+        clear_saved_form('28-1900')
+        clear_saved_form('28-1900-V2')
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")
-        Rails.logger.error('VR&E claim was not saved', { vre_modular_api_used: modular_api_enabled,
-                                                         error_messages: claim.errors,
+        Rails.logger.error('VR&E claim was not saved', { error_messages: claim.errors,
                                                          user_logged_in: current_user.present?,
                                                          current_user_uuid: current_user&.uuid })
         raise Common::Exceptions::ValidationErrors, claim

@@ -28,7 +28,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
 
   before do
     # Initialize job with current claim context
-    job.instance_variable_set(:@claim_id, saved_claim.id)
+    job.instance_variable_set(:@claim_id, parent_claim.id)
   end
 
   describe '#active_sibling_ep_codes' do
@@ -237,71 +237,77 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   describe '#find_or_create_form_submission' do
     it 'creates a new BGS::Submission if one does not exist' do
       expect do
-        job.send(:find_or_create_form_submission)
+        job.send(:find_or_create_form_submission, saved_claim)
       end.to change(BGS::Submission, :count).by(1)
     end
 
     it 'returns existing BGS::Submission if one already exists' do
       existing_submission = create(:bgs_submission, saved_claim:, form_id: '21-686C')
 
-      result = job.send(:find_or_create_form_submission)
+      result = job.send(:find_or_create_form_submission, saved_claim)
 
       expect(result).to eq(existing_submission)
       expect(BGS::Submission.count).to eq(1)
-    end
-
-    it 'memoizes the submission' do
-      first_call = job.send(:find_or_create_form_submission)
-      second_call = job.send(:find_or_create_form_submission)
-
-      expect(first_call).to be(second_call)
     end
   end
 
   describe '#create_form_submission_attempt' do
     let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
 
-    before do
-      job.instance_variable_set(:@submission, submission)
-    end
-
     it 'creates a new BGS::SubmissionAttempt' do
       expect do
-        job.send(:create_form_submission_attempt)
+        job.send(:create_form_submission_attempt, submission)
       end.to change(BGS::SubmissionAttempt, :count).by(1)
     end
 
     it 'associates the attempt with the submission' do
-      attempt = job.send(:create_form_submission_attempt)
+      attempt = job.send(:create_form_submission_attempt, submission)
 
       expect(attempt.submission).to eq(submission)
     end
+  end
 
-    it 'memoizes the submission attempt' do
-      first_call = job.send(:create_form_submission_attempt)
-      second_call = job.send(:create_form_submission_attempt)
+  describe '#submission_previously_succeeded?' do
+    let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
 
-      expect(first_call).to be(second_call)
+    context 'when submission has a non-failure attempt' do
+      before do
+        create(:bgs_submission_attempt, submission:, status: 'submitted')
+      end
+
+      it 'returns true' do
+        expect(job.send(:submission_previously_succeeded?, submission)).to be true
+      end
+    end
+
+    context 'when submission has only failure attempts' do
+      before do
+        create(:bgs_submission_attempt, submission:, status: 'failure')
+      end
+
+      it 'returns false' do
+        expect(job.send(:submission_previously_succeeded?, submission)).to be false
+      end
+    end
+
+    context 'when submission is nil' do
+      it 'returns false' do
+        expect(job.send(:submission_previously_succeeded?, nil)).to be false
+      end
     end
   end
 
-  describe '#mark_submission_succeeded' do
+  describe '#mark_submission_attempt_succeeded' do
     let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
     let(:submission_attempt) { create(:bgs_submission_attempt, submission:, status: 'pending') }
 
-    before do
-      job.instance_variable_set(:@submission_attempt, submission_attempt)
-    end
-
     it 'marks the submission attempt as submitted' do
-      expect { job.send(:mark_submission_succeeded) }
+      expect { job.send(:mark_submission_attempt_succeeded, submission_attempt) }
         .to change { submission_attempt.reload.status }.from('pending').to('submitted')
     end
 
     it 'handles nil submission_attempt gracefully' do
-      job.instance_variable_set(:@submission_attempt, nil)
-
-      expect { job.send(:mark_submission_succeeded) }.not_to raise_error
+      expect { job.send(:mark_submission_attempt_succeeded, nil) }.not_to raise_error
     end
   end
 
@@ -310,26 +316,20 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
     let(:submission_attempt) { create(:bgs_submission_attempt, submission:, status: 'pending') }
     let(:error) { StandardError.new('Test error') }
 
-    before do
-      job.instance_variable_set(:@submission_attempt, submission_attempt)
-    end
-
     it 'marks the submission attempt as failure' do
-      expect { job.send(:mark_submission_attempt_failed, error) }
+      expect { job.send(:mark_submission_attempt_failed, submission_attempt, error) }
         .to change { submission_attempt.reload.status }.from('pending').to('failure')
     end
 
     it 'records the error message' do
-      job.send(:mark_submission_attempt_failed, error)
+      job.send(:mark_submission_attempt_failed, submission_attempt, error)
       submission_attempt.reload
 
       expect(submission_attempt.error_message).to eq('Test error')
     end
 
     it 'handles nil submission_attempt gracefully' do
-      job.instance_variable_set(:@submission_attempt, nil)
-
-      expect { job.send(:mark_submission_attempt_failed, error) }.not_to raise_error
+      expect { job.send(:mark_submission_attempt_failed, nil, error) }.not_to raise_error
     end
   end
 
