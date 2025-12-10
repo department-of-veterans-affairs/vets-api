@@ -64,9 +64,12 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
           expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.fail',
                                                      { tags: ['error:CommonExceptionsResourceNotFound'] })
           expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.total')
-          expect do
-            subject.get_form_by_icn(icn:, tax_year:)
-          end.to raise_error(Common::Exceptions::ResourceNotFound, 'Resource not found')
+          expect { subject.get_form_by_icn(icn:, tax_year:) }.to \
+            raise_error(Common::Exceptions::ResourceNotFound, 'Resource not found') do |error|
+            expect(error.errors.first.detail).to eq(
+              'No enrollments found for the provided ICN [REDACTED] with tax year 2024.'
+            )
+          end
         end
       end
     end

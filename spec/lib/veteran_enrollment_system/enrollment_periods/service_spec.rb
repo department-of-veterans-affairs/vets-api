@@ -32,9 +32,12 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
           expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.fail',
                                                      { tags: ['error:CommonExceptionsResourceNotFound'] })
           expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.total')
-          expect do
-            subject.get_enrollment_periods(icn:)
-          end.to raise_error(Common::Exceptions::ResourceNotFound, 'Resource not found')
+          expect { subject.get_enrollment_periods(icn:) }.to \
+            raise_error(Common::Exceptions::ResourceNotFound, 'Resource not found') do |error|
+            expect(error.errors.first.detail).to eq(
+              'No enrollments found for the provided ICN [REDACTED] with tax year 2024.'
+            )
+          end
         end
       end
     end

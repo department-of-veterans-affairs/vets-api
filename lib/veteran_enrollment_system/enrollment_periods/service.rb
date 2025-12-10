@@ -42,24 +42,18 @@ module VeteranEnrollmentSystem
           if response.status == 200
             response.body['data']['mecPeriods']
           else
-            raise_error(response)
+            raise_error(response, icn)
           end
         end
       end
 
       private
 
-      def raise_error(response)
-        message = error_message(response)
-        raise ERROR_MAP[response.status]&.new(detail: message) ||
-              Common::Exceptions::BackendServiceException.new(nil, detail: message)
-      end
-
-      def error_message(response)
-        # the upstream service returns the ICN on 404
-        return 'Record not found' if response.status == 404
-
-        response.body&.dig('messages')&.pluck('description')&.join(', ') || response.body
+      def raise_error(response, icn)
+        message = response.body&.dig('messages')&.pluck('description')&.join(', ') || response.body
+        sanitized_message = message.to_s.gsub(icn, '[REDACTED]')
+        raise ERROR_MAP[response.status]&.new(detail: sanitized_message) ||
+              Common::Exceptions::BackendServiceException.new(nil, detail: sanitized_message)
       end
     end
   end
