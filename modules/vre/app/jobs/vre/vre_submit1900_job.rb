@@ -34,7 +34,8 @@ module VRE
       )
       Rails.logger.info('VRE::VRESubmit1900Job - Duplicate Submission Check',
                         user_account_id: user_account.id,
-                        duplicate_count: submissions.count,
+                        submission_count: submissions.count,
+                        duplicates_detected: submissions.count > 1,
                         threshold_hours:)
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission") if submissions.count > 1
