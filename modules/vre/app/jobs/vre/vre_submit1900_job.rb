@@ -25,7 +25,7 @@ module VRE
     def duplicate_submission_check(user_account)
       return nil unless user_account
 
-      # query for other formsubmission records for the same user in XXX hours
+      # Query for form submissions by this user within the configured threshold window (default 24 hours)
       threshold_hours = Settings.veteran_readiness_and_employment.duplicate_submission_threshold_hours.to_i
       threshold_hours = 24 unless threshold_hours.positive?
       submissions = user_account.form_submissions.where(
@@ -110,6 +110,7 @@ module VRE
 
   private
 
+  # rubocop:disable Metrics/MethodLength
   def setup_submission_tracking(claim_id, submission_id)
     attempt = nil
     submission = nil
@@ -148,4 +149,5 @@ module VRE
 
     [submission, attempt]
   end
+  # rubocop:enable Metrics/MethodLength
 end
