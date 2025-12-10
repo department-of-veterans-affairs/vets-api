@@ -314,7 +314,6 @@ VANotify::V2::SendEmail.enqueue(
   "user@example.com",
   "template-id-123",
   { first_name: "Jane", date_submitted: "May 1, 2024" }, # personalisation hash
-  Settings.vanotify.services.va_gov.api_key,
   { callback_metadata: { notification_type: "confirmation" } }
 )
 ```
