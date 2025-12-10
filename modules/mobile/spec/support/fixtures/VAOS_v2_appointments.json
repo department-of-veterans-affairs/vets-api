@@ -29,8 +29,7 @@
     "cancellable": false,
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       },
       "vista_status": [
         "CANCELLED BY PATIENT",
@@ -88,8 +87,7 @@
     },
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       },
       "vista_status": [
         "CHECKED OUT",
@@ -210,8 +208,7 @@
     "patient_icn": "1012846043V576341",
     "location_id": "984",
     "minutes_duration": 60,
-    "practitioners": [
-    ],
+    "practitioners": [],
     "created": "2022-01-10T20:49:00Z",
     "requested_periods": [
       {
@@ -245,8 +242,7 @@
     "cancellable": true,
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       }
     },
     "location": {
@@ -1023,8 +1019,7 @@
     "patient_comments": "testing",
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       }
     }
   },
@@ -1155,10 +1150,10 @@
   {
     "id": "CERN129377263",
     "identifier": [
-        {
-            "system": "urn:va.gov:cfa:cerner:appointment",
-            "value": "Appointment/129377263"
-        }
+      {
+        "system": "urn:va.gov:cfa:cerner:appointment",
+        "value": "Appointment/129377263"
+      }
     ],
     "kind": "clinic",
     "type": "VA",
@@ -1198,10 +1193,10 @@
       "code": null
     },
     "requested_periods": [
-        {
-            "start": "2025-09-30T20:00:00Z",
-            "end": "2025-09-30T20:30:00Z"
-        }
+      {
+        "start": "2025-09-30T20:00:00Z",
+        "end": "2025-09-30T20:30:00Z"
+      }
     ],
     "start": "2025-09-30T20:00:00Z",
     "end": "2025-09-30T20:30:00Z",
@@ -1217,11 +1212,15 @@
         "appt_id": "12345",
         "id": "15249638961",
         "name": "Ambulatory Visit Summary",
-        "loinc_codes": ["4189669", "96345-4"],
+        "loinc_codes": [
+          "4189669",
+          "96345-4"
+        ],
         "note_type": "ambulatory_patient_summary",
         "content_type": "application/pdf",
         "binary": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e"
       }
-    ]
+    ],
+    "avs_error": "Unable to retrieve AVS at this time"
   }
 ]

@@ -22,6 +22,7 @@ module SimpleFormsApi
 
     class ConversionError < ProcessingError; end
     class ValidationError < ProcessingError; end
+    class PersistenceError < ProcessingError; end
 
     def initialize(attachment, password: nil)
       @attachment = attachment
@@ -33,11 +34,7 @@ module SimpleFormsApi
       pdf_path = decrypt_pdf(pdf_path) if password.present?
       validate_pdf_at_path(pdf_path)
 
-      File.open(pdf_path, 'rb') do |pdf_file|
-        attachment.file = pdf_file
-        attachment.save
-      end
-
+      persist_processed_file(pdf_path)
       attachment
     rescue => e
       Rails.logger.error("ScannedFormProcessor failed: #{e.message}")
@@ -113,6 +110,71 @@ module SimpleFormsApi
       end
 
       Rails.logger.info('PDF validation passed')
+    end
+
+    def persist_processed_file(pdf_path)
+      preexisting_error_details = format_error_details(attachment.errors)
+
+      File.open(pdf_path, 'rb') do |pdf_file|
+        attachment.file = pdf_file
+        attachment.save!
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error("Attachment persistence validation failed: #{e.message}")
+      raise PersistenceError.new(
+        'File upload failed',
+        resolved_persistence_errors(e, preexisting_error_details)
+      )
+    rescue => e
+      raise if e.is_a?(PersistenceError)
+
+      Rails.logger.error("Attachment persistence failed: #{e.message}")
+      raise PersistenceError.new('File upload failed', default_persistence_errors)
+    end
+
+    def resolved_persistence_errors(exception, preexisting_error_details)
+      record_details = format_error_details(exception.record&.errors) if exception.respond_to?(:record)
+      message_details = format_error_details_from_strings(extract_messages_from_exception(exception.message))
+
+      record_details.presence ||
+        preexisting_error_details.presence ||
+        message_details.presence ||
+        default_persistence_errors
+    end
+
+    def format_error_details(errors)
+      return [] unless errors.respond_to?(:full_messages) && errors.any?
+
+      format_error_details_from_strings(errors.full_messages)
+    end
+
+    def format_error_details_from_strings(messages)
+      return [] unless messages&.any?
+
+      Array(messages).map do |message|
+        {
+          title: 'File upload failed',
+          detail: message
+        }
+      end
+    end
+
+    def default_persistence_errors
+      [{
+        title: 'File upload failed',
+        detail: 'We could not save your file. Please try again later.'
+      }]
+    end
+
+    def extract_messages_from_exception(message)
+      return [] unless message
+
+      prefix = 'Validation failed: '
+      if message.start_with?(prefix)
+        message.delete_prefix(prefix).split(',').map(&:strip)
+      else
+        [message]
+      end
     end
   end
 end
