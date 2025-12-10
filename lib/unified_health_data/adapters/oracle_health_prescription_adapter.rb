@@ -34,12 +34,17 @@ module UnifiedHealthData
           .merge(refill_metadata)
       end
 
+      # Builds core prescription attributes from the FHIR MedicationRequest resource.
+      # Note: refill_submit_date is set to nil here and later overridden by
+      # extract_refill_submission_metadata_from_tasks in build_prescription_attributes.
+      # This allows refill_metadata to be computed after dispenses_data is available
+      # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
         {
           id: resource['id'],
           type: 'Prescription',
           refill_status: extract_refill_status(resource, dispenses_data),
-          refill_submit_date: nil, # Set by extract_refill_submission_metadata_from_tasks if Task resources present
+          refill_submit_date: nil,
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
           facility_name: extract_facility_name(resource),
