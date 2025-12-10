@@ -2047,8 +2047,15 @@ module DependentsBenefits
       # @return [String] Formatted household income question with answer
       def add_household_income
         net_worth = @form_data.dig('dependents_application', 'household_income')
+        pension_flipper = Flipper.enabled?(:va_dependents_net_worth_and_pension)
 
-        "Did the household have a net worth greater than $163,699 in the last tax year? #{format_boolean(net_worth)}"
+        # If va_dependents_net_worth_and_pension FF is off, show "greater than" wording
+        # If on, show "less than" wording (reversed logic for UI versus RBPS value)
+        if pension_flipper
+          "Did the household have a net worth less than $163,699 in the last tax year? #{format_boolean(!net_worth)}"
+        else
+          "Did the household have a net worth greater than $163,699 in the last tax year? #{format_boolean(net_worth)}"
+        end
       end
 
       ##
