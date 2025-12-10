@@ -45,7 +45,8 @@ module Vet360
         # Validation Key was deprecated with ContactInformationV2
         params[:override_validation_key] ||= params[:validation_key]
         params[:validation_key] ||= params[:override_validation_key]
-
+        Rails.logger.info("RESIDENCE POA? #{params[:address_pou] == 'RESIDENCE'},
+                           RESIDENCE/CHOICE POA? #{params[:address_pou] == 'RESIDENCE/CHOICE'}")
         # Ensures the address_pou is valid
         params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
       else

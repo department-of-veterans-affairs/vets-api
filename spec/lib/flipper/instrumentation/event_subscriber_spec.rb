@@ -3,71 +3,321 @@
 require 'rails_helper'
 
 RSpec.describe Flipper::Instrumentation::EventSubscriber do
-  let(:test_user) { build(:user) }
+  let(:subscriber) { described_class.new }
+  let(:feature_name) { 'test_feature' }
+  let(:user_email) { 'user@example.com' }
 
-  context 'logs changes to toggle values' do
-    it 'logs feature calls with result after operation for disable' do
-      Flipper.disable(:this_is_only_a_test)
-      last_event = FeatureToggleEvent.last
-      expect(last_event.feature_name).to eq('this_is_only_a_test')
-      expect(last_event.operation).to eq('disable')
-      expect(last_event.gate_name).to eq('boolean')
+  before do
+    # Clear RequestStore before each test
+    RequestStore.store[:flipper_user_email_for_log] = nil
+  end
+
+  describe '#call' do
+    let(:event_name) { 'feature_operation.flipper' }
+    let(:started) { Time.current }
+    let(:finished) { Time.current + 1.second }
+    let(:unique_id) { SecureRandom.hex(10) }
+
+    context 'when operation is enable' do
+      let(:payload) do
+        {
+          operation: :enable,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: true)
+        }
+      end
+
+      it 'creates a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).to receive(:create).with(
+          feature_name: feature_name,
+          operation: :enable,
+          gate_name: :boolean,
+          value: true,
+          user: user_email
+        )
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
     end
 
-    it 'logs feature calls with result after operation for disable_percentage_of_actors' do
-      Flipper.disable_percentage_of_actors(:this_is_only_a_test)
-      last_event = FeatureToggleEvent.last
-      expect(last_event.feature_name).to eq('this_is_only_a_test')
-      expect(last_event.operation).to eq('disable')
-      expect(last_event.gate_name).to eq('percentage_of_actors')
+    context 'when operation is disable' do
+      let(:payload) do
+        {
+          operation: :disable,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: false)
+        }
+      end
+
+      it 'creates a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).to receive(:create).with(
+          feature_name: feature_name,
+          operation: :disable,
+          gate_name: :boolean,
+          value: false,
+          user: user_email
+        )
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
     end
 
-    it 'logs feature calls with result after operation for disable_percentage_of_time' do
-      Flipper.disable_percentage_of_time(:this_is_only_a_test)
-      last_event = FeatureToggleEvent.last
-      expect(last_event.feature_name).to eq('this_is_only_a_test')
-      expect(last_event.operation).to eq('disable')
-      expect(last_event.gate_name).to eq('percentage_of_time')
+    context 'when operation is add' do
+      let(:payload) do
+        {
+          operation: :add,
+          feature_name: feature_name,
+          gate_name: :actors,
+          thing: double(value: 'User:123')
+        }
+      end
+
+      it 'creates a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).to receive(:create).with(
+          feature_name: feature_name,
+          operation: :add,
+          gate_name: :actors,
+          value: 'User:123',
+          user: user_email
+        )
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
     end
 
-    it 'logs feature calls with result after operation for enable_percentage_of_actors' do
-      Flipper.enable_percentage_of_actors :this_is_only_a_test, 10
-      last_event = FeatureToggleEvent.last
-      expect(last_event.feature_name).to eq('this_is_only_a_test')
-      expect(last_event.operation).to eq('enable')
-      expect(last_event.gate_name).to eq('percentage_of_actors')
+    context 'when operation is remove' do
+      let(:payload) do
+        {
+          operation: :remove,
+          feature_name: feature_name,
+          gate_name: :actors,
+          thing: double(value: 'User:456')
+        }
+      end
+
+      it 'creates a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).to receive(:create).with(
+          feature_name: feature_name,
+          operation: :remove,
+          gate_name: :actors,
+          value: 'User:456',
+          user: user_email
+        )
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
     end
 
-    it 'logs feature calls with result after operation for enable_percentage_of_time' do
-      Flipper.enable_percentage_of_time :this_is_only_a_test, 5
-      last_event = FeatureToggleEvent.last
-      expect(last_event.feature_name).to eq('this_is_only_a_test')
-      expect(last_event.operation).to eq('enable')
-      expect(last_event.gate_name).to eq('percentage_of_time')
+    context 'when operation is clear' do
+      let(:payload) do
+        {
+          operation: :clear,
+          feature_name: feature_name,
+          gate_name: :percentage_of_actors,
+          thing: double(value: 0)
+        }
+      end
+
+      it 'creates a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).to receive(:create).with(
+          feature_name: feature_name,
+          operation: :clear,
+          gate_name: :percentage_of_actors,
+          value: 0,
+          user: user_email
+        )
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
     end
 
-    it 'logs feature calls with result after operation for enable_actor' do
-      Flipper.enable_actor :this_is_only_a_test, test_user
-      last_event = FeatureToggleEvent.last
-      expect(last_event.feature_name).to eq('this_is_only_a_test')
-      expect(last_event.operation).to eq('enable')
-      expect(last_event.gate_name).to eq('actor')
+    context 'when thing is nil' do
+      let(:payload) do
+        {
+          operation: :enable,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: nil
+        }
+      end
+
+      it 'creates a FeatureToggleEvent with nil value' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).to receive(:create).with(
+          feature_name: feature_name,
+          operation: :enable,
+          gate_name: :boolean,
+          value: nil,
+          user: user_email
+        )
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
     end
 
-    it 'logs feature calls with result after operation for disable_actor' do
-      Flipper.disable_actor :this_is_only_a_test, test_user
-      last_event = FeatureToggleEvent.last
-      expect(last_event.feature_name).to eq('this_is_only_a_test')
-      expect(last_event.operation).to eq('disable')
-      expect(last_event.gate_name).to eq('actor')
+    context 'when user is not set in RequestStore' do
+      let(:payload) do
+        {
+          operation: :enable,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: true)
+        }
+      end
+
+      it 'creates a FeatureToggleEvent with nil user' do
+        expect(FeatureToggleEvent).to receive(:create).with(
+          feature_name: feature_name,
+          operation: :enable,
+          gate_name: :boolean,
+          value: true,
+          user: nil
+        )
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
+    end
+
+    context 'when operation is enabled? (read operation)' do
+      let(:payload) do
+        {
+          operation: :enabled?,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: true)
+        }
+      end
+
+      it 'does not create a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).not_to receive(:create)
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
+    end
+
+    context 'when operation is exist? (read operation)' do
+      let(:payload) do
+        {
+          operation: :exist?,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: true)
+        }
+      end
+
+      it 'does not create a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).not_to receive(:create)
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
+    end
+
+    context 'when operation is state (read operation)' do
+      let(:payload) do
+        {
+          operation: :state,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: true)
+        }
+      end
+
+      it 'does not create a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).not_to receive(:create)
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
+    end
+
+    context 'when operation is on (read operation)' do
+      let(:payload) do
+        {
+          operation: :on,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: true)
+        }
+      end
+
+      it 'does not create a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).not_to receive(:create)
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
+    end
+
+    context 'when operation is off (read operation)' do
+      let(:payload) do
+        {
+          operation: :off,
+          feature_name: feature_name,
+          gate_name: :boolean,
+          thing: double(value: false)
+        }
+      end
+
+      it 'does not create a FeatureToggleEvent' do
+        RequestStore.store[:flipper_user_email_for_log] = user_email
+
+        expect(FeatureToggleEvent).not_to receive(:create)
+
+        subscriber.call(event_name, started, finished, unique_id, payload)
+      end
     end
   end
 
-  context 'does not log evaluation of toggle values' do
-    it 'something' do
-      expect do
-        Flipper.enabled?(:this_is_only_a_test, @current_user)
-      end.not_to change(FeatureToggleEvent, :count)
+  describe 'subscription' do
+    it 'subscribes to feature_operation.flipper notifications' do
+      # Verify that the subscription is set up
+      expect(ActiveSupport::Notifications).to receive(:subscribe).with(
+        /feature_operation.flipper/,
+        instance_of(described_class)
+      )
+
+      load 'lib/flipper/instrumentation/event_subscriber.rb'
+    end
+  end
+
+  describe 'integration test' do
+    it 'responds to ActiveSupport::Notifications events' do
+      RequestStore.store[:flipper_user_email_for_log] = user_email
+
+      expect(FeatureToggleEvent).to receive(:create).with(
+        feature_name: feature_name,
+        operation: :enable,
+        gate_name: :boolean,
+        value: true,
+        user: user_email
+      )
+
+      ActiveSupport::Notifications.instrument(
+        'feature_operation.flipper',
+        operation: :enable,
+        feature_name: feature_name,
+        gate_name: :boolean,
+        thing: double(value: true)
+      )
     end
   end
 end
