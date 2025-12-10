@@ -178,10 +178,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     schema_errors.empty? && validation_errors.empty?
   end
 
-  def to_pdf(form_id: FORM, student: nil, current_user: nil)
+  def to_pdf(form_id: FORM, student: nil)
     original_form_id = self.form_id
     self.form_id = form_id
-    PdfFill::Filler.fill_form(self, nil, { created_at:, student:, current_user: })
+    PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
   rescue => e
     monitor.track_to_pdf_failure(e, form_id)
     raise e
