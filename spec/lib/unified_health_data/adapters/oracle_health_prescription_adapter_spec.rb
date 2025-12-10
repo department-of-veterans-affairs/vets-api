@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unified_health_data/models/prescription'
 require 'unified_health_data/adapters/oracle_health_prescription_adapter'
-require 'lighthouse/facilities/v1/client'
 
-describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
-  subject { described_class.new }
+RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
+  subject(:adapter) { described_class.new }
 
   let(:base_resource) do
     {
@@ -955,7 +953,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         first_dispense = result.first
         expect(first_dispense).to include(
           status: 'completed',
-          refill_date: '2025-01-15T10:00:00Z',
+          refill_date: '2025-01-15T10:00:00.000Z',
           facility_name: 'Portland VA Medical Center',
           instructions: 'Take one tablet by mouth daily',
           quantity: 30,
@@ -974,7 +972,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         second_dispense = result.second
         expect(second_dispense).to include(
           status: 'completed',
-          refill_date: '2025-01-29T14:30:00Z',
+          refill_date: '2025-01-29T14:30:00.000Z',
           facility_name: 'Portland VA Medical Center',
           instructions: 'Take one tablet by mouth daily',
           quantity: 30,

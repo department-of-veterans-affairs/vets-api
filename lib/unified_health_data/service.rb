@@ -19,9 +19,11 @@ module UnifiedHealthData
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
 
-    def initialize(user)
+    def initialize(user, use_v2_statuses: false)
       super()
       @user = user
+      @use_v2_statuses = use_v2_statuses
+      @prescriptions_adapter = Adapters::PrescriptionsAdapter.new(use_v2_statuses:)
     end
 
     def get_labs(start_date:, end_date:)
@@ -81,8 +83,10 @@ module UnifiedHealthData
         response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
 
-        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
-        prescriptions = adapter.parse(body, current_only:)
+        combined_records = fetch_combined_records(body)
+
+        # V2 status mapping happens inside the adapter - SINGLE POINT
+        prescriptions = @prescriptions_adapter.parse(combined_records, current_only:)
 
         Rails.logger.info(
           message: 'UHD prescriptions retrieved',

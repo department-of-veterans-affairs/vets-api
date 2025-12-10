@@ -15,7 +15,7 @@ module MyHealth
       include MyHealth::RxGroupingHelperV2
       include JsonApiPaginationLinks
 
-      service_tag 'mhv-medications'
+      service_tag 'mhv-prescriptions'
 
       def refill
         return unless validate_feature_flag
@@ -53,20 +53,6 @@ module MyHealth
 
         log_prescriptions_access
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(records, options)
-      end
-
-      def show
-        return unless validate_feature_flag
-
-        prescriptions = service.get_prescriptions(current_only: false).compact
-        prescription = prescriptions.find do |p|
-          p.prescription_id.to_s == params[:id].to_s &&
-            p.station_number.to_s == params[:station_number].to_s
-        end
-
-        raise Common::Exceptions::RecordNotFound, params[:id] unless prescription
-
-        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
       end
 
       def list_refillable_prescriptions
@@ -140,28 +126,61 @@ module MyHealth
       end
 
       def get_recently_requested_prescriptions(prescriptions)
+        # V2 uses "In progress" status instead of granular statuses
         prescriptions.select do |item|
-          item.respond_to?(:disp_status) && ['Active: Refill in Process',
-                                             'Active: Submitted'].include?(item.disp_status)
+          item.respond_to?(:disp_status) && item.disp_status == 'In progress'
         end
       end
 
       def apply_filters_to_list(prescriptions)
-        filter_params = params.require(:filter).permit(disp_status: [:eq])
+        filter_params = params.require(:filter).permit(disp_status: [:eq], shipped: [:eq])
         disp_status = filter_params[:disp_status]
+        shipped_param = filter_params[:shipped]
 
-        if disp_status.present?
-          if disp_status[:eq]&.downcase == 'active,expired'.downcase
-            # filter renewals
-            prescriptions.select(&method(:renewable))
-          else
-            filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-            prescriptions.select do |item|
-              item.respond_to?(:disp_status) && item.disp_status && filters.include?(item.disp_status.downcase)
-            end
-          end
-        else
-          prescriptions
+        return prescriptions if disp_status.blank? && shipped_param.blank?
+
+        # Handle shipped filter explicitly via shipped param
+        if shipped_param.present? && shipped_param[:eq]&.downcase == 'true'
+          return filter_shipped_prescriptions(prescriptions)
+        end
+
+        filter_value = disp_status&.dig(:eq)
+        return prescriptions if filter_value.blank?
+
+        # Handle renewal filter (Active,Inactive combination)
+        return filter_renewable_prescriptions(prescriptions) if renewal_filter?(filter_value)
+
+        # Standard status filter
+        filter_by_disp_status(prescriptions, filter_value)
+      end
+
+      # V2 filter values that should match the renewal criteria
+      def renewal_filter?(filter_value)
+        normalized = filter_value&.downcase
+        ['active,expired', 'active,inactive'].include?(normalized)
+      end
+
+      def filter_renewable_prescriptions(prescriptions)
+        prescriptions.select do |item|
+          item.respond_to?(:is_renewable) && item.is_renewable == true
+        end
+      end
+
+      def filter_shipped_prescriptions(prescriptions)
+        prescriptions.select do |item|
+          item.respond_to?(:disp_status) &&
+            item.disp_status&.casecmp('Active')&.zero? &&
+            item.respond_to?(:is_trackable) &&
+            item.is_trackable == true
+        end
+      end
+
+      def filter_by_disp_status(prescriptions, filter_value)
+        # V2 status values: Active, In progress, Inactive, Transferred, Status not available
+        filters = filter_value.split(',').map(&:strip).map(&:downcase)
+        prescriptions.select do |item|
+          item.respond_to?(:disp_status) && item.disp_status &&
+            filters.include?(item.disp_status.downcase)
         end
       end
 
@@ -193,25 +212,36 @@ module MyHealth
         {
           filter_count: {
             all_medications: count_grouped_prescriptions(non_modified_collection),
-            active: count_active_medications(list),
-            recently_requested: get_recently_requested_prescriptions(list).length,
-            renewal: list.select { |item| renewable(item) }.length,
-            non_active: count_non_active_medications(list)
+            active: count_by_status(list, 'Active'),
+            in_progress: count_by_status(list, 'In progress'),
+            shipped: count_shipped_prescriptions(list),
+            renewal: count_renewable_prescriptions(list),
+            inactive: count_by_status(list, 'Inactive'),
+            transferred: count_by_status(list, 'Transferred'),
+            status_not_available: count_by_status(list, 'Status not available')
           }
         }
       end
 
-      def count_active_medications(list)
-        active_statuses = [
-          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
-          'Active: Parked', 'Active: Submitted'
-        ]
-        list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
+      def count_by_status(prescriptions, status)
+        prescriptions.count do |rx|
+          rx.respond_to?(:disp_status) && rx.disp_status&.casecmp(status)&.zero?
+        end
       end
 
-      def count_non_active_medications(list)
-        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
-        list.count { |rx| rx.respond_to?(:disp_status) && non_active_statuses.include?(rx.disp_status) }
+      def count_renewable_prescriptions(prescriptions)
+        prescriptions.count do |item|
+          item.respond_to?(:is_renewable) && item.is_renewable == true
+        end
+      end
+
+      def count_shipped_prescriptions(prescriptions)
+        prescriptions.count do |item|
+          item.respond_to?(:disp_status) &&
+            item.disp_status&.casecmp('Active')&.zero? &&
+            item.respond_to?(:is_trackable) &&
+            item.is_trackable == true
+        end
       end
 
       def remove_pf_pd(data)

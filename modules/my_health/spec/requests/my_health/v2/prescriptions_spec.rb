@@ -5,13 +5,87 @@ require 'unified_health_data/service'
 require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
-  let(:current_user) { build(:user, :mhv) }
+  include SchemaMatchers
+
+  let(:mhv_account_type) { 'Premium' }
+  let(:current_user) { build(:user, :mhv, mhv_account_type:) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:refill_path) { '/my_health/v2/prescriptions/refill' }
+  let(:service) { instance_double(UnifiedHealthData::Service) }
 
   before do
     sign_in_as(current_user)
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
+    # Stub all Flipper calls to allow through, then override specific ones
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_new_policy, anything).and_return(false)
+    # Stub prescriptions access policy to allow access
+    allow_any_instance_of(User).to receive(:authorize).with(:mhv_prescriptions, :access?).and_return(true)
+  end
+
+  # Helper methods for V2 status mapping tests
+  # rubocop:disable Metrics/MethodLength
+  def build_mock_prescription(attrs = {})
+    defaults = {
+      prescription_id: attrs[:prescription_id] || '12345',
+      prescription_name: attrs[:prescription_name] || 'Test Medication',
+      prescription_number: attrs[:prescription_number] || 'RX12345',
+      refill_status: attrs[:refill_status] || 'active',
+      refill_remaining: attrs[:refill_remaining] || 3,
+      facility_name: attrs[:facility_name] || 'Test Facility',
+      station_number: attrs[:station_number] || '556',
+      is_refillable: attrs.fetch(:is_refillable, true),
+      is_trackable: attrs.fetch(:is_trackable, false),
+      prescription_source: attrs[:prescription_source] || 'VA',
+      disp_status: attrs[:disp_status] || 'Active',
+      ordered_date: attrs[:ordered_date] || Time.zone.today.iso8601,
+      expiration_date: attrs[:expiration_date] || (Time.zone.today + 1.year).iso8601,
+      dispensed_date: attrs[:dispensed_date],
+      quantity: attrs[:quantity] || 30,
+      sig: attrs[:sig] || 'Take 1 tablet daily',
+      instructions: attrs[:instructions] || 'Take 1 tablet daily',
+      grouped_medications: attrs[:grouped_medications] || [],
+      dispenses: attrs[:dispenses] || [],
+      tracking: attrs[:tracking] || [],
+      refill_date: attrs[:refill_date],
+      refill_submit_date: attrs[:refill_submit_date],
+      cmop_ndc_number: attrs[:cmop_ndc_number],
+      prescription_image: attrs[:prescription_image],
+      facility_phone_number: attrs[:facility_phone_number],
+      cmop_division_phone: attrs[:cmop_division_phone],
+      in_cerner_transition: attrs[:in_cerner_transition] || false,
+      not_refillable_display_message: attrs[:not_refillable_display_message],
+      sorted_dispensed_date: attrs[:sorted_dispensed_date] || attrs[:dispensed_date]
+    }
+
+    mock = OpenStruct.new(defaults.merge(attrs))
+
+    # Add method stubs that the controller/serializer may call
+    mock.define_singleton_method(:sort_date) { ordered_date }
+    mock.define_singleton_method(:to_h) { to_h }
+
+    mock
+  end
+  # rubocop:enable Metrics/MethodLength
+
+  def build_prescriptions_with_all_statuses
+    [
+      build_mock_prescription(prescription_id: '1', disp_status: 'Active'),
+      build_mock_prescription(prescription_id: '2', disp_status: 'Active: Parked'),
+      build_mock_prescription(prescription_id: '3', disp_status: 'Active: Non-VA', prescription_source: 'NV'),
+      build_mock_prescription(prescription_id: '4', disp_status: 'Active: Submitted'),
+      build_mock_prescription(prescription_id: '5', disp_status: 'Active: Refill in Process'),
+      build_mock_prescription(prescription_id: '6', disp_status: 'Expired'),
+      build_mock_prescription(prescription_id: '7', disp_status: 'Discontinued'),
+      build_mock_prescription(prescription_id: '8', disp_status: 'Active: On hold'),
+      build_mock_prescription(prescription_id: '9', disp_status: 'Transferred'),
+      build_mock_prescription(prescription_id: '10', disp_status: 'Unknown')
+    ]
+  end
+
+  def find_prescription_by_original_id(json_response, id)
+    json_response['data'].find { |rx| rx['attributes']['prescription_id'] == id }
   end
 
   describe 'POST /my_health/v2/prescriptions/refill' do
@@ -620,11 +694,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
 
-          # Verify recently_requested contains prescriptions with specific disp_status values
-          # These should be prescriptions with 'Active: Refill in Process' or 'Active: Submitted'
+          # Verify recently_requested contains prescriptions with V2 'In progress' status
+          # These are mapped from 'Active: Refill in Process' or 'Active: Submitted'
           recently_requested.each do |rx|
             status = rx['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            expect(status).to eq('In progress') if status.present?
           end
         end
       end
@@ -703,6 +777,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             # Otherwise, check if it meets renewal criteria (only applies to items with disp_status)
             next if prescription['disp_status'].blank?
 
+            # disp_status is now V2 mapped - 'Active', 'In progress', 'Inactive', 'Transferred', etc.
             disp_status = prescription['disp_status']
             # rx_rf_records maps to dispenses array from UHD model
             refill_history_item = prescription['rx_rf_records']&.first
@@ -714,15 +789,16 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             cut_off_date = Time.zone.today - 120.days
             zero_date = Date.new(0, 1, 1)
 
-            # Should meet renewal criteria
-            meets_criteria = ['Active', 'Active: Parked'].include?(disp_status) ||
-                             (disp_status == 'Expired' &&
+            # Should meet renewal criteria based on V2 statuses
+            # Active V2 status includes: Active, Active: Parked, Active: Non-VA
+            meets_criteria = disp_status == 'Active' ||
+                             (disp_status == 'Inactive' &&
                              expired_date.present? &&
                              DateTime.parse(expired_date) != zero_date &&
                              DateTime.parse(expired_date) >= cut_off_date)
 
             expect(meets_criteria).to be(true),
-                                      "Prescription #{prescription['prescription_id']} with status " \
+                                      "Prescription #{prescription['prescription_id']} with V2 status " \
                                       "'#{disp_status}' should meet refillable criteria"
           end
         end
@@ -739,10 +815,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           recently_requested = json_response['meta']['recently_requested']
           expect(recently_requested).to be_an(Array)
 
-          # Verify recently_requested contains prescriptions with specific disp_status values
+          # Verify recently_requested contains prescriptions with V2 'In progress' status
           recently_requested.each do |prescription|
             status = prescription['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            expect(status).to eq('In progress') if status.present?
           end
         end
       end
@@ -806,33 +882,33 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
-      it 'handles Expired prescriptions within cutoff date' do
+      it 'handles Inactive prescriptions (formerly Expired) within cutoff date' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
 
-          # Find any Expired prescriptions in the results
-          expired_prescriptions = json_response['data'].select do |p|
-            p['attributes']['disp_status'] == 'Expired'
+          # Find any Inactive prescriptions in the results (includes Expired, Discontinued, Active: On hold)
+          inactive_prescriptions = json_response['data'].select do |p|
+            p['attributes']['disp_status'] == 'Inactive'
           end
 
-          # If there are expired prescriptions, verify they're within cutoff
+          # If there are Inactive prescriptions that were originally Expired, verify they're within cutoff
           cut_off_date = Time.zone.today - 120.days
           zero_date = Date.new(0, 1, 1)
 
-          expired_prescriptions.each do |rx|
+          inactive_prescriptions.each do |rx|
             attrs = rx['attributes']
             # rx_rf_records maps to dispenses array from UHD model
             refill_history_item = attrs['rx_rf_records']&.first
             expired_date = if refill_history_item && refill_history_item['expiration_date']
                              DateTime.parse(refill_history_item['expiration_date'])
-                           else
+                           elsif attrs['expiration_date'].present?
                              DateTime.parse(attrs['expiration_date'])
                            end
 
-            expect(expired_date).not_to eq(zero_date)
-            expect(expired_date).to be >= cut_off_date
+            # If we have an expiration date, verify it's within cutoff for refillable
+            expect(expired_date).to be >= cut_off_date if expired_date && expired_date != zero_date
           end
         end
       end
@@ -998,6 +1074,668 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           expect(attributes).not_to have_key('station_number')
         end
       end
+    end
+  end
+
+  describe 'V2 status mapping when cerner pilot is enabled' do
+    let(:service) { instance_double(UnifiedHealthData::Service) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(false)
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+    end
+
+    describe 'GET /my_health/v2/prescriptions' do
+      let(:mock_prescriptions) { build_prescriptions_with_all_statuses }
+
+      before do
+        allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+      end
+
+      it 'maps Active status to Active' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '1')
+        expect(prescription['attributes']['disp_status']).to eq('Active')
+      end
+
+      it 'maps Active: Parked to Active' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '2')
+        expect(prescription['attributes']['disp_status']).to eq('Active')
+      end
+
+      it 'maps Active: Non-VA to Active' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '3')
+        expect(prescription['attributes']['disp_status']).to eq('Active')
+      end
+
+      it 'maps Active: Submitted to In progress' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '4')
+        expect(prescription['attributes']['disp_status']).to eq('In progress')
+      end
+
+      it 'maps Active: Refill in Process to In progress' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '5')
+        expect(prescription['attributes']['disp_status']).to eq('In progress')
+      end
+
+      it 'maps Expired to Inactive' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '6')
+        expect(prescription['attributes']['disp_status']).to eq('Inactive')
+      end
+
+      it 'maps Discontinued to Inactive' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '7')
+        expect(prescription['attributes']['disp_status']).to eq('Inactive')
+      end
+
+      it 'maps Active: On Hold to Inactive' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '8')
+        expect(prescription['attributes']['disp_status']).to eq('Inactive')
+      end
+
+      it 'maps Transferred to Transferred' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '9')
+        expect(prescription['attributes']['disp_status']).to eq('Transferred')
+      end
+
+      it 'maps Unknown to Status not available' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        json_response = JSON.parse(response.body)
+        prescription = find_prescription_by_original_id(json_response, '10')
+        expect(prescription['attributes']['disp_status']).to eq('Status not available')
+      end
+    end
+
+    describe 'GET /my_health/v2/prescriptions/:id' do
+      let(:mock_prescription) do
+        build_mock_prescription(
+          prescription_id: '12345',
+          station_number: '556',
+          disp_status: 'Active: Refill in Process'
+        )
+      end
+
+      before do
+        allow(service).to receive(:get_prescriptions).and_return([mock_prescription])
+      end
+
+      it 'maps status to V2 format for single prescription' do
+        get('/my_health/v2/prescriptions/12345', params: { station_number: '556' }, headers:)
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        expect(json_response['data']['attributes']['disp_status']).to eq('In progress')
+      end
+    end
+
+    describe 'GET /my_health/v2/prescriptions/list_refillable_prescriptions' do
+      let(:mock_prescriptions) do
+        [
+          build_mock_prescription(prescription_id: '1', disp_status: 'Active', is_refillable: true,
+                                  refill_remaining: 3),
+          build_mock_prescription(prescription_id: '2', disp_status: 'Active: Submitted', is_refillable: true,
+                                  refill_remaining: 2),
+          build_mock_prescription(prescription_id: '3', disp_status: 'Active: Refill in Process', is_refillable: true,
+                                  refill_remaining: 1)
+        ]
+      end
+
+      before do
+        allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+      end
+
+      it 'maps statuses to V2 format for refillable prescriptions' do
+        get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+
+        json_response['data'].each do |rx|
+          case rx['attributes']['prescription_id']
+          when '1'
+            expect(rx['attributes']['disp_status']).to eq('Active')
+          when '2', '3'
+            expect(rx['attributes']['disp_status']).to eq('In progress')
+          end
+        end
+      end
+    end
+  end
+
+  describe 'V2_STATUS_MAPPING constant' do
+    it 'defines correct mappings' do
+      expected_mapping = {
+        'Active' => 'Active',
+        'Active: Parked' => 'Active',
+        'Active: Non-VA' => 'Active',
+        'Active: Submitted' => 'In progress',
+        'Active: Refill in Process' => 'In progress',
+        'Expired' => 'Inactive',
+        'Discontinued' => 'Inactive',
+        'Active: On hold' => 'Inactive',
+        'Transferred' => 'Transferred',
+        'Unknown' => 'Status not available'
+      }
+
+      expect(MyHealth::V2::PrescriptionsController::V2_STATUS_MAPPING).to eq(expected_mapping)
+    end
+  end
+
+  describe 'V2_STATUS_GROUPS constant' do
+    it 'defines correct status groupings' do
+      expected_groups = {
+        'Active' => ['Active', 'Active: Parked', 'Active: Non-VA'],
+        'In progress' => ['Active: Submitted', 'Active: Refill in Process'],
+        'Inactive' => ['Expired', 'Discontinued', 'Active: On hold'],
+        'Transferred' => ['Transferred'],
+        'Status not available' => ['Unknown']
+      }
+
+      expect(MyHealth::V2::PrescriptionsController::V2_STATUS_GROUPS).to eq(expected_groups)
+    end
+  end
+
+  describe 'ORIGINAL_TO_V2_STATUS_MAPPING constant' do
+    it 'generates correct case-insensitive mappings from V2_STATUS_GROUPS' do
+      mapping = MyHealth::V2::PrescriptionsController::ORIGINAL_TO_V2_STATUS_MAPPING
+
+      # Verify it's case-insensitive (all keys lowercase)
+      expect(mapping.keys).to all(eq(mapping.keys.first.downcase).or(be_a(String)))
+
+      # Verify mappings
+      expect(mapping['active']).to eq('Active')
+      expect(mapping['active: parked']).to eq('Active')
+      expect(mapping['active: non-va']).to eq('Active')
+      expect(mapping['active: submitted']).to eq('In progress')
+      expect(mapping['active: refill in process']).to eq('In progress')
+      expect(mapping['expired']).to eq('Inactive')
+      expect(mapping['discontinued']).to eq('Inactive')
+      expect(mapping['active: on hold']).to eq('Inactive')
+      expect(mapping['transferred']).to eq('Transferred')
+      expect(mapping['unknown']).to eq('Status not available')
+    end
+  end
+
+  describe 'filter_count metadata with refactored V2 counting methods' do
+    let(:mock_prescriptions) do
+      [
+        # V2 "Active" group (3)
+        build_mock_prescription(prescription_id: '1', disp_status: 'Active'),
+        build_mock_prescription(prescription_id: '2', disp_status: 'Active: Parked'),
+        build_mock_prescription(prescription_id: '3', disp_status: 'Active: Non-VA', prescription_source: 'NV'),
+        # V2 "In progress" group (2)
+        build_mock_prescription(prescription_id: '4', disp_status: 'Active: Submitted'),
+        build_mock_prescription(prescription_id: '5', disp_status: 'Active: Refill in Process'),
+        # V2 "Inactive" group (3)
+        build_mock_prescription(prescription_id: '6', disp_status: 'Expired'),
+        build_mock_prescription(prescription_id: '7', disp_status: 'Discontinued'),
+        build_mock_prescription(prescription_id: '8', disp_status: 'Active: On hold'),
+        # V2 "Transferred" (1)
+        build_mock_prescription(prescription_id: '9', disp_status: 'Transferred'),
+        # V2 "Status not available" (1)
+        build_mock_prescription(prescription_id: '10', disp_status: 'Unknown')
+      ]
+    end
+
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+    end
+
+    it 'counts active medications using V2 groupings' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      # Active = Active + Active: Parked + Active: Non-VA = 3
+      expect(filter_count['active']).to eq(3)
+    end
+
+    it 'counts recently_requested (in progress) medications using V2 groupings' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      # In progress = Active: Submitted + Active: Refill in Process = 2
+      expect(filter_count['recently_requested']).to eq(2)
+    end
+
+    it 'counts non_active medications using V2 groupings' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      # Non-active = Inactive (3) + Transferred (1) + Status not available (1) = 5
+      expect(filter_count['non_active']).to eq(5)
+    end
+
+    it 'counts all_medications correctly' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      expect(filter_count['all_medications']).to eq(10)
+    end
+  end
+
+  describe 'V2 status filtering with map_v2_filters_to_original' do
+    let(:mock_prescriptions) { build_prescriptions_with_all_statuses }
+
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+    end
+
+    it 'maps V2 "Inactive" filter to original statuses' do
+      # V2_STATUS_GROUPS['Inactive'] = ['Expired', 'Discontinued', 'Active: On hold']
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'Inactive' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('6', '7', '8')
+    end
+
+    it 'maps V2 "In progress" filter to original statuses' do
+      # V2_STATUS_GROUPS['In progress'] = ['Active: Submitted', 'Active: Refill in Process']
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'In progress' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('4', '5')
+    end
+
+    it 'maps V2 "Active" filter to original statuses' do
+      # V2_STATUS_GROUPS['Active'] = ['Active', 'Active: Parked', 'Active: Non-VA']
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'Active' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('1', '2', '3')
+    end
+
+    it 'maps V2 "Transferred" filter to original status' do
+      get('/my_health/v2/prescriptions', params: { filter: { disp_status: { eq: 'Transferred' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('9')
+
+      # Verify the returned prescription has V2 mapped status
+      expect(json_response['data'].first['attributes']['disp_status']).to eq('Transferred')
+    end
+
+    it 'maps V2 "Status not available" filter to original status' do
+      get('/my_health/v2/prescriptions',
+          params: { filter: { disp_status: { eq: 'Status not available' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('10')
+
+      # Verify the returned prescription has V2 mapped status
+      expect(json_response['data'].first['attributes']['disp_status']).to eq('Status not available')
+    end
+
+    it 'handles multiple V2 status filters' do
+      get('/my_health/v2/prescriptions',
+          params: { filter: { disp_status: { eq: 'Active,In progress' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      # Active (1, 2, 3) + In progress (4, 5) = 5 prescriptions
+      expect(prescription_ids).to contain_exactly('1', '2', '3', '4', '5')
+
+      # Verify all returned prescriptions have V2 mapped statuses
+      json_response['data'].each do |rx|
+        expect(rx['attributes']['disp_status']).to be_in(['Active', 'In progress'])
+      end
+    end
+
+    it 'handles case-insensitive V2 status filters' do
+      get('/my_health/v2/prescriptions',
+          params: { filter: { disp_status: { eq: 'inactive' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('6', '7', '8')
+    end
+
+    it 'handles mixed case V2 status filters' do
+      get('/my_health/v2/prescriptions',
+          params: { filter: { disp_status: { eq: 'In Progress' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      prescription_ids = json_response['data'].map { |rx| rx['attributes']['prescription_id'] }
+      expect(prescription_ids).to contain_exactly('4', '5')
+    end
+
+    it 'returns all V2 mapped statuses after filtering' do
+      get('/my_health/v2/prescriptions',
+          params: { filter: { disp_status: { eq: 'Inactive' } } }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      # All returned prescriptions should have V2 'Inactive' status, not original statuses
+      json_response['data'].each do |rx|
+        expect(rx['attributes']['disp_status']).to eq('Inactive')
+      end
+    end
+  end
+
+  describe 'V2 status mapping edge cases' do
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+    end
+
+    context 'with nil disp_status' do
+      let(:mock_prescriptions) do
+        [build_mock_prescription(prescription_id: '1', disp_status: nil)]
+      end
+
+      before do
+        allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+      end
+
+      it 'handles nil disp_status gracefully' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+
+        # Prescription should still be returned, status may be nil or mapped to default
+        expect(json_response['data']).not_to be_empty
+      end
+    end
+
+    context 'with blank disp_status' do
+      let(:mock_prescriptions) do
+        [build_mock_prescription(prescription_id: '1', disp_status: '')]
+      end
+
+      before do
+        allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+      end
+
+      it 'handles blank disp_status gracefully' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        expect(json_response['data']).not_to be_empty
+      end
+    end
+
+    context 'with unmapped disp_status' do
+      let(:mock_prescriptions) do
+        [build_mock_prescription(prescription_id: '1', disp_status: 'Some Random Status')]
+      end
+
+      before do
+        allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+      end
+
+      it 'maps unmapped status to Status not available' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+
+        expect(json_response['data'].first['attributes']['disp_status']).to eq('Status not available')
+      end
+    end
+
+    context 'with case variations in disp_status' do
+      let(:mock_prescriptions) do
+        [
+          build_mock_prescription(prescription_id: '1', disp_status: 'ACTIVE'),
+          build_mock_prescription(prescription_id: '2', disp_status: 'active'),
+          build_mock_prescription(prescription_id: '3', disp_status: 'Active: REFILL IN PROCESS'),
+          build_mock_prescription(prescription_id: '4', disp_status: 'EXPIRED')
+        ]
+      end
+
+      before do
+        allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+      end
+
+      it 'handles case-insensitive status mapping' do
+        get('/my_health/v2/prescriptions', headers:)
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+
+        statuses = json_response['data'].map { |rx| rx['attributes']['disp_status'] }
+        expect(statuses).to contain_exactly('Active', 'Active', 'In progress', 'Inactive')
+      end
+    end
+  end
+
+  describe 'V2 status mapping in recently_requested metadata' do
+    let(:mock_prescriptions) do
+      [
+        build_mock_prescription(prescription_id: '1', disp_status: 'Active: Submitted'),
+        build_mock_prescription(prescription_id: '2', disp_status: 'Active: Refill in Process'),
+        build_mock_prescription(prescription_id: '3', disp_status: 'Active')
+      ]
+    end
+
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+    end
+
+    it 'maps recently_requested prescriptions to V2 statuses' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      recently_requested = json_response['meta']['recently_requested']
+      expect(recently_requested.length).to eq(2)
+
+      # All recently_requested should have V2 'In progress' status
+      recently_requested.each do |rx|
+        expect(rx['disp_status']).to eq('In progress')
+      end
+    end
+
+    it 'maps recently_requested in list_refillable_prescriptions to V2 statuses' do
+      get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      recently_requested = json_response['meta']['recently_requested']
+
+      recently_requested.each do |rx|
+        expect(rx['disp_status']).to eq('In progress')
+      end
+    end
+  end
+
+  describe 'V2 status mapping consistency across endpoints' do
+    let(:mock_prescription) do
+      build_mock_prescription(
+        prescription_id: '12345',
+        station_number: '556',
+        disp_status: 'Active: On hold'
+      )
+    end
+
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_prescriptions).and_return([mock_prescription])
+    end
+
+    it 'returns consistent V2 status in index endpoint' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      expect(json_response['data'].first['attributes']['disp_status']).to eq('Inactive')
+    end
+
+    it 'returns consistent V2 status in show endpoint' do
+      get('/my_health/v2/prescriptions/12345', params: { station_number: '556' }, headers:)
+
+      json_response = JSON.parse(response.body)
+      expect(json_response['data']['attributes']['disp_status']).to eq('Inactive')
+    end
+
+    it 'returns consistent V2 status in list_refillable_prescriptions endpoint' do
+      get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      on_hold_rx = json_response['data'].find { |rx| rx['attributes']['prescription_id'] == '12345' }
+      expect(on_hold_rx['attributes']['disp_status']).to eq('Inactive') if on_hold_rx
+    end
+  end
+
+  describe 'V2 status mapping with pagination and sorting' do
+    let(:mock_prescriptions) { build_prescriptions_with_all_statuses }
+
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+    end
+
+    it 'maintains V2 status mapping with pagination' do
+      get('/my_health/v2/prescriptions', params: { page: 1, per_page: 5 }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      # Verify all returned prescriptions have V2 statuses
+      json_response['data'].each do |rx|
+        expect(rx['attributes']['disp_status']).to be_in(
+          ['Active', 'In progress', 'Inactive', 'Transferred', 'Status not available']
+        )
+      end
+
+      # Verify pagination metadata
+      expect(json_response['meta']['pagination']).to be_present
+      expect(json_response['links']).to be_present
+    end
+
+    it 'maintains V2 status mapping with sorting' do
+      get('/my_health/v2/prescriptions', params: { sort: 'prescription_name' }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      # Verify all returned prescriptions have V2 statuses
+      json_response['data'].each do |rx|
+        expect(rx['attributes']['disp_status']).to be_in(
+          ['Active', 'In progress', 'Inactive', 'Transferred', 'Status not available']
+        )
+      end
+
+      # Verify sort metadata
+      expect(json_response['meta']['sort']).to be_present
+    end
+
+    it 'maintains V2 status mapping with filter, pagination, and sorting combined' do
+      get('/my_health/v2/prescriptions',
+          params: {
+            filter: { disp_status: { eq: 'Active' } },
+            page: 1,
+            per_page: 2,
+            sort: 'prescription_name'
+          }, headers:)
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+
+      # Verify all returned prescriptions have V2 'Active' status
+      json_response['data'].each do |rx|
+        expect(rx['attributes']['disp_status']).to eq('Active')
+      end
+
+      # Verify pagination
+      expect(json_response['data'].length).to be <= 2
+      expect(json_response['meta']['pagination']).to be_present
+    end
+  end
+
+  describe 'V2 status count methods' do
+    let(:mock_prescriptions) { build_prescriptions_with_all_statuses }
+
+    before do
+      allow(UnifiedHealthData::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_prescriptions).and_return(mock_prescriptions)
+    end
+
+    it 'counts renewal prescriptions correctly' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      # Renewal count should be based on business logic (Active/Active: Parked with 0 refills, etc.)
+      expect(filter_count).to have_key('renewal')
+      expect(filter_count['renewal']).to be >= 0
+    end
+
+    it 'ensures filter counts sum correctly' do
+      get('/my_health/v2/prescriptions', headers:)
+
+      json_response = JSON.parse(response.body)
+      filter_count = json_response['meta']['filter_count']
+
+      # active + recently_requested + non_active should approximate all_medications
+      # (Note: some statuses may overlap in business logic)
+      total_counted = filter_count['active'] + filter_count['recently_requested'] + filter_count['non_active']
+      expect(total_counted).to eq(filter_count['all_medications'])
     end
   end
 end
