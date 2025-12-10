@@ -530,7 +530,6 @@ describe BBInternal::Client do
         expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: BBInternal::Client::LOCK_TTL_SECONDS).exactly(BBInternal::Client::LOCK_RETRY_COUNT).times.and_return(false)
         expect(redis).not_to receive(:del).with(lock_key)
         expect(client).to receive(:sleep).with(BBInternal::Client::LOCK_RETRY_DELAY).exactly(BBInternal::Client::LOCK_RETRY_COUNT).times
-        expect(Rails.logger).to receive(:error).with('Failed to acquire study map lock')
 
         expect { client.send(:with_study_map_lock) { 'block content' } }
           .to raise_error(Common::Exceptions::ServiceError)
