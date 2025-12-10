@@ -34,6 +34,11 @@ module BPDS
         bpds_submission.submission_attempts.create(status: 'failure', error_message: error&.message)
       end
 
+      # Registry mapping form IDs to their formatter classes
+      FORMATTERS = {
+        '21P-530EZ' => 'Burials::BPDS::Formatter'
+      }.freeze
+
       # Submits a saved claim to the BPDS service if the feature is enabled.
       #
       # @param saved_claim_id [Integer] The ID of the saved claim to be submitted.
@@ -59,7 +64,8 @@ module BPDS
         begin
           # Submit the BPDS submission to the BPDS service
           payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_payload))
-          response = BPDS::Service.new.submit_json(@saved_claim, payload['participant_id'], payload['file_number'])
+          response = BPDS::Service.new.submit_json(format_claim_form(@saved_claim), @saved_claim.form_id,
+                                                   payload['participant_id'], payload['file_number'])
           @bpds_submission.submission_attempts.create(status: 'submitted', response: response.to_json,
                                                       bpds_id: response['uuid'])
           @monitor.track_submit_success(saved_claim_id)
@@ -88,6 +94,22 @@ module BPDS
           reference_data_ciphertext: @saved_claim.form
         )
         @monitor = BPDS::Monitor.new
+      end
+
+      # Formats the claim's form data using a registered formatter if available.
+      #
+      # @param claim [SavedClaim] The claim to format
+      # @return [Hash] The formatted payload (or original parsed_form if no formatter exists)
+      def format_claim_form(claim)
+        formatter_class_name = FORMATTERS[claim.form_id]
+
+        return claim.parsed_form unless formatter_class_name
+
+        formatter_class = formatter_class_name.constantize
+        formatter_class.new(claim.parsed_form).format
+      rescue NameError
+        # Formatter class not found - fall back to unformatted parsed_form
+        claim.parsed_form
       end
     end
   end

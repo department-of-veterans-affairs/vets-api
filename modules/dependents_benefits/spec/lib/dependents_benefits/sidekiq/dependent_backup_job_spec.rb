@@ -106,7 +106,6 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
     before do
       allow(job).to receive_messages(submission:, submission_attempt:)
-      allow(job).to receive(:send_success_notification)
     end
 
     context 'when parent group was previously failed' do
@@ -120,8 +119,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
       it 'performs all success operations within transaction' do
         expect(job).to receive(:mark_parent_group_processing)
-        expect(job).to receive(:mark_submission_succeeded)
-        expect(job).to receive(:send_in_progress_notification)
+        expect(job).to receive(:mark_submission_attempt_succeeded)
         expect(ActiveRecord::Base).to receive(:transaction).and_yield
         expect(failed_parent_group).to receive(:with_lock).and_yield
         job.handle_job_success
@@ -133,7 +131,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
       before do
         allow(job).to receive(:monitor).and_return(monitor_instance)
-        allow(job).to receive(:mark_submission_succeeded).and_raise(test_error)
+        allow(job).to receive(:mark_submission_attempt_succeeded).and_raise(test_error)
         job.instance_variable_set(:@claim_id, parent_claim.id)
       end
 
@@ -147,14 +145,14 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
   describe '#handle_permanent_failure' do
     let(:test_error) { StandardError.new('Permanent failure error') }
+    let(:notification_email) { DependentsBenefits::NotificationEmail.new(parent_claim.id) }
 
     before do
-      allow(job).to receive(:monitor).and_return(monitor_instance)
-      allow(job).to receive(:send_failure_notification)
+      allow(job).to receive_messages(monitor: monitor_instance, notification_email:)
     end
 
     it 'sends failure notification and logs silent failure avoided' do
-      expect(job).to receive(:send_failure_notification)
+      expect(notification_email).to receive(:deliver).with(:error_686c_674) # rubocop:disable Naming/VariableNumber
       expect(monitor_instance).to receive(:log_silent_failure_avoided)
         .with({ claim_id: parent_claim.id, error: test_error })
       job.handle_permanent_failure(parent_claim.id, test_error)
@@ -163,11 +161,8 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
     context 'when notification sending fails' do
       let(:notification_error) { StandardError.new('Notification failed') }
 
-      before do
-        allow(job).to receive(:send_failure_notification).and_raise(notification_error)
-      end
-
       it 'logs silent failure as last resort' do
+        allow(notification_email).to receive(:deliver).and_raise(notification_error)
         expect(monitor_instance).to receive(:log_silent_failure)
           .with({ claim_id: parent_claim.id, error: notification_error })
         job.handle_permanent_failure(parent_claim.id, notification_error)
@@ -214,7 +209,6 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
     let(:msg) { { 'args' => [parent_claim.id, StandardError.new('Test error')] } }
 
     it 'handles failure events and sends failure email to veteran' do
-      expect_any_instance_of(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:send_failure_notification)
       expect { described_class.new.handle_permanent_failure(msg, StandardError.new('Test error')) }.not_to raise_error
     end
   end

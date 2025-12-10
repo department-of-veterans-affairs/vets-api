@@ -2,6 +2,7 @@
 
 require 'debt_management_center/base_service'
 require 'debts_api/v0/digital_dispute_submission'
+require 'sidekiq/attr_package'
 
 module DebtsApi
   module V0
@@ -35,6 +36,7 @@ module DebtsApi
 
         success_result(submission)
       rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.error("DigitalDisputeSubmissionService ActiveRecord error: #{e.message}")
         failure_result(e)
       rescue => e
         submission&.register_failure(e.message)
@@ -95,6 +97,7 @@ module DebtsApi
 
           # Extract and store debt identifiers for duplicate checking
           disputes = @metadata[:disputes] || []
+
           submission.store_debt_identifiers(disputes)
 
           # Store non-PII data in public_metadata
@@ -137,7 +140,7 @@ module DebtsApi
       def success_result(submission)
         {
           success: true,
-          submission_id: submission.id,
+          submission_id: submission.guid,
           message: 'Digital dispute submission received successfully'
         }
       end
@@ -162,12 +165,12 @@ module DebtsApi
       end
 
       def send_submission_email
+        cache_key = Sidekiq::AttrPackage.create(email: @user.email, first_name: @user.first_name)
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
           5.minutes,
           {
             'submission_type' => 'digital_dispute',
-            'email' => @user.email,
-            'first_name' => @user.first_name,
+            'cache_key' => cache_key,
             'user_uuid' => @user.uuid,
             'template_id' => DigitalDisputeSubmission::SUBMISSION_TEMPLATE
           }

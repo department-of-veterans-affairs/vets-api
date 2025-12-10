@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::Form210779Controller, type: :controller do
   let(:form_id) { '21-0779' }
   let(:form_data) { { form: VetsJsonSchema::EXAMPLES[form_id].to_json }.to_json }
+  let(:invalid_data) { { form: build(:va210779_invalid).form }.to_json }
 
   def parsed_response
     JSON.parse(response.body)
@@ -63,6 +64,37 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     it 'returns bad_request when json is invalid' do
       post(:create, body: { no_form: 'missing form attribute' }.to_json, as: :json)
       expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns bad_request when form does not validate against schema' do
+      post(:create, body: invalid_data, as: :json)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    context 'InProgressForm cleanup' do
+      let(:user) { create(:user, :loa3) }
+      let!(:in_progress_form) { create(:in_progress_form, form_id:, user_account: user.user_account) }
+
+      before do
+        sign_in_as(user)
+      end
+
+      it 'deletes the InProgressForm after successful submission' do
+        expect do
+          post(:create, body: form_data, as: :json)
+        end.to change(InProgressForm, :count).by(-1)
+
+        expect(response).to have_http_status(:ok)
+        expect(InProgressForm.find_by(id: in_progress_form.id)).to be_nil
+      end
+
+      it 'does not delete IPF if submission fails' do
+        expect do
+          post(:create, body: invalid_data, as: :json)
+        end.not_to change(InProgressForm, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
 
     context 'when feature flag is disabled' do

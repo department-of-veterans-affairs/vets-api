@@ -37,10 +37,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 350e45ae699407948d254d6fadd4f1b249e996f5
-  ref: 350e45ae69
+  revision: a68ea30a8f2a33e2aad890be640fc6c29fb20a14
+  ref: a68ea30
   specs:
-    bgs_ext (0.23.2)
+    bgs_ext (0.23.3)
       httpclient
       nokogiri (>= 1.13.6)
       savon (~> 2.15.1)
@@ -64,8 +64,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
-  revision: f50c995b4a92fa8da4488ed608318eeca723b543
-  tag: v4.1.0
+  revision: 933fc6187e0dab7a51629eca25a4ed22feab946f
+  tag: v4.2.0
   specs:
     govdelivery-tms (4.1.0)
       activesupport (>= 5.2.4.3, < 9.0.0)
@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 08fafa871952f8fad201222c630dc6dc38d8e337
-  branch: arc/multiform_upload_21a_confirmation_code
+  revision: eb3f0d8e1667713777465e7df059a5ab541dba79
+  branch: master
   specs:
-    vets_json_schema (25.2.25)
+    vets_json_schema (25.2.35)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -243,8 +243,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1181.0)
-    aws-sdk-core (3.237.0)
+    aws-partitions (1.1190.0)
+    aws-sdk-core (3.239.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -258,12 +258,12 @@ GEM
     aws-sdk-kms (1.117.0)
       aws-sdk-core (~> 3, >= 3.234.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.203.1)
+    aws-sdk-s3 (1.206.0)
       aws-sdk-core (~> 3, >= 3.234.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.108.0)
-      aws-sdk-core (~> 3, >= 3.234.0)
+    aws-sdk-sns (1.109.0)
+      aws-sdk-core (~> 3, >= 3.239.1)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -282,7 +282,7 @@ GEM
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.2.1)
-    bootsnap (1.18.6)
+    bootsnap (1.19.0)
       msgpack (~> 1.2)
     brakeman (7.1.1)
       racc
@@ -708,7 +708,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lumberjack (1.2.10)
-    mail (2.8.1)
+    mail (2.9.0)
+      logger
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
@@ -733,7 +734,7 @@ GEM
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
-    multi_json (1.17.0)
+    multi_json (1.18.0)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
@@ -786,7 +787,8 @@ GEM
     oj (3.16.12)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
-    okcomputer (1.19.0)
+    okcomputer (1.19.1)
+      benchmark
     olive_branch (4.0.1)
       multi_json
       rails (>= 4.0)
@@ -971,9 +973,12 @@ GEM
     rgeo-geojson (2.2.0)
       multi_json (~> 1.15)
       rgeo (>= 1.0.0)
-    roo (2.10.1)
+    roo (3.0.0)
+      base64 (~> 0.2)
+      csv (~> 3)
+      logger (~> 1)
       nokogiri (~> 1)
-      rubyzip (>= 1.3.0, < 3.0.0)
+      rubyzip (>= 3.0.0, < 4.0.0)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -1065,7 +1070,7 @@ GEM
     ruby-vips (2.2.3)
       ffi (~> 1.12)
       logger
-    rubyzip (2.4.1)
+    rubyzip (3.2.2)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
     safe_shell (1.1.0)
@@ -1410,7 +1415,7 @@ DEPENDENCIES
   rufus-scheduler
   savon
   seedbank
-  sentry-ruby
+  sentry-ruby (= 5.28.1)
   shoulda-matchers
   shrine
   sidekiq
