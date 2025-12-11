@@ -85,16 +85,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       end
 
       it 'returns false when power switch is enabled, but all others disabled' do
-        oh_feature_toggles = %i[
-          mhv_accelerated_delivery_allergies_enabled
-          mhv_accelerated_delivery_care_notes_enabled
-          mhv_accelerated_delivery_conditions_enabled
-          mhv_accelerated_delivery_labs_and_tests_enabled
-          mhv_accelerated_delivery_vaccines_enabled
-          mhv_accelerated_delivery_vital_signs_enabled
-          mhv_secure_messaging_cerner_pilot
-          mhv_medications_cerner_pilot
-        ].freeze
+        oh_feature_toggles = MHV::OhFacilitiesHelper::Service::OH_FEATURE_TOGGLES
 
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled, user).and_return(true)
         oh_feature_toggles.each do |toggle|
