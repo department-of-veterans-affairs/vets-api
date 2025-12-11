@@ -28,7 +28,19 @@ module MyHealth
       # @param item [Object] Prescription item with is_renewable attribute
       # @return [Boolean] Whether the item is renewable
       def check_renewable(item)
-        item.respond_to?(:is_renewable) && item.is_renewable == true
+        # If is_renewable field exists
+        return item.is_renewable if item.respond_to?(:is_renewable) && !item.is_renewable.nil?
+
+        # Otherwise calculate
+        # A prescription is renewable if:
+        # - Status is Active
+        # - Not directly refillable
+        # - Has zero refills remaining
+        return false unless item.respond_to?(:disp_status) && item.disp_status == 'Active'
+        return false if item.respond_to?(:is_refillable) && item.is_refillable
+        return false unless item.respond_to?(:refill_remaining)
+
+        item.refill_remaining.to_i.zero?
       end
 
       # Apply custom filters that require computed logic (not direct attribute filtering)
@@ -72,8 +84,12 @@ module MyHealth
       def apply_sorting(resource, sort_param)
         sorted_resource = sort_resource_by_param(resource, sort_param)
         sort_metadata = build_sort_metadata(sort_param)
-        sorted_resource.metadata ||= {}
-        sorted_resource.metadata[:sort] = sort_metadata
+
+        # Ensure metadata hash exists - handle both nil and existing hash
+        current_metadata = sorted_resource.metadata || {}
+        current_metadata[:sort] = sort_metadata
+        sorted_resource.metadata = current_metadata
+
         sorted_resource
       end
 
