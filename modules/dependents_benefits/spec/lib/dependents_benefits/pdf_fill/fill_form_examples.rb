@@ -59,7 +59,7 @@ RSpec.shared_examples 'a form filler' do |options|
           before do
             allow(Flipper).to receive(:enabled?).with(anything).and_call_original
             allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
-            if type === 'pension_overflow'
+            if type == 'pension_overflow'
               allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(true)
             else
               allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
