@@ -398,7 +398,7 @@ module TravelClaim
     end
 
     def extract_token_from_response(resp, *path, error_message)
-      token = path.empty? ? resp.body[error_message] : resp.body.dig(*path)
+      token = resp.body.dig(*path)
       raise Common::Exceptions::BackendServiceException.new('VA900', { detail: error_message }, 502) if token.blank?
 
       token
