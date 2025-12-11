@@ -51,7 +51,9 @@ module MedicalCopays
           payments: invoice_deps[:payments]
         )
       rescue => e
-        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#get_detail error: #{e.message}")
+        Rails.logger.error(
+          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
+        )
         raise e
       end
 
@@ -89,7 +91,7 @@ module MedicalCopays
         response = account_service.list(id: account_id)
         response.dig('entry', 0, 'resource')
       rescue => e
-        Rails.logger.warn { "Failed to fetch account: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.message}" }
         nil
       end
 
@@ -133,17 +135,8 @@ module MedicalCopays
             extract_id_from_reference(ref) if ref&.include?('MedicationDispense')
           end
         end
-        return {} if dispense_ids.empty?
 
-        response = medication_dispense_service.list(id: dispense_ids.join(','))
-        entries = response['entry'] || []
-        entries.each_with_object({}) do |entry, hash|
-          resource = entry['resource']
-          hash[resource['id']] = resource if resource && resource['id']
-        end
-      rescue => e
-        Rails.logger.warn { "Failed to fetch medication dispenses: #{e.message}" }
-        {}
+        fetch_and_index('medication dispenses', dispense_ids, medication_dispense_service)
       end
 
       def fetch_medications(medication_dispenses)
@@ -151,16 +144,21 @@ module MedicalCopays
           ref = md.dig('medicationReference', 'reference')
           extract_id_from_reference(ref) if ref
         end
-        return {} if medication_ids.empty?
 
-        response = medication_service.list(id: medication_ids.join(','))
+        fetch_and_index('medications', medication_ids, medication_service)
+      end
+
+      def fetch_and_index(data_type, ids, service)
+        return {} if ids.empty?
+
+        response = service.list(id: ids.join(','))
         entries = response['entry'] || []
         entries.each_with_object({}) do |entry, hash|
           resource = entry['resource']
           hash[resource['id']] = resource if resource && resource['id']
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch medications: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch #{data_type}: #{e.message}" }
         {}
       end
 
