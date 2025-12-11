@@ -43,11 +43,13 @@ module VRE
       }
 
       log_message = 'VRE::VRESubmit1900Job - Duplicate Submission Check'
-      log_level   = log_payload[:duplicates_detected] ? :warn : :info
 
-      Rails.logger.public_send(log_level, log_message, log_payload)
-
-      StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission") if duplicates_detected
+      if duplicates_detected
+        Rails.logger.warn(log_message, log_payload)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.duplicate_submission")
+      else
+        Rails.logger.info(log_message, log_payload)
+      end
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -81,8 +83,6 @@ module VRE
           duplicate_submission_check(claim.user_account)
         end
       rescue => e
-        attempt.fail if submission_tracking_enabled && submission && attempt
-
         Rails.logger.warn(
           'VRE::VRESubmit1900Job failed, retrying...',
           claim_id:,
@@ -90,6 +90,8 @@ module VRE
           error_class: e.class.name,
           error_message: e.message
         )
+
+        attempt.fail if submission_tracking_enabled && submission && attempt
         raise
       end
     end
@@ -106,48 +108,47 @@ module VRE
         claim.send_failure_email
       end
     end
-  end
 
-  private
+    private
 
-  # rubocop:disable Metrics/MethodLength
-  def setup_submission_tracking(claim_id, submission_id)
-    attempt = nil
-    submission = nil
+    # rubocop:disable Metrics/MethodLength
+    def setup_submission_tracking(claim_id, submission_id)
+      attempt = nil
+      submission = nil
 
-    begin
-      submission = FormSubmission.find(submission_id)
+      begin
+        submission = FormSubmission.find(submission_id)
 
-      attempt = submission.form_submission_attempts.create
-      if attempt.persisted?
-        Rails.logger.info(
-          'VRE::VRESubmit1900Job - Submission Attempt Created',
-          claim_id:,
-          submission_id:,
-          submission_attempt_id: attempt.id
-        )
-      else
-        Rails.logger.warn(
+        attempt = submission.form_submission_attempts.create
+        if attempt.persisted?
+          Rails.logger.info(
+            'VRE::VRESubmit1900Job - Submission Attempt Created',
+            claim_id:,
+            submission_id:,
+            submission_attempt_id: attempt.id
+          )
+        else
+          Rails.logger.warn(
+            'VRE::VRESubmit1900Job - Submission Attempt Creation Failed - continuing without tracking',
+            claim_id:,
+            submission_id:,
+            errors: attempt.errors.full_messages
+          )
+          attempt = nil
+        end
+      rescue => e
+        Rails.logger.error(
           'VRE::VRESubmit1900Job - Submission Attempt Creation Failed - continuing without tracking',
           claim_id:,
           submission_id:,
-          errors: attempt.errors.full_messages
+          error_class: e.class.name,
+          errors: e.message
         )
         attempt = nil
+        submission = nil
       end
-    rescue => e
-      Rails.logger.error(
-        'VRE::VRESubmit1900Job - Submission Attempt Creation Failed - continuing without tracking',
-        claim_id:,
-        submission_id:,
-        error_class: e.class.name,
-        errors: e.message
-      )
-      attempt = nil
-      submission = nil
+      [submission, attempt]
     end
-
-    [submission, attempt]
+    # rubocop:enable Metrics/MethodLength
   end
-  # rubocop:enable Metrics/MethodLength
 end
