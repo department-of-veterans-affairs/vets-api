@@ -1007,5 +1007,34 @@ RSpec.describe TravelClaim::TravelPayClient do
         client.send(:api_request, :get, 'path', nil, is_auth_request: true)
       end.to raise_error(Common::Exceptions::BackendServiceException) { |err| expect(err.response_values[:detail]).to eq('rewrapped') }
     end
+
+    it 'includes scrubbed downstream message when flipper is enabled' do
+      allow(Flipper).to receive(:enabled?).and_call_original
+      allow(Flipper).to receive(:enabled?)
+        .with(:check_in_experience_travel_claim_error_message_logging)
+        .and_return(true)
+      allow(Logging::Helper::DataScrubber).to receive(:scrub).and_return('Scrubbed message')
+      allow(Rails.logger).to receive(:error)
+
+      error_body = { 'message' => 'Sensitive downstream message' }
+      error = Common::Exceptions::BackendServiceException.new(
+        'VA900', { detail: 'Sensitive downstream message' }, 500, error_body
+      )
+      allow(client).to receive(:perform).and_raise(error)
+
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'TravelPayClient BTSSS endpoint error',
+        hash_including(
+          message: 'Scrubbed message',
+          status: 500,
+          endpoint: 'BTSSS'
+        )
+      )
+      expect(Logging::Helper::DataScrubber).to have_received(:scrub).with('Sensitive downstream message')
+    end
   end
 end
