@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unified_health_data/models/prescription'
 
 RSpec.describe MyHealth::PrescriptionHelperV2 do
   # Create a test class that includes the helper modules
@@ -20,8 +19,6 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
 
   let(:helper) { helper_class.new }
 
-  # Helper method to create prescription objects using UnifiedHealthData::Prescription
-  # Uses explicit key checks to properly handle boolean false values
   def build_prescription(attrs = {})
     defaults = {
       id: SecureRandom.uuid,
@@ -31,13 +28,13 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
       is_renewable: false,
       is_trackable: false,
       dispensed_date: nil,
-      station_number: '123'
+      station_number: '123',
+      prescription_source: 'VA',
+      dispenses: []
     }
-    # Merge attrs over defaults - this properly handles false boolean values
     merged = defaults.merge(attrs)
-    # Handle prescription_id alias
     merged[:id] = attrs[:prescription_id] if attrs.key?(:prescription_id)
-    UnifiedHealthData::Prescription.new(merged)
+    OpenStruct.new(merged)
   end
 
   # Helper to create a resource-like object for sorting tests
