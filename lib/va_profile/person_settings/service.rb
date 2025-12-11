@@ -36,6 +36,8 @@ module VAProfile
           raw_response = perform(:post, person_options_request_path, person_options_data)
           PersonOptionsResponse.from(raw_response)
         end
+      rescue => e
+        handle_error(e)
       end
 
       private

@@ -6,52 +6,91 @@ require 'va_profile/person_settings/service'
 RSpec.describe VAProfile::PersonSettings::Service do
   subject { described_class.new(user) }
 
-  let(:user) { build(:user, :loa3) }
+  let(:valid_user) { build(:user, :loa3) }
+  let(:user_not_found) { build(:user, :loa3, vet360_id: 2, icn: 2) }
+  let(:user_no_ids) { build(:user, :loa3, vet360_id: nil, icn: nil) }
 
   describe '#get_person_options' do
     context 'when successful' do
+      let(:user) { valid_user }
+
       it 'returns a status of 200' do
-        # do something
+        VCR.use_cassette('va_profile/person_settings/get_person_options', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person_options
+          expect(response).to be_ok
+        end
       end
 
       it 'contains an array of person options' do
-        # do something
+        VCR.use_cassette('va_profile/person_settings/get_person_options', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person_options
+          expect(response.person_options).to be_an(Array) # of VAProfile::Models::PersonOption
+        end
       end
     end
 
     context 'when not successful with client error' do
+      let(:user) { user_not_found }
+
       it 'returns empty person options array' do
-        # do something
+        VCR.use_cassette('va_profile/person_settings/get_person_options_404', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person_options
+          expect(response).not_to be_ok
+          expect(response.person_options).to be_empty
+        end
       end
 
       it 'logs a warning when user not found (404)' do
-        # do something
+        VCR.use_cassette('va_profile/person_settings/get_person_options_404', VCR::MATCH_EVERYTHING) do
+          expect(Rails.logger).to receive(:warn).with(
+            'User not found in VAProfile', vaprofile_id: user.vet360_id
+          )
+          expect { subject.get_person_options }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.errors.first.code).to eq('VET360_CORE103')
+          end
+        end
       end
     end
 
     context 'when server error (5xx)' do
+      let(:user) { user_no_ids }
+
       it 'raises BackendServiceException error' do
-        # do something
+        VCR.use_cassette('va_profile/person_settings/get_person_options_500', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person_options }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          end
+        end
       end
     end
   end
 
   describe '#update_person_options' do
-    let(:person_options_data) { { bio: { personOptions: [] } } }
+    let(:user) { valid_user }
 
     context 'when successful' do
-      it 'returns a status of 200' do
-        # do something
-      end
+      let(:person_options_data) { { bio: { personOptions: [] } } }
 
-      it 'makes a POST request with the provided data' do
-        # do something
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/person_settings/post_person_options', VCR::MATCH_EVERYTHING) do
+          response = subject.update_person_options(person_options_data)
+          expect(response).to be_ok
+        end
       end
     end
 
     context 'when not successful' do
+      # missing required field (source date)
+      let(:person_options_data) { { bio: { personOptions: [{ itemId: 2, optionId: 7 }] } } }
+
       it 'raises an exception' do
-        # do something
+        VCR.use_cassette('va_profile/person_settings/post_person_options_400', VCR::MATCH_EVERYTHING) do
+          expect { subject.update_person_options(person_options_data) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            # expect error code STNG100
+          end
+        end
       end
     end
   end
