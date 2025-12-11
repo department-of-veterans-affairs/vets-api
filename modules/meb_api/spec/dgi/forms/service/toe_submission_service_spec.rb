@@ -100,14 +100,12 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         allow(faraday_response).to receive(:env)
       end
 
-      context 'Feature' do
-        it 'Lighthouse returns a status of 200' do
-          VCR.use_cassette('dgi/forms/submit_toe_claim') do
-            response = service.submit_claim(ActionController::Parameters.new(claimant_params),
-                                            ActionController::Parameters.new(dd_params_lighthouse))
+      it 'Lighthouse returns a status of 200' do
+        VCR.use_cassette('dgi/forms/submit_toe_claim') do
+          response = service.submit_claim(ActionController::Parameters.new(claimant_params),
+                                          ActionController::Parameters.new(dd_params_lighthouse))
 
-            expect(response.status).to eq(200)
-          end
+          expect(response.status).to eq(200)
         end
       end
 
