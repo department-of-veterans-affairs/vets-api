@@ -173,28 +173,56 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
     let(:helper) { helper_class.new }
 
     describe '#apply_sorting' do
+      let(:prescription1) do
+        double('prescription1',
+               prescription_name: 'Zoloft',
+               disp_status: 'Active',
+               dispensed_date: Date.new(2024, 1, 1),
+               prescription_source: 'VA',
+               dispenses: [],
+               orderable_item: nil)
+      end
+
+      let(:prescription2) do
+        double('prescription2',
+               prescription_name: 'Aspirin',
+               disp_status: 'Active',
+               dispensed_date: Date.new(2024, 3, 1),
+               prescription_source: 'VA',
+               dispenses: [],
+               orderable_item: nil)
+      end
+
+      let(:prescription3) do
+        double('prescription3',
+               prescription_name: 'Metformin',
+               disp_status: 'Inactive',
+               dispensed_date: Date.new(2024, 2, 1),
+               prescription_source: 'VA',
+               dispenses: [],
+               orderable_item: nil)
+      end
+
+      let(:prescriptions) { [prescription1, prescription2, prescription3] }
+
       let(:resource) do
-        double('resource',
-               records: prescriptions,
-               'records=': nil,
-               metadata: {})
-      end
-
-      let(:prescriptions) do
-        [
-          double('prescription1', prescription_name: 'Zoloft', disp_status: 'Active',
-                                  dispensed_date: Date.new(2024, 1, 1), prescription_source: 'VA'),
-          double('prescription2', prescription_name: 'Aspirin', disp_status: 'Active',
-                                  dispensed_date: Date.new(2024, 3, 1), prescription_source: 'VA'),
-          double('prescription3', prescription_name: 'Metformin', disp_status: 'Inactive',
-                                  dispensed_date: Date.new(2024, 2, 1), prescription_source: 'VA')
-        ]
-      end
-
-      before do
-        allow(resource).to receive(:records=) do |new_records|
-          allow(resource).to receive(:records).and_return(new_records)
+        records = prescriptions.dup
+        metadata = {}
+        double('resource').tap do |r|
+          allow(r).to receive(:records).and_return(records)
+          allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
+          allow(r).to receive(:metadata).and_return(metadata)
         end
+      end
+
+      # Stub sorted_dispensed_date for prescriptions that don't have the method
+      before do
+        allow(prescription1).to receive(:respond_to?).with(:dispenses).and_return(true)
+        allow(prescription1).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+        allow(prescription2).to receive(:respond_to?).with(:dispenses).and_return(true)
+        allow(prescription2).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+        allow(prescription3).to receive(:respond_to?).with(:dispenses).and_return(true)
+        allow(prescription3).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
       end
 
       context 'when sort_param is nil' do
