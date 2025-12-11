@@ -5,7 +5,7 @@ module UnifiedHealthData
     # Module providing V2 status mapping functionality for prescription adapters
     # Maps original VistA/Oracle Health statuses to simplified V2 status groups
     #
-    # This mapping is applied at the PrescriptionsAdapter level when the Cerner pilot feature flag is enabled,
+    # This mapping is applied at the PrescriptionsAdapter level when the mhv_medications_v2_status_mapping feature flag is enabled,
     # consolidating status logic in one place for both VistA and Oracle Health prescriptions.
     #
     # Expects prescription objects that respond to :disp_status, :disp_status=, and optionally :refill_status
