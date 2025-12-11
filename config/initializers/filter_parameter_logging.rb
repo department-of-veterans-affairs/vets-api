@@ -6,7 +6,6 @@
 # Do NOT add keys that can contain PII/PHI/secrets.
 ALLOWLIST = %w[
   action
-  test_danger_warning_demo
   benefits_intake_uuid
   bpds_uuid
   call_location
