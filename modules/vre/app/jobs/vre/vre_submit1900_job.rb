@@ -28,19 +28,15 @@ module VRE
       # Query for form submissions by this user within the configured threshold window (default 24 hours)
       threshold_hours = Settings.veteran_readiness_and_employment.duplicate_submission_threshold_hours.to_i
       threshold_hours = 24 unless threshold_hours.positive?
-      submissions = user_account.form_submissions.where(
-        form_type: [FORM_TYPE, FORM_TYPE_V2],
-        created_at: threshold_hours.hours.ago..
-      )
+      submissions = user_account.form_submissions.where(form_type: [FORM_TYPE, FORM_TYPE_V2],
+                                                        created_at: threshold_hours.hours.ago..)
 
       submissions_count = submissions.count
       duplicates_detected = submissions_count > 1
-      log_payload = {
-        user_account_id: user_account.id,
-        submission_count: submissions_count,
-        duplicates_detected:,
-        threshold_hours:
-      }
+      log_payload = { user_account_id: user_account.id,
+                      submission_count: submissions_count,
+                      duplicates_detected:,
+                      threshold_hours: }
 
       log_message = 'VRE::VRESubmit1900Job - Duplicate Submission Check'
 
