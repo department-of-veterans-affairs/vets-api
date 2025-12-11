@@ -209,9 +209,8 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         records = prescriptions.dup
         metadata = {}
         double('resource').tap do |r|
-          allow(r).to receive(:records).and_return(records)
+          allow(r).to receive_messages(records:, metadata:)
           allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
-          allow(r).to receive(:metadata).and_return(metadata)
         end
       end
 
