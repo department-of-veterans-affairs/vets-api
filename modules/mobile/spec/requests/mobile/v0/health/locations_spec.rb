@@ -22,6 +22,7 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
   describe 'GET /mobile/v0/health/locations/:id' do
     context 'When a valid ID is provided' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_mobile_return_empty_location_data, anything).and_return(false)
         VCR.use_cassette('mobile/lighthouse_health/get_lh_location', match_requests_on: %i[method uri]) do
           VCR.use_cassette('lighthouse/facilities/v1/200_facilities') do
             get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: sis_headers
@@ -53,6 +54,7 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
 
   context 'When the facilities endpoint fails to find the location' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_mobile_return_empty_location_data, anything).and_return(false)
       VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_442', match_requests_on: %i[method uri]) do
         VCR.use_cassette('mobile/lighthouse_health/get_lh_location', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: sis_headers
@@ -67,6 +69,7 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
 
   context 'When lh location returns 404' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_mobile_return_empty_location_data, anything).and_return(false)
       VCR.use_cassette('mobile/lighthouse_health/get_lh_location_404', match_requests_on: %i[method uri]) do
         get '/mobile/v0/health/locations/FAKE-ID', headers: sis_headers
       end
@@ -79,6 +82,7 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
 
   context 'When lh location has no identifier' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_mobile_return_empty_location_data, anything).and_return(false)
       VCR.use_cassette('mobile/lighthouse_health/get_lh_location_no_identifier', match_requests_on: %i[method uri]) do
         get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: sis_headers
       end
@@ -91,7 +95,7 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
 
   context 'When mhv_vaccine_mobile_return_empty_location_data feature flag is enabled' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_mobile_return_empty_location_data, user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_mobile_return_empty_location_data, anything).and_return(true)
       get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: sis_headers
     end
 
