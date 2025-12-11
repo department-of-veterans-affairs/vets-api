@@ -35,12 +35,11 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      # this will change to 404 with ticket: https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      it 'throws 503 when form data not found' do
+      it 'returns error from enrollment system' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
-          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to have_http_status(:not_found)
         end
       end
 
@@ -98,12 +97,11 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      # this will change to 404 with ticket: https://github.com/department-of-veterans-affairs/va-iir/issues/2133
-      it 'throws 503 when form data not found' do
+      it 'returns error from enrollment system' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_txt/2024'
-          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to have_http_status(:not_found)
         end
       end
 

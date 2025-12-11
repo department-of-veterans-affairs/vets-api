@@ -1,0 +1,33 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake.sob.com/external-api-service/api/v1/claimants
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"123456789","benefitType":"CH33","enrollment":"NO"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+  response:
+    status:
+      code: 500
+      message: '500'
+    headers:
+      date:
+      - Tue, 25 Nov 2025 22:28:35 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: '{"status":500,"error":"Internal Server Error","message":"No message available","timestamp":1764109715289,"path":"/external-api-service/api/v1/claimants"}'
+  recorded_at: Tue, 25 Nov 2025 22:28:35 GMT
+recorded_with: VCR 6.3.1
