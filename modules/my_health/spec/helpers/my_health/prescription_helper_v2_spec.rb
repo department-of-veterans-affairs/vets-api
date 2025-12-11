@@ -21,17 +21,23 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
   let(:helper) { helper_class.new }
 
   # Helper method to create prescription objects using UnifiedHealthData::Prescription
+  # Uses explicit key checks to properly handle boolean false values
   def build_prescription(attrs = {})
-    UnifiedHealthData::Prescription.new({
-      id: attrs[:id] || attrs[:prescription_id] || SecureRandom.uuid,
-      prescription_name: attrs[:prescription_name] || 'Test Med',
-      disp_status: attrs[:disp_status] || 'Active',
-      is_refillable: attrs[:is_refillable] || false,
-      is_renewable: attrs[:is_renewable] || false,
-      is_trackable: attrs[:is_trackable] || false,
-      dispensed_date: attrs[:dispensed_date],
-      station_number: attrs[:station_number] || '123'
-    }.merge(attrs))
+    defaults = {
+      id: SecureRandom.uuid,
+      prescription_name: 'Test Med',
+      disp_status: 'Active',
+      is_refillable: false,
+      is_renewable: false,
+      is_trackable: false,
+      dispensed_date: nil,
+      station_number: '123'
+    }
+    # Merge attrs over defaults - this properly handles false boolean values
+    merged = defaults.merge(attrs)
+    # Handle prescription_id alias
+    merged[:id] = attrs[:prescription_id] if attrs.key?(:prescription_id)
+    UnifiedHealthData::Prescription.new(merged)
   end
 
   # Helper to create a resource-like object for sorting tests

@@ -950,15 +950,19 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           json_response = JSON.parse(response.body)
 
-          # The endpoint uses filter_data_by_refill_and_renew which checks:
-          # item.is_refillable || check_renewable(item)
-          # check_renewable returns item.is_renewable if the attribute exists
+          renewable_prescriptions = json_response['data'].select do |rx|
+            rx['attributes']['is_renewable'] == true && rx['attributes']['is_refillable'] != true
+          end
+
+          renewable_prescriptions.each do |rx|
+            expect(rx['attributes']['is_renewable']).to be(true)
+          end
+
           json_response['data'].each do |rx|
             attrs = rx['attributes']
             is_refillable = attrs['is_refillable'] == true
             is_renewable = attrs['is_renewable'] == true
 
-            # Each prescription should be either refillable or renewable
             expect(is_refillable || is_renewable).to be(true),
                                                      "Prescription #{attrs['prescription_id']} should have " \
                                                      'is_refillable=true or is_renewable=true'
