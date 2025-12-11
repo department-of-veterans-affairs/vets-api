@@ -501,17 +501,12 @@ module TravelClaim
       }
     end
 
-    def handle_backend_service_exception(error, endpoint: nil, is_auth_request: false)
+    def handle_backend_service_exception(error, endpoint: nil, is_auth_request: false) # rubocop:disable Lint/UnusedMethodArgument
       status = extract_actual_status(error)
       body = error.respond_to?(:original_body) ? error.original_body : error.try(:body)
 
-      if skip_401_logging?(status, is_auth_request)
-        log_error("TravelPayClient #{endpoint || 'API'} endpoint error", status:, endpoint:, error:, body:)
-        raise
-      end
-      return raise existing_claim_exception(error, status, body) if existing_claim?(status, body)
-
       log_error("TravelPayClient #{endpoint || 'API'} endpoint error", status:, endpoint:, error:, body:)
+      return raise existing_claim_exception(error, status, body) if existing_claim?(status, body)
 
       raise rewrapped_exception(error) if rewrap_backend_exception?(error)
 
@@ -586,10 +581,6 @@ module TravelClaim
         error.original_status,
         error.original_body
       )
-    end
-
-    def skip_401_logging?(status, is_auth_request)
-      status == 401 && !is_auth_request
     end
   end
 end

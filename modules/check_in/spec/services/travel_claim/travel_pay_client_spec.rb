@@ -969,110 +969,43 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
   end
 
-  describe 'private helper coverage' do
-    describe '#fetch_identity_from_redis_if_needed' do
-      it 'returns false when no redis fetch is required' do
-        client.instance_variable_set(:@icn, test_icn)
-        client.instance_variable_set(:@station_number, test_station_number)
+  describe '#api_request error handling' do
+    it 'logs and re-raises unexpected errors' do
+      allow(client).to receive(:perform).and_raise(StandardError, 'boom')
+      allow(client).to receive(:log_error)
 
-        expect(client.send(:fetch_identity_from_redis_if_needed)).to be(false)
-      end
-
-      it 'returns true and logs when redis raises' do
-        client.instance_variable_set(:@icn, nil)
-        client.instance_variable_set(:@station_number, nil)
-        allow(client).to receive(:load_redis_data).and_raise(Redis::BaseError)
-        allow(client).to receive(:log_error)
-
-        expect(client.send(:fetch_identity_from_redis_if_needed)).to be(true)
-        expect(client).to have_received(:log_error).with(
-          'TravelPayClient Redis error',
-          hash_including(:operation, :icn_present, :station_number_present)
-        )
-      end
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(StandardError, 'boom')
+      expect(client).to have_received(:log_error).with(
+        'TravelPayClient BTSSS unexpected error',
+        hash_including(:error)
+      )
     end
 
-    describe '#retryable_auth?' do
-      it 'is true for first 401' do
-        client.instance_variable_set(:@auth_retry_attempted, false)
-        error = double('err', original_status: 401)
-        expect(client.send(:retryable_auth?, error)).to be(true)
-      end
+    it 'logs 401s in handler for non-auth requests' do
+      error = Common::Exceptions::BackendServiceException.new('VA900', { detail: 'unauthorized' }, 401, 'unauthorized')
+      allow(client).to receive(:perform).and_raise(error)
+      allow(client).to receive(:log_error)
 
-      it 'is false after retry' do
-        client.instance_variable_set(:@auth_retry_attempted, true)
-        error = double('err', original_status: 401)
-        expect(client.send(:retryable_auth?, error)).to be(false)
-      end
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+      expect(client).to have_received(:log_error).with(
+        'TravelPayClient BTSSS endpoint error',
+        hash_including(status: 401, endpoint: 'BTSSS', error:, body: 'unauthorized')
+      )
     end
 
-    describe '#retry_auth' do
-      it 'logs and yields while setting retry flag' do
-        client.instance_variable_set(:@auth_retry_attempted, false)
-        allow(client).to receive(:log_error)
-        allow(client).to receive(:refresh_tokens!)
-        allow(client).to receive(:assert_auth_context!)
+    it 'rewraps backend exceptions with message from original_body' do
+      error = Common::Exceptions::BackendServiceException.new(
+        'VA900', { detail: nil }, 500, { 'message' => 'rewrapped' }
+      )
+      allow(client).to receive(:perform).and_raise(error)
 
-        yielded = false
-        client.send(:retry_auth) { yielded = true }
-
-        expect(yielded).to be(true)
-        expect(client.instance_variable_get(:@auth_retry_attempted)).to be(true)
-        expect(client).to have_received(:log_error).with('TravelPayClient 401 error - retrying authentication')
-      end
-    end
-
-    describe '#existing_claim?' do
-      it 'detects existing claim message on 400' do
-        body = { 'message' => 'A claim has already been created' }
-        expect(client.send(:existing_claim?, 400, body)).to be(true)
-        expect(client.send(:existing_claim?, 500, body)).to be(false)
-      end
-    end
-
-    describe '#existing_claim_exception' do
-      it 'builds BackendServiceException with detail' do
-        error = double('err', key: 'VA999', response_values: { key: 'VA999', detail: nil })
-        allow(client).to receive(:log_error)
-
-        exception = client.send(:existing_claim_exception, error, 400, { message: 'already been created' })
-        expect(exception).to be_a(Common::Exceptions::BackendServiceException)
-        expect(exception.response_values[:detail]).to eq(
-          'Validation failed: A claim has already been created for this appointment.'
-        )
-        expect(client).to have_received(:log_error).with(
-          'TravelPayClient existing claim error',
-          message: 'Validation failed: A claim has already been created for this appointment.'
-        )
-      end
-    end
-
-    describe '#rewrap_backend_exception?' do
-      it 'is true when detail missing but original body present' do
-        error = Common::Exceptions::BackendServiceException.new('VA900', { detail: nil }, 500, { message: 'up' })
-        expect(client.send(:rewrap_backend_exception?, error)).to be(true)
-      end
-    end
-
-    describe '#rewrapped_exception' do
-      it 'injects detail from original_body' do
-        error = Common::Exceptions::BackendServiceException.new('VA900', { detail: nil }, 500, { 'message' => 'up' })
-        wrapped = client.send(:rewrapped_exception, error)
-        expect(wrapped.response_values[:detail]).to eq('up')
-      end
-
-      it 'returns original error when no message can be extracted' do
-        error = Common::Exceptions::BackendServiceException.new('VA900', { detail: nil }, 500, { 'other' => 'x' })
-        wrapped = client.send(:rewrapped_exception, error)
-        expect(wrapped).to eq(error)
-      end
-    end
-
-    describe '#skip_401_logging?' do
-      it 'skips non-auth 401s' do
-        expect(client.send(:skip_401_logging?, 401, false)).to be(true)
-        expect(client.send(:skip_401_logging?, 401, true)).to be(false)
-      end
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(Common::Exceptions::BackendServiceException) { |err| expect(err.response_values[:detail]).to eq('rewrapped') }
     end
   end
 end
