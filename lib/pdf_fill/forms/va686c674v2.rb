@@ -1966,8 +1966,9 @@ module PdfFill
         unless pension_flipper
           deaths = @form_data.dig('dependents_application', 'deaths')
           addendum_text += add_dependents(deaths, 'deceased_dependent_income')
-          @form_data['addendum'] = addendum_text
         end
+
+        @form_data['addendum'] = addendum_text
       end
 
       ##

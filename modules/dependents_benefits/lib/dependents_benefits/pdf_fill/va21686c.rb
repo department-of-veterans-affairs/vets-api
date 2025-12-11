@@ -2049,8 +2049,9 @@ module DependentsBenefits
         unless pension_flipper
           deaths = @form_data.dig('dependents_application', 'deaths')
           addendum_text += add_dependents(deaths, 'deceased_dependent_income')
-          @form_data['addendum'] = addendum_text
         end
+        
+        @form_data['addendum'] = addendum_text
       end
 
       ##
@@ -2067,7 +2068,7 @@ module DependentsBenefits
         if Flipper.enabled?(:va_dependents_net_worth_and_pension)
           return '' unless @form_data['dependents_application'].key?('household_income')
 
-          "Did the household have a net worth less than $163,699 in the last tax year? #{format_boolean(!net_worth)}"
+          "Did the household have a net worth less than $163,699 in the last tax year? #{format_boolean(net_worth)}"
         else
           "Did the household have a net worth greater than $163,699 in the last tax year? #{format_boolean(net_worth)}"
         end
