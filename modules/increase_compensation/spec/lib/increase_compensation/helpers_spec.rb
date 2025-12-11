@@ -165,7 +165,7 @@ RSpec.describe IncreaseCompensation::Helpers do
       expect(subject.overflow_doc_and_hospitals(doctors_care, true)).to eq(
         [
           "VA - Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001\nTreated for: PTSD\nFrom: 2024-01-10, To: 2025-02-20\n", # rubocop:disable Layout/LineLength
-          "Non-VA - Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n", # rubocop:disable extLayout/LineLength
+          "Non-VA - Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n", # rubocop:disable Layout/LineLength
           "Non-VA - Dr. Zoidberg, 423 main St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: 2025-02-20\n" # rubocop:disable Layout/LineLength
         ]
       )
