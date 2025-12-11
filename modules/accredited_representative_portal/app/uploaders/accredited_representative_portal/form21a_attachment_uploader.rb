@@ -60,8 +60,10 @@ module AccreditedRepresentativePortal
     end
 
     def set_aws_params
-      if Rails.env.production?
+      if Settings.ogc.form21a_service_url.s3.uploads_enabled
         self.aws_credentials = {
+          access_key_id: Settings.ogc.form21a_service_url.s3.access_key_id,
+          secret_access_key: Settings.ogc.form21a_service_url.s3.secret_access_key
           region: Settings.ogc.form21a_service_url.s3.region
         }
         self.aws_acl = 'private'
