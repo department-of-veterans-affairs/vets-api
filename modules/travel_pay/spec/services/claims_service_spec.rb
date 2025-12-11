@@ -273,11 +273,103 @@ describe TravelPay::ClaimsService do
         .to raise_error(Common::Exceptions::ResourceNotFound, /not found/i)
     end
 
-    it 'throws an ArgumentException if claim_id is invalid format' do
+    it 'throws an ArgumentError if claim_id is invalid format' do
       claim_id = 'this-is-definitely-a-uuid-right'
 
       expect { service.get_claim_details(claim_id) }
-        .to raise_error(ArgumentError, /valid UUID/i)
+        .to raise_error(ArgumentError, /Claim ID is invalid/i)
+    end
+
+    it 'overwrites expenseType with name value for parking expenses' do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
+
+      # Create claim data with a Parking expense where expenseType is "Other" but name is "Parking"
+      claim_data_with_parking = claim_details_data.deep_dup
+      claim_data_with_parking['data']['expenses'] = [
+        {
+          'id' => 'parking-expense-id',
+          'expenseType' => 'Other',
+          'name' => 'Parking',
+          'dateIncurred' => '2024-01-01T16:45:34.465Z',
+          'description' => 'parking-expense',
+          'costRequested' => 5.00,
+          'costSubmitted' => 5.00
+        }
+      ]
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claim_by_id)
+        .and_return(Faraday::Response.new(body: claim_data_with_parking))
+
+      claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+      actual_claim = service.get_claim_details(claim_id)
+
+      expect(actual_claim['expenses'].first['expenseType']).to eq('Parking')
+      expect(actual_claim['expenses'].first['name']).to eq('Parking')
+    end
+
+    it 'overwrites expenseType only for parking expenses, not other expense types' do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
+
+      claim_data_mixed = claim_details_data.deep_dup
+      claim_data_mixed['data']['expenses'] = [
+        {
+          'id' => 'parking-expense-id',
+          'expenseType' => 'Other',
+          'name' => 'Parking',
+          'dateIncurred' => '2024-01-01T16:45:34.465Z',
+          'description' => 'parking-expense',
+          'costRequested' => 5.00,
+          'costSubmitted' => 5.00
+        },
+        {
+          'id' => 'mileage-expense-id',
+          'expenseType' => 'Mileage',
+          'name' => 'Mileage Expense',
+          'dateIncurred' => '2024-01-01T16:45:34.465Z',
+          'description' => 'mileage-expense',
+          'costRequested' => 10.00,
+          'costSubmitted' => 10.00
+        }
+      ]
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claim_by_id)
+        .and_return(Faraday::Response.new(body: claim_data_mixed))
+
+      claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+      actual_claim = service.get_claim_details(claim_id)
+
+      # Parking expense should be overwritten
+      expect(actual_claim['expenses'][0]['expenseType']).to eq('Parking')
+      # Mileage expense should NOT be overwritten
+      expect(actual_claim['expenses'][1]['expenseType']).to eq('Mileage')
+    end
+
+    it 'does not overwrite expenseType when name is blank' do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
+
+      claim_data_blank_name = claim_details_data.deep_dup
+      claim_data_blank_name['data']['expenses'] = [
+        {
+          'id' => 'expense-id',
+          'expenseType' => 'Other',
+          'name' => '',
+          'dateIncurred' => '2024-01-01T16:45:34.465Z',
+          'description' => 'some-expense',
+          'costRequested' => 5.00,
+          'costSubmitted' => 5.00
+        }
+      ]
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claim_by_id)
+        .and_return(Faraday::Response.new(body: claim_data_blank_name))
+
+      claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+      actual_claim = service.get_claim_details(claim_id)
+
+      expect(actual_claim['expenses'].first['expenseType']).to eq('Other')
     end
   end
 
