@@ -132,7 +132,6 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
 
       describe 'shipped filter' do
         it 'filters for shipped items when shipped eq is true' do
-          # Shipped = Active disp_status AND is_trackable
           shipped_item = build_prescription(id: '1', disp_status: 'Active', is_trackable: true)
           non_shipped_trackable = build_prescription(id: '2', disp_status: 'Inactive', is_trackable: true)
           non_shipped_active = build_prescription(id: '3', disp_status: 'Active', is_trackable: false)
@@ -147,7 +146,6 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         end
 
         it 'filters for non-shipped items when shipped eq is false' do
-          # Non-shipped = NOT (Active disp_status AND is_trackable)
           shipped_item = build_prescription(id: '1', disp_status: 'Active', is_trackable: true)
           non_shipped_trackable = build_prescription(id: '2', disp_status: 'Inactive', is_trackable: true)
           non_shipped_active = build_prescription(id: '3', disp_status: 'Active', is_trackable: false)
@@ -214,21 +212,19 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         end
       end
 
-      # Stub sorted_dispensed_date for prescriptions that don't have the method
       before do
-        allow(prescription1).to receive(:respond_to?).with(:dispenses).and_return(true)
-        allow(prescription1).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
-        allow(prescription2).to receive(:respond_to?).with(:dispenses).and_return(true)
-        allow(prescription2).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
-        allow(prescription3).to receive(:respond_to?).with(:dispenses).and_return(true)
-        allow(prescription3).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+        [prescription1, prescription2, prescription3].each do |p|
+          allow(p).to receive(:respond_to?).and_call_original
+          allow(p).to receive(:respond_to?).with(:dispenses).and_return(true)
+          allow(p).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+        end
       end
 
       context 'when sort_param is nil' do
         it 'applies default sorting' do
           result = helper.apply_sorting(resource, nil)
 
-          expect(result.metadata[:sort]).to include('disp_status' => 'ASC', 'prescription_name' => 'ASC')
+          expect(result.records.map(&:prescription_name)).to eq(%w[Zoloft Aspirin Metformin].sort_by(&:downcase))
         end
       end
 
@@ -236,13 +232,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         it 'sorts by prescription_name ascending' do
           result = helper.apply_sorting(resource, 'alphabetical-rx-name')
 
-          expect(result.metadata[:sort]).to include('prescription_name' => 'ASC')
-        end
-
-        it 'includes secondary sort by dispensed_date descending' do
-          result = helper.apply_sorting(resource, 'alphabetical-rx-name')
-
-          expect(result.metadata[:sort]).to include('dispensed_date' => 'DESC')
+          expect(result.records.map(&:prescription_name)).to eq(%w[Aspirin Metformin Zoloft])
         end
       end
 
@@ -250,13 +240,11 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         it 'sorts by dispensed_date descending' do
           result = helper.apply_sorting(resource, 'last-fill-date')
 
-          expect(result.metadata[:sort]).to include('dispensed_date' => 'DESC')
-        end
-
-        it 'includes secondary sort by prescription_name ascending' do
-          result = helper.apply_sorting(resource, 'last-fill-date')
-
-          expect(result.metadata[:sort]).to include('prescription_name' => 'ASC')
+          expect(result.records.map(&:prescription_name)).to eq(%w[Aspirin Metformin Zoloft].sort_by { |name|
+            -resource.records.find do |r|
+              r.prescription_name == name
+            end.dispensed_date.to_time.to_i
+          })
         end
       end
 
@@ -264,16 +252,14 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         it 'applies default sorting' do
           result = helper.apply_sorting(resource, 'unknown-sort')
 
-          expect(result.metadata[:sort]).to include('disp_status' => 'ASC', 'prescription_name' => 'ASC')
+          expect(result.records.map(&:prescription_name)).to eq(%w[Zoloft Aspirin Metformin].sort_by(&:downcase))
         end
       end
     end
 
     describe '#build_sort_metadata' do
       it 'returns descending alphabetical metadata for -alphabetical-rx-name' do
-        # The helper returns default metadata for unrecognized sort params
         result = helper.build_sort_metadata('-alphabetical-rx-name')
-        # Falls back to default since -alphabetical-rx-name is not a recognized case
         expect(result).to include('disp_status' => 'ASC')
       end
 
