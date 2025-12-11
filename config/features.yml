@@ -1545,7 +1545,7 @@ features:
   mhv_medications_v2_status_mapping:
     actor_type: user
     description: Enables V2 status mapping for prescriptions (consolidates VistA/Oracle Health statuses into simplified groups)
-    enable_in_development: true
+    enable_in_development: false
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
