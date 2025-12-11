@@ -397,6 +397,18 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
     }
   }.freeze
 
+  def self.resolve_service_name(service_name)
+    # Check if it's a main service key
+    return service_name if SERVICES.key?(service_name)
+
+    # Check if it's an alias
+    SERVICES.each do |key, config|
+      return key if config[:aliases]&.include?(service_name)
+    end
+
+    nil
+  end
+
   def initialize
     @options = {}
   end
@@ -407,6 +419,8 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
     case @options[:action]
     when :list
       list_services
+    when :service_keys
+      list_service_keys
     when :validate
       validate_service(@options[:service])
     when :config
@@ -458,6 +472,13 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       end
     end
 
+    # Handle internal flags after parsing to avoid showing in help
+    # --service-keys is used internally by the shell script but not documented for users
+    if ARGV.include?('--service-keys')
+      @options[:action] = :service_keys
+      ARGV.delete('--service-keys')
+    end
+
     parser.parse!
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}"
@@ -480,16 +501,29 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
     puts format_services_list
   end
 
-  def format_services_list
-    max_key_length = SERVICES.keys.map(&:length).max
+  def list_service_keys
+    puts SERVICES.keys.join("\n")
+  end
 
+  def format_services_list
     SERVICES.map do |key, config|
-      "#{key.ljust(max_key_length)} - #{config[:name]}: #{config[:description]}"
-    end.join("\n")
+      # Build service name line with aliases using ANSI color codes
+      # Bold blue for main service, lighter blue for aliases
+      name_line = "\033[1;34m#{key}\033[0m" # Bold blue for main service
+      if config[:aliases] && !config[:aliases].empty? # rubocop:disable Rails/Present
+        aliases_colored = config[:aliases].map { |alias_name| "\033[36m#{alias_name}\033[0m" }.join(' | ')
+        name_line += " | #{aliases_colored}"
+      end
+
+      # Add description on next line with subtle gray color
+      "#{name_line}\n\033[37m#{config[:description]}\033[0m"
+    end.join("\n\n")
   end
 
   def validate_service(service_name)
-    unless SERVICES.key?(service_name)
+    resolved_service = resolve_service_name(service_name)
+
+    unless resolved_service
       puts "Error: Unknown service '#{service_name}'"
       puts ''
       puts 'Available services:'
@@ -501,12 +535,14 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
   end
 
   def show_service_config(service_name)
-    unless SERVICES.key?(service_name)
+    resolved_service = resolve_service_name(service_name)
+
+    unless resolved_service
       puts "Error: Unknown service '#{service_name}'"
       exit 1
     end
 
-    config = SERVICES[service_name]
+    config = SERVICES[resolved_service]
 
     # Convert to a format suitable for shell script consumption
     output = {
@@ -566,6 +602,18 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
       current[key] || current[key.to_sym]
     end
+  end
+
+  def resolve_service_name(service_name)
+    # Check if it's a main service key
+    return service_name if SERVICES.key?(service_name)
+
+    # Check if it's an alias
+    SERVICES.each do |key, config|
+      return key if config[:aliases]&.include?(service_name)
+    end
+
+    nil
   end
 end
 

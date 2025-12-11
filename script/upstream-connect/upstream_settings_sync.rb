@@ -87,13 +87,16 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
     # Load the service configuration
     load service_config_path
 
-    unless UpstreamServiceConfig::SERVICES.key?(@options[:service])
+    # Resolve service name (handle aliases)
+    resolved_service = UpstreamServiceConfig.resolve_service_name(@options[:service])
+
+    unless resolved_service
       available_services = UpstreamServiceConfig::SERVICES.keys.join(', ')
       puts "Error: Unknown service '#{@options[:service]}'. Available: #{available_services}"
       exit 1
     end
 
-    service_config = UpstreamServiceConfig::SERVICES[@options[:service]]
+    service_config = UpstreamServiceConfig::SERVICES[resolved_service]
     settings_namespaces = service_config[:settings_namespaces]
     tunnel_settings = service_config[:tunnel_setting]
     ports = service_config[:ports]
@@ -205,7 +208,8 @@ class UpstreamSettingsSync # rubocop:disable Metrics/ClassLength
 
   def fetch_parameters_from_service_config(expected_settings)
     # Use the static service configuration - no user input involved
-    service_config = UpstreamServiceConfig::SERVICES[@options[:service]]
+    resolved_service = UpstreamServiceConfig.resolve_service_name(@options[:service]) || @options[:service]
+    service_config = UpstreamServiceConfig::SERVICES[resolved_service]
     settings_namespace = service_config[:settings_namespaces].first
 
     # Build parameter prefix using static configuration

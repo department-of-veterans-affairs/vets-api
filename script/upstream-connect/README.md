@@ -152,6 +152,11 @@ To add a new service, edit `script/upstream-connect/upstream_service_config.rb` 
   - Displayed after successful connection setup
   - Should include test user and endpoint for which user has data
 
+- **`aliases`**: Optional array of alternative names for the service
+  - All aliases work identically to the main service name
+  - Example: `awards` service has aliases `['payment_history', 'bep', 'bgs', 'dependents']`
+  - Displayed in service listings as: `awards | payment_history | bep | bgs | dependents`
+
 - **`mock_mpi`**: Boolean flag controlling MVI (Master Veteran Index) connection mode (optional, defaults to `true`)
   - `false`: Sets up port forwarding to the MVI service (port 4434) and configures `config/identity_settings/settings.local.yml` for real MVI connection
   - `true`: Uses mocked MVI data (default behavior)

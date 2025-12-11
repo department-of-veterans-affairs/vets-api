@@ -797,7 +797,7 @@ show_status() {
   # Get all ports used by configured services
   local all_ports=()
   local services
-  services=$(ruby "$CONFIG_SCRIPT" --list | awk '{print $1}')
+  services=$(ruby "$CONFIG_SCRIPT" --service-keys)
   
   for service in $services; do
     local service_config
@@ -901,7 +901,7 @@ cleanup_port_forwarding() {
   # Get all ports used by configured services
   local all_ports=()
   local services
-  services=$(ruby "$CONFIG_SCRIPT" --list | awk '{print $1}')
+  services=$(ruby "$CONFIG_SCRIPT" --service-keys)
   
   for service in $services; do
     local service_config
