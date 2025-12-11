@@ -418,7 +418,7 @@ describe VaNotify::Service do
             subject.send_sms(send_sms_parameters)
 
             notification = VANotify::Notification.first
-            expect(notification.service_id).to be_present
+            expect(notification.service_id).to eq('22222222-2222-2222-2222-222222222222')
           end
         end
 
