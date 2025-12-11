@@ -215,6 +215,13 @@ RSpec.describe AllowlistLogFiltering do
       expect(output).to include('Simple string message')
     end
 
+    it 'works with two positional arguments (message and progname)' do
+      # This is the standard Rails logger pattern used throughout the codebase
+      logger_with_output.warn('Error message', { user_id: 123, ssn: '123-45-6789' }.to_json)
+      output = log_output.string
+      expect(output).to include('Error message')
+    end
+
     it 'works with nil message' do
       expect { logger_with_output.info(nil, log_allowlist: [:email]) }.not_to raise_error
     end
