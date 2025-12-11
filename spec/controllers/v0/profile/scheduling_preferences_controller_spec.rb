@@ -53,28 +53,15 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
       end
 
       context 'when user is not in pilot VISN' do
-        let(:error_detail) { 'Scheduling preferences not available for your facility' }
-
         before do
-          allow(controller).to receive(:check_pilot_access!).and_raise(
-            Common::Exceptions::Forbidden.new(detail: error_detail)
-          )
+          # Mock UserVisnService to return false (user not in pilot VISN)
+          allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(false)
+          allow(Rails.logger).to receive(:info)
         end
 
-        it 'forbids access with pilot-specific message' do
-          get :show
-          expect(response).to have_http_status(:forbidden)
+        it 'forbids access with pilot-specific message and logs info' do
+          expect(Rails.logger).to receive(:info).with(/Scheduling preferences not available for your facility for user/)
 
-          json_response = JSON.parse(response.body)
-          expect(json_response['errors'].first['detail']).to eq(error_detail)
-        end
-      end
-
-      context 'when user has facilities in non-pilot VISNs (actual service test)' do
-        # In this integration test, we let the service fail naturally when user setup is incomplete
-        # which triggers the rescue block in the controller, demonstrating error handling
-
-        it 'forbids access with error handling message when service fails' do
           get :show
           expect(response).to have_http_status(:forbidden)
 
@@ -83,20 +70,15 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
         end
       end
 
-      context 'when pilot access check fails' do
+      context 'when UserVisnService raises an exception' do
         before do
-          allow(UserVisnService).to receive(:new).and_raise(StandardError.new('API Error'))
-          allow(Rails.logger).to receive(:error)
+          # Mock UserVisnService to raise an exception during initialization or method call
+          allow(UserVisnService).to receive(:new).and_raise(StandardError.new('Service unavailable'))
         end
 
-        it 'forbids access and logs error' do
-          expect(Rails.logger).to receive(:error).with(/Error checking pilot access for user/)
-
+        it 'returns server error status when service fails' do
           get :show
-          expect(response).to have_http_status(:forbidden)
-
-          json_response = JSON.parse(response.body)
-          expect(json_response['errors'].first['detail']).to eq('Unable to verify access to scheduling preferences')
+          expect(response).to have_http_status(:internal_server_error)
         end
       end
 

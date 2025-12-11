@@ -50,11 +50,9 @@ module V0
       def check_pilot_access!
         visn_service = UserVisnService.new(@current_user)
         unless visn_service.in_pilot_visn?
-          raise Common::Exceptions::Forbidden, detail: 'Scheduling preferences not available for your facility'
+          Rails.logger.info("Scheduling preferences not available for your facility for user #{@current_user.uuid}")
+          raise Common::Exceptions::Forbidden, detail: 'Unable to verify access to scheduling preferences'
         end
-      rescue => e
-        Rails.logger.error("Error checking pilot access for user #{@current_user.uuid}: #{e.message}")
-        raise Common::Exceptions::Forbidden, detail: 'Unable to verify access to scheduling preferences'
       end
 
       def scheduling_preference_params
