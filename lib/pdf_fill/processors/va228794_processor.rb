@@ -49,44 +49,16 @@ module PdfFill
         file_path
       end
 
-      def generate_extended_form(merged_form_data, hash_converter) # rubocop:disable Metrics/MethodLength
+      def generate_extended_form(merged_form_data, hash_converter)
         # extract extra records that don't fit on pdf for later processing
-
-        extra_certifying_officials = extract_extra_from_array(merged_form_data['additionalCertifyingOfficials'],
-                                                              DEFAULT_FORM_OFFICIALS_LIMIT)
-        extra_read_only_officials = extract_extra_from_array(merged_form_data['readOnlyCertifyingOfficial'],
-                                                             DEFAULT_FORM_READ_ONLY_SCO_LIMIT)
-
-        # handle remarks overflow if any
-        remarks = merged_form_data['remarks'] || ''
-        has_remarks_overflow = remarks.lines.count > REMARKS_LINES
-        merged_form_data['remarks'] = 'See attached page' if has_remarks_overflow
+        extra_certifying_officials = process_additional_certifying_officials(merged_form_data, hash_converter)
+        extra_read_only_officials = process_additional_read_only_officials(merged_form_data, hash_converter,
+                                                                           extra_certifying_officials.size)
+        process_remarks(merged_form_data, hash_converter,
+                        extra_certifying_officials.size + extra_read_only_officials.size)
 
         # convert data that will fit naturally onto the pdf
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
-
-        # process additional records
-        extra_certifying_officials.each_with_index do |official_data, i|
-          hash_converter.extras_generator.add_text(certifying_official_to_text(official_data), {
-                                                     question_num: i + 1,
-                                                     question_text: 'ADDITIONAL CERTIFYING OFFICIAL'
-                                                   })
-        end
-
-        extra_read_only_officials.each_with_index do |rof_data, i|
-          hash_converter.extras_generator.add_text(read_only_official_to_text(rof_data), {
-                                                     question_num: extra_certifying_officials.size + i + 1,
-                                                     question_text: 'READ ONLY OFFICIAL'
-                                                   })
-        end
-
-        if has_remarks_overflow
-          question_num = extra_certifying_officials.size + extra_read_only_officials.size + 1
-          hash_converter.extras_generator.add_text(remarks, {
-                                                     question_num:,
-                                                     question_text: 'REMARKS'
-                                                   })
-        end
 
         # fill in pdf and append extra pages
         file_path = File.join(TMP_DIR, '22-8794.pdf')
@@ -116,6 +88,43 @@ module PdfFill
           official_data.dig('fullName', k)
         end.join(' ')
         "NAME: #{full_name}"
+      end
+
+      def process_additional_certifying_officials(merged_form_data, hash_converter)
+        extra_certifying_officials = extract_extra_from_array(merged_form_data['additionalCertifyingOfficials'],
+                                                              DEFAULT_FORM_OFFICIALS_LIMIT)
+        extra_certifying_officials.each_with_index do |official_data, i|
+          hash_converter.extras_generator.add_text(certifying_official_to_text(official_data), {
+                                                     question_num: i + 1,
+                                                     question_text: 'ADDITIONAL CERTIFYING OFFICIAL'
+                                                   })
+        end
+
+        extra_certifying_officials
+      end
+
+      def process_additional_read_only_officials(merged_form_data, hash_converter, start_i)
+        extra_read_only_officials = extract_extra_from_array(merged_form_data['readOnlyCertifyingOfficial'],
+                                                             DEFAULT_FORM_READ_ONLY_SCO_LIMIT)
+        extra_read_only_officials.each_with_index do |rof_data, i|
+          hash_converter.extras_generator.add_text(read_only_official_to_text(rof_data), {
+                                                     question_num: start_i + i + 1,
+                                                     question_text: 'READ ONLY OFFICIAL'
+                                                   })
+        end
+        extra_read_only_officials
+      end
+
+      def process_remarks(merged_form_data, hash_converter, start_i)
+        remarks = merged_form_data['remarks'] || ''
+        if remarks.lines.count > REMARKS_LINES
+          merged_form_data['remarks'] = 'See attached page'
+          question_num = start_i + 1
+          hash_converter.extras_generator.add_text(remarks, {
+                                                     question_num:,
+                                                     question_text: 'REMARKS'
+                                                   })
+        end
       end
     end
   end
