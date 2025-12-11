@@ -92,7 +92,8 @@ module BenefitsClaims
           end_product_code: claim_data.dig('attributes', 'endProductCode'),
           evidence_waiver_submitted5103: claim_data.dig('attributes', 'evidenceWaiverSubmitted5103'),
           lighthouse_id: claim_data.dig('attributes', 'lighthouseId'),
-          status: claim_data.dig('attributes', 'status')
+          status: claim_data.dig('attributes', 'status'),
+          tracked_items: build_tracked_items(claim_data.dig('attributes', 'trackedItems'))
         )
       end
 
@@ -103,6 +104,18 @@ module BenefitsClaims
           phase_change_date: phase_dates_data['phaseChangeDate'],
           phase_type: phase_dates_data['phaseType']
         )
+      end
+
+      def build_tracked_items(tracked_items_data)
+        return nil if tracked_items_data.nil?
+        return [] if tracked_items_data.empty?
+
+        tracked_items_data.map do |item_data|
+          BenefitsClaims::Responses::TrackedItem.new(
+            display_name: item_data['displayName'],
+            status: item_data['status']
+          )
+        end
       end
 
       def serialize_dto_to_json_api(dto)
@@ -133,6 +146,10 @@ module BenefitsClaims
           attributes['claimPhaseDates'] = serialize_phase_dates(dto.claim_phase_dates)
         end
 
+        if dto.tracked_items
+          attributes['trackedItems'] = serialize_tracked_items(dto.tracked_items)
+        end
+
         attributes
       end
 
@@ -141,6 +158,15 @@ module BenefitsClaims
           'phaseChangeDate' => phase_dates.phase_change_date,
           'phaseType' => phase_dates.phase_type
         }.compact
+      end
+
+      def serialize_tracked_items(tracked_items)
+        tracked_items.map do |item|
+          {
+            'displayName' => item.display_name,
+            'status' => item.status
+          }.compact
+        end
       end
     end
   end

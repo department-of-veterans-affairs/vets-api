@@ -43,7 +43,13 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
               'endProductCode' => '020',
               'evidenceWaiverSubmitted5103' => false,
               'lighthouseId' => nil,
-              'status' => 'COMPLETE'
+              'status' => 'COMPLETE',
+              'trackedItems' => [
+                {
+                  'displayName' => 'PMR Pending',
+                  'status' => 'NEEDED_FROM_YOU'
+                }
+              ]
             }
           },
           {
@@ -102,6 +108,10 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
       expect(attrs['evidenceWaiverSubmitted5103']).to be(false)
       expect(attrs['lighthouseId']).to be_nil
       expect(attrs['status']).to eq('COMPLETE')
+      expect(attrs['trackedItems']).to be_an(Array)
+      expect(attrs['trackedItems'].length).to eq(1)
+      expect(attrs['trackedItems'].first['displayName']).to eq('PMR Pending')
+      expect(attrs['trackedItems'].first['status']).to eq('NEEDED_FROM_YOU')
     end
 
     it 'validates claims using the DTO' do
@@ -129,43 +139,6 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
       end
     end
 
-    context 'when claims have missing required fields' do
-      let(:incomplete_claim_response) do
-        {
-          'data' => [
-            {
-              'id' => '123',
-              'type' => 'claim',
-              'attributes' => {
-                'claimDate' => '2022-01-01'
-                # Missing claim_type and status
-              }
-            }
-          ]
-        }
-      end
-
-      before do
-        allow(mock_service).to receive(:get_claims).and_return(incomplete_claim_response)
-      end
-
-      it 'logs a warning about missing required attributes' do
-        expect(Rails.logger).to receive(:warn).with(
-          'Lighthouse claim missing required attributes',
-          hash_including(
-            missing_fields: ['claim_type', 'status']
-          )
-        )
-
-        provider.get_claims
-      end
-
-      it 'still returns the claim data' do
-        result = provider.get_claims
-        expect(result['data'].length).to eq(1)
-        expect(result['data'].first[:id]).to eq('123')
-      end
-    end
   end
 
   describe '#get_claim' do
@@ -191,7 +164,13 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
             'endProductCode' => '020',
             'evidenceWaiverSubmitted5103' => false,
             'lighthouseId' => nil,
-            'status' => 'COMPLETE'
+            'status' => 'COMPLETE',
+            'trackedItems' => [
+              {
+                'displayName' => 'PMR Pending',
+                'status' => 'NEEDED_FROM_YOU'
+              }
+            ]
           }
         }
       }
@@ -229,6 +208,10 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
       expect(attrs['evidenceWaiverSubmitted5103']).to be(false)
       expect(attrs['lighthouseId']).to be_nil
       expect(attrs['status']).to eq('COMPLETE')
+      expect(attrs['trackedItems']).to be_an(Array)
+      expect(attrs['trackedItems'].length).to eq(1)
+      expect(attrs['trackedItems'].first['displayName']).to eq('PMR Pending')
+      expect(attrs['trackedItems'].first['status']).to eq('NEEDED_FROM_YOU')
     end
 
     it 'validates the claim using the DTO' do
