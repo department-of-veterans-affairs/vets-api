@@ -716,40 +716,16 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           json_response = JSON.parse(response.body)
           response_data = json_response['data']
 
-          # Verify each prescription meets refillable criteria
+          # V2 uses is_refillable and is_renewable attributes from unified health data API
+          # Each prescription should have either is_refillable=true OR is_renewable=true
           response_data.each do |p|
             prescription = p['attributes']
+            is_refillable = prescription['is_refillable'] == true
+            is_renewable = prescription['is_renewable'] == true
 
-            # If prescription has is_refillable attribute and it's true, that's sufficient
-            if prescription['is_refillable']
-              expect(prescription['is_refillable']).to be(true)
-              next
-            end
-
-            # Otherwise, check if it meets renewal criteria (only applies to items with disp_status)
-            next if prescription['disp_status'].blank?
-
-            disp_status = prescription['disp_status']
-            # rx_rf_records maps to dispenses array from UHD model
-            refill_history_item = prescription['rx_rf_records']&.first
-            expired_date = if refill_history_item && refill_history_item['expiration_date']
-                             refill_history_item['expiration_date']
-                           else
-                             prescription['expiration_date']
-                           end
-            cut_off_date = Time.zone.today - 120.days
-            zero_date = Date.new(0, 1, 1)
-
-            # Should meet renewal criteria
-            meets_criteria = ['Active', 'Active: Parked'].include?(disp_status) ||
-                             (disp_status == 'Expired' &&
-                             expired_date.present? &&
-                             DateTime.parse(expired_date) != zero_date &&
-                             DateTime.parse(expired_date) >= cut_off_date)
-
-            expect(meets_criteria).to be(true),
-                                      "Prescription #{prescription['prescription_id']} with status " \
-                                      "'#{disp_status}' should meet refillable criteria"
+            expect(is_refillable || is_renewable).to be(true),
+                                                     "Prescription #{prescription['prescription_id']} should have " \
+                                                     'is_refillable=true or is_renewable=true'
           end
         end
       end

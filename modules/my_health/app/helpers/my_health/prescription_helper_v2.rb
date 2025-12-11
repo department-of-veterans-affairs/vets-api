@@ -59,8 +59,11 @@ module MyHealth
 
         filter_value = ActiveModel::Type::Boolean.new.cast(filter_config[:eq])
         data.select do |item|
+          # Shipped = Active disp_status AND is_trackable
+          item_is_active = item.respond_to?(:disp_status) && item.disp_status == 'Active'
           item_trackable = item.respond_to?(:is_trackable) && item.is_trackable
-          item_trackable == filter_value
+          item_shipped = item_is_active && item_trackable
+          item_shipped == filter_value
         end
       end
     end
