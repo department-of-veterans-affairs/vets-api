@@ -556,7 +556,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         end
 
         it 'increments both timeout and failure metrics for OH facility' do
-          expect { service.submit_claim }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
@@ -566,7 +566,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           let(:facility_type) { 'cie' }
 
           it 'increments both timeout and failure metrics for CIE facility' do
-            expect { service.submit_claim }.to raise_error(Common::Exceptions::GatewayTimeout)
+            expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)
@@ -581,7 +581,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         end
 
         it 'increments both timeout and failure metrics for OH facility' do
-          expect { service.submit_claim }.to raise_error(Net::ReadTimeout)
+          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
@@ -591,7 +591,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           let(:facility_type) { 'cie' }
 
           it 'increments both timeout and failure metrics for CIE facility' do
-            expect { service.submit_claim }.to raise_error(Net::ReadTimeout)
+            expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)

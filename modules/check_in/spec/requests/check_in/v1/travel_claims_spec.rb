@@ -399,6 +399,19 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           expect(json_response['errors']).to be_an(Array)
           expect(json_response['errors']).to be_present
         end
+
+        it 'ticks timeout and error metrics when a read timeout occurs' do
+          allow_any_instance_of(TravelClaim::TravelPayClient).to receive(:send_appointment_request)
+            .and_raise(Faraday::TimeoutError.new(Net::ReadTimeout.new))
+          allow(StatsD).to receive(:increment)
+
+          post '/check_in/v1/travel_claims', params: valid_params,
+                                             headers: { 'Authorization' => "Bearer #{low_auth_token}" }
+
+          expect(response).to have_http_status(:gateway_timeout)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
+        end
       end
 
       context 'when external API returns 401 and retries with fresh tokens' do

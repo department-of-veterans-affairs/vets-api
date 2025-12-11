@@ -280,7 +280,15 @@ module TravelClaim
       increment_timeout_metric if timeout
       increment_failure_metric
       send_error_notification_if_enabled(error)
-      raise error
+      raise timeout ? timeout_backend_exception(error) : error
+    end
+
+    def timeout_backend_exception(error)
+      Common::Exceptions::BackendServiceException.new(
+        'VA900',
+        { detail: error.message },
+        504
+      )
     end
 
     def log_unconditional(level, message, additional_data = {})

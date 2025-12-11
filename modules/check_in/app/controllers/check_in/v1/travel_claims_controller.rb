@@ -97,6 +97,7 @@ module CheckIn
         when 409 then :conflict
         when 422 then :unprocessable_entity
         when 429 then :too_many_requests
+        when 504 then :gateway_timeout
         else :bad_gateway
         end
       end
