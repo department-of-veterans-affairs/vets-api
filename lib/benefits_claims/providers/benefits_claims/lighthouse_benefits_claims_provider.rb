@@ -142,13 +142,9 @@ module BenefitsClaims
           'status' => dto.status
         }
 
-        if dto.claim_phase_dates
-          attributes['claimPhaseDates'] = serialize_phase_dates(dto.claim_phase_dates)
-        end
+        attributes['claimPhaseDates'] = serialize_phase_dates(dto.claim_phase_dates) if dto.claim_phase_dates
 
-        if dto.tracked_items
-          attributes['trackedItems'] = serialize_tracked_items(dto.tracked_items)
-        end
+        attributes['trackedItems'] = serialize_tracked_items(dto.tracked_items) if dto.tracked_items
 
         attributes
       end

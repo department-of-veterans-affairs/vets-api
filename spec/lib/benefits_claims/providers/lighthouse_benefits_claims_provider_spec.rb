@@ -138,7 +138,6 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
         expect { provider.get_claims }.to raise_error(Common::Exceptions::ExternalServerInternalServerError)
       end
     end
-
   end
 
   describe '#get_claim' do
