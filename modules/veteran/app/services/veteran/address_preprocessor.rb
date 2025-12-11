@@ -26,6 +26,7 @@ module Veteran
       address_line, secondary_designator = extract_secondary_designator(line1)
       if address_line.blank?
         cleaned['address_line1'] = nil
+        cleaned['address_line2'] = nil
         return cleaned
       end
 

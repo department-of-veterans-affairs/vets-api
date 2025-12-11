@@ -159,6 +159,49 @@ RSpec.describe RepresentationManagement::AddressValidationService do
         expect(result).to be_nil
       end
     end
+
+    context 'when initial validation raises ADDRVAL108 but retry succeeds' do
+      let(:candidate_not_found_exception) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          {
+            detail: {
+              'messages' => [
+                {
+                  'code' => 'ADDRVAL108',
+                  'key' => 'CandidateAddressNotFound',
+                  'text' => 'No Candidate Address Found',
+                  'severity' => 'INFO'
+                }
+              ]
+            },
+            code: 'VET360_AV_ERROR'
+          },
+          400,
+          nil
+        )
+      end
+
+      before do
+        call_count = 0
+
+        allow(mock_validation_service).to receive(:candidate) do
+          if call_count.zero?
+            call_count += 1
+            raise candidate_not_found_exception
+          else
+            valid_api_response
+          end
+        end
+      end
+
+      it 'returns validated attributes after retrying' do
+        result = service_with_mock.validate_address(valid_address_hash)
+        expect(result).to be_a(Hash)
+        expect(result[:address_line1]).to eq('123 Main St')
+        expect(result[:city]).to eq('Brooklyn')
+      end
+    end
   end
 
   describe '#build_validation_address' do
@@ -186,6 +229,30 @@ RSpec.describe RepresentationManagement::AddressValidationService do
       expect(result).to be_a(VAProfile::Models::ValidationAddress)
       expect(result.address_line2).to be_nil
       expect(result.address_line3).to be_nil
+    end
+
+    context 'when Veteran::AddressPreprocessor is available' do
+      it 'uses the cleaned address values from the preprocessor' do
+        cleaned_address = valid_address_hash.merge(
+          'address_line1' => 'PO Box 123',
+          'address_line2' => nil
+        )
+
+        allow(Veteran::AddressPreprocessor)
+          .to receive(:clean)
+          .with(valid_address_hash)
+          .and_return(cleaned_address)
+
+        result = service.build_validation_address(valid_address_hash)
+
+        expect(Veteran::AddressPreprocessor).to have_received(:clean).with(valid_address_hash)
+        expect(result).to be_a(VAProfile::Models::ValidationAddress)
+        expect(result.address_line1).to eq('PO Box 123')
+        expect(result.address_line2).to be_nil
+        expect(result.city).to eq('Brooklyn')
+        expect(result.state_code).to eq('NY')
+        expect(result.zip_code).to eq('11249')
+      end
     end
   end
 
@@ -270,6 +337,88 @@ RSpec.describe RepresentationManagement::AddressValidationService do
       end
 
       it 'returns nil when address cannot be validated' do
+        result = service_with_mock.get_best_address_candidate(valid_address_hash)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when initial validation raises CandidateAddressNotFound (ADDRVAL108) and retry succeeds' do
+      let(:candidate_not_found_exception) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          {
+            detail: {
+              'messages' => [
+                {
+                  'code' => 'ADDRVAL108',
+                  'key' => 'CandidateAddressNotFound',
+                  'text' => 'No Candidate Address Found',
+                  'severity' => 'INFO'
+                }
+              ]
+            },
+            code: 'VET360_AV_ERROR'
+          },
+          400,
+          nil
+        )
+      end
+
+      before do
+        call_count = 0
+
+        allow(mock_validation_service).to receive(:candidate) do
+          if call_count.zero?
+            call_count += 1
+            raise candidate_not_found_exception
+          else
+            valid_api_response
+          end
+        end
+      end
+
+      it 'retries after ADDRVAL108 and returns the retry response' do
+        result = service_with_mock.get_best_address_candidate(valid_address_hash)
+        expect(result).to eq(valid_api_response)
+      end
+    end
+
+    context 'when initial validation raises ADDRVAL108 and all retries still fail' do
+      let(:candidate_not_found_exception) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          {
+            detail: {
+              'messages' => [
+                {
+                  'code' => 'ADDRVAL108',
+                  'key' => 'CandidateAddressNotFound',
+                  'text' => 'No Candidate Address Found',
+                  'severity' => 'INFO'
+                }
+              ]
+            },
+            code: 'VET360_AV_ERROR'
+          },
+          400,
+          nil
+        )
+      end
+
+      before do
+        call_count = 0
+
+        allow(mock_validation_service).to receive(:candidate) do
+          if call_count.zero?
+            call_count += 1
+            raise candidate_not_found_exception
+          else
+            zero_coordinate_response
+          end
+        end
+      end
+
+      it 'returns nil when no valid candidate can be found after ADDRVAL108 retries' do
         result = service_with_mock.get_best_address_candidate(valid_address_hash)
         expect(result).to be_nil
       end
