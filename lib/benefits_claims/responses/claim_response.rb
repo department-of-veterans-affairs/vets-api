@@ -11,6 +11,13 @@ module BenefitsClaims
       attribute :phase_type, String
     end
 
+    class TrackedItem
+      include Vets::Model
+
+      attribute :display_name, String
+      attribute :status, String
+    end
+
     # Data Transfer Object for standardized claim responses across all providers
     #
     # This DTO defines the canonical claim structure expected by frontend clients
@@ -38,6 +45,7 @@ module BenefitsClaims
       attribute :evidence_waiver_submitted5103, Bool
       attribute :lighthouse_id, String
       attribute :status, String
+      attribute :tracked_items, Array
     end
   end
 end
