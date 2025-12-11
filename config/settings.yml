@@ -90,6 +90,13 @@ binaries:
   pdftk: pdftk
 bing:
   key: <%= ENV['bing__key'] %>
+bio:
+  medical_expense_reports:
+    bucket: <%= ENV['bio__medical_expense_reports__s3__bucket'] %>
+    region: us-gov-west-1
+  survivors_benefits:
+    bucket: <%= ENV['bio__survivors_benefits__s3__bucket'] %>
+    region: us-gov-west-1
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
   mock: false
@@ -313,6 +320,7 @@ dgi:
     url: <%= ENV['dgi__vets__url'] %>
   vye:
     jwt:
+      kid: <%= ENV['dgi__vye__jwt__kid'] %>
       private_key_path: <%= ENV['dgi__vye__jwt__private_key_path'] %>
       public_ica11_rca2_key_path: <%= ENV['dgi__vye__jwt__public_ica11_rca2_key_path'] %>
       public_key_path: <%= ENV['dgi__vye__jwt__public_key_path'] %>
@@ -907,6 +915,8 @@ mdot:
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
+memorials:
+  prefill: true
 mhv:
   account:
     mock: <%= ENV['mhv__account__mock'] %>

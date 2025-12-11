@@ -90,6 +90,13 @@ binaries:
   pdftk: pdftk
 bing:
   key: ~
+bio:
+  medical_expense_reports:
+    bucket: ~
+    region: ~
+  survivors_benefits:
+    bucket: ~
+    region: ~
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -313,6 +320,7 @@ dgi:
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
   vye:
     jwt:
+      kid: vye
       private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
       public_ica11_rca2_key_path: modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
@@ -915,6 +923,8 @@ mdot:
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
+memorials:
+  prefill: true
 mhv:
   account:
     mock: false
