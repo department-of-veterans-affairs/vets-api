@@ -39,19 +39,25 @@ module AllowlistLogFiltering
   # while maintaining backward compatibility with existing patterns:
   # - logger.info(message)
   # - logger.info(message, progname)
+  # - logger.info(message, arg2, arg3) - legacy 3-arg pattern
   # - logger.info(key: value) - keyword args as message
   # - logger.info(message, log_allowlist: [...]) - new feature
   %i[debug info warn error fatal unknown].each do |level|
-    define_method(level) do |message = nil, progname_or_data = nil, log_allowlist: [], **payload, &block|
+    define_method(level) do |*args, log_allowlist: [], **payload, &block|
       if payload.any?
         # Keyword arguments (other than log_allowlist) become the message hash
-        add(level, payload, message, log_allowlist:, &block)
-      elsif progname_or_data
-        # Two positional args: message and progname (standard Logger pattern)
-        add(level, message, progname_or_data, log_allowlist:, &block)
+        add(level, payload, args.first, log_allowlist:, &block)
+      elsif args.length >= 2
+        # Two or more positional args: combine into single message string
+        # This handles patterns like: logger.info('Contact Info', http_verb, type)
+        combined_message = args.map(&:to_s).join(' ')
+        add(level, combined_message, nil, log_allowlist:, &block)
+      elsif args.length == 1
+        # Single arg
+        add(level, args.first, nil, log_allowlist:, &block)
       else
-        # Single arg or block
-        add(level, message, nil, log_allowlist:, &block)
+        # Block only
+        add(level, nil, nil, log_allowlist:, &block)
       end
     end
   end

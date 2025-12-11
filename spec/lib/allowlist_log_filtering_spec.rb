@@ -222,6 +222,15 @@ RSpec.describe AllowlistLogFiltering do
       expect(output).to include('Error message')
     end
 
+    it 'works with three positional arguments' do
+      # This pattern is used in vet360/writeable.rb: logger.info('Contact Info', http_verb, type)
+      logger_with_output.info('Contact Info', 'post', 'address')
+      output = log_output.string
+      expect(output).to include('Contact Info')
+      expect(output).to include('post')
+      expect(output).to include('address')
+    end
+
     it 'works with nil message' do
       expect { logger_with_output.info(nil, log_allowlist: [:email]) }.not_to raise_error
     end
