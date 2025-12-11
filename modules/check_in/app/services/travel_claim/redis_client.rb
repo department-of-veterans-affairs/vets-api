@@ -32,6 +32,23 @@ module TravelClaim
       )
     end
 
+    # v1 service VEIS token cache (separate from v0 to avoid conflicts)
+    def v1_veis_token
+      Rails.cache.read(
+        'token',
+        namespace: 'check-in-btsss-cache-v1'
+      )
+    end
+
+    def save_v1_veis_token(token:)
+      Rails.cache.write(
+        'token',
+        token,
+        namespace: 'check-in-btsss-cache-v1',
+        expires_in: redis_token_expiry
+      )
+    end
+
     # v4 system token (BTSSS) stored under a non-PHI cache key provided by caller
     def v4_token(cache_key:)
       Rails.cache.read(
