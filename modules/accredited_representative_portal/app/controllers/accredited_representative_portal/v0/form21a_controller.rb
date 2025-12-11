@@ -33,9 +33,9 @@ module AccreditedRepresentativePortal
       rescue Common::Exceptions::UnprocessableEntity => e
         Rails.logger.warn(
           "Form21aController: File upload unprocessable for user_uuid=#{current_user&.uuid} " \
-          "details_slug=#{details_slug} source=#{e.source} detail=#{e.detail}"
+          "details_slug=#{details_slug} error=#{e.message}"
         )
-        render json: { errors: e.detail }, status: :unprocessable_entity
+        render json: { errors: e.message }, status: :unprocessable_entity
       rescue ActiveRecord::RecordInvalid => e
         Rails.logger.error(
           "Form21aController: details upload failed validation for user_uuid=#{current_user&.uuid} " \
