@@ -52,21 +52,80 @@ Shows a menu of available services to connect to.
 
 ### Appeals (Caseflow)
 - **Service Key**: `appeals`
+- **Aliases**: None
 - **Settings**: `caseflow`
 - **Port**: `4437`
 - **Description**: Connect to Caseflow appeals system
 
+### Benefits Eligibility Platform (BEP/BGS)
+- **Service Key**: `awards`
+- **Aliases**: `payment_history`, `bep`, `bgs`, `dependents`
+- **Settings**: `bgs`
+- **Port**: `4447`
+- **Description**: Connect to Benefits Eligibility Platform for awards and payment history data
+
+### Benefits Intake API (Lighthouse)
+- **Service Key**: `benefits_intake`
+- **Aliases**: None
+- **Settings**: `lighthouse.benefits_intake`
+- **Port**: `4492`
+- **Description**: Connect to VA Benefits Intake API for backup 686c submissions
+
 ### Benefits Claims API (Lighthouse)
 - **Service Key**: `claims`
+- **Aliases**: None
 - **Settings**: `lighthouse.benefits_claims`
 - **Port**: `4492`
 - **Description**: Connect to VA Benefits Claims API for claims data
 
+### Benefits Documents API (Lighthouse)
+- **Service Key**: `decision_letters`
+- **Aliases**: `benefits_documents`
+- **Settings**: `lighthouse.benefits_documents`
+- **Port**: `4492`
+- **Description**: Connect to VA Benefits Documents API for decision letters and doc uploads
+
+### Direct Deposit Management API (Lighthouse)
+- **Service Key**: `direct_deposit`
+- **Aliases**: None
+- **Settings**: `lighthouse.direct_deposit`
+- **Port**: `4492`
+- **Description**: Connect to VA Direct Deposit Management API for direct deposit banking data
+
+### Immunizations/Locations - Patient Health API (FHIR) (Lighthouse)
+- **Service Key**: `immunizations`
+- **Aliases**: `locations`
+- **Settings**: `lighthouse_health_immunization`
+- **Port**: `4492`
+- **Description**: Search for an individual patients immunizations and Location information
+
+### Patient Health API (FHIR) (Lighthouse)
+- **Service Key**: `labs_and_tests`
+- **Aliases**: `allergies_v0`
+- **Settings**: `lighthouse.veterans_health`
+- **Port**: `4492`
+- **Description**: Search for an individual patients appointments, conditions, medications, observations including vital signs and lab tests, and more
+
 ### Letter Generator API (Lighthouse)
 - **Service Key**: `letters`
+- **Aliases**: None
 - **Settings**: `lighthouse.letters_generator`
 - **Port**: `4492`
 - **Description**: Connect to VA Letter Generator API for official VA letters
+
+### MPI
+- **Service Key**: `user`
+- **Aliases**: `mpi`
+- **Settings**: `lighthouse.facilities`
+- **Port**: `4492`
+- **Description**: Connect to Benefits Eligibility Platform for awards and payment history data
+
+### Vet Service History and Eligibility API (Lighthouse)
+- **Service Key**: `vet_verification`
+- **Aliases**: `disability_rating`
+- **Settings**: `lighthouse.veteran_verification`
+- **Port**: `4492`
+- **Description**: Connect to Vet Service History and Eligibility API for the service history, certain enrolled benefits, and disability rating information of a veteran
 
 ## Requirements
 
