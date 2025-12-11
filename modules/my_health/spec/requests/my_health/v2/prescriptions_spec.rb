@@ -491,7 +491,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify sort metadata is included
           expect(json_response['meta']).to have_key('sort')
           expect(json_response['meta']['sort']).to be_a(Hash)
-          expect(json_response['meta']['sort']).to include('prescription_name' => 'ASC')
+          expect(json_response['meta']['sort']).to eq({
+                                                        'prescription_name' => 'ASC',
+                                                        'dispensed_date' => 'DESC'
+                                                      })
 
           # Get non-PD prescription data
           prescriptions = json_response['data']
@@ -542,7 +545,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify sort metadata is included with default value
           expect(json_response['meta']).to have_key('sort')
           expect(json_response['meta']['sort']).to be_a(Hash)
-          expect(json_response['meta']['sort']).to include('disp_status' => 'ASC', 'prescription_name' => 'ASC')
+          expect(json_response['meta']['sort']).to eq({
+                                                        'disp_status' => 'ASC',
+                                                        'prescription_name' => 'ASC',
+                                                        'dispensed_date' => 'DESC'
+                                                      })
 
           # Default sort is by disp_status ASC, then prescription_name ASC
           # Skip PD prescriptions in verification

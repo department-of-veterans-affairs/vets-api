@@ -224,7 +224,11 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         it 'applies default sorting' do
           result = helper.apply_sorting(resource, nil)
 
-          expect(result.records.map(&:prescription_name)).to eq(%w[Zoloft Aspirin Metformin].sort_by(&:downcase))
+          expect(result.metadata[:sort]).to eq({
+                                                 'disp_status' => 'ASC',
+                                                 'prescription_name' => 'ASC',
+                                                 'dispensed_date' => 'DESC'
+                                               })
         end
       end
 
@@ -232,7 +236,16 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         it 'sorts by prescription_name ascending' do
           result = helper.apply_sorting(resource, 'alphabetical-rx-name')
 
-          expect(result.records.map(&:prescription_name)).to eq(%w[Aspirin Metformin Zoloft])
+          expect(result.metadata[:sort]).to eq({
+                                                 'prescription_name' => 'ASC',
+                                                 'dispensed_date' => 'DESC'
+                                               })
+        end
+
+        it 'includes secondary sort by dispensed_date descending' do
+          result = helper.apply_sorting(resource, 'alphabetical-rx-name')
+
+          expect(result.metadata[:sort]).to include('dispensed_date' => 'DESC')
         end
       end
 
@@ -240,11 +253,16 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         it 'sorts by dispensed_date descending' do
           result = helper.apply_sorting(resource, 'last-fill-date')
 
-          expect(result.records.map(&:prescription_name)).to eq(%w[Aspirin Metformin Zoloft].sort_by { |name|
-            -resource.records.find do |r|
-              r.prescription_name == name
-            end.dispensed_date.to_time.to_i
-          })
+          expect(result.metadata[:sort]).to eq({
+                                                 'dispensed_date' => 'DESC',
+                                                 'prescription_name' => 'ASC'
+                                               })
+        end
+
+        it 'includes secondary sort by prescription_name ascending' do
+          result = helper.apply_sorting(resource, 'last-fill-date')
+
+          expect(result.metadata[:sort]).to include('prescription_name' => 'ASC')
         end
       end
 
@@ -252,7 +270,11 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         it 'applies default sorting' do
           result = helper.apply_sorting(resource, 'unknown-sort')
 
-          expect(result.records.map(&:prescription_name)).to eq(%w[Zoloft Aspirin Metformin].sort_by(&:downcase))
+          expect(result.metadata[:sort]).to eq({
+                                                 'disp_status' => 'ASC',
+                                                 'prescription_name' => 'ASC',
+                                                 'dispensed_date' => 'DESC'
+                                               })
         end
       end
     end

@@ -74,10 +74,10 @@ module MyHealth
 
         prescriptions = service.get_prescriptions(current_only: false).compact
         recently_requested = get_recently_requested_prescriptions(prescriptions)
-        refillable_prescriptions = prescriptions.select do |rx|
-          (rx.respond_to?(:is_refillable) && rx.is_refillable) ||
-            (rx.respond_to?(:is_renewable) && rx.is_renewable)
-        end
+
+        prescriptions = resource_data_modifications(prescriptions).compact
+
+        refillable_prescriptions = filter_data_by_refill_and_renew(prescriptions)
 
         options = { meta: { recently_requested: } }
         render json: MyHealth::V2::PrescriptionDetailsSerializer.new(refillable_prescriptions, options)
@@ -111,6 +111,7 @@ module MyHealth
         is_using_pagination = params[:page].present? || params[:per_page].present?
 
         base_meta = filter_count.merge(recently_requested:)
+        # sort_metadata is the entire metadata hash from the resource, access the :sort key
         base_meta[:sort] = sort_metadata[:sort] if sort_metadata.is_a?(Hash) && sort_metadata[:sort].present?
 
         if is_using_pagination
@@ -175,6 +176,7 @@ module MyHealth
 
         # Use the helper's apply_sorting method which sets the metadata
         sorted_resource = apply_sorting(resource, sort_param)
+
         [sorted_resource.records, sorted_resource.metadata]
       end
 
@@ -244,7 +246,8 @@ module MyHealth
 
           # Validate that orders is an array
           unless parsed_orders.is_a?(Array)
-            raise Common::Exceptions::InvalidFieldValue.new('orders', 'Must be an array')
+            raise Common::Exceptions::InvalidFieldValue.new('orders',
+                                                            'Must be an array')
           end
 
           # Validate that orders array is not empty (treat empty array same as missing required parameter)

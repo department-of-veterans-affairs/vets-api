@@ -72,7 +72,8 @@ module MyHealth
       def apply_sorting(resource, sort_param)
         sorted_resource = sort_resource_by_param(resource, sort_param)
         sort_metadata = build_sort_metadata(sort_param)
-        (sorted_resource.metadata[:sort] ||= {}).merge!(sort_metadata)
+        sorted_resource.metadata ||= {}
+        sorted_resource.metadata[:sort] = sort_metadata
         sorted_resource
       end
 
