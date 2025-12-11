@@ -296,7 +296,7 @@ module RepresentationManagement
     # @return [Hash, nil]
     def handle_candidate_address_not_found(address_hash, exception)
       Rails.logger.error(
-        "VAProfile address validation CandidateAddressNotFound for address: " \
+        'VAProfile address validation CandidateAddressNotFound for address: ' \
         "#{address_hash.inspect}: #{exception.message}, retrying..."
       )
 
