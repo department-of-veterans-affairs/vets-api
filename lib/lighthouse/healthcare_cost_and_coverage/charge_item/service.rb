@@ -28,6 +28,8 @@ module Lighthouse
         end
 
         def read(id)
+          raise ArgumentError, 'no ID passed in for HCCC ChargeItem read request' if id.blank?
+
           endpoint = "r4/ChargeItem/#{id}"
 
           config.get(endpoint, icn: @icn).body
