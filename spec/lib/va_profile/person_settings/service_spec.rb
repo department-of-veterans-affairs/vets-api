@@ -96,6 +96,8 @@ RSpec.describe VAProfile::PersonSettings::Service do
   end
 
   describe '#person_options_request_path' do
+    let(:user) { valid_user }
+
     it 'constructs a valid path with OID and encoded user ID with AAID' do
       expected_path = "person-options/v1/#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(subject.send(:vaprofile_id_with_aaid))}"
 
