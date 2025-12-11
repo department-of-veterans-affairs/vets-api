@@ -205,6 +205,8 @@ module DependentsBenefits
       parent_claim_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     end
 
+    # Collects a memoized list of child claims
+    # @return [Array<DependentClaim>]
     def child_claims
       @child_claims ||= collect_child_claims
     end
