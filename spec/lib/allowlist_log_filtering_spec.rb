@@ -244,6 +244,55 @@ RSpec.describe AllowlistLogFiltering do
     end
   end
 
+  describe 'object inspect filtering' do
+    it 'filters object inspect strings with @attr=value pattern' do
+      inspect_string = '#<User @ssn="123-45-6789", @email="user@example.com">'
+      logger_with_output.info(inspect_string, log_allowlist: [:email])
+
+      output = log_output.string
+      expect(output).to include('@ssn=[FILTERED]')
+      expect(output).to include('@email="user@example.com"')
+    end
+
+    it 'filters object inspect strings with attr: value pattern' do
+      inspect_string = '#<User id: 123, ssn: "123-45-6789", email: "user@example.com">'
+      logger_with_output.info(inspect_string, log_allowlist: [:email])
+
+      output = log_output.string
+      expect(output).to include('id: 123') # id is in global ALLOWLIST
+      expect(output).to include('ssn: [FILTERED]')
+      expect(output).to include('email: "user@example.com"')
+    end
+
+    it 'respects global ALLOWLIST for object inspect' do
+      inspect_string = '#<Request id: 123, status: "active", ssn: "123-45-6789">'
+      logger_with_output.info(inspect_string, log_allowlist: [])
+
+      output = log_output.string
+      expect(output).to include('id: 123')          # id is in global ALLOWLIST
+      expect(output).to include('status: "active"') # status is in global ALLOWLIST
+      expect(output).to include('ssn: [FILTERED]')
+    end
+
+    it 'does not filter regular strings that are not object inspect' do
+      message = 'Regular log message without object pattern'
+      logger_with_output.info(message, log_allowlist: [])
+
+      output = log_output.string
+      # Regular strings pass through unfiltered (no object inspect pattern)
+      expect(output).to include('Regular log message without object pattern')
+    end
+
+    it 'filters nested object inspect strings' do
+      inspect_string = '#<User id: 1, profile: #<Profile ssn: "123-45-6789", email: "user@example.com">>'
+      logger_with_output.info(inspect_string, log_allowlist: [:email])
+
+      output = log_output.string
+      expect(output).to include('ssn: [FILTERED]')
+      expect(output).to include('email: "user@example.com"')
+    end
+  end
+
   describe 'data mutation' do
     it 'does not mutate the original data hash' do
       original_data = { ssn: '123-45-6789', email: 'user@example.com' }

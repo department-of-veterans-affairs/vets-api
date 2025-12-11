@@ -13,26 +13,22 @@
 # The log_allowlist parameter accepts an array of symbols or strings representing
 # keys that should bypass filtering for that specific log call.
 module AllowlistLogFiltering
+  # Regex to match object inspect output: #<ClassName @attr=value, @attr2=value2>
+  # or #<ClassName attr: value, attr2: value2>
+  OBJECT_INSPECT_PATTERN = /#<[A-Z][A-Za-z0-9:]*\s+.*>/
+  # Matches @attr="value" or @attr=value patterns in inspect strings
+  INSTANCE_VAR_PATTERN = /@(\w+)=("[^"]*"|'[^']*'|\S+)/
+  # Matches attr: "value" or attr: value patterns (Ruby inspect style)
+  ATTR_COLON_PATTERN = /(\w+):\s*("[^"]*"|'[^']*'|\S+)/
+
   def add(severity, message = nil, progname = nil, log_allowlist: [])
     severity_int = Logger::Severity.const_get(severity.to_s.upcase)
 
     # Convert log_allowlist to strings for consistent comparison
     allowlist = log_allowlist.map(&:to_s)
 
-    # If message is a hash, apply filtering (either per-call or default)
-    if message.is_a?(Hash)
-      filtered_message = if allowlist.any?
-                           # Apply per-call allowlist filtering
-                           filter_with_allowlist(message, allowlist)
-                         else
-                           # Apply default Rails filtering (no per-call allowlist)
-                           ParameterFilterHelper.filter_params(message)
-                         end
-      return super(severity_int, filtered_message, progname)
-    end
-
-    # Otherwise use default behavior for non-hash messages
-    super(severity_int, message, progname)
+    filtered_message = filter_message(message, allowlist)
+    super(severity_int, filtered_message, progname)
   end
 
   # Override all log level methods to support log_allowlist parameter
@@ -63,6 +59,57 @@ module AllowlistLogFiltering
   end
 
   private
+
+  def filter_message(message, allowlist)
+    case message
+    when Hash
+      filter_hash_message(message, allowlist)
+    when String
+      filter_string_message(message, allowlist)
+    else
+      message
+    end
+  end
+
+  def filter_hash_message(message, allowlist)
+    if allowlist.any?
+      filter_with_allowlist(message, allowlist)
+    else
+      ParameterFilterHelper.filter_params(message)
+    end
+  end
+
+  def filter_string_message(message, allowlist)
+    return message unless message.match?(OBJECT_INSPECT_PATTERN)
+
+    filter_object_inspect(message, allowlist)
+  end
+
+  def filter_object_inspect(message, allowlist)
+    combined_allowlist = build_combined_allowlist(allowlist)
+    result = message.dup
+    result = filter_instance_vars(result, combined_allowlist)
+    filter_colon_attrs(result, combined_allowlist)
+  end
+
+  def build_combined_allowlist(allowlist)
+    global_allowlist = defined?(ALLOWLIST) ? ALLOWLIST : []
+    (global_allowlist + allowlist).map(&:to_s)
+  end
+
+  def filter_instance_vars(result, combined_allowlist)
+    result.gsub(INSTANCE_VAR_PATTERN) do |match|
+      attr_name = ::Regexp.last_match(1)
+      combined_allowlist.include?(attr_name) ? match : "@#{attr_name}=[FILTERED]"
+    end
+  end
+
+  def filter_colon_attrs(result, combined_allowlist)
+    result.gsub(ATTR_COLON_PATTERN) do |match|
+      attr_name = ::Regexp.last_match(1)
+      combined_allowlist.include?(attr_name) ? match : "#{attr_name}: [FILTERED]"
+    end
+  end
 
   def filter_with_allowlist(data, allowlist)
     # Get the global filter lambda from Rails config
