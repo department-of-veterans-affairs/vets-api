@@ -606,7 +606,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'filters prescriptions with multiple disp_status values' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
+          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Inactive', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
@@ -614,9 +614,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify filter_count metadata
           expect(json_response['meta']).to have_key('filter_count')
 
-          # Verify all returned prescriptions have disp_status of Active or Expired
+          # Verify all returned prescriptions have disp_status of Active or Inactive
           disp_statuses = json_response['data'].map { |rx| rx['attributes']['disp_status'] }.compact
-          expect(disp_statuses).to all(be_in(%w[Active Expired])) if disp_statuses.any?
+          expect(disp_statuses).to all(be_in(%w[Active Inactive])) if disp_statuses.any?
         end
       end
 
