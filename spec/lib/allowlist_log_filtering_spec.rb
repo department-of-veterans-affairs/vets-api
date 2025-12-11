@@ -242,6 +242,16 @@ RSpec.describe AllowlistLogFiltering do
       output = log_output.string
       expect(output).not_to include('123-45-6789')
     end
+
+    it 'supports log_allowlist with block form' do
+      logger_with_output.info(log_allowlist: [:email]) do
+        { ssn: '123-45-6789', email: 'user@example.com' }
+      end
+
+      output = log_output.string
+      expect(output).to include('user@example.com')
+      expect(output).not_to include('123-45-6789')
+    end
   end
 
   describe 'object inspect filtering' do

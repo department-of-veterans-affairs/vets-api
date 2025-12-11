@@ -21,11 +21,14 @@ module AllowlistLogFiltering
   # Matches attr: "value" or attr: value patterns (Ruby inspect style)
   ATTR_COLON_PATTERN = /(\w+):\s*("[^"]*"|'[^']*'|\S+)/
 
-  def add(severity, message = nil, progname = nil, log_allowlist: [])
+  def add(severity, message = nil, progname = nil, log_allowlist: [], &block)
     severity_int = Logger::Severity.const_get(severity.to_s.upcase)
 
     # Convert log_allowlist to strings for consistent comparison
     allowlist = log_allowlist.map(&:to_s)
+
+    # Handle block form: logger.info(log_allowlist: [:email]) { data }
+    message = block.call if block && message.nil?
 
     filtered_message = filter_message(message, allowlist)
     super(severity_int, filtered_message, progname)
