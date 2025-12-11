@@ -385,7 +385,7 @@ module TravelClaim
         with_auth { perform(method, path, params, headers || self.headers, options) }
       end
     rescue *API_EXCEPTIONS => e
-      handle_backend_service_exception(e, endpoint:, is_auth_request:)
+      handle_backend_service_exception(e, endpoint:)
     rescue => e
       log_error("TravelPayClient #{endpoint || 'API'} unexpected error", error: e)
       raise
@@ -495,7 +495,7 @@ module TravelClaim
       }
     end
 
-    def handle_backend_service_exception(error, endpoint: nil, is_auth_request: false) # rubocop:disable Lint/UnusedMethodArgument
+    def handle_backend_service_exception(error, endpoint: nil)
       status = extract_actual_status(error)
       body = error.respond_to?(:original_body) ? error.original_body : error.try(:body)
 
