@@ -66,7 +66,7 @@ module VANotify
 
       api_key = get_api_key_value(@notification.service_id)
       if api_key.nil?
-        Rails.logger.error("va_notify callbacks - Failed signature authentication \n
+        Rails.logger.error("va_notify callbacks - Failed signature authentication
         due to missing API key for service_id #{@notification.service_id}")
         return false
       end
@@ -120,7 +120,7 @@ module VANotify
 
     def get_api_key_value(service_id)
       service_config = Settings.vanotify.services.find do |_service, options|
-        options.api_key.include?(service_id)
+        options.api_key&.include?(service_id)
       end
       if service_config.blank?
         Rails.logger.error("api key not found for service_id #{service_id}")
