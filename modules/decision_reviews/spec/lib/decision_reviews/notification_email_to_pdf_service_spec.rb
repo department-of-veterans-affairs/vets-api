@@ -27,10 +27,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
   let(:payload_hash) do
     {
-      'to' => 'veteran@example.com',
-      'sent_at' => '2025-11-01T10:00:00Z',
-      'template_id' => '12345',
-      'notification_id' => notification_id
+      'completed_at' => '2025-11-01T10:00:00Z'
     }
   end
 
@@ -44,7 +41,8 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
   end
 
   before do
-    allow(appeal_submission).to receive(:get_mpi_profile).and_return(mpi_profile)
+    allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile,
+                                                 current_email_address: 'veteran@example.com')
     allow(AppealSubmission).to receive(:find_by).with(submitted_appeal_uuid:).and_return(appeal_submission)
   end
 
@@ -82,6 +80,64 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       it 'sets evidence_filename to nil for form failures' do
         service = described_class.new(audit_log)
         expect(service.instance_variable_get(:@evidence_filename)).to be_nil
+      end
+
+      it 'sets email_delivery_failure to false when status is delivered' do
+        service = described_class.new(audit_log)
+        expect(service.instance_variable_get(:@email_delivery_failure)).to be false
+      end
+    end
+
+    context 'when email delivery permanently failed' do
+      let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
+      let(:failed_audit_log) do
+        OpenStruct.new(
+          notification_id:,
+          reference:,
+          status: 'permanent-failure',
+          payload: payload_hash.to_json
+        )
+      end
+
+      it 'sets email_delivery_failure to true when status is permanent-failure' do
+        service = described_class.new(failed_audit_log)
+        expect(service.instance_variable_get(:@email_delivery_failure)).to be true
+      end
+    end
+
+    context 'when email delivery has temporary failure status' do
+      let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
+      let(:temp_failure_audit_log) do
+        OpenStruct.new(
+          notification_id:,
+          reference:,
+          status: 'temporary-failure',
+          payload: payload_hash.to_json
+        )
+      end
+
+      it 'raises ArgumentError for non-final status' do
+        expect do
+          described_class.new(temp_failure_audit_log)
+        end.to raise_error(ArgumentError, /Cannot generate PDF for non-final status: temporary-failure/)
+      end
+    end
+
+    context 'when status is pending' do
+      let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
+      let(:pending_audit_log) do
+        OpenStruct.new(
+          notification_id:,
+          reference:,
+          status: 'pending',
+          payload: payload_hash.to_json
+        )
+      end
+
+      it 'raises ArgumentError for non-final status' do
+        expect do
+          described_class.new(pending_audit_log)
+        end.to raise_error(ArgumentError, /Cannot generate PDF for non-final status: pending/)
       end
     end
 
@@ -197,7 +253,9 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
       it 'parses hash payload correctly' do
         service = described_class.new(audit_log_with_hash_payload)
-        expect(service.instance_variable_get(:@email_address)).to eq('veteran@example.com')
+        sent_date = service.instance_variable_get(:@sent_date)
+        expect(sent_date).to be_a(Time)
+        expect(sent_date.strftime('%Y-%m-%d')).to eq('2025-11-01')
       end
     end
 
@@ -205,8 +263,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
       let(:symbol_payload) do
         {
-          to: 'veteran@example.com',
-          sent_at: '2025-11-01T10:00:00Z'
+          completed_at: '2025-11-01T10:00:00Z'
         }
       end
       let(:audit_log_with_symbols) do
@@ -220,7 +277,9 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
       it 'handles symbol keys in payload' do
         service = described_class.new(audit_log_with_symbols)
-        expect(service.instance_variable_get(:@email_address)).to eq('veteran@example.com')
+        sent_date = service.instance_variable_get(:@sent_date)
+        expect(sent_date).to be_a(Time)
+        expect(sent_date.strftime('%Y-%m-%d')).to eq('2025-11-01')
       end
     end
 
@@ -331,7 +390,8 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
         submission_date: appeal_submission.created_at,
         email_address: 'veteran@example.com',
         sent_date: kind_of(Time),
-        evidence_filename: nil
+        evidence_filename: nil,
+        email_delivery_failure: false
       )
     end
 
@@ -390,7 +450,33 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
           submission_date: appeal_submission.created_at,
           email_address: 'veteran@example.com',
           sent_date: kind_of(Time),
-          evidence_filename: 'vetXXXXXXXXXXXXXXXXXXXXXXXXXent.pdf'
+          evidence_filename: 'vetXXXXXXXXXXXXXXXXXXXXXXXXXent.pdf',
+          email_delivery_failure: false
+        )
+      end
+    end
+
+    context 'when email delivery permanently failed' do
+      let(:failed_audit_log) do
+        OpenStruct.new(
+          notification_id:,
+          reference:,
+          status: 'permanent-failure',
+          payload: payload_hash.to_json
+        )
+      end
+
+      it 'passes email_delivery_failure: true to stamper' do
+        service = described_class.new(failed_audit_log)
+        service.generate_pdf
+
+        expect(stamper).to have_received(:stamp_personalized_data).with(
+          first_name: 'John',
+          submission_date: appeal_submission.created_at,
+          email_address: 'veteran@example.com',
+          sent_date: kind_of(Time),
+          evidence_filename: nil,
+          email_delivery_failure: true
         )
       end
     end
