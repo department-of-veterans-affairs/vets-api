@@ -1211,6 +1211,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  identity_ial2_enforcement:
+    actor_type: user
+    description: Enforces IAL2 for newly verified users
+    enable_in_development: true
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
