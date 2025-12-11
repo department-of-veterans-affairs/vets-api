@@ -13,6 +13,7 @@ module PdfFill
       DEFAULT_TEMPLATE_PATH = 'lib/pdf_fill/forms/pdfs/22-8794.pdf'
       DEFAULT_FORM_OFFICIALS_LIMIT = 7
       DEFAULT_FORM_READ_ONLY_SCO_LIMIT = 4
+      REMARKS_LINES = 5
       TMP_DIR = 'tmp/pdfs'
       FORM_CLASS = PdfFill::Forms::Va228794
 
@@ -28,8 +29,10 @@ module PdfFill
 
         certifying_officials = @form_data['additionalCertifyingOfficials'] || []
         read_only_officials = @form_data['readOnlyCertifyingOfficial'] || []
+        remarks = @form_data['remarks'] || ''
         if certifying_officials.size <= DEFAULT_FORM_OFFICIALS_LIMIT &&
-           read_only_officials.size <= DEFAULT_FORM_READ_ONLY_SCO_LIMIT
+           read_only_officials.size <= DEFAULT_FORM_READ_ONLY_SCO_LIMIT &&
+           remarks.lines.count <= REMARKS_LINES
           generate_default_form(merged_form_data, hash_converter)
         else
           generate_extended_form(merged_form_data, hash_converter)
@@ -46,13 +49,18 @@ module PdfFill
         file_path
       end
 
-      def generate_extended_form(merged_form_data, hash_converter)
+      def generate_extended_form(merged_form_data, hash_converter) # rubocop:disable Metrics/MethodLength
         # extract extra records that don't fit on pdf for later processing
 
         extra_certifying_officials = extract_extra_from_array(merged_form_data['additionalCertifyingOfficials'],
                                                               DEFAULT_FORM_OFFICIALS_LIMIT)
         extra_read_only_officials = extract_extra_from_array(merged_form_data['readOnlyCertifyingOfficial'],
                                                              DEFAULT_FORM_READ_ONLY_SCO_LIMIT)
+
+        # handle remarks overflow if any
+        remarks = merged_form_data['remarks'] || ''
+        has_remarks_overflow = remarks.lines.count > REMARKS_LINES
+        merged_form_data['remarks'] = 'See attached page' if has_remarks_overflow
 
         # convert data that will fit naturally onto the pdf
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
@@ -69,6 +77,14 @@ module PdfFill
           hash_converter.extras_generator.add_text(read_only_official_to_text(rof_data), {
                                                      question_num: extra_certifying_officials.size + i + 1,
                                                      question_text: 'READ ONLY OFFICIAL'
+                                                   })
+        end
+
+        if has_remarks_overflow
+          question_num = extra_certifying_officials.size + extra_read_only_officials.size + 1
+          hash_converter.extras_generator.add_text(remarks, {
+                                                     question_num:,
+                                                     question_text: 'REMARKS'
                                                    })
         end
 
