@@ -24,13 +24,13 @@ module MyHealth
       rescue Common::Exceptions::BackendServiceException => e
         if e.original_status == 404
           render json: { error: { code: 'DOCUMENTATION_NOT_FOUND', message: 'Documentation not found for this NDC' } },
-                       status: :not_found
+                 status: :not_found
         else
           raise e
         end
-      rescue => e
+      rescue
         render json: { error: { code: 'SERVICE_UNAVAILABLE', message: 'Unable to fetch documentation' } },
-                     status: :service_unavailable
+               status: :service_unavailable
       end
     end
   end
