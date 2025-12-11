@@ -6,20 +6,14 @@ module V0
     before_action :authenticate
     skip_before_action :load_user
 
-    # rubocop:disable Metrics/MethodLength
     def create
-      modular_api_enabled = Flipper.enabled?(:vre_modular_api)
-      user_account = UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
-
       if claim.save
-        submission_id = setup_form_submission_tracking(claim, user_account)
+        Rails.logger.info "Submitting VR&E claim via #{modular_api_enabled ? 'modular' : 'legacy'} VRE API"
 
         if modular_api_enabled
-          Rails.logger.info 'Submitting VR&E claim via modular VRE API'
+          submission_id = setup_form_submission_tracking(claim, user_account)
           VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
         else
-          Rails.logger.info 'Submitting VR&E claim via legacy VRE API'
           VRE::Submit1900Job.perform_async(claim.id, encrypted_user)
         end
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
@@ -36,9 +30,20 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
+
+    def modular_api_enabled
+      @modular_api_enabled ||= Flipper.enabled?(:vre_modular_api)
+    end
+
+    def user_account
+      @user_account ||= UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
+    end
+
+    def claim
+      @claim ||= SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
+    end
 
     def setup_form_submission_tracking(claim, user_account)
       return nil unless Flipper.enabled?(:vre_track_submissions)

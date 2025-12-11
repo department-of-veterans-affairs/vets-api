@@ -48,16 +48,8 @@ module VRE
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def perform(claim_id, encrypted_user, submission_id = nil)
-      submission_tracking_enabled = Flipper.enabled?(:vre_track_submissions)
-
-      submission = nil
-      attempt = nil
-
-      if submission_tracking_enabled && submission_id
-        submission, attempt = setup_submission_tracking(claim_id, submission_id)
-      end
+      submission, attempt = setup_submission_tracking(claim_id, submission_id)
 
       begin
         # TODO: Change this to use new modular VRE claim class
@@ -68,30 +60,20 @@ module VRE
 
         if submission_tracking_enabled && submission && attempt
           attempt.succeed
-          Rails.logger.info(
-            'VRE::VRESubmit1900Job - Submission Attempt Succeeded',
-            claim_id:,
-            submission_id:,
-            submission_attempt_id: attempt.id,
-            num_attempts: submission.form_submission_attempts.size,
-            user_account_id: claim.user_account&.id
-          )
+          Rails.logger.info('VRE::VRESubmit1900Job - Submission Attempt Succeeded',
+                            claim_id:, submission_id:, submission_attempt_id: attempt.id,
+                            num_attempts: submission.form_submission_attempts.size,
+                            user_account_id: claim.user_account&.id)
           duplicate_submission_check(claim.user_account)
         end
       rescue => e
-        Rails.logger.warn(
-          'VRE::VRESubmit1900Job failed, retrying...',
-          claim_id:,
-          submission_id:,
-          error_class: e.class.name,
-          error_message: e.message
-        )
+        Rails.logger.warn('VRE::VRESubmit1900Job failed, retrying...',
+                          claim_id:, submission_id:, error_class: e.class.name, error_message: e.message)
 
         attempt.fail if submission_tracking_enabled && submission && attempt
         raise
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def self.trigger_failure_events(msg)
       claim_id = msg['args'][0]
@@ -107,44 +89,28 @@ module VRE
 
     private
 
-    # rubocop:disable Metrics/MethodLength
+    def submission_tracking_enabled
+      @submission_tracking_enabled ||= Flipper.enabled?(:vre_track_submissions)
+    end
+
     def setup_submission_tracking(claim_id, submission_id)
-      attempt = nil
-      submission = nil
+      return [nil, nil] unless submission_tracking_enabled && submission_id
 
       begin
         submission = FormSubmission.find(submission_id)
-
-        attempt = submission.form_submission_attempts.create
-        if attempt.persisted?
-          Rails.logger.info(
-            'VRE::VRESubmit1900Job - Submission Attempt Created',
-            claim_id:,
-            submission_id:,
-            submission_attempt_id: attempt.id
-          )
-        else
-          Rails.logger.warn(
-            'VRE::VRESubmit1900Job - Submission Attempt Creation Failed - continuing without tracking',
-            claim_id:,
-            submission_id:,
-            errors: attempt.errors.full_messages
-          )
-          attempt = nil
-        end
+        attempt = submission.form_submission_attempts.create!
+        Rails.logger.info(
+          'VRE::VRESubmit1900Job - Submission Attempt Created',
+          claim_id:, submission_id:, submission_attempt_id: attempt.id
+        )
+        [submission, attempt]
       rescue => e
         Rails.logger.error(
           'VRE::VRESubmit1900Job - Submission Attempt Creation Failed - continuing without tracking',
-          claim_id:,
-          submission_id:,
-          error_class: e.class.name,
-          errors: e.message
+          claim_id:, submission_id:, error_class: e.class.name, errors: e.message
         )
-        attempt = nil
-        submission = nil
+        [nil, nil]
       end
-      [submission, attempt]
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end
