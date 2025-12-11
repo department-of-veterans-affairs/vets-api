@@ -102,12 +102,6 @@ module TravelClaim
     #
     def system_access_token_request(veis_access_token:, icn:)
       with_monitoring do
-        # Log presence booleans only — no PHI/PII
-        Rails.logger.info('TravelPayClient BTSSS auth preflight', {
-                            correlation_id: @correlation_id,
-                            icn_present: icn.present?
-                          })
-
         body = { secret: btsss_client_secret, icn: }
         headers = {
           'Content-Type' => 'application/json',
