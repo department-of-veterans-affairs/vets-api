@@ -9,14 +9,6 @@ require './modules/decision_reviews/lib/decision_reviews/notification_email_to_p
 RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   subject { described_class }
 
-  around do |example|
-    Sidekiq::Testing.inline!(&example)
-  end
-
-  after do
-    Timecop.return
-  end
-
   let(:user) { create(:user, :loa3, ssn: '212222112') }
   let(:submitted_appeal_uuid1) { SecureRandom.uuid }
   let(:submitted_appeal_uuid2) { SecureRandom.uuid }
@@ -87,6 +79,13 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   let(:uploader2) { instance_double(DecisionReviews::NotificationPdfUploader) }
   let(:uploader_permanent_failure) { instance_double(DecisionReviews::NotificationPdfUploader) }
 
+  around do |example|
+    # Freeze time to after the CUTOFF_DATE (Dec 12, 2025) so test fixtures are created after cutoff
+    Timecop.freeze(Date.new(2025, 12, 25)) do
+      Sidekiq::Testing.inline!(&example)
+    end
+  end
+
   before do
     allow(Flipper).to receive(:enabled?).with(:decision_review_upload_notification_pdfs_enabled).and_return(true)
     allow(StatsD).to receive(:increment)
@@ -101,9 +100,6 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
     allow(uploader1).to receive(:upload_to_vbms).and_return(vbms_file_uuid1)
     allow(uploader2).to receive(:upload_to_vbms).and_return(vbms_file_uuid2)
     allow(uploader_permanent_failure).to receive(:upload_to_vbms).and_return("#{SecureRandom.uuid}-vbms-perm")
-
-    # Freeze time to after the CUTOFF_DATE so test fixtures are created after cutoff
-    Timecop.freeze(Date.new(2025, 12, 25))
   end
 
   describe '#perform' do
