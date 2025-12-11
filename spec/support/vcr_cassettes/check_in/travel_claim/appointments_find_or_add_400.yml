@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "https://dev.integration.d365.va.gov/api/v3/appointments/find-or-add"
+    uri: "https://dev.integration.d365.va.gov/eis/api/btsss/travelclaim/api/v3/appointments/find-or-add"
     body:
       encoding: UTF-8
       string: '{"appointmentDateTime":"2024-01-15T10:00:00Z","facilityStationNumber":"facility-123"}'

@@ -27,6 +27,32 @@ describe PdfFill::Forms::Va2210215 do
       expect(merged_data['programs'].first['programDateOfCalculation']).to eq('2024-02-01')
     end
 
+    it 'sorts programs by programName alphabetically' do
+      form_data['programs'] = [
+        { 'programName' => 'Zebra Program', 'name' => 'Zebra Program' },
+        { 'programName' => 'Apple Program', 'name' => 'Apple Program' },
+        { 'programName' => 'Banana Program', 'name' => 'Banana Program' }
+      ]
+      merged_data = subject.merge_fields
+
+      program_names = merged_data['programs'].map { |p| p['programName'] }
+      expect(program_names).to eq(['Apple Program', 'Banana Program', 'Zebra Program'])
+    end
+
+    it 'handles nil programs gracefully' do
+      form_data['programs'] = nil
+      expect { subject.merge_fields }.not_to raise_error
+      merged_data = subject.merge_fields
+      expect(merged_data['programs']).to be_nil
+    end
+
+    it 'handles empty programs array gracefully' do
+      form_data['programs'] = []
+      expect { subject.merge_fields }.not_to raise_error
+      merged_data = subject.merge_fields
+      expect(merged_data['programs']).to eq([])
+    end
+
     it 'handles missing certifying official name parts gracefully' do
       form_data['certifyingOfficial'] = { 'first' => 'Jane' }
       merged_data = subject.merge_fields
