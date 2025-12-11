@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'uri'
+require 'digest'
 
 module Mobile
   module V0
