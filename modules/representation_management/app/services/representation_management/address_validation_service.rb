@@ -103,7 +103,6 @@ module RepresentationManagement
     # @return [Hash, nil] Best validation response found, or nil if all attempts fail
     def get_best_address_candidate(address_hash)
       candidate_address = build_validation_address(address_hash)
-      original_response = nil
 
       begin
         original_response = call_validation_api(candidate_address)
@@ -297,7 +296,7 @@ module RepresentationManagement
     def handle_candidate_address_not_found(address_hash, exception)
       Rails.logger.error(
         'VAProfile address validation CandidateAddressNotFound for address: ' \
-        "#{address_hash.inspect}: #{exception.message}, retrying..."
+        "#{address_hash.slice('city', 'state_code', 'zip_code').inspect}: #{exception.message}, retrying..."
       )
 
       retry_response = retry_validation(address_hash)
