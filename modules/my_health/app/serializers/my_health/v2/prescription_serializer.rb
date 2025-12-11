@@ -37,6 +37,7 @@ module MyHealth
       attribute :dispensed_date
       attribute :station_number
       attribute :is_refillable
+      attribute :is_renewable
       attribute :is_trackable
     end
   end
