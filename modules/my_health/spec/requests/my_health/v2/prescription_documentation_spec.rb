@@ -56,7 +56,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
       describe 'POST /my_health/v2/documentation/search' do
         context 'when NDC is provided' do
           it 'responds to POST /my_health/v2/documentation/search' do
-            VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
+            VCR.use_cassette('rx_client/prescriptions/rx_documentation_search') do
               post '/my_health/v2/documentation/search', params: { ndc: '00013264681' }
 
               expect(response).to be_successful
@@ -65,7 +65,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
           end
 
           it 'returns prescription documentation in JSON format' do
-            VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
+            VCR.use_cassette('rx_client/prescriptions/rx_documentation_search') do
               post '/my_health/v2/documentation/search', params: { ndc: '00013264681' }
 
               expect(response).to have_http_status(:ok)
@@ -74,7 +74,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
           end
 
           it 'returns documentation with html attribute' do
-            VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
+            VCR.use_cassette('rx_client/prescriptions/rx_documentation_search') do
               post '/my_health/v2/documentation/search', params: { ndc: '00013264681' }
 
               json_response = JSON.parse(response.body)
@@ -94,7 +94,8 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
             expect(response).to have_http_status(:bad_request)
             json_response = JSON.parse(response.body)
             expect(json_response).to have_key('error')
-            expect(json_response['error']).to eq('NDC number is required')
+            expect(json_response['error']['code']).to eq('NDC_REQUIRED')
+            expect(json_response['error']['message']).to eq('NDC number is required')
           end
         end
 
@@ -105,7 +106,8 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
             expect(response).to have_http_status(:bad_request)
             json_response = JSON.parse(response.body)
             expect(json_response).to have_key('error')
-            expect(json_response['error']).to eq('NDC number is required')
+            expect(json_response['error']['code']).to eq('NDC_REQUIRED')
+            expect(json_response['error']['message']).to eq('NDC number is required')
           end
         end
 
@@ -126,7 +128,8 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
             expect(response).to have_http_status(:not_found)
             json_response = JSON.parse(response.body)
             expect(json_response).to have_key('error')
-            expect(json_response['error']).to eq('Documentation not found for this NDC')
+            expect(json_response['error']['code']).to eq('DOCUMENTATION_NOT_FOUND')
+            expect(json_response['error']['message']).to eq('Documentation not found for this NDC')
           end
         end
 
@@ -141,8 +144,8 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
             expect(response).to have_http_status(:service_unavailable)
             json_response = JSON.parse(response.body)
             expect(json_response).to have_key('error')
-            expect(json_response['error']).to include('Unable to fetch documentation')
-            expect(json_response['error']).to include('API Error')
+            expect(json_response['error']['code']).to eq('SERVICE_UNAVAILABLE')
+            expect(json_response['error']['message']).to eq('Unable to fetch documentation')
           end
         end
       end

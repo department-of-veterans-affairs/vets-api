@@ -6,7 +6,7 @@ module MyHealth
       def search
         ndc = params[:ndc]
         if ndc.blank?
-          render json: { error: 'NDC number is required' }, status: :bad_request
+          render json: { error: { code: 'NDC_REQUIRED', message: 'NDC number is required' } }, status: :bad_request
           return
         end
 
@@ -23,14 +23,14 @@ module MyHealth
         render json: MyHealth::V2::PrescriptionDocumentationSerializer.new(prescription_documentation)
       rescue Common::Exceptions::BackendServiceException => e
         if e.original_status == 404
-          render json: { error: 'Documentation not found for this NDC' }, status: :not_found
+          render json: { error: { code: 'DOCUMENTATION_NOT_FOUND', message: 'Documentation not found for this NDC' } },
+                       status: :not_found
         else
           raise e
         end
-      rescue Common::Exceptions::BaseError => e
-        raise e
       rescue => e
-        render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
+        render json: { error: { code: 'SERVICE_UNAVAILABLE', message: 'Unable to fetch documentation' } },
+                     status: :service_unavailable
       end
     end
   end
