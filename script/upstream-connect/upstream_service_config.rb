@@ -552,7 +552,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       ports: config[:ports],
       tunnel_setting: config[:tunnel_setting],
       skipped_settings: config[:skipped_settings],
-      mock_mpi: config.has_key?(:mock_mpi) ? config[:mock_mpi] : true,
+      mock_mpi: config.key?(:mock_mpi) ? config[:mock_mpi] : true,
       instructions: config[:instructions]&.strip
     }
 

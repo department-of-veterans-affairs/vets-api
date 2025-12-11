@@ -399,11 +399,6 @@ setup_mpi_identity_settings() {
     mkdir -p "$identity_settings_dir"
   fi
   
-  # Backup the existing file if it exists
-  if [[ -f "$identity_settings_file" ]]; then
-    cp "$identity_settings_file" "$identity_settings_file.backup"
-  fi
-  
   # Check if file exists and has mvi section
   if [[ -f "$identity_settings_file" ]] && grep -q "^mvi:" "$identity_settings_file"; then
     log_info "Updating existing MVI configuration in place"
