@@ -41,6 +41,7 @@ describe PdfFill::Processors::VA228794Processor do
         expect(get_field_value(fields,
                                'additional_certifying_officials_0_signature')).to eq sub_str
         expect(get_field_value(fields, 'additional_certifying_officials_1_phone')).to eq '3334445555'
+        expect(get_field_value(fields, 'signature_phone')).to eq '5556071234'
       end
     end
 
