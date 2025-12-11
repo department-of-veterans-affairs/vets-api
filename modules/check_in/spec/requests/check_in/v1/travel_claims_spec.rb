@@ -450,17 +450,6 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify that the auth retry log was called
-          expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient 401 error - retrying authentication',
-            hash_including(
-              correlation_id: be_present,
-              check_in_uuid: uuid,
-              veis_token_present: true,
-              btsss_token_present: true
-            )
-          )
-
           # Verify that the 401 retry mechanism worked (no 401 error, but business logic may fail)
           expect(response).not_to have_http_status(:unauthorized)
           expect(response).not_to have_http_status(:internal_server_error) # No VCR errors
