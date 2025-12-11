@@ -60,7 +60,7 @@ module AccreditedRepresentativePortal
     end
 
     def set_aws_params
-      if ActiveModel::Type::Boolean.new.cast(Settings.ogc.form21a_service_url.s3.uploads_enabled)
+      if Settings.ogc.form21a_service_url.s3.uploads_enabled
         self.aws_credentials = {
           region: Settings.ogc.form21a_service_url.s3.region
         }

@@ -21,36 +21,18 @@ module AccreditedRepresentativePortal
       before_action :feature_enabled, :loa3_user?
       before_action :parse_request_body, :validate_form, only: [:submit]
 
-      # rubocop:disable Metrics/MethodLength
       def background_detail_upload
         file = params[:file]
         return render json: { errors: 'file is required' }, status: :bad_request if file.blank?
 
         details_slug = params[:details_slug]
-        Rails.logger.info(
-          "Form21aController: Received details upload for slug=#{details_slug} " \
-          "user_uuid=#{current_user&.uuid}"
-        )
-
-        form_attachment = AccreditedRepresentativePortal::Form21aAttachment.new
-        form_attachment.set_file_data!(file)
-        form_attachment.save!
+        handle_logging(details_slug)
+        form_attachment = handle_file_save(file)
         update_in_progress_form(details_slug, file, form_attachment)
-
-        render json: {
-          data: {
-            attributes: {
-              errorMessage: '',
-              confirmationCode: form_attachment.guid,
-              name: file.original_filename,
-              size: file.size,
-              type: file.content_type
-            }
-          }
-        }, status: :ok
-      rescue CarrierWave::IntegrityError => e
-        Rails.logger.error(
-          "Form21aController: File upload integrity error for user_uuid=#{current_user&.uuid} " \
+        render json: handle_response(form_attachment, file), status: :ok
+      rescue Common::Exceptions::UnprocessableEntity => e
+        Rails.logger.warn(
+          "Form21aController: File upload unprocessable for user_uuid=#{current_user&.uuid} " \
           "details_slug=#{details_slug} error=#{e.message}"
         )
         render json: { errors: e.message }, status: :unprocessable_entity
@@ -61,7 +43,6 @@ module AccreditedRepresentativePortal
         )
         render json: { errors: 'Unable to store document' }, status: :unprocessable_entity
       end
-      # rubocop:enable Metrics/MethodLength
 
       # rubocop:disable Metrics/MethodLength
       def submit
@@ -129,6 +110,34 @@ module AccreditedRepresentativePortal
         end
 
         application_id
+      end
+
+      def handle_logging(details_slug)
+        Rails.logger.info(
+          "Form21aController: Received details upload for slug=#{details_slug} " \
+          "user_uuid=#{current_user&.uuid}"
+        )
+      end
+
+      def handle_file_save(file)
+        form_attachment = AccreditedRepresentativePortal::Form21aAttachment.new
+        form_attachment.set_file_data!(file)
+        form_attachment.save!
+        form_attachment
+      end
+
+      def handle_response(form_attachment, file)
+        {
+          data: {
+            attributes: {
+              errorMessage: '',
+              confirmationCode: form_attachment.guid,
+              name: file.original_filename,
+              size: file.size,
+              type: file.content_type
+            }
+          }
+        }
       end
 
       def current_in_progress_form_or_routing_error
