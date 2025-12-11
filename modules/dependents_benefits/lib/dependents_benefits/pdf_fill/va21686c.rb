@@ -2025,7 +2025,7 @@ module DependentsBenefits
         # income question when adding spouse
         spouse_name = combine_full_name(@form_data.dig('dependents_application', 'spouse_information', 'full_name'))
         spouse_income = @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_income')
-        spouse_income_exists = @form_data.dig('dependents_application', 'does_live_with_spouse').key?('spouse_income')
+        spouse_income_exists = @form_data.dig('dependents_application', 'does_live_with_spouse')&.key?('spouse_income')
         # Queston will only be asked if va_dependents_net_worth_and_pension FF is off
         # OR if FF is on and veteran receives pension benefits
         unless pension_flipper && !spouse_income_exists
@@ -2066,7 +2066,7 @@ module DependentsBenefits
         # Queston will only be asked if va_dependents_net_worth_and_pension FF is off
         # OR if FF is on and veteran receives pension benefits
         if Flipper.enabled?(:va_dependents_net_worth_and_pension)
-          return '' unless @form_data['dependents_application'].key?('household_income')
+          return '' unless @form_data['dependents_application']&.key?('household_income')
 
           "Did the household have a net worth less than $163,699 in the last tax year? #{format_boolean(net_worth)}"
         else
@@ -2096,7 +2096,7 @@ module DependentsBenefits
         return '' if dependents_hash.blank?
         # Question will only be asked if va_dependents_net_worth_and_pension FF is off
         # OR if FF is on and veteran receives pension benefits
-        return '' if Flipper.enabled?(:va_dependents_net_worth_and_pension) && !dependents_hash.first.key?(income_attr)
+        return '' if Flipper.enabled?(:va_dependents_net_worth_and_pension) && !dependents_hash.first&.key?(income_attr)
 
         dependent_text = ''
         dependents_hash.each do |dependent|
