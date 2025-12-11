@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/uploader'
 require 'medical_expense_reports/benefits_intake/submit_claim_job'
 require 'medical_expense_reports/monitor'
+require 'medical_expense_reports/zsf_config'
 require 'persistent_attachments/sanitizer'
 
 module MedicalExpenseReports
@@ -26,7 +28,8 @@ module MedicalExpenseReports
       # GET serialized medical expense reports form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
+        pdf_url = upload_to_s3(claim)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -56,7 +59,10 @@ module MedicalExpenseReports
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
-        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
+
+        pdf_url = upload_to_s3(claim)
+
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
@@ -112,14 +118,22 @@ module MedicalExpenseReports
         @monitor ||= MedicalExpenseReports::Monitor.new
       end
 
-      # points to S3 settings, where PDFs are archived
-      def config
-        Settings.bio.medical_expense_reports
+      # upload to S3 and return a download url
+      def upload_to_s3(claim)
+        File.open(claim.to_pdf(claim.guid)) do |file|
+          directory = dated_directory_name(claim.form_id, Time.zone.today)
+          config = MedicalExpenseReports::ZsfConfig.new
+          sanitized_file = CarrierWave::SanitizedFile.new(file)
+          s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
+          s3_uploader.store!(sanitized_file)
+          s3_file_path = "#{directory}/#{sanitized_file.filename}"
+          s3_uploader.get_s3_link(s3_file_path)
+        end
       end
 
-      # returns the URL to the PDF in S3 so the person completing the forms can download them
-      def pdf_url(guid)
-        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
+      # returns e.g. `12.11.25-Form21P-8416`
+      def dated_directory_name(form_number, date = Time.now.utc.to_date)
+        "#{date.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
     end
   end
