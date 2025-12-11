@@ -598,24 +598,27 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result).not_to be_nil
       end
 
-      it 'logs warning when status is final and has neither encoded data nor observations' do
+      it 'returns nil when status is final and has neither encoded data nor valid observations' do
         record = base_record.deep_dup
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
         record['resource']['subject'] = { 'reference' => 'Patient/123456789' }
 
+        # Should log warning before returning nil
         expect(Rails.logger).to receive(:warn).with(
           "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations " \
           '(Patient: 6789)',
           { service: 'unified_health_data' }
         )
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
 
         result = adapter.send(:parse_single_record, record)
-        expect(result).not_to be_nil
+        expect(result).to be_nil
       end
 
       it 'does not log when status is final but has both encoded data and observations' do
         record = base_record.deep_dup
-        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
+        record['resource']['presentedForm'] = [{ 'contentType' => 'text/plain', 'data' => 'encoded-data-here' }]
         record['resource']['contained'] = [
           {
             'resourceType' => 'Observation',
@@ -631,30 +634,32 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result).not_to be_nil
       end
 
-      it 'does not log when status is not final even if missing data' do
+      it 'filters out records with status not final even if they have data' do
         record = base_record.deep_dup
         record['resource']['status'] = 'preliminary'
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+        record['resource']['presentedForm'] = [{ 'contentType' => 'text/plain', 'data' => 'encoded-data-here' }]
 
         expect(Rails.logger).not_to receive(:warn).with(
           /has status 'final' but is missing/
         )
 
         result = adapter.send(:parse_single_record, record)
-        expect(result).not_to be_nil
+        expect(result).to be_nil
       end
 
-      it 'does not log when status is nil even if missing data' do
+      it 'filters out records with nil status even if they have data' do
         record = base_record.deep_dup
         record['resource']['status'] = nil
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+        record['resource']['presentedForm'] = [{ 'contentType' => 'text/plain', 'data' => 'encoded-data-here' }]
 
         expect(Rails.logger).not_to receive(:warn).with(
           /has status 'final' but is missing/
         )
 
         result = adapter.send(:parse_single_record, record)
-        expect(result).not_to be_nil
+        expect(result).to be_nil
       end
     end
 
@@ -860,12 +865,63 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
   describe '#parse_single_record with Oracle Health FHIR format' do
     context 'with ECG diagnostic report (no contained resources, effectivePeriod, presentedForm extension)' do
-      it 'processes the record successfully' do
+      it 'processes the record successfully with encoded data' do
         record = {
           'resource' => {
             'resourceType' => 'DiagnosticReport',
             'id' => '15249582244',
-            'status' => 'partial',
+            'status' => 'final',
+            'category' => [{
+              'coding' => [{
+                'system' => 'http://loinc.org',
+                'code' => 'LP29708-2',
+                'userSelected' => false
+              }],
+              'text' => 'Cardiology'
+            }],
+            'code' => {
+              'coding' => [{
+                'system' => 'https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72',
+                'code' => '344361949',
+                'display' => '12 Lead ECG/EKG',
+                'userSelected' => true
+              }],
+              'text' => '12 Lead ECG/EKG'
+            },
+            'effectivePeriod' => {
+              'start' => '2025-06-24T15:21:00.000Z',
+              'end' => '2025-06-24T15:21:00.000Z'
+            },
+            'presentedForm' => [{
+              'contentType' => 'text/plain',
+              'data' => 'RUNHIFJlcG9ydCBEYXRh'
+            }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result).not_to be_nil
+        expect(result.id).to eq('15249582244')
+        expect(result.type).to eq('DiagnosticReport')
+        expect(result.display).to eq('12 Lead ECG/EKG')
+        expect(result.test_code).to eq('LP29708-2')
+        expect(result.date_completed).to eq('2025-06-24T15:21:00.000Z')
+        expect(result.encoded_data).to eq('RUNHIFJlcG9ydCBEYXRh')
+        expect(result.observations).to eq([])
+        expect(result.sample_tested).to eq('')
+        expect(result.body_site).to eq('')
+        expect(result.status).to eq('final')
+        expect(result.location).to be_nil
+        expect(result.ordered_by).to be_nil
+      end
+
+      it 'filters out record with no valid data (only data-absent-reason extension)' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '15249582244',
+            'status' => 'final',
             'category' => [{
               'coding' => [{
                 'system' => 'http://loinc.org',
@@ -898,19 +954,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result).not_to be_nil
-        expect(result.id).to eq('15249582244')
-        expect(result.type).to eq('DiagnosticReport')
-        expect(result.display).to eq('12 Lead ECG/EKG')
-        expect(result.test_code).to eq('LP29708-2')
-        expect(result.date_completed).to eq('2025-06-24T15:21:00.000Z')
-        expect(result.encoded_data).to eq('')
-        expect(result.observations).to eq([])
-        expect(result.sample_tested).to eq('')
-        expect(result.body_site).to eq('')
-        expect(result.status).to eq('partial')
-        expect(result.location).to be_nil
-        expect(result.ordered_by).to be_nil
+        expect(result).to be_nil
       end
     end
   end
@@ -926,16 +970,17 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
             'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
             'code' => { 'text' => 'Test Report' },
             'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
-            'presentedForm' => [{ 'data' => 'test_data' }]
+            'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }]
           }
         }
 
         result = adapter.send(:parse_single_record, record)
 
+        expect(result).not_to be_nil
         expect(result.status).to eq('final')
       end
 
-      it 'extracts preliminary status correctly' do
+      it 'filters out preliminary status' do
         record = {
           'resource' => {
             'resourceType' => 'DiagnosticReport',
@@ -944,18 +989,18 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
             'category' => [{ 'coding' => [{ 'code' => 'SP' }] }],
             'code' => { 'text' => 'Lab Report' },
             'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
-            'presentedForm' => [{ 'data' => 'test_data' }]
+            'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }]
           }
         }
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result.status).to eq('preliminary')
+        expect(result).to be_nil
       end
     end
 
     context 'when status is missing' do
-      it 'returns nil for status' do
+      it 'filters out records with nil status' do
         record = {
           'resource' => {
             'resourceType' => 'DiagnosticReport',
@@ -963,13 +1008,13 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
             'category' => [{ 'coding' => [{ 'code' => 'MB' }] }],
             'code' => { 'text' => 'Missing Status Report' },
             'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
-            'presentedForm' => [{ 'data' => 'test_data' }]
+            'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }]
           }
         }
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result.status).to be_nil
+        expect(result).to be_nil
       end
     end
   end
@@ -988,6 +1033,538 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:parse_labs, [])
 
         expect(result).to eq([])
+      end
+    end
+  end
+
+  describe 'status filtering' do
+    let(:base_record) do
+      {
+        'resource' => {
+          'resourceType' => 'DiagnosticReport',
+          'id' => 'test-123',
+          'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+          'code' => { 'text' => 'Test Report' },
+          'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+          'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }]
+        }
+      }
+    end
+
+    describe '#parse_single_record' do
+      context 'with allowed DiagnosticReport statuses' do
+        it 'processes records with status "final"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'final'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).not_to be_nil
+          expect(result.status).to eq('final')
+        end
+
+        it 'processes records with status "amended"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'amended'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).not_to be_nil
+          expect(result.status).to eq('amended')
+        end
+
+        it 'processes records with status "corrected"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'corrected'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).not_to be_nil
+          expect(result.status).to eq('corrected')
+        end
+
+        it 'processes records with status "appended"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'appended'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).not_to be_nil
+          expect(result.status).to eq('appended')
+        end
+      end
+
+      context 'with disallowed DiagnosticReport statuses' do
+        it 'filters out records with status "preliminary"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'preliminary'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).to be_nil
+        end
+
+        it 'filters out records with status "partial"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'partial'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).to be_nil
+        end
+
+        it 'filters out records with status "cancelled"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'cancelled'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).to be_nil
+        end
+
+        it 'filters out records with status "entered-in-error"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'entered-in-error'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).to be_nil
+        end
+
+        it 'filters out records with status "unknown"' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'unknown'
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).to be_nil
+        end
+
+        it 'filters out records with nil status' do
+          record = base_record.deep_dup
+          record['resource']['status'] = nil
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).to be_nil
+        end
+      end
+
+      context 'logging and metrics for filtered DiagnosticReports' do
+        before do
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs and tracks when DiagnosticReport is filtered due to disallowed status' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'preliminary'
+
+          expect(Rails.logger).to receive(:info).with(
+            /Filtered DiagnosticReport: id=test-123, status=preliminary, reason=disallowed_status/,
+            hash_including(service: 'unified_health_data', filtering: true)
+          )
+          expect(StatsD).to receive(:increment).with(
+            'unified_health_data.lab_or_test.filtered_diagnostic_report',
+            tags: ['reason:disallowed_status']
+          )
+
+          adapter.send(:parse_single_record, record)
+        end
+
+        it 'logs and tracks when DiagnosticReport is filtered due to no valid data' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'final'
+          record['resource']['presentedForm'] = []
+          record['resource']['contained'] = []
+
+          expect(Rails.logger).to receive(:info).with(
+            /Filtered DiagnosticReport: id=test-123, status=final, reason=no_valid_data/,
+            hash_including(service: 'unified_health_data', filtering: true)
+          )
+          expect(StatsD).to receive(:increment).with(
+            'unified_health_data.lab_or_test.filtered_diagnostic_report',
+            tags: ['reason:no_valid_data']
+          )
+
+          adapter.send(:parse_single_record, record)
+        end
+      end
+    end
+
+    describe '#get_observations' do
+      context 'with allowed Observation statuses' do
+        it 'includes observations with status "final"' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'final'
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result.size).to eq(1)
+          expect(result.first.status).to eq('final')
+        end
+
+        it 'includes observations with status "amended"' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'amended'
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result.size).to eq(1)
+          expect(result.first.status).to eq('amended')
+        end
+
+        it 'includes observations with status "corrected"' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'corrected'
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result.size).to eq(1)
+          expect(result.first.status).to eq('corrected')
+        end
+
+        it 'includes observations with status "appended"' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'appended'
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result.size).to eq(1)
+          expect(result.first.status).to eq('appended')
+        end
+      end
+
+      context 'with disallowed Observation statuses' do
+        it 'filters out observations with status "preliminary"' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'preliminary'
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result).to be_empty
+        end
+
+        it 'filters out observations with status "cancelled"' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'cancelled'
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result).to be_empty
+        end
+
+        it 'filters out observations with nil status' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => nil
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result).to be_empty
+        end
+      end
+
+      context 'with mixed Observation statuses' do
+        it 'includes only observations with allowed status' do
+          record = {
+            'resource' => {
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Glucose' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'final'
+                },
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Sodium' },
+                  'valueQuantity' => { 'value' => 140, 'unit' => 'mmol/L' },
+                  'status' => 'cancelled'
+                },
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Potassium' },
+                  'valueQuantity' => { 'value' => 4.0, 'unit' => 'mmol/L' },
+                  'status' => 'amended'
+                }
+              ]
+            }
+          }
+
+          result = adapter.send(:get_observations, record)
+
+          expect(result.size).to eq(2)
+          expect(result.map(&:test_code)).to contain_exactly('Glucose', 'Potassium')
+          expect(result.map(&:status)).to contain_exactly('final', 'amended')
+        end
+      end
+
+      context 'logging and metrics for filtered Observations' do
+        before do
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs and tracks when Observations are filtered' do
+          record = {
+            'resource' => {
+              'id' => 'diag-report-456',
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Valid Obs' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'final'
+                },
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Invalid Obs' },
+                  'valueQuantity' => { 'value' => 200, 'unit' => 'mg/dL' },
+                  'status' => 'cancelled'
+                }
+              ]
+            }
+          }
+
+          expect(Rails.logger).to receive(:info).with(
+            %r{Filtered 1/2 Observations from DiagnosticReport diag-report-456},
+            hash_including(service: 'unified_health_data', filtering: true)
+          )
+          expect(StatsD).to receive(:increment).with(
+            'unified_health_data.lab_or_test.filtered_observations'
+          )
+
+          adapter.send(:get_observations, record)
+        end
+
+        it 'does not log when no Observations are filtered' do
+          record = {
+            'resource' => {
+              'id' => 'diag-report-789',
+              'contained' => [
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Valid Obs 1' },
+                  'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                  'status' => 'final'
+                },
+                {
+                  'resourceType' => 'Observation',
+                  'code' => { 'text' => 'Valid Obs 2' },
+                  'valueQuantity' => { 'value' => 200, 'unit' => 'mg/dL' },
+                  'status' => 'amended'
+                }
+              ]
+            }
+          }
+
+          expect(Rails.logger).not_to receive(:info).with(/Filtered.*Observations/, anything)
+          expect(StatsD).not_to receive(:increment).with('unified_health_data.lab_or_test.filtered_observations')
+
+          adapter.send(:get_observations, record)
+        end
+      end
+    end
+
+    describe '#parse_single_record with mixed observations' do
+      context 'when DiagnosticReport has final status with mixed observation statuses' do
+        it 'returns DiagnosticReport with only valid observations' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'final'
+          record['resource']['contained'] = [
+            {
+              'resourceType' => 'Observation',
+              'code' => { 'text' => 'Valid Obs 1' },
+              'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+              'status' => 'final'
+            },
+            {
+              'resourceType' => 'Observation',
+              'code' => { 'text' => 'Invalid Obs' },
+              'valueQuantity' => { 'value' => 140, 'unit' => 'mmol/L' },
+              'status' => 'cancelled'
+            },
+            {
+              'resourceType' => 'Observation',
+              'code' => { 'text' => 'Valid Obs 2' },
+              'valueQuantity' => { 'value' => 4.0, 'unit' => 'mmol/L' },
+              'status' => 'corrected'
+            }
+          ]
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).not_to be_nil
+          expect(result.observations.size).to eq(2)
+          expect(result.observations.map(&:test_code)).to contain_exactly('Valid Obs 1', 'Valid Obs 2')
+        end
+
+        it 'returns DiagnosticReport with encoded_data when all observations are invalid' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'final'
+          record['resource']['presentedForm'] = [{ 'contentType' => 'text/plain', 'data' => 'encoded_data' }]
+          record['resource']['contained'] = [
+            {
+              'resourceType' => 'Observation',
+              'code' => { 'text' => 'Invalid Obs' },
+              'valueQuantity' => { 'value' => 140, 'unit' => 'mmol/L' },
+              'status' => 'cancelled'
+            }
+          ]
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).not_to be_nil
+          expect(result.observations).to be_empty
+          expect(result.encoded_data).to eq('encoded_data')
+        end
+
+        it 'returns nil when no encoded_data and all observations are invalid' do
+          record = base_record.deep_dup
+          record['resource']['status'] = 'final'
+          record['resource']['presentedForm'] = []
+          record['resource']['contained'] = [
+            {
+              'resourceType' => 'Observation',
+              'code' => { 'text' => 'Invalid Obs' },
+              'valueQuantity' => { 'value' => 140, 'unit' => 'mmol/L' },
+              'status' => 'cancelled'
+            }
+          ]
+
+          result = adapter.send(:parse_single_record, record)
+
+          expect(result).to be_nil
+        end
+      end
+    end
+
+    describe '#parse_labs' do
+      context 'with multiple records with mixed statuses' do
+        it 'filters records and returns only those with allowed statuses' do
+          records = [
+            {
+              'resource' => {
+                'resourceType' => 'DiagnosticReport',
+                'id' => '1',
+                'status' => 'final',
+                'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+                'code' => { 'text' => 'Test 1' },
+                'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+                'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'data1' }]
+              }
+            },
+            {
+              'resource' => {
+                'resourceType' => 'DiagnosticReport',
+                'id' => '2',
+                'status' => 'preliminary',
+                'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+                'code' => { 'text' => 'Test 2' },
+                'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+                'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'data2' }]
+              }
+            },
+            {
+              'resource' => {
+                'resourceType' => 'DiagnosticReport',
+                'id' => '3',
+                'status' => 'amended',
+                'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+                'code' => { 'text' => 'Test 3' },
+                'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+                'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'data3' }]
+              }
+            },
+            {
+              'resource' => {
+                'resourceType' => 'DiagnosticReport',
+                'id' => '4',
+                'status' => 'cancelled',
+                'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+                'code' => { 'text' => 'Test 4' },
+                'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+                'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'data4' }]
+              }
+            }
+          ]
+
+          result = adapter.send(:parse_labs, records)
+
+          expect(result.size).to eq(2)
+          expect(result.map(&:id)).to contain_exactly('1', '3')
+          expect(result.map(&:status)).to contain_exactly('final', 'amended')
+        end
       end
     end
   end
