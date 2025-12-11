@@ -718,17 +718,17 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           # V2 uses is_refillable and is_renewable attributes from unified health data API
           # Each prescription returned should have either is_refillable=true OR is_renewable=true
-          # If response_data is empty, the filter is working correctly (no refillable prescriptions)
-          next if response_data.empty?
+          # If response_data is empty, the filter is working correctly (no refillable prescriptions in test data)
+          unless response_data.empty?
+            response_data.each do |p|
+              prescription = p['attributes']
+              is_refillable = prescription['is_refillable'] == true
+              is_renewable = prescription['is_renewable'] == true
 
-          response_data.each do |p|
-            prescription = p['attributes']
-            is_refillable = prescription['is_refillable'] == true
-            is_renewable = prescription['is_renewable'] == true
-
-            expect(is_refillable || is_renewable).to be(true),
-                                                     "Prescription #{prescription['prescription_id']} should have " \
-                                                     'is_refillable=true or is_renewable=true'
+              expect(is_refillable || is_renewable).to be(true),
+                                                       "Prescription #{prescription['prescription_id']} should have " \
+                                                       'is_refillable=true or is_renewable=true'
+            end
           end
         end
       end
@@ -964,17 +964,17 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           end
 
           # Verify all returned prescriptions have either is_refillable or is_renewable = true
-          # Skip if no data returned (filter working correctly with no matching prescriptions)
-          next if json_response['data'].empty?
+          # Skip validation if no data returned (filter working correctly with no matching prescriptions)
+          unless json_response['data'].empty?
+            json_response['data'].each do |rx|
+              attrs = rx['attributes']
+              is_refillable = attrs['is_refillable'] == true
+              is_renewable = attrs['is_renewable'] == true
 
-          json_response['data'].each do |rx|
-            attrs = rx['attributes']
-            is_refillable = attrs['is_refillable'] == true
-            is_renewable = attrs['is_renewable'] == true
-
-            expect(is_refillable || is_renewable).to be(true),
-                                                     "Prescription #{attrs['prescription_id']} should have " \
-                                                     'is_refillable=true or is_renewable=true'
+              expect(is_refillable || is_renewable).to be(true),
+                                                       "Prescription #{attrs['prescription_id']} should have " \
+                                                       'is_refillable=true or is_renewable=true'
+            end
           end
         end
       end

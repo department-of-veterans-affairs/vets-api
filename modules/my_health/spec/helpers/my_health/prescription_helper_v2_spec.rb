@@ -165,64 +165,79 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
   end
 
   describe 'MyHealth::PrescriptionHelperV2::Sorting' do
+    let(:helper_class) do
+      Class.new do
+        include MyHealth::PrescriptionHelperV2::Sorting
+      end
+    end
+    let(:helper) { helper_class.new }
+
     describe '#apply_sorting' do
-      let(:med_a) { build_prescription(id: '1', prescription_name: 'Aspirin', dispensed_date: '2024-01-15') }
-      let(:med_b) { build_prescription(id: '2', prescription_name: 'Zoloft', dispensed_date: '2024-01-10') }
-      let(:med_c) { build_prescription(id: '3', prescription_name: 'Metformin', dispensed_date: '2024-01-20') }
+      let(:resource) do
+        double('resource',
+               records: prescriptions,
+               'records=': nil,
+               metadata: {})
+      end
+
+      let(:prescriptions) do
+        [
+          double('prescription1', prescription_name: 'Zoloft', disp_status: 'Active',
+                                  dispensed_date: Date.new(2024, 1, 1), prescription_source: 'VA'),
+          double('prescription2', prescription_name: 'Aspirin', disp_status: 'Active',
+                                  dispensed_date: Date.new(2024, 3, 1), prescription_source: 'VA'),
+          double('prescription3', prescription_name: 'Metformin', disp_status: 'Inactive',
+                                  dispensed_date: Date.new(2024, 2, 1), prescription_source: 'VA')
+        ]
+      end
+
+      before do
+        allow(resource).to receive(:records=) do |new_records|
+          allow(resource).to receive(:records).and_return(new_records)
+        end
+      end
 
       context 'when sort_param is nil' do
         it 'applies default sorting' do
-          resource = build_resource([med_b, med_c, med_a])
           result = helper.apply_sorting(resource, nil)
-          expect(result.records).to be_an(Array)
-          expect(result.records.length).to eq(3)
+
+          expect(result.metadata[:sort]).to include('disp_status' => 'ASC', 'prescription_name' => 'ASC')
         end
       end
 
       context 'when sort_param is alphabetical-rx-name' do
         it 'sorts by prescription_name ascending' do
-          resource = build_resource([med_b, med_c, med_a])
           result = helper.apply_sorting(resource, 'alphabetical-rx-name')
-          names = result.records.map(&:prescription_name)
-          expect(names).to eq(%w[Aspirin Metformin Zoloft])
+
+          expect(result.metadata[:sort]).to include('prescription_name' => 'ASC')
         end
 
-        it 'sorts by prescription_name descending with negative prefix' do
-          resource = build_resource([med_b, med_c, med_a])
-          # NOTE: The helper doesn't support negative prefix for reverse sort
-          # It only supports 'alphabetical-rx-name' and 'last-fill-date'
-          result = helper.apply_sorting(resource, '-alphabetical-rx-name')
-          # Falls back to default sort since -alphabetical-rx-name is not recognized
-          expect(result.records).to be_an(Array)
-          expect(result.records.length).to eq(3)
+        it 'includes secondary sort by dispensed_date descending' do
+          result = helper.apply_sorting(resource, 'alphabetical-rx-name')
+
+          expect(result.metadata[:sort]).to include('dispensed_date' => 'DESC')
         end
       end
 
       context 'when sort_param is last-fill-date' do
-        it 'sorts by dispensed_date ascending' do
-          resource = build_resource([med_b, med_c, med_a])
+        it 'sorts by dispensed_date descending' do
           result = helper.apply_sorting(resource, 'last-fill-date')
-          # last-fill-date sorts by most recent first (descending date), then by name
-          dates = result.records.map(&:dispensed_date)
-          expect(dates).to eq(%w[2024-01-20 2024-01-15 2024-01-10])
+
+          expect(result.metadata[:sort]).to include('dispensed_date' => 'DESC')
         end
 
-        it 'sorts by dispensed_date descending with negative prefix' do
-          resource = build_resource([med_b, med_c, med_a])
-          # NOTE: The helper doesn't support negative prefix
-          result = helper.apply_sorting(resource, '-last-fill-date')
-          # Falls back to default sort since -last-fill-date is not recognized
-          expect(result.records).to be_an(Array)
-          expect(result.records.length).to eq(3)
+        it 'includes secondary sort by prescription_name ascending' do
+          result = helper.apply_sorting(resource, 'last-fill-date')
+
+          expect(result.metadata[:sort]).to include('prescription_name' => 'ASC')
         end
       end
 
       context 'when sort_param is unknown' do
         it 'applies default sorting' do
-          resource = build_resource([med_b, med_c, med_a])
           result = helper.apply_sorting(resource, 'unknown-sort')
-          expect(result.records).to be_an(Array)
-          expect(result.records.length).to eq(3)
+
+          expect(result.metadata[:sort]).to include('disp_status' => 'ASC', 'prescription_name' => 'ASC')
         end
       end
     end
