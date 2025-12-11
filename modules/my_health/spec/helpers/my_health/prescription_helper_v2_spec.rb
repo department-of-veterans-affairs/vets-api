@@ -209,15 +209,17 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         double('resource').tap do |r|
           allow(r).to receive_messages(records:, metadata:)
           allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
+          allow(r).to receive(:metadata=) { |new_metadata| metadata.replace(new_metadata) }
         end
       end
 
       before do
-        [prescription1, prescription2, prescription3].each do |p|
-          allow(p).to receive(:respond_to?).and_call_original
-          allow(p).to receive(:respond_to?).with(:dispenses).and_return(true)
-          allow(p).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
-        end
+        allow(prescription1).to receive(:respond_to?).with(:dispenses).and_return(true)
+        allow(prescription1).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+        allow(prescription2).to receive(:respond_to?).with(:dispenses).and_return(true)
+        allow(prescription2).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+        allow(prescription3).to receive(:respond_to?).with(:dispenses).and_return(true)
+        allow(prescription3).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
       end
 
       context 'when sort_param is nil' do
@@ -233,7 +235,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
       end
 
       context 'when sort_param is alphabetical-rx-name' do
-        it 'sorts by prescription_name ascending' do
+        it 'sorts by prescription_name ascending with secondary sort by dispensed_date descending' do
           result = helper.apply_sorting(resource, 'alphabetical-rx-name')
 
           expect(result.metadata[:sort]).to eq({
@@ -241,28 +243,16 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
                                                  'dispensed_date' => 'DESC'
                                                })
         end
-
-        it 'includes secondary sort by dispensed_date descending' do
-          result = helper.apply_sorting(resource, 'alphabetical-rx-name')
-
-          expect(result.metadata[:sort]).to include('dispensed_date' => 'DESC')
-        end
       end
 
       context 'when sort_param is last-fill-date' do
-        it 'sorts by dispensed_date descending' do
+        it 'sorts by dispensed_date descending with secondary sort by prescription_name ascending' do
           result = helper.apply_sorting(resource, 'last-fill-date')
 
           expect(result.metadata[:sort]).to eq({
                                                  'dispensed_date' => 'DESC',
                                                  'prescription_name' => 'ASC'
                                                })
-        end
-
-        it 'includes secondary sort by prescription_name ascending' do
-          result = helper.apply_sorting(resource, 'last-fill-date')
-
-          expect(result.metadata[:sort]).to include('prescription_name' => 'ASC')
         end
       end
 
@@ -280,24 +270,39 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
     end
 
     describe '#build_sort_metadata' do
-      it 'returns descending alphabetical metadata for -alphabetical-rx-name' do
+      it 'returns default metadata for -alphabetical-rx-name (unrecognized sort param)' do
         result = helper.build_sort_metadata('-alphabetical-rx-name')
-        expect(result).to include('disp_status' => 'ASC')
+        # Falls back to default since -alphabetical-rx-name is not a recognized case
+        expect(result).to eq({
+                               'disp_status' => 'ASC',
+                               'prescription_name' => 'ASC',
+                               'dispensed_date' => 'DESC'
+                             })
       end
 
       it 'returns last-fill-date metadata for last-fill-date' do
         result = helper.build_sort_metadata('last-fill-date')
-        expect(result).to include('dispensed_date' => 'DESC')
+        expect(result).to eq({
+                               'dispensed_date' => 'DESC',
+                               'prescription_name' => 'ASC'
+                             })
       end
 
       it 'returns default metadata for unrecognized sort param' do
         result = helper.build_sort_metadata('-last-fill-date')
-        expect(result).to include('disp_status' => 'ASC')
+        expect(result).to eq({
+                               'disp_status' => 'ASC',
+                               'prescription_name' => 'ASC',
+                               'dispensed_date' => 'DESC'
+                             })
       end
 
       it 'returns alphabetical sort metadata for alphabetical-rx-name' do
         result = helper.build_sort_metadata('alphabetical-rx-name')
-        expect(result).to include('prescription_name' => 'ASC')
+        expect(result).to eq({
+                               'prescription_name' => 'ASC',
+                               'dispensed_date' => 'DESC'
+                             })
       end
     end
   end

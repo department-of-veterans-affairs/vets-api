@@ -75,8 +75,18 @@ module MyHealth
         prescriptions = service.get_prescriptions(current_only: false).compact
         recently_requested = get_recently_requested_prescriptions(prescriptions)
 
-        prescriptions = resource_data_modifications(prescriptions).compact
+        # Remove PF/PD prescriptions but don't apply full grouping
+        # The grouping logic may filter out or combine refillable prescriptions
+        display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, @current_user)
+        prescriptions = if display_pending_meds
+                          prescriptions.reject do |item|
+                            item.respond_to?(:prescription_source) && item.prescription_source == 'PF'
+                          end
+                        else
+                          remove_pf_pd(prescriptions)
+                        end
 
+        # Filter for refillable/renewable prescriptions
         refillable_prescriptions = filter_data_by_refill_and_renew(prescriptions)
 
         options = { meta: { recently_requested: } }
