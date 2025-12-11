@@ -66,7 +66,7 @@ module Burials
           question_num: 15,
           question_label: 'Other Names Veteran Served Under',
           question_text: 'OTHER NAMES VETERAN SERVED UNDER',
-          limit: 3
+          limit: 120
         }
       }.freeze
       ##
@@ -77,6 +77,7 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
+        form_data['previousNames'] = expand_previous_names_and_service(form_data['previousNames'])
         tours_of_duty = form_data['toursOfDuty']
         return if tours_of_duty.blank?
 
@@ -85,8 +86,6 @@ module Burials
           tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank unit], ', ')
           tour_of_duty['militaryServiceNumber'] = form_data['militaryServiceNumber']
         end
-
-        form_data['previousNames'] = expand_previous_names_and_service(form_data['previousNames'])
       end
 
       ##
@@ -99,18 +98,21 @@ module Burials
         return if previous_names.blank?
 
         formatted_names = previous_names.map do |previous_name|
-          "#{combine_full_name(previous_name)} (#{previous_name['serviceBranch']})"
+          service_info = previous_name['serviceBranch'].present? ? "(#{previous_name['serviceBranch']})" : ''
+          "#{combine_full_name(previous_name)} #{service_info}"
         end
 
-        # Check if this data will go to overflow based on the limit
-        # The KEY configuration above for 'previousNames' shows limit: 3, so if we have more than that,
-        # the extras will be handled by the overflow system
-        if formatted_names.length > 3
-          # For overflow, we want each name on a new line
+        # Join with semicolons for length check
+        semicolon_joined = formatted_names.join('; ')
+
+        # Check against the character limit defined in KEY configuration
+        character_limit = KEY['previousNames'][:limit]
+
+        # If the semicolon-joined string exceeds the limit, use newlines for overflow format
+        if semicolon_joined.length > character_limit
           formatted_names.join("\n")
         else
-          # For main form, use semicolons
-          formatted_names.join('; ')
+          semicolon_joined
         end
       end
     end
