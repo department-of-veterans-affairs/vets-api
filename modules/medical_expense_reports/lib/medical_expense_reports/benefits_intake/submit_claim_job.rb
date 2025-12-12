@@ -55,6 +55,10 @@ module MedicalExpenseReports
 
       private
 
+      ##
+      # Handle the document generation, upload flow, and post-submission hooks.
+      #
+      # @return [String] the intake service UUID for the submission
       def process_submission
         # generate and validate claim pdf documents
         @form_path = process_document(
