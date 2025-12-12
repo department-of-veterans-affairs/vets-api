@@ -64,7 +64,7 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
       end
 
       it 'nulls out user_account_id' do
-        form_submission.update_column(:user_account_id, 123)
+        form_submission.update(user_account_id: 123)
 
         described_class.new.perform
 
@@ -115,7 +115,7 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
           aasm_state: 'vbms',
           lighthouse_updated_at: cutoff_date
         )
-        form_submission.update_column(:updated_at, cutoff_date)
+        form_submission.update(updated_at: cutoff_date)
 
         described_class.new.perform
 
@@ -133,7 +133,7 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
           aasm_state: 'pending',
           lighthouse_updated_at: cutoff_date
         )
-        form_submission.update_column(:updated_at, cutoff_date)
+        form_submission.update(updated_at: cutoff_date)
 
         described_class.new.perform
 
@@ -151,7 +151,7 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
           aasm_state: 'vbms',
           lighthouse_updated_at: 30.days.ago
         )
-        form_submission.update_column(:updated_at, 30.days.ago)
+        form_submission.update(updated_at: 30.days.ago)
 
         described_class.new.perform
 
@@ -169,7 +169,7 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
           aasm_state: 'vbms',
           lighthouse_updated_at: cutoff_date
         )
-        form_submission.update_column(:updated_at, cutoff_date)
+        form_submission.update(updated_at: cutoff_date)
 
         expect { described_class.new.perform }.not_to change { form_submission.reload.updated_at }
       end
@@ -198,7 +198,7 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
       end
 
       before do
-        form_submission.update_column(:updated_at, cutoff_date)
+        form_submission.update(updated_at: cutoff_date)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:debug)
       end
@@ -236,7 +236,7 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
       end
 
       before do
-        form_submission.update_column(:updated_at, cutoff_date)
+        form_submission.update(updated_at: cutoff_date)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:debug)
       end
@@ -248,9 +248,11 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
       end
 
       it 'logs that no attachment guids found' do
+        allow(Rails.logger).to receive(:info).and_call_original
         expect(Rails.logger).to receive(:info)
-          .with('No attachment guids found in form_data (legacy record)')
-
+          .with('No attachment guids found in form_data (legacy record)',
+                hash_including(benefits_intake_uuid: anything))
+          .and_call_original
         described_class.new.perform
       end
     end
@@ -273,13 +275,14 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
       end
 
       before do
-        form_submission.update_column(:updated_at, cutoff_date)
-        allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:error)
+        form_submission.update(updated_at: cutoff_date)
       end
 
       it 'logs errors but continues processing' do
-        allow(form_submission).to receive(:update_columns).and_raise(StandardError.new('DB error'))
+        allow_any_instance_of(FormSubmission).to receive(:update_columns)
+          .and_raise(StandardError.new('DB error'))
+
+        allow(Rails.logger).to receive(:error).and_call_original
 
         expect(Rails.logger).to receive(:error)
           .with('Failed to purge form submission', hash_including(error: 'DB error'))
@@ -288,11 +291,10 @@ RSpec.describe FormUploadDataPurgeJob, type: :job do
       end
 
       it 'increments error count on failure' do
-        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
+        allow_any_instance_of(FormSubmission).to receive(:update_columns)
+          .and_raise(StandardError.new('DB error'))
 
         described_class.new.perform
-
-        # Job should complete even with errors
         expect(StatsD).to have_received(:increment).with("#{described_class::STATS_KEY}.completed")
       end
     end
