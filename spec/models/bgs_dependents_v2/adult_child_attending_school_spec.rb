@@ -33,10 +33,6 @@ RSpec.describe BGSDependentsV2::AdultChildAttendingSchool do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#format_info' do
       it 'formats info' do
         formatted_info = adult_child_attending_school_v2.format_info

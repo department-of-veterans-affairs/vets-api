@@ -68,7 +68,6 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   context 'with va_dependents_v2 disabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
     describe '#perform' do
@@ -300,7 +299,6 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     before do
       allow(Flipper).to receive(:enabled?).with(anything).and_call_original
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
 
     describe '#perform' do

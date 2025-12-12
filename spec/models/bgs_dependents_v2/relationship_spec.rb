@@ -26,10 +26,6 @@ RSpec.describe BGSDependentsV2::Relationship do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe 'params for 686c' do
       it 'formats relationship params for submission' do
         expect(

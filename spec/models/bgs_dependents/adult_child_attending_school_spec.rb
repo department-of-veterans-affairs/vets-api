@@ -58,33 +58,7 @@ RSpec.describe BGSDependents::AdultChildAttendingSchool do
     }
   end
 
-  context 'with va_dependents_v2 off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
-
-    describe '#format_info' do
-      it 'formats info' do
-        formatted_info = adult_child_attending_school.format_info
-
-        expect(formatted_info).to eq(formatted_info_response)
-      end
-    end
-
-    describe '#address' do
-      it 'formats info' do
-        address = adult_child_attending_school.address
-
-        expect(address).to eq(address_response)
-      end
-    end
-  end
-
-  context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
+  context 'default v2 form' do
     describe '#format_info' do
       it 'formats info' do
         formatted_info = adult_child_attending_school.format_info

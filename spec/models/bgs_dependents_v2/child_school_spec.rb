@@ -42,10 +42,6 @@ RSpec.describe BGSDependentsV2::ChildSchool do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#params for 686c' do
       it 'formats child school params for submission' do
         formatted_info = child_school_info_v2.params_for_686c

@@ -30,10 +30,6 @@ RSpec.describe BGSDependentsV2::Spouse do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#format_info' do
       it 'formats relationship params for submission' do
         formatted_info = spouse_v2.format_info
