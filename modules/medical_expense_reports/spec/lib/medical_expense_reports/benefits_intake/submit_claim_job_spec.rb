@@ -334,6 +334,11 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
         primary_phone = { 'countryCode' => 'US', 'contact' => '555-123-4567' }
         expect(job.send(:international_phone_number, form, primary_phone)).to be_nil
       end
+
+      it 'returns nil when primary_phone is nil' do
+        form = {}
+        expect(job.send(:international_phone_number, form, nil)).to be_nil
+      end
     end
 
     describe '#use_va_rcvd_date?' do
