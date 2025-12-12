@@ -87,16 +87,20 @@ module Vets
         error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
           v.nil? || (v.respond_to?(:empty?) && v.empty?)
         end
-        # Log BackendServiceException with structured data (message + hash)
+        Rails.logger.info("Vets::SharedLogging Exception#{exception}")
+        Rails.logger.info("Vets::SharedLogging Backtrace #{exception.backtrace}")
+
+        # Pass the exception object, not just the message
         case level
-        when 'debug' then Rails.logger.debug(exception.message, error_details.merge(backtrace: exception.backtrace))
-        when 'info' then Rails.logger.info(exception.message, error_details.merge(backtrace: exception.backtrace))
-        when 'warn' then Rails.logger.warn(exception.message, error_details.merge(backtrace: exception.backtrace))
-        when 'fatal' then Rails.logger.fatal(exception.message, error_details.merge(backtrace: exception.backtrace))
+        when 'debug' then Rails.logger.debug(exception.message, exception:, **error_details)
+        when 'info' then Rails.logger.info(exception.message, exception:, **error_details)
+        when 'warn' then Rails.logger.warn(exception.message, exception:, **error_details)
+        when 'fatal' then Rails.logger.fatal(exception.message, exception:, **error_details)
         else # 'error' and unknown levels
-          Rails.logger.error(exception.message, error_details.merge(backtrace: exception.backtrace))
+          Rails.logger.error(exception.message, exception:, **error_details)
         end
       else
+        # For non-BackendServiceException, pass the exception object directly
         case level
         when 'debug' then Rails.logger.debug(exception)
         when 'info' then Rails.logger.info(exception)
