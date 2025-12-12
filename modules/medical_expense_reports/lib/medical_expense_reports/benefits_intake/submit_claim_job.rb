@@ -44,10 +44,26 @@ module MedicalExpenseReports
         return unless Flipper.enabled?(:medical_expense_reports_form_enabled)
 
         init(saved_claim_id, user_account_uuid)
+        process_submission
+      rescue => e
+        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
+        @lighthouse_submission_attempt&.fail!
+        raise e
+      ensure
+        cleanup_file_paths
+      end
 
+      private
+
+      def process_submission
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
-                                                                 omit_esign_stamp: true }))
+        @form_path = process_document(
+          @claim.to_pdf(
+            @claim.id,
+            extras_redesign: true,
+            omit_esign_stamp: true
+          )
+        )
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
@@ -60,15 +76,8 @@ module MedicalExpenseReports
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
         @intake_service.uuid
-      rescue => e
-        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
-        @lighthouse_submission_attempt&.fail!
-        raise e
-      ensure
-        cleanup_file_paths
       end
 
-      private
       # Number of in-home care rows IBM expects.
       IN_HOME_ROW_COUNT = 8
 
@@ -131,7 +140,6 @@ module MedicalExpenseReports
       # @param form [Hash]
       # @return [Hash]
       def generate_metadata(form)
-
         # also validates/maniuplates the metadata
         ::BenefitsIntake::Metadata.generate(
           form['veteranFullName']['first'],
@@ -148,6 +156,7 @@ module MedicalExpenseReports
       #
       # @param form [Hash]
       # @return [Hash]
+      # rubocop:disable Metrics/MethodLength
       def build_ibm_payload(form)
         claimant_name = build_name(form['claimantFullName'])
         veteran_name = build_name(form['veteranFullName'])
@@ -178,10 +187,11 @@ module MedicalExpenseReports
           'VETERAN_NAME' => veteran_name[:full],
           'VETERAN_SSN' => form['veteranSocialSecurityNumber']
         }.merge(build_in_home_fields(form))
-         .merge(build_medical_expense_fields(form))
-         .merge(build_travel_fields(form))
-         .merge(build_witness_fields)
+          .merge(build_medical_expense_fields(form))
+          .merge(build_travel_fields(form))
+          .merge(build_witness_fields)
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Normalize a name hash into first, middle/initial, and last strings.
       #
@@ -193,9 +203,9 @@ module MedicalExpenseReports
         last = name_hash&.fetch('last', nil)
 
         {
-          first: first,
-          last: last,
-          middle: middle,
+          first:,
+          last:,
+          middle:,
           middle_initial: middle&.slice(0, 1),
           full: [first, middle, last].compact.join(' ').presence
         }
@@ -208,14 +218,10 @@ module MedicalExpenseReports
       def build_address_block(address)
         return unless address
 
-        lines = []
         street_line = [address['street'], address['street2']].compact.join(' ').strip
-        lines << street_line unless street_line.blank?
         city_line = [address['city'], address['state'], address['postalCode']].compact.join(' ').strip
-        lines << city_line unless city_line.blank?
-        lines << address['country'] if address['country'].present?
-
-        lines.reject(&:blank?).join(' ').presence
+        lines = [street_line, city_line, address['country']].compact_blank
+        lines.join(' ').presence
       end
 
       # Build the claimant address block, falling back to veteran address when needed.
@@ -262,7 +268,7 @@ module MedicalExpenseReports
       def claimant_phone_number(form)
         primary_phone = form['primaryPhone'] || {}
         number = format_phone(primary_phone['contact'])
-        return unless number.present?
+        return if number.blank?
 
         primary_phone['countryCode']&.casecmp?('US') ? number : nil
       end
@@ -310,7 +316,7 @@ module MedicalExpenseReports
       # @param form [Hash]
       # @return [Boolean]
       def use_va_rcvd_date?(form)
-        form['firstTimeReporting'].present? ? form['firstTimeReporting'] : false
+        form['firstTimeReporting'].presence || false
       end
 
       # Build the IN_HM_* entries from the careExpenses section.
@@ -498,7 +504,7 @@ module MedicalExpenseReports
       def format_currency(value)
         return unless value
 
-        cleaned = value.to_s.gsub(/[^\d\.-]/, '')
+        cleaned = value.to_s.gsub(/[^\d.-]/, '')
         number = BigDecimal(cleaned)
         formatted = format('%.2f', number)
         parts = formatted.split('.')

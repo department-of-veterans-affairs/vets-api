@@ -194,7 +194,7 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
 
     let(:form_data) { base_form_data.deep_dup }
 
-    it 'returns the IBM data dictionary mapping', :focus do
+    it 'returns the IBM data dictionary mapping' do
       payload = job.send(:build_ibm_payload, form_data)
 
       expect(payload).to include(
@@ -202,7 +202,7 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
         'CLAIMANT_LAST_NAME' => 'Public',
         'CLAIMANT_MIDDLE_INITIAL' => 'Q',
         'CLAIMANT_NAME' => 'Jane Q Public',
-        'CLAIMANT_ADDRESS_FULL_BLOCK' => "100 Main St Apt 2 City VA 22206 USA",
+        'CLAIMANT_ADDRESS_FULL_BLOCK' => '100 Main St Apt 2 City VA 22206 USA',
         'CL_EMAIL' => 'claimant@example.com',
         'CL_PHONE_NUMBER' => '5551234567',
         'CL_INT_PHONE_NUMBER' => nil,
@@ -249,7 +249,7 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
       it 'falls back to the veteran address' do
         payload = job.send(:build_ibm_payload, form_data)
 
-        expect(payload['CLAIMANT_ADDRESS_FULL_BLOCK']).to eq("1 Main Street A1 City VA 22206 USA")
+        expect(payload['CLAIMANT_ADDRESS_FULL_BLOCK']).to eq('1 Main Street A1 City VA 22206 USA')
       end
     end
   end

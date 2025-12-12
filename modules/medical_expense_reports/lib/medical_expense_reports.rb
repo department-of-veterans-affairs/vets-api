@@ -16,7 +16,7 @@ module MedicalExpenseReports
 
   # The IBM-visible form type string (includes the version label).
   # @return [String]
-  FORM_TYPE_LABEL = "VA FORM #{FORM_ID}, #{FORM_VERSION}"
+  FORM_TYPE_LABEL = "VA FORM #{FORM_ID}, #{FORM_VERSION}".freeze
 
   # The module path
   MODULE_PATH = 'modules/medical_expense_reports'
