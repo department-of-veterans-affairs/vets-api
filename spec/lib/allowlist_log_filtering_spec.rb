@@ -291,8 +291,11 @@ RSpec.describe AllowlistLogFiltering do
       payload = { ssn: '123-45-6789', email: 'user@example.com' }
       result = filter_tester.filter_payload(payload, ['email'])
 
-      # When filter_parameters is empty, ParameterFilterHelper.filter_params
-      # also has no filters configured, so data passes through unfiltered.
+      # When filter_parameters is empty, AllowlistLogFiltering falls back to
+      # ParameterFilterHelper.filter_params. Since ParameterFilterHelper uses the same
+      # Rails.application.config.filter_parameters (which is empty in this test context),
+      # no filtering occurs. This is expected behavior - filtering depends on having
+      # filter rules configured. In production, filter_parameters is always configured.
       expect(result[:ssn]).to eq('123-45-6789')
       expect(result[:email]).to eq('user@example.com')
     end

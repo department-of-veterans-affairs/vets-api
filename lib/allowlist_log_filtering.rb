@@ -24,8 +24,10 @@ module AllowlistLogFiltering
   # Matches attr: "value" or attr: value patterns (Ruby inspect style)
   ATTR_COLON_PATTERN = /(\w+):\s*("[^"]*"|'[^']*'|\S+)/
 
-  # Override SemanticLogger's log level methods to support log_allowlist parameter
+  # Shadow SemanticLogger's log level methods to support log_allowlist parameter
   # while preserving the original SemanticLogger method signature and behavior.
+  # Using extend() adds these methods to the singleton class, which takes precedence
+  # over the original instance methods.
   #
   # SemanticLogger signature: level(message=nil, payload=nil, exception=nil, &block)
   # Our extension adds: log_allowlist: [] keyword argument
@@ -34,11 +36,19 @@ module AllowlistLogFiltering
       # Convert log_allowlist to strings for consistent comparison
       allowlist = Array(log_allowlist).map(&:to_s)
 
-      # Filter the payload hash if present and allowlist is specified
-      filtered_payload = filter_payload(payload, allowlist)
+      begin
+        # Filter the payload hash if present and allowlist is specified
+        filtered_payload = filter_payload(payload, allowlist)
 
-      # Filter message if it's a string containing object inspect pattern
-      filtered_message = filter_message_string(message, allowlist)
+        # Filter message if it's a string containing object inspect pattern
+        filtered_message = filter_message_string(message, allowlist)
+      rescue => e
+        # If filtering fails, log the original data rather than breaking the log call
+        # This ensures logging never fails due to filtering issues
+        Rails.logger.warn("AllowlistLogFiltering error: #{e.message}") if defined?(Rails.logger)
+        filtered_payload = payload
+        filtered_message = message
+      end
 
       # Call the original SemanticLogger method with filtered data
       super(filtered_message, filtered_payload, exception, &block)
@@ -72,7 +82,9 @@ module AllowlistLogFiltering
   end
 
   def build_combined_allowlist(allowlist)
-    global_allowlist = defined?(ALLOWLIST) ? ALLOWLIST : []
+    # ALLOWLIST is defined in config/initializers/parameter_filtering.rb
+    # It contains keys that should never be filtered (e.g., :id, :status, :controller)
+    global_allowlist = defined?(::ALLOWLIST) ? ::ALLOWLIST : []
     (global_allowlist + allowlist).map(&:to_s)
   end
 
@@ -92,14 +104,16 @@ module AllowlistLogFiltering
 
   def filter_with_allowlist(data, allowlist)
     # Get the global filter lambda from Rails config
-    global_filter = Rails.application.config.filter_parameters.first
+    # filter_parameters is expected to be an array with a lambda as the first element
+    filter_params = Rails.application.config.filter_parameters
+    global_filter = filter_params.is_a?(Array) && filter_params.any? ? filter_params.first : nil
 
-    # Fallback to standard filtering when no global filter exists
-    return ParameterFilterHelper.filter_params(data) unless global_filter
+    # Fallback to standard filtering when no global filter exists or is invalid
+    return ParameterFilterHelper.filter_params(data) unless global_filter.respond_to?(:call)
 
     # Create a custom filter that respects the per-call allowlist
-    # Note: deep_dup is necessary to avoid mutating the caller's data,
-    # but may have performance implications for large data structures
+    # deep_dup is required because filter_hash mutates hashes in-place via data[key] = ...
+    # Without this, the caller's original payload would be modified with [FILTERED] values
     filtered_data = data.deep_dup
 
     apply_allowlist_filter(filtered_data, allowlist, global_filter)
