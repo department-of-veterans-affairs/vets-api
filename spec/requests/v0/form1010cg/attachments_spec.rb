@@ -32,32 +32,6 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
     post(endpoint, **request_options)
   end
 
-  def create_test_uploaded_file(file_fixture_path, content_type)
-    # Create unique identifier per process/test to avoid race conditions
-    process_id = ENV['TEST_ENV_NUMBER'].presence || SecureRandom.hex(4)
-    source_path = Rails.root.join('spec', 'fixtures', 'files', file_fixture_path)
-
-    # Create unique temp file per process
-    temp_file = Tempfile.new(["test_#{process_id}_", File.extname(file_fixture_path)])
-    temp_file.binmode
-
-    File.open(source_path, 'rb') do |source|
-      temp_file.write(source.read)
-    end
-    temp_file.rewind
-
-    # Use the original filename, not the temp file path
-    uploaded_file = Rack::Test::UploadedFile.new(temp_file.path, content_type, file_fixture_path)
-
-    # Store temp_file reference for cleanup
-    uploaded_file.define_singleton_method(:cleanup!) do
-      temp_file&.close
-      temp_file&.unlink
-    end
-
-    uploaded_file
-  end
-
   describe 'POST /v0/form1010cg/attachments' do
     after do
       Form1010cg::Attachment.delete_all
@@ -129,13 +103,6 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
     temp_file_path = temp_dir.join(file_fixture_path)
     FileUtils.copy_file(source_path, temp_file_path)
 
-    uploaded_file = Rack::Test::UploadedFile.new(temp_file_path.to_s, content_type)
-
-    # Add cleanup method to the uploaded file instance
-    uploaded_file.define_singleton_method(:cleanup!) do
-      FileUtils.rm_rf(temp_dir) if temp_dir.exist?
-    end
-
-    uploaded_file
+    Rack::Test::UploadedFile.new(temp_file_path.to_s, content_type)
   end
 end

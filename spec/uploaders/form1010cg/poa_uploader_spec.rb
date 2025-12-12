@@ -169,13 +169,6 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
     temp_file_path = temp_dir.join(file_fixture_path)
     FileUtils.copy_file(source_path, temp_file_path)
 
-    uploaded_file = Rack::Test::UploadedFile.new(temp_file_path.to_s, content_type)
-
-    # Add cleanup method to the uploaded file instance
-    uploaded_file.define_singleton_method(:cleanup!) do
-      FileUtils.rm_rf(temp_dir) if temp_dir.exist?
-    end
-
-    uploaded_file
+    Rack::Test::UploadedFile.new(temp_file_path.to_s, content_type)
   end
 end
