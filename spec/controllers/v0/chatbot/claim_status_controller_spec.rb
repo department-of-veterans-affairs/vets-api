@@ -185,8 +185,7 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
     before do
       allow_any_instance_of(V0::Chatbot::ClaimStatusController)
-        .to receive(:ensure_edipi_present)
-        .and_return(true)
+        .to receive(:ensure_edipi_present).and_return(true)
     end
 
     context 'authorized' do
