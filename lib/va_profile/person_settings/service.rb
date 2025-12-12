@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Service layer for interacting with VAProfile Person Settings API. This service is still under
+# development and not fully integrated, gated behind the profile_health_care_settings_page
+# feature flag via the SchedulingPreferencesController.
+
 module VAProfile
   module PersonSettings
     class Service < VAProfile::Service
