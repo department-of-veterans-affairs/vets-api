@@ -194,7 +194,7 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
 
     let(:form_data) { base_form_data.deep_dup }
 
-    it 'returns the IBM data dictionary mapping' do
+    it 'returns the IBM data dictionary mapping', :focus do
       payload = job.send(:build_ibm_payload, form_data)
 
       expect(payload).to include(
@@ -250,6 +250,100 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
         payload = job.send(:build_ibm_payload, form_data)
 
         expect(payload['CLAIMANT_ADDRESS_FULL_BLOCK']).to eq("1 Main Street A1 City VA 22206 USA")
+      end
+    end
+  end
+
+  describe 'helper methods' do
+    describe '#build_name' do
+      it 'returns nil parts when name hash is missing' do
+        result = job.send(:build_name, nil)
+        expect(result[:first]).to be_nil
+        expect(result[:full]).to be_nil
+      end
+
+      it 'builds a full name when parts exist' do
+        result = job.send(:build_name, { 'first' => 'Jane', 'last' => 'Doe' })
+        expect(result[:full]).to eq('Jane Doe')
+      end
+    end
+
+    describe '#build_address_block' do
+      it 'returns nil when address is missing' do
+        expect(job.send(:build_address_block, nil)).to be_nil
+      end
+
+      it 'joins street, city, state, postal code, and country' do
+        address = {
+          'street' => '100 Main St',
+          'street2' => 'Apt 2',
+          'city' => 'Arlington',
+          'state' => 'VA',
+          'postalCode' => '22206',
+          'country' => 'USA'
+        }
+        expect(job.send(:build_address_block, address)).to eq('100 Main St Apt 2 Arlington VA 22206 USA')
+      end
+
+      it 'ignores blanks when parts are empty strings' do
+        address = { 'street' => '', 'city' => 'City' }
+        expect(job.send(:build_address_block, address)).to eq('City')
+      end
+    end
+
+    describe '#sanitize_phone' do
+      it 'returns nil when phone is nil' do
+        expect(job.send(:sanitize_phone, nil)).to be_nil
+      end
+
+      it 'strips non digits' do
+        expect(job.send(:sanitize_phone, '(555) 123-4567')).to eq('5551234567')
+      end
+    end
+
+    describe '#us_phone_number' do
+      it 'returns nil when primary phone is nil' do
+        expect(job.send(:us_phone_number, nil)).to be_nil
+      end
+
+      it 'only returns digits for US numbers' do
+        primary_phone = { 'countryCode' => 'US', 'contact' => '(555) 123-4567' }
+        expect(job.send(:us_phone_number, primary_phone)).to eq('5551234567')
+      end
+
+      it 'returns nil for non-US phone codes' do
+        primary_phone = { 'countryCode' => 'CA', 'contact' => '123-456-7890' }
+        expect(job.send(:us_phone_number, primary_phone)).to be_nil
+      end
+    end
+
+    describe '#international_phone_number' do
+      it 'prioritizes the explicit internationalPhone field' do
+        form = { 'internationalPhone' => '+52 1 234 567 890' }
+        expect(job.send(:international_phone_number, form, {})).to eq('521234567890')
+      end
+
+      it 'falls back to sanitized contact when country is not US' do
+        form = {}
+        primary_phone = { 'countryCode' => 'MX', 'contact' => '521-234-567-890' }
+        expect(job.send(:international_phone_number, form, primary_phone)).to eq('521234567890')
+      end
+
+      it 'returns nil for US phones without explicit international input' do
+        form = {}
+        primary_phone = { 'countryCode' => 'US', 'contact' => '555-123-4567' }
+        expect(job.send(:international_phone_number, form, primary_phone)).to be_nil
+      end
+    end
+
+    describe '#use_va_rcvd_date?' do
+      it 'returns false when value is nil' do
+        expect(job.send(:use_va_rcvd_date?, {})).to be false
+      end
+
+      it 'returns the boolean value when present' do
+        expect(job.send(:use_va_rcvd_date?, { 'firstTimeReporting' => true })).to be true
+        expect(job.send(:use_va_rcvd_date?, { 'firstTimeReporting' => false })).to be false
       end
     end
   end
