@@ -59,7 +59,6 @@ module Vets
       order(clauses)
     end
 
-    # previously sort on Common::Collection
     def order(clauses = {})
       clauses = normalize_clauses(clauses)
       validate_sort_clauses(clauses)
@@ -75,13 +74,11 @@ module Vets
       Vets::Collection.new(results, metadata: metadata.merge(sort: fields), errors:)
     end
 
-    # previously find_by on Common::Collection
     def where(conditions = {})
       results = Vets::Collections::Finder.new(data: @records).all(conditions)
       Vets::Collection.new(results, metadata: metadata.merge({ filter: conditions }), errors:)
     end
 
-    # previously find_first_by on Common::Collection
     def find_by(conditions = {})
       result = Vets::Collections::Finder.new(data: @records).first(conditions)
       result.metadata = metadata if result.respond_to?(:metadata)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../../support/helpers/rails_helper'
+require 'vets/collection'
 
 RSpec.describe 'Mobile::V0::Messaging::Health::Recipients', type: :request do
   include SchemaMatchers
@@ -49,7 +50,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Recipients', type: :request do
 
       before do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'triage_teams.json')
-        data = Common::Collection.new(TriageTeam, data: JSON.parse(File.read(path)))
+        data = Vets::Collection.new(JSON.parse(File.read(path)), TriageTeam)
         TriageTeam.set_cached("#{user.uuid}-triage-teams", data)
       end
 

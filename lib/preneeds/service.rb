@@ -23,7 +23,7 @@ module Preneeds
 
     # POST to retrieve military cemeteries
     #
-    # @return [Common::Collection<Preneeds::Cemetery>] collection of military cemeteries
+    # @return [Vets::Collection<Preneeds::Cemetery>] collection of military cemeteries
     #
     def get_cemeteries
       soap = savon_client.build_request(:get_cemeteries, message: {})
