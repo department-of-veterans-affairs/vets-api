@@ -3,6 +3,8 @@
 require 'ostruct'
 require 'open3'
 
+require_relative 'lib/dangerfile/parameter_filtering_allowlist_checker'
+
 module VSPDanger
   HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"
   BASE_SHA = ENV.fetch('GITHUB_BASE_REF', '').empty? ? 'origin/master' : "origin/#{ENV.fetch('GITHUB_BASE_REF')}"
@@ -16,7 +18,8 @@ module VSPDanger
         ChangeLimiter.new.run,
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
-        GemfileLockPlatformChecker.new.run
+        GemfileLockPlatformChecker.new.run,
+        ::Dangerfile::ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
       ]
     end
 
@@ -505,7 +508,7 @@ module VSPDanger
   if $PROGRAM_NAME == __FILE__
     require 'minitest/autorun'
 
-    class ChangeLimiterTest < MiniTest::Test
+    class ChangeLimiterTest < Minitest::Test
       def test_rubocop
         assert system('rubocop --format simple')
       end
