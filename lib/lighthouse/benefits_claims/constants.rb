@@ -202,15 +202,15 @@ module BenefitsClaims
       'Secondary Action Required',
       'Stage 2 Development' # Not currently used by VBMS but will eventually replace `Secondary Action Required`
     ].freeze
-  end
 
-  FIRST_TO_THIRD_PARTY_EVIDENCE_REQUESTS = [
-    'PMR Pending',
-    'Proof of service (DD214, etc.)',
-    'NG1 - National Guard Records Request',
-    'VHA Outpatient Treatment Records (10-7131)',
-    'HAIMS STR Follow-up',
-    'Audit Request'
-  ].freeze
+    FIRST_TO_THIRD_PARTY_EVIDENCE_REQUESTS = [
+      'PMR Pending',
+      'Proof of service (DD214, etc.)',
+      'NG1 - National Guard Records Request',
+      'VHA Outpatient Treatment Records (10-7131)',
+      'HAIMS STR Follow-up',
+      'Audit Request'
+    ].freeze
+  end
 end
 # rubocop:enable Metrics/ModuleLength
