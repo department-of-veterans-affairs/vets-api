@@ -8,6 +8,7 @@
 - **[instructions/my-health-messaging.instructions.md](./instructions/my-health-messaging.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/sm/` - Secure Messaging specific patterns, models, and API client usage
 - **[instructions/my-health-medical-records.instructions.md](./instructions/my-health-medical-records.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/medical_records/` - Medical Records specific patterns, FHIR integration, and multi-client architecture
 - **[instructions/my-health-prescriptions.instructions.md](./instructions/my-health-prescriptions.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/rx/` - Prescriptions specific patterns, refill workflows, and pharmacy API client usage
+- **[instructions/vcr-cassettes.instructions.md](./instructions/vcr-cassettes.instructions.md)** - Automatically applies to `spec/support/vcr_cassettes/` - Enforces usage of `vcr_inspect_cassette` tool for inspecting recordings
 
 These path-specific instructions are automatically loaded by GitHub Copilot when you work on files matching their `applyTo` patterns. You can create additional path-specific instruction files in `.github/instructions/` for other modules or features.
 
