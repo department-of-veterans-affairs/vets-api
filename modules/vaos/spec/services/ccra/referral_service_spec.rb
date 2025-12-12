@@ -78,6 +78,89 @@ describe Ccra::ReferralService do
         end
       end
     end
+
+    context 'when service raises an error with flipper enabled' do
+      let(:error_message_with_icn) { "Connection failed for patient #{icn} with invalid status" }
+      let(:backend_exception) do
+        Common::Exceptions::BackendServiceException.new('VA900', {
+                                                          code: 'VA900',
+                                                          detail: error_message_with_icn
+                                                        })
+      end
+
+      before do
+        allow_any_instance_of(described_class).to receive(:perform).and_raise(backend_exception)
+      end
+
+      context 'when CCRA error logging flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:va_online_scheduling_ccra_error_logging, user)
+            .and_return(true)
+        end
+
+        it 'logs detailed error information with scrubbed PHI' do
+          # Allow the scrub method to work normally
+          allow_any_instance_of(described_class).to receive(:scrub).and_call_original
+
+          # Expect the Rails logger to receive the error with scrubbed data
+          expect(Rails.logger).to receive(:error) do |message, data|
+            expect(message).to eq('CCRA: Failed to fetch VAOS referral list')
+            expect(data[:icn]).to eq(icn)
+            expect(data[:referral_status]).to eq(referral_status)
+            expect(data[:service]).to eq('ccra')
+            expect(data[:method]).to eq('get_vaos_referral_list')
+            expect(data[:error_class]).to eq('Common::Exceptions::BackendServiceException')
+            # The scrub method should have replaced the ICN with [REDACTED]
+            expect(data[:error_message]).to include('[REDACTED]')
+            expect(data[:error_message]).not_to include(icn)
+            expect(data[:error_backtrace]).to be_an(Array)
+          end
+
+          expect do
+            subject.get_vaos_referral_list(icn, referral_status)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        it 'ensures PHI like ICN numbers are scrubbed from error messages' do
+          # Stub scrub to verify it's called and returns scrubbed value
+          scrubbed_message = 'Connection failed for patient [REDACTED] with invalid status'
+          allow_any_instance_of(described_class).to receive(:scrub) do |_instance, message|
+            expect(message).to include(icn)
+            scrubbed_message
+          end
+
+          # Verify the logged message does not contain the actual ICN
+          expect(Rails.logger).to receive(:error) do |message, data|
+            expect(message).to eq('CCRA: Failed to fetch VAOS referral list')
+            expect(data[:error_message]).to eq(scrubbed_message)
+            expect(data[:error_message]).not_to include(icn)
+            expect(data[:error_message]).to include('[REDACTED]')
+          end
+
+          expect do
+            subject.get_vaos_referral_list(icn, referral_status)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+
+      context 'when CCRA error logging flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:va_online_scheduling_ccra_error_logging, user)
+            .and_return(false)
+        end
+
+        it 'does not log detailed error information' do
+          expect(Rails.logger).not_to receive(:error)
+            .with('CCRA: Failed to fetch VAOS referral list', anything)
+
+          expect do
+            subject.get_vaos_referral_list(icn, referral_status)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
   end
 
   describe '#get_referral' do
