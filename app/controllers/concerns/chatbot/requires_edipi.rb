@@ -28,13 +28,14 @@ module Chatbot
     def empty_edipi_payload_for(action_name)
       base_meta = { sync_status: 'SUCCESS' }
 
+      # if needed, can pass in the response structure
       case action_name.to_s
       when 'index'
         { data: [], meta: base_meta }
       when 'show'
         { data: nil, meta: base_meta }
       else
-        { data: nil, meta: base_meta }
+        raise ArgumentError, "Unsupported action for EDIPI guard: #{action_name}"
       end
     end
 

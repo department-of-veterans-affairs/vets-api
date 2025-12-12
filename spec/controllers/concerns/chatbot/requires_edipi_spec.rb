@@ -17,6 +17,10 @@ RSpec.describe Chatbot::RequiresEdipi, type: :controller do
       render json: { data: 'ok', meta: { sync_status: 'SUCCESS' } }
     end
 
+    def create
+      render json: { data: 'created', meta: { sync_status: 'SUCCESS' } }
+    end
+
     private
 
     attr_reader :mpi_profile
@@ -30,6 +34,7 @@ RSpec.describe Chatbot::RequiresEdipi, type: :controller do
     routes.draw do
       get 'anonymous/index', to: 'anonymous#index'
       get 'anonymous/show', to: 'anonymous#show'
+      post 'anonymous/create', to: 'anonymous#create'
     end
   end
 
@@ -93,6 +98,16 @@ RSpec.describe Chatbot::RequiresEdipi, type: :controller do
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
         expect(body['data']).to eq([])
+      end
+    end
+
+    context 'when action is not supported' do
+      it 'raises an argument error' do
+        controller.instance_variable_set(:@mpi_profile, nil)
+
+        expect do
+          post :create
+        end.to raise_error(ArgumentError, /Unsupported action/)
       end
     end
   end
