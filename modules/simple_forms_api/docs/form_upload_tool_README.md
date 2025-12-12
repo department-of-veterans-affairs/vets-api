@@ -34,9 +34,15 @@ The Form Upload tool launched with support for four forms: `21-0779`, `21-509`, 
   **Why?**
   This allows VANotify to send emails about the form submission. Three emails potentially get sent: once upon **submission**, and once each upon **error** or **receipt/final success**.
 
+- Add your form id to [this array](https://github.com/department-of-veterans-affairs/vets-api/blob/master/app/controllers/v0/my_va/submission_statuses_controller.rb#L35)
+  **Why?**
+  This allows my-va to pull in submissions in progress as well as drafts and show users cards that they can navigate to quickly.
+
 ### 4. Follow the instructions in the `vets-website` repo
 
 - [Follow the instructions here](https://github.com/department-of-veterans-affairs/vets-website/blob/main/src/applications/simple-forms/form-upload/README.md) to enable the form on the front-end.
 
   **Why?**
   The front end needs a few pieces of data to be able to accurately render the tool for additional forms.
+
+- Add the pdf to fixtures for testing. modules/simple_forms_api/spec/fixtures/pdfs/vba_22_10278-completed.pdf
