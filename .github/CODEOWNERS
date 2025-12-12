@@ -725,7 +725,6 @@ config/identity_settings @department-of-veterans-affairs/octo-identity
 config/imagemagick/policies/new-policy.xml @department-of-veterans-affairs/backend-review-group
 config/initializers/01_redis.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/aal.rb @department-of-veterans-affairs/octo-identity
-config/initializers/allowlist_log_filtering.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/app_info.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/application_controller_renderer.rb @department-of-veterans-affairs/octo-identity
 config/initializers/authn_context.rb @department-of-veterans-affairs/octo-identity
@@ -839,7 +838,6 @@ lib/accredited_representation/constants.rb @department-of-veterans-affairs/accre
 lib/accredited_representation/create_accredited_individual.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/accredited-representative-crew
 lib/admin @department-of-veterans-affairs/backend-review-group
 lib/aes_256_cbc_encryptor.rb @department-of-veterans-affairs/backend-review-group
-lib/allowlist_log_filtering.rb @department-of-veterans-affairs/backend-review-group
 lib/apps @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/lighthouse-pivot
 lib/backend_services.rb @department-of-veterans-affairs/backend-review-group
 lib/bb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
@@ -1010,6 +1008,7 @@ lib/rx @department-of-veterans-affairs/mobile-api-team @department-of-veterans-a
 lib/salesforce @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 lib/saml @department-of-veterans-affairs/octo-identity
 lib/scopes/form526_submission_state.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+lib/safe_logger.rb @department-of-veterans-affairs/backend-review-group
 lib/search @department-of-veterans-affairs/backend-review-group
 lib/search_gsa @department-of-veterans-affairs/backend-review-group
 lib/search_typeahead @department-of-veterans-affairs/backend-review-group
@@ -1439,7 +1438,6 @@ spec/fixtures/vbms @department-of-veterans-affairs/benefits-dependents-managemen
 spec/fixtures/veteran_enrollment_system @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/helpers/parameter_filter_helper_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/initializers/rails_semantic_logger_patch_spec.rb @department-of-veterans-affairs/backend-review-group
-spec/lib/allowlist_log_filtering_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/apps @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/bb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 spec/lib/benefits_claims/providers @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
@@ -1558,6 +1556,7 @@ spec/lib/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-o
 spec/lib/res/ch31_form_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-core-veteran-experiences
 spec/lib/rx @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/rx/client_request_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team
+spec/lib/safe_logger_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/saml @department-of-veterans-affairs/octo-identity
 spec/lib/saved_claims_spec_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/search @department-of-veterans-affairs/backend-review-group
