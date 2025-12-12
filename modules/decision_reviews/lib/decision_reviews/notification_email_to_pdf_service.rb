@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'decision_reviews/pdf_template_stamper'
+
 module DecisionReviews
   # Simplified service that uses PDF templates with stamped personalization
   class NotificationEmailToPdfService
@@ -11,6 +13,9 @@ module DecisionReviews
       nod_form_failure: 'nod_form_failure',
       nod_evidence_failure: 'nod_evidence_failure'
     }.freeze
+
+    # Only generate PDFs for final email delivery statuses
+    FINAL_STATUSES = %w[delivered permanent-failure].freeze
 
     # Initialize with a DecisionReviewNotificationAuditLog record
     def initialize(audit_log)
@@ -28,7 +33,8 @@ module DecisionReviews
         submission_date: @submission_date,
         email_address: @email_address,
         sent_date: @sent_date,
-        evidence_filename: @evidence_filename
+        evidence_filename: @evidence_filename,
+        email_delivery_failure: @email_delivery_failure
       )
 
       save_to_file(pdf_binary)
@@ -40,18 +46,24 @@ module DecisionReviews
       payload = parse_payload(audit_log.payload)
       reference = audit_log.reference
 
+      # Validate that the status is final before generating PDF
+      validate_final_status!(audit_log.status)
+
+      # Determine if email delivery failed (only permanent-failure counts as failure)
+      @email_delivery_failure = audit_log.status == 'permanent-failure'
+
       # Extract template type from reference (format: "HLR-form-uuid" or "SC-evidence-uuid")
       @template_type = determine_template_type(reference)
 
-      # Extract email address and sent date from payload
-      @email_address = payload['to'] || payload[:to]
-      @sent_date = parse_date(payload['sent_at'] || payload[:sent_at])
+      # Extract email delivered/failed to deliver timestamp from payload
+      @sent_date = parse_date(payload['completed_at'] || payload[:completed_at])
 
       # Look up submission to get first_name, submission_date, and evidence_filename
       submission_data = fetch_submission_data(reference)
       @first_name = submission_data[:first_name]
       @submission_date = submission_data[:submission_date]
       @evidence_filename = submission_data[:evidence_filename]
+      @email_address = submission_data[:email_address]
     end
 
     def parse_payload(payload)
@@ -94,8 +106,10 @@ module DecisionReviews
 
       {
         first_name: submission.get_mpi_profile&.given_names&.first || 'Veteran',
+        # first_name: 'LOCAL TEST VETERAN', # Uncomment for local testing
         submission_date: submission.created_at,
-        evidence_filename: extract_evidence_filename(reference, submission)
+        evidence_filename: extract_evidence_filename(reference, submission),
+        email_address: submission.current_email_address
       }
     end
 
@@ -117,6 +131,13 @@ module DecisionReviews
 
       raise ArgumentError, "Invalid template_type: #{@template_type}.
                             Must be one of: #{TEMPLATE_TYPES.values.join(', ')}"
+    end
+
+    def validate_final_status!(status)
+      return if FINAL_STATUSES.include?(status)
+
+      raise ArgumentError, "Cannot generate PDF for non-final status: #{status}. " \
+                           "Status must be one of: #{FINAL_STATUSES.join(', ')}"
     end
 
     def save_to_file(pdf_binary)
