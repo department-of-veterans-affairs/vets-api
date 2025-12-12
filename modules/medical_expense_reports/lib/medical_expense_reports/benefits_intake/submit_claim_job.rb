@@ -132,7 +132,7 @@ module MedicalExpenseReports
       # @return [Hash]
       def generate_metadata(form)
 
-        # also validates/maniuplates the metadata
+        # also validates/manipulates the metadata
         ::BenefitsIntake::Metadata.generate(
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
