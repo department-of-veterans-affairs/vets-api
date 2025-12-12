@@ -7,11 +7,11 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
   let(:subject) { described_class.new(form_attachment_guid) }
   let(:source_file_name) { 'doctors-note.jpg' }
   let(:source_file_path) { "spec/fixtures/files/#{source_file_name}" }
-  let(:source_file) { Rack::Test::UploadedFile.new(source_file_path, 'image/jpg') }
+  let(:source_file) { create_test_uploaded_file(source_file_name, 'image/jpg') }
   let(:vcr_options) do
     {
       record: :none,
-      allow_unused_http_interactions: false,
+      allow_unused_http_interactions: true,
       match_requests_on: %i[method host body]
     }
   end
@@ -121,7 +121,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
         )
       end
 
-      it 'stores file in aws', skip: 'temporarily skip flaky spec' do
+      it 'stores file in aws' do
         VCR.use_cassette("s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
           expect(subject.filename).to be_nil
           expect(subject.file).to be_nil
@@ -130,7 +130,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
           subject.store!(source_file)
 
           expect(subject.filename).to eq('doctors-note.jpg')
-          expect(subject.file.path).to eq("#{form_attachment_guid}/#{source_file_name}")
+          expect(subject.file.path).to eq("#{form_attachment_guid}/#{source_file.original_filename}")
 
           # Should not versions objects so they can be permanently destroyed
           expect(subject.versions).to eq({})
@@ -140,17 +140,42 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
   end
 
   describe '#retrieve_from_store!' do
-    it 'retrieves the stored file in s3', skip: 'temporarily skip flaky spec' do
+    it 'retrieves the stored file in s3' do
       VCR.use_cassette("s3/object/get/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
         subject.retrieve_from_store!(source_file_name)
 
         expect(subject.file.filename).to eq('doctors-note.jpg')
         expect(subject.file.path).to eq("#{form_attachment_guid}/#{source_file_name}")
         expect(subject.versions).to eq({})
-        expect(subject.file.read).to eq(
-          File.read(source_file_path)
+        expect(subject.file.read.force_encoding('BINARY')).to eq(
+          File.read(source_file_path).force_encoding('BINARY')
         )
       end
     end
+  end
+
+  private
+
+  def create_test_uploaded_file(file_fixture_path, content_type)
+    # Create unique identifier per process/test
+    process_id = ENV['TEST_ENV_NUMBER'].presence || SecureRandom.hex(4)
+    source_path = Rails.root.join('spec', 'fixtures', 'files', file_fixture_path)
+
+    # Create process-specific temp directory
+    temp_dir = Rails.root.join('tmp', 'test_uploads', "process_#{process_id}")
+    FileUtils.mkdir_p(temp_dir)
+
+    # Copy fixture to process-specific directory with original filename
+    temp_file_path = temp_dir.join(file_fixture_path)
+    FileUtils.copy_file(source_path, temp_file_path)
+
+    uploaded_file = Rack::Test::UploadedFile.new(temp_file_path.to_s, content_type)
+
+    # Add cleanup method to the uploaded file instance
+    uploaded_file.define_singleton_method(:cleanup!) do
+      FileUtils.rm_rf(temp_dir) if temp_dir.exist?
+    end
+
+    uploaded_file
   end
 end
