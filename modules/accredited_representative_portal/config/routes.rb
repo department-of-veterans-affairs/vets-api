@@ -28,7 +28,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
 
     scope 'form21a' do
       post ':details_slug',
-           to: 'form21a#details',
+           to: 'form21a#background_detail_upload',
            constraints: { details_slug: Regexp.union(AccreditedRepresentativePortal::VALID_DETAIL_SLUGS) }
     end
 
