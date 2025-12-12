@@ -140,7 +140,7 @@ module MedicalExpenseReports
       # @param form [Hash]
       # @return [Hash]
       def generate_metadata(form)
-        # also validates/maniuplates the metadata
+        # also validates/manipulates the metadata
         ::BenefitsIntake::Metadata.generate(
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
@@ -256,7 +256,7 @@ module MedicalExpenseReports
       # @param primary_phone [Hash, nil]
       # @return [String, nil]
       def us_phone_number(primary_phone)
-        return unless primary_phone['countryCode']&.casecmp?('US')
+        return unless primary_phone&.dig('countryCode')&.casecmp?('US')
 
         format_phone(primary_phone['contact'])
       end
@@ -539,7 +539,10 @@ module MedicalExpenseReports
           metadata: @metadata.to_json,
           attachments: @attachment_paths
         }
-        tracked_payload = payload.merge(ibm_payload: @ibm_payload)
+        tracked_payload = payload.merge(
+          ibm_payload_present: @ibm_payload.present?,
+          ibm_payload_field_count: @ibm_payload&.keys&.count
+        )
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
