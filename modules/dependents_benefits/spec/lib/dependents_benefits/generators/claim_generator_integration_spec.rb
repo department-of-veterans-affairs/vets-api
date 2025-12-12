@@ -5,16 +5,17 @@ require 'dependents_benefits/generators/claim674_generator'
 require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:form_data) { create(:dependents_claim).parsed_form }
   let(:parent_claim) { create(:dependents_claim) }
   let(:parent_claim_group) do
     create(:saved_claim_group, parent_claim_id: parent_claim.id, saved_claim_id: parent_claim.id)
   end
   let(:parent_claim_id) { parent_claim_group.parent_claim_id }
-
-  before do
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-  end
 
   describe 'Creating 686c and 674 claims from combined form data' do
     before do

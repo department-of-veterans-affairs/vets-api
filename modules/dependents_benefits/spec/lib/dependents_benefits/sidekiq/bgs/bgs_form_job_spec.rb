@@ -5,17 +5,10 @@ require 'dependents_benefits/sidekiq/bgs/bgs_form_job'
 require 'bgsv2/service'
 
 RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
-  # Create a concrete test class since BGSFormJob is abstract
-  let(:test_job_class) do
-    Class.new(described_class) do
-      def submit_form(_claim_data)
-        # No-op for testing
-      end
-
-      def form_id
-        '21-686C'
-      end
-    end
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    # Initialize job with current claim context
+    job.instance_variable_set(:@claim_id, parent_claim.id)
   end
 
   let(:user) { create(:evss_user) }
@@ -24,12 +17,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   let(:user_data) { { 'veteran_information' => { 'full_name' => { 'first' => 'John', 'last' => 'Doe' } } }.to_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
-  let(:job) { test_job_class.new }
-
-  before do
-    # Initialize job with current claim context
-    job.instance_variable_set(:@claim_id, parent_claim.id)
-  end
+  let(:job) { described_class.new }
 
   describe '#find_or_create_form_submission' do
     it 'creates a new BGS::Submission if one does not exist' do

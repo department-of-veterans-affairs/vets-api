@@ -7,6 +7,18 @@ require 'dependents_benefits/notification_email'
 require 'sidekiq/job_retry'
 
 RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('/tmp/dummy.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+    allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_submission_info)
+    allow(monitor).to receive(:track_submission_error)
+    allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
+    allow(claim_processor).to receive(:collect_child_claims).and_return([child_claim])
+    allow(claim_processor).to receive(:handle_successful_submission)
+    allow(claim_processor).to receive(:handle_permanent_failure)
+  end
+
   let(:saved_claim) { create(:dependents_claim) }
   let(:claim_id) { saved_claim.id }
   let(:job) { described_class.new }
@@ -17,17 +29,6 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
   let(:successful_response) { double('ServiceResponse', success?: true) }
   let(:monitor) { instance_double(DependentsBenefits::Monitor) }
   let(:claim_processor) { instance_double(DependentsBenefits::ClaimProcessor) }
-
-  before do
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-    allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
-    allow(monitor).to receive(:track_submission_info)
-    allow(monitor).to receive(:track_submission_error)
-    allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
-    allow(claim_processor).to receive(:collect_child_claims).and_return([child_claim])
-    allow(claim_processor).to receive(:handle_successful_submission)
-    allow(claim_processor).to receive(:handle_permanent_failure)
-  end
 
   describe '#perform' do
     context 'when claim group has already failed' do

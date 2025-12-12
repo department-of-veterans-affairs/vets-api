@@ -5,76 +5,88 @@ require 'dependents_benefits/claim_behavior'
 
 RSpec.describe DependentsBenefits::ClaimBehavior do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 
   let(:claim) { create(:dependents_claim) }
   let(:child_claim) { create(:add_remove_dependents_claim) }
 
   describe '#submissions_succeeded?' do
-    context 'when BGS::Submission has an attempt with status == "submitted"' do
-      it 'returns true' do
-        submission = create(:bgs_submission, saved_claim_id: claim.id)
-        create(:bgs_submission_attempt, submission:, status: 'submitted')
+    it 'returns true when both BGS and Claims Evidence submissions succeeded' do
+      allow(claim).to receive_messages(submitted_to_bgs?: true, submitted_to_claims_evidence_api?: true)
 
-        expect(claim.submissions_succeeded?).to be true
-      end
+      expect(claim.submissions_succeeded?).to be true
     end
 
-    context 'when BGS::Submission has an attempt with status == "pending"' do
+    it 'returns false when BGS submission failed or incomplete' do
+      allow(claim).to receive_messages(submitted_to_bgs?: false, submitted_to_claims_evidence_api?: true)
+
+      expect(claim.submissions_succeeded?).to be false
+    end
+
+    it 'returns false when Claims Evidence submission failed or incomplete' do
+      allow(claim).to receive_messages(submitted_to_bgs?: true, submitted_to_claims_evidence_api?: false)
+
+      expect(claim.submissions_succeeded?).to be false
+    end
+  end
+
+  describe '#submitted_to_bgs?' do
+    context 'when there is no BGS submission' do
       it 'returns false' do
-        submission = create(:bgs_submission, saved_claim_id: claim.id)
-        create(:bgs_submission_attempt, submission:, status: 'pending')
-
-        expect(claim.submissions_succeeded?).to be false
+        expect(claim.submitted_to_bgs?).to be false
       end
     end
 
-    context 'when BGS::Submission has no attempts' do
+    context 'when is a BGS submission' do
+      let!(:submission) { create(:bgs_submission, saved_claim: claim) }
+
+      it 'returns false if there are no attempts' do
+        expect(claim.submitted_to_bgs?).to be false
+      end
+
+      context 'when there are attempts' do
+        let!(:attempt1) { create(:bgs_submission_attempt, submission:, status: 'submitted') }
+        let!(:attempt2) { create(:bgs_submission_attempt, submission:, status: 'submitted') }
+
+        it 'returns true if the latest is submitted' do
+          expect(claim.submitted_to_bgs?).to be true
+        end
+
+        it 'returns false if any latest attempt is not submitted' do
+          attempt2.update(status: 'failure')
+          expect(claim.submitted_to_bgs?).to be false
+        end
+      end
+    end
+  end
+
+  describe '#submitted_to_claims_evidence_api?' do
+    context 'when there is no Claims Evidence submission' do
       it 'returns false' do
-        create(:bgs_submission, saved_claim_id: claim.id)
-
-        expect(claim.submissions_succeeded?).to be false
+        expect(claim.submitted_to_claims_evidence_api?).to be false
       end
     end
 
-    context 'when there are no submissions for the claim' do
-      it 'returns false' do
-        expect(claim.submissions_succeeded?).to be false
-      end
-    end
+    context 'when is a Claims Evidence submission' do
+      let!(:submission) { create(:claims_evidence_submission, saved_claim: claim) }
 
-    context 'when there are multiple submissions with mixed statuses' do
-      it 'returns false if any submission has non-submitted attempts' do
-        submission1 = create(:bgs_submission, saved_claim_id: claim.id)
-        submission2 = create(:bgs_submission, saved_claim_id: claim.id)
-
-        create(:bgs_submission_attempt, submission: submission1, status: 'submitted')
-        create(:bgs_submission_attempt, submission: submission2, status: 'pending')
-
-        expect(claim.submissions_succeeded?).to be false
+      it 'returns false if there are no attempts' do
+        expect(claim.submitted_to_claims_evidence_api?).to be false
       end
 
-      it 'returns true if all submissions have submitted attempts' do
-        submission1 = create(:bgs_submission, saved_claim_id: claim.id)
-        submission2 = create(:bgs_submission, saved_claim_id: claim.id)
+      context 'when there are attempts' do
+        let!(:attempt1) { create(:claims_evidence_submission_attempt, submission:, status: 'accepted') }
+        let!(:attempt2) { create(:claims_evidence_submission_attempt, submission:, status: 'accepted') }
 
-        create(:bgs_submission_attempt, submission: submission1, status: 'submitted')
-        create(:bgs_submission_attempt, submission: submission2, status: 'submitted')
+        it 'returns true if the latest is submitted' do
+          expect(claim.submitted_to_claims_evidence_api?).to be true
+        end
 
-        expect(claim.submissions_succeeded?).to be true
-      end
-    end
-
-    context 'when submission has multiple attempts' do
-      it 'uses the latest attempt status' do
-        submission = create(:bgs_submission, saved_claim_id: claim.id)
-
-        # Create attempts in chronological order
-        create(:bgs_submission_attempt, submission:, status: 'pending', created_at: 1.hour.ago)
-        create(:bgs_submission_attempt, submission:, status: 'submitted', created_at: 30.minutes.ago)
-
-        expect(claim.submissions_succeeded?).to be true
+        it 'returns false if any latest attempt is not submitted' do
+          attempt2.update(status: 'failed')
+          expect(claim.submitted_to_claims_evidence_api?).to be false
+        end
       end
     end
   end

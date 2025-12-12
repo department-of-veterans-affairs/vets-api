@@ -4,14 +4,15 @@ require 'rails_helper'
 require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:parent_claim) { create(:dependents_claim) }
   let(:form_data) { parent_claim.parsed_form }
   let(:parent_id) { parent_claim.id }
   let(:generator) { described_class.new(form_data, parent_id) }
-
-  before do
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-  end
 
   describe '#extract_form_data' do
     let(:extracted_data) { generator.send(:extract_form_data) }

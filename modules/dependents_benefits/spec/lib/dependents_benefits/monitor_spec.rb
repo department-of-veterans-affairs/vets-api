@@ -4,6 +4,11 @@ require 'rails_helper'
 require 'dependents_benefits/monitor'
 
 RSpec.describe DependentsBenefits::Monitor do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:monitor) { described_class.new }
   let(:claim) { create(:dependents_claim) }
   let(:ipf) { create(:in_progress_form) }
@@ -13,10 +18,6 @@ RSpec.describe DependentsBenefits::Monitor do
   let(:message_prefix) { "#{described_class} #{DependentsBenefits::FORM_ID}" }
   let(:current_user) { create(:user) }
   let(:monitor_error) { create(:monitor_error) }
-
-  before do
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-  end
 
   def base_payload(extras = {})
     {

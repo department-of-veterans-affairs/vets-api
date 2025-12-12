@@ -4,15 +4,16 @@ require 'rails_helper'
 require 'dependents_benefits/generators/dependent_claim_generator'
 
 RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :model do
-  let(:form_data) { { 'test' => 'data' } }
-  let(:parent_id) { 123 }
-  let(:generator) { described_class.new(form_data, parent_id) }
-
   before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
 
     allow(generator).to receive(:claim_class).and_return(DependentsBenefits::PrimaryDependencyClaim)
   end
+
+  let(:form_data) { { 'test' => 'data' } }
+  let(:parent_id) { 123 }
+  let(:generator) { described_class.new(form_data, parent_id) }
 
   describe 'initialization' do
     it 'stores form_data and parent_id' do
