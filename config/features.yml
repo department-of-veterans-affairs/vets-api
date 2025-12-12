@@ -1333,13 +1333,17 @@ features:
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
-  mhv_landing_page_show_priority_group:
+  mhv_landing_page_aal_notice:
     actor_type: user
-    description: Shows Veterans their Priority Group on the MHV Landing Page
+    description: Enables AAL help content on the My HealtheVet landing page.
     enable_in_development: true
   mhv_landing_page_personalization:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
+    enable_in_development: true
+  mhv_landing_page_show_priority_group:
+    actor_type: user
+    description: Shows Veterans their Priority Group on the MHV Landing Page
     enable_in_development: true
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
@@ -1870,6 +1874,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_bank_info_confirmation_field:
+    actor_type: user
+    description: Enables additional confirmation field for bank information pages across MEB applications
+    enable_in_development: true
   meb_1995_re_reroute:
     actor_type: user
     description: Show the questionnaire to determine where to re-route the user
@@ -2134,6 +2142,9 @@ features:
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  vre_track_submissions:
+    actor_type: user
+    description: In VRE application, create form submission/attempt records
   priority_processing_request_apply_vsi_flash:
     actor_type: user
     description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
@@ -2382,6 +2393,9 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  income_and_assets_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Income and Assets
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user

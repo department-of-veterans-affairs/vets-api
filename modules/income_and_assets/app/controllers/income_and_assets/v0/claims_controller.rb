@@ -3,6 +3,7 @@
 require 'income_and_assets/benefits_intake/submit_claim_job'
 require 'income_and_assets/monitor'
 require 'persistent_attachments/sanitizer'
+require 'bpds/submission_handler'
 
 module IncomeAndAssets
   module V0
@@ -10,6 +11,8 @@ module IncomeAndAssets
     # The Income and Assets claim controller that handles form submissions
     #
     class ClaimsController < ClaimsBaseController
+      include BPDS::SubmissionHandler
+
       before_action :check_flipper_flag
       service_tag 'income-and-assets-application'
 
@@ -51,6 +54,9 @@ module IncomeAndAssets
           log_validation_error_to_metadata(in_progress_form, claim)
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
+
+        # See BPDS::SubmissionHandler
+        submit_claim_to_bpds(claim) if Flipper.enabled?(:income_and_assets_bpds_service_enabled)
 
         process_attachments(in_progress_form, claim)
 
