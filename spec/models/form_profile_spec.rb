@@ -1763,6 +1763,7 @@ RSpec.describe FormProfile, type: :model do
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
                   expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
+                end
               end
             end
 
