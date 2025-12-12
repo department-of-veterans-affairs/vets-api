@@ -16,6 +16,20 @@ class OliveBranchPatchController < ActionController::API
   end
 end
 
+# A Rack body that yields frozen string chunks, simulating the behavior
+# that triggers FrozenError in Ruby 3.3+ with certain middleware combinations
+class FrozenChunkBody
+  def initialize(chunks)
+    @chunks = chunks.map(&:freeze)
+  end
+
+  def each(&)
+    @chunks.each(&)
+  end
+
+  def close; end
+end
+
 describe 'OliveBranchPatch', type: :request do
   before(:all) do
     Rails.application.routes.draw do
@@ -170,5 +184,76 @@ describe 'OliveBranchPatch', type: :request do
     expect(json.dig('someVaDetails', 'theVaAddress', 'notes', 'urlForVa')).to eq url_for_va
     expect(json['helloThere']).to eq data[:hello_there]
     expect(json['helloToTheVa']).to eq data[:hello_to_the_va]
+  end
+
+  # Test the middleware extension directly to reproduce the FrozenError bug
+  # described in FrozenError-OliveBranch-analysis.md
+  #
+  # The bug occurs when:
+  # 1. Response body contains frozen empty strings (common in Rack responses)
+  # 2. OliveBranch passes these through unchanged (MultiJson::ParseError path)
+  # 3. The patch tries to run gsub! on the frozen string -> FrozenError
+
+  context 'with frozen response chunks' do
+    let(:app) { ->(_env) { [200, { 'Content-Type' => 'application/json' }, response_body] } }
+    let(:middleware) do
+      OliveBranch::Middleware.new(
+        app,
+        inflection_header: 'X-Key-Inflection',
+        exclude_params: ->(_) { true } # Skip param processing for unit tests
+      )
+    end
+    let(:env) do
+      Rack::MockRequest.env_for('/test', 'HTTP_X_KEY_INFLECTION' => 'camel', 'CONTENT_TYPE' => 'application/json')
+    end
+
+    context 'when response body includes frozen empty string chunks' do
+      # This is the exact production scenario: frozen empty strings mixed with JSON
+      # OliveBranch passes empty strings through unchanged (ParseError path),
+      # and they remain frozen, causing gsub! to fail
+      let(:response_body) { FrozenChunkBody.new(['', '{"year_va_founded":1989}', '']) }
+
+      it 'handles frozen empty string chunks without raising FrozenError' do
+        expect do
+          _status, _headers, body = middleware.call(env)
+          body.each { |_chunk| }
+        end.not_to raise_error
+      end
+
+      it 'correctly transforms VA keys despite frozen chunks' do
+        _status, _headers, body = middleware.call(env)
+        result = []
+        body.each { |chunk| result << chunk }
+
+        # OliveBranch transforms year_va_founded -> yearVAFounded
+        # Patch should transform yearVAFounded -> yearVaFounded
+        expect(result.join).to include('yearVaFounded')
+        expect(result.join).not_to include('yearVAFounded')
+      end
+    end
+
+    context 'when response body is only a frozen empty string' do
+      let(:response_body) { FrozenChunkBody.new(['']) }
+
+      it 'handles frozen empty string without raising FrozenError' do
+        expect do
+          _status, _headers, body = middleware.call(env)
+          body.each { |_chunk| }
+        end.not_to raise_error
+      end
+    end
+
+    context 'when response contains valid JSON with VA keys' do
+      let(:response_body) { FrozenChunkBody.new(['{"some_va_key":"value","other_va_data":123}']) }
+
+      it 'transforms all VA keys correctly' do
+        _status, _headers, body = middleware.call(env)
+        result = []
+        body.each { |chunk| result << chunk }
+
+        json = JSON.parse(result.join)
+        expect(json.keys).to contain_exactly('someVaKey', 'otherVaData')
+      end
+    end
   end
 end
