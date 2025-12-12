@@ -48,7 +48,6 @@ class FormAttachment < ApplicationRecord
       password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
       log_message_to_sentry(sanitized_message, 'warn')
-      log_message_to_rails(sanitized_message, 'warn')
       raise Common::Exceptions::UnprocessableEntity.new(
         detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
         source: 'FormAttachment.unlock_pdf'
