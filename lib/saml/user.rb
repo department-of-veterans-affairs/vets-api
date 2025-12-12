@@ -18,6 +18,7 @@ module SAML
       LOA::IDME_LOA1_MFA => { loa_current: LOA::ONE, sign_in: { service_name: IDME_CSID } },
       LOA::IDME_LOA3_VETS => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
       LOA::IDME_LOA3 => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
+      IAL::IDME_IAL2 => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
       'multifactor' => { loa_current: nil, sign_in: { service_name: IDME_CSID } },
       'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: MHV_ORIGINAL_CSID } },
       'myhealthevet_loa3' => { loa_current: LOA::THREE, sign_in: { service_name: MHV_ORIGINAL_CSID } },

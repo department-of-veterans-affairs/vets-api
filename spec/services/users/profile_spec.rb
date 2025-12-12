@@ -563,6 +563,18 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
+          expect(vet360_info).to have_key(:contact_email_verified)
+          expect(vet360_info[:contact_email_verified]).to be_in([true, false])
+        end
+
+        context 'when email object is nil' do
+          before do
+            allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:email).and_return(nil)
+          end
+
+          it 'returns nil for contact_email_verified when email is nil' do
+            expect(vet360_info[:contact_email_verified]).to be_nil
+          end
         end
 
         it 'sets the status to 200' do
@@ -699,6 +711,111 @@ RSpec.describe Users::Profile do
             expect(log_hash['error']['method']).to eq('mpi_profile')
           end
           logging_profile.send(:mpi_profile)
+        end
+      end
+    end
+
+    describe '#healthcare_settings_pilot_eligible' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:visn_service) { instance_double(UserVisnService) }
+      let(:result) { users_profile.send(:healthcare_settings_pilot_eligible) }
+
+      before do
+        allow(UserVisnService).to receive(:new).with(user).and_return(visn_service)
+      end
+
+      context 'when profile_health_care_settings_page feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(false)
+        end
+
+        it 'returns false' do
+          expect(visn_service).not_to receive(:in_pilot_visn?)
+          expect(result).to be false
+        end
+      end
+
+      context 'when profile_health_care_settings_page feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(true)
+        end
+
+        context 'when user is in pilot VISN' do
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_return(true)
+          end
+
+          it 'returns true' do
+            expect(result).to be true
+          end
+        end
+
+        context 'when user is not in pilot VISN' do
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_return(false)
+          end
+
+          it 'returns false' do
+            expect(result).to be false
+          end
+        end
+
+        context 'when VISN service raises an error' do
+          let(:error_message) { 'VISN service error' }
+
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_raise(StandardError, error_message)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'logs the error and returns false' do
+            expect(Rails.logger)
+              .to receive(:error)
+              .with("Error checking healthcare settings pilot eligibility: #{error_message}")
+            expect(result).to be false
+          end
+        end
+      end
+    end
+
+    describe 'mpi_profile integration with healthcare_settings_pilot_eligible' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:mpi_profile_result) { users_profile.send(:mpi_profile) }
+
+      before do
+        allow(user).to receive_messages(loa3?: true, mpi_status: :ok)
+        allow(user).to receive_messages(
+          birth_date_mpi: '1980-01-01',
+          last_name_mpi: 'Doe',
+          gender_mpi: 'M',
+          given_names: ['John'],
+          cerner_id: nil,
+          cerner_facility_ids: [],
+          va_treatment_facility_ids: %w[402 515],
+          va_patient?: true,
+          mhv_account_state: 'OK',
+          active_mhv_ids: ['12345']
+        )
+      end
+
+      context 'when user is eligible for healthcare settings pilot' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(true)
+          allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
+        end
+
+        it 'includes healthcare_settings_pilot_eligible as true in mpi_profile' do
+          expect(mpi_profile_result[:healthcare_settings_pilot_eligible]).to be true
+        end
+      end
+
+      context 'when user is not eligible for healthcare settings pilot' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(false)
+        end
+
+        it 'includes healthcare_settings_pilot_eligible as false in mpi_profile' do
+          expect(mpi_profile_result[:healthcare_settings_pilot_eligible]).to be false
         end
       end
     end
