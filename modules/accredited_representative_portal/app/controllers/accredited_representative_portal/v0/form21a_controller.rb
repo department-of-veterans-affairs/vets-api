@@ -44,13 +44,25 @@ module AccreditedRepresentativePortal
         render json: { errors: 'Unable to store document' }, status: :unprocessable_entity
       end
 
+      # rubocop:disable Metrics/MethodLength
       def submit
         form_hash = JSON.parse(@parsed_request_body)
 
         begin
           response = AccreditationService.submit_form21a([form_hash], @current_user&.uuid)
 
-          InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy if response.success?
+          if response.success?
+            begin
+              enqueue_document_uploads(response)
+              InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy
+            rescue => e
+              # rubocop:disable Layout/LineLength
+              Rails.logger.error("Failed to enqueue uploads: #{e.class} #{e.message} for user_uuid=#{@current_user&.uuid}")
+              # rubocop:enable Layout/LineLength
+              # Don't destroy form if upload enqueueing fails
+            end
+          end
+
           render_ogc_service_response(response)
         rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
           Rails.logger.error(
@@ -64,6 +76,7 @@ module AccreditedRepresentativePortal
           render json: { errors: 'Internal server error' }, status: :internal_server_error
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -71,6 +84,32 @@ module AccreditedRepresentativePortal
 
       def schema
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
+      end
+
+      def enqueue_document_uploads(response)
+        in_progress_form = current_in_progress_form
+        return unless in_progress_form
+
+        application_id = extract_application_id(response)
+        return unless application_id
+
+        Form21aDocumentUploadService.enqueue_uploads(
+          in_progress_form:,
+          application_id:
+        )
+      end
+
+      def extract_application_id(response)
+        application_id = response.body['applicationId']
+
+        unless application_id
+          Rails.logger.warn(
+            "Form21aController: No applicationId in GCLAWS response for user_uuid=#{@current_user&.uuid}. " \
+            'Document uploads will not be processed.'
+          )
+        end
+
+        application_id
       end
 
       def handle_logging(details_slug)

@@ -68,6 +68,8 @@ module AccreditedRepresentativePortal
         self.aws_bucket = Settings.ogc.form21a_service_url.s3.bucket
         self.aws_attributes = { server_side_encryption: 'AES256' }
         self.class.storage = :aws
+      else
+        self.class.storage = :file
       end
     end
   end
