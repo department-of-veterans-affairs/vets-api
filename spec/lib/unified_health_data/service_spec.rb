@@ -1865,27 +1865,51 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(sample_client_response)
 
           vaccines = service.get_immunizations
-          expect(vaccines.size).to eq(22)
+          expect(vaccines.size).to eq(24)
 
-          # Verify specific vaccine exists (not checking position due to sorting)
-          polio_vaccine = vaccines.find { |v| v.id == 'M20875036615' }
-          expect(polio_vaccine).to have_attributes(
+          # Verify specific vaccines exist:
+          # polio vax: M20875036615 (VistA polio vaccine)
+          # vax with note: M20875183434 (OH Flu vaccine with note and manufacturer)
+          vista_vaccine = vaccines.find { |v| v.id == 'c648f661-d8a1-4369-b7f1-1ed5c9b5f874' }
+          vaccine_note = vaccines.find { |v| v.id == 'M20875183434' }
+
+          expect(vista_vaccine).to have_attributes(
             {
-              'cvx_code' => 112_324_773,
-              'date' => '1990-10-31',
-              'dose_number' => 'Unknown',
-              'dose_series' => 'Unknown',
-              'group_name' => 'poliovirus vaccine, unspecified formulation',
-              'location' => '556 JAL IL VA',
-              'location_id' => '353977013',
+              'id' => 'c648f661-d8a1-4369-b7f1-1ed5c9b5f874',
+              'cvx_code' => 90_715,
+              'date' => '2024-03-04T14:00:00Z',
+              'dose_number' => 'COMPLETE',
+              'dose_series' => 'COMPLETE',
+              'group_name' => 'TDAP',
+              'location' => 'GREELEY NURSE',
+              'location_id' => nil,
               'manufacturer' => nil,
               'note' => nil,
               'reaction' => nil,
-              'short_description' => 'poliovirus vaccine, unspecified'
+              'short_description' => 'TDAP'
             }
           )
+
+          expect(vaccine_note).to have_attributes(
+            {
+              'id' => 'M20875183434',
+              'cvx_code' => 140,
+              'date' => '2025-12-10T16:20:00-06:00',
+              'dose_number' => 'Unknown',
+              'dose_series' => 'Unknown',
+              'group_name' => 'Influenza',
+              'location' => '556 Captain James A Lovell IL VA Medical Center',
+              'location_id' => '353977013',
+              'manufacturer' => 'Seqirus USA Inc',
+              'note' => 'Added comment "note"',
+              'reaction' => nil,
+              'short_description' => 'influenza virus vaccine, inactivated'
+            }
+          )
+
           expect(vaccines).to all(have_attributes(
                                     {
+                                      'id' => be_a(String),
                                       'cvx_code' => be_a(Integer),
                                       'date' => be_a(String),
                                       'dose_number' => be_a(String).or(be_nil),
@@ -1934,6 +1958,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(vaccines).to all(have_attributes(
                                     {
+                                      'id' => be_a(String),
                                       'cvx_code' => be_a(Integer),
                                       'date' => be_a(String),
                                       'dose_number' => be_a(String).or(be_nil),
@@ -1958,10 +1983,11 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           vaccines = service.get_immunizations
-          expect(vaccines.size).to eq(7)
+          expect(vaccines.size).to eq(9)
 
           expect(vaccines).to all(have_attributes(
                                     {
+                                      'id' => be_a(String),
                                       'cvx_code' => be_a(Integer),
                                       'date' => be_a(String),
                                       'dose_number' => be_a(String).or(be_nil),

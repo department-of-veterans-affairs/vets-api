@@ -7,15 +7,6 @@ module UnifiedHealthData
   module Adapters
     class ImmunizationAdapter
       include DateNormalizer
-      FHIR_RESOURCE_TYPES = {
-        BUNDLE: 'Bundle',
-        DIAGNOSTIC_REPORT: 'DiagnosticReport',
-        DOCUMENT_REFERENCE: 'DocumentReference',
-        LOCATION: 'Location',
-        OBSERVATION: 'Observation',
-        ORGANIZATION: 'Organization',
-        PRACTITIONER: 'Practitioner'
-      }.freeze
 
       def parse(records)
         return [] if records.blank?
@@ -31,24 +22,24 @@ module UnifiedHealthData
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
-        date_value = resource['occurrenceDateTime'] || resource['recordedDate'] || nil
+        date_value = resource['occurrenceDateTime'] || nil
         vaccine_code = resource['vaccineCode'] || {}
         protocol_applied = resource['protocolApplied'] || []
-        group_name = extract_group_name(vaccine_code) # PROBLEMATICAL
+        group_name = extract_group_name(resource)
 
         UnifiedHealthData::Immunization.new(
           id: resource['id'],
           cvx_code: extract_cvx_code(vaccine_code),
           date: date_value,
           sort_date: normalize_date_for_sorting(date_value),
-          dose_number: extract_dose_number(protocol_applied),
-          dose_series: extract_dose_series(protocol_applied),
+          dose_number: extract_dose_number(protocol_applied), # not sure this is accurate
+          dose_series: extract_dose_series(protocol_applied), # not sure this is accurate
           group_name:,
-          location: extract_location_display(resource['location']),
-          location_id: extract_location_id(resource['location']),
-          manufacturer: extract_manufacturer(resource, group_name), # PROBLEMATICAL
-          note: extract_note(resource['note']), # PROBLEMATICAL
-          reaction: extract_reaction(resource['reaction']), # PROBLEMATICAL
+          location: extract_location_display(resource),
+          location_id: extract_location_id(resource['location']), #  not sure it's needed
+          manufacturer: extract_manufacturer(resource),
+          note: extract_note(resource['note']),
+          reaction: extract_reaction(resource['reaction']),
           short_description: vaccine_code['text']
         )
       end # rubocop:enable Metrics/MethodLength
@@ -56,7 +47,17 @@ module UnifiedHealthData
       private
 
       def extract_cvx_code(vaccine_code)
-        coding = vaccine_code['coding']&.first
+        return nil if vaccine_code['coding'].blank?
+
+        # OH data has multiple vaccine codes, but we want the one that maps to CVX
+        coding = if vaccine_code['coding'].count > 1
+                   vaccine_code['coding'].find do |code_entry|
+                     code_entry['system'] == 'http://hl7.org/fhir/sid/cvx'
+                   end
+                 else
+                   # VistA data has only one coding entry
+                   vaccine_code['coding'].first
+                 end
         code = coding && coding['code']
         code.present? ? code.to_i : nil
       end
@@ -79,7 +80,6 @@ module UnifiedHealthData
           series['seriesDosesString'] # this aligns with legacy data
       end
 
-      # TODO: none of the sample vaccines have 'VACCINE GROUP: '
       # VistA has the name of the vaccine in the vaccineCode text:
       # "vaccineCode": {
       #     "coding": [
@@ -108,42 +108,58 @@ module UnifiedHealthData
       #   "doseNumberString": "1",
       #  }
       # ]
-      def extract_group_name(vaccine_code)
-        coding = vaccine_code['coding'] || []
-        filtered = coding.select { |v| v['display']&.include?('VACCINE GROUP: ') }
-
-        if filtered.empty?
-          group_name = vaccine_code.dig('coding', 1, 'display') || vaccine_code.dig('coding', 0, 'display')
-        else
-          group_name = filtered.dig(0, 'display')
-          group_name&.slice!('VACCINE GROUP: ')
+      def extract_group_name(resource)
+        # OH data: find any protocolApplied entry with targetDisease
+        protocol_applied = resource['protocolApplied']
+        if protocol_applied.is_a?(Array)
+          target_disease_text = protocol_applied
+                                .find { |entry| entry['targetDisease'].present? }
+                                &.dig('targetDisease', 0, 'text')
+          return target_disease_text if target_disease_text
         end
-        group_name.presence
+
+        # Otherwise, fall back to vaccineCode.text
+        resource.dig('vaccineCode', 'text')
       end
 
-      # None of the sample vaccines have manufacturer so not sure where this will be located
-      def extract_manufacturer(resource, group_name)
-        # Only return manufacturer if group_name is COVID-19 and manufacturer is present
-        if group_name == 'COVID-19'
-          manufacturer = resource.dig('manufacturer', 'display')
-          return manufacturer.presence
-        end
-        manufacturer.presence
+      # Are we still only returning for Covid vaccines?
+      def extract_manufacturer(resource)
+        return nil if resource['manufacturer'].nil?
+
+        resource.dig('manufacturer', 'display')
       end
 
-      # None of the samples have notes so not sure where this will be located
       def extract_note(notes)
         return nil if notes.blank?
 
+        # TODO: Verify that we only want the first, or if we return all in an array of strings
         note = notes.first
         note && note['text'].present? ? note['text'] : nil
       end
 
       # None of the sample vaccines have reactions so not sure where this will be located
+      # According to slack convo SCDF might not return any reactions?
       def extract_reaction(reactions)
         return nil if reactions.blank?
 
         reactions.map { |r| r.dig('detail', 'display') }.compact.join(',')
+      end
+
+      # This might not be necessary, the location_id is only used to retrieve LH location data
+      def extract_location_id(location)
+        return nil if location.nil?
+
+        # VistA has only the name as a string for reference (same string as the display)
+        # "location": {
+        #    "reference": "GREELEY NURSE",
+        #    "display": "GREELEY NURSE"
+        # },
+        # OH has the reference as "Location/id" + display as a truncated name
+        # "location": {
+        #     "reference": "Location/353977013",
+        #     "display": "556 JAL IL VA"
+        # },
+        location['reference'].split('/').last if location['reference']&.include?('/')
       end
 
       # VistA has only the name as a string for reference (same string as the display)
@@ -165,34 +181,18 @@ module UnifiedHealthData
       #     }
       #   }
       # ],
-      def extract_location_id(location)
-        return nil if location.nil?
-
-        location['reference'].split('/').last if location.is_a?(Hash) && location['reference']
-      end
-
-      def extract_location_display(location)
-        return nil if location.nil?
-
-        location['display'] if location.is_a?(Hash) && location['display']
-      end
-
-      # None of the sample data has a contained array, so probably unnecessary
-      def find_contained(record, reference, type = nil)
-        return nil unless reference && record['contained']
-
-        if reference.start_with?('#')
-          # Reference is in the format #mhv-resourceType-id
-          target_id = reference.delete_prefix('#')
-          resource = record['contained'].detect { |res| res['id'] == target_id }
-          nil unless resource && resource['resourceType'] == type
-        else
-          # Reference is in the format ResourceType/id
-          type_id = reference.split('/')
-          resource = record['contained'].detect { |res| res['id'] == type_id.last }
-          return nil unless resource && (resource['resourceType'] == type_id.first || resource['resourceType'] == type)
+      def extract_location_display(resource)
+        # Check if any performer has an Organization reference - use its longer display name
+        performers = resource['performer']
+        if performers.is_a?(Array)
+          org_performer = performers.find do |performer|
+            performer.dig('actor', 'reference')&.start_with?('Organization/')
+          end
+          return org_performer.dig('actor', 'display') if org_performer
         end
-        resource
+
+        # Fall back to location display (VistA data or OH truncated name)
+        resource.dig('location', 'display')
       end
     end
   end
