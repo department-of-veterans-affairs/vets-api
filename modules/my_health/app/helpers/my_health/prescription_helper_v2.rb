@@ -52,7 +52,7 @@ module MyHealth
         return data if filter_params.blank?
 
         result = data
-        result = apply_renewable_filter(result, filter_params[:isRenewable]) if filter_params[:isRenewable]
+        result = apply_renewable_filter(result, filter_params[:is_renewable]) if filter_params[:is_renewable]
         result = apply_shipped_filter(result, filter_params[:shipped]) if filter_params[:shipped]
         result
       end
@@ -203,8 +203,6 @@ module MyHealth
       def empty_field?(value)
         value.nil? || value.to_s.strip.empty?
       end
-
-      module_function :apply_sorting
     end
   end
 end
