@@ -2,6 +2,9 @@
 
 module TravelPay
   class ClaimsService
+    include ExpenseNormalizer
+    include IdValidation
+
     def initialize(auth_manager, user)
       @auth_manager = auth_manager
       @user = user
@@ -50,11 +53,10 @@ module TravelPay
 
     # Retrieves expanded claim details with additional fields
     def get_claim_details(claim_id)
-      # ensure claim ID is the right format, allowing any version
-      uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
-
-      unless uuid_all_version_format.match?(claim_id)
-        raise ArgumentError, message: "Expected claim id to be a valid UUID, got #{claim_id}."
+      begin
+        validate_uuid_exists!(claim_id, 'Claim')
+      rescue Common::Exceptions::BadRequest => e
+        raise ArgumentError, e.errors.first.detail
       end
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
@@ -68,14 +70,11 @@ module TravelPay
         claim['claimStatus'] = claim['claimStatus'].underscore.humanize
         claim['documents'] = documents
 
+        # Normalize expense types
+        normalize_expenses(claim['expenses']) if claim['expenses']
+
         # Add decision letter reason for denied or partial payment claims
-        if Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
-          decision_document = find_decision_letter_document(claim)
-          if (claim['claimStatus'].eql?('Denied') || claim['claimStatus'].casecmp?('Claim paid')) &&
-             !decision_document.nil?
-            claim['decision_letter_reason'] = get_decision_reason(claim_id, decision_document['documentId'])
-          end
-        end
+        add_decision_letter_reason(claim, claim_id) if include_decision_reason?
 
         claim
       end
@@ -121,6 +120,18 @@ module TravelPay
     end
 
     private
+
+    def include_decision_reason?
+      Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
+    end
+
+    def add_decision_letter_reason(claim, claim_id)
+      decision_document = find_decision_letter_document(claim)
+      return unless (claim['claimStatus'].eql?('Denied') || claim['claimStatus'].casecmp?('Claim paid')) &&
+                    !decision_document.nil?
+
+      claim['decision_letter_reason'] = get_decision_reason(claim_id, decision_document['documentId'])
+    end
 
     def filter_by_date(date_string, claims)
       if date_string.present?
