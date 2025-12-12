@@ -28,8 +28,9 @@ module VANotify
       if @notification
         VANotify::CallbackProcessor.new(@notification, notification_params).call
       else
-        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id},
-        enqueuing retry job")
+        Rails.logger.info(
+          "va_notify callbacks - Received update for unknown notification #{notification_id}, enqueuing retry job"
+        )
         attr_package_params_cache_key = Sidekiq::AttrPackage.create(
           expires_in: 1.day,
           **notification_params.to_h.symbolize_keys
