@@ -17,59 +17,77 @@ module MyHealth
       def filter_data_by_refill_and_renew(data)
         data.select do |item|
           next true if item.is_refillable
-          next true if renewable(item)
+          next true if check_renewable(item)
 
           false
         end
       end
 
-      def renewable(item)
-        # UHD prescriptions have disp_status attribute
-        return false unless item.respond_to?(:disp_status)
+      # Check if item is renewable using the is_renewable attribute
+      # from the unified health data API (V2/Cerner pilot)
+      # @param item [Object] Prescription item with is_renewable attribute
+      # @return [Boolean] Whether the item is renewable
+      def check_renewable(item)
+        # If is_renewable field exists
+        return item.is_renewable if item.respond_to?(:is_renewable) && !item.is_renewable.nil?
 
-        disp_status = item.disp_status
+        # Otherwise calculate
+        # A prescription is renewable if:
+        # - Status is Active
+        # - Not directly refillable
+        # - Has zero refills remaining
+        return false unless item.respond_to?(:disp_status) && item.disp_status == 'Active'
+        return false if item.respond_to?(:is_refillable) && item.is_refillable
+        return false unless item.respond_to?(:refill_remaining)
 
-        # For UHD prescriptions, check dispenses array for expiration date
-        refill_history_expired_date = if item.respond_to?(:dispenses) && item.dispenses.present?
-                                        item.dispenses.first&.dig(:expiration_date)&.to_date
-                                      end
-
-        expired_date = refill_history_expired_date || item.expiration_date&.to_date
-        not_refillable = ['false'].include?(item.is_refillable.to_s)
-
-        if item.refill_remaining.to_i.zero? && not_refillable
-          return true if disp_status&.downcase == 'active'
-
-          # Check dispenses for non-empty records
-          has_dispenses = item.respond_to?(:dispenses) && item.dispenses.present? && !item.dispenses.all?(&:empty?)
-
-          return true if disp_status&.downcase == 'active: parked' && has_dispenses
-        end
-
-        if disp_status == 'Expired' && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
-          return true
-        end
-
-        false
+        item.refill_remaining.to_i.zero?
       end
 
-      private
+      # Apply custom filters that require computed logic (not direct attribute filtering)
+      # Handles filters like isRenewable and shipped that aren't direct model attributes
+      # @param data [Array] Array of prescription items
+      # @param filter_params [Hash] Filter parameters from request
+      # @return [Array] Filtered data
+      def apply_custom_filters(data, filter_params)
+        return data if filter_params.blank?
 
-      def within_cut_off_date?(date)
-        zero_date = Date.new(0, 1, 1)
-        date.present? && date != zero_date && date >= Time.zone.today - 120.days
+        result = data
+        result = apply_renewable_filter(result, filter_params[:is_renewable]) if filter_params[:is_renewable]
+        result = apply_shipped_filter(result, filter_params[:shipped]) if filter_params[:shipped]
+        result
       end
 
-      module_function :collection_resource,
-                      :filter_data_by_refill_and_renew,
-                      :renewable
+      def apply_renewable_filter(data, filter_config)
+        return data unless filter_config[:eq]
+
+        filter_value = ActiveModel::Type::Boolean.new.cast(filter_config[:eq])
+        data.select { |item| check_renewable(item) == filter_value }
+      end
+
+      def apply_shipped_filter(data, filter_config)
+        return data unless filter_config[:eq]
+
+        filter_value = ActiveModel::Type::Boolean.new.cast(filter_config[:eq])
+        data.select do |item|
+          # Shipped = Active disp_status AND is_trackable
+          item_is_active = item.respond_to?(:disp_status) && item.disp_status == 'Active'
+          item_trackable = item.respond_to?(:is_trackable) && item.is_trackable
+          item_shipped = item_is_active && item_trackable
+          item_shipped == filter_value
+        end
+      end
     end
 
     module Sorting
       def apply_sorting(resource, sort_param)
         sorted_resource = sort_resource_by_param(resource, sort_param)
         sort_metadata = build_sort_metadata(sort_param)
-        (sorted_resource.metadata[:sort] ||= {}).merge!(sort_metadata)
+
+        # Ensure metadata hash exists - handle both nil and existing hash
+        current_metadata = sorted_resource.metadata || {}
+        current_metadata[:sort] = sort_metadata
+        sorted_resource.metadata = current_metadata
+
         sorted_resource
       end
 
@@ -185,8 +203,6 @@ module MyHealth
       def empty_field?(value)
         value.nil? || value.to_s.strip.empty?
       end
-
-      module_function :apply_sorting
     end
   end
 end

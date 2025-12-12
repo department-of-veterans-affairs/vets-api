@@ -164,33 +164,32 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(oracle_prescription.cmop_ndc_number).to be_nil
       end
 
-      it 'extracts disp_status from VistA data when present' do
-        # When Cerner pilot flag is disabled, disp_status should be preserved as-is from VistA
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
+      context 'when mhv_medications_cerner_pilot flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
+        end
 
-        vista_data_with_disp_status = vista_medication_data.merge('dispStatus' => 'Active: Refill in Process')
-        response_with_disp_status = {
-          'vista' => { 'medicationList' => { 'medication' => [vista_data_with_disp_status] } },
-          'oracle-health' => { 'entry' => [] }
-        }
+        it 'extracts disp_status from VistA data when present' do
+          vista_data_with_disp_status = vista_medication_data.merge('dispStatus' => 'Active: Refill in Process')
+          response_with_disp_status = {
+            'vista' => { 'medicationList' => { 'medication' => [vista_data_with_disp_status] } },
+            'oracle-health' => { 'entry' => [] }
+          }
 
-        prescriptions = subject.parse(response_with_disp_status)
-        vista_prescription = prescriptions.first
+          prescriptions = subject.parse(response_with_disp_status)
+          vista_prescription = prescriptions.first
 
-        expect(vista_prescription.disp_status).to eq('Active: Refill in Process')
-      end
+          expect(vista_prescription.disp_status).to eq('Active: Refill in Process')
+        end
 
-      it 'sets disp_status derived from refill_status for Oracle Health prescriptions' do
-        # When Cerner pilot flag is disabled, disp_status is derived from refill_status
-        # only when dispStatus is not already set, and not mapped to V2 format
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
+        it 'sets disp_status derived from refill_status for Oracle Health prescriptions' do
+          prescriptions = subject.parse(unified_response)
+          oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
-        prescriptions = subject.parse(unified_response)
-        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
-
-        # Oracle Health prescription with status='active', 0 refills remaining = 'expired' refill_status
-        # which maps to 'Expired' disp_status (derived from refill_status when dispStatus is null)
-        expect(oracle_prescription.disp_status).to eq('Expired')
+          # Oracle Health prescription with status='active', 0 refills remaining = 'expired' refill_status
+          # which maps to 'Expired' disp_status (derived from refill_status when dispStatus is null)
+          expect(oracle_prescription.disp_status).to eq('Expired')
+        end
       end
 
       context 'business rules filtering (applied regardless of current_only)' do

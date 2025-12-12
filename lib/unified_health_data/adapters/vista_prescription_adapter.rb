@@ -45,6 +45,7 @@ module UnifiedHealthData
           dispensed_date: convert_to_iso8601(medication['dispensedDate'], field_name: 'dispensed_date'),
           station_number: medication['stationNumber'],
           is_refillable: medication['isRefillable'],
+          is_renewable: medication['isRenewable'],
           cmop_ndc_number: medication['cmopNdcNumber']
         }
       end
