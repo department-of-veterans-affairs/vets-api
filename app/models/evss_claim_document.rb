@@ -150,7 +150,6 @@ class EVSSClaimDocument
     Rails.logger.info("MetadataReadError: Document for claim #{evss_claim_id}")
     log_exception_to_sentry(e, nil, nil, 'warn')
 
-    log_exception_to_rails(e)
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))
     else

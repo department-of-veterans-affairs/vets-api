@@ -119,7 +119,6 @@ class EVSS::DocumentUpload
                          { message: e.message })
     StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
     log_exception_to_sentry(e)
-    log_exception_to_rails(e)
   end
 
   # Update personalisation here since an evidence submission record was previously created

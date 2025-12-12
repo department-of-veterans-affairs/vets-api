@@ -20,7 +20,6 @@ module BGS
     rescue => e
       log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
-      log_exception_to_rails(e)
       []
     end
 

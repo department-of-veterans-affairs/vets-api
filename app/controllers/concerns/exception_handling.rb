@@ -92,7 +92,6 @@ module ExceptionHandling
     end
     va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
     log_exception_to_sentry(exception, extra.merge(va_exception_info))
-    log_exception_to_rails(exception)
 
     # Because we are handling exceptions here and not re-raising, we need to set the error on the
     # Datadog span for it to be reported correctly. We also need to set it on the top-level

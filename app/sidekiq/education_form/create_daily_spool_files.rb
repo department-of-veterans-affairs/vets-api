@@ -216,7 +216,6 @@ module EducationForm
 
     def log_exception(exception, region = nil, send_email: true)
       log_exception_to_sentry(exception)
-      log_exception_to_rails(exception)
       log_to_slack(exception.to_s)
       log_to_email(region) if send_email
     end

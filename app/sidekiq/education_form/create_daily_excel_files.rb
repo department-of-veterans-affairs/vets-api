@@ -184,8 +184,6 @@ module EducationForm
 
     def log_exception(exception)
       log_exception_to_sentry(exception)
-
-      log_exception_to_rails(exception)
     end
 
     def log_info(message)
