@@ -119,7 +119,7 @@ namespace :vet360 do
     #     "address_line1": "string",
     #     "address_line2": "string",
     #     "address_line3": "string",
-    #     "address_pou": "RESIDENCE/CHOICE",
+    #     "address_pou": "RESIDENCE",
     #     ...
     #     [ see lib/vet360/models/address.rb ]
     # }
