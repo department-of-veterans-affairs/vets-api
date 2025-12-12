@@ -7,7 +7,7 @@
     },
     "title": "Designating Official",
     "emailAddress": "john.doe@example.com",
-    "phoneNumber": "5556071234"
+    "internationalPhoneNumber": "5556071234"
   },
   "institutionDetails": {
     "hasVaFacilityCode": true,
