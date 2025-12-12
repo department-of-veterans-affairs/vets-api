@@ -28,7 +28,8 @@ module MedicalExpenseReports
       # GET serialized medical expense reports form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        pdf_url = upload_to_s3(claim)
+        form_submission_attempt = get_last_form_submission_attempt(claim.guid)
+        pdf_url = get_signed_url(claim, form_submission_attempt.created_at.to_date)
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
@@ -39,6 +40,7 @@ module MedicalExpenseReports
       end
 
       # POST creates and validates an instance of `claim_class`
+      # rubocop:disable Metrics/MethodLength
       def create
         claim = claim_class.new(form: filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
@@ -60,13 +62,21 @@ module MedicalExpenseReports
 
         clear_saved_form(claim.form_id)
 
-        pdf_url = upload_to_s3(claim)
+        form_submission = FormSubmission.create!(
+          form_type: claim.form_id,
+          saved_claim: claim
+        )
+
+        form_submission_attempt = FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
+
+        pdf_url = upload_to_s3(claim, form_submission_attempt.created_at.to_date)
 
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -119,16 +129,28 @@ module MedicalExpenseReports
       end
 
       # upload to S3 and return a download url
-      def upload_to_s3(claim)
+      def upload_to_s3(claim, created_at)
         File.open(claim.to_pdf(claim.guid)) do |file|
-          directory = dated_directory_name(claim.form_id, Time.zone.today)
+          directory = dated_directory_name(claim.form_id, created_at)
           config = MedicalExpenseReports::ZsfConfig.new
           sanitized_file = CarrierWave::SanitizedFile.new(file)
           s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
           s3_uploader.store!(sanitized_file)
-          s3_file_path = "#{directory}/#{sanitized_file.filename}"
-          s3_uploader.get_s3_link(s3_file_path)
+          s3_uploader.get_s3_link("#{directory}/#{sanitized_file.filename}")
         end
+      end
+
+      # returns the url of an already-created PDF
+      def get_signed_url(claim, created_at)
+        directory = dated_directory_name(claim.form_id, created_at)
+        config = MedicalExpenseReports::ZsfConfig.new
+        s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
+        s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}.pdf")
+      end
+
+      # the last submission attempt is used to construct the S3 file path
+      def get_last_form_submission_attempt(benefits_intake_uuid)
+        FormSubmissionAttempt.where(benefits_intake_uuid:).order(:created_at).last
       end
 
       # returns e.g. `12.11.25-Form21P-8416`
