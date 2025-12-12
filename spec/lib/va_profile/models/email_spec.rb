@@ -78,8 +78,10 @@ RSpec.describe VAProfile::Models::Email do
     let(:effective_end_date)   { nil }
     let(:confirmation_date)    { Time.utc(2024, 1, 2, 3, 4, 5).iso8601(3) }
     let(:source_system)        { VAProfile::Models::Email::SOURCE_SYSTEM }
-    let(:verification_date)    { Time.utc(2024, 3, 4, 5, 6, 7).iso8601(3) }
-
+    # Recent date to ensure verification_date = true
+    let(:verification_date)    do
+      Time.utc(2025, 3, 4, 5, 6, 7).iso8601(3)
+    end
     let(:expected_json) do
       {
         bio: {
@@ -217,7 +219,10 @@ RSpec.describe VAProfile::Models::Email do
     let(:source_date)          { Time.utc(2024, 4, 5, 6, 7, 8).iso8601(3) }
     let(:tx_audit_id)          { 'some-audit-id' }
     let(:update_date)          { Time.utc(2024, 5, 6, 7, 8, 9).iso8601(3) }
-    let(:verification_date)    { Time.utc(2024, 2, 3, 4, 5, 6).iso8601(3) }
+    # Recent date to ensure verification_date = true
+    let(:verification_date)    do
+      Time.utc(2025, 2, 3, 4, 5, 6).iso8601(3)
+    end
     let(:vet360_id)            { 'some-vet360-id' }
     let(:va_profile_id)        { 'some-va-profile-id' }
 
@@ -248,7 +253,8 @@ RSpec.describe VAProfile::Models::Email do
       expect(email.source_date).to eq(source_date)
       expect(email.transaction_id).to eq(tx_audit_id)
       expect(email.updated_at).to eq(update_date)
-      expect(email.verification_date).to eq(verification_date)
+      expect(email.verification_date)
+        .to be_within(1.second).of(Time.zone.parse(verification_date))
       expect(email.vet360_id).to eq(vet360_id)
       expect(email.va_profile_id).to eq(va_profile_id)
     end
@@ -268,6 +274,58 @@ RSpec.describe VAProfile::Models::Email do
       it 'uses va_profile_id for both vet360_id and va_profile_id' do
         expect(email.vet360_id).to eq(va_profile_id)
         expect(email.va_profile_id).to eq(va_profile_id)
+      end
+    end
+  end
+
+  describe '#contact_email_verified?' do
+    let(:email) { build(:email) }
+
+    context 'when verification_date is within the last year' do
+      before { email.verification_date = 6.months.ago }
+
+      it 'returns true' do
+        expect(email.contact_email_verified?).to be true
+      end
+    end
+
+    context 'when verification_date is exactly one year ago' do
+      before { email.verification_date = 1.year.ago }
+
+      it 'returns false' do
+        expect(email.contact_email_verified?).to be false
+      end
+    end
+
+    context 'when verification_date is more than one year ago' do
+      before { email.verification_date = 2.years.ago }
+
+      it 'returns false' do
+        expect(email.contact_email_verified?).to be false
+      end
+    end
+
+    context 'when verification_date is nil' do
+      before { email.verification_date = nil }
+
+      it 'returns false' do
+        expect(email.contact_email_verified?).to be false
+      end
+    end
+
+    context 'when verification_date is very recent' do
+      before { email.verification_date = 1.day.ago }
+
+      it 'returns true' do
+        expect(email.contact_email_verified?).to be true
+      end
+    end
+
+    context 'when verification_date is just under one year ago' do
+      before { email.verification_date = 11.months.ago }
+
+      it 'returns true' do
+        expect(email.contact_email_verified?).to be true
       end
     end
   end

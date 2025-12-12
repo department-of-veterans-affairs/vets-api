@@ -361,6 +361,10 @@ features:
     actor_type: user
     description: Enables the use of Travel Pay API for travel claim operations
     enable_in_development: true
+  check_in_experience_travel_claim_error_message_logging:
+    actor_type: user
+    description: Enables logging of travel claim error messages (scrubbed for PII)
+    enable_in_development: true
   check_in_experience_lorota_travel_reimbursement:
     actor_type: user
     description: Enables the full LoROTA standalone mileage-only travel reimbursement feature
@@ -1874,6 +1878,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_bank_info_confirmation_field:
+    actor_type: user
+    description: Enables additional confirmation field for bank information pages across MEB applications
+    enable_in_development: true
   meb_1995_re_reroute:
     actor_type: user
     description: Show the questionnaire to determine where to re-route the user
@@ -2138,6 +2146,9 @@ features:
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  vre_track_submissions:
+    actor_type: user
+    description: In VRE application, create form submission/attempt records
   priority_processing_request_apply_vsi_flash:
     actor_type: user
     description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
@@ -2386,6 +2397,9 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  income_and_assets_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Income and Assets
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user

@@ -91,6 +91,14 @@ module VAProfile
         correct_confirmation_date_if_needed
       end
 
+      # Computed property for email verification status
+      # @return [Boolean] true if verification_date is present and within the last year, false otherwise
+      def contact_email_verified?
+        return false if @verification_date.blank?
+
+        @verification_date > 1.year.ago
+      end
+
       private
 
       # Corrects confirmation_date if it's after source_date.
