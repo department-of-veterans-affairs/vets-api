@@ -303,8 +303,6 @@ class FormProfile
   rescue => e
     log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
 
-    log_exception_to_rails(e)
-
     {}
   end
 

@@ -20,7 +20,6 @@ class FormAttachment < ApplicationRecord
     self.file_data = { filename: attachment_uploader.filename }.to_json
   rescue CarrierWave::IntegrityError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
-    log_exception_to_rails(e, 'warn')
     raise Common::Exceptions::UnprocessableEntity.new(detail: e.message, source: 'FormAttachment.set_file_data')
   end
 
@@ -49,7 +48,6 @@ class FormAttachment < ApplicationRecord
       password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
       log_message_to_sentry(sanitized_message, 'warn')
-      log_message_to_rails(sanitized_message, 'warn')
       raise Common::Exceptions::UnprocessableEntity.new(
         detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
         source: 'FormAttachment.unlock_pdf'

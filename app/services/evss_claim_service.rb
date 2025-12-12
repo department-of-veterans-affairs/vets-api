@@ -78,7 +78,6 @@ class EVSSClaimService
   rescue CarrierWave::IntegrityError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
 
-    log_exception_to_rails(e)
     raise Common::Exceptions::UnprocessableEntity.new(
       detail: e.message, source: 'EVSSClaimService.upload_document'
     )
