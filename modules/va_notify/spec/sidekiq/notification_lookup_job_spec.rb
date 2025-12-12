@@ -85,7 +85,8 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
       it 'increments cache_miss metric' do
         described_class.new.perform(notification_id, attr_package_params_cache_key)
 
-        expect(StatsD).to have_received(:increment).with('sidekiq.jobs.va_notify_notification_lookup_job.cached_params_not_found')
+        expect(StatsD).to have_received(:increment)
+          .with('sidekiq.jobs.va_notify_notification_lookup_job.cached_params_not_found')
       end
     end
 
@@ -227,7 +228,8 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
       end
 
       before do
-        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_package_params_cache_key).and_return(notification_params)
+        allow(Sidekiq::AttrPackage).to receive(:find)
+          .with(attr_package_params_cache_key).and_return(notification_params)
       end
 
       it 'retrieves params from AttrPackage' do
