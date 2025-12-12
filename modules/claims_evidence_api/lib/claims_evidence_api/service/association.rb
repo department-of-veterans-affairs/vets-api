@@ -34,7 +34,7 @@ module ClaimsEvidenceApi
       # @param uuid [String] The UUID of the file data
       # @param claim_ids [Array<String>] the full list of associated claim_ids
       def associate(uuid, claim_ids = [])
-        associated = { associatedClaimsIds: claim_ids.map(&:to_s) }
+        associated = { associatedClaimIds: claim_ids.map(&:to_s) }
         perform :put, "files/#{uuid}/associations/claims", associated
       end
 
