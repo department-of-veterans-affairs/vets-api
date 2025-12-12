@@ -303,23 +303,6 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
   end
 
-  describe '#extract_and_redact_message' do
-    it 'removes ICN from error message' do
-      icn = '1234567890V123456'
-      body = { 'message' => "Error occurred for patient #{icn}" }.to_json
-      result = client.send(:extract_and_redact_message, body)
-
-      expect(result).to eq('Error occurred for patient ')
-      expect(result).not_to include(icn)
-      expect(result).not_to include('****')
-    end
-
-    it 'returns nil when body is nil' do
-      result = client.send(:extract_and_redact_message, nil)
-      expect(result).to be_nil
-    end
-  end
-
   describe '#send_appointment_request' do
     let(:appointment_date_time) { '2024-01-15T10:00:00Z' }
     let(:facility_id) { 'facility-123' }
@@ -775,49 +758,6 @@ RSpec.describe TravelClaim::TravelPayClient do
         end.to raise_error(Common::Exceptions::BackendServiceException)
       end
 
-      it 'logs auth retry when 401 error occurs' do
-        # Mock Rails.logger to capture log calls
-        allow(Rails.logger).to receive(:error)
-
-        # Set up tokens
-        client.instance_variable_set(:@current_veis_token, test_veis_token)
-        client.instance_variable_set(:@current_btsss_token, test_btsss_token)
-        allow(client.redis_client).to receive(:v1_veis_token).and_return(test_veis_token)
-        allow(client.redis_client).to receive(:save_v1_veis_token).with(token: test_veis_token)
-
-        # First call raises 401, second call succeeds
-        call_count = 0
-        allow(client).to receive(:perform) do
-          call_count += 1
-          if call_count == 1
-            raise Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
-          else
-            double('Response', status: 200, success?: true)
-          end
-        end
-
-        # Mock the refresh_tokens! method to simulate successful token refresh
-        allow(client).to receive(:refresh_tokens!) do
-          client.instance_variable_set(:@current_veis_token, 'new-veis-token')
-          client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
-        end
-
-        client.send(:with_auth) do
-          client.send(:perform, :get, '/test', {}, {})
-        end
-
-        # Verify that the auth retry log was called
-        expect(Rails.logger).to have_received(:error).with(
-          'TravelPayClient 401 error - retrying authentication',
-          hash_including(
-            correlation_id: be_present,
-            check_in_uuid:,
-            veis_token_present: true,
-            btsss_token_present: true
-          )
-        )
-      end
-
       it 'uses cached VEIS token from Redis when available' do
         cached_veis_token = 'cached-veis'
         allow(client.redis_client).to receive(:v1_veis_token).and_return(cached_veis_token)
@@ -1026,6 +966,75 @@ RSpec.describe TravelClaim::TravelPayClient do
           expect(result.status).to eq(200)
         end
       end
+    end
+  end
+
+  describe '#api_request error handling' do
+    it 'logs and re-raises unexpected errors' do
+      allow(client).to receive(:perform).and_raise(StandardError, 'boom')
+      allow(client).to receive(:log_error)
+
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(StandardError, 'boom')
+      expect(client).to have_received(:log_error).with(
+        'TravelPayClient BTSSS unexpected error',
+        hash_including(:error)
+      )
+    end
+
+    it 'logs 401s in handler for non-auth requests' do
+      error = Common::Exceptions::BackendServiceException.new('VA900', { detail: 'unauthorized' }, 401, 'unauthorized')
+      allow(client).to receive(:perform).and_raise(error)
+      allow(client).to receive(:log_error)
+
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+      expect(client).to have_received(:log_error).with(
+        'TravelPayClient BTSSS endpoint error',
+        hash_including(status: 401, endpoint: 'BTSSS', error:, body: 'unauthorized')
+      )
+    end
+
+    it 'rewraps backend exceptions with message from original_body' do
+      error = Common::Exceptions::BackendServiceException.new(
+        'VA900', { detail: nil }, 500, { 'message' => 'rewrapped' }
+      )
+      allow(client).to receive(:perform).and_raise(error)
+
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(Common::Exceptions::BackendServiceException) { |err| expect(err.response_values[:detail]).to eq('rewrapped') }
+    end
+
+    it 'includes scrubbed downstream message when flipper is enabled' do
+      allow(Flipper).to receive(:enabled?).and_call_original
+      allow(Flipper).to receive(:enabled?)
+        .with(:check_in_experience_travel_claim_error_message_logging)
+        .and_return(true)
+      allow(Logging::Helper::DataScrubber).to receive(:scrub).and_return('Scrubbed message')
+      allow(Rails.logger).to receive(:error)
+
+      error_body = { 'message' => 'Sensitive downstream message' }
+      error = Common::Exceptions::BackendServiceException.new(
+        'VA900', { detail: 'Sensitive downstream message' }, 500, error_body
+      )
+      allow(client).to receive(:perform).and_raise(error)
+
+      expect do
+        client.send(:api_request, :get, 'path', nil, is_auth_request: true)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'TravelPayClient BTSSS endpoint error',
+        hash_including(
+          message: 'Scrubbed message',
+          status: 500,
+          endpoint: 'BTSSS'
+        )
+      )
+      expect(Logging::Helper::DataScrubber).to have_received(:scrub).with('Sensitive downstream message')
     end
   end
 end
