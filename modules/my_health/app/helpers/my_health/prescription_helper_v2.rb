@@ -57,8 +57,6 @@ module MyHealth
         result
       end
 
-      private
-
       def apply_renewable_filter(data, filter_config)
         return data unless filter_config[:eq]
 
