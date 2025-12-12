@@ -52,11 +52,11 @@ module PdfFill
       end
 
       def generate_extended_form(merged_form_data, hash_converter)
-        extra_us_schools = extract_extra_from_array(merged_form_data['usSchools'],
+        extra_us_schools = extract_extra_from_array(merged_form_data['usSchools'] || [],
                                                     DEFAULT_US_SCHOOLS_LIMIT)
-        extra_foreign_schools = extract_extra_from_array(merged_form_data['foreignSchools'],
+        extra_foreign_schools = extract_extra_from_array(merged_form_data['foreignSchools'] || [],
                                                          DEFAULT_FOREIGN_SCHOOLS_LIMIT)
-        extra_branch_locations = extract_extra_from_array(merged_form_data['branchCampuses'],
+        extra_branch_locations = extract_extra_from_array(merged_form_data['branchCampuses'] || [],
                                                           DEFAULT_BRANCH_LOCATION_LIMIT)
 
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
