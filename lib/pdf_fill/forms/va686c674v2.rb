@@ -1980,7 +1980,7 @@ module PdfFill
 
         # If va_dependents_net_worth_and_pension FF is off, show "greater than" wording
         # If on, show "less than" wording (reversed logic for UI versus RBPS value)
-        # Queston will only be asked if va_dependents_net_worth_and_pension FF is off
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
         # OR if FF is on and veteran receives pension benefits
         if Flipper.enabled?(:va_dependents_net_worth_and_pension)
           return '' unless @form_data['dependents_application']&.key?('household_income')
