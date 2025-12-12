@@ -270,10 +270,11 @@ module MedicalExpenseReports
       # Determine the international phone number field from either explicit internationalPhone or non-US contact.
       #
       # @param form [Hash]
-      # @param primary_phone [Hash]
+      # @param primary_phone [Hash, nil]
       # @return [String, nil]
       def international_phone_number(form, primary_phone)
         return format_phone(form['internationalPhone']) if form['internationalPhone'].present?
+        return if primary_phone.nil?
         return format_phone(primary_phone['contact']) unless primary_phone['countryCode']&.casecmp?('US')
 
         nil
