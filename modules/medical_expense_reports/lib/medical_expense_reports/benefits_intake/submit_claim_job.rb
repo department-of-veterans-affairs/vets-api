@@ -250,7 +250,7 @@ module MedicalExpenseReports
       # @param primary_phone [Hash, nil]
       # @return [String, nil]
       def us_phone_number(primary_phone)
-        return unless primary_phone['countryCode']&.casecmp?('US')
+        return unless primary_phone&.dig('countryCode')&.casecmp?('US')
 
         format_phone(primary_phone['contact'])
       end
