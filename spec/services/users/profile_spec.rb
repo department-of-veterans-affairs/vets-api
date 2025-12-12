@@ -286,6 +286,70 @@ RSpec.describe Users::Profile do
         it 'includes active_mhv_ids' do
           expect(va_profile[:active_mhv_ids]).to eq(user.active_mhv_ids)
         end
+
+        context 'Oracle Health facility checks' do
+          before do
+            allow(Settings.mhv.oh_facility_checks).to receive_messages(pretransitioned_oh_facilities: '612, 357, 555',
+                                                                       facilities_ready_for_info_alert: '555, 500')
+          end
+
+          context 'when user has pre-transitioned OH facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 999])
+            end
+
+            it 'sets user_at_pretransitioned_oh_facility to true' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
+            end
+          end
+
+          context 'when user does not have pretransitioned OH facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_at_pretransitioned_oh_facility to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+            end
+          end
+
+          context 'when user has facility ready for info alert' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[555 999])
+            end
+
+            it 'sets user_facility_ready_for_info_alert to true' do
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+            end
+          end
+
+          context 'when user does not have facility ready for info alert' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_facility_ready_for_info_alert to false' do
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+            end
+          end
+
+          context 'when user has multiple facilities including OH facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 555 999])
+            end
+
+            it 'correctly identifies both flags' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+            end
+          end
+
+          it 'when user has no facilities sets both flags to false' do
+            allow(user).to receive(:va_treatment_facility_ids).and_return([])
+            expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+            expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+          end
+        end
       end
 
       context 'when mpi_profile is nil' do
@@ -499,6 +563,18 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
+          expect(vet360_info).to have_key(:contact_email_verified)
+          expect(vet360_info[:contact_email_verified]).to be_in([true, false])
+        end
+
+        context 'when email object is nil' do
+          before do
+            allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:email).and_return(nil)
+          end
+
+          it 'returns nil for contact_email_verified when email is nil' do
+            expect(vet360_info[:contact_email_verified]).to be_nil
+          end
         end
 
         it 'sets the status to 200' do

@@ -30,10 +30,18 @@ describe PdfFill::Processors::VA228794Processor do
       end
 
       it 'fills in the form fields' do
+        sub_str = 'Online submission - no signature required'
+
         described_class.new(form_data, filler).process
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-8794.pdf')
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
+        expect(get_field_value(fields, 'signature_name')).to eq 'John A Doe'
+        expect(get_field_value(fields, 'additional_certifying_officials_0_phone')).to eq '5556071235'
+        expect(get_field_value(fields,
+                               'additional_certifying_officials_0_signature')).to eq sub_str
+        expect(get_field_value(fields, 'additional_certifying_officials_1_phone')).to eq '3334445555'
+        expect(get_field_value(fields, 'signature_phone')).to eq '5556071234'
       end
     end
 
@@ -52,6 +60,7 @@ describe PdfFill::Processors::VA228794Processor do
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
         expect(get_field_value(fields, 'additional_certifying_officials_6_email')).to eq 'john_official6@example.com'
+        expect(get_field_value(fields, 'remarks')).to eq 'See attached page'
       end
     end
   end

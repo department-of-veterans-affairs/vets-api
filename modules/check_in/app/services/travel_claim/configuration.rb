@@ -13,8 +13,9 @@ module TravelClaim
     include Singleton
 
     # Override default timeouts to handle multiple external API calls in travel claims submission
-    self.open_timeout = 30  # Connection establishment timeout
-    self.read_timeout = 30  # Response timeout for external API calls
+    # Note: updated to 45 as we were seeing some timeout errors on initial prod rollout
+    self.open_timeout = 45  # Connection establishment timeout
+    self.read_timeout = 45  # Response timeout for external API calls
 
     ##
     # @!attribute [w] server_url
@@ -23,12 +24,16 @@ module TravelClaim
 
     ##
     # Returns the base URL for Travel Claim API requests.
-    # Uses server_url if set, otherwise defaults to the configured claims URL.
+    # Combines the base URL with the base path for routing through the forward proxy.
     #
     # @return [String] The base URL for API requests
     #
     def base_path
-      Settings.check_in.travel_reimbursement_api_v2.claims_url_v2
+      url = Settings.check_in.travel_reimbursement_api_v2.claims_url_v2
+      path = Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2
+      return url if path.blank?
+
+      "#{url.delete_suffix('/')}/#{path.delete_prefix('/')}"
     end
 
     ##

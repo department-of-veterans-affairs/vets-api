@@ -61,7 +61,9 @@ RSpec.describe DebtTransactionLog, type: :model do
     end
 
     it 'works with DigitalDisputeSubmission' do
-      log = create(:debt_transaction_log, transactionable: digital_dispute_submission)
+      log = create(:debt_transaction_log,
+                   transactionable_type: 'DebtsApi::V0::DigitalDisputeSubmission',
+                   transactionable_id: digital_dispute_submission.guid)
       expect(log.transactionable).to eq(digital_dispute_submission)
       expect(log.transactionable_type).to eq('DebtsApi::V0::DigitalDisputeSubmission')
     end
