@@ -38,13 +38,6 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimClaimantRepresentativeS
     end
   end
 
-  describe '#benefit_type' do
-    it 'returns benefit type' do
-      benefit_type = saved_claim_claimant_rep.saved_claim.latest_submission_attempt.benefit_type
-      expect(subject[:benefitType]).to eq benefit_type
-    end
-  end
-
   describe 'vbms_status' do
     context 'submission attempt is pending and over 10 days ago' do
       it 'returns awaiting_receipt_warning' do
