@@ -8,7 +8,7 @@ require 'lighthouse/benefits_claims/configuration'
 
 RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
   include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859' } }
-  
+
   before do
     allow_any_instance_of(V0::Chatbot::ClaimStatusController)
       .to receive(:ensure_edipi_present).and_return(true)
@@ -17,6 +17,11 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
   describe 'GET /v0/chatbot/claims from lighthouse' do
     subject(:get_claims) do
       get('/v0/chatbot/claims', params: { conversation_id: 123 }, headers: service_account_auth_header)
+    end
+
+    before do
+      allow_any_instance_of(V0::Chatbot::ClaimStatusController)
+        .to receive(:ensure_edipi_present).and_return(true)
     end
 
     context 'authorized' do
@@ -180,6 +185,11 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
   describe 'GET /v0/chatbot/claims/:id from lighthouse' do
     subject(:get_single_claim) do
       get('/v0/chatbot/claims/600383363', params: { conversation_id: 123 }, headers: service_account_auth_header)
+    end
+
+    before do
+      allow_any_instance_of(V0::Chatbot::ClaimStatusController)
+        .to receive(:ensure_edipi_present).and_return(true)
     end
 
     context 'authorized' do
