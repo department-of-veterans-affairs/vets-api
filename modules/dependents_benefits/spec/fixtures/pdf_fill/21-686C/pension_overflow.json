@@ -11,7 +11,7 @@
     "report_child18_or_older_is_not_attending_school": true
   },
   "dependents_application": {
-    "household_income": true,
+    "household_income": false,
     "view:completed_child_stopped_attending_school": false,
     "view:completed_married_child": false,
     "view:completed_dependent": false,
