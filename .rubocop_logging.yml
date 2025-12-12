@@ -1,0 +1,34 @@
+# Logging Standards Enforcement
+# Add this to your .rubocop.yml:
+# require:
+#   - ./config/rubocop_logging.rb
+
+# Detect duplicate logging patterns
+Lint/DuplicateLogging:
+  Description: 'Avoid logging the same exception to multiple destinations'
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+
+# Detect puts/print in production code
+Lint/PrintInProductionCode:
+  Description: 'Use Rails.logger instead of puts/print in production code'
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'db/migrate/**/*'
+    - 'lib/tasks/**/*'
+    - 'script/**/*'
+
+# Encourage exception context
+Lint/ExceptionWithoutContext:
+  Description: 'Exceptions logged to Sentry should include context'
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+
+Style/LoggingConsistency:
+  Description: 'Use standard logging helpers consistently'
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'

@@ -1,0 +1,3275 @@
+{
+  "accredited_representative_portal": {
+    "name": "accredited_representative_portal",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "SignIn",
+        "Pundit",
+        "ActionController",
+        "SavedClaim",
+        "form_class",
+        "Common",
+        "SubmissionsService",
+        "MPI",
+        "ActiveRecord",
+        "Faraday",
+        "VetsJsonSchema",
+        "JSON",
+        "BenefitsClaims",
+        "PowerOfAttorneyRequestService",
+        "params_schema",
+        "Statuses",
+        "SavedClaimService",
+        "service",
+        "PersistentAttachments",
+        "BenefitsIntake",
+        "Finder",
+        "Datadog",
+        "ActiveSupport",
+        "Veteran",
+        "PowerOfAttorneyHolder",
+        "ClaimantTypes",
+        "PowerOfAttorneyRequestDecision",
+        "PowerOfAttorneyRequestWithdrawal",
+        "PowerOfAttorneyFormSubmission",
+        "PowerOfAttorneyRequestResolution",
+        "Types",
+        "VANotify",
+        "class",
+        "BusinessLines",
+        "SimpleFormsApi",
+        "klass",
+        "PowerOfAttorneyRequest",
+        "URI",
+        "ApplicationPolicy",
+        "JSONAPI",
+        "BenefitsIntakeService",
+        "AR",
+        "PowerOfAttorneyForm",
+        "Dry",
+        "Page",
+        "Sort",
+        "Auth",
+        "PG",
+        "Errors",
+        "Sidekiq",
+        "Octokit",
+        "Config",
+        "Vets",
+        "VaNotify",
+        "EmailPersonalisations",
+        "Lighthouse",
+        "PDFUtilities",
+        "CarrierWave",
+        "ActionDispatch",
+        "Router",
+        "Rails",
+        "Logging",
+        "VeteranFacingServices",
+        "ZeroSilentFailures",
+        "Faker",
+        "LOA",
+        "FastImage",
+        "described_class",
+        "ActiveModel",
+        "claimant_types_mod",
+        "SemanticLogger",
+        "PowerOfAttorneyHolderMemberships",
+        "OliveBranch",
+        "Accept",
+        "Create",
+        "Attach",
+        "Size",
+        "CSV",
+        "Shrine"
+      ],
+      "uses_lib_classes": [
+        "common/client/configuration/rest"
+      ],
+      "uses_app_classes": [
+        "InProgressForm",
+        "FormAttachment",
+        "User",
+        "Session"
+      ]
+    },
+    "shared_models": [
+      "SavedClaim",
+      "InProgressForm",
+      "FormAttachment",
+      "User"
+    ],
+    "external_api_calls": [
+      "MPI",
+      "Lighthouse",
+      "Custom HTTP Client",
+      "BGS",
+      "VBA"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 32,
+      "has_models": true,
+      "model_count": 18,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 6,
+      "job_names": [
+        "allow_list_sync_job",
+        "expire_power_of_attorney_requests_job",
+        "power_of_attorney_form_submission_job",
+        "power_of_attorney_request_email_job",
+        "redact_power_of_attorney_requests_job",
+        "submit_benefits_intake_claim_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 15,
+      "models": 18,
+      "services": 16,
+      "jobs": 8,
+      "total_files": 197,
+      "loc": 14594
+    }
+  },
+  "appeals_api": {
+    "name": "appeals_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "V1",
+        "Schemas",
+        "Swagger",
+        "V2",
+        "ActiveRecord",
+        "class",
+        "JsonSchema",
+        "Common",
+        "Aws",
+        "V0",
+        "VBADocuments",
+        "Caseflow",
+        "DecisionReviews",
+        "Date",
+        "ActiveSupport",
+        "MPI",
+        "Puma",
+        "JSON",
+        "PDF",
+        "Prawn",
+        "PdfFill",
+        "HigherLevelReview",
+        "NoticeOfDisagreement",
+        "SupplementalClaim",
+        "IsoCountryCodes",
+        "ClaimsApi",
+        "JsonMarshal",
+        "CentralMailUpdater",
+        "JSONAPI",
+        "CentralMail",
+        "Structure",
+        "Pages",
+        "FormData",
+        "FormFields",
+        "PDFUtilities",
+        "Datadog",
+        "Messager",
+        "Sidekiq",
+        "VaNotify",
+        "Flipper",
+        "record_type",
+        "status_class",
+        "Rails",
+        "TZInfo",
+        "Digest",
+        "PdfInfo",
+        "TokenValidation",
+        "ActiveModel",
+        "ActionDispatch",
+        "AppealsController",
+        "Faker",
+        "Faraday",
+        "described_class",
+        "subject",
+        "controller_klass",
+        "Forms",
+        "EvidenceSubmissionsController",
+        "RSpec"
+      ],
+      "uses_lib_classes": [
+        "common/exceptions",
+        "common/file_helpers",
+        "common/client/base"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "MPI",
+      "Lighthouse",
+      "Custom HTTP Client",
+      "VBA",
+      "BGS"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 18,
+      "has_models": true,
+      "model_count": 15,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 3,
+      "job_names": [
+        "appeal_received_job",
+        "pdf_submit_job",
+        "status_updated_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 38,
+      "models": 15,
+      "services": 51,
+      "jobs": 21,
+      "total_files": 329,
+      "loc": 28244
+    }
+  },
+  "apps_api": {
+    "name": "apps_api",
+    "score": 55,
+    "readiness": "Moderate - Some Refactoring Needed",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Swagger",
+        "Apps",
+        "Okta",
+        "ActiveRecord",
+        "Rails"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 2,
+      "has_models": true,
+      "model_count": 1,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 3,
+      "models": 1,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 18,
+      "loc": 585
+    }
+  },
+  "ask_va_api": {
+    "name": "ask_va_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Common",
+        "ErrorHandler",
+        "Crm",
+        "Inquiries",
+        "VAProfile",
+        "V3",
+        "FacilitiesApi",
+        "WillPaginate",
+        "Lighthouse",
+        "MobileCovid",
+        "Attachments",
+        "Profile",
+        "Correspondences",
+        "AskVAApi",
+        "JSONAPI",
+        "ClaimsApi",
+        "Datadog",
+        "PayloadBuilder",
+        "Faraday",
+        "Errno",
+        "JSON",
+        "Sidekiq",
+        "Rails",
+        "ActiveRecord",
+        "Creator",
+        "Config",
+        "Status",
+        "VCR",
+        "Redis",
+        "DynamicsMockService",
+        "ActiveJob"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "Lighthouse",
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": false,
+      "model_count": 0,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 3,
+      "job_names": [
+        "facilities_data_job",
+        "optionset_data_job",
+        "topics_data_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 6,
+      "models": 0,
+      "services": 8,
+      "jobs": 3,
+      "total_files": 105,
+      "loc": 7678
+    }
+  },
+  "avs": {
+    "name": "avs",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Swagger",
+        "Requests",
+        "Schemas",
+        "V0",
+        "Vets",
+        "Sanitize",
+        "JSONAPI",
+        "Common",
+        "Concerns",
+        "Configuration",
+        "Rails",
+        "Apivore"
+      ],
+      "uses_lib_classes": [
+        "common/client/base",
+        "common/client/concerns/monitoring",
+        "common/client/configuration/rest",
+        "common/exceptions",
+        "common/client/errors"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 1,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 2,
+      "models": 1,
+      "services": 4,
+      "jobs": 0,
+      "total_files": 22,
+      "loc": 1156
+    }
+  },
+  "banners": {
+    "name": "banners",
+    "score": 40,
+    "readiness": "Moderate - Some Refactoring Needed",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Sidekiq",
+        "Rails",
+        "Profile",
+        "JSON",
+        "V0",
+        "Faraday"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 1,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 1,
+      "job_names": [
+        "update_all_job"
+      ]
+    },
+    "authentication": false,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 0,
+      "models": 1,
+      "services": 0,
+      "jobs": 1,
+      "total_files": 17,
+      "loc": 793
+    }
+  },
+  "bpds": {
+    "name": "bpds",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "BPDS",
+        "Common",
+        "Configuration",
+        "Config",
+        "Faraday",
+        "Rails",
+        "ActiveRecord",
+        "ZeroSilentFailures",
+        "Logging",
+        "Pensions",
+        "urn",
+        "Sidekiq",
+        "Burials",
+        "KmsEncrypted",
+        "ActiveSupport",
+        "LOA",
+        "MPI",
+        "BGS",
+        "Thread"
+      ],
+      "uses_lib_classes": [
+        "common/client/configuration/rest",
+        "common/client/base"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "SavedClaim",
+      "User"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client",
+      "BGS",
+      "MPI"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 0,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 23,
+      "loc": 989
+    }
+  },
+  "burials": {
+    "name": "burials",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "BPDS",
+        "ActiveRecord",
+        "Common",
+        "ActionController",
+        "PersistentAttachments",
+        "FormProfiles",
+        "Active",
+        "SavedClaim",
+        "VetsJsonSchema",
+        "JSON",
+        "PdfFill",
+        "Swagger",
+        "BenefitsIntake",
+        "Lighthouse",
+        "Sidekiq",
+        "Datadog",
+        "Rails",
+        "Forms",
+        "PDFUtilities",
+        "Logging",
+        "VeteranFacingServices",
+        "section",
+        "ZeroSilentFailures",
+        "KmsEncrypted",
+        "MPI",
+        "ActiveModel",
+        "VaNotify",
+        "SubmitClaimJob",
+        "described_class"
+      ],
+      "uses_lib_classes": [
+        "common/exceptions/validation_errors"
+      ],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "Lighthouse",
+      "VBA",
+      "MPI"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 44,
+      "loc": 3537
+    }
+  },
+  "check_in": {
+    "name": "check_in",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActionController",
+        "Utils",
+        "TravelClaim",
+        "Common",
+        "Logging",
+        "VAOS",
+        "V2",
+        "Faraday",
+        "Config",
+        "JSONAPI",
+        "Vets",
+        "Map",
+        "MAP",
+        "VANotify",
+        "Constants",
+        "TravelClaimBaseJob",
+        "Concerns",
+        "Configuration",
+        "OpenSSL",
+        "Timeout",
+        "Errors",
+        "JSON",
+        "Redis",
+        "Lorota",
+        "Chip",
+        "Sidekiq",
+        "VaNotify",
+        "StatsD",
+        "Rails",
+        "subject",
+        "ActiveSupport",
+        "Faker",
+        "Net",
+        "Sessions",
+        "SemanticLogger"
+      ],
+      "uses_lib_classes": [
+        "common/exceptions",
+        "common/client/errors",
+        "common/client/base",
+        "common/client/concerns/monitoring",
+        "common/client/configuration/rest"
+      ],
+      "uses_app_classes": [
+        "Session"
+      ]
+    },
+    "shared_models": [],
+    "external_api_calls": [
+      "VAOS",
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 3,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 4,
+      "job_names": [
+        "travel_claim_base_job",
+        "travel_claim_notification_job",
+        "travel_claim_status_check_job",
+        "travel_claim_submission_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 12,
+      "models": 3,
+      "services": 29,
+      "jobs": 5,
+      "total_files": 116,
+      "loc": 14842
+    }
+  },
+  "claims_api": {
+    "name": "claims_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "BenefitClaimServiceBean",
+        "BenefitClaimWebServiceBean",
+        "ClaimantServiceBean",
+        "ClaimManagementServiceBean",
+        "ContentionServiceBean",
+        "CorporateUpdateServiceBean",
+        "EBenefitsBnftClaimStatusWebServiceBean",
+        "IntentToFileWebServiceBean",
+        "OrgWebServiceBean",
+        "PersonWebServiceBean",
+        "StandardDataServiceBean",
+        "StandardDataWebServiceBean",
+        "TrackedItemServiceBean",
+        "Vdc",
+        "VetRecordServiceBean",
+        "VnpAtchmsWebServiceBean",
+        "VnpPersonWebServiceBean",
+        "VnpProcFormWebServiceBean",
+        "VnpProcWebServiceBeanV2",
+        "VnpPtcpntAddrsWebServiceBean",
+        "VnpPtcpntPhoneWebServiceBean",
+        "VnpPtcpntWebServiceBean",
+        "Aliases",
+        "Nokogiri",
+        "Envelope",
+        "ActiveSupport",
+        "Error",
+        "Faraday",
+        "Process",
+        "Swagger",
+        "OpenSSL",
+        "OkComputer",
+        "Common",
+        "MPI",
+        "BGS",
+        "EVSS",
+        "class",
+        "ActionDispatch",
+        "Forms",
+        "Timeout",
+        "Breakers",
+        "Exceptions",
+        "Dvp",
+        "Digest",
+        "Veteran",
+        "ActiveModel",
+        "BenefitsDocuments",
+        "Blueprinter",
+        "Blueprints",
+        "IntentToFile",
+        "ParamsValidation",
+        "ClaimsRequests",
+        "Veterans",
+        "PowerOfAttorney",
+        "Lighthouse",
+        "JsonSchema",
+        "ManageRepresentativeService",
+        "PdfInfo",
+        "Puma",
+        "JSON",
+        "Oj",
+        "BGSClient",
+        "MultiJson",
+        "Errno",
+        "JsonMarshal",
+        "Vets",
+        "JSONAPI",
+        "Concerns",
+        "ActionView",
+        "DataGatherer",
+        "DataMapper",
+        "Datadog",
+        "Concurrent",
+        "SlackNotify",
+        "DisabilityCompensation",
+        "VBMS",
+        "Sidekiq",
+        "ClaimApi",
+        "BaseController",
+        "PoaPdfConstructor",
+        "VaNotify",
+        "CarrierWave",
+        "Rswag",
+        "ActiveRecord",
+        "Node",
+        "Mod",
+        "Rails",
+        "Prawn",
+        "PdfFill",
+        "Configuration",
+        "Config",
+        "Auth",
+        "VeteranIdentifier",
+        "Net",
+        "Errors",
+        "PowerOfAttorneyRequests",
+        "ActionController",
+        "described_class",
+        "Faker",
+        "Rack",
+        "JWT",
+        "Rake",
+        "FactoryBot",
+        "V1",
+        "SwaggerSharedComponents",
+        "ClamsApi",
+        "RSpec",
+        "PDF"
+      ],
+      "uses_lib_classes": [
+        "evss/error_middleware",
+        "bgs/power_of_attorney_verifier",
+        "mpi/errors/errors",
+        "evss/disability_compensation_auth_headers",
+        "evss/auth_headers",
+        "evss/disability_compensation_form/service",
+        "evss/disability_compensation_form/dvp/service",
+        "evss/disability_compensation_form/service_exception",
+        "common/exceptions",
+        "mpi/responses/find_profile_response",
+        "mpi/service",
+        "common/file_helpers",
+        "evss/disability_compensation_form/configuration",
+        "common/client/base",
+        "evss/claims_service",
+        "evss/documents_service",
+        "common/models/redis_store",
+        "common/models/concerns/cache_aside",
+        "common/client/configuration/rest",
+        "common/client/errors",
+        "bgs/services"
+      ],
+      "uses_app_classes": [
+        "User"
+      ]
+    },
+    "shared_models": [
+      "User",
+      "Account"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "MPI",
+      "EVSS",
+      "Lighthouse",
+      "Custom HTTP Client",
+      "VBA"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 4,
+      "has_models": true,
+      "model_count": 14,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 9,
+      "job_names": [
+        "evidence_waiver_builder_job",
+        "find_poas_job",
+        "poa_assign_dependent_claimant_job",
+        "poa_vbms_upload_job",
+        "poa_form_builder_job",
+        "poa_form_builder_job",
+        "va_notify_accepted_job",
+        "va_notify_declined_job",
+        "va_notify_follow_up_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 58,
+      "models": 14,
+      "services": 33,
+      "jobs": 25,
+      "total_files": 467,
+      "loc": 57954
+    }
+  },
+  "claims_evidence_api": {
+    "name": "claims_evidence_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveRecord",
+        "Common",
+        "Configuration",
+        "Config",
+        "Faraday",
+        "Rails",
+        "Logging",
+        "Errors",
+        "Thread",
+        "Marcel",
+        "validation",
+        "PDFUtilities",
+        "JSON",
+        "VefsError",
+        "folder_identifier",
+        "Record",
+        "Service",
+        "Uploader",
+        "ContentSources",
+        "Files",
+        "SearchFileRequest",
+        "Search",
+        "UploadSources"
+      ],
+      "uses_lib_classes": [
+        "common/client/configuration/rest",
+        "common/client/base",
+        "common/virus_scan",
+        "common/file_helpers"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 4,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": false,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 0,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 53,
+      "loc": 2137
+    }
+  },
+  "debts_api": {
+    "name": "debts_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "DigitalDisputeSubmission",
+        "ActiveRecord",
+        "Sidekiq",
+        "Form5655",
+        "FsrFormTransform",
+        "FinancialStatusReportService",
+        "FsrRehydrationService",
+        "Form5655Submission",
+        "OneDebtLetterService",
+        "V0",
+        "JSON",
+        "DebtManagementCenter",
+        "MPI",
+        "VHA",
+        "Rails",
+        "DigitalDispute",
+        "Common",
+        "Configuration",
+        "Faraday",
+        "Net",
+        "Vets",
+        "PdfFill",
+        "VBSSubmissionJob",
+        "ActiveModel",
+        "Errors",
+        "class",
+        "Date",
+        "described_class",
+        "Formatters",
+        "FsrFormBuilder",
+        "DebtTransactionLog",
+        "ActionDispatch",
+        "fsr_service",
+        "Rack",
+        "DigitalDisputeSubmissionService",
+        "SharepointSubmissionJob"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "User",
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "User",
+      "InProgressForm"
+    ],
+    "external_api_calls": [
+      "VBA",
+      "MPI",
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 3,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 5,
+      "job_names": [
+        "digital_dispute_job",
+        "send_confirmation_email_job",
+        "vba_submission_job",
+        "sharepoint_submission_job",
+        "vbs_submission_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 5,
+      "models": 3,
+      "services": 0,
+      "jobs": 5,
+      "total_files": 82,
+      "loc": 7796
+    }
+  },
+  "decision_reviews": {
+    "name": "decision_reviews",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActionController",
+        "Pundit",
+        "Puma",
+        "JSON",
+        "Common",
+        "ActiveRecord",
+        "SavedClaim",
+        "V1",
+        "Sidekiq",
+        "VaNotify",
+        "Helpers",
+        "BenefitsIntake",
+        "CarrierWave",
+        "Faraday",
+        "Rails",
+        "VeteranFacingServices",
+        "Logging",
+        "HexaPDF",
+        "DecisionReview",
+        "Configuration",
+        "VetsJsonSchema",
+        "Concerns",
+        "Errors",
+        "DecisionReviewV1",
+        "described_class",
+        "FactoryBot",
+        "RSpec",
+        "StatsD",
+        "Gem",
+        "Shoulda",
+        "HigherLevelReviews",
+        "NoticeOfDisagreements",
+        "VCR",
+        "ActiveModel",
+        "SupplementalClaims",
+        "Processors",
+        "Notifications",
+        "Faker",
+        "MPI",
+        "SavedCalim",
+        "Rack",
+        "SidekiqStatsInstrumentation"
+      ],
+      "uses_lib_classes": [
+        "common/pdf_helpers",
+        "common/exceptions/not_implemented",
+        "common/file_helpers",
+        "common/client/configuration/rest",
+        "common/client/base",
+        "common/client/concerns/monitoring",
+        "common/client/errors",
+        "common/exceptions/forbidden",
+        "common/exceptions/schema_validation_errors",
+        "common/exceptions/backend_service_exception"
+      ],
+      "uses_app_classes": [
+        "InProgressForm",
+        "FormAttachment"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim",
+      "User",
+      "FormAttachment"
+    ],
+    "external_api_calls": [
+      "Lighthouse",
+      "Custom HTTP Client",
+      "MPI"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": false,
+      "model_count": 0,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 7,
+      "job_names": [
+        "delete_saved_claim_records_job",
+        "delete_secondary_appeal_forms_job",
+        "failure_notification_email_job",
+        "hlr_status_updater_job",
+        "nod_status_updater_job",
+        "saved_claim_status_updater_job",
+        "sc_status_updater_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 9,
+      "models": 0,
+      "services": 0,
+      "jobs": 9,
+      "total_files": 65,
+      "loc": 9187
+    }
+  },
+  "dependents_benefits": {
+    "name": "dependents_benefits",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Common",
+        "BGS",
+        "Active",
+        "FormProfiles",
+        "Vets",
+        "VAProfileRedis",
+        "BID",
+        "SavedClaim",
+        "BenefitsIntakeService",
+        "PDFUtilities",
+        "Digest",
+        "PdfInfo",
+        "BenefitsIntake",
+        "Lighthouse",
+        "ActiveRecord",
+        "Dependents",
+        "ActiveSupport",
+        "VetsJsonSchema",
+        "class",
+        "ClaimsEvidence",
+        "SavedClaimGroup",
+        "Rails",
+        "Generators",
+        "Logging",
+        "VeteranFacingServices",
+        "HexaPDF",
+        "Utilities",
+        "form_class",
+        "PdfFill",
+        "BGSV2",
+        "ClaimsEvidenceApi",
+        "VefsError",
+        "Sidekiq",
+        "described_class",
+        "VaNotify",
+        "Timeout",
+        "VAProfile",
+        "VCR",
+        "JSON"
+      ],
+      "uses_lib_classes": [
+        "bgs/job"
+      ],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim",
+      "User"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "Lighthouse",
+      "EVSS"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 5,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 1,
+      "models": 5,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 59,
+      "loc": 8319
+    }
+  },
+  "dependents_verification": {
+    "name": "dependents_verification",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveRecord",
+        "Common",
+        "BGS",
+        "Vets",
+        "FormProfiles",
+        "Active",
+        "Swagger",
+        "BenefitsIntake",
+        "Lighthouse",
+        "Sidekiq",
+        "PDFUtilities",
+        "Datadog",
+        "Rails",
+        "PdfFill",
+        "Va210538",
+        "Logging",
+        "VeteranFacingServices",
+        "FormHelper",
+        "section",
+        "SubmitClaimJob",
+        "described_class",
+        "VaNotify"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "Lighthouse"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 33,
+      "loc": 2073
+    }
+  },
+  "dhp_connected_devices": {
+    "name": "dhp_connected_devices",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Vets",
+        "Common",
+        "Aws",
+        "Types",
+        "Rails",
+        "FitbitAPI",
+        "Configuration",
+        "Faraday",
+        "ActionController",
+        "ActiveRecord",
+        "Errno",
+        "ObjectSummary"
+      ],
+      "uses_lib_classes": [
+        "common/client/base",
+        "common/client/configuration/rest",
+        "common/client/middleware/response/raise_custom_error"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 3,
+      "models": 2,
+      "services": 3,
+      "jobs": 0,
+      "total_files": 32,
+      "loc": 1298
+    }
+  },
+  "employment_questionnaires": {
+    "name": "employment_questionnaires",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveRecord",
+        "Common",
+        "FormProfiles",
+        "BGS",
+        "Active",
+        "PdfFill",
+        "Swagger",
+        "BenefitsIntake",
+        "Lighthouse",
+        "Sidekiq",
+        "PDFUtilities",
+        "Datadog",
+        "Rails",
+        "Logging",
+        "VeteranFacingServices",
+        "FormHelper",
+        "section",
+        "VANotify",
+        "SubmitClaimJob",
+        "described_class",
+        "Utilities",
+        "form_class"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "Lighthouse"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 32,
+      "loc": 1784
+    }
+  },
+  "facilities_api": {
+    "name": "facilities_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "WillPaginate",
+        "ActiveRecord",
+        "Swagger",
+        "Requests",
+        "Schemas",
+        "V2",
+        "PPMS",
+        "Lighthouse",
+        "MobileCovid",
+        "Vets",
+        "Digest",
+        "JSONAPI",
+        "Common",
+        "Configuration",
+        "Faraday",
+        "Rails",
+        "Faker",
+        "Apivore"
+      ],
+      "uses_lib_classes": [
+        "common/client/base",
+        "common/client/configuration/rest",
+        "common/client/middleware/response/raise_custom_error"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [
+      "Lighthouse",
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 5,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 4,
+      "models": 5,
+      "services": 11,
+      "jobs": 0,
+      "total_files": 47,
+      "loc": 3578
+    }
+  },
+  "income_and_assets": {
+    "name": "income_and_assets",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "BPDS",
+        "ActiveRecord",
+        "Common",
+        "PersistentAttachments",
+        "FormProfiles",
+        "BGS",
+        "Active",
+        "PdfFill",
+        "Swagger",
+        "BenefitsIntake",
+        "Lighthouse",
+        "Sidekiq",
+        "Datadog",
+        "Rails",
+        "PDFUtilities",
+        "ActiveSupport",
+        "Logging",
+        "VeteranFacingServices",
+        "section",
+        "KmsEncrypted",
+        "MPI",
+        "VaNotify",
+        "SubmitClaimJob",
+        "described_class",
+        "Burials",
+        "VetsJsonSchema"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim",
+      "Account"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "Lighthouse",
+      "MPI"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 44,
+      "loc": 3435
+    }
+  },
+  "income_limits": {
+    "name": "income_limits",
+    "score": 85,
+    "readiness": "High - Easy Win",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Rails"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 5,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 2,
+      "models": 5,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 21,
+      "loc": 614
+    }
+  },
+  "increase_compensation": {
+    "name": "increase_compensation",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveRecord",
+        "Common",
+        "SimpleFormsApi",
+        "Configuration",
+        "FormProfiles",
+        "BGS",
+        "Active",
+        "Lighthouse",
+        "PdfFill",
+        "Swagger",
+        "BenefitsIntake",
+        "Sidekiq",
+        "Errors",
+        "PDFUtilities",
+        "Datadog",
+        "Rails",
+        "ActiveSupport",
+        "Logging",
+        "VeteranFacingServices",
+        "FormHelper",
+        "section",
+        "VANotify",
+        "SubmitClaimJob",
+        "described_class",
+        "Utilities",
+        "form_class"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "Lighthouse"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 39,
+      "loc": 2682
+    }
+  },
+  "ivc_champva": {
+    "name": "ivc_champva",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveSupport",
+        "SignIn",
+        "JSON",
+        "ActiveRecord",
+        "Datadog",
+        "ActionDispatch",
+        "PdfForms",
+        "Common",
+        "PersistentAttachments",
+        "Errno",
+        "form_class",
+        "Sidekiq",
+        "Process",
+        "Vets",
+        "class",
+        "VANotify",
+        "MPI",
+        "Prawn",
+        "PDFUtilities",
+        "PdfFill",
+        "Aws",
+        "Types",
+        "Rails",
+        "ZeroSilentFailures",
+        "DocumentOcrValidators",
+        "MiniMagick",
+        "Faraday",
+        "Configuration",
+        "LlmProcessorApi",
+        "VesApi",
+        "described_class",
+        "Tesseract",
+        "Regexp",
+        "Forms",
+        "Seahorse",
+        "Http",
+        "ActionController",
+        "VesRequest",
+        "RSpec",
+        "Date",
+        "Errors",
+        "PDF"
+      ],
+      "uses_lib_classes": [
+        "common/pdf_helpers",
+        "mpi/service",
+        "common/file_helpers",
+        "common/client/base",
+        "common/client/configuration/rest",
+        "common/client/middleware/response/raise_custom_error",
+        "common/convert_to_pdf"
+      ],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "User"
+    ],
+    "external_api_calls": [
+      "MPI",
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 9,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 3,
+      "models": 9,
+      "services": 19,
+      "jobs": 0,
+      "total_files": 111,
+      "loc": 14686
+    }
+  },
+  "meb_api": {
+    "name": "meb_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Status",
+        "Letters",
+        "Claimant",
+        "DirectDeposit",
+        "ContactInfo",
+        "Eligibility",
+        "Automation",
+        "Submission",
+        "Enrollment",
+        "ExclusionPeriod",
+        "Forms",
+        "JSONAPI",
+        "Sidekiq",
+        "Vets",
+        "VANotify",
+        "OpenSSL",
+        "Common",
+        "Configuration",
+        "Faraday",
+        "ActionController",
+        "SubmitEnrollment",
+        "Concerns",
+        "Rails",
+        "ActiveSupport",
+        "Lighthouse",
+        "described_class"
+      ],
+      "uses_lib_classes": [
+        "common/client/base",
+        "common/client/concerns/service_status"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [
+      "BGS",
+      "Custom HTTP Client",
+      "Lighthouse",
+      "EVSS"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": false,
+      "model_count": 0,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 4,
+      "models": 0,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 96,
+      "loc": 3486
+    }
+  },
+  "medical_expense_reports": {
+    "name": "medical_expense_reports",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveRecord",
+        "Common",
+        "CarrierWave",
+        "SimpleFormsApi",
+        "FormProfiles",
+        "BGS",
+        "Active",
+        "PdfFill",
+        "Swagger",
+        "BenefitsIntake",
+        "Lighthouse",
+        "Sidekiq",
+        "PDFUtilities",
+        "Datadog",
+        "Rails",
+        "ActiveSupport",
+        "Logging",
+        "VeteranFacingServices",
+        "Constants",
+        "FormHelper",
+        "section",
+        "Configuration",
+        "VaNotify",
+        "SubmitClaimJob",
+        "described_class",
+        "VANotify",
+        "Utilities",
+        "form_class"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "Lighthouse"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 41,
+      "loc": 2403
+    }
+  },
+  "mobile": {
+    "name": "mobile",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "SignIn",
+        "IAMSSOeOAuth",
+        "Common",
+        "ActiveSupport",
+        "SAML",
+        "Messaging",
+        "VAProfile",
+        "V3",
+        "Adapters",
+        "UniqueUserEvents",
+        "Lighthouse",
+        "VAOS",
+        "Contracts",
+        "Appointments",
+        "Exceptions",
+        "MHV",
+        "BGS",
+        "Preneeds",
+        "Chip",
+        "LighthouseClaims",
+        "Claims",
+        "BenefitsDocuments",
+        "ActiveRecord",
+        "FacilitiesApi",
+        "PPMS",
+        "DebtManagementCenter",
+        "ClaimStatusTool",
+        "SavedClaim",
+        "DisabilityRating",
+        "Efolder",
+        "DebtsApi",
+        "FinancialStatusReportService",
+        "LighthouseHealth",
+        "Gem",
+        "LGY",
+        "MedicalCopays",
+        "Service",
+        "ActionController",
+        "ActiveModel",
+        "Errors",
+        "DirectDeposit",
+        "BID",
+        "VetsJsonSchema",
+        "Prescriptions",
+        "Vet360",
+        "AsyncTransaction",
+        "Profile",
+        "VEText",
+        "MyHealth",
+        "Digest",
+        "TravelPay",
+        "Faraday",
+        "VeteranVerification",
+        "UnifiedHealthData",
+        "JSON",
+        "V1",
+        "Math",
+        "Dry",
+        "CheckIn",
+        "BenefitsClaims",
+        "AppointmentProviderName",
+        "AppointmentsService",
+        "Types",
+        "Concerns",
+        "Redis",
+        "Schemas",
+        "Vets",
+        "class",
+        "JWT",
+        "OpenSSL",
+        "JSONAPI",
+        "FastJsonapi",
+        "Caseflow",
+        "Pundit",
+        "SchemaContract",
+        "Configuration",
+        "SM",
+        "Rx",
+        "V2",
+        "Sidekiq",
+        "Rails",
+        "Nokogiri",
+        "LOA",
+        "Claim",
+        "VBMS",
+        "Dependents",
+        "Auth",
+        "HCA",
+        "Constants",
+        "Health",
+        "ServiceGraph",
+        "Folders",
+        "Messages",
+        "Rack",
+        "PaymentInformation",
+        "Push",
+        "User",
+        "VCR",
+        "VAProfileRedis",
+        "Committee",
+        "Test",
+        "RSpec"
+      ],
+      "uses_lib_classes": [
+        "bgs/awards_service",
+        "common/exceptions/validation_errors",
+        "common/exceptions/record_not_found",
+        "common/models/base",
+        "common/models/resource",
+        "common/exceptions",
+        "common/client/base",
+        "common/client/concerns/mhv_session_based_client",
+        "common/client/session",
+        "common/client/configuration/rest",
+        "common/client/middleware/request/camelcase",
+        "common/client/middleware/request/multipart_request",
+        "common/client/middleware/response/json_parser",
+        "common/client/middleware/response/raise_custom_error",
+        "common/client/middleware/response/mhv_errors",
+        "common/client/middleware/response/snakecase",
+        "common/exceptions/base_error",
+        "common/client/errors"
+      ],
+      "uses_app_classes": [
+        "Session",
+        "User"
+      ]
+    },
+    "shared_models": [
+      "User",
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "Lighthouse",
+      "VAOS",
+      "MHV",
+      "BGS",
+      "MPI",
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 3,
+      "has_models": true,
+      "model_count": 92,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 1,
+      "job_names": [
+        "vet360_linking_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 66,
+      "models": 92,
+      "services": 16,
+      "jobs": 2,
+      "total_files": 368,
+      "loc": 26120
+    }
+  },
+  "mocked_authentication": {
+    "name": "mocked_authentication",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActionController",
+        "Mockdata",
+        "SignIn",
+        "Auth",
+        "Token",
+        "ActiveSupport",
+        "Common",
+        "IAL",
+        "Net",
+        "Liquid",
+        "OpenSSL",
+        "Nokogiri",
+        "Rails",
+        "LOA",
+        "MPI"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "MPI",
+      "MHV"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 1,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 3,
+      "models": 1,
+      "services": 2,
+      "jobs": 0,
+      "total_files": 28,
+      "loc": 1244
+    }
+  },
+  "my_health": {
+    "name": "my_health",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveSupport",
+        "Common",
+        "AAL",
+        "Vets",
+        "BB",
+        "MedicalRecords",
+        "UnifiedHealthData",
+        "PHRMgr",
+        "BBInternal",
+        "Rx",
+        "SM",
+        "ActiveModel",
+        "ActionController",
+        "UniqueUserEvents",
+        "Net",
+        "ActiveRecord",
+        "Concerns",
+        "Errors",
+        "Rack",
+        "Lighthouse",
+        "Serializers",
+        "JSON",
+        "JSONAPI",
+        "Rails",
+        "Sidekiq",
+        "Redis",
+        "Faraday",
+        "Messaging",
+        "Breakers",
+        "ActionDispatch",
+        "LOA",
+        "SignIn",
+        "Auth"
+      ],
+      "uses_lib_classes": [
+        "common/client/errors",
+        "common/exceptions"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "MHV",
+      "Lighthouse"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": false,
+      "model_count": 0,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 49,
+      "models": 0,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 140,
+      "loc": 9993
+    }
+  },
+  "pensions": {
+    "name": "pensions",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveRecord",
+        "Common",
+        "Kafka",
+        "KmsEncrypted",
+        "BPDS",
+        "MPI",
+        "LOA",
+        "BGS",
+        "PersistentAttachments",
+        "Vets",
+        "FormProfiles",
+        "FormProfile",
+        "Logging",
+        "Active",
+        "SavedClaim",
+        "PdfFill",
+        "Swagger",
+        "BenefitsIntake",
+        "Lighthouse",
+        "Sidekiq",
+        "Datadog",
+        "Rails",
+        "PDFUtilities",
+        "VAProfile",
+        "MilitaryInformation",
+        "ClaimsApi",
+        "VeteranFacingServices",
+        "ActiveSupport",
+        "FormHelper",
+        "Constants",
+        "section",
+        "ZeroSilentFailures",
+        "VaNotify",
+        "SubmitClaimJob",
+        "Thread",
+        "described_class",
+        "VetsJsonSchema"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim",
+      "Account",
+      "User"
+    ],
+    "external_api_calls": [
+      "MPI",
+      "BGS",
+      "Lighthouse"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 3,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 3,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 55,
+      "loc": 4213
+    }
+  },
+  "representation_management": {
+    "name": "representation_management",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Veteran",
+        "AccreditedIndividuals",
+        "Common",
+        "AccreditedRepresentation",
+        "ActiveRecord",
+        "Constants",
+        "VANotify",
+        "AccreditedRepresentativePortal",
+        "ActionController",
+        "PdfConstructor",
+        "BenefitsClaims",
+        "Client",
+        "SlackNotify",
+        "ActiveModel",
+        "JSONAPI",
+        "VAProfile",
+        "V3",
+        "Faraday",
+        "GCLAWS",
+        "Create",
+        "Sidekiq",
+        "Rails",
+        "Prawn",
+        "PDF",
+        "HexaPDF",
+        "Rake",
+        "described_class",
+        "SwaggerSharedComponents",
+        "Faker",
+        "PowerOfAttorneyRequests",
+        "ActiveSupport",
+        "RSpec"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "User"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 9,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 2,
+      "job_names": [
+        "send_expiration_reminder_email_job",
+        "send_expired_email_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 11,
+      "models": 9,
+      "services": 6,
+      "jobs": 4,
+      "total_files": 106,
+      "loc": 10868
+    }
+  },
+  "simple_forms_api": {
+    "name": "simple_forms_api",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Logging",
+        "Datadog",
+        "PersistentAttachments",
+        "BenefitsIntake",
+        "SimpleFormsApiSubmission",
+        "Prawn",
+        "Exceptions",
+        "Common",
+        "BenefitsIntakeService",
+        "LGY",
+        "Configuration",
+        "VAProfile",
+        "ActiveSupport",
+        "Vets",
+        "ActionController",
+        "FormEngine",
+        "HexaPDF",
+        "JSON",
+        "Zip",
+        "PdfFill",
+        "Form526Submission",
+        "Sidekiq",
+        "CarrierWave",
+        "UploadsController",
+        "BenefitsClaims",
+        "VANotify",
+        "MPI",
+        "PDFUtilities",
+        "ActiveRecord",
+        "Errors",
+        "Timeout",
+        "Faraday",
+        "BGS",
+        "Rails",
+        "Jobs",
+        "PDF",
+        "Auth",
+        "Aws",
+        "Email",
+        "FormUpload",
+        "Errno",
+        "described_class",
+        "Rake",
+        "Notification"
+      ],
+      "uses_lib_classes": [
+        "evss/disability_compensation_form/submit_form0781",
+        "common/file_helpers",
+        "common/pdf_helpers",
+        "common/convert_to_pdf"
+      ],
+      "uses_app_classes": [
+        "InProgressForm",
+        "User"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "User"
+    ],
+    "external_api_calls": [
+      "Lighthouse",
+      "MPI",
+      "BGS"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 21,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 4,
+      "models": 21,
+      "services": 19,
+      "jobs": 0,
+      "total_files": 94,
+      "loc": 12005
+    }
+  },
+  "sob": {
+    "name": "sob",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "SOB",
+        "Vets",
+        "JSONAPI",
+        "Common",
+        "Configuration",
+        "OpenSSL",
+        "Service",
+        "Concerns",
+        "Response",
+        "Rails",
+        "ActiveRecord",
+        "described_class",
+        "Faraday"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 1,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 1,
+      "services": 3,
+      "jobs": 0,
+      "total_files": 17,
+      "loc": 552
+    }
+  },
+  "survivors_benefits": {
+    "name": "survivors_benefits",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveRecord",
+        "Common",
+        "SimpleFormsApi",
+        "FormProfiles",
+        "BGS",
+        "Active",
+        "PdfFill",
+        "Swagger",
+        "BenefitsIntake",
+        "Lighthouse",
+        "Sidekiq",
+        "PDFUtilities",
+        "Datadog",
+        "Rails",
+        "ActiveSupport",
+        "Logging",
+        "VeteranFacingServices",
+        "FormHelper",
+        "Constants",
+        "section",
+        "VANotify",
+        "SubmitClaimJob",
+        "described_class",
+        "Utilities",
+        "form_class"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "SavedClaim"
+    ],
+    "external_api_calls": [
+      "BGS",
+      "Lighthouse"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 2,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 42,
+      "loc": 3740
+    }
+  },
+  "test_user_dashboard": {
+    "name": "test_user_dashboard",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActionController",
+        "Vets",
+        "OpenSSL",
+        "JWT",
+        "ActionView",
+        "ActiveRecord",
+        "Common",
+        "MPI",
+        "Users",
+        "JSONAPI",
+        "Rails",
+        "Faker"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": [
+        "User"
+      ]
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client",
+      "MPI"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 9,
+      "has_models": true,
+      "model_count": 2,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": false,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 3,
+      "models": 2,
+      "services": 3,
+      "jobs": 0,
+      "total_files": 33,
+      "loc": 640
+    }
+  },
+  "travel_claims": {
+    "name": "travel_claims",
+    "score": 85,
+    "readiness": "High - Easy Win",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Rails"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": false,
+      "model_count": 0,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": false,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 0,
+      "models": 0,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 5,
+      "loc": 44
+    }
+  },
+  "travel_pay": {
+    "name": "travel_pay",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "ActiveSupport",
+        "Common",
+        "ActionController",
+        "Utils",
+        "Faraday",
+        "ActiveModel",
+        "Redis",
+        "VAOS",
+        "Date",
+        "Zip",
+        "Nokogiri",
+        "OpenSSL",
+        "Rails",
+        "described_class",
+        "Rack",
+        "ActionDispatch",
+        "Test"
+      ],
+      "uses_lib_classes": [
+        "common/models/redis_store"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client",
+      "VAOS"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 9,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 9,
+      "models": 9,
+      "services": 19,
+      "jobs": 0,
+      "total_files": 83,
+      "loc": 9164
+    }
+  },
+  "va_notify": {
+    "name": "va_notify",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "VANotify",
+        "ActionController",
+        "Token",
+        "ActiveSupport",
+        "Common",
+        "JsonMarshal",
+        "MPI",
+        "Sidekiq",
+        "Vets",
+        "FindInProgressForms",
+        "ActiveRecord",
+        "OpenSSL",
+        "Concerns",
+        "Faraday",
+        "Notifications",
+        "Errors",
+        "Configuration",
+        "Rails",
+        "Datadog",
+        "described_class",
+        "TestTeam",
+        "FormProfile"
+      ],
+      "uses_lib_classes": [
+        "va_notify/default_callback",
+        "va_notify/callback_signature_generator",
+        "common/models/redis_store",
+        "va_notify/in_progress_form_helper",
+        "common/client/base",
+        "common/client/concerns/monitoring",
+        "common/client/configuration/rest",
+        "va_notify/engine",
+        "va_notify/configuration",
+        "va_notify/service"
+      ],
+      "uses_app_classes": [
+        "InProgressForm"
+      ]
+    },
+    "shared_models": [
+      "InProgressForm",
+      "User"
+    ],
+    "external_api_calls": [
+      "MPI",
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 12,
+      "has_models": true,
+      "model_count": 4,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 2,
+      "job_names": [
+        "email_job",
+        "user_account_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 2,
+      "models": 4,
+      "services": 3,
+      "jobs": 7,
+      "total_files": 63,
+      "loc": 3648
+    }
+  },
+  "vaos": {
+    "name": "vaos",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "VAOS",
+        "UniqueUserEvents",
+        "Eps",
+        "Redis",
+        "Common",
+        "ActiveModel",
+        "Ccra",
+        "ActionController",
+        "Digest",
+        "JSON",
+        "Date",
+        "Vets",
+        "JSONAPI",
+        "Concerns",
+        "CCRA",
+        "OpenSSL",
+        "Faraday",
+        "Timeout",
+        "VANotify",
+        "Response",
+        "ActiveSupport",
+        "class",
+        "Configuration",
+        "Formatters",
+        "MAP",
+        "JWT",
+        "URI",
+        "Concurrent",
+        "TravelPay",
+        "Errors",
+        "Avs",
+        "UnifiedHealthData",
+        "SchemaContract",
+        "Sidekiq",
+        "VaNotify",
+        "Flipper",
+        "Rails",
+        "OptionParser",
+        "described_class",
+        "LOA",
+        "ReferralsController",
+        "CommunityCare",
+        "Locations",
+        "Scheduling",
+        "EpsTestTokenService",
+        "AppointmentProviderName"
+      ],
+      "uses_lib_classes": [
+        "common/exceptions",
+        "common/models/redis_store",
+        "common/client/base",
+        "common/client/concerns/monitoring",
+        "common/client/configuration/rest",
+        "common/client/errors"
+      ],
+      "uses_app_classes": [
+        "User"
+      ]
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "VAOS",
+      "Custom HTTP Client",
+      "MHV"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 7,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": true,
+      "job_count": 2,
+      "job_names": [
+        "appointment_status_email_job",
+        "appointment_status_job"
+      ]
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 13,
+      "models": 7,
+      "services": 34,
+      "jobs": 2,
+      "total_files": 159,
+      "loc": 21235
+    }
+  },
+  "vass": {
+    "name": "vass",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Rack",
+        "Faraday",
+        "Common",
+        "Concerns",
+        "Errors",
+        "Timeout",
+        "Configuration",
+        "Oj",
+        "Rails",
+        "EVSS",
+        "Preneeds",
+        "Response",
+        "ActiveSupport"
+      ],
+      "uses_lib_classes": [
+        "common/client/configuration/rest",
+        "common/exceptions"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [
+      "Custom HTTP Client",
+      "EVSS"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": false,
+      "model_count": 0,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": true,
+    "complexity": {
+      "controllers": 1,
+      "models": 0,
+      "services": 4,
+      "jobs": 0,
+      "total_files": 18,
+      "loc": 1854
+    }
+  },
+  "vba_documents": {
+    "name": "vba_documents",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Common",
+        "Swagger",
+        "VBADocuments",
+        "V1",
+        "Aws",
+        "Date",
+        "CentralMail",
+        "ActiveRecord",
+        "JSONAPI",
+        "PDFInspector",
+        "Messenger",
+        "Sidekiq",
+        "Flipper",
+        "UploadSubmission",
+        "ActionView",
+        "ActiveSupport",
+        "Digest",
+        "BGS",
+        "MPI",
+        "PDFValidator",
+        "Rails",
+        "Zip",
+        "PdfInfo",
+        "JSON",
+        "AppealsApi",
+        "ActionDispatch",
+        "Mail",
+        "Faraday",
+        "described_class",
+        "VBADocument",
+        "Breakers",
+        "Uploads",
+        "UploadSerializer",
+        "FactoryBot"
+      ],
+      "uses_lib_classes": [
+        "common/exceptions",
+        "common/client/base",
+        "common/file_helpers",
+        "common/virus_scan"
+      ],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "VBA",
+      "Custom HTTP Client",
+      "BGS",
+      "MPI"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 3,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 6,
+      "models": 3,
+      "services": 2,
+      "jobs": 12,
+      "total_files": 105,
+      "loc": 7896
+    }
+  },
+  "veteran": {
+    "name": "veteran",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Common",
+        "ActiveRecord",
+        "Constants",
+        "Vets",
+        "Representative",
+        "ClaimsApi",
+        "JSONAPI",
+        "Organizations",
+        "Sidekiq",
+        "Representatives",
+        "VAProfile",
+        "V3",
+        "SlackNotify",
+        "Roo",
+        "RepresentationManagement",
+        "Octokit",
+        "Sawyer",
+        "Net",
+        "Nokogiri",
+        "Faraday",
+        "Errors",
+        "Rails",
+        "Faker",
+        "Rake"
+      ],
+      "uses_lib_classes": [
+        "evss/auth_headers"
+      ],
+      "uses_app_classes": [
+        "User"
+      ]
+    },
+    "shared_models": [
+      "User"
+    ],
+    "external_api_calls": [
+      "Custom HTTP Client"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 6,
+      "uses_activerecord": true
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 5,
+      "models": 6,
+      "services": 1,
+      "jobs": 11,
+      "total_files": 62,
+      "loc": 5071
+    }
+  },
+  "vre": {
+    "name": "vre",
+    "score": 0,
+    "readiness": "Low - Significant Refactoring Required",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "VRE",
+        "class",
+        "Common",
+        "KmsEncrypted",
+        "Sidekiq",
+        "SavedClaim",
+        "Vets",
+        "Constants",
+        "PdfFill",
+        "ClaimsApi",
+        "VANotify",
+        "Lighthouse",
+        "BGS",
+        "JSONAPI",
+        "Configuration",
+        "Faraday",
+        "Concerns",
+        "Rails",
+        "VeteranFacingServices",
+        "Logging",
+        "VaNotify",
+        "described_class",
+        "ActionView",
+        "OpenSSL",
+        "VBMS"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [
+      "SavedClaim",
+      "User"
+    ],
+    "external_api_calls": [
+      "Lighthouse",
+      "BGS",
+      "Custom HTTP Client",
+      "MPI"
+    ],
+    "database_usage": {
+      "has_migrations": false,
+      "migration_count": 0,
+      "has_models": true,
+      "model_count": 8,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": true,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 2,
+      "models": 8,
+      "services": 6,
+      "jobs": 0,
+      "total_files": 41,
+      "loc": 1839
+    }
+  },
+  "vye": {
+    "name": "vye",
+    "score": 55,
+    "readiness": "Moderate - Some Refactoring Needed",
+    "dependencies": {
+      "requires_main_app": true,
+      "requires_other_modules": [
+        "Pundit",
+        "ActiveRecord",
+        "Rails",
+        "ActionDispatch"
+      ],
+      "uses_lib_classes": [],
+      "uses_app_classes": []
+    },
+    "shared_models": [],
+    "external_api_calls": [],
+    "database_usage": {
+      "has_migrations": true,
+      "migration_count": 36,
+      "has_models": false,
+      "model_count": 0,
+      "uses_activerecord": false
+    },
+    "sidekiq_jobs": {
+      "has_jobs": false,
+      "job_count": 0,
+      "job_names": []
+    },
+    "authentication": true,
+    "file_uploads": false,
+    "redis_cache": false,
+    "complexity": {
+      "controllers": 1,
+      "models": 0,
+      "services": 0,
+      "jobs": 0,
+      "total_files": 47,
+      "loc": 968
+    }
+  }
+}
