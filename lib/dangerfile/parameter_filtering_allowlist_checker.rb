@@ -66,7 +66,7 @@ module Dangerfile
 
         **Before approving this PR, verify:**
         - The added key(s) **DO NOT** contain PII, PHI, or secrets
-        - The key name isn't too generic. If it's a name used in other areas of the app, it could expose sensitive data
+        - The key name isn't too generic. If it's a name used in other areas of the app, it could expose sensitive data.
         - The business need for unfiltering this parameter is documented in the PR description
         - The new `log_allowlist` parameter for per-call filtering has been considered [see #121130](https://github.com/department-of-veterans-affairs/vets-api/pull/25413)
 
