@@ -133,6 +133,20 @@ module PdfFill
         bool_attribute ? 'Yes' : 'No'
       end
 
+      def format_radio_yes_no(value)
+        return '' if value.nil?
+
+        case value
+        when 'Y'
+          'Yes'
+        when 'N'
+          'No'
+        else
+          # Value can sometimes be 'NA'
+          value
+        end
+      end
+
       def split_currency_string(decimal_string)
         return if decimal_string.blank?
 
