@@ -67,10 +67,7 @@ module MebApi
 
           def update_dd_params(params, dd_params)
             check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number)&.include?('*')
-            if check_masking && !Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
-              params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]&.dup
-              params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]&.dup
-            elsif check_masking && Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
+            if check_masking
               params[:form][:direct_deposit][:direct_deposit_account_number] =
                 dd_params&.payment_account ? dd_params.payment_account[:account_number]&.dup : nil
               params[:form][:direct_deposit][:direct_deposit_routing_number] =

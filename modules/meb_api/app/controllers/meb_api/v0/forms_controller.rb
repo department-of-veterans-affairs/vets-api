@@ -63,7 +63,7 @@ module MebApi
       def submit_claim
         response_data = nil
 
-        if Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user) && !Rails.env.development?
+        unless Rails.env.development?
           begin
             response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
             if response_data.nil?
