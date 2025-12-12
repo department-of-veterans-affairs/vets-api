@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
+require 'logging/helper/data_scrubber'
+
 module Ccra
   # Ccra::ReferralService provides methods for interacting with the CCRA referral endpoints.
   # It inherits from Ccra::BaseService for common REST functionality and configuration.
   # This service handles both API interactions and caching of referral data.
   class ReferralService < BaseService
+    include Logging::Helper::DataScrubber
     # Fetches the VAOS Referral List.
     #
     # @param icn [String] The Internal Control Number (ICN) of the patient
     # @param referral_status [String] The status to filter referrals by (e.g., 'ACTIVE', 'CANCELLED')
     #
     # @return [Array<ReferralListEntry>] An array of ReferralListEntry objects containing the filtered referral list
+    # rubocop:disable Metrics/MethodLength
     def get_vaos_referral_list(icn, referral_status)
       params = { status: referral_status }
       with_monitoring do
@@ -23,7 +27,21 @@ module Ccra
 
         ReferralListEntry.build_collection(response.body)
       end
+    rescue => e
+      if Flipper.enabled?(:va_online_scheduling_ccra_error_logging, user)
+        Rails.logger.error('CCRA: Failed to fetch VAOS referral list', {
+                             icn:,
+                             referral_status:,
+                             service: 'ccra',
+                             method: 'get_vaos_referral_list',
+                             error_class: e.class.name,
+                             error_message: scrub(e.message),
+                             error_backtrace: e.backtrace&.first(5)
+                           })
+      end
+      raise e
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Retrieves detailed Referral information.
     # First checks if the referral data is available in the cache.
