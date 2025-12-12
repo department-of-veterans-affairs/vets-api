@@ -186,7 +186,7 @@ RSpec.describe FormProfile, type: :model do
         'veteranSsnLastFour' => '1863',
         'veteranVaFileNumberLastFour' => '1863',
         'isInReceiptOfPension' => -1,
-        'netWorthLimit' => 163699 # rubocop:disable Style/NumericLiterals
+        'netWorthLimit' => 163_699
       },
       'veteranInformation' => {
         'fullName' => {
@@ -1664,7 +1664,7 @@ RSpec.describe FormProfile, type: :model do
                 'veteranSsnLastFour' => '1863',
                 'veteranVaFileNumberLastFour' => '1863',
                 'isInReceiptOfPension' => -1,
-                'netWorthLimit' => 163699 # rubocop:disable Style/NumericLiterals
+                'netWorthLimit' => 163_699
               },
               'veteranInformation' => {
                 'fullName' => {
@@ -1762,8 +1762,7 @@ RSpec.describe FormProfile, type: :model do
                     )
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163699) # rubocop:disable Style/NumericLiterals
-                end
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
               end
             end
 
@@ -1958,7 +1957,7 @@ RSpec.describe FormProfile, type: :model do
                     )
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163699) # rubocop:disable Style/NumericLiterals
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
                 end
               end
             end
