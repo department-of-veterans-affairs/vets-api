@@ -66,22 +66,19 @@ module TravelClaim
     def submit_claim
       validate_parameters
       result = process_claim_submission
-
-      # Send notification if feature flag is enabled
       send_notification_if_enabled if result['success']
-
       result
     rescue Common::Exceptions::BackendServiceException => e
-      # Check if this is a duplicate claim error
       handle_duplicate_claim_error if duplicate_claim_error?(e)
-      # Send error notification if feature flag is enabled
-      send_error_notification_if_enabled(e)
-      raise e
+      handle_service_error(e, timeout: false)
+    rescue Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError => e
+      handle_service_error(e, timeout: true)
+    rescue Common::Client::Errors::ClientError => e
+      handle_service_error(e, timeout: false, label: 'Client error')
+    rescue TravelClaim::Errors::InvalidArgument => e
+      handle_service_error(e, timeout: false, label: 'Invalid argument', log_unconditional: true)
     rescue => e
-      log_message(:error, 'Unexpected error', error_class: e.class.name)
-      # Send error notification if feature flag is enabled
-      send_error_notification_if_enabled(e)
-      raise e
+      handle_service_error(e, timeout: false, label: 'Unexpected error', log_unconditional: true)
     end
 
     private
@@ -114,9 +111,18 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if any required parameter is missing
     #
     def validate_parameters
-      raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
-      raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
-      raise_backend_service_exception('Check-in UUID is required', 400, 'VA904') if @check_in_uuid.blank?
+      if @appointment_date.blank?
+        log_unconditional(:error, 'Validation failed', detail: 'Appointment date is required')
+        raise_backend_service_exception('Appointment date is required', 400, 'VA902')
+      end
+      if @facility_type.blank?
+        log_unconditional(:error, 'Validation failed', detail: 'Facility type is required')
+        raise_backend_service_exception('Facility type is required', 400, 'VA903')
+      end
+      if @check_in_uuid.blank?
+        log_unconditional(:error, 'Validation failed', detail: 'Check-in UUID is required')
+        raise_backend_service_exception('Check-in UUID is required', 400, 'VA904')
+      end
 
       # Initialize date fields early so they're available for error notifications
       normalized_appointment_datetime
@@ -140,6 +146,8 @@ module TravelClaim
         # Rebuild as UTC using the same wall-clock fields (ignores original offset).
         Time.utc(t.year, t.month, t.day, t.hour, t.min, t.sec)
       rescue ArgumentError
+        log_unconditional(:error, 'Validation failed',
+                          detail: 'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)')
         raise_backend_service_exception(
           'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
           400, 'VA905'
@@ -261,13 +269,56 @@ module TravelClaim
     def log_message(level, message, additional_data = {})
       return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
 
+      log_unconditional(level, message, additional_data)
+    end
+
+    def handle_service_error(error, timeout:, label: nil, log_unconditional: false)
+      log_fn = log_unconditional ? method(:log_unconditional) : method(:log_message)
+      log_fn.call(:error, label || error.class.name,
+                  error_class: error.class.name,
+                  detail: error.message)
+      increment_timeout_metric if timeout
+      increment_failure_metric
+      send_error_notification_if_enabled(error)
+      raise timeout ? timeout_backend_exception(error) : error
+    end
+
+    def timeout_backend_exception(error)
+      Common::Exceptions::BackendServiceException.new(
+        'VA900',
+        { detail: error.message },
+        504
+      )
+    end
+
+    def log_unconditional(level, message, additional_data = {})
+      safe_data = sanitize_additional_data(additional_data)
+
       log_data = {
         message: "CIE Travel Claim Submission: #{message}",
         facility_type: @facility_type,
         check_in_uuid: @check_in_uuid
-      }.merge(additional_data)
+      }.merge(safe_data)
 
       Rails.logger.public_send(level, log_data)
+    end
+
+    def sanitize_additional_data(data)
+      return {} if data.blank?
+
+      safe = data.dup
+      if Flipper.enabled?(:check_in_experience_travel_claim_error_message_logging)
+        safe[:detail] = scrub_detail(safe[:detail]) if safe.key?(:detail)
+      else
+        safe.delete(:detail)
+      end
+      safe
+    end
+
+    def scrub_detail(detail)
+      return detail unless detail.is_a?(String)
+
+      Logging::Helper::DataScrubber.scrub(detail)
     end
 
     ##
@@ -397,6 +448,26 @@ module TravelClaim
       increment_metric_by_facility_type(
         CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
         CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+      )
+    end
+
+    ##
+    # Increments the appropriate timeout metric based on facility type
+    #
+    def increment_timeout_metric
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT,
+        CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT
+      )
+    end
+
+    ##
+    # Increments the appropriate failure metric based on facility type
+    #
+    def increment_failure_metric
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_ERROR,
+        CheckIn::Constants::OH_STATSD_BTSSS_ERROR
       )
     end
 

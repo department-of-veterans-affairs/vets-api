@@ -1928,6 +1928,7 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: <%= ENV['veteran_readiness_and_employment__duplicate_submission_threshold_hours'] || 24 %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:
