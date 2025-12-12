@@ -9,6 +9,11 @@ describe UnifiedHealthData::Service, type: :service do
   let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
   let(:service) { described_class.new(user) }
 
+  before do
+    # Disable V2 status mapping globally for all tests since the feature is not yet enabled
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, anything).and_return(false)
+  end
+
   describe '#get_labs' do
     context 'with valid lab responses', :vcr do
       it 'returns all labs/tests with encodedData and/or observations' do
