@@ -584,8 +584,16 @@ module MedicalExpenseReports
         )
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
-        response = @intake_service.perform_upload(**payload)
-        raise MedicalExpenseReportsBenefitIntakeError, response.to_s unless response.success?
+        if Flipper.enabled?(:medical_expense_reports_govcio_mms)
+          govcio_upload(payload)
+        else
+          response = @intake_service.perform_upload(**payload)
+          raise MedicalExpenseReportsBenefitIntakeError, response.to_s unless response.success?
+        end
+      end
+
+      def govcio_upload(payload)
+        raise NotImplementedError, 'GovCIO MMS client is not yet implemented'
       end
 
       # Insert submission polling entries
