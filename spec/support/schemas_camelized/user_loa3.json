@@ -375,6 +375,9 @@
                     },
                     "activeMHVIds": {
                       "type": "array"
+                    },
+                    "healthcareSettingsPilotEligible": {
+                      "type": "boolean"
                     }
                   }
                 }
