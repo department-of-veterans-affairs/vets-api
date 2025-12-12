@@ -295,12 +295,20 @@ module MedicalExpenseReports
         format_date(form['dateSigned'] || form['signatureDate'])
       end
 
+      # Strip all non-digit characters from a phone string.
+      #
+      # @param phone [String, nil]
+      # @return [String, nil]
       def sanitize_phone(phone)
         return unless phone
 
         phone.to_s.gsub(/\D/, '')
       end
 
+      # Determine if the IAM payload should use VA received date.
+      #
+      # @param form [Hash]
+      # @return [Boolean]
       def use_va_rcvd_date?(form)
         form['firstTimeReporting'].present? ? form['firstTimeReporting'] : false
       end
@@ -483,6 +491,10 @@ module MedicalExpenseReports
         }
       end
 
+      # Format a numeric amount for IBM (commas + two decimals).
+      #
+      # @param value [String, Numeric]
+      # @return [String, nil]
       def format_currency(value)
         return unless value
 
@@ -496,6 +508,10 @@ module MedicalExpenseReports
         nil
       end
 
+      # Normalize a date to MM/DD/YYYY for IBM.
+      #
+      # @param value [String, Date]
+      # @return [String, nil]
       def format_date(value)
         return unless value
 
