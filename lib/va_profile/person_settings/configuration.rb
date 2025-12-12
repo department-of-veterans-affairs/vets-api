@@ -6,7 +6,7 @@ module VAProfile
       self.read_timeout = 30
 
       def base_path
-        "#{Settings.va_profile.url}/settings-hub/"
+        "#{VAProfile::Configuration::SETTINGS.url}/settings-hub/"
       end
 
       def service_name
