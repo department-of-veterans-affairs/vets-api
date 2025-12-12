@@ -86,10 +86,10 @@ class FormProfiles::VA686c674v2 < FormProfile
     end
   end
 
-  # @return [Integer] the net worth limit for pension, default is 159240 as of 2025
+  # @return [Integer] the net worth limit for pension, default is 163,699 as of 2026
   # Default will be cached in future enhancement
   def net_worth_limit
-    awards_pension[:net_worth_limit] || 159240 # rubocop:disable Style/NumericLiterals
+    awards_pension[:net_worth_limit] || 163_699
   end
 
   # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
