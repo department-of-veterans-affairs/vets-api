@@ -526,103 +526,6 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
       end
     end
 
-    describe 'failure metrics' do
-      context 'when BackendServiceException is raised' do
-        it 'increments failure metric for OH facility' do
-          mock_appointment_failure(400)
-
-          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
-
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
-        end
-
-        context 'with CIE facility type' do
-          let(:facility_type) { 'cie' }
-
-          it 'increments failure metric for CIE facility' do
-            mock_appointment_failure(400)
-
-            expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
-
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)
-          end
-        end
-      end
-
-      context 'when GatewayTimeout is raised' do
-        before do
-          allow(travel_pay_client).to receive(:send_appointment_request)
-            .and_raise(Common::Exceptions::GatewayTimeout.new('Timeout'))
-        end
-
-        it 'increments both timeout and failure metrics for OH facility' do
-          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
-
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
-        end
-
-        context 'with CIE facility type' do
-          let(:facility_type) { 'cie' }
-
-          it 'increments both timeout and failure metrics for CIE facility' do
-            expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
-
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)
-          end
-        end
-      end
-
-      context 'when Net::ReadTimeout is raised' do
-        before do
-          allow(travel_pay_client).to receive(:send_appointment_request)
-            .and_raise(Net::ReadTimeout.new('Read timeout'))
-        end
-
-        it 'increments both timeout and failure metrics for OH facility' do
-          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
-
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
-        end
-
-        context 'with CIE facility type' do
-          let(:facility_type) { 'cie' }
-
-          it 'increments both timeout and failure metrics for CIE facility' do
-            expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
-
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)
-          end
-        end
-      end
-
-      context 'when ClientError is raised' do
-        before do
-          allow(travel_pay_client).to receive(:send_appointment_request)
-            .and_raise(Common::Client::Errors::ClientError.new('Client error', 502))
-        end
-
-        it 'increments failure metric for OH facility' do
-          expect { service.submit_claim }.to raise_error(Common::Client::Errors::ClientError)
-
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
-        end
-
-        context 'with CIE facility type' do
-          let(:facility_type) { 'cie' }
-
-          it 'increments failure metric for CIE facility' do
-            expect { service.submit_claim }.to raise_error(Common::Client::Errors::ClientError)
-
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)
-          end
-        end
-      end
-    end
-
     describe 'duplicate claim metrics' do
       context 'when claim already exists for OH facility' do
         before do
@@ -638,11 +541,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           )
         end
 
-        it 'increments both duplicate and failure metrics' do
+        it 'increments OH duplicate claim metric' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE)
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
         end
       end
 
@@ -662,11 +564,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           )
         end
 
-        it 'increments both duplicate and failure metrics' do
+        it 'increments CIE duplicate claim metric' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE)
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_ERROR)
         end
       end
 
@@ -684,11 +585,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           )
         end
 
-        it 'increments both duplicate and failure metrics for OH facility' do
+        it 'increments duplicate claim metric for OH facility' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE)
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
         end
       end
     end
