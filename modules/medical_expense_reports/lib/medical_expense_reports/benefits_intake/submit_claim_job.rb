@@ -533,7 +533,10 @@ module MedicalExpenseReports
           metadata: @metadata.to_json,
           attachments: @attachment_paths
         }
-        tracked_payload = payload.merge(ibm_payload: @ibm_payload)
+        tracked_payload = payload.merge(
+          ibm_payload_present: @ibm_payload.present?,
+          ibm_payload_field_count: @ibm_payload&.keys&.count
+        )
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
