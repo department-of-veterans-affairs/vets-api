@@ -14,6 +14,11 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
       get('/v0/chatbot/claims', params: { conversation_id: 123 }, headers: service_account_auth_header)
     end
 
+    allow_any_instance_of(V0::Chatbot::ClaimStatusController)
+      .to receive(:ensure_edipi_present)
+      .and_return(true)
+    end
+
     context 'authorized' do
       before do
         @mock_cxi_reporting_service = instance_double(Chatbot::ReportToCxi)
