@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/attr_package'
 require 'va_notify/default_callback'
 require 'va_notify/callback_signature_generator'
+require 'va_notify/callback_processor'
 
 RSpec.describe 'VANotify Callbacks', type: :request do
   let(:valid_token) { Settings.vanotify.status_callback.bearer_token }
   let(:invalid_token) { 'invalid_token' }
   let(:notification_id) { SecureRandom.uuid }
+  let(:attr_package_params_cache_key) { SecureRandom.hex(32) }
   let(:callback_params) do
     {
       id: notification_id,
@@ -19,81 +22,82 @@ RSpec.describe 'VANotify Callbacks', type: :request do
   end
   let(:callback_route) { '/va_notify/callbacks' }
 
-  describe 'POST #create' do
+  describe 'POST #update' do
     context 'when :va_notify_custom_bearer_tokens disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_notify_custom_bearer_tokens).and_return(false)
       end
 
       context 'with found notification' do
-        it 'updates notification' do
-          template_id = SecureRandom.uuid
-          notification = VANotify::Notification.create(notification_id:,
-                                                       source_location: 'some_location',
-                                                       callback_metadata: 'some_callback_metadata',
-                                                       template_id:)
-          expect(notification.status).to be_nil
-          allow(Rails.logger).to receive(:info)
-          callback_obj = double('VANotify::DefaultCallback')
-          allow(VANotify::DefaultCallback).to receive(:new).and_return(callback_obj)
-          allow(callback_obj).to receive(:call)
+        let(:template_id) { SecureRandom.uuid }
+        let!(:notification) do
+          VANotify::Notification.create(notification_id:,
+                                        source_location: 'some_location',
+                                        callback_metadata: 'some_callback_metadata',
+                                        template_id:)
+        end
+
+        it 'instantiates CallbackProcessor with notification and params' do
+          callback_processor = VANotify::CallbackProcessor.new(notification, {})
+          allow(callback_processor).to receive(:call)
+          allow(VANotify::CallbackProcessor).to receive(:new).and_return(callback_processor)
 
           post(callback_route,
                params: callback_params.to_json,
                headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
 
-          expect(Rails.logger).to have_received(:info).with(
-            "va_notify callbacks - Updating notification: #{notification.id}",
-            {
-              notification_id: notification.id,
-              source_location: 'some_location',
-              template_id:,
-              callback_metadata: 'some_callback_metadata',
-              status_reason: '', status: 'delivered'
-            }
+          expect(VANotify::CallbackProcessor).to have_received(:new).with(
+            notification,
+            hash_including('status' => 'delivered', 'notification_type' => 'email')
           )
-          expect(response.body).to include('success')
-          notification.reload
-          expect(notification.status).to eq('delivered')
+          expect(callback_processor).to have_received(:call)
         end
       end
 
       context 'with missing notification' do
+        before do
+          allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_package_params_cache_key)
+          allow(VANotify::NotificationLookupJob).to receive(:perform_in)
+        end
+
         it 'logs info and enqueues retry job' do
           allow(Rails.logger).to receive(:info)
-          allow(VANotify::NotificationLookupJob).to receive(:perform_in)
 
           post(callback_route,
                params: callback_params.to_json,
                headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
 
           expect(Rails.logger).to have_received(:info).with(
-            "va_notify callbacks - Received update for unknown notification #{notification_id}\n\n" \
-            '        , enqueuing retry job'
-          )
-
-          expect(VANotify::NotificationLookupJob).to have_received(:perform_in).with(
-            5.seconds,
-            notification_id,
-            hash_including(
-              'status' => 'delivered',
-              'notification_type' => 'email',
-              'to' => 'user@example.com',
-              'status_reason' => ''
-            )
+            "va_notify callbacks - Received update for unknown notification #{notification_id}, enqueuing retry job"
           )
 
           expect(response.body).to include('success')
         end
-      end
 
-      context 'with valid token' do
-        it 'returns http success' do
+        it 'stores notification params in AttrPackage with 1 day TTL' do
           post(callback_route,
                params: callback_params.to_json,
                headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to include('success')
+
+          expect(Sidekiq::AttrPackage).to have_received(:create).with(
+            expires_in: 1.day,
+            status: 'delivered',
+            notification_type: 'email',
+            to: 'user@example.com',
+            status_reason: ''
+          )
+        end
+
+        it 'passes cache key to NotificationLookupJob' do
+          post(callback_route,
+               params: callback_params.to_json,
+               headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
+
+          expect(VANotify::NotificationLookupJob).to have_received(:perform_in).with(
+            5.seconds,
+            notification_id,
+            attr_package_params_cache_key
+          )
         end
       end
     end

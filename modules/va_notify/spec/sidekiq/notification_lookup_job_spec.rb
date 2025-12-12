@@ -2,11 +2,14 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'sidekiq/attr_package'
 require 'va_notify/default_callback'
+require 'va_notify/callback_processor'
 
 RSpec.describe VANotify::NotificationLookupJob, type: :worker do
   let(:notification_id) { SecureRandom.uuid }
   let(:template_id) { SecureRandom.uuid }
+  let(:attr_package_params_cache_key) { SecureRandom.hex(32) }
   let(:notification_params) do
     {
       'status' => 'delivered',
@@ -19,9 +22,73 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
 
   before do
     allow(StatsD).to receive(:increment)
+    allow(Sidekiq::AttrPackage).to receive(:find).with(attr_package_params_cache_key).and_return(notification_params)
+    allow(Sidekiq::AttrPackage).to receive(:delete)
   end
 
   describe '#perform' do
+    context 'when retrieving params from AttrPackage' do
+      let!(:notification) do
+        VANotify::Notification.create(
+          notification_id:,
+          template_id:,
+          source_location: 'original_location',
+          callback_metadata: 'some_metadata'
+        )
+      end
+
+      it 'retrieves notification params from Sidekiq::AttrPackage' do
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+
+        expect(Sidekiq::AttrPackage).to have_received(:find).with(attr_package_params_cache_key)
+      end
+
+      it 'updates the notification with retrieved params' do
+        expect(notification.status).to be_nil
+
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+
+        notification.reload
+        expect(notification.status).to eq('delivered')
+        expect(notification.source_location).to eq('some_location')
+      end
+    end
+
+    context 'when AttrPackage.find returns nil' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_package_params_cache_key).and_return(nil)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs an error about missing cached params' do
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'va_notify notification_lookup_job - Cached params not found for cache key',
+          { notification_id:, attr_package_params_cache_key: }
+        )
+      end
+
+      it 'returns early without processing' do
+        expect(VANotify::Notification).not_to receive(:find_by)
+
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+      end
+
+      it 'does not increment success or not_found metrics' do
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+
+        expect(StatsD).not_to have_received(:increment).with('sidekiq.jobs.va_notify_notification_lookup_job.success')
+        expect(StatsD).not_to have_received(:increment).with('sidekiq.jobs.va_notify_notification_lookup_job.not_found')
+      end
+
+      it 'increments cache_miss metric' do
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+
+        expect(StatsD).to have_received(:increment).with('sidekiq.jobs.va_notify_notification_lookup_job.cached_params_not_found')
+      end
+    end
+
     context 'when notification is found' do
       let!(:notification) do
         VANotify::Notification.create(
@@ -32,62 +99,69 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
         )
       end
 
-      it 'updates the notification' do
+      it 'instantiates CallbackProcessor with notification and params' do
+        callback_processor = VANotify::CallbackProcessor.new(notification, {})
+        allow(callback_processor).to receive(:call)
+        allow(VANotify::CallbackProcessor).to receive(:new).and_return(callback_processor)
+
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+
+        expect(VANotify::CallbackProcessor).to have_received(:new).with(
+          notification,
+          hash_including('status' => 'delivered', 'notification_type' => 'email')
+        )
+        expect(callback_processor).to have_received(:call)
+      end
+
+      it 'updates the notification via CallbackProcessor' do
         expect(notification.status).to be_nil
 
-        described_class.new.perform(notification_id, notification_params)
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
 
         notification.reload
         expect(notification.status).to eq('delivered')
         expect(notification.source_location).to eq('some_location')
       end
 
-      it 'logs success' do
-        allow(Rails.logger).to receive(:info)
-
-        described_class.new.perform(notification_id, notification_params)
-
-        expect(Rails.logger).to have_received(:info).with(
-          "va_notify notification_lookup_job - Found and updated notification: #{notification.id}", {
-            notification_id: notification.id,
-            source_location: 'some_location',
-            template_id:,
-            callback_metadata: 'some_metadata',
-            status: 'delivered',
-            status_reason: ''
-          }
-        )
-      end
-
       it 'increments success metric' do
-        described_class.new.perform(notification_id, notification_params)
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
 
         expect(StatsD).to have_received(:increment).with('sidekiq.jobs.va_notify_notification_lookup_job.success')
+      end
+
+      it 'deletes the cache key after successful processing' do
+        described_class.new.perform(notification_id, attr_package_params_cache_key)
+
+        expect(Sidekiq::AttrPackage).to have_received(:delete).with(attr_package_params_cache_key)
       end
     end
 
     context 'when notification is not found' do
-      it 'logs a warning' do
-        allow(Rails.logger).to receive(:warn)
-
-        described_class.new.perform(notification_id, notification_params)
-
-        expect(Rails.logger).to have_received(:warn).with(
-          "va_notify notification_lookup_job - Notification still not found: #{notification_id}"
-        )
-      end
-
-      it 'increments not_found metric' do
-        described_class.new.perform(notification_id, notification_params)
-
-        expect(StatsD).to have_received(:increment).with('sidekiq.jobs.va_notify_notification_lookup_job.not_found')
+      it 'raises an error to trigger Sidekiq retry' do
+        expect do
+          described_class.new.perform(notification_id, attr_package_params_cache_key)
+        end.to raise_error(VANotify::NotificationLookupJob::NotificationNotFound)
       end
 
       it 'does not call callbacks' do
         expect(VANotify::DefaultCallback).not_to receive(:new)
         expect(VANotify::CustomCallback).not_to receive(:new)
 
-        described_class.new.perform(notification_id, notification_params)
+        begin
+          described_class.new.perform(notification_id, attr_package_params_cache_key)
+        rescue VANotify::NotificationLookupJob::NotificationNotFound
+          # Expected
+        end
+      end
+
+      it 'does not delete the cache key' do
+        expect(Sidekiq::AttrPackage).not_to receive(:delete)
+
+        begin
+          described_class.new.perform(notification_id, attr_package_params_cache_key)
+        rescue VANotify::NotificationLookupJob::NotificationNotFound
+          # Expected
+        end
       end
     end
   end
@@ -95,26 +169,31 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
   describe 'when job has failed' do
     let(:error) { RuntimeError.new('an error occurred!') }
 
-    context 'without notification_type or status' do
+    context 'when cached params are not found' do
       let(:msg) do
         {
           'jid' => 123,
           'class' => described_class.to_s,
-          'error_class' => 'ActiveRecord::RecordNotFound',
-          'error_message' => 'Not found',
-          'args' => [notification_id, {}]
+          'error_class' => 'VANotify::NotificationLookupJob::NotificationNotFound',
+          'error_message' => "Notification #{notification_id} not found",
+          'args' => [notification_id, attr_package_params_cache_key]
         }
       end
 
-      it 'logs error with context' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_package_params_cache_key).and_return(nil)
+      end
+
+      it 'logs error with minimal context' do
         expect(Rails.logger).to receive(:error).with(
           'VANotify::NotificationLookupJob retries exhausted - notification not found',
           {
             job_id: 123,
             job_class: described_class.to_s,
-            error_class: 'ActiveRecord::RecordNotFound',
-            error_message: 'Not found',
-            notification_id:
+            error_class: 'VANotify::NotificationLookupJob::NotificationNotFound',
+            error_message: "Notification #{notification_id} not found",
+            notification_id:,
+            attr_package_params_cache_key:
           }
         )
 
@@ -126,6 +205,7 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
           'sidekiq.jobs.va_notify/notification_lookup_job.retries_exhausted',
           tags: [
             "notification_id:#{notification_id}",
+            "attr_package_params_cache_key:#{attr_package_params_cache_key}",
             'notification_type:',
             'status:'
           ]
@@ -135,26 +215,40 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
       end
     end
 
-    context 'with notification_type and status' do
+    context 'when cached params are found' do
       let(:msg) do
         {
           'jid' => 'job123',
           'class' => 'VANotify::NotificationLookupJob',
-          'error_class' => 'ActiveRecord::RecordNotFound',
-          'error_message' => 'Not found',
-          'args' => [notification_id, notification_params]
+          'error_class' => 'VANotify::NotificationLookupJob::NotificationNotFound',
+          'error_message' => "Notification #{notification_id} not found",
+          'args' => [notification_id, attr_package_params_cache_key]
         }
       end
 
-      it 'logs error with full context' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_package_params_cache_key).and_return(notification_params)
+      end
+
+      it 'retrieves params from AttrPackage' do
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+
+        described_class.sidekiq_retries_exhausted_block.call(msg, error)
+
+        expect(Sidekiq::AttrPackage).to have_received(:find).with(attr_package_params_cache_key)
+      end
+
+      it 'logs error with full context from cached params' do
         expect(Rails.logger).to receive(:error).with(
           'VANotify::NotificationLookupJob retries exhausted - notification not found',
           {
             job_id: 'job123',
             job_class: 'VANotify::NotificationLookupJob',
-            error_class: 'ActiveRecord::RecordNotFound',
-            error_message: 'Not found',
+            error_class: 'VANotify::NotificationLookupJob::NotificationNotFound',
+            error_message: "Notification #{notification_id} not found",
             notification_id:,
+            attr_package_params_cache_key:,
             notification_type: 'email',
             status: 'delivered'
           }
@@ -168,6 +262,7 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
           'sidekiq.jobs.va_notify/notification_lookup_job.retries_exhausted',
           tags: [
             "notification_id:#{notification_id}",
+            "attr_package_params_cache_key:#{attr_package_params_cache_key}",
             'notification_type:email',
             'status:delivered'
           ]

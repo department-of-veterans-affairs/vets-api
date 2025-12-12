@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require 'va_notify/default_callback'
-require 'va_notify/custom_callback'
+require 'sidekiq/attr_package'
+require 'va_notify/callback_processor'
 
 module VANotify
   class NotificationLookupJob
     include Sidekiq::Job
     include Vets::SharedLogging
+
+    class NotificationNotFound < StandardError; end
 
     sidekiq_options retry: 5, unique_for: 30.seconds
 
@@ -18,9 +20,10 @@ module VANotify
       args = msg['args'] || []
 
       notification_id = args[0]
-      notification_params = args[1] || {}
-      notification_type = notification_params['notification_type']
-      status = notification_params['status']
+      attr_package_params_cache_key = args[1]
+      notification_params = Sidekiq::AttrPackage.find(attr_package_params_cache_key) || {}
+      notification_type = notification_params['notification_type'] || notification_params[:notification_type]
+      status = notification_params['status'] || notification_params[:status]
 
       context = {
         job_id:,
@@ -28,6 +31,7 @@ module VANotify
         error_class:,
         error_message:,
         notification_id:,
+        attr_package_params_cache_key:,
         notification_type:,
         status:
       }.compact
@@ -36,6 +40,7 @@ module VANotify
 
       tags = [
         "notification_id:#{notification_id}",
+        "attr_package_params_cache_key:#{attr_package_params_cache_key}",
         "notification_type:#{notification_type}",
         "status:#{status}"
       ]
@@ -43,28 +48,27 @@ module VANotify
       StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted", tags:)
     end
 
-    def perform(notification_id, notification_params_hash)
+    def perform(notification_id, attr_package_params_cache_key)
+      notification_params_hash = Sidekiq::AttrPackage.find(attr_package_params_cache_key)
+
+      unless notification_params_hash
+        Rails.logger.error(
+          'va_notify notification_lookup_job - Cached params not found for cache key',
+          { notification_id:, attr_package_params_cache_key: }
+        )
+        StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.cached_params_not_found')
+        return
+      end
+
       notification = VANotify::Notification.find_by(notification_id:)
 
       if notification
-        notification.update(notification_params_hash)
+        VANotify::CallbackProcessor.new(notification, notification_params_hash).call
 
-        Rails.logger.info("va_notify notification_lookup_job - Found and updated notification: #{notification.id}", {
-                            notification_id: notification.id,
-                            source_location: notification.source_location,
-                            template_id: notification.template_id,
-                            callback_metadata: notification.callback_metadata,
-                            status: notification.status,
-                            status_reason: notification.status_reason
-                          })
-
-        VANotify::DefaultCallback.new(notification).call
-        VANotify::CustomCallback.new(notification_params_hash.merge(id: notification_id)).call
-
+        Sidekiq::AttrPackage.delete(attr_package_params_cache_key)
         StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.success')
       else
-        Rails.logger.warn("va_notify notification_lookup_job - Notification still not found: #{notification_id}")
-        StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.not_found')
+        raise NotificationNotFound, "Notification #{notification_id} not found"
       end
     end
   end
