@@ -204,7 +204,7 @@ module BenefitsClaims
     ].freeze
   end
 
-  FIRST_TO_THIRD_PARTY_REQUESTS = [
+  FIRST_TO_THIRD_PARTY_EVIDENCE_REQUESTS = [
     'PMR Pending',
     'Proof of service (DD214, etc.)',
     'NG1 - National Guard Records Request',
