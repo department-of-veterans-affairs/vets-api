@@ -240,14 +240,12 @@ module PdfFill
                                                        fill_options)
         end
       when '22-0839'
-        return PdfFill::Processors::VA220839Processor.new(form_data, self).process
+        return PdfFill::Processors::VA220839Processor.new(form_data, self, file_name_extension).process
       when '22-0976'
-        return PdfFill::Processors::VA220976Processor.new(form_data, self).process
+        return PdfFill::Processors::VA220976Processor.new(form_data, self, file_name_extension).process
       when '22-8794'
-        return PdfFill::Processors::VA228794Processor.new(form_data, self).process
+        return PdfFill::Processors::VA228794Processor.new(form_data, self, file_name_extension).process
       end
-
-      # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
