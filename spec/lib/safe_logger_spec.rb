@@ -18,7 +18,9 @@ RSpec.describe SafeLogger do
         end
 
         it 'accepts an allowlist parameter' do
-          expect { SafeLogger.public_send(level, 'test message', { email: 'test@example.com' }, allowlist: [:email]) }.not_to raise_error
+          expect do
+            SafeLogger.public_send(level, 'test message', { email: 'test@example.com' }, allowlist: [:email])
+          end.not_to raise_error
         end
       end
     end
@@ -36,7 +38,7 @@ RSpec.describe SafeLogger do
     end
 
     it 'allows specified keys when allowlist is provided' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |_message, payload|
         expect(payload[:ssn]).to eq('[FILTERED]')
         expect(payload[:email]).to eq('user@example.com')
       end
@@ -45,17 +47,18 @@ RSpec.describe SafeLogger do
     end
 
     it 'allows multiple keys in allowlist' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |_message, payload|
         expect(payload[:ssn]).to eq('[FILTERED]')
         expect(payload[:email]).to eq('user@example.com')
         expect(payload[:phone]).to eq('555-1234')
       end
 
-      SafeLogger.info('test', { ssn: '123-45-6789', email: 'user@example.com', phone: '555-1234' }, allowlist: %i[email phone])
+      SafeLogger.info('test', { ssn: '123-45-6789', email: 'user@example.com', phone: '555-1234' },
+                      allowlist: %i[email phone])
     end
 
     it 'accepts string keys in allowlist' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |_message, payload|
         expect(payload[:email]).to eq('user@example.com')
       end
 
@@ -68,7 +71,7 @@ RSpec.describe SafeLogger do
     end
 
     it 'respects global ALLOWLIST for keys' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |_message, payload|
         expect(payload[:id]).to eq(123)
         expect(payload[:controller]).to eq('test')
         expect(payload[:ssn]).to eq('[FILTERED]')
@@ -80,7 +83,7 @@ RSpec.describe SafeLogger do
 
   describe 'nested data structures' do
     it 'filters nested hashes' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |_message, payload|
         expect(payload[:user][:email]).to eq('user@example.com')
         expect(payload[:user][:ssn]).to eq('[FILTERED]')
       end
@@ -89,7 +92,7 @@ RSpec.describe SafeLogger do
     end
 
     it 'filters arrays of hashes' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |_message, payload|
         expect(payload[:users][0][:email]).to eq('user1@example.com')
         expect(payload[:users][0][:ssn]).to eq('[FILTERED]')
         expect(payload[:users][1][:email]).to eq('user2@example.com')
@@ -107,7 +110,7 @@ RSpec.describe SafeLogger do
 
   describe 'message string filtering' do
     it 'filters object inspect strings with attr: value pattern' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |message, _payload|
         expect(message).to include('id: 123')
         expect(message).to include('ssn: [FILTERED]')
         expect(message).to include('email: "user@example.com"')
@@ -117,7 +120,7 @@ RSpec.describe SafeLogger do
     end
 
     it 'filters object inspect strings with @attr=value pattern' do
-      expect(Rails.logger).to receive(:info) do |message, payload|
+      expect(Rails.logger).to receive(:info) do |message, _payload|
         expect(message).to include('@ssn=[FILTERED]')
         expect(message).to include('@email="user@example.com"')
       end
