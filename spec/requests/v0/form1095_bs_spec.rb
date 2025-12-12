@@ -173,6 +173,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       context 'when user was not enrolled during allowed date range' do
         # per the vcr cassette, user was not enrolled in 2023
         before { Timecop.freeze(Time.zone.parse('2024-03-05T08:00:00Z')) }
+        after { Timecop.return }
 
         it 'returns an empty array' do
           VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
