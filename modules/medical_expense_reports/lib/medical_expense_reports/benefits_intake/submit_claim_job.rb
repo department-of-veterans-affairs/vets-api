@@ -160,7 +160,6 @@ module MedicalExpenseReports
       #
       # @param form [Hash]
       # @return [Hash]
-      # rubocop:disable Metrics/MethodLength
       def build_ibm_payload(form)
         claimant_name = build_name(form['claimantFullName'])
         veteran_name = build_name(form['veteranFullName'])
@@ -168,6 +167,23 @@ module MedicalExpenseReports
         reporting_period = form['reportingPeriod'] || {}
         use_va_rcvd_date = use_va_rcvd_date?(form)
 
+        build_claimant_fields(form, claimant_name, primary_phone)
+          .merge(build_veteran_fields(veteran_name, form['veteranSocialSecurityNumber']))
+          .merge(build_reporting_fields(form, reporting_period, use_va_rcvd_date))
+          .merge(build_in_home_fields(form))
+          .merge(build_medical_expense_fields(form))
+          .merge(build_travel_fields(form))
+          .merge(build_witness_fields)
+      end
+
+      ##
+      # Build the claimant-specific IBM entries (name, address, and contact data).
+      #
+      # @param form [Hash]
+      # @param claimant_name [Hash]
+      # @param primary_phone [Hash]
+      # @return [Hash]
+      def build_claimant_fields(form, claimant_name, primary_phone)
         {
           'CLAIMANT_FIRST_NAME' => claimant_name[:first],
           'CLAIMANT_LAST_NAME' => claimant_name[:last],
@@ -178,24 +194,43 @@ module MedicalExpenseReports
           'CLAIMANT_SIGNATURE_X' => nil,
           'CL_EMAIL' => form['claimantEmail'] || form['email'],
           'CL_INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
-          'CL_PHONE_NUMBER' => claimant_phone_number(form),
+          'CL_PHONE_NUMBER' => claimant_phone_number(form)
+        }
+      end
+
+      ##
+      # Build the veteran-specific IBM entries (name and SSN).
+      #
+      # @param veteran_name [Hash]
+      # @param ssn [String]
+      # @return [Hash]
+      def build_veteran_fields(veteran_name, ssn)
+        {
+          'VETERAN_FIRST_NAME' => veteran_name[:first],
+          'VETERAN_LAST_NAME' => veteran_name[:last],
+          'VETERAN_MIDDLE_INITIAL' => veteran_name[:middle_initial],
+          'VETERAN_NAME' => veteran_name[:full],
+          'VETERAN_SSN' => ssn
+        }
+      end
+
+      ##
+      # Build the date- and reporting-related IBM entries.
+      #
+      # @param form [Hash]
+      # @param reporting_period [Hash]
+      # @param use_va_rcvd_date [Boolean]
+      # @return [Hash]
+      def build_reporting_fields(form, reporting_period, use_va_rcvd_date)
+        {
           'DATE_SIGNED' => claim_date_signed(form),
           'FORM_TYPE' => MedicalExpenseReports::FORM_TYPE_LABEL,
           'MED_EXPENSES_FROM_1' => use_va_rcvd_date ? nil : format_date(reporting_period['from']),
           'MED_EXPENSES_TO_1' => use_va_rcvd_date ? nil : format_date(reporting_period['to']),
           'USE_VA_RCVD_DATE' => use_va_rcvd_date,
-          'VA_FILE_NUMBER' => form['vaFileNumber'],
-          'VETERAN_FIRST_NAME' => veteran_name[:first],
-          'VETERAN_LAST_NAME' => veteran_name[:last],
-          'VETERAN_MIDDLE_INITIAL' => veteran_name[:middle_initial],
-          'VETERAN_NAME' => veteran_name[:full],
-          'VETERAN_SSN' => form['veteranSocialSecurityNumber']
-        }.merge(build_in_home_fields(form))
-          .merge(build_medical_expense_fields(form))
-          .merge(build_travel_fields(form))
-          .merge(build_witness_fields)
+          'VA_FILE_NUMBER' => form['vaFileNumber']
+        }
       end
-      # rubocop:enable Metrics/MethodLength
 
       # Normalize a name hash into first, middle/initial, and last strings.
       #
