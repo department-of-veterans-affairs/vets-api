@@ -69,9 +69,16 @@ module MedicalExpenseReports
       end
 
       private
+      # Number of in-home care rows IBM expects.
       IN_HOME_ROW_COUNT = 8
+
+      # Number of medical expense rows IBM expects.
       MED_EXPENSE_ROW_COUNT = 14
+
+      # Number of travel rows IBM expects.
       TRAVEL_ROW_COUNT = 12
+
+      # Normalize values that represent child/dependent recipients.
       CHILD_RECIPIENTS = %w[CHILD DEPENDENT].freeze
 
       # Instantiate instance variables for _this_ job
@@ -119,6 +126,10 @@ module MedicalExpenseReports
       # @see BenefitsIntake::Metadata
       #
       # @return [Hash]
+      # Generate metadata for Benefits Intake upload, deriving veteran and claimant details.
+      #
+      # @param form [Hash]
+      # @return [Hash]
       def generate_metadata(form)
 
         # also validates/maniuplates the metadata
@@ -133,6 +144,10 @@ module MedicalExpenseReports
         )
       end
 
+      # Build the IBM data dictionary payload from the parsed claim form.
+      #
+      # @param form [Hash]
+      # @return [Hash]
       def build_ibm_payload(form)
         claimant_name = build_name(form['claimantFullName'])
         veteran_name = build_name(form['veteranFullName'])
@@ -168,6 +183,10 @@ module MedicalExpenseReports
          .merge(build_witness_fields)
       end
 
+      # Normalize a name hash into first, middle/initial, and last strings.
+      #
+      # @param name_hash [Hash, nil]
+      # @return [Hash]
       def build_name(name_hash)
         first = name_hash&.fetch('first', nil)
         middle = name_hash&.fetch('middle', nil)
@@ -182,6 +201,10 @@ module MedicalExpenseReports
         }
       end
 
+      # Flatten an address hash into a single-line string.
+      #
+      # @param address [Hash, nil]
+      # @return [String, nil]
       def build_address_block(address)
         return unless address
 
@@ -195,11 +218,19 @@ module MedicalExpenseReports
         lines.reject(&:blank?).join(' ').presence
       end
 
+      # Build the claimant address block, falling back to veteran address when needed.
+      #
+      # @param form [Hash]
+      # @return [String, nil]
       def claimant_address_block(form)
         address = form['claimantAddress'] || fallback_claimant_address(form)
         build_address_block(address)
       end
 
+      # Provide a fallback claimant address using the veteran address data.
+      #
+      # @param form [Hash]
+      # @return [Hash, nil]
       def fallback_claimant_address(form)
         veteran_address = form['veteranAddress']
         return unless veteran_address
@@ -214,12 +245,20 @@ module MedicalExpenseReports
         }
       end
 
+      # Format a US phone number as digits only.
+      #
+      # @param primary_phone [Hash, nil]
+      # @return [String, nil]
       def us_phone_number(primary_phone)
         return unless primary_phone['countryCode']&.casecmp?('US')
 
         format_phone(primary_phone['contact'])
       end
 
+      # Return the claimant phone number when the country is US.
+      #
+      # @param form [Hash]
+      # @return [String, nil]
       def claimant_phone_number(form)
         primary_phone = form['primaryPhone'] || {}
         number = format_phone(primary_phone['contact'])
@@ -228,6 +267,11 @@ module MedicalExpenseReports
         primary_phone['countryCode']&.casecmp?('US') ? number : nil
       end
 
+      # Determine the international phone number field from either explicit internationalPhone or non-US contact.
+      #
+      # @param form [Hash]
+      # @param primary_phone [Hash]
+      # @return [String, nil]
       def international_phone_number(form, primary_phone)
         return format_phone(form['internationalPhone']) if form['internationalPhone'].present?
         return format_phone(primary_phone['contact']) unless primary_phone['countryCode']&.casecmp?('US')
@@ -235,10 +279,18 @@ module MedicalExpenseReports
         nil
       end
 
+      # Strip a phone string down to digits.
+      #
+      # @param value [String, nil]
+      # @return [String, nil]
       def format_phone(value)
         sanitize_phone(value)
       end
 
+      # Format the signature date for IBM consumption.
+      #
+      # @param form [Hash]
+      # @return [String, nil]
       def claim_date_signed(form)
         format_date(form['dateSigned'] || form['signatureDate'])
       end
@@ -253,6 +305,10 @@ module MedicalExpenseReports
         form['firstTimeReporting'].present? ? form['firstTimeReporting'] : false
       end
 
+      # Build the IN_HM_* entries from the careExpenses section.
+      #
+      # @param form [Hash]
+      # @return [Hash]
       def build_in_home_fields(form)
         care_entries = form['careExpenses'] || []
         (1..IN_HOME_ROW_COUNT).each_with_object({}) do |index, hash|
@@ -271,6 +327,10 @@ module MedicalExpenseReports
         end
       end
 
+      # Build the MED_EXP_* entries from medicalExpenses.
+      #
+      # @param form [Hash]
+      # @return [Hash]
       def build_medical_expense_fields(form)
         entries = form['medicalExpenses'] || []
         (1..MED_EXPENSE_ROW_COUNT).each_with_object({}) do |index, hash|
@@ -288,6 +348,10 @@ module MedicalExpenseReports
         end
       end
 
+      # Build the travel-related IBM fields from mileageExpenses.
+      #
+      # @param form [Hash]
+      # @return [Hash]
       def build_travel_fields(form)
         entries = form['mileageExpenses'] || []
         (1..TRAVEL_ROW_COUNT).each_with_object({}) do |index, hash|
@@ -305,6 +369,9 @@ module MedicalExpenseReports
         end
       end
 
+      # Define placeholders for the witness fields in the IBM payload.
+      #
+      # @return [Hash]
       def build_witness_fields
         {
           'WITNESS_1_NAME' => nil,
@@ -316,6 +383,11 @@ module MedicalExpenseReports
         }
       end
 
+      # Evaluate whether a care or medical entry matches the given recipient types.
+      #
+      # @param entry [Hash]
+      # @param types [Array<String>]
+      # @return [Boolean, nil]
       def recipient_flag(entry, types)
         return nil unless entry
 
@@ -325,12 +397,22 @@ module MedicalExpenseReports
         types.include?(normalized)
       end
 
+      # Determine whether a travel entry matches the given traveler type.
+      #
+      # @param traveler [String, nil]
+      # @param type [String]
+      # @param entry [Hash]
+      # @return [Boolean, nil]
       def traveler_flag(traveler, type, entry)
         return nil unless entry
 
         traveler == type
       end
 
+      # Return the child/other name when applicable.
+      #
+      # @param entry [Hash]
+      # @return [String, nil]
       def child_other_name(entry)
         recipient = normalized_recipient(entry)
         return nil unless recipient && (CHILD_RECIPIENTS.include?(recipient) || recipient == 'OTHER')
@@ -338,18 +420,31 @@ module MedicalExpenseReports
         entry&.dig('recipientName')
       end
 
+      # Determine the location string for travel rows.
+      #
+      # @param entry [Hash]
+      # @return [String, nil]
       def travel_location(entry)
         return nil unless entry
 
         entry['travelLocationOther'].presence || entry['travelLocation']
       end
 
+      # Return the traveler-specific name for child or other travelers.
+      #
+      # @param entry [Hash]
+      # @param traveler [String, nil]
+      # @return [String, nil]
       def traveler_name_child_other(entry, traveler)
         return nil unless entry && %w[CHILD OTHER].include?(traveler)
 
         entry['travelerName']
       end
 
+      # Normalize recipient values (e.g., DEPENDENT -> CHILD).
+      #
+      # @param entry [Hash]
+      # @return [String, nil]
       def normalized_recipient(entry)
         return unless entry
 
@@ -360,6 +455,10 @@ module MedicalExpenseReports
         normalized == 'DEPENDENT' ? 'CHILD' : normalized
       end
 
+      # Normalize traveler values (e.g., DEPENDENT -> CHILD).
+      #
+      # @param entry [Hash]
+      # @return [String, nil]
       def normalized_traveler(entry)
         return unless entry
 
@@ -370,6 +469,11 @@ module MedicalExpenseReports
         normalized == 'DEPENDENT' ? 'CHILD' : normalized
       end
 
+      # Translate a payment frequency into the corresponding IBM checkboxes.
+      #
+      # @param frequency [String, nil]
+      # @param index [Integer]
+      # @return [Hash]
       def payment_frequency_fields(frequency, index)
         frequency = frequency&.to_s&.strip&.upcase
         {
