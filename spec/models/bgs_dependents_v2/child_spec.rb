@@ -35,10 +35,6 @@ RSpec.describe BGSDependentsV2::Child do
   let(:multiple_children_v2) { build(:dependency_claim_v2) }
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#format_info' do
       let(:format_info_output) do
         {

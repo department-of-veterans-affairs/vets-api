@@ -51,10 +51,6 @@ RSpec.describe BGSDependents::Veteran do
   end
 
   context 'with va_dependents_v2 off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
-
     describe '#formatted_params' do
       it 'formats params given a veteran that is separated' do
         expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
@@ -85,10 +81,6 @@ RSpec.describe BGSDependents::Veteran do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#formatted_params' do
       it 'formats params given a veteran that is separated' do
         expect(vet.formatted_params(all_flows_payload_v2)).to include(formatted_params_result_v2)

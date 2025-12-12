@@ -26,10 +26,6 @@ RSpec.describe BGSDependentsV2::ChildStoppedAttendingSchool do
   end
 
   context 'va_dependents_v2 is on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#format_info' do
       it 'formats child stopped attending school params for submission' do
         formatted_info = described_class.new(child_info).format_info

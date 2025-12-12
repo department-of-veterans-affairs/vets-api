@@ -40,10 +40,6 @@ RSpec.describe BGSDependents::Child do
   end
 
   context 'with va_dependents_v2 off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
-
     describe '#format_info' do
       let(:format_info_output) do
         {
