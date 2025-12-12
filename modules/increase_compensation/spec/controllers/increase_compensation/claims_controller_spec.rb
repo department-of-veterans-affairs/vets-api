@@ -82,7 +82,11 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
     it 'returns a serialized claim' do
       claim = build(:increase_compensation_claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find_by!).and_return(claim)
-      allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_URL)
+      mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
+      allow_any_instance_of(IncreaseCompensation::V0::ClaimsController)
+        .to receive(:get_last_form_submission_attempt).and_return(mock_attempt)
+      allow_any_instance_of(IncreaseCompensation::V0::ClaimsController)
+        .to receive(:get_signed_url).and_return(MOCK_URL)
 
       get '/increase_compensation/v0/claims/:id', params: { id: 'increase_compensation_claim' }
       attributes = JSON.parse(response.body)['data']['attributes']

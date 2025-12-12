@@ -39,7 +39,6 @@ module IncreaseCompensation
     #
     # @return [String] the claimant email
     def email
-      # TODO: format parsed_form['emailAddress'] for this method
       parsed_form['email']
     end
 

@@ -27,15 +27,18 @@ module IncreaseCompensation
         IncreaseCompensation::SavedClaim
       end
 
+      def form_class
+        IncreaseCompensation::PdfFill::Va218940v1
+      end
+
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
 
-        # form_submission_attempt = get_last_form_submission_attempt(claim.guid)
-        # pdf_url = get_signed_url(claim, form_submission_attempt.created_at.to_date)
-        # render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
+        form_submission_attempt = get_last_form_submission_attempt(claim.guid)
+        pdf_url = get_signed_url(claim, form_submission_attempt.created_at.to_date)
 
-        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -63,20 +66,15 @@ module IncreaseCompensation
         process_attachments(in_progress_form, claim)
 
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
-
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
 
-        form_submission = FormSubmission.create!(
-          form_type: claim.form_id,
-          saved_claim: claim
-        )
+        form_submission = FormSubmission.create!(form_type: claim.form_id, saved_claim: claim)
         form_submission_attempt = FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
         pdf_url = upload_to_s3(claim, form_submission_attempt.created_at.to_date)
 
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
-        # render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
@@ -149,7 +147,8 @@ module IncreaseCompensation
         directory = dated_directory_name(claim.form_id, created_at)
         config = IncreaseCompensation::S3Config.new
         s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
-        s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}.pdf")
+        final = overflow?(claim, created_at)
+        s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf")
       end
 
       # the last submission attempt is used to construct the S3 file path
@@ -157,10 +156,19 @@ module IncreaseCompensation
         FormSubmissionAttempt.where(benefits_intake_uuid:).order(:created_at).last
       end
 
-      # # returns the URL to the PDF in S3 so the person completing the forms can download them
-      # def pdf_url(guid)
-      #   SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
-      # end
+      # returns a boolean to determine if a file has "_final" in the filename
+      def overflow?(claim, created_at)
+        merged_form_data = form_class.new(claim.parsed_form).merge_fields({})
+        hash_converter = ::PdfFill::Filler.make_hash_converter(
+          claim.form_id,
+          form_class,
+          created_at,
+          {}
+        )
+        hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
+        overflow = hash_converter.extras_generator
+        overflow.text? ? '_final' : ''
+      end
 
       # returns e.g. `12.11.25-Form21P-8416`
       def dated_directory_name(form_number, date = Time.now.utc.to_date)
