@@ -75,12 +75,12 @@ module RepresentationManagement
         address_pou: cleaned['address_pou'] || address_hash['address_pou'] || 'RESIDENCE',
         address_line1: cleaned['address_line1'],
         address_line2: cleaned['address_line2'],
-        address_line3: cleaned['address_line3'] || address_hash['address_line3'],
-        city: cleaned['city'] || address_hash['city'],
-        state_code: cleaned['state_code'] || address_hash['state_code'],
-        zip_code: cleaned['zip_code'] || address_hash['zip_code'],
-        zip_code_suffix: cleaned['zip_code4'] || address_hash['zip_code4'],
-        country_code_iso3: cleaned['country_code_iso3'] || address_hash['country_code_iso3']
+        address_line3: cleaned['address_line3'],
+        city: cleaned['city'],
+        state_code: cleaned['state_code'],
+        zip_code: cleaned['zip_code'],
+        zip_code_suffix: cleaned['zip_code4'],
+        country_code_iso3: cleaned['country_code_iso3']
       )
     end
 
@@ -128,8 +128,9 @@ module RepresentationManagement
     # Implements retry logic for addresses that return zero coordinates or invalid responses
     #
     # When address validation returns (0,0) coordinates or no usable candidates, this method retries validation
-    # using each address line individually. This handles cases where multiple address lines are present and
-    # some cannot be geocoded (such as P.O. Boxes mixed with street addresses).
+    # using each address line individually. This handles cases where multiple address
+    # lines are present and some cannot be geocoded (such as P.O. Boxes mixed with
+    # street addresses).
     #
     # Retry strategy:
     # 1. First retry: Use only address_line1 from original
@@ -149,7 +150,8 @@ module RepresentationManagement
         begin
           api_response = modified_validation(address_hash, attempt_number)
         rescue Common::Exceptions::BackendServiceException => e
-          Rails.logger.error("Address validation retry attempt #{attempt_number} failed: #{e.message}")
+          Rails.logger.error("Address validation retry attempt #{attempt_number}
+            (using #{line_key}) failed: #{e.message} [retry strategy: single address line]")
         end
       end
 

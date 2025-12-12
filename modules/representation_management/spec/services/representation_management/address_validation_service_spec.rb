@@ -453,6 +453,57 @@ RSpec.describe RepresentationManagement::AddressValidationService do
       end
     end
 
+    context 'when a retry attempt raises BackendServiceException' do
+      let(:po_box_address) do
+        {
+          'address_line1' => '123 Main St',
+          'address_line2' => 'PO Box 456',
+          'address_line3' => 'Suite 789',
+          'city' => 'Brooklyn',
+          'state_code' => 'NY',
+          'zip_code' => '11249'
+        }
+      end
+
+      let(:backend_error) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          { detail: { 'messages' => [{ 'code' => 'ADDRVAL999', 'text' => 'Some backend error' }] } },
+          500,
+          nil
+        )
+      end
+
+      before do
+        call_count = 0
+
+        # Stub the private helper so we can simulate a failure on the first attempt
+        allow(service_with_mock).to receive(:modified_validation) do |_address_hash, _attempt_number|
+          call_count += 1
+
+          if call_count == 1
+            # First retry blows up
+            raise backend_error
+          else
+            # Second retry succeeds
+            valid_api_response
+          end
+        end
+      end
+
+      it 'logs the error and continues to subsequent retry attempts' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_matching(/Address validation retry attempt 1[\s\S]*failed:/)
+        )
+        result = service_with_mock.retry_validation(po_box_address)
+
+        # We should have tried again after the exception
+        expect(service_with_mock).to have_received(:modified_validation).twice
+        # And ultimately return the successful response
+        expect(result).to eq(valid_api_response)
+      end
+    end
+
     context 'when address_line2 succeeds on second retry' do
       let(:retry_2_response) do
         response = valid_api_response.deep_dup
