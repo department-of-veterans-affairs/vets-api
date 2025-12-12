@@ -40,8 +40,8 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimClaimantRepresentativeS
 
   describe '#benefit_type' do
     it 'returns benefit type' do
-      benefitType = saved_claim_claimant_rep.saved_claim.latest_submission_attempt.benefit_type
-      expect(subject[:benefitType]).to eq benefitType
+      benefit_type = saved_claim_claimant_rep.saved_claim.latest_submission_attempt.benefit_type
+      expect(subject[:benefitType]).to eq benefit_type
     end
   end
 
