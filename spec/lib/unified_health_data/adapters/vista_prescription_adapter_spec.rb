@@ -190,6 +190,38 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       end
     end
 
+    context 'with isRenewable field' do
+      let(:vista_medication_with_renewable) do
+        base_vista_medication.merge('isRenewable' => true)
+      end
+
+      it 'passes through the isRenewable field' do
+        result = subject.parse(vista_medication_with_renewable)
+
+        expect(result.is_renewable).to be true
+      end
+    end
+
+    context 'with isRenewable false' do
+      let(:vista_medication_not_renewable) do
+        base_vista_medication.merge('isRenewable' => false)
+      end
+
+      it 'passes through false value for isRenewable' do
+        result = subject.parse(vista_medication_not_renewable)
+
+        expect(result.is_renewable).to be false
+      end
+    end
+
+    context 'without isRenewable field' do
+      it 'sets is_renewable to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.is_renewable).to be_nil
+      end
+    end
+
     context 'when medication includes RFC1123 date fields' do
       it 'converts them to ISO 8601 strings' do
         result = subject.parse(vista_medication_with_tracking)
