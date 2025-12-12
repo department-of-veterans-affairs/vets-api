@@ -2,10 +2,6 @@
 
 require 'rails_helper'
 require 'dependents_benefits/claim_processor'
-require 'dependents_benefits/sidekiq/bgs/bgs_674_job'
-require 'dependents_benefits/sidekiq/bgs/bgs_686c_job'
-require 'dependents_benefits/sidekiq/claims_evidence/claims_686c_job'
-require 'dependents_benefits/sidekiq/claims_evidence/claims_674_job'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   let(:parent_claim) { create(:dependents_claim) }
@@ -26,9 +22,9 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '.enqueue_submissions' do
     it 'creates processor instance and delegates to instance method' do
-      expect(described_class).to receive(:new).with(parent_claim_id, nil).and_return(processor)
+      expect(described_class).to receive(:new).with(parent_claim_id).and_return(processor)
       expect(processor).to receive(:enqueue_submissions)
-      described_class.enqueue_submissions(parent_claim_id, nil)
+      described_class.enqueue_submissions(parent_claim_id)
     end
   end
 
@@ -89,22 +85,6 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       # Don't create any child claim groups - only parent group exists
       expect { processor.send(:collect_child_claims) }.to raise_error(
         StandardError, "No child claims found for parent claim #{parent_claim_id}"
-      )
-    end
-  end
-
-  describe '#enqueue_686c_submissions and #enqueue_674_submissions' do
-    let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
-
-    it 'tracks enqueued submissions for both form types' do
-      processor.send(:enqueue_686c_submission, form_686_claim)
-      processor.send(:enqueue_674_submission, form_674_claim)
-
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Enqueued 686c submission jobs', 'enqueue_686c', { parent_claim_id:, claim_id: form_686_claim.id }
-      )
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Enqueued 674 submission jobs', 'enqueue_674', { parent_claim_id:, claim_id: form_674_claim.id }
       )
     end
   end
