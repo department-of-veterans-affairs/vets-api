@@ -104,10 +104,6 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
     let(:submission) { create(:lighthouse_submission, saved_claim_id: parent_claim.id) }
     let(:submission_attempt) { create(:lighthouse_submission_attempt, submission:) }
 
-    before do
-      allow(job).to receive_messages(submission:, submission_attempt:)
-    end
-
     context 'when parent group was previously failed' do
       let!(:failed_parent_group) do
         create(:parent_claim_group, status: 'failure', parent_claim:, user_data:)

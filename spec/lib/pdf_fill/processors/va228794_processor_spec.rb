@@ -60,6 +60,7 @@ describe PdfFill::Processors::VA228794Processor do
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
         expect(get_field_value(fields, 'additional_certifying_officials_6_email')).to eq 'john_official6@example.com'
+        expect(get_field_value(fields, 'remarks')).to eq 'See attached page'
       end
     end
   end
