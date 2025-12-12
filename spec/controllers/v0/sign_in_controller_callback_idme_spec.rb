@@ -8,6 +8,13 @@ RSpec.describe V0::SignInController, type: :controller do
 
   let(:csp_type) { SignIn::Constants::Auth::IDME }
   let(:idme_uuid) { 'some-idme-uuid' }
+  let(:ial2_feature_flag_enabled) { false }
+  let(:vsp_environment) { 'staging' }
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:identity_ial2_enforcement).and_return(ial2_feature_flag_enabled)
+    allow(Settings).to receive(:vsp_environment).and_return(vsp_environment)
+  end
 
   describe 'GET callback' do
     context 'when state is a proper, expected JWT' do
@@ -88,6 +95,70 @@ RSpec.describe V0::SignInController, type: :controller do
 
               it 'renders a new state' do
                 expect(subject.body).to match(uplevel_state_value)
+              end
+            end
+
+            context 'when IAL2 feature flag is enabled' do
+              let(:ial2_feature_flag_enabled) { true }
+              let(:vsp_environment) { 'staging' }
+
+              context 'and acr is ial2' do
+                let(:acr) { 'ial2' }
+                let(:credential_ial) { SignIn::Constants::Auth::IAL_TWO }
+                let(:ial) { 2 }
+                let(:client_code) { 'some-client-code' }
+                let(:client_redirect_uri) { client_config.redirect_uri }
+                let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
+                let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+                let(:authentication_time) { 0 }
+                let(:expected_logger_context) do
+                  {
+                    type:,
+                    client_id:,
+                    ial:,
+                    acr:,
+                    icn: mpi_profile.icn,
+                    credential_uuid: idme_uuid,
+                    authentication_time:
+                  }
+                end
+                let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
+
+                before do
+                  allow(SecureRandom).to receive(:uuid).and_return(client_code)
+                  Timecop.freeze
+                end
+
+                after { Timecop.return }
+
+                it 'returns ok status' do
+                  expect(subject).to have_http_status(:ok)
+                end
+
+                it 'renders the oauth_get_form template with meta refresh tag' do
+                  expect(subject.body).to include(meta_refresh_tag)
+                end
+
+                it 'includes expected code param' do
+                  expect(subject.body).to include(client_code)
+                end
+
+                it 'includes expected state param' do
+                  expect(subject.body).to include(client_state)
+                end
+
+                it 'includes expected type param' do
+                  expect(subject.body).to include(type)
+                end
+
+                it 'logs the successful callback' do
+                  expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+                  subject
+                end
+
+                it 'updates StatsD with a callback request success' do
+                  expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
+                end
               end
             end
 
