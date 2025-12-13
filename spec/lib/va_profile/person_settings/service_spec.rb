@@ -9,82 +9,104 @@ RSpec.describe VAProfile::PersonSettings::Service do
   let(:user) { build(:user, :loa3) }
 
   describe '#get_person_options' do
+    # TODO: Replace stubs with VCR cassettes once recording access is available
+    # Cassettes: va_profile/person_settings/get_person_options*
     context 'when successful' do
-      # it 'returns a status of 200' do
-      #   VCR.use_cassette('va_profile/person_settings/get_person_options') do
-      #     response = subject.get_person_options
-      #     expect(response).to be_ok
-      #   end
-      # end
+      let(:mock_response) do
+        double('response',
+               status: 200,
+               body: { personOptions: [{ itemId: 2, optionId: 7 }] })
+      end
 
-      # it 'contains an array of person options' do
-      #   VCR.use_cassette('va_profile/person_settings/get_person_options') do
-      #     response = subject.get_person_options
-      #     expect(response.person_options).to be_an(Array)
-      #     expect(response.person_options).to all(be_a(VAProfile::Models::PersonOptions))
-      #   end
-      # end
+      before do
+        allow_any_instance_of(VAProfile::Service).to receive(:perform)
+          .with(:get, anything)
+          .and_return(mock_response)
+      end
+
+      it 'returns a status of 200' do
+        response = subject.get_person_options
+        expect(response).to be_ok
+      end
+
+      it 'contains an array of person options' do
+        response = subject.get_person_options
+        expect(response.person_options).to be_an(Array)
+      end
     end
 
     context 'when user not found' do
       let(:user) { build(:user, :loa3, vet360_id: 2, icn: 2) } # assumes these IDs do not exist
 
-      # it 'returns a status of 404 and empty person options array' do
-      #   VCR.use_cassette('va_profile/person_settings/get_person_options_404') do
-      #     response = subject.get_person_options
-      #     expect(response).to have_http_status(:not_found)
-      #     expect(response.person_options).to be_empty
-      #   end
-      # end
+      before do
+        allow_any_instance_of(VAProfile::Service).to receive(:perform)
+          .and_raise(Common::Client::Errors::ClientError.new('Not Found', 404))
+      end
 
-      # it 'logs a warning for user not found' do
-      #   VCR.use_cassette('va_profile/person_settings/get_person_options_404') do
-      #     expect(Rails.logger).to receive(:warn).with(
-      #       'User not found in VAProfile', vaprofile_id: user.vet360_id
-      #     )
-      #   end
-      # end
+      it 'returns a status of 404 and empty person options array' do
+        response = subject.get_person_options
+        expect(response.status).to eq(404)
+        expect(response.person_options).to be_empty
+      end
+
+      it 'logs a warning for user not found' do
+        expect(Rails.logger).to receive(:warn).with(
+          'User not found in VAProfile', vaprofile_id: user.vet360_id
+        )
+
+        subject.get_person_options
+      end
     end
 
     context 'when service returns a 500 error code' do
-      let(:user) { build(:user, :loa3, vet360_id: nil, icn: nil) }
+      before do
+        allow_any_instance_of(VAProfile::Service).to receive(:perform)
+          .and_raise(Common::Client::Errors::ClientError.new('Internal Server Error', 500))
+      end
 
-      # it 'raises a BackendServiceException error' do
-      #   VCR.use_cassette('va_profile/person_settings/get_person_options_500') do
-      #     expect { subject.get_person_options }.to raise_error do |e|
-      #       expect(e).to be_a(Common::Exceptions::BackendServiceException)
-      #       expect(e.errors.first.code).to eq('VET360_CORE100')
-      #     end
-      #   end
-      # end
+      it 'raises a BackendServiceException error' do
+        expect { subject.get_person_options }.to raise_error(Common::Exceptions::BackendServiceException)
+      end
     end
   end
 
   describe '#update_person_options' do
+    # TODO: Replace stubs with VCR cassettes once recording access is available
+    # Cassettes: va_profile/person_settings/post_person_options*
     context 'when successful' do
-      # success with no changes detected
-      let(:person_options_data) { { bio: { personOptions: [] } } }
+      let(:person_options_data) { { bio: { personOptions: [] } } } # should return success with no changes detected
+      let(:mock_response) do
+        double('response',
+               status: 200,
+               body: { bio: { personOptions: [] } })
+      end
 
-      # it 'returns a status of 200' do
-      #   VCR.use_cassette('va_profile/person_settings/post_person_options') do
-      #     response = subject.update_person_options(person_options_data)
-      #     expect(response).to be_ok
-      #   end
-      # end
+      before do
+        allow_any_instance_of(VAProfile::Service).to receive(:perform)
+          .with(:post, anything, person_options_data)
+          .and_return(mock_response)
+      end
+
+      it 'returns a status of 200' do
+        response = subject.update_person_options(person_options_data)
+        expect(response).to be_ok
+      end
     end
 
     context 'when missing required fields' do
       let(:person_options_data) { { bio: { personOptions: [{ itemId: 2, optionId: 7 }] } } } # missing source date
 
-      # it 'raises an exception' do
-      #   VCR.use_cassette('va_profile/person_settings/post_person_options_400_missing_fields') do
-      #     expect { subject.update_person_options(person_options_data) }.to raise_error do |e|
-      #       expect(e).to be_a(Common::Exceptions::BackendServiceException)
-      #       expect(e.status_code).to eq(400)
-      #       expect(e.errors.first.code).to eq('VET360_STNG100')
-      #     end
-      #   end
-      # end
+      before do
+        allow_any_instance_of(VAProfile::Service).to receive(:perform)
+          .with(:post, anything, person_options_data)
+          .and_raise(Common::Client::Errors::ClientError.new('Bad Request', 400))
+      end
+
+      it 'raises an exception' do
+        expect { subject.update_person_options(person_options_data) }.to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        end
+      end
     end
   end
 

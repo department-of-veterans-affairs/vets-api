@@ -4,6 +4,8 @@
 # development and not fully integrated, gated behind the profile_health_care_settings_page
 # feature flag via the SchedulingPreferencesController.
 
+require 'va_profile/person_settings/person_options_response'
+
 module VAProfile
   module PersonSettings
     class Service < VAProfile::Service
