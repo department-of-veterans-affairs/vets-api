@@ -22,10 +22,11 @@ env:
 
 jobs:
   backend-approval-check:
+    if: ${{ github.actor != 'github-copilot' }}
     name: Succeed if backend approval is confirmed
     runs-on: ubuntu-latest
     permissions: write-all
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -54,13 +55,13 @@ jobs:
 
           # Fetch changed files (handles pagination automatically)
           CHANGED_FILES=$(gh api "/repos/${{ github.repository }}/pulls/${PR_NUMBER}/files" \
-            --paginate --jq '.[].filename')
+            --paginate --jq '.[] | select(.status != "removed") | .filename')
 
           echo "$CHANGED_FILES" > /tmp/changed_files.txt
           FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-          
+
           echo "file_count=${FILE_COUNT}" >> "$GITHUB_OUTPUT"
-          
+
           echo "PR #${PR_NUMBER} Analysis"
           echo "  Author: $(echo "$PR_DATA" | jq -r '.author')"
           echo "  Draft: $(echo "$PR_DATA" | jq -r '.draft')"
@@ -87,7 +88,7 @@ jobs:
           )
 
           all_files_exempt=true
-          
+
           echo "Analyzing Code Owners"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
@@ -308,7 +309,7 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "[PASS] APPROVAL CHECK PASSED"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          
+
           if [[ "${{ steps.approval_status.outputs.exempt }}" == "true" ]]; then
             echo ""
             echo "PR is exempt from backend approval requirement"
@@ -317,6 +318,6 @@ jobs:
             echo ""
             echo "Backend approval has been confirmed"
           fi
-          
+
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 0
