@@ -8,9 +8,13 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
   let(:current_user) { build(:user, :loa3, icn: '1234567890V123456') }
   let(:provider) { described_class.new(current_user) }
   let(:mock_service) { instance_double(BenefitsClaims::Service) }
+  let(:mock_config) { instance_double(BenefitsClaims::Configuration) }
 
   before do
     allow(BenefitsClaims::Service).to receive(:new).with(current_user.icn).and_return(mock_service)
+    allow(mock_service).to receive(:config).and_return(mock_config)
+    allow(mock_config).to receive(:base_api_path)
+      .and_return("https://sandbox-api.va.gov/#{BenefitsClaims::Configuration::CLAIMS_PATH}")
   end
 
   describe '#initialize' do
@@ -77,12 +81,12 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
     end
 
     before do
-      allow(mock_service).to receive(:get_claims).and_return(lighthouse_claims_response)
+      allow(mock_service).to receive(:get_claims).with(nil, nil, {}).and_return(lighthouse_claims_response)
     end
 
     it 'retrieves claims from the Lighthouse service' do
       provider.get_claims
-      expect(mock_service).to have_received(:get_claims)
+      expect(mock_service).to have_received(:get_claims).with(nil, nil, {})
     end
 
     it 'preserves Lighthouse claim data structure' do
@@ -119,21 +123,22 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
       provider.get_claims
     end
 
-    context 'when service raises an error' do
-      before do
-        allow(mock_service).to receive(:get_claims).and_raise(
-          Common::Exceptions::ExternalServerInternalServerError
-        )
+    context 'when service raises a Faraday error' do
+      let(:faraday_error) do
+        Faraday::ServerError.new('error', { status: 500, body: { 'errors' => [{ 'detail' => 'Server error' }] } })
       end
 
-      it 'logs the error and re-raises' do
-        expect(Rails.logger).to receive(:error).with(
-          'Lighthouse claims retrieval failed',
-          hash_including(
-            error_type: 'Common::Exceptions::ExternalServerInternalServerError',
-            error_message: 'Internal server error'
-          )
-        )
+      before do
+        allow(mock_service).to receive(:get_claims).with(nil, nil, {}).and_raise(faraday_error)
+      end
+
+      it 'handles the error using Lighthouse::ServiceException' do
+        expect(Lighthouse::ServiceException).to receive(:send_error).with(
+          faraday_error,
+          'benefits_claims/providers/lighthouse_benefits_claims_provider',
+          nil,
+          anything
+        ).and_call_original
 
         expect { provider.get_claims }.to raise_error(Common::Exceptions::ExternalServerInternalServerError)
       end
@@ -176,12 +181,12 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
     end
 
     before do
-      allow(mock_service).to receive(:get_claim).with(claim_id).and_return(lighthouse_claim_response)
+      allow(mock_service).to receive(:get_claim).with(claim_id, nil, nil, {}).and_return(lighthouse_claim_response)
     end
 
     it 'retrieves a single claim from the Lighthouse service' do
       provider.get_claim(claim_id)
-      expect(mock_service).to have_received(:get_claim).with(claim_id)
+      expect(mock_service).to have_received(:get_claim).with(claim_id, nil, nil, {})
     end
 
     it 'preserves the single claim data structure' do
@@ -218,21 +223,22 @@ RSpec.describe BenefitsClaims::Providers::LighthouseBenefitsClaimsProvider do
       provider.get_claim(claim_id)
     end
 
-    context 'when service raises an error' do
-      before do
-        allow(mock_service).to receive(:get_claim).with(claim_id).and_raise(
-          Common::Exceptions::ResourceNotFound
-        )
+    context 'when service raises a Faraday error' do
+      let(:faraday_error) do
+        Faraday::ClientError.new('error', { status: 404, body: { 'errors' => [{ 'detail' => 'Not found' }] } })
       end
 
-      it 'logs the error and re-raises' do
-        expect(Rails.logger).to receive(:error).with(
-          'Lighthouse claim retrieval failed',
-          hash_including(
-            error_type: 'Common::Exceptions::ResourceNotFound',
-            error_message: 'Resource not found'
-          )
-        )
+      before do
+        allow(mock_service).to receive(:get_claim).with(claim_id, nil, nil, {}).and_raise(faraday_error)
+      end
+
+      it 'handles the error using Lighthouse::ServiceException' do
+        expect(Lighthouse::ServiceException).to receive(:send_error).with(
+          faraday_error,
+          'benefits_claims/providers/lighthouse_benefits_claims_provider',
+          nil,
+          anything
+        ).and_call_original
 
         expect { provider.get_claim(claim_id) }.to raise_error(Common::Exceptions::ResourceNotFound)
       end

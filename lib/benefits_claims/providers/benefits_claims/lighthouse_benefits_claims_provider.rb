@@ -3,6 +3,8 @@
 require 'benefits_claims/providers/benefits_claims/benefits_claims_provider'
 require 'benefits_claims/responses/claim_response'
 require 'lighthouse/benefits_claims/service'
+require 'lighthouse/benefits_claims/configuration'
+require 'lighthouse/service_exception'
 
 module BenefitsClaims
   module Providers
@@ -27,40 +29,26 @@ module BenefitsClaims
         @service = BenefitsClaims::Service.new(user.icn)
       end
 
-      def get_claims
-        response = @service.get_claims
+      def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+        response = @service.get_claims(lighthouse_client_id, lighthouse_rsa_key_path, options)
 
         # Transform each claim through the DTO
         response['data'] = response['data'].map { |claim_data| transform_to_dto(claim_data) }
 
         response
-      rescue Common::Exceptions::BaseError => e
-        Rails.logger.error(
-          'Lighthouse claims retrieval failed',
-          {
-            error_type: e.class.to_s,
-            error_message: e.message
-          }
-        )
-        raise
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        handle_error(e, lighthouse_client_id, 'claims')
       end
 
-      def get_claim(id)
-        response = @service.get_claim(id)
+      def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+        response = @service.get_claim(id, lighthouse_client_id, lighthouse_rsa_key_path, options)
 
         # Transform the single claim through the DTO
         response['data'] = transform_to_dto(response['data'])
 
         response
-      rescue Common::Exceptions::BaseError => e
-        Rails.logger.error(
-          'Lighthouse claim retrieval failed',
-          {
-            error_type: e.class.to_s,
-            error_message: e.message
-          }
-        )
-        raise
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        handle_error(e, lighthouse_client_id, "claims/#{id}")
       end
 
       private
@@ -163,6 +151,19 @@ module BenefitsClaims
             'status' => item.status
           }.compact
         end
+      end
+
+      def config
+        @service.send(:config)
+      end
+
+      def handle_error(error, lighthouse_client_id, endpoint)
+        Lighthouse::ServiceException.send_error(
+          error,
+          self.class.to_s.underscore,
+          lighthouse_client_id,
+          "#{config.base_api_path}/#{endpoint}"
+        )
       end
     end
   end
