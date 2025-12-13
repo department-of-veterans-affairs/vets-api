@@ -37,6 +37,7 @@ module TravelPay
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
+
         expense = create_and_validate_expense
         created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
@@ -186,7 +187,7 @@ module TravelPay
 
       def permitted_params
         expense_class = expense_class_for_type(params[:expense_type])
-        params.require(:expense).permit(*expense_class.permitted_params)
+        params.permit(*expense_class.permitted_params)
       end
 
       def expense_params_for_service(expense)
