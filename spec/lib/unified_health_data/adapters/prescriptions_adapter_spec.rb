@@ -164,10 +164,15 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(oracle_prescription.cmop_ndc_number).to be_nil
       end
 
-      context 'when mhv_medications_cerner_pilot flag is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
-        end
+      it 'extracts disp_status from VistA data when present' do
+        # When V2 status mapping flag is disabled, disp_status should be preserved as-is from VistA
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, anything).and_return(false)
+
+        vista_data_with_disp_status = vista_medication_data.merge('dispStatus' => 'Active: Refill in Process')
+        response_with_disp_status = {
+          'vista' => { 'medicationList' => { 'medication' => [vista_data_with_disp_status] } },
+          'oracle-health' => { 'entry' => [] }
+        }
 
         it 'extracts disp_status from VistA data when present' do
           vista_data_with_disp_status = vista_medication_data.merge('dispStatus' => 'Active: Refill in Process')
@@ -179,8 +184,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
           prescriptions = subject.parse(response_with_disp_status)
           vista_prescription = prescriptions.first
 
-          expect(vista_prescription.disp_status).to eq('Active: Refill in Process')
-        end
+      it 'sets disp_status derived from refill_status for Oracle Health prescriptions' do
+        # When V2 status mapping flag is disabled, disp_status is derived from refill_status
+        # only when dispStatus is not already set, and not mapped to V2 format
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, anything).and_return(false)
 
         it 'sets disp_status derived from refill_status for Oracle Health prescriptions' do
           prescriptions = subject.parse(unified_response)
@@ -1290,9 +1297,9 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
     end
 
-    context 'when mhv_medications_cerner_pilot flag is disabled' do
+    context 'when mhv_medications_v2_status_mapping flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, user).and_return(false)
       end
 
       it 'returns legacy refill_status values for VistA prescriptions' do
@@ -1320,9 +1327,9 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       end
     end
 
-    context 'when mhv_medications_cerner_pilot flag is enabled' do
+    context 'when mhv_medications_v2_status_mapping flag is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, user).and_return(true)
       end
 
       describe 'VistA prescription status mapping' do
@@ -1514,7 +1521,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
     context 'status mapping edge cases' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, user).and_return(true)
       end
 
       let(:edge_case_vista_medication) do

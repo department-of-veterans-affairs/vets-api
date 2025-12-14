@@ -17,9 +17,10 @@ module PdfFill
       TMP_DIR = 'tmp/pdfs'
       FORM_CLASS = PdfFill::Forms::Va228794
 
-      def initialize(form_data, main_form_filler)
+      def initialize(form_data, main_form_filler, file_name_suffix = SecureRandom.hex)
         @form_data = form_data
         @main_form_filler = main_form_filler
+        @file_name_suffix = file_name_suffix
       end
 
       def process
@@ -44,7 +45,7 @@ module PdfFill
       def generate_default_form(merged_form_data, hash_converter)
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
-        file_path = File.join(TMP_DIR, '22-8794.pdf')
+        file_path = File.join(TMP_DIR, "22-8794_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         file_path
       end
@@ -61,7 +62,7 @@ module PdfFill
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
         # fill in pdf and append extra pages
-        file_path = File.join(TMP_DIR, '22-8794.pdf')
+        file_path = File.join(TMP_DIR, "22-8794_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
       end

@@ -13,9 +13,8 @@ module TravelClaim
     include Singleton
 
     # Override default timeouts to handle multiple external API calls in travel claims submission
-    # Note: updated to 45 as we were seeing some timeout errors on initial prod rollout
-    self.open_timeout = 45  # Connection establishment timeout
-    self.read_timeout = 45  # Response timeout for external API calls
+    self.open_timeout = 30  # Connection establishment timeout
+    self.read_timeout = 30  # Response timeout for external API calls
 
     ##
     # @!attribute [w] server_url
