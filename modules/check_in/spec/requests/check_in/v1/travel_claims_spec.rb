@@ -349,7 +349,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           allow(Rails.logger).to receive(:error)
           # Enable detailed error logging to see the BTSSS error message
           allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_log_api_error_details)
-                                               .and_return(true)
+                                              .and_return(true)
 
           VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
             VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
