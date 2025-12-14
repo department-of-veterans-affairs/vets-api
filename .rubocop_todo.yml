@@ -109,7 +109,6 @@ Lint/MissingSuper:
     - 'lib/forms/client.rb'
     - 'lib/forms/responses/response.rb'
     - 'lib/hca/service.rb'
-    - 'lib/ihub/service.rb'
     - 'lib/json_schema/json_api_missing_attribute.rb'
     - 'lib/json_schema/missing_schema.rb'
     - 'lib/lgy/service.rb'
