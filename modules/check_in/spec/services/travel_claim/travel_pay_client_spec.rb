@@ -130,6 +130,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     context 'when request fails' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
         allow(Rails.logger).to receive(:error)
       end
 
@@ -145,11 +146,13 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Exceptions::GatewayTimeout)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient VEIS endpoint error',
             hash_including(
+              message: 'TravelPayClient: VEIS API Error',
+              endpoint: 'VEIS',
+              operation: 'veis_token_request',
               correlation_id: be_present,
-              status: 504,
-              endpoint: 'VEIS'
+              http_status: 504,
+              error_class: 'Common::Exceptions::GatewayTimeout'
             )
           )
         end
@@ -174,6 +177,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     context 'when request fails' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
         allow(Rails.logger).to receive(:error)
       end
 
@@ -191,11 +195,14 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient BTSSS endpoint error',
             hash_including(
+              message: 'TravelPayClient: BTSSS API Error',
+              endpoint: 'BTSSS',
+              operation: 'system_access_token_request',
               correlation_id: be_present,
-              status: 500,
-              endpoint: 'BTSSS'
+              http_status: 500,
+              error_class: 'Common::Exceptions::BackendServiceException',
+              error_code: 'TEST'
             )
           )
         end
@@ -215,11 +222,14 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient BTSSS endpoint error',
             hash_including(
+              message: 'TravelPayClient: BTSSS API Error',
+              endpoint: 'BTSSS',
+              operation: 'system_access_token_request',
               correlation_id: be_present,
-              status: 502,
-              endpoint: 'BTSSS'
+              http_status: 502,
+              error_class: 'Common::Exceptions::BackendServiceException',
+              error_code: 'VA900'
             )
           )
         end
@@ -239,11 +249,13 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Client::Errors::ClientError)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient BTSSS endpoint error',
             hash_including(
+              message: 'TravelPayClient: BTSSS API Error',
+              endpoint: 'BTSSS',
+              operation: 'system_access_token_request',
               correlation_id: be_present,
-              status: 503,
-              endpoint: 'BTSSS'
+              http_status: 503,
+              error_class: 'Common::Client::Errors::ClientError'
             )
           )
         end
@@ -263,11 +275,13 @@ RSpec.describe TravelClaim::TravelPayClient do
           end.to raise_error(Common::Exceptions::GatewayTimeout)
 
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient BTSSS endpoint error',
             hash_including(
+              message: 'TravelPayClient: BTSSS API Error',
+              endpoint: 'BTSSS',
+              operation: 'system_access_token_request',
               correlation_id: be_present,
-              status: 504,
-              endpoint: 'BTSSS'
+              http_status: 504,
+              error_class: 'Common::Exceptions::GatewayTimeout'
             )
           )
         end
@@ -291,11 +305,15 @@ RSpec.describe TravelClaim::TravelPayClient do
 
           # Verify we log the original_status (405), not the transformed status (502)
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient BTSSS endpoint error',
             hash_including(
+              message: 'TravelPayClient: BTSSS API Error',
+              endpoint: 'BTSSS',
+              operation: 'system_access_token_request',
               correlation_id: be_present,
-              status: 405, # original_status, not the transformed status
-              endpoint: 'BTSSS'
+              http_status: 405, # original_status, not the transformed status
+              error_class: 'Common::Exceptions::BackendServiceException',
+              error_code: 'VA900',
+              api_error_message: 'Method not allowed'
             )
           )
         end
@@ -304,14 +322,17 @@ RSpec.describe TravelClaim::TravelPayClient do
   end
 
   describe '#extract_and_redact_message' do
-    it 'removes ICN from error message' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:logging_data_scrubber).and_return(true)
+    end
+
+    it 'removes ICN from error message using DataScrubber' do
       icn = '1234567890V123456'
       body = { 'message' => "Error occurred for patient #{icn}" }.to_json
       result = client.send(:extract_and_redact_message, body)
 
-      expect(result).to eq('Error occurred for patient ')
+      expect(result).to eq('Error occurred for patient [REDACTED]')
       expect(result).not_to include(icn)
-      expect(result).not_to include('****')
     end
 
     it 'returns nil when body is nil' do
@@ -739,7 +760,7 @@ RSpec.describe TravelClaim::TravelPayClient do
         end
 
         expect(result.status).to eq(200)
-        expect(call_count).to eq(2)  # Called twice (initial + retry)
+        expect(call_count).to eq(2) # Called twice (initial + retry)
       end
 
       it 'does not retry more than once on 401' do
@@ -840,7 +861,7 @@ RSpec.describe TravelClaim::TravelPayClient do
         # Mock mint_veis_token to track calls
         allow_any_instance_of(described_class).to receive(:mint_veis_token) do
           count = mint_count.increment
-          sleep(0.05)  # Simulate network latency
+          sleep(0.05) # Simulate network latency
           "new-token-#{count}"
         end
 
@@ -856,17 +877,17 @@ RSpec.describe TravelClaim::TravelPayClient do
         ) do |_key, _options, &block|
           if first_call
             first_call = false
-            block.call  # First thread mints new token
+            block.call # First thread mints new token
           else
-            old_token  # Other threads get old token (race_condition_ttl behavior)
+            old_token # Other threads get old token (race_condition_ttl behavior)
           end
         end
 
         # Spawn 10 concurrent threads
         threads = 10.times.map do
-          Thread.new do
+          Thread.new do # rubocop:disable ThreadSafety/NewThread
             client = described_class.new(
-              appointment_date_time: appointment_date_time,
+              appointment_date_time:,
               icn: test_icn,
               station_number: test_station_number
             )
@@ -883,8 +904,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         expect(mint_count.value).to eq(1), "Expected exactly 1 mint, got #{mint_count.value}"
 
         # Verify we got mix of old and new tokens (race_condition_ttl behavior)
-        expect(results.count(old_token)).to be > 0, 'Some threads should receive old token'
-        expect(results.count('new-token-1')).to be > 0, 'At least one thread should receive new token'
+        expect(results.count(old_token)).to be_positive, 'Some threads should receive old token'
+        expect(results.count('new-token-1')).to be_positive, 'At least one thread should receive new token'
         expect(results.length).to eq(10), 'All threads should return a token'
       end
     end
