@@ -86,7 +86,7 @@ module TravelClaim
       end
     rescue *API_EXCEPTIONS => e
       log_external_api_error(endpoint: 'VEIS', operation: 'veis_token_request', error: e)
-      raise
+      enrich_and_reraise_if_needed(e)
     end
 
     ##
@@ -116,7 +116,7 @@ module TravelClaim
       end
     rescue *API_EXCEPTIONS => e
       log_external_api_error(endpoint: 'BTSSS', operation: 'system_access_token_request', error: e)
-      raise
+      enrich_and_reraise_if_needed(e)
     end
 
     ##
@@ -133,7 +133,7 @@ module TravelClaim
       end
     rescue *API_EXCEPTIONS => e
       log_external_api_error(endpoint: 'BTSSS', operation: 'find_or_add_appointment', error: e)
-      raise
+      enrich_and_reraise_if_needed(e)
     end
 
     # Sends a request to create a new claim.
@@ -150,7 +150,7 @@ module TravelClaim
       end
     rescue *API_EXCEPTIONS => e
       log_external_api_error(endpoint: 'BTSSS', operation: 'create_claim', error: e)
-      raise
+      enrich_and_reraise_if_needed(e)
     end
 
     ##
@@ -170,7 +170,7 @@ module TravelClaim
       end
     rescue *API_EXCEPTIONS => e
       log_external_api_error(endpoint: 'BTSSS', operation: 'add_mileage_expense', error: e)
-      raise
+      enrich_and_reraise_if_needed(e)
     end
 
     ##
@@ -185,7 +185,7 @@ module TravelClaim
       end
     rescue *API_EXCEPTIONS => e
       log_external_api_error(endpoint: 'BTSSS', operation: 'get_claim', error: e)
-      raise
+      enrich_and_reraise_if_needed(e)
     end
 
     ##
@@ -200,7 +200,7 @@ module TravelClaim
       end
     rescue *API_EXCEPTIONS => e
       log_external_api_error(endpoint: 'BTSSS', operation: 'submit_claim', error: e)
-      raise
+      enrich_and_reraise_if_needed(e)
     end
 
     # ------------ Keys / headers ------------
@@ -370,6 +370,7 @@ module TravelClaim
     rescue Common::Exceptions::BackendServiceException => e
       if e.original_status == 401 && !@auth_retry_attempted
         @auth_retry_attempted = true
+        log_with_context('TravelPayClient 401 error - retrying authentication')
         @current_veis_token = nil
         @current_btsss_token = nil
         ensure_tokens!
@@ -515,6 +516,45 @@ module TravelClaim
 
       # Use standard DataScrubber to remove PII/PHI (ICN, SSN, etc.)
       Logging::Helper::DataScrubber.scrub(message)
+    rescue JSON::ParserError
+      nil
+    end
+
+    ##
+    # Enriches BackendServiceException with BTSSS error message and re-raises.
+    # BTSSS returns errors in 'message' field, but middleware only extracts 'detail'.
+    # This ensures response_values[:detail] is populated for controller use.
+    #
+    # @param error [Exception] the error to enrich and re-raise
+    #
+    def enrich_and_reraise_if_needed(error)
+      if error.is_a?(Common::Exceptions::BackendServiceException) &&
+         error.response_values[:detail].nil? &&
+         error.original_body.present?
+        message = extract_message_from_body(error.original_body)
+        if message
+          raise Common::Exceptions::BackendServiceException.new(
+            error.key,
+            error.response_values.merge(detail: message),
+            error.original_status,
+            error.original_body
+          )
+        end
+      end
+      raise
+    end
+
+    ##
+    # Extracts error message from BTSSS response body
+    #
+    # @param body [String, Hash] the response body
+    # @return [String, nil] the error message
+    #
+    def extract_message_from_body(body)
+      return nil unless body
+
+      parsed = body.is_a?(String) ? JSON.parse(body) : body
+      parsed['message'] || parsed['detail']
     rescue JSON::ParserError
       nil
     end
