@@ -368,24 +368,54 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
     end
   end
 
-  describe '#log_message' do
+  describe 'service-level logging' do
     let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
 
     context 'when check_in_experience_travel_claim_logging feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
         allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
       end
 
-      it 'logs the message with proper formatting' do
-        service.send(:log_message, :info, 'Test message', { extra: 'data' })
+      it 'logs submission start' do
+        service.send(:log_submission_start)
 
         expect(Rails.logger).to have_received(:info).with(
           hash_including(
-            message: 'CIE Travel Claim Submission: Test message',
+            message: 'Travel Claim Submission: START',
+            facility_type: 'oh',
+            check_in_uuid: 'test-uuid'
+          )
+        )
+      end
+
+      it 'logs submission success with claim ID' do
+        result = { 'claimId' => 'test-claim-123', 'success' => true }
+        service.send(:log_submission_success, result)
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'Travel Claim Submission: SUCCESS',
             facility_type: 'oh',
             check_in_uuid: 'test-uuid',
-            extra: 'data'
+            claim_id: 'test-claim-123'
+          )
+        )
+      end
+
+      it 'logs submission failure with step and error class' do
+        error = StandardError.new('test error')
+        service.instance_variable_set(:@current_step, 'create_claim')
+        service.send(:log_submission_failure, error:)
+
+        expect(Rails.logger).to have_received(:error).with(
+          hash_including(
+            message: 'Travel Claim Submission: FAILURE',
+            facility_type: 'oh',
+            check_in_uuid: 'test-uuid',
+            failed_step: 'create_claim',
+            error_class: 'StandardError'
           )
         )
       end
@@ -395,12 +425,18 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
       before do
         allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(false)
         allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
       end
 
       it 'does not log anything' do
-        service.send(:log_message, :info, 'Test message', { extra: 'data' })
+        service.send(:log_submission_start)
+        result = { 'claimId' => 'test-claim-123' }
+        service.send(:log_submission_success, result)
+        error = StandardError.new('test error')
+        service.send(:log_submission_failure, error:)
 
         expect(Rails.logger).not_to have_received(:info)
+        expect(Rails.logger).not_to have_received(:error)
       end
     end
   end
