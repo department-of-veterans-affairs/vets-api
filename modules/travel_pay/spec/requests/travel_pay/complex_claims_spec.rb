@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'travel_pay/api_versions'
 
 RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
   let(:user) { build(:user) }
@@ -18,6 +19,9 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
   before do
     allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
                                                                                       btsss_token: 'btsss_token' })
+    
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, instance_of(User)).and_return(false)
+    TravelPay::ApiVersions.reload!
     sign_in(user)
     allow_any_instance_of(TravelPay::V0::ComplexClaimsController).to receive(:current_user).and_return(user)
   end
@@ -28,8 +32,9 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
-      end
 
+      end
+      
       context 'VCR-backed integration tests' do
         it 'creates a complex claim and returns claimId using vcr_cassette' do
           VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
@@ -188,6 +193,8 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
     context 'when feature flag enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+
+        TravelPay::ApiVersions.reload!
       end
 
       context 'VCR-backed integration tests' do

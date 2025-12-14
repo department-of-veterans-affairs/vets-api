@@ -5,6 +5,10 @@ require_relative './base_client'
 
 module TravelPay
   class AppointmentsClient < TravelPay::BaseClient
+    def initialize(api_versions: {})
+      @api_versions = api_versions.presence || {}
+    end
+
     ##
     # HTTP GET call to the BTSSS 'appointments' endpoint
     # API responds with BTSSS appointments

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/travel_pay/api_versions'
+
 module TravelPay
   class ClaimsService
     include ExpenseNormalizer
@@ -191,7 +193,7 @@ module TravelPay
     end
 
     def get_decision_reason(claim_id, document_id)
-      documents_service = TravelPay::DocumentsService.new(@auth_manager)
+      documents_service = TravelPay::DocumentsService.new(@auth_manager, @user)
 
       begin
         document_data = documents_service.download_document(claim_id, document_id)
@@ -266,11 +268,13 @@ module TravelPay
     end
 
     def client
-      TravelPay::ClaimsClient.new
+      api_versions = TravelPay::ApiVersions.versions_for(resource: :claims, user: @user)
+      TravelPay::ClaimsClient.new(api_versions:)
     end
 
     def documents_client
-      TravelPay::DocumentsClient.new
+      api_versions = TravelPay::ApiVersions.versions_for(resource: :documents, user: @user)
+      TravelPay::DocumentsClient.new(api_versions:)
     end
   end
 end

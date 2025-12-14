@@ -599,6 +599,7 @@ describe VAOS::V2::AppointmentsService do
             .to receive(:new)
             .and_return(double('AuthManager', authorize: tokens))
           allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, user).and_return(false)
         end
 
         it 'returns a list of appointments with travel claim information attached' do
@@ -635,6 +636,7 @@ describe VAOS::V2::AppointmentsService do
             .to receive(:new)
             .and_return(double('AuthManager', authorize: tokens))
           allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, user).and_return(false)
         end
 
         it 'fetches appointments and claims in parallel and returns merged data' do
@@ -1071,6 +1073,7 @@ describe VAOS::V2::AppointmentsService do
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, user).and_return(false)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
         end
 

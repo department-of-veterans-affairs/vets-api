@@ -30,7 +30,8 @@ describe TravelPay::DocumentsService do
   before do
     allow_any_instance_of(TravelPay::DocumentsClient).to receive(:get_document_binary).and_return(doc_binary_data)
     allow(auth_manager).to receive_messages(authorize: { veis_token: 'veis_token',
-                                                         btsss_token: 'btsss_token' })
+                                                         btsss_token: 'btsss_token' },
+                                             user: user)
   end
 
   describe '#get_document_summaries' do

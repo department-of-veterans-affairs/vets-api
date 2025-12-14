@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'travel_pay/api_versions'
 
 describe TravelPay::DocumentsClient do
   let(:user) { build(:user) }
@@ -15,7 +16,15 @@ describe TravelPay::DocumentsClient do
       c.request :multipart # this allows multipart bodies
       c.response :raise_error
     end
-
+    
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, anything).and_return(false)
+   
+    # Reload config to ensure stubs are applied before tests run
+    TravelPay::ApiVersions.reload!
+   
+    versions_for = TravelPay::ApiVersions.versions_for(resource: :documents, user: User.new)
+    @client = TravelPay::DocumentsClient.new(api_versions: versions_for)
+  
     allow_any_instance_of(TravelPay::DocumentsClient).to receive(:connection).and_return(conn)
     allow(StatsD).to receive(:measure)
   end
@@ -50,8 +59,7 @@ describe TravelPay::DocumentsClient do
       expected_ids = %w[uuid1 uuid2]
       expected_filenames = %w[DecisionLetter.pdf screenshot.jpg]
 
-      client = TravelPay::DocumentsClient.new
-      new_documents_response = client.get_document_ids('veis_token', 'btsss_token',
+      new_documents_response = @client.get_document_ids('veis_token', 'btsss_token',
                                                        claim_id)
       document_ids = new_documents_response.body['data'].pluck('documentId')
       document_filenames = new_documents_response.body['data'].pluck('filename')
@@ -76,8 +84,7 @@ describe TravelPay::DocumentsClient do
         [200, { 'Content-Type' => 'application/pdf' }, response.to_json]
       end
 
-      client = TravelPay::DocumentsClient.new
-      document_binary_response = client.get_document_binary('veis_token', 'btsss_token', { claim_id:, doc_id: })
+      document_binary_response = @client.get_document_binary('veis_token', 'btsss_token', { claim_id:, doc_id: })
 
       expect(StatsD).to have_received(:measure)
         .with(expected_log_prefix,
@@ -94,9 +101,8 @@ describe TravelPay::DocumentsClient do
         [404, {}, { 'error' => 'Document not found' }.to_json]
       end
 
-      client = TravelPay::DocumentsClient.new
       expect do
-        client.get_document_binary('veis_token', 'btsss_token', { claim_id:, doc_id: })
+        @client.get_document_binary('veis_token', 'btsss_token', { claim_id:, doc_id: })
       end.to raise_error(Faraday::ResourceNotFound)
     end
   end
@@ -128,8 +134,7 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-      response = client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
+      response = @client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
 
       expect(StatsD).to have_received(:measure)
         .with(expected_log_prefix,
@@ -152,11 +157,9 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-
       # Use a valid Rack::Test::UploadedFile, like you do normally
       expect do
-        client.add_document(
+        @client.add_document(
           'veis_token',
           'btsss_token',
           claim_id:,
@@ -170,8 +173,7 @@ describe TravelPay::DocumentsClient do
         [500, { 'Content-Type' => 'application/json' }, { error: 'Internal Server Error' }.to_json]
       end
 
-      client = TravelPay::DocumentsClient.new
-      expect { client.add_document('veis_token', 'btsss_token', claim_id:, document: file) }
+      expect { @client.add_document('veis_token', 'btsss_token', claim_id:, document: file) }
         .to raise_error(Faraday::ServerError)
     end
 
@@ -184,10 +186,8 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-
       expect do
-        client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
+        @client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
       end.to raise_error(Faraday::ClientError) # Faraday raises ClientError for 4xx
     end
 
@@ -200,10 +200,8 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-
       expect do
-        client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
+        @client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
       end.to raise_error(Faraday::ClientError) # Faraday raises ClientError for 4xx responses
     end
 
@@ -216,10 +214,8 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-
       begin
-        client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
+        @client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
       rescue Faraday::ClientError => e
         error = e
       end
@@ -247,8 +243,7 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-      response = client.delete_document('veis_token', 'btsss_token',
+      response = @client.delete_document('veis_token', 'btsss_token',
                                         { claim_id:, document_id: })
 
       expect(StatsD).to have_received(:measure)
@@ -268,10 +263,8 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-
       expect do
-        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
+        @client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
       end.to raise_error(Faraday::ResourceNotFound)
     end
 
@@ -284,10 +277,8 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-
       expect do
-        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
+        @client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
       end.to raise_error(Faraday::ClientError)
     end
 
@@ -300,10 +291,8 @@ describe TravelPay::DocumentsClient do
         ]
       end
 
-      client = TravelPay::DocumentsClient.new
-
       expect do
-        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
+        @client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
       end.to raise_error(Faraday::ServerError)
     end
   end
@@ -311,7 +300,13 @@ describe TravelPay::DocumentsClient do
   context 'v3 upgrade' do
     context 'enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, anything).and_return(true)
+       
+        # Reload config to ensure stubs are applied before tests run
+        TravelPay::ApiVersions.reload!
+      
+        versions_for = TravelPay::ApiVersions.versions_for(resource: :documents, user: User.new)
+        @client = TravelPay::DocumentsClient.new(api_versions: versions_for)
       end
 
       it 'upgrades /documents endpoint' do
@@ -320,8 +315,7 @@ describe TravelPay::DocumentsClient do
           [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
         end
 
-        client = TravelPay::DocumentsClient.new
-        response = client.get_document_ids('veis_token', 'btsss_token', claim_id)
+        response = @client.get_document_ids('veis_token', 'btsss_token', claim_id)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -336,8 +330,7 @@ describe TravelPay::DocumentsClient do
           [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
         end
 
-        client = TravelPay::DocumentsClient.new
-        response = client.get_document_binary('veis_token', 'btsss_token', params)
+        response = @client.get_document_binary('veis_token', 'btsss_token', params)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -346,7 +339,13 @@ describe TravelPay::DocumentsClient do
 
     context 'disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, anything).and_return(false)
+
+         # Reload config to ensure stubs are applied before tests run
+        TravelPay::ApiVersions.reload!
+      
+        versions_for = TravelPay::ApiVersions.versions_for(resource: :documents, user: User.new)
+        @client = TravelPay::DocumentsClient.new(api_versions: versions_for)
       end
 
       it 'upgrades /documents endpoint' do
@@ -355,8 +354,7 @@ describe TravelPay::DocumentsClient do
           [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
         end
 
-        client = TravelPay::DocumentsClient.new
-        response = client.get_document_ids('veis_token', 'btsss_token', claim_id)
+        response = @client.get_document_ids('veis_token', 'btsss_token', claim_id)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -371,8 +369,7 @@ describe TravelPay::DocumentsClient do
           [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
         end
 
-        client = TravelPay::DocumentsClient.new
-        response = client.get_document_binary('veis_token', 'btsss_token', params)
+        response = @client.get_document_binary('veis_token', 'btsss_token', params)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end

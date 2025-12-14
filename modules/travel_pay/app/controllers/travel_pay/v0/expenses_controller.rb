@@ -94,7 +94,7 @@ module TravelPay
       end
 
       def expense_service
-        @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
+        @expense_service ||= TravelPay::ExpensesService.new(auth_manager, @current_user)
       end
 
       def check_feature_flag

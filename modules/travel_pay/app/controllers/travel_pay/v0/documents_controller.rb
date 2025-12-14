@@ -114,7 +114,7 @@ module TravelPay
       end
 
       def service
-        @service ||= TravelPay::DocumentsService.new(auth_manager)
+        @service ||= TravelPay::DocumentsService.new(auth_manager, @current_user)
       end
 
       def handle_resource_not_found_error(e)

@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/travel_pay/api_versions'
+
 module TravelPay
   class DocumentsService
-    def initialize(auth_manager)
+    def initialize(auth_manager, user = nil)
       @auth_manager = auth_manager
+      @user = user || @auth_manager&.user
     end
 
     def get_document_summaries(claim_id)
@@ -69,7 +72,8 @@ module TravelPay
     private
 
     def client
-      TravelPay::DocumentsClient.new
+      api_versions = TravelPay::ApiVersions.versions_for(resource: :documents, user: @user)
+      TravelPay::DocumentsClient.new(api_versions:)
     end
 
     def validate_document_extension!(document)

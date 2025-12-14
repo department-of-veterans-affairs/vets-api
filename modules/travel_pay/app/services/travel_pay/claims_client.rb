@@ -5,6 +5,10 @@ require_relative './base_client'
 
 module TravelPay
   class ClaimsClient < TravelPay::BaseClient
+    def initialize(api_versions: {})
+      @api_versions = api_versions.presence || {}
+    end
+
     ##
     # HTTP GET call to the BTSSS 'claims' endpoint
     # API responds with travel pay claims including status
@@ -17,12 +21,7 @@ module TravelPay
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
-      # We must do this for every endpoint because the Travel Pay API
-      # uses per-endpoint versioning. I'd like to move at somepoint to
-      # a more dynamic, non-code change mapping.
-      # This is specifically to address a high-priority, deadline-driven
-      # change.
-      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+      endpoint_version = @api_versions[:get_all]
 
       log_to_statsd('claims', 'get_all') do
         connection(server_url: btsss_url).get("api/#{endpoint_version}/claims", url_params) do |req|
@@ -49,12 +48,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      # We must do this for every endpoint because the Travel Pay API
-      # uses per-endpoint versioning. I'd like to move at somepoint to
-      # a more dynamic, non-code change mapping.
-      # This is specifically to address a high-priority, deadline-driven
-      # change.
-      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+      endpoint_version = @api_versions[:get_by_id]
 
       log_to_statsd('claims', 'get_by_id') do
         connection(server_url: btsss_url).get("api/#{endpoint_version}/claims/#{claim_id}") do |req|
@@ -86,12 +80,7 @@ module TravelPay
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
-      # We must do this for every endpoint because the Travel Pay API
-      # uses per-endpoint versioning. I'd like to move at somepoint to
-      # a more dynamic, non-code change mapping.
-      # This is specifically to address a high-priority, deadline-driven
-      # change.
-      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+      endpoint_version = @api_versions[:get_by_date]
 
       log_to_statsd('claims', 'get_by_date') do
         connection(server_url: btsss_url)
@@ -121,12 +110,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      # We must do this for every endpoint because the Travel Pay API
-      # uses per-endpoint versioning. I'd like to move at somepoint to
-      # a more dynamic, non-code change mapping.
-      # This is specifically to address a high-priority, deadline-driven
-      # change.
-      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+      endpoint_version = @api_versions[:create]
 
       log_to_statsd('claims', 'create') do
         connection(server_url: btsss_url).post("api/#{endpoint_version}/claims") do |req|
@@ -158,12 +142,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      # We must do this for every endpoint because the Travel Pay API
-      # uses per-endpoint versioning. I'd like to move at somepoint to
-      # a more dynamic, non-code change mapping.
-      # This is specifically to address a high-priority, deadline-driven
-      # change.
-      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+      endpoint_version = @api_versions[:submit]
 
       log_to_statsd('claims', 'submit') do
         connection(server_url: btsss_url).patch("api/#{endpoint_version}/claims/#{claim_id}/submit") do |req|

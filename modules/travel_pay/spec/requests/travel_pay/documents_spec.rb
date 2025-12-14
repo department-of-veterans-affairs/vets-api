@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'travel_pay/api_versions'
 
 RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   include TravelPay::Engine.routes.url_helpers
@@ -16,6 +17,11 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   before do
     allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
                                                                                       btsss_token: 'btsss_token' })
+
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, anything).and_return(false)
+    # Reload config to ensure stubs are applied before tests run
+    TravelPay::ApiVersions.reload!
+    
     sign_in(user)
   end
 

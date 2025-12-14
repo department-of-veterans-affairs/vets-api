@@ -2,13 +2,15 @@
 
 require 'securerandom'
 require 'base64'
+require_relative '../../../lib/travel_pay/api_versions'
 
 module TravelPay
   class ExpensesService
     include ExpenseNormalizer
 
-    def initialize(auth_manager)
+    def initialize(auth_manager, user = nil)
       @auth_manager = auth_manager
+      @user = user
     end
 
     # Method to add a mileage expense, specifically for SMOC
@@ -142,7 +144,8 @@ module TravelPay
     end
 
     def client
-      TravelPay::ExpensesClient.new
+      api_versions = TravelPay::ApiVersions.versions_for(resource: :expenses, user: @user)
+      TravelPay::ExpensesClient.new(api_versions:)
     end
   end
 end

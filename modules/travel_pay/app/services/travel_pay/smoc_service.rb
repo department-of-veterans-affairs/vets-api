@@ -90,11 +90,11 @@ module TravelPay
     end
 
     def appts_service
-      @appts_service ||= TravelPay::AppointmentsService.new(@auth_manager)
+      @appts_service ||= TravelPay::AppointmentsService.new(@auth_manager, @user)
     end
 
     def expenses_service
-      @expenses_service ||= TravelPay::ExpensesService.new(@auth_manager)
+      @expenses_service ||= TravelPay::ExpensesService.new(@auth_manager, @user)
     end
   end
 end

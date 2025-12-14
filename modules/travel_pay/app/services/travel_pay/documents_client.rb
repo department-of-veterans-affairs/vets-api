@@ -4,7 +4,11 @@ require 'securerandom'
 require_relative './base_client'
 
 module TravelPay
-  class DocumentsClient < TravelPay::BaseClient    
+  class DocumentsClient < TravelPay::BaseClient
+    def initialize(api_versions: {})
+      @api_versions = api_versions.presence || {}
+    end
+    
     ##
     # HTTP GET call to the BTSSS 'claims/:id/documents' endpoint
     # API responds with array of documents related to the claim:
@@ -20,12 +24,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      # We must do this for every endpoint because the Travel Pay API
-      # uses per-endpoint versioning. I'd like to move at somepoint to
-      # a more dynamic, non-code change mapping.
-      # This is specifically to address a high-priority, deadline-driven
-      # change.
-      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+      endpoint_version = @api_versions[:get_document_ids]
 
       log_to_statsd('documents', 'get_document_ids') do
         connection(server_url: btsss_url).get("api/#{endpoint_version}/claims/#{claim_id}/documents") do |req|
@@ -49,12 +48,7 @@ module TravelPay
       params.symbolize_keys => { claim_id:, doc_id: }
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
-      # We must do this for every endpoint because the Travel Pay API
-      # uses per-endpoint versioning. I'd like to move at somepoint to
-      # a more dynamic, non-code change mapping.
-      # This is specifically to address a high-priority, deadline-driven
-      # change.
-      endpoint_version = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade) ? 'v3' : 'v2'
+      endpoint_version = @api_versions[:get_document_binary]
 
       log_to_statsd('documents', 'get_document_binary') do
         connection(server_url: btsss_url).get("api/#{endpoint_version}/claims/#{claim_id}/documents/#{doc_id}") do |req|
@@ -82,10 +76,12 @@ module TravelPay
       claim_id = params[:claim_id]
       document = params[:document]
 
+      endpoint_version = @api_versions[:add_document]
+
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
       log_to_statsd('documents', 'add_document') do
         connection(server_url: btsss_url, multipart: true)
-          .post("api/v3/claims/#{claim_id}/documents/form-data") do |req|
+          .post("api/#{endpoint_version}/claims/#{claim_id}/documents/form-data") do |req|
             req.headers['Authorization'] = "Bearer #{veis_token}"
             req.headers['BTSSS-Access-Token'] = btsss_token
             req.headers['X-Correlation-ID'] = correlation_id
@@ -113,9 +109,12 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       params.symbolize_keys => { claim_id:, document_id: }
+
+      endpoint_version = @api_versions[:delete_document]
+
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
       log_to_statsd('documents', 'delete_document') do
-        connection(server_url: btsss_url).delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |req|
+        connection(server_url: btsss_url).delete("api/#{endpoint_version}/claims/#{claim_id}/documents/#{document_id}") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id

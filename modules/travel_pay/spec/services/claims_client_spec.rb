@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'travel_pay/api_versions'
 
 describe TravelPay::ClaimsClient do
   let(:user) { build(:user) }
@@ -15,6 +16,12 @@ describe TravelPay::ClaimsClient do
       c.response :json
       c.request :json
     end
+
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, anything).and_return(false)
+    # Reload config to ensure stubs are applied before tests run
+    TravelPay::ApiVersions.reload!
+    versions_for = TravelPay::ApiVersions.versions_for(resource: :claims, user: User.new)
+    @client = TravelPay::ClaimsClient.new(api_versions: versions_for)
 
     allow(StatsD).to receive(:measure)
   end
@@ -87,8 +94,7 @@ describe TravelPay::ClaimsClient do
 
       expected_ids = %w[uuid1 uuid2 uuid3]
 
-      client = TravelPay::ClaimsClient.new
-      claims_response = client.get_claims('veis_token', 'btsss_token', {
+      claims_response = @client.get_claims('veis_token', 'btsss_token', {
                                             page_number: 1,
                                             page_size: 50
                                           })
@@ -155,8 +161,7 @@ describe TravelPay::ClaimsClient do
 
       expected_id = 'uuid1'
 
-      client = TravelPay::ClaimsClient.new
-      claims_response = client.get_claim_by_id('veis_token', 'btsss_token', 'uuid1')
+      claims_response = @client.get_claim_by_id('veis_token', 'btsss_token', 'uuid1')
       actual_claim = claims_response.body['data']
 
       expect(StatsD).to have_received(:measure)
@@ -205,8 +210,7 @@ describe TravelPay::ClaimsClient do
 
       expected = %w[uuid1 uuid3]
 
-      client = TravelPay::ClaimsClient.new
-      claims_response = client.get_claims_by_date('veis_token', 'btsss_token',
+      claims_response = @client.get_claims_by_date('veis_token', 'btsss_token',
                                                   { start_date: '2024-01-01T16:45:34.465Z',
                                                     end_date: '2024-02-01T16:45:34.465Z',
                                                     page_number: 1,
@@ -240,8 +244,7 @@ describe TravelPay::ClaimsClient do
         ]
       end
 
-      client = TravelPay::ClaimsClient.new
-      new_claim_response = client.create_claim('veis_token', 'btsss_token', body)
+      new_claim_response = @client.create_claim('veis_token', 'btsss_token', body)
       actual_claim_id = new_claim_response.body['data']['claimId']
 
       expect(StatsD).to have_received(:measure)
@@ -257,8 +260,7 @@ describe TravelPay::ClaimsClient do
 
       expect_any_instance_of(Faraday::Connection).to receive(:patch).with("api/v2/claims/#{claim_id}/submit")
 
-      client = TravelPay::ClaimsClient.new
-      client.submit_claim('veis_token', 'btsss_token', claim_id)
+      @client.submit_claim('veis_token', 'btsss_token', claim_id)
       expect(StatsD).to have_received(:measure)
         .with(expected_log_prefix,
               kind_of(Numeric),
@@ -269,7 +271,9 @@ describe TravelPay::ClaimsClient do
   context 'v3 upgrade' do
     context 'enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, anything).and_return(true)
+        versions_for = TravelPay::ApiVersions.versions_for(resource: :claims, user: User.new)
+        @client = TravelPay::ClaimsClient.new(api_versions: versions_for)
         allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
       end
 
@@ -277,8 +281,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.get("/api/v3/claims") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.get_claims('veis_token', 'btsss_token')
+        response = @client.get_claims('veis_token', 'btsss_token')
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -287,8 +290,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.get("/api/v3/claims/123") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.get_claim_by_id('veis_token', 'btsss_token', 123)
+        response = @client.get_claim_by_id('veis_token', 'btsss_token', 123)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -297,8 +299,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.get("/api/v3/claims/search-by-appointment-date?startDate=123&endDate=123") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.get_claims_by_date('veis_token', 'btsss_token', {start_date: 123, end_date: 123})
+        response = @client.get_claims_by_date('veis_token', 'btsss_token', {start_date: 123, end_date: 123})
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -307,8 +308,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.post("/api/v3/claims") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.create_claim('veis_token', 'btsss_token', {})
+        response = @client.create_claim('veis_token', 'btsss_token', {})
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -317,8 +317,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.patch("api/v3/claims/123/submit") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.submit_claim('veis_token', 'btsss_token', 123)
+        response = @client.submit_claim('veis_token', 'btsss_token', 123)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -328,14 +327,15 @@ describe TravelPay::ClaimsClient do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
         allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+        versions_for = TravelPay::ApiVersions.versions_for(resource: :claims, user: User.new)
+        @client = TravelPay::ClaimsClient.new(api_versions: versions_for)
       end
 
       it 'does not upgrade GET /claims endpoint' do
         claim_id = 'uuid1'
         @stubs.get("/api/v2/claims") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.get_claims('veis_token', 'btsss_token')
+        response = @client.get_claims('veis_token', 'btsss_token')
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -344,8 +344,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.get("/api/v2/claims/123") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.get_claim_by_id('veis_token', 'btsss_token', 123)
+        response = @client.get_claim_by_id('veis_token', 'btsss_token', 123)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -354,8 +353,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.get("/api/v2/claims/search-by-appointment-date?startDate=123&endDate=123") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.get_claims_by_date('veis_token', 'btsss_token', {start_date: 123, end_date: 123})
+        response = @client.get_claims_by_date('veis_token', 'btsss_token', {start_date: 123, end_date: 123})
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -364,8 +362,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.post("/api/v2/claims") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.create_claim('veis_token', 'btsss_token', {})
+        response = @client.create_claim('veis_token', 'btsss_token', {})
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -374,8 +371,7 @@ describe TravelPay::ClaimsClient do
         claim_id = 'uuid1'
         @stubs.patch("api/v2/claims/123/submit") { [200, {}, {  }] }
 
-        client = TravelPay::ClaimsClient.new
-        response = client.submit_claim('veis_token', 'btsss_token', 123)
+        response = @client.submit_claim('veis_token', 'btsss_token', 123)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end

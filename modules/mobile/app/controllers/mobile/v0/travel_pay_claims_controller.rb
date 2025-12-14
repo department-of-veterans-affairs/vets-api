@@ -86,7 +86,7 @@ module Mobile
       def download_document
         document_id = CGI.unescape(params[:document_id])
 
-        documents_service = TravelPay::DocumentsService.new(auth_manager)
+        documents_service = TravelPay::DocumentsService.new(auth_manager, @current_user)
         document_data = documents_service.download_document(params[:claim_id], document_id)
 
         send_data(

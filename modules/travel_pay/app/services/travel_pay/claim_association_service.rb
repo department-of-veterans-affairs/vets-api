@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/travel_pay/api_versions'
+
 module TravelPay
   class ClaimAssociationService
     def initialize(user, client)
@@ -204,7 +206,8 @@ module TravelPay
     end
 
     def client
-      TravelPay::ClaimsClient.new
+      api_versions = TravelPay::ApiVersions.versions_for(resource: :claims, user: @user)
+      TravelPay::ClaimsClient.new(api_versions:)
     end
   end
 end

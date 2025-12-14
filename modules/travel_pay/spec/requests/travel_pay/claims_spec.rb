@@ -2,11 +2,16 @@
 
 require 'rails_helper'
 require 'securerandom'
+require 'travel_pay/api_versions'
 
 RSpec.describe TravelPay::V0::ClaimsController, type: :request do
   let(:user) { build(:user) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade, anything).and_return(false)
+    # Reload config to ensure stubs are applied before tests run
+    TravelPay::ApiVersions.reload!
+
     sign_in(user)
   end
 
