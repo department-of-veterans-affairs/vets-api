@@ -474,89 +474,97 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
     describe 'error metrics' do
       context 'when appointment request fails' do
-        it 'increments appointment error metric for OH facility' do
+        it 'increments appointment error metric and general failure metric for OH facility' do
           mock_appointment_failure(400)
 
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_APPOINTMENT_ERROR)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE)
         end
 
         context 'with CIE facility type' do
           let(:facility_type) { 'cie' }
 
-          it 'increments appointment error metric for CIE facility' do
+          it 'increments appointment error metric and general failure metric for CIE facility' do
             mock_appointment_failure(400)
 
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE)
           end
         end
       end
 
       context 'when claim creation fails' do
-        it 'increments claim creation error metric for OH facility' do
+        it 'increments claim creation error metric and general failure metric for OH facility' do
           mock_claim_creation_failure(400)
 
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_CLAIM_CREATE_ERROR)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE)
         end
 
         context 'with CIE facility type' do
           let(:facility_type) { 'cie' }
 
-          it 'increments claim creation error metric for CIE facility' do
+          it 'increments claim creation error metric and general failure metric for CIE facility' do
             mock_claim_creation_failure(400)
 
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE)
           end
         end
       end
 
       context 'when expense addition fails' do
-        it 'increments expense addition error metric for OH facility' do
+        it 'increments expense addition error metric and general failure metric for OH facility' do
           mock_expense_failure(500)
 
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_EXPENSE_ADD_ERROR)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE)
         end
 
         context 'with CIE facility type' do
           let(:facility_type) { 'cie' }
 
-          it 'increments expense addition error metric for CIE facility' do
+          it 'increments expense addition error metric and general failure metric for CIE facility' do
             mock_expense_failure(500)
 
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE)
           end
         end
       end
 
       context 'when claim submission fails' do
-        it 'increments claim submission error metric for OH facility' do
+        it 'increments claim submission error metric and general failure metric for OH facility' do
           mock_submission_failure(500)
 
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE)
         end
 
         context 'with CIE facility type' do
           let(:facility_type) { 'cie' }
 
-          it 'increments claim submission error metric for CIE facility' do
+          it 'increments claim submission error metric and general failure metric for CIE facility' do
             mock_submission_failure(500)
 
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE)
           end
         end
       end
@@ -577,10 +585,11 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           )
         end
 
-        it 'increments OH duplicate claim metric' do
+        it 'increments OH duplicate claim metric and general failure metric' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE)
         end
       end
 
@@ -600,10 +609,11 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           )
         end
 
-        it 'increments CIE duplicate claim metric' do
+        it 'increments CIE duplicate claim metric and general failure metric' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE)
         end
       end
 
@@ -621,10 +631,11 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           )
         end
 
-        it 'increments duplicate claim metric for OH facility' do
+        it 'increments duplicate claim metric and general failure metric for OH facility' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE)
         end
       end
     end

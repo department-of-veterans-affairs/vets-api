@@ -75,6 +75,8 @@ module TravelClaim
       result
     rescue Common::Exceptions::BackendServiceException => e
       log_submission_failure(error: e)
+      # Increment general failure metric
+      increment_failure_metric
       # Check if this is a duplicate claim error
       handle_duplicate_claim_error if duplicate_claim_error?(e)
       # Send error notification if feature flag is enabled
@@ -82,6 +84,8 @@ module TravelClaim
       raise e
     rescue => e
       log_submission_failure(error: e)
+      # Increment general failure metric
+      increment_failure_metric
       # Send error notification if feature flag is enabled
       send_error_notification_if_enabled(e)
       raise e
@@ -438,6 +442,16 @@ module TravelClaim
       increment_metric_by_facility_type(
         CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
         CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+      )
+    end
+
+    ##
+    # Increments the general failure metric based on facility type
+    #
+    def increment_failure_metric
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE,
+        CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE
       )
     end
 
