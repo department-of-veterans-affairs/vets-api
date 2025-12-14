@@ -130,7 +130,6 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     context 'when request fails' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
         allow(Rails.logger).to receive(:error)
       end
 
@@ -177,7 +176,6 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     context 'when request fails' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
         allow(Rails.logger).to receive(:error)
       end
 
@@ -288,6 +286,10 @@ RSpec.describe TravelClaim::TravelPayClient do
       end
 
       it 'logs original_status (downstream HTTP status) instead of transformed status' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_travel_claim_log_api_error_details).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:logging_data_scrubber).and_return(true)
+
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
                       claims_url_v2:) do
           # Simulate a 405 Method Not Allowed from downstream API
@@ -1048,6 +1050,99 @@ RSpec.describe TravelClaim::TravelPayClient do
 
           expect(result).to respond_to(:status)
           expect(result.status).to eq(200)
+        end
+      end
+    end
+  end
+
+  describe 'error details logging flipper behavior' do
+    before do
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      client.instance_variable_set(:@current_veis_token, test_veis_token)
+      client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(Rails.logger).to receive(:error)
+    end
+
+    context 'when error details flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_travel_claim_log_api_error_details).and_return(false)
+      end
+
+      it 'logs error without api_error_message or error_detail fields' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:, claims_base_path_v2:) do
+          # Capture the logged hash
+          logged_hash = nil
+          allow(Rails.logger).to receive(:error) do |hash|
+            logged_hash = hash
+          end
+
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::BackendServiceException.new(
+              'VA900',
+              { detail: 'Sensitive error information' },
+              400,
+              'Bad Request'
+            )
+          )
+
+          expect do
+            client.send_claim_request(appointment_id: 'test-appt-id')
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+
+          # Verify basic fields are present
+          expect(logged_hash).to include(
+            message: 'TravelPayClient: BTSSS API Error',
+            endpoint: 'BTSSS',
+            operation: 'create_claim',
+            http_status: 400,
+            error_class: 'Common::Exceptions::BackendServiceException',
+            error_code: 'VA900'
+          )
+
+          # Verify sensitive fields are NOT present
+          expect(logged_hash).not_to have_key(:api_error_message)
+          expect(logged_hash).not_to have_key(:error_detail)
+        end
+      end
+    end
+
+    context 'when error details flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_travel_claim_log_api_error_details).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:logging_data_scrubber).and_return(true)
+      end
+
+      it 'logs error with api_error_message and error_detail fields' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2:, claims_base_path_v2:) do
+          allow(client).to receive(:perform).and_raise(
+            Common::Exceptions::BackendServiceException.new(
+              'VA900',
+              { detail: 'Validation failed' },
+              400,
+              { message: 'Invalid request data' }.to_json
+            )
+          )
+
+          expect do
+            client.send_claim_request(appointment_id: 'test-appt-id')
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(Rails.logger).to have_received(:error).with(
+            hash_including(
+              message: 'TravelPayClient: BTSSS API Error',
+              endpoint: 'BTSSS',
+              operation: 'create_claim',
+              http_status: 400,
+              error_class: 'Common::Exceptions::BackendServiceException',
+              error_code: 'VA900',
+              api_error_message: 'Invalid request data',
+              error_detail: 'Validation failed'
+            )
+          )
         end
       end
     end

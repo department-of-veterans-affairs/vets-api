@@ -422,6 +422,7 @@ module TravelClaim
 
     ##
     # Unified logging method for all external API errors (VEIS/BTSSS).
+    # Always logs error occurrence; detailed error messages are gated by flipper flag.
     #
     # @param endpoint [String] 'VEIS' or 'BTSSS'
     # @param operation [String] what step failed (e.g., 'veis_token_request', 'create_claim')
@@ -429,8 +430,6 @@ module TravelClaim
     # @param context [Hash] additional context to include in logs
     #
     def log_external_api_error(endpoint:, operation:, error: nil, **context)
-      return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
-
       log_data = build_base_log_data(endpoint, operation)
       log_data.merge!(extract_error_details(error)) if error.present?
       log_data.merge!(context)
@@ -456,12 +455,15 @@ module TravelClaim
       details[:http_status] = extract_actual_status(error)
       details[:error_code] = error.key if error.respond_to?(:key)
 
-      if error.respond_to?(:original_body) && error.original_body.present?
-        details[:api_error_message] = extract_and_redact_message(error.original_body)
-      end
+      # Only include detailed error messages if flipper flag is enabled
+      if Flipper.enabled?(:check_in_experience_travel_claim_log_api_error_details)
+        if error.respond_to?(:original_body) && error.original_body.present?
+          details[:api_error_message] = extract_and_redact_message(error.original_body)
+        end
 
-      if error.respond_to?(:response_values) && error.response_values[:detail].present?
-        details[:error_detail] = error.response_values[:detail]
+        if error.respond_to?(:response_values) && error.response_values[:detail].present?
+          details[:error_detail] = error.response_values[:detail]
+        end
       end
 
       details
