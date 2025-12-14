@@ -338,15 +338,16 @@ module TravelClaim
     def veis_token!
       return @current_veis_token if @current_veis_token.present?
 
-      cached = redis_client.v1_veis_token
-      if cached.present?
-        @current_veis_token = cached
-      else
-        @current_veis_token = mint_veis_token
-        redis_client.save_v1_veis_token(token: @current_veis_token)
+      @current_veis_token = Rails.cache.fetch(
+        'token',
+        namespace: 'check-in-btsss-cache-v1',
+        expires_in: 54.minutes,
+        race_condition_ttl: 5.minutes
+      ) do
+        log_with_context('Minting new VEIS token')
+        StatsD.increment('api.check_in.travel_claim.veis_token.mint')
+        mint_veis_token
       end
-
-      @current_veis_token
     end
 
     def mint_veis_token
@@ -359,18 +360,12 @@ module TravelClaim
       token
     end
 
-    def refresh_tokens!
-      @current_veis_token  = nil
-      @current_btsss_token = nil
-      redis_client.save_v1_veis_token(token: nil)
-      ensure_tokens!
-    end
-
     # ------------ Auth wrapper ------------
 
     ##
     # Wraps external API calls to ensure proper authentication.
-    # Handles token refresh on unauthorized responses with retry limit.
+    # Retries once on 401 by clearing instance tokens and re-fetching from cache.
+    # With race_condition_ttl, multiple processes won't stampede the cache.
     #
     # @yield Block containing the API call to make
     # @return [Faraday::Response] API response
@@ -383,13 +378,14 @@ module TravelClaim
     rescue Common::Exceptions::BackendServiceException => e
       if e.original_status == 401 && !@auth_retry_attempted
         @auth_retry_attempted = true
-        log_auth_retry
-        refresh_tokens!
+        log_with_context('401 error - attempting token refresh')
+        @current_veis_token = nil
+        @current_btsss_token = nil
+        ensure_tokens!
         assert_auth_context!
         yield
       else
-        # Log auth errors for non-401 errors or 401 errors after retry
-        log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
+        log_with_context('401 error after retry') if e.original_status == 401 && @auth_retry_attempted
         raise
       end
     end
