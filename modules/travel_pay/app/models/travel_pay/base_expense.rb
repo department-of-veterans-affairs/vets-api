@@ -73,10 +73,10 @@ module TravelPay
     ### TODO Clean this up
     def hashify_receipt(r)
       result = {}
-      result['contentType'] = r['content_type']
-      result['length'] = r['length']
-      result['fileName'] = r['file_name']
-      result['fileData'] = r['file_data']
+      result['contentType'] = r['content_type'] || r[:content_type]
+      result['length'] = r['length'] || r[:length]
+      result['fileName'] = r['file_name'] || r[:file_name]
+      result['fileData'] = r['file_data'] || r[:file_data]
       result
     end
 

@@ -37,7 +37,6 @@ module TravelPay
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
-
         expense = create_and_validate_expense
         created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
@@ -108,7 +107,7 @@ module TravelPay
 
       def create_and_validate_expense
         expense = build_expense_from_params
-
+        
         return expense if expense.valid?
 
         Rails.logger.error(message: "Expense validation failed: #{expense.errors.full_messages}")
