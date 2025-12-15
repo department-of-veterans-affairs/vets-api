@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
+RSpec.describe 'MyHealth::V2::Prescriptions::DrugSheets', type: :request do
   include Rx::ClientHelpers
 
   let(:va_patient) { true }
@@ -23,7 +23,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
-    before { post '/my_health/v2/documentation/search', params: { ndc: '00013264681' } }
+    before { post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' } }
 
     include_examples 'for user account level', message: 'You do not have access to prescriptions'
   end
@@ -44,7 +44,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
                 sign_in: { service_name: SignIn::Constants::Auth::IDME })
         end
 
-        before { post '/my_health/v2/documentation/search', params: { ndc: '00013264681' } }
+        before { post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' } }
 
         it 'is NOT authorized' do
           expect(response).not_to be_successful
@@ -53,11 +53,11 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
         end
       end
 
-      describe 'POST /my_health/v2/documentation/search' do
+      describe 'POST /my_health/v2/prescriptions/drug_sheets/search' do
         context 'when NDC is provided' do
-          it 'responds to POST /my_health/v2/documentation/search' do
+          it 'responds to POST /my_health/v2/prescriptions/drug_sheets/search' do
             VCR.use_cassette('rx_client/prescriptions/rx_documentation_search') do
-              post '/my_health/v2/documentation/search', params: { ndc: '00013264681' }
+              post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' }
 
               expect(response).to be_successful
               expect(response.body).to be_a(String)
@@ -66,7 +66,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
 
           it 'returns prescription documentation in JSON format' do
             VCR.use_cassette('rx_client/prescriptions/rx_documentation_search') do
-              post '/my_health/v2/documentation/search', params: { ndc: '00013264681' }
+              post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' }
 
               expect(response).to have_http_status(:ok)
               expect(response.content_type).to eq('application/json; charset=utf-8')
@@ -75,7 +75,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
 
           it 'returns documentation with html attribute' do
             VCR.use_cassette('rx_client/prescriptions/rx_documentation_search') do
-              post '/my_health/v2/documentation/search', params: { ndc: '00013264681' }
+              post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' }
 
               json_response = JSON.parse(response.body)
               expect(json_response).to have_key('data')
@@ -89,7 +89,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
 
         context 'when NDC is missing' do
           it 'returns bad request error' do
-            post '/my_health/v2/documentation/search', params: {}
+            post '/my_health/v2/prescriptions/drug_sheets/search', params: {}
 
             expect(response).to have_http_status(:bad_request)
             json_response = JSON.parse(response.body)
@@ -101,7 +101,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
 
         context 'when NDC is blank' do
           it 'returns bad request error' do
-            post '/my_health/v2/documentation/search', params: { ndc: '' }
+            post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '' }
 
             expect(response).to have_http_status(:bad_request)
             json_response = JSON.parse(response.body)
@@ -123,7 +123,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
           end
 
           it 'returns not found error' do
-            post '/my_health/v2/documentation/search', params: { ndc: '99999999999' }
+            post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '99999999999' }
 
             expect(response).to have_http_status(:not_found)
             json_response = JSON.parse(response.body)
@@ -139,7 +139,7 @@ RSpec.describe 'MyHealth::V2::PrescriptionDocumentation', type: :request do
           end
 
           it 'returns service unavailable error' do
-            post '/my_health/v2/documentation/search', params: { ndc: '00013264681' }
+            post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' }
 
             expect(response).to have_http_status(:service_unavailable)
             json_response = JSON.parse(response.body)

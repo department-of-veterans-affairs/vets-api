@@ -4,7 +4,7 @@ require 'digest'
 
 module MyHealth
   module V2
-    class PrescriptionDocumentationSerializer
+    class DrugSheetSerializer
       include JSONAPI::Serializer
 
       set_id { '' }
