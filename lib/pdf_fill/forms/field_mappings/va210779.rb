@@ -292,13 +292,7 @@ module PdfFill
                 type: 'Text'
               }
             },
-            signature: {
-              # NOTE: This is a digital signature field (/Sig type) that cannot be filled with regular text.
-              key: 'F[0].Page_1[0].SignatureField1[0]',
-              question_text: '20. Signature of Nursing Home Official.',
-              limit: 30,
-              type: 'Text'
-            },
+            # NOTE: 'signature' field is not mapped here - it's stamped onto the PDF via stamp_signature method
             signatureDate: {
               month: {
                 key: 'F[0].Page_1[0].Date_Signed_Month[0]',
