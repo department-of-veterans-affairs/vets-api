@@ -29,6 +29,8 @@ module Lighthouse
         end
 
         def read(id)
+          raise ArgumentError, 'no ID passed in for HCCC Invoice read request' if id.blank?
+
           endpoint = "r4/Invoice/#{id}"
 
           config.get(endpoint, icn: @icn).body
