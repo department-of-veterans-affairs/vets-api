@@ -13,7 +13,7 @@ class InProgressForm < ApplicationRecord
     alias serialize cast
   end
 
-  attr_accessor :skip_exipry_update, :real_user_uuid
+  attr_accessor :real_user_uuid
 
   RETURN_URL_SQL = "CAST(metadata -> 'returnUrl' AS text)"
   attribute :user_uuid, CleanUUID.new
@@ -47,8 +47,6 @@ class InProgressForm < ApplicationRecord
 
   # https://guides.rubyonrails.org/active_record_callbacks.html
   before_save :serialize_form_data
-  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 21-526EZ 5655].include?(form.form_id) }
-  before_save :set_expires_at, unless: :skip_exipry_update
   after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy ->(ipf) { StatsD.increment('in_progress_form.destroy', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy lambda { |ipf|
@@ -110,6 +108,17 @@ class InProgressForm < ApplicationRecord
                        end
   end
 
+  ##
+  # Explicitly updates the expires_at timestamp based on user action.
+  # This should be called from controllers when a user updates their form.
+  # Uses update_column to bypass callbacks and avoid unintended side effects.
+  #
+  # @return [Boolean] true if the update was successful
+  #
+  def update_expires_at!
+    update_column(:expires_at, Time.current + expires_after)
+  end
+
   private
 
   def log_hca_email_diff
@@ -118,13 +127,5 @@ class InProgressForm < ApplicationRecord
 
   def serialize_form_data
     self.form_data = form_data.to_json unless form_data.is_a?(String)
-  end
-
-  def set_expires_at
-    self.expires_at = Time.current + expires_after
-  end
-
-  def skip_exipry_update_check
-    self.skip_exipry_update = expires_at.present?
   end
 end
