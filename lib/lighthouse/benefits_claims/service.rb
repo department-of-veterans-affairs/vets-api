@@ -306,7 +306,7 @@ module BenefitsClaims
       return unless tracked_items
 
       tracked_items
-        .select { |i| BenefitsClaims::Constants::FIRST_TO_THIRD_PARTY_EVIDENCE_REQUESTS.include?(i['displayName']) }
+        .select { |i| BenefitsClaims::Constants::FIRST_PARTY_AS_THIRD_PARTY_OVERRIDES.include?(i['displayName']) }
         .each do |i|
           i['status'] = 'NEEDED_FROM_OTHERS'
         end

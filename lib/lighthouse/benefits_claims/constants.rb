@@ -203,7 +203,7 @@ module BenefitsClaims
       'Stage 2 Development' # Not currently used by VBMS but will eventually replace `Secondary Action Required`
     ].freeze
 
-    FIRST_TO_THIRD_PARTY_EVIDENCE_REQUESTS = [
+    FIRST_PARTY_AS_THIRD_PARTY_OVERRIDES = [
       'PMR Pending',
       'Proof of service (DD214, etc.)',
       'NG1 - National Guard Records Request',
