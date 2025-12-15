@@ -182,20 +182,10 @@ RSpec.describe RepresentationManagement::AddressValidationService do
         )
       end
 
-      before do
-        call_count = 0
-
-        allow(mock_validation_service).to receive(:candidate) do
-          if call_count.zero?
-            call_count += 1
-            raise candidate_not_found_exception
-          else
-            valid_api_response
-          end
-        end
-      end
-
       it 'returns validated attributes after retrying' do
+        expect(mock_validation_service).to receive(:candidate).ordered.and_raise(candidate_not_found_exception)
+        expect(mock_validation_service).to receive(:candidate).ordered.and_return(valid_api_response)
+
         result = service_with_mock.validate_address(valid_address_hash)
         expect(result).to be_a(Hash)
         expect(result[:address_line1]).to eq('123 Main St')
@@ -364,20 +354,9 @@ RSpec.describe RepresentationManagement::AddressValidationService do
         )
       end
 
-      before do
-        call_count = 0
-
-        allow(mock_validation_service).to receive(:candidate) do
-          if call_count.zero?
-            call_count += 1
-            raise candidate_not_found_exception
-          else
-            valid_api_response
-          end
-        end
-      end
-
       it 'retries after ADDRVAL108 and returns the retry response' do
+        expect(mock_validation_service).to receive(:candidate).ordered.and_raise(candidate_not_found_exception)
+        expect(mock_validation_service).to receive(:candidate).ordered.and_return(valid_api_response)
         result = service_with_mock.get_best_address_candidate(valid_address_hash)
         expect(result).to eq(valid_api_response)
       end
@@ -405,20 +384,12 @@ RSpec.describe RepresentationManagement::AddressValidationService do
         )
       end
 
-      before do
-        call_count = 0
-
-        allow(mock_validation_service).to receive(:candidate) do
-          if call_count.zero?
-            call_count += 1
-            raise candidate_not_found_exception
-          else
-            zero_coordinate_response
-          end
-        end
-      end
-
       it 'returns nil when no valid candidate can be found after ADDRVAL108 retries' do
+        expect(mock_validation_service).to receive(:candidate).ordered.and_raise(candidate_not_found_exception)
+        3.times do
+          expect(mock_validation_service).to receive(:candidate).ordered.and_return(zero_coordinate_response)
+        end
+
         result = service_with_mock.get_best_address_candidate(valid_address_hash)
         expect(result).to be_nil
       end
@@ -475,19 +446,10 @@ RSpec.describe RepresentationManagement::AddressValidationService do
       end
 
       before do
-        call_count = 0
+        allow(service_with_mock).to receive(:modified_validation) do |_address_hash, attempt_number|
+          raise backend_error if attempt_number == 1
 
-        # Stub the private helper so we can simulate a failure on the first attempt
-        allow(service_with_mock).to receive(:modified_validation) do |_address_hash, _attempt_number|
-          call_count += 1
-
-          if call_count == 1
-            # First retry blows up
-            raise backend_error
-          else
-            # Second retry succeeds
-            valid_api_response
-          end
+          valid_api_response
         end
       end
 
@@ -498,8 +460,9 @@ RSpec.describe RepresentationManagement::AddressValidationService do
         result = service_with_mock.retry_validation(po_box_address)
 
         # We should have tried again after the exception
-        expect(service_with_mock).to have_received(:modified_validation).twice
+        expect(service_with_mock).to have_received(:modified_validation).with(po_box_address, 1).once
         # And ultimately return the successful response
+        expect(service_with_mock).to have_received(:modified_validation).with(po_box_address, 2).once
         expect(result).to eq(valid_api_response)
       end
     end
