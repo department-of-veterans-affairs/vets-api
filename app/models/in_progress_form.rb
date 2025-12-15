@@ -108,15 +108,8 @@ class InProgressForm < ApplicationRecord
                        end
   end
 
-  ##
-  # Explicitly updates the expires_at timestamp based on user action.
-  # This should be called from controllers when a user updates their form.
-  # Uses update_column to bypass callbacks and avoid unintended side effects.
-  #
-  # @return [Boolean] true if the update was successful
-  #
   def update_expires_at!
-    update_column(:expires_at, Time.current + expires_after)
+    update!(expires_at: Time.current + expires_after)
   end
 
   private
