@@ -3,6 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+  end
   let(:user) { build(:user) }
   let(:params) do
     {

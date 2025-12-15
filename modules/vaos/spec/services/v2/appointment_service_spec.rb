@@ -592,6 +592,8 @@ describe VAOS::V2::AppointmentsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          # Ensure Travel Pay claims client uses v2 endpoints to match VCR cassettes
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
@@ -626,6 +628,8 @@ describe VAOS::V2::AppointmentsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          # Ensure Travel Pay claims client uses v2 endpoints to match VCR cassettes
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_parallel_travel_claims,
                                                     user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
@@ -1069,6 +1073,8 @@ describe VAOS::V2::AppointmentsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          # Ensure Travel Pay claims client uses v2 endpoints to match VCR cassettes
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)

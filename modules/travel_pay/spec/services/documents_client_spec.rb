@@ -7,6 +7,7 @@ describe TravelPay::DocumentsClient do
 
   expected_log_prefix = 'travel_pay.documents.response_time'
   before do
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
     @stubs = Faraday::Adapter::Test::Stubs.new
 
     conn = Faraday.new do |c|

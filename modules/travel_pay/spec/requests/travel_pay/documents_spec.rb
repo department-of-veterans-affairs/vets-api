@@ -3,6 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe TravelPay::V0::DocumentsController, type: :request do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+  end
   include TravelPay::Engine.routes.url_helpers
 
   let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
