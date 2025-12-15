@@ -5,7 +5,12 @@ require 'rails_helper'
 RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
   before do
     allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+    allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
+                                                                                      btsss_token: 'btsss_token' })
+    sign_in(user)
+    allow_any_instance_of(TravelPay::V0::ComplexClaimsController).to receive(:current_user).and_return(user)
   end
+
   let(:user) { build(:user) }
   let(:params) do
     {
@@ -17,13 +22,6 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
   end
   let(:appointment_id) { 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e' }
   let(:claim_id) { '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
-
-  before do
-    allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
-                                                                                      btsss_token: 'btsss_token' })
-    sign_in(user)
-    allow_any_instance_of(TravelPay::V0::ComplexClaimsController).to receive(:current_user).and_return(user)
-  end
 
   # POST /travel_pay/v0/complex_claims/
   describe '#create' do

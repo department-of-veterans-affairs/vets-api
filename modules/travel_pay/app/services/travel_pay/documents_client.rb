@@ -4,7 +4,7 @@ require 'securerandom'
 require_relative './base_client'
 
 module TravelPay
-  class DocumentsClient < TravelPay::BaseClient    
+  class DocumentsClient < TravelPay::BaseClient
     ##
     # HTTP GET call to the BTSSS 'claims/:id/documents' endpoint
     # API responds with array of documents related to the claim:

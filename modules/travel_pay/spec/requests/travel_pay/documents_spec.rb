@@ -5,7 +5,11 @@ require 'rails_helper'
 RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   before do
     allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+    allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
+                                                                                      btsss_token: 'btsss_token' })
+    sign_in(user)
   end
+
   include TravelPay::Engine.routes.url_helpers
 
   let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
@@ -14,12 +18,6 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   let(:service) { instance_double(TravelPay::DocumentsService) }
   let(:valid_document) do
     Rack::Test::UploadedFile.new('modules/travel_pay/spec/fixtures/documents/test.pdf')
-  end
-
-  before do
-    allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
-                                                                                      btsss_token: 'btsss_token' })
-    sign_in(user)
   end
 
   # GET /travel_pay/v0/claims/:claim_id/documents/:id

@@ -322,7 +322,7 @@ describe TravelPay::DocumentsClient do
         end
 
         client = TravelPay::DocumentsClient.new
-        response = client.get_document_ids('veis_token', 'btsss_token', claim_id)
+        client.get_document_ids('veis_token', 'btsss_token', claim_id)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -338,11 +338,10 @@ describe TravelPay::DocumentsClient do
         end
 
         client = TravelPay::DocumentsClient.new
-        response = client.get_document_binary('veis_token', 'btsss_token', params)
+        client.get_document_binary('veis_token', 'btsss_token', params)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
-
     end
 
     context 'disabled' do
@@ -357,7 +356,7 @@ describe TravelPay::DocumentsClient do
         end
 
         client = TravelPay::DocumentsClient.new
-        response = client.get_document_ids('veis_token', 'btsss_token', claim_id)
+        client.get_document_ids('veis_token', 'btsss_token', claim_id)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
@@ -367,13 +366,13 @@ describe TravelPay::DocumentsClient do
           'claim_id' => 'uuid1',
           'doc_id' => 'docid1'
         }
-        
+
         @stubs.get("/api/v2/claims/#{params['claim_id']}/documents/#{params['doc_id']}") do
           [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
         end
 
         client = TravelPay::DocumentsClient.new
-        response = client.get_document_binary('veis_token', 'btsss_token', params)
+        client.get_document_binary('veis_token', 'btsss_token', params)
 
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
