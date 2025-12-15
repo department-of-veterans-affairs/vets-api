@@ -12,6 +12,8 @@ module V0
     def create
       claim = build_and_save_claim!
       handle_successful_claim(claim)
+
+      clear_saved_form(claim.form_id)
       render json: SavedClaimSerializer.new(claim)
     rescue Common::Exceptions::ValidationErrors => e
       handle_validation_error(e)
