@@ -34,9 +34,9 @@ require 'vets/model'
 # @!attribute station_number
 #   @return [String]
 # @!attribute is_refillable
-#   @return [Boolean]
+#   @return [Bool]
 # @!attribute is_trackable
-#   @return [Boolean]
+#   @return [Bool]
 # @!attribute metadata
 #   @return [Hash]
 #

@@ -145,6 +145,9 @@ module PdfFill
       def merge_fields(_options = {})
         form_data = JSON.parse(JSON.generate(@form_data))
 
+        # Sort programs by programName before processing
+        form_data['programs'] = FORMATTER.sort_programs_by_name(form_data['programs']) if form_data['programs']
+
         FORMATTER.combine_official_name(form_data)
         FORMATTER.process_programs(form_data)
 

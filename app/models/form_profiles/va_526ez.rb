@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/disability_compensation_form/service'
-require 'evss/ppiu/service'
 require 'disability_compensation/factories/api_provider_factory'
 require 'vets/model'
 
