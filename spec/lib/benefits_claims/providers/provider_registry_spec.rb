@@ -106,18 +106,18 @@ RSpec.describe BenefitsClaims::Providers::ProviderRegistry do
   end
 
   describe '.enabled_provider_classes' do
-    let(:provider_class_2) { Class.new { def initialize(user); end } }
-    let(:provider_class_3) { Class.new { def initialize(user); end } }
+    let(:provider_class_two) { Class.new { def initialize(user); end } }
+    let(:provider_class_three) { Class.new { def initialize(user); end } }
 
     before do
       described_class.register(:provider1, mock_provider_class, enabled_by_default: true)
-      described_class.register(:provider2, provider_class_2, enabled_by_default: false)
-      described_class.register(:provider3, provider_class_3, enabled_by_default: true)
+      described_class.register(:provider2, provider_class_two, enabled_by_default: false)
+      described_class.register(:provider3, provider_class_three, enabled_by_default: true)
     end
 
     it 'returns only enabled provider classes' do
       enabled = described_class.enabled_provider_classes
-      expect(enabled).to contain_exactly(mock_provider_class, provider_class_3)
+      expect(enabled).to contain_exactly(mock_provider_class, provider_class_three)
     end
 
     it 'returns empty array when no providers are enabled' do
