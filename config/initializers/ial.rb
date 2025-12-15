@@ -13,4 +13,6 @@ module IAL
   LOGIN_GOV_IAL1_MFA = 'http://idmanagement.gov/ns/assurance/ial/1/mfa'
   LOGIN_GOV_IAL2_2FA = 'http://idmanagement.gov/ns/assurance/ial/2/2fa'
   LOGIN_GOV_IAL2_MFA = 'http://idmanagement.gov/ns/assurance/ial/2/mfa'
+
+  IDME_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2/aal/2'
 end

@@ -131,6 +131,7 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
+    memorials: %w[1330M],
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
@@ -142,6 +143,7 @@ class FormProfile
     '10-7959C' => ::FormProfiles::VHA107959c,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
+    '1330M' => ::FormProfiles::VA1330m,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
     '21-0538' => DependentsVerification::FormProfiles::VA210538,
@@ -299,8 +301,6 @@ class FormProfile
 
     military_information_data
   rescue => e
-    log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
-
     log_exception_to_rails(e)
 
     {}

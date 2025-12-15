@@ -11,8 +11,6 @@ end
 
 RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   let!(:one_week_ago) { 1.week.ago.utc }
-  let!(:one_hour_ago) { 1.hour.ago.utc }
-  let!(:one_hundred_twenty_one_minutes_ago) { 121.minutes.ago.utc }
   let!(:forms) { create_list(:ivc_champva_form, 3, pega_status: nil, created_at: one_week_ago) }
   let!(:job) { IvcChampva::MissingFormStatusJob.new }
 
@@ -51,7 +49,6 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
     threshold = 5 # using 5 since dummy forms have `created_at` set to 1 week ago
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
-    allow(job).to receive(:send_zsf_notification_to_pega).and_call_original
 
     # Verify that the form is past threshold and has no email sent:
     expect(days_since_now(forms[0].created_at) > threshold).to be true
@@ -60,52 +57,31 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     # Perform should identify the form as lapsed and send a failure email:
     job.perform
 
-    # Verify that a ZSF email has been sent for the target forms:
-    expect(job).to have_received(:send_zsf_notification_to_pega).with(anything,
-                                                                      'PEGA-TEAM-ZSF').exactly(forms.count).times
-    expect(job).not_to have_received(:send_zsf_notification_to_pega).with(anything, 'PEGA-TEAM_MISSING_STATUS')
+    # Verify that an email has now been sent for the target form:
     expect(forms[0].reload.email_sent).to be true
   end
 
-  it 'identifies forms missing a Pega status for enough hours and attempts to notify PEGA' do
+  it 'identifies forms nearing expiration threshold and attempts to notify PEGA' do
     allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
 
-    threshold_hours = 2
-    allow(Settings.vanotify.services.ivc_champva).to receive(:missing_pega_status_email_threshold_hours)
-      .and_return(threshold_hours)
-    allow(job).to receive(:send_zsf_notification_to_pega).and_call_original
-    allow(job).to receive(:construct_email_payload_without_pii).and_call_original
+    threshold = 8
+    allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
 
-    # set forms created_at to one hour ago (under the threshold)
+    # verify that the forms are approaching threshold w/ no PEGA status:
     forms.each do |form|
-      form.update(created_at: one_hour_ago)
+      expect(form.pega_status).to be_nil
+      expect(days_since_now(form.created_at) < threshold).to be true
+      expect(days_since_now(form.created_at) > threshold - 2).to be true
     end
 
-    # `perform` should identify the forms as not yet lapsed
+    # `perform` should identify the form as nearing a lapse and send a notice to PEGA:
     job.perform
 
-    # Verify that we did NOT attempt to notify PEGA of anything:
-    expect(job).not_to have_received(:send_zsf_notification_to_pega)
+    # Verify that we attempted to notify PEGA:
+    expect(job.monitor).to have_received(:track_send_zsf_notification_to_pega).exactly(forms.count).times
+
+    # email_sent should not be true for this form since we only attempted to notify PEGA:
     expect(forms[0].reload.email_sent).to be false
-
-    # set forms created_at to 121 minutes ago (over the threshold)
-    forms.each do |form|
-      form.update(created_at: one_hundred_twenty_one_minutes_ago)
-    end
-
-    # `perform` should now identify the forms as lapsed
-    job.perform
-
-    # Verify that we attempted to notify PEGA of a missing status:
-    expect(job).to have_received(:send_zsf_notification_to_pega).with(anything, 'PEGA-TEAM_MISSING_STATUS')
-                                                                .exactly(forms.count).times
-    expect(job).not_to have_received(:send_zsf_notification_to_pega).with(anything, 'PEGA-TEAM-ZSF')
-
-    # email_sent should not be true for this form since we only attempted to notify PEGA of a missing status:
-    expect(forms[0].reload.email_sent).to be false
-
-    # PII should not have been included in the payload sent for PEGA notifications
-    expect(job).to have_received(:construct_email_payload_without_pii).at_least(:once)
   end
 
   it 'checks PEGA reporting API and declines to send failure email if form has actually been processed' do

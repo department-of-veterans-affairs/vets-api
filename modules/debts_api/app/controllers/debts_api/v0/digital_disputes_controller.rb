@@ -10,7 +10,7 @@ module DebtsApi
 
       def create
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
-        Flipper.enabled?(:digital_dmc_dispute_service) ? create_via_dmc! : create_legacy!
+        Flipper.enabled?(:digital_dmc_dispute_service, current_user) ? create_via_dmc! : create_legacy!
       end
 
       private
