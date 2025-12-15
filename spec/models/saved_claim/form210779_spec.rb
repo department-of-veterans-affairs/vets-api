@@ -55,4 +55,47 @@ RSpec.describe SavedClaim::Form210779, type: :model do
       claim.process_attachments!
     end
   end
+
+  describe '#to_pdf' do
+    let(:saved_claim) { create(:va210779) }
+    let(:pdf_path) { 'tmp/pdfs/21-0779_test.pdf' }
+    let(:stamped_pdf_path) { 'tmp/pdfs/21-0779_test_stamped.pdf' }
+
+    before do
+      allow(PdfFill::Filler).to receive(:fill_form).and_return(pdf_path)
+      allow(PdfFill::Forms::Va210779).to receive(:stamp_signature).and_return(stamped_pdf_path)
+    end
+
+    it 'generates the PDF using PdfFill::Filler' do
+      expect(PdfFill::Filler).to receive(:fill_form).with(saved_claim, nil, {}).and_return(pdf_path)
+      saved_claim.to_pdf
+    end
+
+    it 'calls stamp_signature with the filled PDF and parsed form data' do
+      expect(PdfFill::Forms::Va210779).to receive(:stamp_signature).with(
+        pdf_path,
+        saved_claim.parsed_form
+      ).and_return(stamped_pdf_path)
+
+      saved_claim.to_pdf
+    end
+
+    it 'returns the stamped PDF path' do
+      result = saved_claim.to_pdf
+      expect(result).to eq(stamped_pdf_path)
+    end
+
+    it 'passes through file_name and fill_options to PdfFill::Filler' do
+      file_name = 'custom_name.pdf'
+      fill_options = { flatten: true }
+
+      expect(PdfFill::Filler).to receive(:fill_form).with(
+        saved_claim,
+        file_name,
+        fill_options
+      ).and_return(pdf_path)
+
+      saved_claim.to_pdf(file_name, fill_options)
+    end
+  end
 end
