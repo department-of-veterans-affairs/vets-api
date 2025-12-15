@@ -34,7 +34,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Association do
   end
 
   describe '#associate' do
-    it 'performs a GET' do
+    it 'performs a PUT' do
       path = "files/#{uuid}/associations/claims"
       expect(service).to receive(:perform).with(:put, path, { associatedClaimIds: associated })
       service.associate(uuid, claim_ids)
@@ -42,7 +42,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Association do
   end
 
   describe '#put' do
-    it 'performs a GET via class method' do
+    it 'performs a PUT via class method' do
       allow(ClaimsEvidenceApi::Service::Association).to receive(:new).and_return service
 
       path = "files/#{uuid}/associations/claims"
