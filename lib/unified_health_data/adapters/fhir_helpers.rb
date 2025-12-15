@@ -14,6 +14,8 @@ module UnifiedHealthData
 
         parsed_time = Time.zone.parse(date_string)
         parsed_time || Time.zone.at(0)
+      rescue ArgumentError, TypeError
+        Time.zone.at(0)
       end
 
       # Calculates days since a given date
@@ -66,7 +68,15 @@ module UnifiedHealthData
         # Sort by whenHandedOver date, most recent first
         dispenses.max_by do |dispense|
           when_handed_over = dispense['whenHandedOver']
-          when_handed_over ? Time.zone.parse(when_handed_over) : Time.zone.at(0)
+          if when_handed_over
+            begin
+              Time.zone.parse(when_handed_over) || Time.zone.at(0)
+            rescue ArgumentError, TypeError
+              Time.zone.at(0)
+            end
+          else
+            Time.zone.at(0)
+          end
         end
       end
 

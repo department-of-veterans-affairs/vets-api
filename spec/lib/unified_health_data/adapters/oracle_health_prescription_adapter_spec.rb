@@ -2737,7 +2737,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(metadata).to eq({})
       end
 
-      it 'handles invalid date format gracefully' do
+      it 'handles invalid date format gracefully by returning empty hash' do
         resource = base_resource.merge(
           'id' => '12345',
           'contained' => [
@@ -2753,7 +2753,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
 
-        expect(metadata[:refill_submit_date]).to eq('invalid-date')
+        expect(metadata).to eq({})
       end
     end
 

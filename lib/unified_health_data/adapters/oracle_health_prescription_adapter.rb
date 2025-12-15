@@ -183,6 +183,11 @@ module UnifiedHealthData
 
         task_submit_date = most_recent_task.dig('executionPeriod', 'start')
         return {} unless task_submit_date
+
+        # Validate date format before returning - reject invalid dates
+        parsed_date = parse_date_or_epoch(task_submit_date)
+        return {} if parsed_date == Time.zone.at(0)
+
         return {} if subsequent_dispense?(task_submit_date, dispenses_data)
 
         { refill_submit_date: task_submit_date }
