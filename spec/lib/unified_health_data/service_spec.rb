@@ -501,9 +501,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(dates).to eq(dates.sort.reverse)
 
           vitals_without_dates = vitals.select { |v| v.date.nil? }
-          if vitals_without_dates.any?
-            expect(vitals.last(vitals_without_dates.size)).to eq(vitals_without_dates)
-          end
+          expect(vitals.last(vitals_without_dates.size)).to eq(vitals_without_dates) if vitals_without_dates.any?
         end
       end
 
