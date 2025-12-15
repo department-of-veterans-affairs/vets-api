@@ -63,6 +63,7 @@ module SimpleFormsApi
       file_path = find_main_attachment_path(attachment)
       stamper = SimpleFormsApi::PdfStamper.new(
         stamped_template_path: file_path,
+        form_number: params[:form_number],
         current_loa: current_user.loa[:current],
         timestamp: Time.current
       )

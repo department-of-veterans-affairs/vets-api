@@ -78,9 +78,15 @@ module SimpleFormsApi
 
       def upload_response_legacy
         file_path = find_attachment_path(params[:confirmation_code])
-        stamper = PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
-                                 timestamp: Time.current)
+
+        stamper = PdfStamper.new(
+          stamped_template_path: file_path,
+          form_number: params[:form_number],
+          current_loa: @current_user.loa[:current],
+          timestamp: Time.current
+        )
         stamper.stamp_pdf
+
         metadata = validated_metadata
         status, confirmation_number = upload_pdf(file_path, metadata)
         file_size = File.size(file_path).to_f / (2**20)
