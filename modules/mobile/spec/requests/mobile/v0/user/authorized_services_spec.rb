@@ -74,20 +74,23 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
 
       expect(meta).to eq({
                            'isUserAtPretransitionedOhFacility' => true,
-                           'isUserFacilityReadyForInfoAlert' => false
+                           'isUserFacilityReadyForInfoAlert' => false,
+                           'isUserFacilityMigratingToOh' => true
                          })
     end
 
     it 'includes properly set meta flags for user at pretransitioned oh facility and ready for info alert' do
       Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
       Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612, 555'
+      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '321, 654'
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
 
       expect(meta).to eq({
                            'isUserAtPretransitionedOhFacility' => true,
-                           'isUserFacilityReadyForInfoAlert' => true
+                           'isUserFacilityReadyForInfoAlert' => true,
+                           'isUserFacilityMigratingToOh' => false
                          })
     end
 

@@ -40,7 +40,7 @@ module MHV
         return false if @current_user.va_treatment_facility_ids.blank?
 
         @current_user.va_treatment_facility_ids.any? do |facility|
-          facilities_migrating_to_oh.include?(facility.to_s) && feature_toggle_enabled?
+          facilities_migrating_to_oh.include?(facility.to_s)
         end
       end
 

@@ -172,6 +172,7 @@ module Users
           facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
           user_at_pretransitioned_oh_facility: oh_facilities_helper.user_at_pretransitioned_oh_facility?,
           user_facility_ready_for_info_alert: oh_facilities_helper.user_facility_ready_for_info_alert?,
+          user_facility_migrating_to_oh: oh_facilities_helper.user_facility_migrating_to_oh?,
           va_patient: user.va_patient?,
           mhv_account_state: user.mhv_account_state,
           active_mhv_ids: user.active_mhv_ids,

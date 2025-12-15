@@ -50,6 +50,7 @@ properties:
     required:
       - isUserAtPretransitionedOhFacility
       - isUserFacilityReadyForInfoAlert
+      - isUserFacilityMigratingToOh
     properties:
       isUserAtPretransitionedOhFacility:
         type: boolean
@@ -59,3 +60,7 @@ properties:
         type: boolean
         example: false
         description: Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition.
+      isUserFacilityMigratingToOh:
+        type: boolean
+        example: false
+        description: Indicates whether the user is associated with a facility that is migrating to Oracle Health.

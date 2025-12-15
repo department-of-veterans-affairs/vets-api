@@ -290,7 +290,8 @@ RSpec.describe Users::Profile do
         context 'Oracle Health facility checks' do
           before do
             allow(Settings.mhv.oh_facility_checks).to receive_messages(pretransitioned_oh_facilities: '612, 357, 555',
-                                                                       facilities_ready_for_info_alert: '555, 500')
+                                                                       facilities_ready_for_info_alert: '555, 500',
+                                                                       facilities_migrating_to_oh: '321, 654, 777')
           end
 
           context 'when user has pre-transitioned OH facility' do
@@ -333,21 +334,82 @@ RSpec.describe Users::Profile do
             end
           end
 
-          context 'when user has multiple facilities including OH facilities' do
+          context 'when user has facility migrating to OH' do
             before do
-              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 555 999])
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[321 999])
             end
 
-            it 'correctly identifies both flags' do
-              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
-              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+            it 'sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
             end
           end
 
-          it 'when user has no facilities sets both flags to false' do
-            allow(user).to receive(:va_treatment_facility_ids).and_return([])
-            expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
-            expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+          context 'when user does not have facility migrating to OH' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_facility_migrating_to_oh to false' do
+              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has multiple facilities including migrating facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[654 999])
+            end
+
+            it 'sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user has multiple facilities including OH facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 555 321 999])
+            end
+
+            it 'correctly identifies all three flags' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user has no facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return([])
+            end
+
+            it 'sets all flags to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has facilities but none match OH facility lists' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[111 222 333])
+            end
+
+            it 'sets all OH facility flags to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has migrating facility but not other OH facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[777 111])
+            end
+
+            it 'only sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+            end
           end
         end
       end
