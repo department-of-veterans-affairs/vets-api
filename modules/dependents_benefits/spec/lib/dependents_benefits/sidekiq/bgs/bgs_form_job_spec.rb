@@ -173,4 +173,66 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
       end
     end
   end
+
+  describe '#generate_proc_id' do
+    let(:bgs_service) { instance_double(BGSV2::Service) }
+    let(:monitor) { instance_double(DependentsBenefits::Monitor) }
+
+    before do
+      allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+      allow(job).to receive_messages(monitor:, generate_user_struct: {}, saved_claim:)
+    end
+
+    context 'when proc ID generation succeeds' do
+      before do
+        allow(bgs_service).to receive_messages(create_proc: { vnp_proc_id: 'test-proc-id-123' }, create_proc_form: true)
+        allow(saved_claim).to receive_messages(submittable_686?: true, submittable_674?: false)
+      end
+
+      it 'returns the generated proc ID' do
+        proc_id = job.send(:generate_proc_id)
+
+        expect(proc_id).to eq('test-proc-id-123')
+      end
+
+      it 'creates proc forms based on claim type' do
+        expect(bgs_service).to receive(:create_proc_form).with('test-proc-id-123', '21-686c')
+
+        job.send(:generate_proc_id)
+      end
+    end
+
+    context 'when proc ID generation fails' do
+      let(:error) { StandardError.new('BGS service unavailable') }
+
+      before do
+        allow(bgs_service).to receive(:create_proc).and_raise(error)
+        allow(monitor).to receive(:track_submission_error)
+      end
+
+      it 'tracks the error with monitor' do
+        expect(monitor).to receive(:track_submission_error).with(
+          'Error generating proc ID',
+          'proc_id_failure',
+          hash_including(error:, parent_claim_id: parent_claim.id)
+        )
+
+        expect do
+          job.send(:generate_proc_id)
+        end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError)
+      end
+
+      it 'raises DependentSubmissionError' do
+        expect do
+          job.send(:generate_proc_id)
+        end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError)
+      end
+
+      it 'wraps the original error' do
+        job.send(:generate_proc_id)
+      rescue DependentsBenefits::Sidekiq::DependentSubmissionError => e
+        expect(e.message).to eq('BGS service unavailable')
+      end
+    end
+  end
 end
