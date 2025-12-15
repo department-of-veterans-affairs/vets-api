@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_01_135954) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -856,6 +856,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_01_135954) do
     t.integer "saved_claim_id", null: false
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
+    t.string "token"
     t.index ["created_at"], name: "index_education_benefits_claims_on_created_at"
     t.index ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id"
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
