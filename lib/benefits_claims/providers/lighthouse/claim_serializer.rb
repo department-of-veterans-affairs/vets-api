@@ -31,7 +31,10 @@ module BenefitsClaims
           }
 
           attributes['claimPhaseDates'] = serialize_phase_dates(dto.claim_phase_dates) if dto.claim_phase_dates
-          attributes['supportingDocuments'] = serialize_supporting_documents(dto.supporting_documents) if dto.supporting_documents
+          if dto.supporting_documents
+            attributes['supportingDocuments'] =
+              serialize_supporting_documents(dto.supporting_documents)
+          end
           attributes['evidenceSubmissions'] = dto.evidence_submissions if dto.evidence_submissions
           attributes['contentions'] = serialize_contentions(dto.contentions) if dto.contentions
           attributes['events'] = serialize_events(dto.events) if dto.events
