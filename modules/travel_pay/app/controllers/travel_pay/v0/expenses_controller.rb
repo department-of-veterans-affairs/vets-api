@@ -107,7 +107,7 @@ module TravelPay
 
       def create_and_validate_expense
         expense = build_expense_from_params
-        
+
         return expense if expense.valid?
 
         Rails.logger.error(message: "Expense validation failed: #{expense.errors.full_messages}")

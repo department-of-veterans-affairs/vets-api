@@ -233,14 +233,15 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     it 'includes has_receipt flag when receipt is present' do
-      subject.receipt = {file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
+      subject.receipt = { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
       json = subject.to_h
       expect(json['has_receipt']).to be true
     end
 
     it 'includes receipt when receipt is present' do
-      mock_receipt = {file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
-      expected_receipt_data = {fileName: 'test', fileData: 'data', contentType: 'type', length: 123 }.with_indifferent_access
+      mock_receipt = { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
+      expected_receipt_data = { fileName: 'test', fileData: 'data', contentType: 'type',
+                                length: 123 }.with_indifferent_access
       subject.receipt = mock_receipt
       json = subject.to_h
       expect(json['receipt']).to eq(expected_receipt_data)
@@ -367,7 +368,7 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     context 'creating an expense with receipt' do
-      let(:mock_receipt) { {file_name: 'test', file_data: 'data', content_type: 'type', length: 123 } }
+      let(:mock_receipt) { { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 } }
       let(:expense) do
         described_class.new(
           description: 'Expense with receipt',
@@ -499,9 +500,13 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     context 'with receipt' do
-      let(:receipt_data) { { file_name: 'receipt.pdf', content_type: 'application/pdf', file_data: 'contents', length: 120 }.with_indifferent_access }
+      let(:receipt_data) do
+        { file_name: 'receipt.pdf', content_type: 'application/pdf', file_data: 'contents',
+          length: 120 }.with_indifferent_access
+      end
       let(:expected_receipt_data) do
-        { fileName: 'receipt.pdf', contentType: 'application/pdf', fileData: 'contents', length: 120 }.with_indifferent_access
+        { fileName: 'receipt.pdf', contentType: 'application/pdf', fileData: 'contents',
+          length: 120 }.with_indifferent_access
       end
 
       it 'includes receipt when present' do

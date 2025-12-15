@@ -86,13 +86,13 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
         expect(expenses_client).to receive(:add_expense)
           .with(anything, anything, 'parking', expected_request_body)
-          .and_return({'id' => 1234})
+          .and_return({ 'id' => 1234 })
 
         # allow_any_instance_of(TravelPay::ExpensesService).to receive(:client).and_return(expenses_client)
 
         post "/travel_pay/v0/claims/#{test_claim_id}/expenses/parking",
-              params: vets_api_params,
-              headers: { 'Authorization' => 'Bearer vagov_token' }
+             params: vets_api_params,
+             headers: { 'Authorization' => 'Bearer vagov_token' }
       end
     end
 
@@ -165,7 +165,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
           'length' => '1446',
           'file_name' => 'test.pdf',
           'file_data' => Base64.strict_encode64(Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures',
-                                                                'documents', 'test.pdf').read),
+                                                                'documents', 'test.pdf').read)
         }
       end
       let(:expense_params_with_receipt) do
