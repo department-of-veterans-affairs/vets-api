@@ -116,12 +116,12 @@ module UnifiedHealthData
         medication_requests.map { |entry| @oracle_adapter.parse(entry['resource']) }.compact
       end
 
-      # Applies V2 status mapping to all prescriptions when Cerner pilot flag is enabled
+      # Applies V2 status mapping to all prescriptions when V2 status mapping flag is enabled
       # This is the single consolidation point for V2 status mapping for both VistA and Oracle Health
       # @param prescriptions [Array] Array of prescription objects
       # @return [Array] The same array with prescription statuses mapped (if flag enabled)
       def apply_v2_status_mapping_if_enabled(prescriptions)
-        return prescriptions unless Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
+        return prescriptions unless Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
 
         apply_v2_status_mapping_to_all(prescriptions)
       end
