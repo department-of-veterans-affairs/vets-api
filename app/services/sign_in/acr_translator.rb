@@ -41,10 +41,12 @@ module SignIn
         Constants::Auth::IDME_LOA1
       when 'loa3'
         Constants::Auth::IDME_LOA3_FORCE
+      when 'ial2'
+        ial2_enabled? ? Constants::Auth::IDME_IAL2 : invalid_acr!
       when 'min'
         uplevel ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
       else
-        raise Errors::InvalidAcrError.new message: 'Invalid ACR for idme'
+        invalid_acr!
       end
     end
 
@@ -77,6 +79,14 @@ module SignIn
       else
         raise Errors::InvalidAcrError.new message: 'Invalid ACR for logingov'
       end
+    end
+
+    def ial2_enabled?
+      Flipper.enabled?(:identity_ial2_enforcement) && Settings.vsp_environment != 'production'
+    end
+
+    def invalid_acr!
+      raise Errors::InvalidAcrError.new message: 'Invalid ACR for idme'
     end
   end
 end

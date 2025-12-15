@@ -212,7 +212,6 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       let(:payment_info) { { account_number: '1234', routing_number: '5678' } }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:toe_light_house_dgi_direct_deposit).and_return(true)
         allow(DirectDeposit::Client).to receive(:new).and_return(direct_deposit_client)
         allow(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
       end
