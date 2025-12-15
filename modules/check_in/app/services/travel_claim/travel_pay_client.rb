@@ -98,12 +98,6 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing access token
     #
     def system_access_token_request(veis_access_token:, icn:)
-      # Log presence booleans only — no PHI/PII
-      Rails.logger.info('TravelPayClient BTSSS auth preflight', {
-                          correlation_id: @correlation_id,
-                          icn_present: icn.present?
-                        })
-
       with_monitoring do
         body = { secret: btsss_client_secret, icn: }
         headers = {
