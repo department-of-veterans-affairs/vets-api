@@ -9,7 +9,7 @@ require 'lighthouse/benefits_claims/configuration'
 RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
   include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859' } }
 
-  let(:mpi_profile) { instance_double('MPIProfile', edipi: '1234567890') }
+  let(:mpi_profile) { instance_double(MPI::Models::MviProfile, edipi: '1234567890') }
 
   before do
     allow_any_instance_of(V0::Chatbot::ClaimStatusController)
