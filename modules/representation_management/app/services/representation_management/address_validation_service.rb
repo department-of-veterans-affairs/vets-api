@@ -64,12 +64,12 @@ module RepresentationManagement
 
     # Builds a VAProfile ValidationAddress object from an address hash
     #
-    # Uses Veteran::AddressPreprocessor to normalize PO Boxes and suite/room information
+    # Uses RepresentationManagement::AddressPreprocessor to normalize PO Boxes and suite/room information
     #
     # @param address_hash [Hash] Address data with string keys
     # @return [VAProfile::Models::ValidationAddress]
     def build_validation_address(address_hash)
-      cleaned = Veteran::AddressPreprocessor.clean(address_hash)
+      cleaned = RepresentationManagement::AddressPreprocessor.clean(address_hash)
 
       VAProfile::Models::ValidationAddress.new(
         address_pou: cleaned['address_pou'] || address_hash['address_pou'] || 'RESIDENCE',

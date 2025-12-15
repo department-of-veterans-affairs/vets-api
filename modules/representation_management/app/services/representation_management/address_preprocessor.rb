@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Veteran
+module RepresentationManagement
   module AddressPreprocessor
     PO_BOX_REGEX = /P\.?O\.?\s*BOX\s*\d+/i
     ROOM_SUITE_REGEX = /,?\s*(Room|Rm|Suite|Ste?)\.?\s*\d+/i
@@ -26,6 +26,7 @@ module Veteran
       address_line, secondary_designator = extract_secondary_designator(line1)
       if address_line.blank?
         cleaned['address_line1'] = nil
+        cleaned['address_line2'] = nil
         return cleaned
       end
 

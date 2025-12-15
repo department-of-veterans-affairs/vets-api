@@ -231,21 +231,21 @@ RSpec.describe RepresentationManagement::AddressValidationService do
       expect(result.address_line3).to be_nil
     end
 
-    context 'when Veteran::AddressPreprocessor is available' do
+    context 'when RepresentationManagement::AddressPreprocessor is available' do
       it 'uses the cleaned address values from the preprocessor' do
         cleaned_address = valid_address_hash.merge(
           'address_line1' => 'PO Box 123',
           'address_line2' => nil
         )
 
-        allow(Veteran::AddressPreprocessor)
+        allow(RepresentationManagement::AddressPreprocessor)
           .to receive(:clean)
           .with(valid_address_hash)
           .and_return(cleaned_address)
 
         result = service.build_validation_address(valid_address_hash)
 
-        expect(Veteran::AddressPreprocessor).to have_received(:clean).with(valid_address_hash)
+        expect(RepresentationManagement::AddressPreprocessor).to have_received(:clean).with(valid_address_hash)
         expect(result).to be_a(VAProfile::Models::ValidationAddress)
         expect(result.address_line1).to eq('PO Box 123')
         expect(result.address_line2).to be_nil
