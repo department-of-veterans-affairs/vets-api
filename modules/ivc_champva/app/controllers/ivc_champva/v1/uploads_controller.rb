@@ -317,8 +317,16 @@ module IvcChampva
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A 10-10D-EXTENDED].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
+          Rails.logger.info "submit_supporting_documents called for form #{params[:form_id]}"
+
           unlocked = unlock_file(params['file'], params['password'])
           attachment.file = params['password'] ? unlocked : params['file']
+
+          # pre-validation logging to help debug issues
+          Rails.logger.info "attachment.file class: #{attachment.file.class}"
+          Rails.logger.info "attachment.file present: #{attachment.file.present?}"
+          Rails.logger.info "attachment.file size: #{attachment.file.size}"
+
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
