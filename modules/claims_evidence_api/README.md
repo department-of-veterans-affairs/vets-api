@@ -8,6 +8,8 @@ This module provides a modern interface to the Claims Evidence API, replacing le
 
 There is already virus scanning as part of the evidence upload on the site (persistent attachment creation), but this also runs clamav scanning as part of the validation during upload via the service
 
+PDF stamping can be handled by the Uploader, but is not required.  The stamping is performed by using PDFUtilies::PDFStamper, and providing the name of a predefined set or an array of stamp parameters.  Different sets can be applied to the generated claim pdf and the attachment pdfs.  The `evidence.created_at` is passed as the timestamp to the stamping function - `PDFUtilities::PDFStamper.new(stamp_set).run(file_path, timestamp: evidence.created_at)`.
+
 **Key Features:**
 - Secure document upload with JWT authentication
 - File validation and virus scanning
@@ -76,6 +78,14 @@ file_uuid = uploader.upload_evidence(
 # OR
 
 claim_pdf_uuid = uploader.upload_saved_claim_evidence(claim.id)
+```
+
+#### With providing stamp sets
+
+```ruby
+claim_stamp_set = [ { text: 'VA.GOV', x: 5, y: 5 }, { text: 'FDC Reviewed', x: 430, y: 820 } ]
+attachment_stamp_set = :va_received_at # predefined by 'registering' the set `::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)`
+claim_pdf_uuid = uploader.upload_saved_claim_evidence(claim.id, claim_stamp_set:, attachment_stamp_set:)
 ```
 
 ### Service Layer Access
