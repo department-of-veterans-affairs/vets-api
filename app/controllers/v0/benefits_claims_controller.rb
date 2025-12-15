@@ -25,7 +25,7 @@ module V0
     FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
 
     def index
-      claims = service.get_claims
+      claims = aggregate_claims_from_providers
 
       check_for_birls_id
       check_for_file_number
@@ -125,6 +125,37 @@ module V0
 
     def service
       @service ||= BenefitsClaims::Service.new(@current_user.icn)
+    end
+
+    def configured_providers
+      BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(@current_user)
+    end
+
+    def aggregate_claims_from_providers
+      if configured_providers.count == 1
+        provider = configured_providers.first.new(@current_user)
+        return provider.get_claims
+      end
+
+      claims_data = []
+      provider_errors = []
+
+      configured_providers.each do |provider_class|
+        provider = provider_class.new(@current_user)
+        provider_claims = provider.get_claims
+        claims_data.concat(provider_claims['data'])
+      rescue => e
+        provider_errors << { provider: provider_class.name, error: e.message }
+        ::Rails.logger.error("Provider #{provider_class.name} failed: #{e.message}")
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error", tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
+      end
+
+      {
+        'data' => claims_data,
+        'meta' => {
+          'provider_errors' => provider_errors.presence
+        }.compact
+      }
     end
 
     def check_for_birls_id

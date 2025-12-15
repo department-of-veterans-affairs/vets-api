@@ -35,6 +35,11 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     allow(Rails.logger).to receive(:error)
     allow(StatsD).to receive(:increment)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+
+    # Mock provider registry to return Lighthouse provider by default for backward compatibility
+    allow(BenefitsClaims::Providers::ProviderRegistry)
+      .to receive(:enabled_provider_classes)
+      .and_return([BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider])
   end
 
   describe '#index' do
@@ -596,6 +601,134 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         get(:index)
 
         expect(response).to have_http_status(:gateway_timeout)
+      end
+    end
+
+    context 'with provider aggregation' do
+      let(:mock_provider_class_one) do
+        Class.new do
+          def initialize(user)
+            @user = user
+          end
+
+          def get_claims
+            {
+              'data' => [
+                {
+                  'id' => 'provider_one_claim_one',
+                  'type' => 'claim',
+                  'attributes' => { 'claimType' => 'Compensation', 'status' => 'CLAIM_RECEIVED' }
+                }
+              ]
+            }
+          end
+        end
+      end
+
+      let(:mock_provider_class_two) do
+        Class.new do
+          def initialize(user)
+            @user = user
+          end
+
+          def get_claims
+            {
+              'data' => [
+                {
+                  'id' => 'provider_two_claim_one',
+                  'type' => 'claim',
+                  'attributes' => { 'claimType' => 'Compensation', 'status' => 'CLAIM_RECEIVED' }
+                }
+              ]
+            }
+          end
+        end
+      end
+
+      before do
+        allow(BenefitsClaims::Providers::ProviderRegistry)
+          .to receive(:enabled_provider_classes)
+          .and_return([mock_provider_class_one, mock_provider_class_two])
+      end
+
+      it 'aggregates claims from multiple providers' do
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['data'].count).to eq(2)
+        expect(parsed_body['data'].map { |c| c['id'] }).to contain_exactly('provider_one_claim_one', 'provider_two_claim_one')
+      end
+
+      it 'continues processing when one provider fails' do
+        failing_provider = Class.new do
+          def initialize(user)
+            @user = user
+          end
+
+          def get_claims
+            raise StandardError, 'Provider failed'
+          end
+        end
+
+        allow(BenefitsClaims::Providers::ProviderRegistry)
+          .to receive(:enabled_provider_classes)
+          .and_return([mock_provider_class_one, failing_provider])
+
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['data'].count).to eq(1)
+        expect(parsed_body['data'].first['id']).to eq('provider1_claim1')
+        expect(parsed_body['meta']['provider_errors']).to be_present
+        expect(parsed_body['meta']['provider_errors'].first['error']).to eq('Provider failed')
+      end
+
+      it 'logs errors and increments StatsD when provider fails' do
+        failing_provider = Class.new do
+          def initialize(user)
+            raise StandardError, 'Provider initialization failed'
+          end
+        end
+
+        allow(BenefitsClaims::Providers::ProviderRegistry)
+          .to receive(:enabled_provider_classes)
+          .and_return([failing_provider, mock_provider_class_1])
+
+        expect(Rails.logger).to receive(:error).with(/Provider.*failed/)
+        expect(StatsD).to receive(:increment).with(
+          'api.benefits_claims.provider_error',
+          hash_including(tags: array_including('provider:'))
+        )
+
+        get(:index)
+      end
+
+      it 'returns empty data when multiple providers fail' do
+        failing_provider_one = Class.new do
+          def initialize(user)
+            raise StandardError, 'Provider 1 failed'
+          end
+        end
+
+        failing_provider_two = Class.new do
+          def initialize(user)
+            raise StandardError, 'Provider 2 failed'
+          end
+        end
+
+        allow(BenefitsClaims::Providers::ProviderRegistry)
+          .to receive(:enabled_provider_classes)
+          .and_return([failing_provider_one, failing_provider_two])
+
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['data']).to be_empty
+        expect(parsed_body['meta']['provider_errors']).to be_present
+        expect(parsed_body['meta']['provider_errors'].count).to eq(2)
       end
     end
   end
