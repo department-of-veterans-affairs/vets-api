@@ -66,7 +66,7 @@ module Mobile
 
       def fetch_facility_names(unique_care_system_ids)
         Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
-      rescue StandardError => e
+      rescue => e
         # log the error but don't prevent allrecipients from being returned
         StatsD.increment('mobile.sm.allrecipients.facilities_lookup.failure')
         Rails.logger.error('Lighthouse Facilities API error for allrecipients',
