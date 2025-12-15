@@ -70,7 +70,7 @@ RSpec.describe InProgressForm, type: :model do
       it 'does not update expires_at on save without explicit call' do
         # Verify 526 form does NOT update expires_at on save (no callback)
         disability_form = create(:in_progress_form, form_id: '21-526EZ')
-        disability_form.update_expires_at!  # Set initial expires_at
+        disability_form.update_expires_at!
         disability_prev_time = disability_form.expires_at
         disability_form.save
         expect(disability_form.expires_at).to eq(disability_prev_time)
@@ -82,17 +82,16 @@ RSpec.describe InProgressForm, type: :model do
 
       it 'does not update expires_at on save without explicit call' do
         fsr_form = create(:in_progress_form, form_id: '5655')
-        fsr_form.update_expires_at!  # Set initial expires_at
+        fsr_form.update_expires_at!
         fsr_prev_time = fsr_form.expires_at
-        
+
         normal_form = create(:in_progress_form)
-        normal_form.update_expires_at!  # Set initial expires_at
+        normal_form.update_expires_at!
         normal_prev_time = normal_form.expires_at
-        
+
         fsr_form.save
         normal_form.save
-        
-        # Both should NOT update on save (no callback)
+
         expect(fsr_form.expires_at).to eq(fsr_prev_time)
         expect(normal_form.expires_at).to eq(normal_prev_time)
       end
