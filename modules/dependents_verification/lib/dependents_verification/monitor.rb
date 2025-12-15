@@ -20,8 +20,19 @@ module DependentsVerification
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.dependents_verification.submit_benefits_intake_claim'
 
+    # Allowed context keys for logging
+    ALLOWLIST = %w[
+      callback_klass
+      notification_id
+      notification_type
+      source
+      status
+      status_reason
+      tags
+    ].freeze
+
     def initialize
-      super('dependents-verification')
+      super('dependents-verification', allowlist: ALLOWLIST)
     end
 
     ##

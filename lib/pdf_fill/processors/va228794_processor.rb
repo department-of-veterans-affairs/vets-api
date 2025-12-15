@@ -17,9 +17,10 @@ module PdfFill
       TMP_DIR = 'tmp/pdfs'
       FORM_CLASS = PdfFill::Forms::Va228794
 
-      def initialize(form_data, main_form_filler)
+      def initialize(form_data, main_form_filler, file_name_suffix = SecureRandom.hex)
         @form_data = form_data
         @main_form_filler = main_form_filler
+        @file_name_suffix = file_name_suffix
       end
 
       def process
@@ -44,7 +45,7 @@ module PdfFill
       def generate_default_form(merged_form_data, hash_converter)
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
-        file_path = File.join(TMP_DIR, '22-8794.pdf')
+        file_path = File.join(TMP_DIR, "22-8794_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         file_path
       end
@@ -61,7 +62,7 @@ module PdfFill
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
         # fill in pdf and append extra pages
-        file_path = File.join(TMP_DIR, '22-8794.pdf')
+        file_path = File.join(TMP_DIR, "22-8794_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
       end
@@ -91,7 +92,7 @@ module PdfFill
       end
 
       def process_additional_certifying_officials(merged_form_data, hash_converter)
-        extra_certifying_officials = extract_extra_from_array(merged_form_data['additionalCertifyingOfficials'],
+        extra_certifying_officials = extract_extra_from_array(merged_form_data['additionalCertifyingOfficials'] || [],
                                                               DEFAULT_FORM_OFFICIALS_LIMIT)
         extra_certifying_officials.each_with_index do |official_data, i|
           hash_converter.extras_generator.add_text(certifying_official_to_text(official_data), {
@@ -104,7 +105,7 @@ module PdfFill
       end
 
       def process_additional_read_only_officials(merged_form_data, hash_converter, start_i)
-        extra_read_only_officials = extract_extra_from_array(merged_form_data['readOnlyCertifyingOfficial'],
+        extra_read_only_officials = extract_extra_from_array(merged_form_data['readOnlyCertifyingOfficial'] || [],
                                                              DEFAULT_FORM_READ_ONLY_SCO_LIMIT)
         extra_read_only_officials.each_with_index do |rof_data, i|
           hash_converter.extras_generator.add_text(read_only_official_to_text(rof_data), {
