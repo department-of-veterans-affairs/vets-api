@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../support/form1010cg_helpers/test_file_helpers'
 
 describe Form1010cg::PoaUploader, :uploader_helpers do
   let(:form_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
   let(:subject) { described_class.new(form_attachment_guid) }
   let(:source_file_name) { 'doctors-note.jpg' }
   let(:source_file_path) { "spec/fixtures/files/#{source_file_name}" }
-  let(:source_file) { create_test_uploaded_file(source_file_name, 'image/jpg') }
+  let(:source_file) { Form1010cgHelpers::TestFileHelpers.create_test_uploaded_file(source_file_name, 'image/jpg') }
   let(:vcr_options) do
     {
       record: :none,
@@ -152,23 +153,5 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
         )
       end
     end
-  end
-
-  private
-
-  def create_test_uploaded_file(file_fixture_path, content_type)
-    # Create unique identifier per process/test
-    process_id = ENV['TEST_ENV_NUMBER'].presence || SecureRandom.hex(4)
-    source_path = Rails.root.join('spec', 'fixtures', 'files', file_fixture_path)
-
-    # Create process-specific temp directory
-    temp_dir = Rails.root.join('tmp', 'test_uploads', "process_#{process_id}")
-    FileUtils.mkdir_p(temp_dir)
-
-    # Copy fixture to process-specific directory with original filename
-    temp_file_path = temp_dir.join(file_fixture_path)
-    FileUtils.copy_file(source_path, temp_file_path)
-
-    Rack::Test::UploadedFile.new(temp_file_path.to_s, content_type)
   end
 end
