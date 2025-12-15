@@ -53,7 +53,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       raise e
     end
 
@@ -81,7 +80,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -108,7 +106,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -132,7 +129,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 

@@ -127,7 +127,6 @@ module Lighthouse
       tags_context = Sentry.set_tags(external_service: service_name)
 
       log_exception_to_sentry(error, extra_context, tags_context)
-      log_exception_to_rails(error)
     end
 
     def self.log_to_rails_logger(service_name, options)
