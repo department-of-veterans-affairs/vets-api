@@ -36,8 +36,6 @@ RSpec.describe VAProfile::PersonSettings::Service do
     end
 
     context 'when user not found' do
-      let(:user) { build(:user, :loa3, vet360_id: 2, icn: 2) } # assumes these IDs do not exist
-
       before do
         allow_any_instance_of(VAProfile::Service).to receive(:perform)
           .and_raise(Common::Client::Errors::ClientError.new('Not Found', 404))
@@ -74,7 +72,7 @@ RSpec.describe VAProfile::PersonSettings::Service do
     # TODO: Replace stubs with VCR cassettes once recording access is available
     # Cassettes: va_profile/person_settings/post_person_options*
     context 'when successful' do
-      let(:person_options_data) { { bio: { personOptions: [] } } } # should return success with no changes detected
+      let(:person_options_data) { { bio: { personOptions: [] } } }
       let(:mock_response) do
         double('response',
                status: 200,
