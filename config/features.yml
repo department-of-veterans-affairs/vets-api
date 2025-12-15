@@ -379,7 +379,11 @@ features:
     enable_in_development: true
   check_in_experience_travel_claim_logging:
     actor_type: user
-    description: Enables detailed logging for travel claim submission operations
+    description: Enables logging for travel claim submission operations
+    enable_in_development: true
+  check_in_experience_travel_claim_log_api_error_details:
+    actor_type: user
+    description: Enables detailed logging of external request error responses in client
     enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
@@ -1542,6 +1546,10 @@ features:
   mhv_medications_new_policy:
     actor_type: user
     description: Updates MHV Medications policy based on recent updates to MHV Account Creation API
+  mhv_medications_v2_status_mapping:
+    actor_type: user
+    description: Enables V2 status mapping for prescriptions (consolidates VistA/Oracle Health statuses into simplified groups)
+    enable_in_development: false
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
