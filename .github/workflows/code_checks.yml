@@ -228,7 +228,7 @@ jobs:
 
       - name: Upload SimpleCov raw resultset
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: simplecov-resultset-${{ matrix.test_group }}
           path: simplecov-resultset-${{ matrix.test_group }}/.resultset.json
@@ -237,14 +237,14 @@ jobs:
 
       - name: Upload Test Results (JUnit XMLs)
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Test Results Group ${{ matrix.test_group }}
           path: log/*.xml
           if-no-files-found: ignore
 
       - name: Upload Test Artifacts (log)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: Test Artifacts (log directory) Group ${{ matrix.test_group }}
@@ -255,7 +255,7 @@ jobs:
 
       - name: Upload Test Artifacts (rails tmp)
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Test Artifacts (rails tmp directory) Group ${{ matrix.test_group }}
           path: tmp
@@ -357,7 +357,7 @@ jobs:
 
       - name: Upload Combined Coverage HTML
         if: needs.tests.result == 'success'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Coverage Report
           path: vets-api/coverage
