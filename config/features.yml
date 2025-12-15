@@ -1696,6 +1696,10 @@ features:
     actor_type: user
     description: Enables the new Health Care Settings page within the Profile on VA.gov
     enable_in_development: true
+  profile_scheduling_preferences:
+    actor_type: user
+    description: Enables the API call to retrieve Scheduling Preferences within the Health Care Settings page in Profile on VA.gov
+    enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
     description: Use single-logout (SLO) paths for Public Websites-managed EHR CTAs
