@@ -18,6 +18,10 @@ FactoryBot.define do
         }
       }
     end
+    
+    # Set expires_at directly to simulate controller behavior without triggering additional callbacks
+    expires_at { Time.current + 60.days }
+    
     trait :with_nested_metadata do
       metadata do
         {

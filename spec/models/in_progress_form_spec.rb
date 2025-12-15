@@ -37,67 +37,64 @@ RSpec.describe InProgressForm, type: :model do
   end
 
   describe '#metadata' do
-    it 'adds the form expiration time and id', run_at: '2017-06-01' do
+    it 'adds the form id but does not set expiration automatically', run_at: '2017-06-01' do
+      in_progress_form.expires_at = nil
       in_progress_form.save
-      expect(in_progress_form.metadata['expiresAt']).to eq(1_501_459_200)
+      # expires_at is no longer automatically set by callback
+      expect(in_progress_form.expires_at).to be_nil
       expect(in_progress_form.metadata['inProgressFormId']).to be_an(Integer)
     end
 
-    context 'skips the expiration_date callback wihen skip_exipry_update is true' do
-      it 'adds the form expiration time and id', run_at: '2017-06-01' do
-        in_progress_form.skip_exipry_update = true
-        in_progress_form.save
-        expect(in_progress_form.metadata['expires_at']).not_to eq(1_501_459_200)
-      end
-
-      it 'sets skip_exipry_update to true for pension form if expiration date already exists' do
-        form = create(:in_progress_form, form_id: '21P-527EZ')
-        form.save
-        expect(form.skip_exipry_update).to be true
-      end
+    it 'updates expires_at when explicitly called', run_at: '2017-06-01' do
+      in_progress_form.save
+      in_progress_form.update_expires_at!
+      expect(in_progress_form.metadata['expiresAt']).to eq(1_501_459_200)
     end
 
     context 'when the form is 21-526EZ' do
       before { in_progress_form.form_id = '21-526EZ' }
 
-      it 'adds a later form expiration time and id', run_at: '2017-06-01' do
+      it 'calculates expiration time as 1 year when update_expires_at! is called', run_at: '2017-06-01' do
         in_progress_form.save
+        in_progress_form.update_expires_at!
         expect(in_progress_form.metadata['expiresAt']).to eq(1_527_811_200)
         expect(in_progress_form.metadata['inProgressFormId']).to be_an(Integer)
       end
 
-      it 'adds a later form expiration time when a leap year', run_at: '2020-06-01' do
+      it 'calculates expiration time correctly for leap year', run_at: '2020-06-01' do
         in_progress_form.save
+        in_progress_form.update_expires_at!
         expect(in_progress_form.metadata['expiresAt']).to eq(1_622_505_600)
       end
 
-      it 'does not update expires_at on save' do
-        # make sure the 526 form does not update the expires_at time when the form is updated
+      it 'does not update expires_at on save without explicit call' do
+        # Verify 526 form does NOT update expires_at on save (no callback)
         disability_form = create(:in_progress_form, form_id: '21-526EZ')
+        disability_form.update_expires_at!  # Set initial expires_at
         disability_prev_time = disability_form.expires_at
         disability_form.save
-        expect(disability_prev_time == disability_form.expires_at).to be(true)
-
-        # make sure we did not affect the default form/functionality
-        default_form = create(:in_progress_form)
-        default_prev_time = default_form.expires_at
-        default_form.save
-        expect(default_prev_time == default_form.expires_at).to be(false)
+        expect(disability_form.expires_at).to eq(disability_prev_time)
       end
     end
 
     context 'when the form is 5655' do
       before { in_progress_form.form_id = '5655' }
 
-      it 'does not update expires_at on save' do
+      it 'does not update expires_at on save without explicit call' do
         fsr_form = create(:in_progress_form, form_id: '5655')
+        fsr_form.update_expires_at!  # Set initial expires_at
         fsr_prev_time = fsr_form.expires_at
+        
         normal_form = create(:in_progress_form)
-        normy_prev_time = normal_form.expires_at
+        normal_form.update_expires_at!  # Set initial expires_at
+        normal_prev_time = normal_form.expires_at
+        
         fsr_form.save
         normal_form.save
-        expect(fsr_prev_time == fsr_form.expires_at).to be true
-        expect(normy_prev_time == normal_form.expires_at).to be false
+        
+        # Both should NOT update on save (no callback)
+        expect(fsr_form.expires_at).to eq(fsr_prev_time)
+        expect(normal_form.expires_at).to eq(normal_prev_time)
       end
     end
 
