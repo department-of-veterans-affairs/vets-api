@@ -949,6 +949,7 @@ mhv:
   oh_facility_checks:
     facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] || '612, 555' %>
     pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] || '612, 357, 555' %>
+    facilities_migrating_to_oh: <%= ENV['mhv__facilities_migrating_to_oh'] || '612' %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
