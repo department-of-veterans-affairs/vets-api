@@ -30,6 +30,8 @@ module Lighthouse
 
           query.merge!(params) if params.present?
           config.get(endpoint, params: query, icn: @icn).body
+        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
+          handle_error(e, endpoint)
         end
 
         private

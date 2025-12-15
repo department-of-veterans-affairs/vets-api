@@ -35,7 +35,6 @@ module MedicalCopays
 
       def get_detail(id:)
         invoice_data = invoice_service.read(id)
-        raise Common::Exceptions::RecordNotFound, id if invoice_data.nil?
 
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
