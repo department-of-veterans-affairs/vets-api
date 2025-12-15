@@ -678,8 +678,6 @@ namespace :form526 do
 
         in_progress_form.form_data = fixed_va_inflection
 
-        # forms expire a year after they're last saved by the user so we want to disable updating the expires_at.
-        in_progress_form.skip_exipry_update = true
         in_progress_form.save!
       end
     end
