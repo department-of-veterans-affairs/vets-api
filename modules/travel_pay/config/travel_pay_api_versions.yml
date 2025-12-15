@@ -4,13 +4,15 @@
 # The Travel Pay API uses per-endpoint versioning, so each endpoint can be
 # independently upgraded from v2 to v3.
 #
-# Usage:
-#   TravelPay::ApiVersions.version_for(resource: :claims, action: :get_all)
+# Only claims and documents resources support dynamic version management.
+# Other resources (tokens, expenses, appointments) use hardcoded endpoints
+# in their respective client classes.
 #
-# Valid values: 'v2', 'v3', 'v4'
-# Default: 'v2' (fallback for any endpoint not explicitly listed)
-
-default: v2
+# Usage:
+#   TravelPay::ApiVersions.versions_for(resource: :claims, user: current_user)
+#   TravelPay::ApiVersions.versions_for(resource: :documents, user: current_user)
+#
+# Valid values: 'v2', 'v3'
 
 # Feature flag overrides - checked first before config values
 # If the feature flag is enabled (globally or per-user), use v3
@@ -33,42 +35,8 @@ claims:
   create: v2                     # POST /api/v2/claims
   submit: v2                     # PATCH /api/v2/claims/:id/submit
 
-appointments:
-  get_all: v2                    # GET /api/v2/appointments
-  find_or_create: v2             # POST /api/v2/appointments/find-or-add
-  find_or_create_v4: v4          # POST /api/v4/appointments/find-or-add (controlled by use_v4_api param)
-
-expenses:
-  add_mileage: v2                # POST /api/v2/expenses/mileage
-  add_parking: v2                # POST /api/v2/expenses/parking
-  add_tolls: v2                  # POST /api/v2/expenses/tolls
-  add_other: v2                  # POST /api/v2/expenses/other
-  get_mileage: v2                # GET /api/v2/expenses/mileage/:id
-  get_parking: v2                # GET /api/v2/expenses/parking/:id
-  get_tolls: v2                  # GET /api/v2/expenses/tolls/:id
-  get_other: v2                  # GET /api/v2/expenses/other/:id
-  update_mileage: v2             # PATCH /api/v2/expenses/mileage/:id
-  update_parking: v2             # PATCH /api/v2/expenses/parking/:id
-  update_tolls: v2               # PATCH /api/v2/expenses/tolls/:id
-  update_other: v2               # PATCH /api/v2/expenses/other/:id
-  delete_mileage: v2             # DELETE /api/v2/expenses/mileage/:id
-  delete_parking: v2             # DELETE /api/v2/expenses/parking/:id
-  delete_tolls: v2               # DELETE /api/v2/expenses/tolls/:id
-  delete_other: v2               # DELETE /api/v2/expenses/other/:id
-
 documents:
   get_document_ids: v2           # GET /api/v2/claims/:id/documents
   get_document_binary: v2        # GET /api/v2/claims/:claim_id/documents/:doc_id
   add_document: v3               # POST /api/v3/claims/:id/documents/form-data (already v3)
   delete_document: v1            # DELETE /api/v1/claims/:claim_id/documents/:doc_id (v1!)
-
-tokens:
-  request_veis_token: oauth2     # POST /:tenant_id/oauth2/token (not versioned)
-  request_btsss_token: v2        # POST /api/v2/Auth/access-token
-  request_sts_token: v0          # POST /v0/sign_in/token (STS, not BTSSS API)
-
-# Notes:
-# - documents.add_document is already using v3 in production
-# - documents.delete_document is still on v1 (not v2!)
-# - appointments.find_or_create can use v4 when use_v4_api: true is passed
-# - tokens endpoints have mixed versioning (oauth2, v2, v0)

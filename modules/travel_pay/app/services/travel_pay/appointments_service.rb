@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/travel_pay/api_versions'
-
 module TravelPay
   class AppointmentsService
     def initialize(auth_manager, user = nil)
@@ -105,8 +103,7 @@ module TravelPay
     end
 
     def client
-      api_versions = TravelPay::ApiVersions.versions_for(resource: :appointments, user: @user)
-      TravelPay::AppointmentsClient.new(api_versions:)
+      TravelPay::AppointmentsClient.new
     end
   end
 end

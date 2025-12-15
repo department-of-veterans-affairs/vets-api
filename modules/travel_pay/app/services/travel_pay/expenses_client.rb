@@ -6,10 +6,6 @@ require_relative '../../../lib/travel_pay/constants'
 
 module TravelPay
   class ExpensesClient < TravelPay::BaseClient
-    def initialize(api_versions: {})
-      @api_versions = api_versions.presence || {}
-    end
-
     ##
     # Generic HTTP POST call to the BTSSS 'expenses' endpoints to add a new expense
     # Routes to appropriate endpoint based on expense type

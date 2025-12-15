@@ -2,7 +2,6 @@
 
 require 'securerandom'
 require 'base64'
-require_relative '../../../lib/travel_pay/api_versions'
 
 module TravelPay
   class ExpensesService
@@ -144,8 +143,7 @@ module TravelPay
     end
 
     def client
-      api_versions = TravelPay::ApiVersions.versions_for(resource: :expenses, user: @user)
-      TravelPay::ExpensesClient.new(api_versions:)
+      TravelPay::ExpensesClient.new
     end
   end
 end

@@ -7,7 +7,7 @@ module TravelPay
       # Returns a hash of all API versions for a resource
       # Useful for passing to client initializers
       #
-      # @param resource [Symbol, String] The resource name (e.g., :claims, :expenses)
+      # @param resource [Symbol, String] The resource name (:claims or :documents)
       # @param user [User, nil] Optional user for feature flag checks
       #
       # @return [Hash] Hash mapping actions to API versions
