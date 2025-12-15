@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+require_relative 'serializers/phase_dates_serializer'
+require_relative 'serializers/tracked_items_serializer'
+require_relative 'serializers/supporting_documents_serializer'
+require_relative 'serializers/contentions_serializer'
+require_relative 'serializers/events_serializer'
+require_relative 'serializers/issues_serializer'
+require_relative 'serializers/evidence_serializer'
+
 module BenefitsClaims
   module Providers
     module Lighthouse
@@ -12,6 +20,7 @@ module BenefitsClaims
           }.with_indifferent_access
         end
 
+        # rubocop:disable Metrics/MethodLength
         def self.serialize_claim_attributes(dto)
           attributes = {
             'baseEndProductCode' => dto.base_end_product_code,
@@ -30,93 +39,27 @@ module BenefitsClaims
             'status' => dto.status
           }
 
-          attributes['claimPhaseDates'] = serialize_phase_dates(dto.claim_phase_dates) if dto.claim_phase_dates
+          if dto.claim_phase_dates
+            attributes['claimPhaseDates'] =
+              Serializers::PhaseDatesSerializer.serialize(dto.claim_phase_dates)
+          end
           if dto.supporting_documents
             attributes['supportingDocuments'] =
-              serialize_supporting_documents(dto.supporting_documents)
+              Serializers::SupportingDocumentsSerializer.serialize(dto.supporting_documents)
           end
           attributes['evidenceSubmissions'] = dto.evidence_submissions if dto.evidence_submissions
-          attributes['contentions'] = serialize_contentions(dto.contentions) if dto.contentions
-          attributes['events'] = serialize_events(dto.events) if dto.events
-          attributes['issues'] = serialize_issues(dto.issues) if dto.issues
-          attributes['evidence'] = serialize_evidence(dto.evidence) if dto.evidence
-          attributes['trackedItems'] = serialize_tracked_items(dto.tracked_items) if dto.tracked_items
+          attributes['contentions'] = Serializers::ContentionsSerializer.serialize(dto.contentions) if dto.contentions
+          attributes['events'] = Serializers::EventsSerializer.serialize(dto.events) if dto.events
+          attributes['issues'] = Serializers::IssuesSerializer.serialize(dto.issues) if dto.issues
+          attributes['evidence'] = Serializers::EvidenceSerializer.serialize(dto.evidence) if dto.evidence
+          if dto.tracked_items
+            attributes['trackedItems'] =
+              Serializers::TrackedItemsSerializer.serialize(dto.tracked_items)
+          end
 
           attributes
         end
-
-        def self.serialize_phase_dates(phase_dates)
-          {
-            'phaseChangeDate' => phase_dates.phase_change_date,
-            'currentPhaseBack' => phase_dates.current_phase_back,
-            'phaseType' => phase_dates.phase_type,
-            'latestPhaseType' => phase_dates.latest_phase_type,
-            'previousPhases' => phase_dates.previous_phases
-          }.compact
-        end
-
-        def self.serialize_tracked_items(tracked_items)
-          tracked_items.map do |item|
-            {
-              'id' => item.id,
-              'displayName' => item.display_name,
-              'status' => item.status,
-              'suspenseDate' => item.suspense_date,
-              'type' => item.type
-            }.compact
-          end
-        end
-
-        def self.serialize_supporting_documents(documents)
-          documents.map do |doc|
-            {
-              'documentId' => doc.document_id,
-              'documentTypeLabel' => doc.document_type_label,
-              'originalFileName' => doc.original_file_name,
-              'trackedItemId' => doc.tracked_item_id,
-              'uploadDate' => doc.upload_date
-            }.compact
-          end
-        end
-
-        def self.serialize_contentions(contentions)
-          contentions.map do |contention|
-            {
-              'name' => contention.name
-            }.compact
-          end
-        end
-
-        def self.serialize_events(events)
-          events.map do |event|
-            {
-              'date' => event.date,
-              'type' => event.type
-            }.compact
-          end
-        end
-
-        def self.serialize_issues(issues)
-          issues.map do |issue|
-            {
-              'active' => issue.active,
-              'description' => issue.description,
-              'diagnosticCode' => issue.diagnostic_code,
-              'lastAction' => issue.last_action,
-              'date' => issue.date
-            }.compact
-          end
-        end
-
-        def self.serialize_evidence(evidence_list)
-          evidence_list.map do |ev|
-            {
-              'date' => ev.date,
-              'description' => ev.description,
-              'type' => ev.type
-            }.compact
-          end
-        end
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end
