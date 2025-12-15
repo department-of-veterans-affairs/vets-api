@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'digest'
-
 module MyHealth
   module V2
     class DrugSheetSerializer
       include JSONAPI::Serializer
 
-      set_id { '' }
+      set_id do |object|
+        Digest::SHA256.hexdigest(object.html[:html].to_s)
+      end
 
       attributes :html do |object|
         object.html[:html]
