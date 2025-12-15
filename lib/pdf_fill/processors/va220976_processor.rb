@@ -17,9 +17,10 @@ module PdfFill
       TMP_DIR = 'tmp/pdfs'
       FORM_CLASS = PdfFill::Forms::Va220976
 
-      def initialize(form_data, main_form_filler)
+      def initialize(form_data, main_form_filler, file_name_suffix = SecureRandom.hex)
         @form_data = form_data
         @main_form_filler = main_form_filler
+        @file_name_suffix = file_name_suffix
       end
 
       def process
@@ -44,7 +45,7 @@ module PdfFill
       def generate_default_form(merged_form_data, hash_converter)
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
-        file_path = File.join(TMP_DIR, '22-0976.pdf')
+        file_path = File.join(TMP_DIR, "22-0976_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         file_path
       end
@@ -52,11 +53,11 @@ module PdfFill
       def generate_extended_form(merged_form_data, hash_converter)
         # extract extra records that don't fit on pdf for later processing
 
-        extra_programs = extract_extra_from_array(merged_form_data['programs'],
+        extra_programs = extract_extra_from_array(merged_form_data['programs'] || [],
                                                   DEFAULT_PROGRAMS_LIMIT)
-        extra_branches = extract_extra_from_array(merged_form_data['branches'],
+        extra_branches = extract_extra_from_array(merged_form_data['branches'] || [],
                                                   DEFAULT_BRANCHES_LIMIT)
-        extra_faculty = extract_extra_from_array(merged_form_data['faculty'],
+        extra_faculty = extract_extra_from_array(merged_form_data['faculty'] || [],
                                                  DEFAULT_FACULTY_LIMIT)
 
         # convert data that will fit naturally onto the pdf
@@ -69,7 +70,7 @@ module PdfFill
                    extra_programs.size + extra_branches.size, 'Additional Officials and Faculty')
 
         # fill in pdf and append extra pages
-        file_path = File.join(TMP_DIR, '22-0976.pdf')
+        file_path = File.join(TMP_DIR, "22-0976_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
       end
