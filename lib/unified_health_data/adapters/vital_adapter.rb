@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require_relative '../models/vital'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
     class VitalAdapter
+      include DateNormalizer
       FHIR_RESOURCE_TYPES = {
         BUNDLE: 'Bundle',
         DIAGNOSTIC_REPORT: 'DiagnosticReport',
@@ -61,12 +63,14 @@ module UnifiedHealthData
 
         resource = record['resource']
         record_type = get_type(resource)
+        date_value = resource['effectiveDateTime'] || nil
 
         UnifiedHealthData::Vital.new(
           id: resource['id'],
           name: get_name(resource),
           type: record_type,
-          date: resource['effectiveDateTime'] || nil,
+          date: date_value,
+          sort_date: normalize_date_for_sorting(date_value),
           measurement: get_measurements(resource, record_type),
           location: extract_location(resource),
           notes: extract_notes(resource)
