@@ -399,6 +399,7 @@ RSpec.describe V0::InProgressFormsController do
 
         it 'runs the LogEmailDiffJob job' do
           new_form.form_id = '1010ez'
+          allow(HCA::LogEmailDiffJob).to receive(:perform_async)
           new_form.save!
           expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid,
                                                                        user.user_account_uuid)
