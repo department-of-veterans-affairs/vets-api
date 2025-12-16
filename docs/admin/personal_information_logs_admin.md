@@ -1,15 +1,16 @@
 # Personal Information Logs Admin UI
 
-A simple, extensible admin interface for querying and exporting PersonalInformationLog data.
+A simple, extensible admin interface for querying and exporting PersonalInformationLog data with GitHub OAuth authentication and team-based access control.
 
 ## Features
 
+- **GitHub OAuth Authentication**: Secure access via GitHub OAuth (like Flipper/Sidekiq admin)
+- **Team-Based Access Control**: Teams only see logs matching their configured patterns
 - **Query by Error Class**: Filter logs by specific error classes
 - **Date Range Filtering**: Filter logs by creation date
 - **Pagination**: Browse logs with configurable page sizes (25, 50, 100, 250)
 - **CSV Export**: Export filtered results to CSV (up to 10,000 records)
 - **Detail View**: View individual logs with decrypted data
-- **No Authentication**: Currently open access (ready to add auth later)
 
 ## Quick Start
 
@@ -26,10 +27,12 @@ Open your browser to:
 http://localhost:3000/admin/personal_information_logs
 ```
 
+In development mode without GitHub OAuth configured, the dashboard is accessible without authentication.
+
 ### 3. Query Logs
 
 - Use the filter form to search by:
-  - Error Class (dropdown of all classes)
+  - Error Class (dropdown of all classes you have access to)
   - From Date
   - To Date
   - Results per page
@@ -44,6 +47,79 @@ Click "Export to CSV" to download the current filtered results (max 10,000 recor
 ### 5. View Details
 
 Click "View" on any log row to see the full decrypted data in JSON format.
+
+## Authentication & Authorization
+
+### GitHub OAuth Setup
+
+The dashboard uses GitHub OAuth for authentication, similar to Flipper and Sidekiq admin UIs.
+
+#### Configuration
+
+In `config/settings.yml` (or environment-specific files):
+
+```yaml
+pii_log_dashboard:
+  github_oauth_key: <%= ENV['pii_log_dashboard__github_oauth_key'] %>
+  github_oauth_secret: <%= ENV['pii_log_dashboard__github_oauth_secret'] %>
+  github_organization: department-of-veterans-affairs
+  # Admin team can view ALL logs
+  admin_github_team: <%= ENV['pii_log_dashboard__admin_github_team'] %>
+  # Team-specific access mappings
+  team_access:
+    - error_class_pattern: 'ClaimsApi::*'
+      github_team: 12345678
+    - error_class_pattern: 'MyHealth::*'
+      github_team: 87654321
+    - error_class_pattern: 'HealthCareApplication*'
+      github_team: 11111111
+```
+
+#### Getting GitHub Team IDs
+
+Use the GitHub API to find your team ID:
+
+```bash
+curl -H "Authorization: token YOUR_TOKEN" \
+  https://api.github.com/orgs/department-of-veterans-affairs/teams/YOUR_TEAM_SLUG
+```
+
+### Team-Based Access Control
+
+Each team can only see `PersonalInformationLog` entries matching their configured patterns.
+
+#### Pattern Syntax
+
+1. **Exact Match**: `'ClaimsApi::VA526ez'` - matches only that exact error class
+2. **Wildcard Prefix**: `'ClaimsApi::*'` - matches all classes starting with `ClaimsApi::`
+3. **Regex Pattern**: `'/^Lighthouse/'` - matches classes starting with `Lighthouse`
+
+#### Access Levels
+
+| User Type | Access |
+|-----------|--------|
+| Admin Team Member | Full access to all logs |
+| Team with Pattern Match | Only logs matching their team's patterns |
+| Org Member (no team match) | Access denied |
+| Non-Org Member | Access denied |
+
+### Local Development
+
+In development, if `github_oauth_key` is not set, the dashboard allows unauthenticated access for testing.
+
+To test authentication locally:
+
+1. Create a GitHub OAuth App at https://github.com/settings/developers
+2. Set callback URL to: `http://localhost:3000/admin/personal_information_logs/auth/github/callback`
+3. Add to `config/settings.local.yml`:
+
+```yaml
+pii_log_dashboard:
+  github_oauth_key: your_client_id
+  github_oauth_secret: your_client_secret
+  github_organization: department-of-veterans-affairs
+  admin_github_team: 6394772  # Your team ID
+```
 
 ## API Endpoints
 
@@ -74,6 +150,53 @@ GET /admin/personal_information_logs/export
 ```
 
 Same query parameters as list endpoint.
+
+## Team Access Configuration Examples
+
+### Example: Multi-Team Setup
+
+```yaml
+pii_log_dashboard:
+  github_oauth_key: <%= ENV['pii_log_dashboard__github_oauth_key'] %>
+  github_oauth_secret: <%= ENV['pii_log_dashboard__github_oauth_secret'] %>
+  github_organization: department-of-veterans-affairs
+  admin_github_team: 6394772  # backend-review-group - full access
+  team_access:
+    # Claims API Team
+    - error_class_pattern: 'ClaimsApi::*'
+      github_team: 12345678
+    
+    # My Health Team (Prescriptions, Messaging, Medical Records)
+    - error_class_pattern: 'MyHealth::*'
+      github_team: 87654321
+    - error_class_pattern: 'Rx::*'
+      github_team: 87654321
+    - error_class_pattern: 'SM::*'
+      github_team: 87654321
+    
+    # Health Care Applications Team
+    - error_class_pattern: 'HealthCareApplication*'
+      github_team: 11111111
+    
+    # Decision Review Team
+    - error_class_pattern: '/^DecisionReview/'
+      github_team: 22222222
+```
+
+### Finding Error Classes in Your Codebase
+
+To see what error classes are being logged:
+
+```ruby
+# In Rails console
+PersonalInformationLog.distinct.pluck(:error_class).sort
+```
+
+Common patterns in vets-api:
+- `HealthCareApplication ValidationError`
+- `HealthCareApplication FailedWontRetry`
+- `ClaimsApi::VA526ez::V2`
+- Form-specific classes like `Form526Submission`
 
 ## Extending the UI
 
@@ -119,93 +242,53 @@ def export
 end
 ```
 
-## Adding Authentication
-
-When you're ready to add authentication, you have several options:
-
-### Option 1: Simple HTTP Basic Auth
-
-Add to controller:
-```ruby
-http_basic_authenticate_with name: ENV['ADMIN_USER'], password: ENV['ADMIN_PASS']
-```
-
-### Option 2: GitHub OAuth (like Flipper admin)
-
-1. Create a constraint class:
-```ruby
-# lib/admin/authorization_constraint.rb
-module Admin
-  class AuthorizationConstraint
-    def self.matches?(request)
-      # Your auth logic here
-      request.session[:github_user].present?
-    end
-  end
-end
-```
-
-2. Update routes:
-```ruby
-namespace :admin, constraints: Admin::AuthorizationConstraint do
-  resources :personal_information_logs
-end
-```
-
-### Option 3: Role-Based Access
-
-Check user role in controller:
-```ruby
-before_action :require_admin
-
-def require_admin
-  raise Forbidden unless current_user&.admin?
-end
-```
-
 ## Testing
 
-Run the controller specs:
+Run the request specs:
 ```bash
-bundle exec rspec spec/controllers/admin/personal_information_logs_controller_spec.rb
+bundle exec rspec spec/requests/admin/personal_information_logs_spec.rb
 ```
 
-## Files Created
+## Files
 
-- `app/controllers/admin/personal_information_logs_controller.rb` - Main controller
-- `app/views/admin/personal_information_logs/index.html.erb` - List view
+- `app/controllers/admin/personal_information_logs_controller.rb` - Main controller with auth
+- `app/views/admin/personal_information_logs/index.html.erb` - List view with auth UI
 - `app/views/admin/personal_information_logs/show.html.erb` - Detail view
-- `config/routes.rb` - Added admin namespace routes
+- `lib/pii_log_dashboard/route_authorization_constraint.rb` - Route constraint (optional)
+- `lib/pii_log_dashboard/github_authentication.rb` - Sinatra-style auth helper
+- `config/routes.rb` - Admin namespace routes with auth callbacks
 
 ## Database
 
 The admin panel uses the existing `personal_information_logs` table with Lockbox encryption. No database changes required.
 
-## Example Data
+## Environment Variables
 
-To test with sample data, use the Rails console:
+For production deployment, set these environment variables:
 
-```ruby
-# Create a test log
-PersonalInformationLog.create!(
-  error_class: 'TestError',
-  data: { test: 'data', user: 'info' }
-)
+| Variable | Description |
+|----------|-------------|
+| `pii_log_dashboard__github_oauth_key` | GitHub OAuth App Client ID |
+| `pii_log_dashboard__github_oauth_secret` | GitHub OAuth App Client Secret |
+| `pii_log_dashboard__admin_github_team` | GitHub Team ID for admin access |
+| `pii_log_dashboard__team_access` | JSON array of team access mappings |
 
-# Or trigger from a real use case
-# See app/models/health_care_application.rb lines 109 and 304 for examples
+### Setting up team_access via Environment Variable
+
+```bash
+export pii_log_dashboard__team_access='[{"error_class_pattern":"ClaimsApi::*","github_team":12345678},{"error_class_pattern":"MyHealth::*","github_team":87654321}]'
 ```
 
 ## Production Considerations
 
 Before deploying to production:
 
-1. **Add Authentication** - Use one of the methods above
-2. **Add Audit Logging** - Track who accessed what data
-3. **Add Rate Limiting** - Prevent abuse of export functionality
-4. **Review Data Exposure** - Ensure PII is properly masked if needed
-5. **Add Indexes** - Consider adding database indexes for common queries
-6. **Set Permissions** - Restrict access to authorized personnel only
+1. ✅ **Authentication** - GitHub OAuth is implemented
+2. ✅ **Team-Based Access** - Users only see data matching their team patterns
+3. **Add Audit Logging** - Consider tracking who accessed what data
+4. **Add Rate Limiting** - Prevent abuse of export functionality
+5. **Review Data Exposure** - Ensure PII is properly masked if needed
+6. **Set Permissions** - Configure team_access mappings for each team
 
 ## Support
 

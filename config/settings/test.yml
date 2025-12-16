@@ -1072,6 +1072,12 @@ pension_burial:
     relative_path: VETSGOV_PENSION
 pension_ipf_vanotify_status_callback:
   bearer_token: ~
+pii_log_dashboard:
+  github_oauth_key: ~
+  github_oauth_secret: ~
+  github_organization: department-of-veterans-affairs
+  admin_github_team: 0
+  team_access: []
 ppms:
   api_keys:
     Ocp-Apim-Subscription-Key-E: ~

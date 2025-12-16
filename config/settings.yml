@@ -1057,6 +1057,23 @@ pension_burial:
     relative_path: "../VETSGOV_PENSION"
 pension_ipf_vanotify_status_callback:
   bearer_token: <%= ENV['pension_ipf_vanotify_status_callback__bearer_token'] %>
+# PII Log Dashboard - GitHub OAuth settings for admin/personal_information_logs
+# Provides team-based access control to PII logs
+pii_log_dashboard:
+  github_oauth_key: <%= ENV['pii_log_dashboard__github_oauth_key'] %>
+  github_oauth_secret: <%= ENV['pii_log_dashboard__github_oauth_secret'] %>
+  github_organization: department-of-veterans-affairs
+  # Admin team can view all PII logs
+  admin_github_team: <%= ENV['pii_log_dashboard__admin_github_team'] %>
+  # Team access mappings - maps error_class patterns to GitHub team IDs
+  # Each team can only see PII logs matching their patterns
+  # Example:
+  #   team_access:
+  #     - error_class_pattern: 'ClaimsApi::*'
+  #       github_team: 12345678
+  #     - error_class_pattern: 'MyHealth::*'
+  #       github_team: 87654321
+  team_access: <%= ENV['pii_log_dashboard__team_access'] %>
 ppms:
   api_keys:
     Ocp-Apim-Subscription-Key-E: <%= ENV['ppms__api_keys__ocp-apim-subscription-key-e'] %>
