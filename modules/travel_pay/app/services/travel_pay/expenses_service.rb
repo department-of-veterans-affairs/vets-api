@@ -34,7 +34,6 @@ module TravelPay
       raise ArgumentError, 'You must provide a claim ID to create an expense.' unless params['claim_id']
 
       Rails.logger.info("Creating expense of type: #{params['expense_type']}")
-
       # Build the request body for the API
       request_body = build_expense_request_body(params)
 

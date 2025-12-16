@@ -27,6 +27,10 @@ module AccreditedRepresentativePortal
       object.saved_claim&.parsed_form&.[](object.claimant_type)&.dig('name', 'last')
     end
 
+    attribute :benefit_type do |object|
+      object.saved_claim&.parsed_form&.[]('benefitType')
+    end
+
     attribute :form_type, &:display_form_id
 
     attribute :packet do |object|

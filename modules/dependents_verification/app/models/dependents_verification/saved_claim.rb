@@ -31,7 +31,11 @@ module DependentsVerification
     #
     # @return [String] the claimant email
     def email
-      parsed_form['email']
+      if Flipper.enabled?(:lifestage_va_profile_email)
+        parsed_form['va_profile_email'] || parsed_form['email']
+      else
+        parsed_form['email']
+      end
     end
 
     # Utility function to retrieve veteran first name from form
