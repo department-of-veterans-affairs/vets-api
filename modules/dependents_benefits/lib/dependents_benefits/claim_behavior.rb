@@ -26,10 +26,19 @@ module DependentsBenefits
     # @todo Add checks for each submission type for claim
     # @return [Boolean] true if all submission attempts succeeded, false otherwise
     def submissions_succeeded?
-      bgs_submissions = BGS::Submission.where(saved_claim_id: id)
-      return false if bgs_submissions.empty?
+      submitted_to_bgs? && submitted_to_claims_evidence_api?
+    end
 
-      bgs_submissions.all? { |submission| submission.latest_attempt&.status == 'submitted' }
+    # Checks if the claim was successfully submitted to BGS
+    def submitted_to_bgs?
+      submissions = BGS::Submission.where(saved_claim_id: id)
+      submissions.exists? && submissions.all? { |submission| submission.latest_attempt&.status == 'submitted' }
+    end
+
+    # Checks if the claim was successfully submitted to Claims Evidence API
+    def submitted_to_claims_evidence_api?
+      submissions = ClaimsEvidenceApi::Submission.where(saved_claim_id: id)
+      submissions.exists? && submissions.all? { |submission| submission.latest_attempt&.status == 'accepted' }
     end
 
     ##
