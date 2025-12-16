@@ -45,6 +45,15 @@ describe MHVPrescriptionsPolicy do
         end
       end
 
+      context 'when user is both patient and champ_va eligible' do
+        let(:patient) { true }
+        let(:champ_va) { true }
+
+        it 'returns true' do
+          expect(described_class.new(user, mhv_prescriptions).access?).to be(true)
+        end
+      end
+
       context 'when user is not a patient or champ_va eligible' do
         let(:patient) { false }
         let(:champ_va) { false }

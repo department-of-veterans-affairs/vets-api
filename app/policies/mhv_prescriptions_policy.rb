@@ -3,8 +3,6 @@
 require 'rx/client'
 
 MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
-  RX_ACCOUNT_TYPES = %w[Premium Advanced].freeze
-
   def access?
     user.loa3? && (mhv_user_account&.patient || mhv_user_account&.champ_va)
   end
