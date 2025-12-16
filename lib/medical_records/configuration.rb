@@ -26,11 +26,7 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        Settings.mhv.api_gateway.hosts.security
-      else
-        Settings.mhv.medical_records.host
-      end
+      Settings.mhv.api_gateway.hosts.security
     end
 
     ##

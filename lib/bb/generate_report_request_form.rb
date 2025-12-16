@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
+require 'vets/model'
+require 'vets/shared_logging'
 
 module BB
-  class GenerateReportRequestForm < Common::Form
-    include SentryLogging
+  class GenerateReportRequestForm
+    include Vets::Model
+    include Vets::SharedLogging
 
     ELIGIBLE_DATA_CLASSES = %w[ seiactivityjournal seiallergies seidemographics
                                 familyhealthhistory seifoodjournal healthcareproviders healthinsurance
@@ -15,9 +17,9 @@ module BB
                                 vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
                                 vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ].freeze
 
-    attribute :from_date, Common::UTCTime
-    attribute :to_date, Common::UTCTime
-    attribute :data_classes, Array[String]
+    attribute :from_date, Vets::Type::UTCTime
+    attribute :to_date, Vets::Type::UTCTime
+    attribute :data_classes, String, array: true, default: []
 
     attr_reader :client
 
@@ -58,6 +60,7 @@ module BB
     #     log_message_to_sentry('Health record ineligible classes', :info,
     #                           extra_context: { data_classes: data_classes,
     #                                            eligible_data_classes: eligible_data_classes })
+    #     log_message_to_rails('Health record ineligible classes', :info)
     #     errors.add(:base, "Invalid data classes: #{ineligible_data_classes.join(', ')}")
     #   end
     # end

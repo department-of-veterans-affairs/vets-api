@@ -156,4 +156,377 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
     end
   end
+
+  describe '#set_full_name' do
+    subject { build(:accredited_individual, first_name:, last_name:) }
+
+    context 'when both first_name and last_name are present' do
+      let(:first_name) { 'John' }
+      let(:last_name) { 'Doe' }
+
+      it 'sets full_name to "first_name last_name"' do
+        subject.save
+
+        expect(subject.full_name).to eq('John Doe')
+      end
+    end
+
+    context 'when only first_name is present' do
+      let(:first_name) { 'John' }
+      let(:last_name) { nil }
+
+      it 'sets full_name to first_name only' do
+        subject.save
+
+        expect(subject.full_name).to eq('John')
+      end
+    end
+
+    context 'when only last_name is present' do
+      let(:first_name) { nil }
+      let(:last_name) { 'Doe' }
+
+      it 'sets full_name to last_name only' do
+        subject.save
+
+        expect(subject.full_name).to eq('Doe')
+      end
+    end
+
+    context 'when both first_name and last_name are blank' do
+      let(:first_name) { nil }
+      let(:last_name) { nil }
+
+      it 'sets full_name to empty string' do
+        subject.save
+
+        expect(subject.full_name).to eq('')
+      end
+    end
+
+    context 'when first_name is empty string and last_name is present' do
+      let(:first_name) { '' }
+      let(:last_name) { 'Doe' }
+
+      it 'sets full_name to last_name only' do
+        subject.save
+
+        expect(subject.full_name).to eq('Doe')
+      end
+    end
+
+    context 'when last_name is empty string and first_name is present' do
+      let(:first_name) { 'John' }
+      let(:last_name) { '' }
+
+      it 'sets full_name to first_name only' do
+        subject.save
+
+        expect(subject.full_name).to eq('John')
+      end
+    end
+
+    context 'when both first_name and last_name are empty strings' do
+      let(:first_name) { '' }
+      let(:last_name) { '' }
+
+      it 'sets full_name to empty string' do
+        subject.save
+
+        expect(subject.full_name).to eq('')
+      end
+    end
+
+    context 'when names contain whitespace' do
+      let(:first_name) { '  John  ' }
+      let(:last_name) { '  Doe  ' }
+
+      it 'removes whitespace in full_name' do
+        subject.save
+
+        expect(subject.full_name).to eq('John Doe')
+      end
+    end
+
+    context 'when names contain special characters' do
+      let(:first_name) { "O'Connor" }
+      let(:last_name) { 'Smith-Johnson' }
+
+      it 'preserves special characters in full_name' do
+        subject.save
+
+        expect(subject.full_name).to eq("O'Connor Smith-Johnson")
+      end
+    end
+
+    context 'when updating an existing record' do
+      let(:individual) { create(:accredited_individual, first_name: 'Jane', last_name: 'Smith') }
+
+      it 'updates full_name when first_name changes' do
+        individual.update(first_name: 'Janet')
+
+        expect(individual.full_name).to eq('Janet Smith')
+      end
+
+      it 'updates full_name when last_name changes' do
+        individual.update(last_name: 'Jones')
+
+        expect(individual.full_name).to eq('Jane Jones')
+      end
+
+      it 'updates full_name when both names change' do
+        individual.update(first_name: 'Bob', last_name: 'Wilson')
+
+        expect(individual.full_name).to eq('Bob Wilson')
+      end
+
+      it 'updates full_name when first_name is set to nil' do
+        individual.update(first_name: nil)
+
+        expect(individual.full_name).to eq('Smith')
+      end
+
+      it 'updates full_name when last_name is set to nil' do
+        individual.update(last_name: nil)
+
+        expect(individual.full_name).to eq('Jane')
+      end
+    end
+
+    context 'when manually calling set_full_name' do
+      let(:individual) { build(:accredited_individual, first_name: 'Test', last_name: 'User') }
+
+      it 'updates full_name without saving' do
+        individual.first_name = 'Updated'
+        individual.set_full_name
+
+        expect(individual.full_name).to eq('Updated User')
+        expect(individual.changed?).to be true
+      end
+    end
+  end
+
+  describe 'full_name attribute' do
+    context 'when creating a new record' do
+      it 'is automatically set via before_save callback' do
+        individual = create(:accredited_individual, first_name: 'Auto', last_name: 'Generated')
+
+        expect(individual.full_name).to eq('Auto Generated')
+      end
+    end
+
+    context 'when full_name is manually set' do
+      let(:individual) { build(:accredited_individual, first_name: 'John', last_name: 'Doe') }
+
+      it 'is overwritten by before_save callback' do
+        individual.full_name = 'Manual Name'
+        individual.save
+
+        expect(individual.full_name).to eq('John Doe')
+      end
+    end
+
+    context 'when used in database queries' do
+      before do
+        create(:accredited_individual, first_name: 'Alice', last_name: 'Johnson')
+        create(:accredited_individual, first_name: 'Bob', last_name: 'Smith')
+        create(:accredited_individual, first_name: 'Charlie', last_name: nil)
+      end
+
+      it 'can be searched by full_name' do
+        results = described_class.where(full_name: 'Alice Johnson')
+
+        expect(results.count).to eq(1)
+        expect(results.first.first_name).to eq('Alice')
+      end
+
+      it 'can be ordered by full_name' do
+        results = described_class.order(:full_name)
+
+        expect(results.pluck(:full_name)).to eq(['Alice Johnson', 'Bob Smith', 'Charlie'])
+      end
+    end
+  end
+
+  describe '#validate_address' do
+    let(:raw_address_data) do
+      {
+        'address_line1' => '123 Main St',
+        'address_line2' => 'Suite 100',
+        'city' => 'Brooklyn',
+        'state_code' => 'NY',
+        'zip_code' => '11249'
+      }
+    end
+
+    let(:validated_attributes) do
+      {
+        address_line1: '123 Main St',
+        address_line2: 'Suite 100',
+        city: 'Brooklyn',
+        state_code: 'NY',
+        zip_code: '11249',
+        lat: 40.717029,
+        long: -73.964956,
+        location: 'POINT(-73.964956 40.717029)'
+      }
+    end
+
+    let(:mock_service) { instance_double(RepresentationManagement::AddressValidationService) }
+
+    context 'with valid raw_address' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).with(raw_address_data).and_return(validated_attributes)
+      end
+
+      it 'delegates to the validation service' do
+        expect(RepresentationManagement::AddressValidationService).to receive(:new)
+        expect(mock_service).to receive(:validate_address).with(raw_address_data)
+
+        individual.validate_address
+      end
+
+      it 'saves validated attributes to the record' do
+        expect(individual.validate_address).to be true
+        individual.reload
+
+        expect(individual.address_line1).to eq('123 Main St')
+        expect(individual.city).to eq('Brooklyn')
+        expect(individual.state_code).to eq('NY')
+        expect(individual.lat).to eq(40.717029)
+        expect(individual.long).to eq(-73.964956)
+      end
+
+      it 'returns true when validation succeeds' do
+        expect(individual.validate_address).to be true
+      end
+    end
+
+    context 'with blank raw_address' do
+      let(:individual) { create(:accredited_individual, raw_address: nil) }
+
+      it 'skips validation service' do
+        expect(RepresentationManagement::AddressValidationService).not_to receive(:new)
+        expect(individual.validate_address).to be false
+      end
+
+      it 'leaves the record unchanged' do
+        original_address = individual.address_line1
+        individual.validate_address
+        expect(individual.reload.address_line1).to eq(original_address)
+      end
+    end
+
+    context 'with empty hash raw_address' do
+      let(:individual) { create(:accredited_individual, raw_address: {}) }
+
+      it 'bails out early' do
+        expect(RepresentationManagement::AddressValidationService).not_to receive(:new)
+        expect(individual.validate_address).to be false
+      end
+    end
+
+    context 'when validation service returns nil' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_return(nil)
+      end
+
+      it 'handles failed validation gracefully' do
+        expect(individual.validate_address).to be false
+      end
+
+      it 'keeps original address intact' do
+        original_address = individual.address_line1
+        individual.validate_address
+        expect(individual.reload.address_line1).to eq(original_address)
+      end
+    end
+
+    context 'when validation service raises an error' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_raise(StandardError.new('Service error'))
+      end
+
+      it 'catches and logs the error' do
+        expect(Rails.logger).to receive(:error).with(/Address validation failed for AccreditedIndividual/)
+        individual.validate_address
+      end
+
+      it 'returns false on exception' do
+        allow(Rails.logger).to receive(:error)
+        expect(individual.validate_address).to be false
+      end
+
+      it 'rolls back changes' do
+        allow(Rails.logger).to receive(:error)
+        original_address = individual.address_line1
+        individual.validate_address
+        expect(individual.reload.address_line1).to eq(original_address)
+      end
+    end
+
+    context 'when update fails' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_return(validated_attributes)
+        allow(individual).to receive(:update).and_return(false)
+      end
+
+      it 'returns false when update fails' do
+        expect(individual.validate_address).to be false
+      end
+    end
+
+    context 'idempotency' do
+      let(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).with(raw_address_data).and_return(validated_attributes)
+      end
+
+      it 'handles repeated calls without issues' do
+        expect(individual.validate_address).to be true
+        first_lat = individual.reload.lat
+
+        expect(individual.validate_address).to be true
+        second_lat = individual.reload.lat
+
+        expect(first_lat).to eq(second_lat)
+      end
+    end
+
+    context 'with different individual types' do
+      before do
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_return(validated_attributes)
+      end
+
+      it 'validates attorneys' do
+        attorney = create(:accredited_individual, :attorney, raw_address: raw_address_data)
+        expect(attorney.validate_address).to be true
+      end
+
+      it 'validates claims agents' do
+        agent = create(:accredited_individual, :claims_agent, raw_address: raw_address_data)
+        expect(agent.validate_address).to be true
+      end
+
+      it 'validates representatives' do
+        rep = create(:accredited_individual, :representative, raw_address: raw_address_data)
+        expect(rep.validate_address).to be true
+      end
+    end
+  end
 end

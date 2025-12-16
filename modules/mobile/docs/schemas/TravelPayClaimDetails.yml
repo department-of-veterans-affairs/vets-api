@@ -1,0 +1,175 @@
+type: object
+additionalProperties: false
+required:
+  - id
+  - claimStatus
+  - appointmentDate
+  - createdOn
+  - modifiedOn
+properties:
+  id:
+    type: string
+    nullable: false
+    example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  claimNumber:
+    type: string
+    nullable: true
+    example: 'TC0000000000001'
+  claimName:
+    type: string
+    nullable: true
+    example: 'Claim created for NOLLE BARAKAT'
+  claimantFirstName:
+    type: string
+    nullable: true
+    example: 'Nolle'
+  claimantMiddleName:
+    type: string
+    nullable: true
+    example: 'Polite'
+  claimantLastName:
+    type: string
+    nullable: true
+    example: 'Barakat'
+  claimStatus:
+    type: string
+    nullable: false
+    example: 'Pre approved for payment'
+  appointmentDate:
+    type: string
+    nullable: false
+    example: '2024-01-01T16:45:34.465Z'
+  facilityName:
+    type: string
+    nullable: true
+    example: 'Cheyenne VA Medical Center'
+  totalCostRequested:
+    type: number
+    nullable: true
+    example: 20.00
+  reimbursementAmount:
+    type: number
+    nullable: true
+    example: 14.52
+  rejectionReason:
+    type: object
+    nullable: true
+    description: 'Rejection reason description'
+    additionalProperties: false
+    properties:
+      rejectionReasonId:
+        type: string
+        example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      rejectionReasonName:
+        type: string
+        example: "INCOMPLETE_DOCUMENTATION"
+      rejectionReasonTitle:
+        type: string
+        example: "Incomplete Documentation"
+      rejectionReasonDescription:
+        type: string
+        example: "The claim was rejected due to missing required documentation"
+  decisionLetterReason:
+    type: string
+    nullable: true
+    description: 'Decision letter reason extracted from decision letter document for denied or partial payment claims'
+    example: "Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable."
+  appointment:
+    type: object
+    nullable: false
+    description: 'Appointment details associated with the claim'
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+        example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      appointmentSource:
+        type: string
+        example: "API"
+      appointmentDateTime:
+        type: string
+        example: "2024-01-01T16:45:34.465Z"
+      appointmentType:
+        type: string
+        example: "EnvironmentalHealth"
+      facilityId:
+        type: string
+        example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      facilityName:
+        type: string
+        example: "Cheyenne VA Medical Center"
+      serviceConnectedDisability:
+        type: integer
+        example: 30
+      appointmentStatus:
+        type: string
+        example: "Complete"
+      externalAppointmentId:
+        type: string
+        example: "12345"
+      associatedClaimId:
+        type: string
+        example: "uuid1"
+      associatedClaimNumber:
+        type: string
+        example: "TC0000000000001"
+      isCompleted:
+        type: boolean
+        example: true
+  expenses:
+    type: array
+    nullable: true
+    description: 'List of expenses associated with the claim'
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        expenseType:
+          type: string
+          example: "Mileage"
+        name:
+          type: string
+          example: ""
+        dateIncurred:
+          type: string
+          example: "2024-01-01T16:45:34.465Z"
+        description:
+          type: string
+          example: "mileage-expense"
+        costRequested:
+          type: number
+          example: 20.00
+        costSubmitted:
+          type: number
+          example: 20.00
+  documents:
+    type: array
+    nullable: true
+    description: 'List of documents associated with the claim'
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        documentId:
+          type: string
+          example: "uuid1"
+        filename:
+          type: string
+          example: "DecisionLetter.pdf"
+        mimetype:
+          type: string
+          example: "application/pdf"
+        createdon:
+          type: string
+          example: "2025-03-24T14:00:52.893Z"
+  createdOn:
+    type: string
+    nullable: false
+    example: '2025-03-12T20:27:14.088Z'
+  modifiedOn:
+    type: string
+    nullable: false
+    example: '2025-03-12T20:27:14.088Z'

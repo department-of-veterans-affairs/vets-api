@@ -16,14 +16,11 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
   let(:aal_client) { instance_spy(AAL::MRClient) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
-
     allow(AAL::MRClient).to receive(:new).and_return(aal_client)
 
     bb_internal_client = BBInternal::Client.new(
       session: {
         user_id: 11_375_034,
-        icn: '1000000000V000000',
         patient_id: '11382904',
         expires_at: 1.hour.from_now,
         token: '<SESSION_TOKEN>'
@@ -31,6 +28,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
     )
 
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     allow(BBInternal::Client).to receive(:new).and_return(bb_internal_client)
     sign_in_as(current_user)
   end
@@ -78,15 +76,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
   end
 
   context 'Authorized user' do
-    before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
-    end
-
-    after do
-      VCR.eject_cassette
-    end
-
     it 'responds to GET #index' do
       VCR.use_cassette('mr_client/get_self_entered_information') do
         get '/my_health/v1/medical_records/self_entered'

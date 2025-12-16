@@ -10,14 +10,17 @@ module SignIn
       ACR_TRANSLATIONS = [IDME_LOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets',
                           IDME_LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3',
                           IDME_LOA3_FORCE = 'http://idmanagement.gov/ns/assurance/loa/3_force',
+                          IDME_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2/aal/2',
                           IDME_CLASSIC_LOA3 = 'classic_loa3',
                           IDME_DSLOGON_LOA1 = 'dslogon',
                           IDME_DSLOGON_LOA3 = 'dslogon_loa3',
                           IDME_MHV_LOA1 = 'myhealthevet',
                           IDME_MHV_LOA3 = 'myhealthevet_loa3',
+                          IDME_COMPARISON_MINIMUM = 'comparison:minimum',
                           MHV_PREMIUM_VERIFIED = %w[Premium].freeze,
                           DSLOGON_PREMIUM_VERIFIED = [DSLOGON_ASSURANCE_TWO = '2',
                                                       DSLOGON_ASSURANCE_THREE = '3'].freeze,
+                          LOGIN_GOV_IAL0 = 'http://idmanagement.gov/ns/assurance/ial/0',
                           LOGIN_GOV_IAL1 = 'http://idmanagement.gov/ns/assurance/ial/1',
                           LOGIN_GOV_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2'].freeze
       ANTI_CSRF_COOKIE_NAME = 'vagov_anti_csrf_token'

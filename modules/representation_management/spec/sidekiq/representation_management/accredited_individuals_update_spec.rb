@@ -3,742 +3,250 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
-  def address_attributes
-    {
-      address_line1: '123 East Main St',
-      address_line2: 'Suite 1',
-      address_line3: 'Address Line 3',
-      city: 'My City',
-      state_code: 'ZZ',
-      zip_code: '12345',
-      zip_suffix: '6789',
-      country_code_iso3: 'USA',
-      country_name: 'United States of America',
-      province: 'A Province',
-      international_postal_code: '12345',
-      address_type: 'DOMESTIC'
-    }
-  end
-
-  def create_accredited_individual
-    create(:accredited_individual,
-           { id:,
-             first_name: 'Bob',
-             last_name: 'Law',
-             lat: '39',
-             long: '-75',
-             email: 'email@example.com',
-             location: 'POINT(-75 39)',
-             phone: '111-111-1111' }.merge(address_attributes))
-  end
   describe '#perform' do
-    let(:json_data) do
-      [
-        {
-          id:,
-          address: {
-            address_pou: 'abc',
-            address_line1: 'abc',
-            address_line2: 'abc',
-            address_line3: 'abc',
-            city: 'abc',
-            state: {
-              state_code: 'abc'
-            },
-            zip_code5: 'abc',
-            zip_code4: 'abc',
-            country_code_iso3: 'abc'
-          },
-          email: 'test@example.com',
-          phone: '999-999-9999'
-        }
-      ].to_json
-    end
-    let(:api_response_v2) do
+    let(:raw_address_data) do
       {
-        'candidate_addresses' => [
-          {
-            'address' => {
-              'county' => {
-                'name' => 'Kings',
-                'county_fips_code' => '36047'
-              },
-              'state_province' => {
-                'name' => 'New York',
-                'code' => 'NY'
-              },
-              'country' => {
-                'name' => 'United States',
-                'code' => 'USA',
-                'fips_code' => 'US',
-                'iso2_code' => 'US',
-                'iso3_code' => 'USA'
-              },
-              'address_line1' => '37N 1st St',
-              'city' => 'Brooklyn',
-              'zip_code5' => '11249',
-              'zip_code4' => '3939'
-            },
-            'geocode' => {
-              'calc_date' => '2020-01-23T03:15:47+00:00',
-              'location_precision' => 31.0,
-              'latitude' => 40.717029,
-              'longitude' => -73.964956
-            },
-            'address_meta_data' => {
-              'confidence_score' => 100.0,
-              'address_type' => 'Domestic',
-              'delivery_point_validation' => 'UNDELIVERABLE',
-              'validation_key' => -646_932_106
-            }
-          }
-        ]
+        'address_line1' => '123 Main St',
+        'address_line2' => 'Suite 100',
+        'city' => 'Brooklyn',
+        'state_code' => 'NY',
+        'zip_code' => '11249'
       }
     end
 
-    before do
-      allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response_v2)
+    context 'with valid record IDs' do
+      let!(:individual1) { create(:accredited_individual, raw_address: raw_address_data) }
+      let!(:individual2) { create(:accredited_individual, raw_address: raw_address_data) }
+      let(:record_ids) { [individual1.id, individual2.id] }
+
+      before do
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(true)
+      end
+
+      it 'processes all records without errors' do
+        expect(Rails.logger).not_to receive(:error)
+        expect { subject.perform(record_ids) }.not_to raise_error
+      end
+
+      it 'calls validate_address for each record' do
+        # Spy to track calls across all instances
+        call_count = 0
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address) do
+          call_count += 1
+          true
+        end
+
+        subject.perform(record_ids)
+        expect(call_count).to eq(2)
+      end
     end
 
-    context 'when JSON parsing fails' do
-      let(:invalid_json_data) { 'invalid json' }
+    context 'with non-existent record ID' do
+      let(:record_ids) { [999_999] }
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          'RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: ' \
-          "unexpected character: 'invalid json' at line 1 column 1"
+          /RepresentationManagement::AccreditedIndividualsUpdate: Record not found: 999999/
         )
+        subject.perform(record_ids)
+      end
 
-        subject.perform(invalid_json_data)
+      it 'does not add to slack messages' do
+        allow(Rails.logger).to receive(:error)
+        subject.perform(record_ids)
+        expect(subject.slack_messages).to be_empty
       end
     end
 
-    context 'when the representative cannot be found' do
-      let(:id) { 'not_found' }
+    context 'with mixed valid and invalid IDs' do
+      let!(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+      let(:record_ids) { [individual.id, 999_999] }
 
-      it 'logs an error' do
+      before do
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(true)
+      end
+
+      it 'processes valid records and logs errors for invalid ones' do
+        expect_any_instance_of(AccreditedIndividual).to receive(:validate_address).once
+        expect(Rails.logger).to receive(:error).with(/Record not found: 999999/)
+        subject.perform(record_ids)
+      end
+    end
+
+    context 'when validate_address returns false' do
+      let!(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+      let(:record_ids) { [individual.id] }
+
+      before do
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(false)
+      end
+
+      it 'logs a validation failure error' do
         expect(Rails.logger).to receive(:error).with(
-          'RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: ' \
-          "Couldn't find AccreditedIndividual with 'id'=not_found"
+          /RepresentationManagement::AccreditedIndividualsUpdate: Address validation failed for record #{individual.id}/
         )
-
-        subject.perform(json_data)
+        subject.perform(record_ids)
       end
     end
 
-    context 'when changing address' do
-      let(:id) { SecureRandom.uuid }
-      let!(:representative) { create_accredited_individual }
+    context 'when validate_address raises an exception' do
+      let!(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+      let(:record_ids) { [individual.id] }
 
-      it 'updates the address' do
-        subject.perform(json_data)
-        representative.reload
+      before do
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address)
+          .and_raise(StandardError.new('Validation error'))
+      end
 
-        expect(representative.send('address_line1')).to eq('37N 1st St')
+      it 'logs the exception' do
+        expect(Rails.logger).to receive(:error)
+          .with(/Error processing record #{individual.id}: Validation error/)
+        subject.perform(record_ids)
+      end
+
+      it 'adds the error to slack messages' do
+        allow(Rails.logger).to receive(:error)
+        subject.perform(record_ids)
+        expect(subject.slack_messages).to include(/Error processing record #{individual.id}/)
       end
     end
 
-    context 'address validation retries' do
-      let(:id) { SecureRandom.uuid }
-      let!(:representative) { create_accredited_individual }
-      let(:validation_stub) { instance_double(VAProfile::AddressValidation::Service) }
-      let(:api_response_with_zero_v2) do
-        {
-          'candidate_addresses' => [
-            {
-              'address' => {
-                'county' => {
-                  'name' => 'Kings',
-                  'county_fips_code' => '36047'
-                },
-                'state_province' => {
-                  'name' => 'New York',
-                  'code' => 'NY'
-                },
-                'country' => {
-                  'name' => 'United States',
-                  'code' => 'USA',
-                  'fips_code' => 'US',
-                  'iso2_code' => 'US',
-                  'iso3_code' => 'USA'
-                },
-                'address_line1' => '37N 1st St',
-                'city' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939'
-              },
-              'geocode' => {
-                'calc_date' => '2020-01-23T03:15:47+00:00',
-                'location_precision' => 31.0,
-                'latitude' => 0,
-                'longitude' => 0
-              },
-              'address_meta_data' => {
-                'confidence_score' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE',
-                'validation_key' => -646_932_106
-              }
-            }
-          ]
-        }
-      end
-      let(:api_response1_v2) do
-        {
-          'candidate_addresses' => [
-            {
-              'address' => {
-                'county' => {
-                  'name' => 'Kings',
-                  'county_fips_code' => '36047'
-                },
-                'state_province' => {
-                  'name' => 'New York',
-                  'code' => 'NY'
-                },
-                'country' => {
-                  'name' => 'United States',
-                  'code' => 'USA',
-                  'fips_code' => 'US',
-                  'iso2_code' => 'US',
-                  'iso3_code' => 'USA'
-                },
-                'address_line1' => '37N 1st St',
-                'city' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939'
-              },
-              'geocode' => {
-                'calc_date' => '2020-01-23T03:15:47+00:00',
-                'location_precision' => 31.0,
-                'latitude' => 40.717029,
-                'longitude' => -73.964956
-              },
-              'address_meta_data' => {
-                'confidence_score' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE',
-                'validation_key' => -646_932_106
-              }
-            }
-          ]
-        }
-      end
-      let(:api_response2_v2) do
-        {
-          'candidate_addresses' => [
-            {
-              'address' => {
-                'county' => {
-                  'name' => 'Kings',
-                  'county_fips_code' => '36047'
-                },
-                'state_province' => {
-                  'name' => 'New York',
-                  'code' => 'NY'
-                },
-                'country' => {
-                  'name' => 'United States',
-                  'code' => 'USA',
-                  'fips_code' => 'US',
-                  'iso2_code' => 'US',
-                  'iso3_code' => 'USA'
-                },
-                'address_line1' => '37N 2nd St',
-                'city' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939'
-              },
-              'geocode' => {
-                'calc_date' => '2020-01-23T03:15:47+00:00',
-                'location_precision' => 31.0,
-                'latitude' => 40.717029,
-                'longitude' => -73.964956
-              },
-              'address_meta_data' => {
-                'confidence_score' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE',
-                'validation_key' => -646_932_106
-              }
-            }
-          ]
-        }
-      end
-      let(:api_response3_v2) do
-        {
-          'candidate_addresses' => [
-            {
-              'address' => {
-                'county' => {
-                  'name' => 'Kings',
-                  'county_fips_code' => '36047'
-                },
-                'state_province' => {
-                  'name' => 'New York',
-                  'code' => 'NY'
-                },
-                'country' => {
-                  'name' => 'United States',
-                  'code' => 'USA',
-                  'fips_code' => 'US',
-                  'iso2_code' => 'US',
-                  'iso3_code' => 'USA'
-                },
-                'address_line1' => '37N 3rd St',
-                'city' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939'
-              },
-              'geocode' => {
-                'calc_date' => '2020-01-23T03:15:47+00:00',
-                'location_precision' => 31.0,
-                'latitude' => 40.717029,
-                'longitude' => -73.964956
-              },
-              'address_meta_data' => {
-                'confidence_score' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE',
-                'validation_key' => -646_932_106
-              }
-            }
-          ]
-        }
+    context 'when job execution raises an exception' do
+      let(:record_ids) { [1, 2, 3] }
+
+      before do
+        allow(record_ids).to receive(:each).and_raise(StandardError.new('Job execution error'))
       end
 
-      context 'when the first retry has non-zero coordinates' do
-        before do
-          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response1_v2)
-        end
-
-        it 'does not update the representative address' do
-          expect(representative.lat).to eq(39)
-          expect(representative.long).to eq(-75)
-          expect(representative.address_line1).to eq('123 East Main St')
-
-          subject.perform(json_data)
-          representative.reload
-
-          expect(representative.lat).to eq(40.717029)
-          expect(representative.long).to eq(-73.964956)
-          expect(representative.address_line1).to eq('37N 1st St')
-        end
+      it 'logs the error' do
+        expect(Rails.logger).to receive(:error).with(
+          /RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: Job execution error/
+        )
+        subject.perform(record_ids)
       end
 
-      context 'when the second retry has non-zero coordinates' do
-        before do
-          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                   api_response2_v2)
-        end
-
-        it 'does not update the representative address' do
-          expect(representative.lat).to eq(39)
-          expect(representative.long).to eq(-75)
-          expect(representative.address_line1).to eq('123 East Main St')
-
-          subject.perform(json_data)
-          representative.reload
-
-          expect(representative.lat).to eq(40.717029)
-          expect(representative.long).to eq(-73.964956)
-          expect(representative.address_line1).to eq('37N 2nd St')
-        end
-      end
-
-      context 'when the third retry has non-zero coordinates' do
-        before do
-          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                   api_response_with_zero_v2, api_response3_v2)
-        end
-
-        it 'updates the representative address' do
-          expect(representative.lat).to eq(39)
-          expect(representative.long).to eq(-75)
-          expect(representative.address_line1).to eq('123 East Main St')
-
-          subject.perform(json_data)
-          representative.reload
-
-          expect(representative.lat).to eq(40.717029)
-          expect(representative.long).to eq(-73.964956)
-          expect(representative.address_line1).to eq('37N 3rd St')
-        end
-      end
-
-      context 'when the retry coordinates are all zero' do
-        before do
-          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                   api_response_with_zero_v2, api_response_with_zero_v2)
-        end
-
-        it 'does not update the representative address' do
-          expect(representative.lat).to eq(39)
-          expect(representative.long).to eq(-75)
-          expect(representative.address_line1).to eq('123 East Main St')
-
-          subject.perform(json_data)
-          representative.reload
-
-          expect(representative.lat).to eq(39)
-          expect(representative.long).to eq(-75)
-          expect(representative.address_line1).to eq('123 East Main St')
-        end
+      it 'adds the error to slack messages' do
+        allow(Rails.logger).to receive(:error)
+        subject.perform(record_ids)
+        expect(subject.slack_messages).to include(/Error processing job/)
       end
     end
-  end
 
-  describe 'V3/AddressValidation' do
-    def create_accredited_individual
-      create(:accredited_individual,
-             { id:,
-               first_name: 'Bob',
-               last_name: 'Law',
-               lat: '39',
-               long: '-75',
-               email: 'email@example.com',
-               location: 'POINT(-75 39)',
-               phone: '111-111-1111' }.merge(address_attributes))
-    end
-    describe '#perform V3/AddressValidation' do
-      let(:json_data) do
-        [
-          {
-            id:,
-            address: {
-              address_pou: 'abc',
-              address_line1: 'abc',
-              address_line2: 'abc',
-              address_line3: 'abc',
-              city_name: 'abc',
-              state: {
-                state_code: 'abc'
-              },
-              zip_code5: 'abc',
-              zip_code4: 'abc',
-              country_code_iso3: 'abc'
-            },
-            email: 'test@example.com',
-            phone: '999-999-9999'
-          }
-        ].to_json
+    context 'with empty array' do
+      let(:record_ids) { [] }
+
+      it 'completes without errors' do
+        expect(Rails.logger).not_to receive(:error)
+        expect { subject.perform(record_ids) }.not_to raise_error
       end
-      let(:api_response_v3) do
+    end
+
+    context 'with duplicate record IDs' do
+      let!(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+      let(:record_ids) { [individual.id, individual.id] }
+
+      before do
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(true)
+      end
+
+      it 'handles duplicate IDs gracefully' do
+        expect { subject.perform(record_ids) }.not_to raise_error
+      end
+
+      it 'processes the same record multiple times' do
+        call_count = 0
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address) do
+          call_count += 1
+          true
+        end
+
+        subject.perform(record_ids)
+        expect(call_count).to eq(2)
+      end
+    end
+
+    context 'with different individual types' do
+      let!(:attorney) { create(:accredited_individual, :attorney, raw_address: raw_address_data) }
+      let!(:agent) { create(:accredited_individual, :claims_agent, raw_address: raw_address_data) }
+      let!(:representative) { create(:accredited_individual, :representative, raw_address: raw_address_data) }
+      let(:record_ids) { [attorney.id, agent.id, representative.id] }
+
+      before do
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(true)
+      end
+
+      it 'processes all individual types' do
+        call_count = 0
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address) do
+          call_count += 1
+          true
+        end
+
+        subject.perform(record_ids)
+        expect(call_count).to eq(3)
+      end
+    end
+
+    context 'slack notifications' do
+      let!(:individual1) { create(:accredited_individual, raw_address: raw_address_data) }
+      let!(:individual2) { create(:accredited_individual, raw_address: raw_address_data) }
+      let(:record_ids) { [individual1.id, individual2.id] }
+
+      before do
+        allow_any_instance_of(AccreditedIndividual).to receive(:validate_address)
+          .and_raise(StandardError.new('Error 1'))
+        allow(Settings).to receive(:vsp_environment).and_return('production')
+      end
+
+      it 'sends slack notification when there are errors' do
+        allow(Rails.logger).to receive(:error)
+        slack_client = double('SlackNotify::Client')
+        allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
+
+        expect(slack_client).to receive(:notify) do |message|
+          expect(message).to include('RepresentationManagement::AccreditedIndividualsUpdate')
+          expect(message).to include('Error processing record')
+        end
+
+        subject.perform(record_ids)
+      end
+
+      it 'does not send slack notification in non-production' do
+        allow(Settings).to receive(:vsp_environment).and_return('development')
+        allow(Rails.logger).to receive(:error)
+
+        expect(SlackNotify::Client).not_to receive(:new)
+
+        subject.perform(record_ids)
+      end
+    end
+
+    context 'integration with AccreditedIndividual#validate_address' do
+      let!(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+      let(:record_ids) { [individual.id] }
+      let(:mock_service) { instance_double(RepresentationManagement::AddressValidationService) }
+      let(:validated_attributes) do
         {
-          'candidate_addresses' => [
-            {
-              'county' => {
-                'county_name' => 'Kings',
-                'county_code' => '36047'
-              },
-              'state' => {
-                'state_name' => 'New York',
-                'state_code' => 'NY'
-              },
-              'country' => {
-                'country_name' => 'United States',
-                'county_code_fips' => 'US',
-                'country_code_iso2' => 'US',
-                'country_code_iso3' => 'USA'
-              },
-              'address_line1' => '37N 1st St',
-              'city_name' => 'Brooklyn',
-              'zip_code5' => '11249',
-              'zip_code4' => '3939',
-              'geocode' => {
-                'calc_date' => '2020-01-23T03:15:47+00:00',
-                'location_precision' => 31.0,
-                'latitude' => 40.717029,
-                'longitude' => -73.964956
-              },
-              'confidence' => 100.0,
-              'address_type' => 'Domestic',
-              'delivery_point_validation' => 'UNDELIVERABLE'
-            }
-          ]
+          address_line1: '123 Main St',
+          city: 'Brooklyn',
+          state_code: 'NY',
+          lat: 40.717029,
+          long: -73.964956,
+          location: 'POINT(-73.964956 40.717029)'
         }
       end
 
       before do
-        validation_service = VAProfile::V3::AddressValidation::Service
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
-        allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response_v3)
+        allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+        allow(mock_service).to receive(:validate_address).and_return(validated_attributes)
       end
 
-      context 'when JSON parsing fails' do
-        let(:invalid_json_data) { 'invalid json' }
+      it 'actually updates the record through the model method' do
+        subject.perform(record_ids)
+        individual.reload
 
-        it 'logs an error' do
-          expect(Rails.logger).to receive(:error).with(
-            'RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: unexpected character: ' \
-            "'invalid json' at line 1 column 1"
-          )
-
-          subject.perform(invalid_json_data)
-        end
-      end
-
-      context 'when the representative cannot be found' do
-        let(:id) { 'not_found' }
-
-        it 'logs an error' do
-          expect(Rails.logger).to receive(:error).with(
-            'RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: ' \
-            "Couldn't find AccreditedIndividual with 'id'=not_found"
-          )
-
-          subject.perform(json_data)
-        end
-      end
-
-      context 'when changing the address' do
-        let(:id) { SecureRandom.uuid }
-        let!(:representative) { create_accredited_individual }
-
-        it 'updates the address' do
-          subject.perform(json_data)
-          representative.reload
-
-          expect(representative.send('address_line1')).to eq('37N 1st St')
-        end
-      end
-
-      context 'address validation retries' do
-        let(:id) { SecureRandom.uuid }
-        let!(:representative) { create_accredited_individual }
-        let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
-        let(:api_response_with_zero_v3) do
-          {
-            'candidate_addresses' => [
-              {
-                'county' => {
-                  'county_name' => 'Kings',
-                  'county_code' => '36047'
-                },
-                'state' => {
-                  'state_name' => 'New York',
-                  'state_code' => 'NY'
-                },
-                'country' => {
-                  'country_name' => 'United States',
-                  'country_code_fips' => 'US',
-                  'country_code_iso2' => 'US',
-                  'country_code_iso3' => 'USA'
-                },
-                'address_line1' => '37N 1st St',
-                'city_name' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939',
-                'geocode' => {
-                  'calc_date' => '2020-01-23T03:15:47+00:00',
-                  'location_precision' => 31.0,
-                  'latitude' => 0,
-                  'longitude' => 0
-                },
-                'confidence' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE'
-              }
-            ]
-          }
-        end
-        let(:api_response1_v3) do
-          {
-            'candidate_addresses' => [
-              {
-                'county' => {
-                  'county_name' => 'Kings',
-                  'county_code' => '36047'
-                },
-                'state' => {
-                  'state_name' => 'New York',
-                  'state_code' => 'NY'
-                },
-                'country' => {
-                  'country_name' => 'United States',
-                  'country_code_fips' => 'US',
-                  'country_code_iso2' => 'US',
-                  'country_code_iso3' => 'USA'
-                },
-                'address_line1' => '37N 1st St',
-                'city_name' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939',
-                'geocode' => {
-                  'calc_date' => '2020-01-23T03:15:47+00:00',
-                  'location_precision' => 31.0,
-                  'latitude' => 40.717029,
-                  'longitude' => -73.964956
-                },
-                'confidence' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE'
-              }
-            ]
-          }
-        end
-        let(:api_response2_v3) do
-          {
-            'candidate_addresses' => [
-              {
-                'county' => {
-                  'county_name' => 'Kings',
-                  'county_code' => '36047'
-                },
-                'state' => {
-                  'state_name' => 'New York',
-                  'state_code' => 'NY'
-                },
-                'country' => {
-                  'country_name' => 'United States',
-                  'country_code_fips' => 'US',
-                  'country_code_iso2' => 'US',
-                  'country_code_iso3' => 'USA'
-                },
-                'address_line1' => '37N 2nd St',
-                'city_name' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939',
-                'geocode' => {
-                  'calc_date' => '2020-01-23T03:15:47+00:00',
-                  'location_precision' => 31.0,
-                  'latitude' => 40.717029,
-                  'longitude' => -73.964956
-                },
-                'confidence' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE'
-              }
-            ]
-          }
-        end
-        let(:api_response3_v3) do
-          {
-            'candidate_addresses' => [
-              {
-                'county' => {
-                  'county_name' => 'Kings',
-                  'county_code' => '36047'
-                },
-                'state' => {
-                  'state_name' => 'New York',
-                  'state_code' => 'NY'
-                },
-                'country' => {
-                  'country_name' => 'United States',
-                  'country_code_fips' => 'US',
-                  'country_code_iso2' => 'US',
-                  'country_code_iso3' => 'USA'
-                },
-                'address_line1' => '37N 3rd St',
-                'city_name' => 'Brooklyn',
-                'zip_code5' => '11249',
-                'zip_code4' => '3939',
-                'geocode' => {
-                  'calc_date' => '2020-01-23T03:15:47+00:00',
-                  'location_precision' => 31.0,
-                  'latitude' => 40.717029,
-                  'longitude' => -73.964956
-                },
-                'confidence' => 100.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'UNDELIVERABLE'
-              }
-            ]
-          }
-        end
-
-        context 'when the first retry has non-zero coordinates' do
-          before do
-            allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response1_v3)
-          end
-
-          it 'does not update the representative address' do
-            expect(representative.lat).to eq(39)
-            expect(representative.long).to eq(-75)
-            expect(representative.address_line1).to eq('123 East Main St')
-
-            subject.perform(json_data)
-            representative.reload
-
-            expect(representative.lat).to eq(40.717029)
-            expect(representative.long).to eq(-73.964956)
-            expect(representative.address_line1).to eq('37N 1st St')
-          end
-        end
-
-        context 'when the second retry has non-zero coordinates' do
-          before do
-            allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3,
-                                                                     api_response2_v3)
-          end
-
-          it 'does not update the representative address' do
-            expect(representative.lat).to eq(39)
-            expect(representative.long).to eq(-75)
-            expect(representative.address_line1).to eq('123 East Main St')
-
-            subject.perform(json_data)
-            representative.reload
-
-            expect(representative.lat).to eq(40.717029)
-            expect(representative.long).to eq(-73.964956)
-            expect(representative.address_line1).to eq('37N 2nd St')
-          end
-        end
-
-        context 'when the third retry has non-zero coordinates' do
-          before do
-            allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3,
-                                                                     api_response3_v3)
-          end
-
-          it 'updates the representative address' do
-            expect(representative.lat).to eq(39)
-            expect(representative.long).to eq(-75)
-            expect(representative.address_line1).to eq('123 East Main St')
-
-            subject.perform(json_data)
-            representative.reload
-
-            expect(representative.lat).to eq(40.717029)
-            expect(representative.long).to eq(-73.964956)
-            expect(representative.address_line1).to eq('37N 3rd St')
-          end
-        end
-
-        context 'when the retry coordinates are all zero' do
-          before do
-            allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3)
-          end
-
-          it 'does not update the representative address' do
-            expect(representative.lat).to eq(39)
-            expect(representative.long).to eq(-75)
-            expect(representative.address_line1).to eq('123 East Main St')
-
-            subject.perform(json_data)
-            representative.reload
-
-            expect(representative.lat).to eq(39)
-            expect(representative.long).to eq(-75)
-            expect(representative.address_line1).to eq('123 East Main St')
-          end
-        end
+        expect(individual.lat).to eq(40.717029)
+        expect(individual.long).to eq(-73.964956)
       end
     end
   end

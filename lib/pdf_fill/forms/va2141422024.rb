@@ -12,6 +12,8 @@ module PdfFill
       include FormHelper
       include FormHelper::PhoneNumberFormatting
 
+      PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX = 60
+
       # rubocop:disable Metrics/BlockLength
       # rubocop:disable Layout/LineLength
 
@@ -30,7 +32,7 @@ module PdfFill
         # 1-based array indexing seems more intuitive here
         keys["provider#{provider_index + 1}"] = {
           'providerFacilityName' => {
-            limit: 100,
+            limit: PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX,
             key: "F[0].#subform[#{subform_num}].Provider_Or_Facility_Name[#{provider_index}]",
             question_num:,
             question_suffix: 'A',
@@ -38,7 +40,7 @@ module PdfFill
             hide_from_overflow: true
           },
           'conditionsTreated' => {
-            limit: 100,
+            limit: PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX,
             key: "F[0].#subform[#{subform_num}].Conditions_You_Are_Being_Treated_For[#{provider_index}]",
             question_num:,
             question_suffix: 'B',
@@ -518,8 +520,9 @@ module PdfFill
       end
 
       def provider_info_overflows?(provider)
-        provider['addressOverflows'] || (provider['providerFacilityName']&.size || 0) > 100 ||
-          (provider['conditionsTreated']&.size || 0) > 100
+        provider['addressOverflows'] ||
+          (provider['providerFacilityName']&.size || 0) > PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX ||
+          (provider['conditionsTreated']&.size || 0) > PROVIDER_NAME_AND_CONDITIONS_TREATED_MAX
       end
 
       def generate_overflow_provider_info(provider)

@@ -14,9 +14,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
     describe '#show' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration)
         allow(Flipper).to receive(:enabled?).with(:disability_compensation_sync_modern_0781_flow, instance_of(User))
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User))
         allow(Flipper).to receive(:enabled?).with(:intent_to_file_lighthouse_enabled, instance_of(User))
       end
 

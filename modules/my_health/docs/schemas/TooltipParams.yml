@@ -1,0 +1,13 @@
+type: object
+properties:
+  tooltip:
+    type: object
+    properties:
+      tooltip_name:
+        type: string
+        example: mhv_medications_tooltip_filter_accordion
+      hidden:
+        type: boolean
+      counter:
+        type: integer
+        example: 0

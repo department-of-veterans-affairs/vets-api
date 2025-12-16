@@ -781,7 +781,7 @@ RSpec.describe LighthouseClaimLettersProvider do
               {
                 'docTypeId' => 184,
                 'documentUuid' => 'valid-date',
-                'receivedAt' => '2023-06-15',
+                'receivedAt' => '2023-06-15T10:30:00Z',
                 'uploadedDateTime' => '2023-06-15T10:30:00Z'
               }
             ]
@@ -795,9 +795,6 @@ RSpec.describe LighthouseClaimLettersProvider do
 
       before do
         allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
-        allow(Time.zone).to receive(:parse).and_call_original
-        allow(Time.zone).to receive(:parse).with('').and_return(nil)
-        allow(Time.zone).to receive(:parse).with('not-a-date').and_return(nil)
       end
 
       it 'handles various date parsing scenarios' do
@@ -815,8 +812,7 @@ RSpec.describe LighthouseClaimLettersProvider do
 
         # Valid date should parse correctly
         valid_date_letter = letters.find { |l| l[:document_id] == 'valid-date' }
-        expect(valid_date_letter[:received_at]).not_to be_nil
-        expect(valid_date_letter[:received_at]).to be_a(Time)
+        expect(valid_date_letter[:received_at]).to eq('2023-06-15')
       end
     end
 

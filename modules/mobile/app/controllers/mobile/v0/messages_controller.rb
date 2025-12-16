@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module Mobile
   module V0
     class MessagesController < MessagingController
       include Filterable
+
+      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
 
       def index
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
@@ -13,8 +17,15 @@ module Mobile
         resource = resource.sort(params[:sort])
 
         links = pagination_links(resource)
-        resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
+        # Add total_entries to metadata for backwards compatibility
+        resource.metadata.merge!(total_entries(resource.size))
+
+        # Log unique user event for inbox accessed
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+        )
 
         options = { meta: resource.metadata, links: }
         render json: Mobile::V0::MessagesSerializer.new(resource.data, options)
@@ -23,13 +34,13 @@ module Mobile
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)
-
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
-        user_triage_teams = client.get_triage_teams(@current_user.uuid, use_cache?)
-        user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
+        user_triage_teams = client.get_all_triage_teams(@current_user.uuid, use_cache?)
+        active_teams = user_triage_teams.data.reject(&:blocked_status)
+        user_in_triage_team = active_teams.any? { |team| team.triage_team_id == response.recipient_id }
 
-        meta = response.metadata.merge(user_in_triage_team?: user_in_triage_team)
+        meta = response.metadata.merge(user_in_triage_team:)
         options = { meta: }
         options[:include] = [:attachments] if response.attachment
         render json: Mobile::V0::MessageSerializer.new(response, options)
@@ -43,18 +54,13 @@ module Mobile
         create_message_params = { message: message_params.to_h }.merge(upload_params)
         Rails.logger.info('Mobile SM Category Tracking', category: create_message_params.dig(:message, :category))
 
-        client_response = if message.uploads.present?
-                            begin
-                              client.post_create_message_with_attachment(create_message_params)
-                            rescue Common::Client::Errors::Serialization => e
-                              Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
-                                                                                          error_body: e&.body,
-                                                                                          message: e&.message)
-                              raise e
-                            end
-                          else
-                            client.post_create_message(message_params.to_h)
-                          end
+        client_response = build_create_client_response(message, create_message_params)
+
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
 
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
@@ -83,11 +89,13 @@ module Mobile
         message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
         create_message_params = { message: message_params.to_h }.merge(upload_params)
 
-        client_response = if message.uploads.present?
-                            client.post_create_message_reply_with_attachment(params[:id], create_message_params)
-                          else
-                            client.post_create_message_reply(params[:id], message_params.to_h)
-                          end
+        client_response = build_reply_client_response(message, create_message_params)
+
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
 
         options = {}
         options[:include] = [:attachments] if client_response.attachment
@@ -120,12 +128,45 @@ module Mobile
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :is_oh_triage_group)
         end
       end
 
       def upload_params
         @upload_params ||= { uploads: params[:uploads] }
+      end
+
+      def oh_triage_group?
+        # Check top-level params first (query param or form field),
+        # then check inside parsed message JSON (for multipart requests where mobile app
+        # includes is_oh_triage_group inside the stringified message JSON)
+        value = params[:is_oh_triage_group]
+        value ||= message_params[:is_oh_triage_group] if message_params.key?(:is_oh_triage_group)
+        ActiveModel::Type::Boolean.new.cast(value)
+      end
+
+      def build_create_client_response(message, create_message_params)
+        if message.uploads.blank?
+          return client.post_create_message(message_params.to_h,
+                                            poll_for_status: oh_triage_group?)
+        end
+
+        client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
+      rescue Common::Client::Errors::Serialization => e
+        Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
+                                                                    error_body: e&.body,
+                                                                    message: e&.message)
+        raise e
+      end
+
+      def build_reply_client_response(message, create_message_params)
+        if message.uploads.blank?
+          return client.post_create_message_reply(params[:id], message_params.to_h,
+                                                  poll_for_status: oh_triage_group?)
+        end
+
+        client.post_create_message_reply_with_attachment(params[:id], create_message_params,
+                                                         poll_for_status: oh_triage_group?)
       end
 
       def message_counts(resource)
@@ -138,6 +179,18 @@ module Mobile
             end
           end
         }
+      end
+
+      def total_entries(count)
+        {
+          pagination: {
+            total_entries: count
+          }
+        }
+      end
+
+      def extend_timeout
+        request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
       end
     end
   end

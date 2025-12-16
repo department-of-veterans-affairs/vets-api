@@ -21,6 +21,14 @@ describe Common::Exceptions::SerializableError do
     end
   end
 
+  context 'with some blank attribute' do
+    let(:attributes) { { title: 'title', detail: ' ', source: [] } }
+
+    it 'to_hash removes non-present values' do
+      expect(subject.to_hash).to eq({ title: 'title' })
+    end
+  end
+
   context 'with actual attributes' do
     let(:attributes) do
       {
@@ -30,6 +38,20 @@ describe Common::Exceptions::SerializableError do
     end
 
     it 'responds to #to_hash' do
+      expect(subject.to_hash).to eq(attributes)
+    end
+  end
+
+  context 'with source as a hash' do
+    let(:attributes) do
+      {
+        title: 'title', detail: 'detail', code: '123',
+        source: { vamf_url: 'https://example.com', vamf_body: 'error body', vamf_status: 500 },
+        status: '500'
+      }
+    end
+
+    it 'responds to #to_hash with hash source' do
       expect(subject.to_hash).to eq(attributes)
     end
   end

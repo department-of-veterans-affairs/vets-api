@@ -4,10 +4,10 @@ require 'rails_helper'
 
 RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
   subject do
-    described_class.build(applicant, recipients, ga_client_id).deliver_now
+    described_class.build(education_benefits_claim.id, recipients, ga_client_id).deliver_now
   end
 
-  let(:education_benefits_claim) { build(:va10203) }
+  let(:education_benefits_claim) { create(:va10203) }
   let(:applicant) { education_benefits_claim.open_struct_form }
   let(:recipients) { ['foo@example.com'] }
   let(:ga_client_id) { '123456543' }

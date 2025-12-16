@@ -82,4 +82,44 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaim::BenefitsIntake, type:
       )
     end
   end
+
+  describe '#pending_submission_attempt_stale?' do
+    let(:saved_claim) { create(:saved_claim_benefits_intake) }
+
+    before do
+      # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+      # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+      allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+        if file.respond_to?(:path) && file.path.end_with?('.pdf')
+          nil
+        else
+          original.call(file)
+        end
+      end
+    end
+
+    context 'latest attempt was successful' do
+      it 'returns false' do
+        saved_claim.latest_submission_attempt.update(aasm_state: 'vbms')
+        Timecop.freeze(10.days.from_now) do
+          expect(saved_claim.pending_submission_attempt_stale?).to be false
+        end
+      end
+    end
+
+    context 'latest pending attempt is under 10 days ago' do
+      it 'returns false' do
+        expect(saved_claim.pending_submission_attempt_stale?).to be false
+      end
+    end
+
+    context 'latest pending attempt was 10 days ago' do
+      it 'returns true' do
+        saved_claim.save
+        Timecop.freeze(10.days.from_now) do
+          expect(saved_claim.pending_submission_attempt_stale?).to be true
+        end
+      end
+    end
+  end
 end

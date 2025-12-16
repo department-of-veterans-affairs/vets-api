@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
 require 'mini_magick'
@@ -90,7 +89,7 @@ module Mobile
 
       # It was found that FE is using both different casing between multi image upload and single image upload.
       # This shouldn't matter due to the x-key-inflection: camel header being used but that header only works if the
-      # body payload is in json, which the single doc upload is not (at least in specs for both LH and EVSS).
+      # body payload is in json, which the single doc upload is not (at least in the specs).
       def tracked_item_id
         params[:trackedItemId] || params[:tracked_item_id]
       end

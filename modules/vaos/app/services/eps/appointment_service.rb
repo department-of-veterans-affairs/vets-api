@@ -24,25 +24,52 @@ module Eps
 
         result
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_appointment')
+      raise e
     end
 
     ##
     # Get appointments data from EPS
     #
-    # @return OpenStruct response from EPS appointments endpoint
+    # @param referral_number [String] Optional referral number to filter appointments
+    # @return [Array<Hash>] Array of appointment hashes from EPS
     #
-    def get_appointments
+    def get_appointments(referral_number: nil)
+      params = { patientId: patient_id }
+      params[:referralNumber] = referral_number if referral_number.present?
+
+      query_string = URI.encode_www_form(params)
+
       with_monitoring do
-        response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
+        response = perform(:get, "/#{config.base_path}/appointments?#{query_string}",
                            {}, request_headers_with_correlation_id)
 
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(response.body, response, 'get_appointments')
+        return [] unless response.body.is_a?(Hash)
 
         appointments = response.body[:appointments]
-        merged_appointments = merge_provider_data_with_appointments(appointments)
-        OpenStruct.new(data: merged_appointments)
+        return [] unless appointments.is_a?(Array)
+
+        appointments
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'get_appointments')
+      raise e
+    end
+
+    ##
+    # Get appointments data from EPS with provider information and return as EpsAppointment objects
+    #
+    # @return [Array<VAOS::V2::EpsAppointment>] Array of EpsAppointment objects with provider data
+    #
+    def get_appointments_with_providers
+      appointments = get_appointments
+      return [] if appointments.blank?
+
+      merged_appointments = merge_provider_data_with_appointments(appointments)
+      merged_appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt, appt[:provider]) }
     end
 
     ##
@@ -63,6 +90,9 @@ module Eps
 
         result
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'create_draft_appointment')
+      raise e
     end
 
     ##
@@ -81,38 +111,21 @@ module Eps
     # @return OpenStruct response from EPS submit appointment endpoint
     #
     def submit_appointment(appointment_id, params = {})
-      raise ArgumentError, 'appointment_id is required and cannot be blank' if appointment_id.blank?
-      raise ArgumentError, 'Email is required' if user.email.blank?
-
-      required_params = %i[network_id provider_service_id slot_ids referral_number]
-      missing_params = required_params - params.keys
-
-      raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
-
+      validate_submit_params!(appointment_id, params)
       payload = build_submit_payload(params)
-
-      # Store appointment data in Redis using the RedisClient
-      redis_client.store_appointment_data(
-        uuid: user.uuid,
-        appointment_id:,
-        email: user.email
-      )
-
-      # Enqueue worker with UUID and last 4 of appointment_id
-      appointment_last4 = appointment_id.to_s.last(4)
-      Eps::AppointmentStatusJob.perform_async(user.uuid, appointment_last4)
+      persist_submit_side_effects(appointment_id)
 
       with_monitoring do
         response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload,
                            request_headers_with_correlation_id)
 
         result = OpenStruct.new(response.body)
-
-        # Check for error field in successful responses using reusable helper
         check_for_eps_error!(result, response, 'submit_appointment')
-
         result
       end
+    rescue Eps::ServiceException => e
+      handle_eps_error!(e, 'submit_appointment')
+      raise e
     end
 
     private
@@ -127,6 +140,8 @@ module Eps
       return [] if appointments.nil?
 
       provider_ids = appointments.pluck(:provider_service_id).compact.uniq
+      return appointments if provider_ids.empty?
+
       providers = provider_services.get_provider_services_by_ids(provider_ids:)
 
       appointments.each do |appointment|
@@ -158,6 +173,26 @@ module Eps
       payload
     end
 
+    def validate_submit_params!(appointment_id, params)
+      raise ArgumentError, 'appointment_id is required and cannot be blank' if appointment_id.blank?
+      raise ArgumentError, 'Email is required' if user.email.blank?
+
+      required_params = %i[network_id provider_service_id slot_ids referral_number]
+      missing_params = required_params - params.keys
+      raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+    end
+
+    def persist_submit_side_effects(appointment_id)
+      redis_client.store_appointment_data(
+        uuid: user.uuid,
+        appointment_id:,
+        email: user.email
+      )
+
+      appointment_last4 = appointment_id.to_s.last(4)
+      Eps::AppointmentStatusJob.perform_async(user.uuid, appointment_last4)
+    end
+
     ##
     # Get instance of ProviderService
     #
@@ -174,4 +209,8 @@ module Eps
       @redis_client ||= Eps::RedisClient.new
     end
   end
+
+  # Mirrors the middleware-defined EPS exception so callers can rely on
+  # BackendServiceException fields (e.g., original_status, original_body).
+  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Eps::ServiceException)
 end

@@ -7,11 +7,12 @@ module MedicalRecords
     TOKEN = 'SESSION_TOKEN'
 
     def authenticated_client
-      MedicalRecords::Client.new(session: { user_id: 11_898_795,
-                                            icn: '123ABC',
+      MedicalRecords::Client.new(session: { user_uuid: '12345',
+                                            user_id: 11_898_795,
                                             patient_fhir_id: 2952,
                                             expires_at: Time.current + (60 * 60),
-                                            token: TOKEN })
+                                            token: TOKEN },
+                                 icn: '123ABC')
     end
   end
 end

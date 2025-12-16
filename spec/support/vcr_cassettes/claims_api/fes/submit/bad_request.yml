@@ -1,0 +1,111 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <CLAIMS_API_BD_URL>/oauth2/benefits-documents/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=< vald data >
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 17:54:15 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Reset:
+      - '45'
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"408-AEKUWIidyyD+5AsRwK1xasBo7aE:dtagent10317250630095842XDWE"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="60099677"
+      X-Envoy-Upstream-Service-Time:
+      - '346'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 0625aa56-2142-4d4b-864b-17c3ebdbd255#446181
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"token","token_type":"Bearer","scope":"documents.write
+        documents.read","expires_in":600,"state":null}'
+  recorded_at: Tue, 19 Aug 2025 17:54:15 GMT
+- request:
+    method: post
+    uri: "<FES_BASE_URL>/form526-establishment-service/v1/submit"
+    body:
+      encoding: UTF-8
+      string: '{"form526":{"veteran":{"firstName":"John","lastName":"Doe"},"disabilities":[{"name":"Hearing
+        Loss"}]}}'
+    headers:
+      Va-Eauth-Pid:
+      - '600043201'
+      Authorization: Bearer <TOKEN>
+      Content-Type:
+      - application/json; charset=UTF-8
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 17:54:15 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-396928734", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - no-cache, no-store
+      X-Envoy-Upstream-Service-Time:
+      - '65'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"detail":"Http Message Not Readable (Unrecognized Property)","status":400,"title":"Bad
+        Request","instance":"27df98fa-1fc7-40dc-9e58-0e71904e5672","diagnostics":"UGu2xW7Ik3qukXT9PJwXilCIrlfL0sVfE9X03z2zqxKdtF5/gmXeD3d4+dLcRxpGlmws9ermCmU9wc6eUAHQxEHrhwbeUImE6dzBMRwIpZYyYNNTYvpBYQu5qG7vsaOMBwFbycLxtwGpaRcHgsjEY9T3fVwlLIV9k2I+Woh1SvM2w0QLnGXYRxXa+lqUV5BCIufefWdb0urJPHggiDIQBIX+g7GVRB2NwrZnG4fAIxLPXYYZ3M9t0qJMij59eUaSFvfmW0tdZnGs7ATI407IvL06kIvGypyyPVpSTt8u2+0MVXI6O46MRH4wDzG/cMb6vYrGfrN6yGwDgXRxuUGGRVBPhzWqdJN6L0rHNA23i25+xMVueLrMEJNa3fU06rlIy30qrycIR8VmP5T4kl56gh79ch5flfPMz9G85H/qI+LWgjobDTsexhD6PRucPmJE4btiemFkSC69+BHoSt/WG28sUdNjYJ6i6H654p3szlO6AXL6lpeqb3N/mp9dcF3/AuQpst7aQwkP7hs82Yk51/BbolDu8i6XEzK5MOOw6MawdI47JoglU9Nf0I5Uh/m8FRDyNmpdLr2SNoh1rJGITf/Q2gaxdx8k2nWXWDFIc7uhqwQHJU6lDBurMQu4CZ+5ODU/O+LfCuboxzf/k15CSD1hBmn/1Av/bu6RRdAUTvYE9iFT2pQWPyAmM7f1IdZO/Y03G+ywpQ8ZYZzoBsPBWhec2GzUegFvT54Oj8R1Wknqoa3+8xyNj8Jl5Pk0yJzN+wJwlGTJUjrC1vdNmUOzeYHBT/D3O7VOk1Et0MbRbdgsL9gl3UBY8zMU8/8OtaiBCRM0Egi3QYk6o4hkjtg4NWVppvSqmBBRQsXhGcmpH+bLGJ+88IT5+wqVGchE13rOJAu34sMb92+DTYpjDeQ0408gQqTJ+f39kxsJg8hL/eR8W0CcoJ1/+rBHQGoNkTtD4mx2dvDxe4oITiTx6ULYt1zHzVgNWXwhsNO2LA7I4NVhD4TZA4ZORTpfecBnaNuWRmmwPBevj5QVeoBdW2opDlKCdHj0jgVmAbGIEO+EgdS2DlR/+9tySC4xdjd3BhiL9uMJ3GJA/6KwGNMYCsCP3QJlMXK3zadkaOl6i/Hlloh3V+8yWADsYKrBhR7DcSosA3XdYi+6qq4rIAsGm7ydUwm/bimjSS+oHEqalLu6rm2ZvhOPFMY="}]}'
+  recorded_at: Tue, 19 Aug 2025 17:54:15 GMT
+recorded_with: VCR 6.3.1

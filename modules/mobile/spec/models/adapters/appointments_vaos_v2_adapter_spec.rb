@@ -25,6 +25,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:future_request_date_appt_id) { '53359' }
   let(:telehealth_onsite_id) { '50097' }
   let(:missing_vvs_kind_id) { '50101' }
+  let(:cerner_va_id) { 'CERN129377263' }
 
   def appointment_data(index = nil)
     appts = index ? raw_data[index] : raw_data
@@ -58,7 +59,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
     adapted_appointments = subject.parse(appointment_data)
-    expect(adapted_appointments.size).to eq(17)
+    expect(adapted_appointments.size).to eq(18)
     expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
 
@@ -112,7 +113,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
                                  'best_time_to_call' => nil,
                                  'friendly_location_name' => 'Cheyenne VA Medical Center',
                                  'service_category_name' => nil,
-                                 'show_schedule_link' => nil
+                                 'show_schedule_link' => nil,
+                                 'is_cerner' => nil,
+                                 'avs_pdf' => nil,
+                                 'avs_error' => nil
                                })
   end
 
@@ -722,6 +726,46 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         appt = appointment_by_id(booked_va_id)
         expect(appt.show_schedule_link).to be_nil
       end
+    end
+  end
+
+  describe 'is_cerner' do
+    it 'passes through the proper boolean value' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.is_cerner).to be_nil
+      appt = appointment_by_id(cerner_va_id)
+      expect(appt.is_cerner).to be(true)
+    end
+  end
+
+  describe 'avs_pdf' do
+    let(:avs_pdf) do
+      {
+        appt_id: '12345',
+        id: '15249638961',
+        name: 'Ambulatory Visit Summary',
+        loinc_codes: %w[4189669 96345-4],
+        note_type: 'ambulatory_patient_summary',
+        content_type: 'application/pdf',
+        binary: 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+      }
+    end
+
+    it 'passes through the proper boolean value' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.avs_pdf).to be_nil
+      appt = appointment_by_id(cerner_va_id)
+      expect(appt.avs_pdf.length).to eq(1)
+      expect(appt.avs_pdf[0].to_h).to eq(avs_pdf)
+    end
+  end
+
+  describe 'avs_error' do
+    it 'passes through the proper error message' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.avs_error).to be_nil
+      appt = appointment_by_id(cerner_va_id, overrides: { avs_error: 'Error retrieving AVS' })
+      expect(appt.avs_error).to eq('Error retrieving AVS')
     end
   end
 end

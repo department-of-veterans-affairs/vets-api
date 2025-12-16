@@ -9,6 +9,19 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
 
   let(:attachment_klass) { PersistentAttachments::VAFormDocumentation }
   let(:form_id) { AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::FORM_ID }
+  let(:service) { double }
+
+  before do
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+      if file.respond_to?(:path) && file.path.end_with?('.pdf')
+        nil
+      else
+        original.call(file)
+      end
+    end
+  end
 
   context 'when record invalid' do
     let(:file) do
@@ -46,44 +59,35 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
       allow_any_instance_of(PersistentAttachment).to(
         receive(:to_pdf)
       )
+      allow(AccreditedRepresentativePortal::BenefitsIntakeService).to receive(:new).and_return service
     end
 
     context 'when upstream invalid' do
       before do
-        allow_any_instance_of(BenefitsIntakeService::Service).to(
-          receive(:valid_document?).and_raise(
-            BenefitsIntakeService::Service::InvalidDocumentError
-          )
+        allow(service).to receive(:valid_document?).and_raise(
+          BenefitsIntakeService::Service::InvalidDocumentError
         )
       end
 
       it 'raises' do
-        expect { perform }.to raise_error(
-          described_class::UpstreamInvalidError
-        )
+        expect { perform }.to raise_error(described_class::UpstreamInvalidError)
       end
     end
 
     context 'when upstream valid' do
       before do
-        allow_any_instance_of(BenefitsIntakeService::Service).to(
-          receive(:valid_document?)
-        )
+        allow(service).to receive(:valid_document?)
       end
 
       it 'returns an attachment' do
-        expect(perform).to be_a(
-          PersistentAttachments::VAFormDocumentation
-        )
+        expect(perform).to be_a(PersistentAttachments::VAFormDocumentation)
       end
 
       context 'when attachment is the main form' do
         let(:attachment_klass) { PersistentAttachments::VAForm }
 
         it 'returns a VAForm' do
-          expect(perform).to be_a(
-            PersistentAttachments::VAForm
-          )
+          expect(perform).to be_a(PersistentAttachments::VAForm)
         end
       end
     end

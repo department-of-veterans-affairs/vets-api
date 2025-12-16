@@ -3,136 +3,219 @@
 require 'rails_helper'
 
 RSpec.describe 'V0::Form1095Bs', type: :request do
-  subject { create(:form1095_b) }
+  let(:user) { build(:user, :loa3, icn: '1012667145V762142') }
+  let(:invalid_user) { build(:user, :loa1) }
 
-  let(:user) { build(:user, :loa3, icn: subject.veteran_icn) }
-  let(:invalid_user) { build(:user, :loa1, icn: subject.veteran_icn) }
-
-  describe 'GET /download_pdf for valid user' do
-    before do
-      sign_in_as(user)
-    end
-
-    it 'returns http success' do
-      get '/v0/form1095_bs/download_pdf/2021'
-      expect(response).to have_http_status(:success)
-    end
-
-    it 'returns a PDF form' do
-      get '/v0/form1095_bs/download_pdf/2021'
-      expect(response.content_type).to eq('application/pdf')
-    end
-
-    it 'throws 404 when form not found' do
-      get '/v0/form1095_bs/download_pdf/2018'
-      expect(response).to have_http_status(:not_found)
-    end
-
-    it 'throws 422 when no template exists for requested year' do
-      create(:form1095_b, tax_year: 2018)
-      get '/v0/form1095_bs/download_pdf/2018'
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
+  before do
+    allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
+    Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z'))
   end
 
-  describe 'GET /download_pdf for invalid user' do
-    before do
-      sign_in_as(invalid_user)
+  after { Timecop.return }
+
+  describe 'GET /download_pdf' do
+    context 'with valid user' do
+      before do
+        sign_in_as(user)
+      end
+
+      it 'returns http success' do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/download_pdf/2024'
+          expect(response).to have_http_status(:success)
+        end
+      end
+
+      it 'returns a PDF form' do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/download_pdf/2024'
+          expect(response.content_type).to eq('application/pdf')
+        end
+      end
+
+      it 'returns error from enrollment system' do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/download_pdf/2024'
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      # this will be irrelevant after we add the template
+      it 'throws 422 when template is not available' do
+        get '/v0/form1095_bs/download_pdf/2023'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      # 2021 is the one unsupported year for which we have a template
+      it 'throws 422 when requested year is not in supported range' do
+        get '/v0/form1095_bs/download_pdf/2021'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
 
-    it 'returns http 403' do
-      get '/v0/form1095_bs/download_pdf/2021'
-      expect(response).to have_http_status(:forbidden)
+    context 'with invalid user' do
+      before do
+        sign_in_as(invalid_user)
+      end
+
+      it 'returns http 403' do
+        get '/v0/form1095_bs/download_pdf/2021'
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user is not logged in' do
+      it 'returns http 401' do
+        get '/v0/form1095_bs/download_pdf/2021'
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
 
   describe 'GET /download_txt for valid user' do
-    before do
-      sign_in_as(user)
+    context 'with valid user' do
+      before do
+        sign_in_as(user)
+      end
+
+      it 'returns http success' do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/download_txt/2024'
+          expect(response).to have_http_status(:success)
+        end
+      end
+
+      it 'returns a txt form' do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/download_txt/2024'
+          expect(response.content_type).to eq('text/plain')
+        end
+      end
+
+      it 'returns error from enrollment system' do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/download_txt/2024'
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      # this will be irrelevant after we add the template
+      it 'throws 422 when template is not available' do
+        get '/v0/form1095_bs/download_txt/2023'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      # 2021 is the one unsupported year for which we have a template
+      it 'throws 422 when requested year is not in supported range' do
+        get '/v0/form1095_bs/download_txt/2021'
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
 
-    it 'returns http success' do
-      get '/v0/form1095_bs/download_txt/2021'
-      expect(response).to have_http_status(:success)
+    context 'with invalid user' do
+      before do
+        sign_in_as(invalid_user)
+      end
+
+      it 'returns http 403' do
+        get '/v0/form1095_bs/download_txt/2021'
+        expect(response).to have_http_status(:forbidden)
+      end
     end
 
-    it 'returns a txt form' do
-      get '/v0/form1095_bs/download_txt/2021'
-      expect(response.content_type).to eq('text/plain')
-    end
-
-    it 'throws 404 when form not found' do
-      get '/v0/form1095_bs/download_txt/2018'
-      expect(response).to have_http_status(:not_found)
-    end
-
-    it 'throws 422 when no template exists for requested year' do
-      create(:form1095_b, tax_year: 2018)
-      get '/v0/form1095_bs/download_txt/2018'
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
-  end
-
-  describe 'GET /download_txt for invalid user' do
-    before do
-      sign_in_as(invalid_user)
-    end
-
-    it 'returns http 403' do
-      get '/v0/form1095_bs/download_txt/2021'
-      expect(response).to have_http_status(:forbidden)
+    context 'when user is not logged in' do
+      it 'returns http 401' do
+        get '/v0/form1095_bs/download_txt/2021'
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
 
   describe 'GET /available_forms' do
-    before do
-      sign_in_as(user)
-      # allow endpoint increment in order to test user_has_no_1095b increment
-      allow(StatsD).to receive(:increment).with('api.rack.request',
-                                                { tags: ['controller:v0/form1095_bs', 'action:available_forms',
-                                                         'source_app:not_provided', 'status:200'] })
+    context 'with valid user' do
+      before do
+        sign_in_as(user)
+      end
+
+      it 'returns success with list of available form years during allowed date range' do
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
+                         { match_requests_on: %i[method uri] }) do
+          get '/v0/form1095_bs/available_forms'
+        end
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body.deep_symbolize_keys).to eq(
+          { available_forms: [
+            { year: 2024,
+              last_updated: nil }
+          ] }
+        )
+      end
+
+      context 'when user not found on enrollment system' do
+        it 'returns success with an empty list' do
+          VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
+                           { match_requests_on: %i[method uri] }) do
+            get '/v0/form1095_bs/available_forms'
+          end
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body.deep_symbolize_keys).to eq(
+            { available_forms: [] }
+          )
+        end
+      end
+
+      context 'when user was not enrolled during allowed date range' do
+        # per the vcr cassette, user was not enrolled in 2023
+        before { Timecop.freeze(Time.zone.parse('2024-03-05T08:00:00Z')) }
+        after { Timecop.return }
+
+        it 'returns an empty array' do
+          VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
+                           { match_requests_on: %i[method uri] }) do
+            get '/v0/form1095_bs/available_forms'
+          end
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body.deep_symbolize_keys).to eq(
+            { available_forms: [] }
+          )
+        end
+      end
+
+      context 'when an error is received from the enrollment system' do
+        it 'returns appropriate error status' do
+          # stubbing instead of using cassette because I haven't been able to produce errors other than 404 on
+          # enrollment system
+          upstream_response = OpenStruct.new(status: 400)
+          allow_any_instance_of(VeteranEnrollmentSystem::EnrollmentPeriods::Service).to \
+            receive(:perform).and_return(upstream_response)
+          get '/v0/form1095_bs/available_forms'
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
     end
 
-    it 'returns success with only the most recent tax year form data' do
-      this_year = Date.current.year
-      last_year_form = create(:form1095_b, tax_year: this_year - 1)
-      create(:form1095_b, tax_year: this_year)
-      create(:form1095_b, tax_year: this_year - 2)
+    context 'with invalid user' do
+      before do
+        sign_in_as(invalid_user)
+      end
 
-      expect(StatsD).not_to receive(:increment).with('api.user_has_no_1095b')
-      get '/v0/form1095_bs/available_forms'
-      expect(response).to have_http_status(:success)
-      expect(response.parsed_body.deep_symbolize_keys).to eq(
-        { available_forms: [{ year: last_year_form.tax_year,
-                              last_updated: last_year_form.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ') }] }
-      )
+      it 'returns http 403' do
+        get '/v0/form1095_bs/available_forms'
+        expect(response).to have_http_status(:forbidden)
+      end
     end
 
-    it 'returns success with no available forms and increments statsd when user has no form data' do
-      expect(StatsD).to receive(:increment).with('api.user_has_no_1095b')
-      get '/v0/form1095_bs/available_forms'
-      expect(response).to have_http_status(:success)
-      expect(response.parsed_body.symbolize_keys).to eq(
-        { available_forms: [] }
-      )
-    end
-  end
-
-  describe 'GET /available_forms for invalid user' do
-    before do
-      sign_in_as(invalid_user)
-    end
-
-    it 'returns http 403' do
-      get '/v0/form1095_bs/available_forms'
-      expect(response).to have_http_status(:forbidden)
-    end
-  end
-
-  describe 'GET /available_forms when not logged in' do
-    it 'returns http 401' do
-      get '/v0/form1095_bs/available_forms'
-      expect(response).to have_http_status(:unauthorized)
+    context 'when user is not logged in' do
+      it 'returns http 401' do
+        get '/v0/form1095_bs/available_forms'
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
 end

@@ -132,6 +132,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
     end
 
     it 'returns a ServiceUnavailable response if feature flag turned off' do

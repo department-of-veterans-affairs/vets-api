@@ -2,6 +2,9 @@
 
 module TravelPay
   class ClaimsService
+    include ExpenseNormalizer
+    include IdValidation
+
     def initialize(auth_manager, user)
       @auth_manager = auth_manager
       @user = user
@@ -50,11 +53,10 @@ module TravelPay
 
     # Retrieves expanded claim details with additional fields
     def get_claim_details(claim_id)
-      # ensure claim ID is the right format, allowing any version
-      uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
-
-      unless uuid_all_version_format.match?(claim_id)
-        raise ArgumentError, message: "Expected claim id to be a valid UUID, got #{claim_id}."
+      begin
+        validate_uuid_exists!(claim_id, 'Claim')
+      rescue Common::Exceptions::BadRequest => e
+        raise ArgumentError, e.errors.first.detail
       end
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
@@ -67,6 +69,13 @@ module TravelPay
       if claim
         claim['claimStatus'] = claim['claimStatus'].underscore.humanize
         claim['documents'] = documents
+
+        # Normalize expense types
+        normalize_expenses(claim['expenses']) if claim['expenses']
+
+        # Add decision letter reason for denied or partial payment claims
+        add_decision_letter_reason(claim, claim_id) if include_decision_reason?
+
         claim
       end
     end
@@ -111,6 +120,18 @@ module TravelPay
     end
 
     private
+
+    def include_decision_reason?
+      Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
+    end
+
+    def add_decision_letter_reason(claim, claim_id)
+      decision_document = find_decision_letter_document(claim)
+      return unless (claim['claimStatus'].eql?('Denied') || claim['claimStatus'].casecmp?('Claim paid')) &&
+                    !decision_document.nil?
+
+      claim['decision_letter_reason'] = get_decision_reason(claim_id, decision_document['documentId'])
+    end
 
     def filter_by_date(date_string, claims)
       if date_string.present?
@@ -158,6 +179,34 @@ module TravelPay
         end
       end
       documents
+    end
+
+    def find_decision_letter_document(claim)
+      return nil unless claim&.dig('documents')
+
+      claim['documents'].find do |document|
+        filename = document['filename'] || ''
+        filename.match?(/Decision Letter|Rejection Letter/i) && document['documentId'].present?
+      end
+    end
+
+    def get_decision_reason(claim_id, document_id)
+      documents_service = TravelPay::DocumentsService.new(@auth_manager)
+
+      begin
+        document_data = documents_service.download_document(claim_id, document_id)
+      rescue => e
+        Rails.logger.error("Error downloading document for decision reason: #{e.message}")
+        return nil
+      end
+
+      doc_reader = TravelPay::DocReader.new(document_data[:body])
+
+      # Try to get denial reasons first, then partial payment reasons
+      doc_reader.denial_reasons || doc_reader.partial_payment_reasons
+    rescue => e
+      Rails.logger.error("Error extracting decision reason: #{e.message}")
+      nil
     end
 
     def loop_and_paginate_claims(params, veis_token, btsss_token)

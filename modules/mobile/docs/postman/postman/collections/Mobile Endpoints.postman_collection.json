@@ -1,0 +1,1312 @@
+{
+  "info": {
+    "_postman_id": "0efaa37e-0fa8-42a6-bb35-cbd4e9c88abe",
+    "name": "Mobile Endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "v0",
+      "item": [
+        {
+          "name": "/v0/appeal/{id}",
+          "id": "2fbb9c93-f6bc-4779-b841-a301a56d6ba1",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/appeal/:id",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "appeal",
+                ":id"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "A6223",
+                  "description": "vets.gov.user+0@gmail.com: A6223"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/appointments",
+          "id": "f3219931-e22a-4ac2-a530-5f802ea693bc",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/appointments?include[]=pending&page[size]=900&useCache=false",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "appointments"
+              ],
+              "query": [
+                {
+                  "key": "include[]",
+                  "value": "pending"
+                },
+                {
+                  "key": "page[size]",
+                  "value": "900"
+                },
+                {
+                  "key": "useCache",
+                  "value": "false"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2025-04-17T00:00:00.000-06:00",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-07-16T23:59:59.999-06:00",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/awards",
+          "id": "96e5b22d-ebcf-429e-9a1a-c337f46f6b2b",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/awards",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "awards"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/appointments/check-in/demographics",
+          "id": "6dbff597-5fb0-4c60-9495-9c122978704a",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/appointments/check-in/demographics?location_id=983GC",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "appointments",
+                "check-in",
+                "demographics"
+              ],
+              "query": [
+                {
+                  "key": "location_id",
+                  "value": "983GC"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/efolder/documents",
+          "id": "819e5c89-40f7-407a-9d42-27bba1bfbdbe",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/efolder/documents",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "efolder",
+                "documents"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/claim-letter/documents",
+          "id": "fa9c5a6f-1f00-4a89-b313-c7041a1f35ab",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/claim-letter/documents",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "claim-letter",
+                "documents"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/claim-letter/documents/{document_id}/download",
+          "id": "7561f5ed-e484-4a4d-92df-2479813df6c8",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/claim-letter/documents/:document_id/download",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "claim-letter",
+                "documents",
+                ":document_id",
+                "download"
+              ],
+              "variable": [
+                {
+                  "key": "document_id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/claim/{id}",
+          "id": "77e092b2-2da8-405e-99ae-bd0c1691b018",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/claim/:id",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "claim",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "600810891"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/claims/decision-letters",
+          "id": "6992d309-4944-4854-b29b-e8037798f7d1",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/claims/decision-letters",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "claims",
+                "decision-letters"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/claim-letter/documents/{document_id}/download Copy",
+          "id": "264df54d-807d-40aa-a2f7-fdac7b0f5f04",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/claim-letter/documents/:document_id/download",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "claim-letter",
+                "documents",
+                ":document_id",
+                "download"
+              ],
+              "variable": [
+                {
+                  "key": "document_id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/claims-and-appeals-overview",
+          "id": "67998a39-473e-44ca-866d-2c5ff5e237e3",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/claims-and-appeals-overview?page[size]=250",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "claims-and-appeals-overview"
+              ],
+              "query": [
+                {
+                  "key": "page[size]",
+                  "value": "250"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/community-care-providers",
+          "id": "bb378f4e-be24-41eb-a2a3-1b9bcdc9a8fb",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/community-care-providers?serviceType=primaryCare",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "community-care-providers"
+              ],
+              "query": [
+                {
+                  "key": "serviceType",
+                  "value": "primaryCare"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/disability-rating",
+          "id": "6793ad61-2dc4-43ca-92c4-2b69967dada5",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/disability-rating",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "disability-rating"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/facilities-info",
+          "id": "3264f4a5-5c75-4099-ae9c-78faf94cc113",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/facilities-info",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "facilities-info"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/health/immunizations",
+          "id": "d55b3514-1341-46b6-9fda-0dc39e1d1bfd",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/health/immunizations",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "health",
+                "immunizations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/health/locations/{id}",
+          "id": "dbc21849-d54a-4390-8282-914ee0c1e9ed",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/health/locations/:id",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "health",
+                "locations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "4-7QY97reBxYcCz1FqCzo"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/health/rx/prescriptions",
+          "id": "8108ffb3-7387-4f77-9111-c256e3eb61eb",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "sort",
+                  "value": "refill_status",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/health/rx/prescriptions",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "health",
+                "rx",
+                "prescriptions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/health/rx/prescriptions/{id}/tracking",
+          "id": "e9ff8cb9-9e9b-4f14-9652-74161ae7b09f",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/health/rx/prescriptions/:id/tracking",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "health",
+                "rx",
+                "prescriptions",
+                ":id",
+                "tracking"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{prescription_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/letters",
+          "id": "5480d1c5-e1d8-4173-b26d-76b7429035ad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/letters",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "letters"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/letters/:type/download",
+          "id": "e6879528-871b-431a-8db6-e1b2e1e29831",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/letters/:type/download",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "letters",
+                ":type",
+                "download"
+              ],
+              "variable": [
+                {
+                  "key": "type",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/letters/beneficiary",
+          "id": "9bb2d4f5-1482-40ca-b135-72777dc7dd02",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/letters/beneficiary",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "letters",
+                "beneficiary"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/maintenance_windows",
+          "id": "7a332c0f-b61a-4396-8dc1-47811ba7c730",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/maintenance_windows",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "maintenance_windows"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/folders",
+          "id": "d2b81c93-381d-463f-a5a2-5c099dd25564",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/folders",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "folders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/folders/{id}",
+          "id": "925fb441-b200-440f-8c57-8aacb83b347a",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/folders/:id",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "folders",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{folder_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/folders/{id}/messages",
+          "id": "487b0e4d-aaa8-463a-bb08-c7aa7b3cb1d5",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/folders/:id/messages?page=1&per_page=5000&useCache=false",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "folders",
+                ":id",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "5000"
+                },
+                {
+                  "key": "useCache",
+                  "value": "false"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/messages/categories",
+          "id": "f7b70953-eeac-4142-b8a5-54bae9f95b18",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/messages/categories",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "messages",
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/messages/signature",
+          "id": "08e681dd-e0c3-44d4-914f-d3fe75fc32c9",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/messages/signature",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "messages",
+                "signature"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/messages/{id}",
+          "id": "f6e6922c-c66f-442d-8602-7a1351e23d7d",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/messages/:id",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "messages",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{message_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/messages/{id}/thread",
+          "id": "1bf2d18b-f6c6-4ffb-9146-082201c8c2e8",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/messages/:id/thread",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "messages",
+                ":id",
+                "thread"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{message_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/allrecipients",
+          "id": "7bc1a79f-bc5d-4535-882f-df4945475acd",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/allrecipients",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "allrecipients"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/messaging/health/recipients",
+          "id": "2a3eeeae-b296-484d-bc61-6c557a97fc3b",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/messaging/health/recipients",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "messaging",
+                "health",
+                "recipients"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/military-service-history",
+          "id": "8efcbbba-393f-43c1-a385-4e53b7824601",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/military-service-history",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "military-service-history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/payment-history",
+          "id": "70b34787-bb4d-43fb-b1ec-985ab56ac155",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/payment-history",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "payment-history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/pensions",
+          "id": "e2042f25-8445-4cab-bf91-0a39f7653c67",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/payment-history",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "payment-history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/payment-information/benefits",
+          "id": "b4c287f3-0289-4981-bcf0-43e434cac5dd",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/payment-information/benefits",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "payment-information",
+                "benefits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/push/prefs/{endpointSid}",
+          "id": "1d95e557-535c-46f7-8603-b050cece9a59",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/push/prefs/:endpointSid",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "push",
+                "prefs",
+                ":endpointSid"
+              ],
+              "variable": [
+                {
+                  "key": "endpointSid",
+                  "value": "{{endpointSid}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/user",
+          "id": "2671b29f-a799-4178-84cd-124dddd45669",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/user",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "user"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/user/authorized-services",
+          "id": "c6f5791b-e544-4f99-8e94-37640817d782",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/user/authorized-services",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "user",
+                "authorized-services"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/user/demographics",
+          "id": "d722393e-5d76-4d6d-8d24-6dead8bb495d",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/user/demographics",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "user",
+                "demographics"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/user/gender_identity/edit",
+          "id": "6afd463b-fe4d-4312-b5ba-45b7c1b8cf1b",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/user/gender_identity/edit",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "user",
+                "gender_identity",
+                "edit"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v0/user/gender_identity",
+          "id": "d9e84e63-7a52-4024-944a-aa1ecf17923f",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v0/user/gender_identity",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v0",
+                "user",
+                "gender_identity"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "bdfbea66-45ca-4142-9b50-db56b433ec3c"
+    },
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "/v1/health/immunizations",
+          "id": "fd7746de-0a49-459c-b60d-9674344609af",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v1/health/immunizations",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v1",
+                "health",
+                "immunizations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/v1/user",
+          "id": "ac5de8fe-7f64-4c4d-859b-c13aac02cd28",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication-Method",
+                "value": "SIS",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseUrl}}/mobile/v1/user",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "v1",
+                "user"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "e2890419-e034-42ab-a931-564f53f6cfda"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{BEARER_TOKEN}}",
+        "type": "string"
+      }
+    ]
+  }
+}

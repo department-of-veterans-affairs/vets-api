@@ -20,6 +20,10 @@ module Form1010Ezr
           'OTHER_EMERGENCY_CONTACT' => 'Other emergency contact'
         }.freeze
 
+        UNKNOWN_NAME = 'UNKNOWN'
+        UNKNOWN_RELATION = 'UNRELATED FRIEND'
+        UNKNOWN_ROLE = 'Other emergency contact'
+
         # @param [Array] ves_associations The associations data from VES
         # @param [Array] form_associations The associations data in the submitted form
         def initialize(ves_associations, form_associations)
@@ -45,6 +49,7 @@ module Form1010Ezr
           # Add a deleteIndicator to the missing association objects. The user deleted these associations
           # on the frontend, so we need to delete them from the Associations API
           associations_to_delete = missing_associations.map do |obj|
+            obj['contactType'] = UNKNOWN_ROLE if obj['contactType'].blank?
             obj.merge('deleteIndicator' => true)
           end
 
@@ -56,8 +61,6 @@ module Form1010Ezr
 
         # Transform the VES Associations API data to match the EZR 'nextOfKins' and 'emergencyContacts' schemas.
         def transform_ves_association(association)
-          validate_required_fields!(association)
-
           transformed_association = build_transformed_association(association)
           fill_association_full_name_from_ves_association(transformed_association, association)
 
@@ -72,29 +75,22 @@ module Form1010Ezr
         end
 
         def fill_association_full_name_from_ves_association(association, ves_association)
+          ves_association['name'] = {} unless ves_association['name']
+          first_name = ves_association.dig('name', 'givenName')
+          last_name = ves_association.dig('name', 'familyName')
+          ves_association['name']['givenName'] = UNKNOWN_NAME if first_name.blank?
+          ves_association['name']['familyName'] = UNKNOWN_NAME if last_name.blank?
+
           NAME_MAPPINGS.each do |mapping|
             association['fullName'][mapping.first] = ves_association['name'][mapping.last.to_s]
           end
         end
 
-        # There are instances where a VES association may have a 'relationship' field
+        # VES can return an association with a blank relationship. We need to set a default value
+        # in case the Veteran decides to delete this association, otherwise the update to VES will fail.
         def handle_relationship(association)
-          relationship = association['relationship'] || association['relationType']
-
-          return relationship if relationship.blank?
-
+          relationship = association['relationType'] || UNKNOWN_RELATION
           relationship.gsub(/_/, ' ').split.join(' ')
-        end
-
-        def validate_required_fields!(association)
-          missing_fields = []
-          missing_fields << 'role' if association['role'].blank?
-          missing_fields << 'name' if association['name'].blank?
-          missing_fields << 'relationship' if handle_relationship(association).blank?
-
-          return if missing_fields.empty?
-
-          raise StandardError, "VES association is missing the following field(s): #{missing_fields.join(', ')}"
         end
 
         def build_transformed_association(association)

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/address_validation/service'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module Mobile
   module V0
@@ -25,12 +24,8 @@ module Mobile
         )
       end
 
-      def validate # rubocop:disable Metrics/MethodLength
-        validated_address_params = if Flipper.enabled?(:remove_pciu)
-                                     VAProfile::Models::V3::ValidationAddress.new(address_params)
-                                   else
-                                     VAProfile::Models::ValidationAddress.new(address_params)
-                                   end
+      def validate
+        validated_address_params = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, validated_address_params unless validated_address_params.valid?
 
         response = validation_service.address_suggestions(validated_address_params).as_json
@@ -82,11 +77,7 @@ module Mobile
       end
 
       def validation_service
-        if Flipper.enabled?(:remove_pciu)
-          VAProfile::V3::AddressValidation::Service.new
-        else
-          VAProfile::AddressValidation::Service.new
-        end
+        VAProfile::AddressValidation::V3::Service.new
       end
     end
   end

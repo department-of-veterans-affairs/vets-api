@@ -20,7 +20,7 @@ describe DependentsVerification::PdfFill::Va210538 do
         if key == :key
           value
         elsif value.key?(:key)
-          value[:key]
+          value[:key] unless value[:overflow_only]
         elsif value.is_a?(Hash)
           get_keys(value)
         end

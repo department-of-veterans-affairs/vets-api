@@ -14,8 +14,6 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
   let(:current_user) { build(:user, :mhv) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
-
     bb_client = BB::Client.new(
       session: {
         user_id: 11_375_034,
@@ -29,13 +27,48 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
   end
 
   context 'Authorized user' do
-    before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
+    describe 'responds to GET #refresh' do
+      it 'successfully refreshes' do
+        VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
+          get '/my_health/v1/health_records/refresh'
+          expect(response).to be_successful
+          expect(response.parsed_body['data'][0]['type']).to eq('extract_status')
+        end
+      end
     end
 
-    after do
-      VCR.eject_cassette
+    # describe 'responds to GET #eligible_data_classes' do
+    #   it 'successfully retrieves eligible data classes' do
+    #     # TODO: this is not used anywhere else, is it correct? Because the serializer blows up.
+    #     VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
+    #       get '/my_health/v1/health_records/eligible_data_classes'
+    #       expect(response).to be_successful
+    #       expect(response.parsed_body['data']).to be_an(Array)
+    #     end
+    #   end
+    # end
+
+    describe 'responds to GET #status' do
+      it 'successfully' do
+        VCR.use_cassette('bb_client/gets_vhie_sharing_status') do
+          get '/my_health/v1/health_records/sharing/status'
+        end
+        expect(response).to be_successful
+      end
+    end
+
+    describe 'responds to POST #create' do
+      let(:data_classes) do
+        %w[prescriptions medications allergies]
+      end
+      let(:params) { { from_date: '2020-01-01', to_date: '2020-12-31', data_classes: } }
+
+      it 'successfully' do
+        VCR.use_cassette('bb_client/generates_a_report') do
+          post '/my_health/v1/health_records', params:
+        end
+        expect(response).to be_successful
+      end
     end
 
     describe 'responds to POST #optin' do

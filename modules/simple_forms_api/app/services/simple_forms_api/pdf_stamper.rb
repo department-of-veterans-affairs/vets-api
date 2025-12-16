@@ -5,14 +5,16 @@ require 'fileutils'
 
 module SimpleFormsApi
   class PdfStamper
-    attr_reader :stamped_template_path, :form, :loa, :timestamp
+    attr_reader :stamped_template_path, :form, :loa, :timestamp, :form_number
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     FORM_UPLOAD_SUBMISSION_TEXT = 'Submitted via VA.gov at '
+    MINIMUM_PAGE_COUNT = 5
 
-    def initialize(stamped_template_path:, form: nil, current_loa: nil, timestamp: nil)
+    def initialize(stamped_template_path:, form: nil, form_number: nil, current_loa: nil, timestamp: nil)
       @stamped_template_path = stamped_template_path
       @form = form
+      @form_number = form_number
       @loa = current_loa
       @timestamp = timestamp
     end
@@ -51,7 +53,27 @@ module SimpleFormsApi
     end
 
     def all_form_stamps
-      form ? form.desired_stamps + form.submission_date_stamps(timestamp) : []
+      if form
+        form.desired_stamps + form.submission_date_stamps(timestamp)
+      elsif form_number
+        # Scanned form - lookup stamps by form number
+        get_scanned_form_stamps(form_number)
+      else
+        []
+      end
+    end
+
+    def get_scanned_form_stamps(form_number)
+      return [] unless SimpleFormsApi::ScannedFormStamps.stamps?(form_number)
+
+      stamp_config = SimpleFormsApi::ScannedFormStamps.new(form_number)
+      stamp_config.submission_date_stamps(timestamp)
+    rescue => e
+      Rails.logger.error(
+        'Simple forms api - error loading scanned form stamps',
+        { form_number:, error: e.message }
+      )
+      []
     end
 
     def stamp_form(desired_stamp)
@@ -125,13 +147,10 @@ module SimpleFormsApi
     def get_page_configuration(stamp)
       page = stamp[:page]
       position = stamp[:coords]
-      [
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page }
-      ].tap do |config|
+      [].tap do |config|
+        [page, MINIMUM_PAGE_COUNT].max.times do
+          config << { type: :new_page }
+        end
         config[page] = { type: :text, position: }
       end
     end

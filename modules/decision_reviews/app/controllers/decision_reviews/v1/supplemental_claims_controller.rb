@@ -94,6 +94,7 @@ module DecisionReviews
         # For now, we have to address schema issues before serializing, since our SavedClaim model
         # uses a copy of the same Lighthouse schema to validate the data before saving.
         req_body_obj = normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
+        req_body_obj = normalize_area_code_for_lighthouse_schema(req_body_obj)
         saved_claim_request_body = req_body_obj.to_json
         form4142 = req_body_obj.delete('form4142')
         sc_evidence = req_body_obj.delete('additionalDocuments')

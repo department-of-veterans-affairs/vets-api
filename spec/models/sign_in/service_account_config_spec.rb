@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::ServiceAccountConfig, type: :model do
-  let(:certificates) { [] }
   let(:service_account_id) { SecureRandom.hex }
   let(:access_token_duration) { SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:description) { 'some-description' }
@@ -15,8 +14,7 @@ RSpec.describe SignIn::ServiceAccountConfig, type: :model do
            access_token_duration:,
            description:,
            access_token_audience:,
-           access_token_user_attributes:,
-           certificates:)
+           access_token_user_attributes:)
   end
 
   describe 'associations' do

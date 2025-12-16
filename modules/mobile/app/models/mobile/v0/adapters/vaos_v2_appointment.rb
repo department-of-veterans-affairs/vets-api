@@ -118,7 +118,10 @@ module Mobile
             best_time_to_call: appointment[:preferred_times_for_phone_call],
             friendly_location_name:,
             service_category_name: appointment.dig(:service_category, 0, :text),
-            show_schedule_link: appointment[:show_schedule_link]
+            show_schedule_link: appointment[:show_schedule_link],
+            is_cerner: appointment[:is_cerner],
+            avs_pdf: appointment[:avs_pdf],
+            avs_error: appointment[:avs_error]
           }
 
           if appointment[:travelPayClaim]
@@ -458,7 +461,9 @@ module Mobile
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
             appointment[:kind] != PHONE_KIND &&
             appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
-            appointment.start < Time.now.utc # verify it's a past appointment
+            appointment.start < Time.now.utc && # verify it's a past appointment
+            ## TODO: reduce duplication by address this on the app frontend with claim metadata
+            TravelPay::DateUtils.valid_datetime?(appointment[:local_start_time].to_s)
         end
       end
     end

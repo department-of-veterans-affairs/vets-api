@@ -43,8 +43,6 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
-
-    resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
@@ -55,9 +53,34 @@ Rails.application.routes.draw do
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
 
+    resources :form210779, only: [:create] do
+      collection do
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
+      end
+    end
+
+    resources :form214192, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+    resources :form21p530a, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
+    resources :form212680, only: [:create] do
+      collection do
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
+      end
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
+
+    get 'enrollment_periods', to: 'enrollment_periods#index'
 
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
@@ -67,13 +90,6 @@ Rails.application.routes.draw do
     scope_default = { category: 'unknown_category' }
     get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
     get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
-
-    resources :letters, only: [:index] do
-      collection do
-        get 'beneficiary', to: 'letters#beneficiary'
-        post ':id', to: 'letters#download'
-      end
-    end
 
     resources :letters_discrepancy, only: [:index]
 
@@ -149,11 +165,14 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :dependents_benefits, only: %i[create index]
+
     resources :dependents_verifications, only: %i[create index]
 
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
+      get :failed_upload_evidence_submissions, on: :collection
     end
 
     resources :evidence_submissions, only: %i[index]
@@ -164,6 +183,8 @@ Rails.application.routes.draw do
     get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
 
     resources :efolder, only: %i[index show]
+
+    resources :tsa_letter, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -190,8 +211,14 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
+    get 'openapi', to: 'open_api#index'
+
+    # Adds Swagger UI to /v0/swagger - serves Swagger 2.0 / OpenAPI 3.0 docs
+    mount Rswag::Ui::Engine => 'swagger'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
+    post 'event_bus_gateway/send_push', to: 'event_bus_gateway#send_push'
+    post 'event_bus_gateway/send_notifications', to: 'event_bus_gateway#send_notifications'
 
     resources :maintenance_windows, only: [:index]
 
@@ -246,6 +273,7 @@ Rails.application.routes.draw do
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
       resource :military_occupations, only: :show
+      resource :scheduling_preferences, only: %i[show create update destroy]
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
@@ -374,10 +402,7 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
-
-    scope format: false do
-      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
-    end
+    resources :medical_copays, only: %i[index show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -394,14 +419,19 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount BPDS::Engine, at: '/bpds'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
   mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
+  mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
+  mount DigitalFormsApi::Engine, at: '/digital_forms_api'
+  mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
+  mount IncreaseCompensation::Engine, at: '/increase_compensation'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount MedicalExpenseReports::Engine, at: '/medical_expense_reports'
   mount RepresentationManagement::Engine, at: '/representation_management'
@@ -410,13 +440,16 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount SOB::Engine, at: '/sob'
   mount TravelPay::Engine, at: '/travel_pay'
   mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
+  mount Vass::Engine, at: '/vass'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   mount DecisionReviews::Engine, at: '/decision_reviews'
+  mount SurvivorsBenefits::Engine, at: '/survivors_benefits'
   # End Modules
 
   require 'sidekiq/web'

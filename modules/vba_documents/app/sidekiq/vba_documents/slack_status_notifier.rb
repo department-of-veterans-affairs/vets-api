@@ -31,20 +31,6 @@ module VBADocuments
     # 35 minutes wait\run for upload processor sidekiq retry 2
     UPLOADED_AGE_THRESHOLD_MINUTES = 100
 
-    # After hitting an Internal EMMS error, delay reporting until the status updater has a chance
-    # to refresh the latest status since most of the time these self resolve in EMMS
-    EMMS_INTERNAL_ERROR_THRESHOLD_MINUTES = 80
-
-    EMMS_SYSTEMIO_ERROR_REPORT =
-      'Benefits Intake Submissions are in error status with an EMMS System.IO error.' \
-      ' Typically, these self resolve without our intervention and susbequent calls for the status of ' \
-      'these submission return a non-error status, but these appear stuck.  Notify EMMS API team for help'
-
-    EMMS_DUP_CONFIRM_NUMBER_ERROR =
-      'Benefits Intake Submissions are in error status with an EMMS ConfirmationNumber has already been ' \
-      'submitted error. Typically, these self resolve without our intervention and susbequent calls for the ' \
-      'status of these submission return a non-error status, but these appear stuck.  Notify EMMS API team for help'
-
     # Consumer's who could have their Submission'ss upload to EMMS\CM delayed
     DELAYED_EVIDENCE_CONSUMERS = %w[appeals_api_nod_evidence_submission appeals_api_sc_evidence_submission].freeze
 
@@ -53,7 +39,6 @@ module VBADocuments
 
       report_expired
       report_uploaded
-      report_emms_internal_errors
     end
 
     def report_expired
@@ -142,50 +127,6 @@ module VBADocuments
                          "#{us[2] || 0} " \
                          "#{number_to_delimited(us[3])} " \
                          "#{us[4]}\n"
-      end
-      slack_details
-    end
-
-    def report_emms_internal_errors
-      # On rare ocasion EMMS API hits internal errors when we submit an upload
-      # to them for intake. To date, these errors seem to self resolve without our intervention
-      # and susbequent calls for the status of these submission eventually return a non-error status.
-      # However, we want to monitor the submissions that hit this issue to insure that they
-      # contine to self resolve within EMMS
-      uss = VBADocuments::UploadSubmission.where(status: 'error')
-                                          .where('detail LIKE ?', UploadStatusBatch::EMMS_SYSTEM_IO_ERROR)
-                                          .where(created_at: 30.days.ago..)
-                                          .order(:created_at)
-      report_emms_error(uss, EMMS_SYSTEMIO_ERROR_REPORT)
-
-      uss = VBADocuments::UploadSubmission.where(status: 'error')
-                                          .where('detail LIKE ?', UploadStatusBatch::EMMS_DUP_CONFIRM_NUMBER_ERROR)
-                                          .where(created_at: 30.days.ago..)
-                                          .order(:created_at)
-      report_emms_error(uss, EMMS_DUP_CONFIRM_NUMBER_ERROR)
-    end
-
-    def report_emms_error(upload_sbmissions, report_message)
-      # filter out the submissions that hit the emms errors to allow time for our status updater to refresh
-      uss = upload_sbmissions.select do |ul|
-        error_age = Time.zone.now - Time.zone.at(ul.metadata['status']['error']['start'])
-        next(error_age > (EMMS_INTERNAL_ERROR_THRESHOLD_MINUTES * 60))
-      end
-
-      return if uss.size.zero?
-
-      message = "#{uss.size} #{report_message}"
-      notify_slack(message, emms_error_details(uss))
-    end
-
-    def emms_error_details(upload_submissions)
-      # gather details and report
-      slack_details = "Oldest 50 Stuck errored Submissions\n"
-      slack_details += "\n\t(Guid, Age(Hours:Minutes)\n"
-      upload_submissions.first(50).each do |us|
-        upload_age = Time.zone.now - us.created_at
-        slack_details += "\t#{us.guid} " \
-                         "#{upload_age.to_i / 3600}:#{format('%02d', (upload_age / 60 % 60).to_i)}\n"
       end
       slack_details
     end

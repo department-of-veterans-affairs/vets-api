@@ -33,7 +33,10 @@ module Mobile
                  :service_category_name,
                  :travelPayClaim,
                  :travel_pay_eligible,
-                 :show_schedule_link
+                 :show_schedule_link,
+                 :is_cerner,
+                 :avs_pdf,
+                 :avs_error
     end
   end
 end

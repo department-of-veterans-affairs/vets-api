@@ -31,8 +31,17 @@ RSpec.describe 'V0::EducationBenefitsClaims', type: %i[request serializer] do
         expect(EducationBenefitsClaim.last.form_type).to eq(form_type)
       end
 
+      it 'returns the expected serialized data' do
+        subject
+        ebc = EducationBenefitsClaim.first
+        response_data = JSON.parse(response.body)['data']
+        expect(response_data['id']).to eq(ebc.token)
+        expect(response_data['type']).to eq('education_benefits_claim')
+        expect(response_data['attributes']['confirmationNumber']).to eq(ebc.confirmation_number)
+      end
+
       it 'increments statsd' do
-        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221995.success')
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.create.221995.success')
       end
     end
 
@@ -72,7 +81,7 @@ RSpec.describe 'V0::EducationBenefitsClaims', type: %i[request serializer] do
       end
 
       it 'increments statsd' do
-        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.success')
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.create.221990.success')
       end
     end
 
@@ -94,7 +103,7 @@ RSpec.describe 'V0::EducationBenefitsClaims', type: %i[request serializer] do
       end
 
       it 'increments statsd' do
-        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.failure')
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.create.221990.failure')
       end
     end
   end

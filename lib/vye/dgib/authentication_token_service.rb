@@ -4,9 +4,11 @@ module Vye
   module DGIB
     class AuthenticationTokenService
       ALGORITHM_TYPE = 'RS256'
+      # E & USE were provided by security team but may not be needed for JWT generation
+      # They're typically used for JWK (JSON Web Key) format, not JWT headers
+      # TODO: Check with security team if these can be removed
       E = 'AQAB'
       TYP = 'JWT'
-      KID = 'vye'
       USE = 'sig'
       SIGNING_KEY = Settings.dgi.vye.jwt.private_key_path
       RSA_PRIVATE = OpenSSL::PKey::RSA.new(File.read(SIGNING_KEY))
@@ -20,7 +22,7 @@ module Vye
           }
         }
 
-        header_fields = { kid: KID, typ: TYP }
+        header_fields = { kid: Settings.dgi.vye.jwt.kid, typ: TYP }
 
         JWT.encode payload, RSA_PRIVATE, ALGORITHM_TYPE, header_fields
       end

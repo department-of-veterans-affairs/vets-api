@@ -17,7 +17,6 @@ require 'evss/common_service'
 require 'evss/disability_compensation_form/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
-require 'evss/pciu_address/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -26,7 +25,6 @@ require 'mdot/configuration'
 require 'mhv_ac/configuration'
 require 'mpi/configuration'
 require 'pagerduty/configuration'
-require 'post911_sob/dgib/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
@@ -34,13 +32,12 @@ require 'search/configuration'
 require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
-require 'va_profile/address_validation/configuration'
-require 'va_profile/v3/address_validation/configuration'
-require 'va_profile/contact_information/configuration'
-require 'va_profile/v2/contact_information/configuration'
+require 'va_profile/address_validation/v3/configuration'
+require 'va_profile/contact_information/v2/configuration'
 require 'va_profile/communication/configuration'
 require 'va_profile/demographics/configuration'
 require 'va_profile/military_personnel/configuration'
+require 'va_profile/person_settings/configuration'
 require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
@@ -65,24 +62,21 @@ Rails.application.reloader.to_prepare do
     EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service,
     EVSS::DocumentsService.breakers_service,
     EVSS::Letters::Configuration.instance.breakers_service,
-    EVSS::PCIUAddress::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
     MHVAC::Configuration.instance.breakers_service,
     MPI::Configuration.instance.breakers_service,
-    Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
     VeteranEnrollmentSystem::Associations::Configuration.instance.breakers_service,
     VeteranEnrollmentSystem::BaseConfiguration.instance.breakers_service,
-    VAProfile::AddressValidation::Configuration.instance.breakers_service,
-    VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
-    VAProfile::ContactInformation::Configuration.instance.breakers_service,
-    VAProfile::V2::ContactInformation::Configuration.instance.breakers_service,
+    VAProfile::AddressValidation::V3::Configuration.instance.breakers_service,
+    VAProfile::ContactInformation::V2::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,
     VAProfile::Demographics::Configuration.instance.breakers_service,
     VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,
+    VAProfile::PersonSettings::Configuration.instance.breakers_service,
     VAProfile::VeteranStatus::Configuration.instance.breakers_service,
     Search::Configuration.instance.breakers_service,
     SearchGsa::Configuration.instance.breakers_service,

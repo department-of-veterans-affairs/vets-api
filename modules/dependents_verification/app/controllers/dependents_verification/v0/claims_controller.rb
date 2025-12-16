@@ -10,7 +10,7 @@ module DependentsVerification
     #
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
-      service_tag 'dependnets-verification-application'
+      service_tag 'dependents-verification-application'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
@@ -36,7 +36,8 @@ module DependentsVerification
 
       # POST creates and validates an instance of `claim_class`
       def create
-        claim = claim_class.new(form: form_data_with_ssn.to_json)
+        claim = claim_class.new(form: form_data_with_ssn_filenumber.to_json)
+        add_va_profile_email_to_claim(claim) if Flipper.enabled?(:lifestage_va_profile_email)
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -60,10 +61,20 @@ module DependentsVerification
 
       private
 
-      def form_data_with_ssn
+      # Merge the current user's SSN and veteran file number into the form data for PDF generation
+      # @return [Hash] the form data with SSN and veteran file number
+      def form_data_with_ssn_filenumber
         form_data_as_sym = JSON.parse(filtered_params[:form]).deep_symbolize_keys
-        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn)
+        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn, vaFileNumber: veteran_file_number)
         form_data_as_sym
+      end
+
+      # Retrieves the veteran's file number from BGS using the current user's participant ID
+      # @return [String] the veteran's file number without dashes if it exists
+      def veteran_file_number
+        file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user)&.file_number
+        file_number_without_dashes = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
+        file_number_without_dashes || file_number
       end
 
       # Raises an exception if the dependents verification flipper flag isn't enabled.
@@ -100,6 +111,21 @@ module DependentsVerification
         metadata = in_progress_form.metadata
         metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
         in_progress_form.update(metadata:)
+      end
+
+      # Inserts the user's VA profile email into the form data
+      #
+      # @param claim [DependentsVerification::SavedClaim] the claim to update
+      # @return [void]
+      def add_va_profile_email_to_claim(claim)
+        va_profile_email = current_user&.va_profile_email
+        return unless va_profile_email
+
+        form_data_hash = JSON.parse(claim.form)
+        form_data_hash['va_profile_email'] = va_profile_email
+        claim.form = form_data_hash.to_json
+      rescue => e
+        monitor.track_add_va_profile_email_error(claim, current_user, e)
       end
 
       ##

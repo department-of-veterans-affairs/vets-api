@@ -20,6 +20,10 @@ module BBInternal
     USERMGMT_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/".freeze
     BLUEBUTTON_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/".freeze
 
+    LOCK_RETRY_COUNT = 50
+    LOCK_TTL_SECONDS = 15
+    LOCK_RETRY_DELAY = 0.1
+
     ################################################################################
     # User Management APIs
     ################################################################################
@@ -96,14 +100,14 @@ module BBInternal
     #
     # @return [Hash] The status of the image request, including percent complete
     #
-    def request_study(id)
+    def request_study(icn, id)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
         # Fetch the original studyIdUrn from the Redis cache
         study_id = get_study_id_from_cache(id)
 
         # Perform the API call with the original studyIdUrn
         response = perform(
-          :get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
+          :get, "bluebutton/studyjob/#{session.patient_id}/icn/#{icn}/studyid/#{study_id}", nil,
           token_headers
         )
         data = response.body
@@ -182,17 +186,20 @@ module BBInternal
     end
 
     ##
-    # @param date - receieved from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
-    # @return - Continuity of Care Document in XML format
+    # @param date - received from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
+    # @param format - the format to return; one of XML, HTML, PDF
+    # @return - Continuity of Care Document in the specified format
     #
-    def get_download_ccd(date)
+    def get_download_ccd(date:, format: :xml)
+      fmt = format.to_s.upcase # XML | HTML | PDF
       modified_headers = token_headers.dup
-      modified_headers['Accept'] = 'application/xml'
-      response = config.connection_non_gateway.get(
-        "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML",
-        nil,
-        modified_headers
-      )
+
+      # The backend returns a 406 for 'application/pdf' and 'text/html' so we just use '*/*'
+      modified_headers['Accept'] = '*/*'
+
+      path = "bluebutton/healthsummary/#{date}/fileFormat/#{fmt}/ccdType/#{fmt}"
+
+      response = config.connection_non_gateway.get(path, nil, modified_headers)
       response.body
     end
 
@@ -399,9 +406,7 @@ module BBInternal
     end
 
     def with_custom_base_path(custom_base_path)
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway) && custom_base_path
-        BBInternal::Configuration.custom_base_path = custom_base_path
-      end
+      BBInternal::Configuration.custom_base_path = custom_base_path
       yield
     end
 
@@ -441,6 +446,8 @@ module BBInternal
         id = id.to_s
         study_id = study_data_hash[id]
 
+        # Log UUID if not cached for debugging
+        Rails.logger.info(message: "[MHV-Images] Study UUID #{id} not cached") if study_id.nil?
         study_id || raise(Common::Exceptions::RecordNotFound, id)
       else
         # throw 400 for FE to know to refetch the list
@@ -459,36 +466,58 @@ module BBInternal
     # @return [Array] A modified array in which all the objects have has studyIdUrn mapped to a UUID.
     #
     def map_study_ids(data)
-      study_data_cached = get_study_data_from_cache
-      study_data_hash = JSON.parse(study_data_cached) if study_data_cached
-      id_uuid_map = study_data_hash || {}
+      with_study_map_lock do
+        study_data_cached = get_study_data_from_cache
+        study_data_hash = JSON.parse(study_data_cached) if study_data_cached
+        id_uuid_map = study_data_hash || {}
 
-      modified_data = data.map do |obj|
-        study_id = obj['studyIdUrn']
+        modified_data = data.map do |obj|
+          study_id = obj['studyIdUrn']
 
-        existing_uuid = study_data_hash&.key(study_id.to_s)
+          existing_uuid = study_data_hash&.key(study_id.to_s)
 
-        if existing_uuid
-          obj['studyIdUrn'] = existing_uuid
-        else
-          new_uuid = SecureRandom.uuid
-          id_uuid_map[new_uuid] = study_id
-          obj['studyIdUrn'] = new_uuid
+          if existing_uuid
+            obj['studyIdUrn'] = existing_uuid
+          else
+            new_uuid = SecureRandom.uuid
+            id_uuid_map[new_uuid] = study_id
+            # Log UUID here - to track the mapping for debugging
+            Rails.logger.info(message: "[MHV-Images] Assigned studyIdUrn to new UUID #{new_uuid}")
+            obj['studyIdUrn'] = new_uuid
+          end
+          obj
         end
-        obj
+
+        # Store in redis with a ttl of 3 days
+        bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
+
+        modified_data
+      end
+    end
+
+    def with_study_map_lock
+      lock_key = "study_map_lock:#{session.patient_id}"
+
+      # Attempt to acquire lock. Wait up to 5 seconds.
+      LOCK_RETRY_COUNT.times do
+        if bb_redis.set(lock_key, 1, nx: true, ex: LOCK_TTL_SECONDS)
+          begin
+            return yield
+          ensure
+            bb_redis.del(lock_key)
+          end
+        end
+        sleep(LOCK_RETRY_DELAY)
       end
 
-      # Store in redis with a ttl of 3 days
-      bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
-
-      modified_data
+      raise Common::Exceptions::ServiceError.new(detail: 'Failed to acquire study map lock')
     end
 
     ##
-    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if ICN or patient ID are not yet set.
+    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if patient ID is not yet set.
     #
     def invalid?(session)
-      super(session) || session.icn.blank? || session.patient_id.blank?
+      super(session) || session.patient_id.blank?
     end
 
     ##

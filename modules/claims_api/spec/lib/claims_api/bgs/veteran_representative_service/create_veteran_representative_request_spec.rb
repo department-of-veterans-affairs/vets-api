@@ -121,7 +121,8 @@ describe ClaimsApi::VeteranRepresentativeService do
         end
 
         it 'raises Common::Exceptions::ServiceError' do
-          VCR.use_cassette('mpi_ptcpnt_id_instead_of_vnp_ptcpnt_id') do
+          tape = 'claims_api/bgs/veteran_representative_service/create_veteran_representative/mpi_ptcpnt_id'
+          VCR.use_cassette(tape) do
             expect { subject }.to raise_error(
               Common::Exceptions::ServiceError
             )

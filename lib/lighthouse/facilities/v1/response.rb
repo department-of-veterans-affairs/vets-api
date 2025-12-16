@@ -1,33 +1,35 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require_relative '../facility'
 
 module Lighthouse
   module Facilities
     module V1
-      class Response < Common::Base
+      class Response
+        include Vets::Model
+
         attribute :body, String
         attribute :current_page, Integer
-        attribute :data, Object
-        attribute :links, Object
-        attribute :meta, Object
+        attribute :data, Hash, array: true
+        attribute :links, Hash
+        attribute :meta, Hash
         attribute :per_page, Integer
         attribute :status, Integer
         attribute :total_entries, Integer
 
         def initialize(body, status)
           super()
-          self.body = body
-          self.status = status
+          @body = body
+          @status = status
           parsed_body = JSON.parse(body)
-          self.data = parsed_body['data'] || []
-          self.meta = parsed_body['meta']
-          self.links = parsed_body['links']
+          @data = Array.wrap(parsed_body['data']) # normalize data to array
+          @meta = parsed_body['meta']
+          @links = parsed_body['links']
           if meta
-            self.current_page = meta['pagination']['currentPage']
-            self.per_page = meta['pagination']['perPage']
-            self.total_entries = meta['pagination']['totalEntries']
+            @current_page = meta['pagination']['currentPage']
+            @per_page = meta['pagination']['perPage']
+            @total_entries = meta['pagination']['totalEntries']
           end
         end
 
@@ -46,7 +48,7 @@ module Lighthouse
         end
 
         def facility
-          Lighthouse::Facilities::Facility.new(data)
+          Lighthouse::Facilities::Facility.new(data.first)
         end
       end
     end

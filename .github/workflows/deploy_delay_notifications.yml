@@ -103,7 +103,7 @@ jobs:
     if: ${{ failure() }}
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
@@ -114,7 +114,7 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Checkout VSP actions
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: department-of-veterans-affairs/vsp-github-actions
           ref: refs/heads/main

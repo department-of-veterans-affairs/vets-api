@@ -3,16 +3,20 @@
 module ClaimsApi
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
-      afreemer@technatomy.com
       david.mazik@va.gov
       drew.fisher@adhocteam.us
+      eshvimmer@deloitte.com
       janet.coutinho@va.gov
-      jayson.perkins@adhocteam.us
       jgreene@technatomy.com
-      kayla.watanabe@adhocteam.us
+      mbavanaka@deloitte.com
       mchristianson@technatomy.com
+      michael.clement@adhocteam.us
       michael.harlow@va.gov
+      mughumman@deloitte.com
+      mzanaty@technatomy.com
       robert.perea-martinez@adhocteam.us
+      rrice@technatomy.com
+      slamsal@deloitte.com
       stone_christopher@bah.com
       zachary.goldfine@va.gov
     ].freeze

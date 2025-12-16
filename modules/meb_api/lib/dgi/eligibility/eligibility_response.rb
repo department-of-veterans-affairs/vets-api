@@ -6,7 +6,7 @@ module MebApi
   module DGI
     module Eligibility
       class EligibilityResponse < MebApi::DGI::Response
-        attribute :eligibility, Array
+        attribute :eligibility, Hash, array: true
 
         def initialize(status, response = nil)
           attributes = {

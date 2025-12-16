@@ -57,9 +57,15 @@ class InProgressForm < ApplicationRecord
                 }
   after_save :log_hca_email_diff
 
-  def self.form_for_user(form_id, user)
-    user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
-    user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
+  def self.form_for_user(form_id, user, with_lock: false)
+    if Flipper.enabled?(:in_progress_form_atomicity, user)
+      scope = with_lock ? lock : all
+      user_uuid_form = scope.find_by(form_id:, user_uuid: user.uuid)
+      user_account_form = scope.find_by(form_id:, user_account: user.user_account) if user.user_account
+    else
+      user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
+      user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
+    end
     user_uuid_form || user_account_form
   end
 
@@ -92,19 +98,16 @@ class InProgressForm < ApplicationRecord
 
   ##
   # Determines an expiration duration based on the UI form_id.
-  # If the in_progress_form_custom_expiration feature is enabled,
-  # the method can additionally return custom expiration durations whose values
-  # are passed in as Strings from the UI.
   #
   # @return [ActiveSupport::Duration] an instance of ActiveSupport::Duration
   #
   def expires_after
-    @expires_after ||=
-      if Flipper.enabled?(:in_progress_form_custom_expiration)
-        custom_expires_after
-      else
-        default_expires_after
-      end
+    @expires_after ||= case form_id
+                       when '21-526EZ', '21P-527EZ', '21P-530EZ', '686C-674-V2'
+                         1.year
+                       else
+                         60.days
+                       end
   end
 
   private
@@ -123,24 +126,5 @@ class InProgressForm < ApplicationRecord
 
   def skip_exipry_update_check
     self.skip_exipry_update = expires_at.present?
-  end
-
-  def days_till_expires
-    @days_till_expires ||= JSON.parse(form_data)['days_till_expires']
-  end
-
-  def default_expires_after
-    case form_id
-    when '21-526EZ', '21P-527EZ', '21P-530EZ', '686C-674-V2'
-      1.year
-    else
-      60.days
-    end
-  end
-
-  def custom_expires_after
-    options = { form_id:, days_till_expires: }
-
-    FormDurations::Worker.build(options).get_duration
   end
 end

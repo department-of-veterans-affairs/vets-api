@@ -1,0 +1,112 @@
+[
+  {
+    "triage_team_id": 4399547,
+    "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON",
+    "station_number": "979",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Robert J. Dole VA Medical And Regional Office Center",
+    "suggested_name_display": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+    "health_care_system_name": "VA Wichita Health Care"
+  },
+  {
+    "triage_team_id": 4399548,
+    "name": "589GR Pharmacy Ask a pharmacist SLC10 SIMPSON, HOMER",
+    "station_number": "979",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Robert J. Dole VA Medical And Regional Office Center",
+    "suggested_name_display": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+    "health_care_system_name": "VA Wichita Health Care"
+  },
+  {
+    "triage_team_id": 4399547,
+    "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES JR, DON",
+    "station_number": "978",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Robert J. Dole Jr. VA Medical And Regional Office Center",
+    "suggested_name_display": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+    "health_care_system_name": "VA Columbus Health Care"
+  },
+  {
+    "triage_team_id": 4399547,
+    "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES III, DON",
+    "station_number": "977",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Robert J. Dole III VA Medical And Regional Office Center",
+    "suggested_name_display": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+    "health_care_system_name": "VA Kansas City Health Care"
+  },
+  {
+    "triage_team_id": 4399547,
+    "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES III, DON",
+    "station_number": "612",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Robert J. Dole III VA Medical And Regional Office Center",
+    "suggested_name_display": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+    "health_care_system_name": "VA Kansas City Health Care"
+  },
+  {
+    "triage_team_id": 4399548,
+    "name": "Buffalo VA Medical Center",
+    "station_number": "528",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Buffalo VA Medical Center",
+    "suggested_name_display": "Buffalo VA Medical Center",
+    "health_care_system_name": "Buffalo VA Medical Center"
+  },
+  {
+    "triage_team_id": 4399549,
+    "name": "Kansas City VA Medical Center",
+    "station_number": "589",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Kansas City VA Medical Center",
+    "suggested_name_display": "Kansas City VA Medical Center",
+    "health_care_system_name": "Kansas City VA Medical Center"
+  },
+  {
+    "triage_team_id": 4399550,
+    "name": "Franklin Delano Roosevelt Hospital",
+    "station_number": "620",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Franklin Delano Roosevelt Hospital",
+    "suggested_name_display": "Franklin Delano Roosevelt Hospital",
+    "health_care_system_name": "Franklin Delano Roosevelt Hospital"
+  },
+  {
+    "triage_team_id": 4399551,
+    "name": "Nashville VA Medical Center",
+    "station_number": "626",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Nashville VA Medical Center",
+    "suggested_name_display": "Nashville VA Medical Center",
+    "health_care_system_name": "Nashville VA Medical Center"
+  },
+  {
+    "triage_team_id": 4399552,
+    "name": "Omaha VA Medical Center",
+    "station_number": "636",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "Omaha VA Medical Center",
+    "suggested_name_display": "Omaha VA Medical Center",
+    "health_care_system_name": "Omaha VA Medical Center"
+  },
+  {
+    "triage_team_id": 4399552,
+    "name": "John J. Cochran Veterans Hospital",
+    "station_number": "657",
+    "preferred_team": true,
+    "relation_type": "PATIENT",
+    "location_name": "John J. Cochran Veterans Hospital",
+    "suggested_name_display": "John J. Cochran Veterans Hospital",
+    "health_care_system_name": "John J. Cochran Veterans Hospital"
+  }
+]

@@ -227,7 +227,7 @@ properties:
       travelPayClaim:
         type: object
         nullable: true
-        description: This is the travel pay claim object. 
+        description: This is the travel pay claim object.
         additionalProperties: false
         properties:
           metadata:
@@ -285,11 +285,11 @@ properties:
                 type: string
                 nullable: false
                 example: '2023-02-23T22:22:52.549Z'
-              facilityId: 
+              facilityId:
                 type: string
                 nullable: false
                 example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
-              facilityName: 
+              facilityName:
                 type: string
                 nullable: false
                 example: 'Tomah VA Medical Center'
@@ -301,15 +301,28 @@ properties:
                 type: float
                 nullable: false
                 example: 0
-              createdOn:  
+              createdOn:
                 type: string
                 nullable: false
                 example: '2023-02-24T22:22:52.549Z'
               modifiedOn:
                 type: string
                 nullable: false
-                example: '2023-02-26T22:22:52.549Z' 
+                example: '2023-02-26T22:22:52.549Z'
       showScheduleLink:
         type: boolean
         nullable: true
         example: true
+      isCerner:
+        type: boolean
+        nullable: true
+        example: true
+      avsPdf:
+        type: array
+        items:
+          $ref: "./AvsPdf.yml"
+        nullable: true
+      avsError:
+        type: string
+        nullable: true
+        example: "Error generating AVS PDF"

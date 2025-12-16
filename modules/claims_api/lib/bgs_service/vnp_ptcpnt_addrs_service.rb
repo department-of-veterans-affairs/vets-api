@@ -17,11 +17,9 @@ module ClaimsApi
       make_request(endpoint: bean_name, action: 'vnpPtcpntAddrsCreate', body:, key: 'return')
     end
 
-    def vnp_ptcpnt_addrs_find_by_primary_key(id)
-      primary_key = id[:id]
-
+    def vnp_ptcpnt_addrs_find_by_primary_key(id:)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <vnpPtcpntAddrsId>#{primary_key}</vnpPtcpntAddrsId>
+        <vnpPtcpntAddrsId>#{id}</vnpPtcpntAddrsId>
       EOXML
 
       make_request(endpoint: bean_name, action: 'vnpPtcpntAddrsFindByPrimaryKey', body:, key: 'return')

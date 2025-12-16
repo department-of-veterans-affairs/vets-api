@@ -5,7 +5,7 @@ require 'va_notify/in_progress_form_helper'
 module VANotify
   class InProgressFormReminder
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 14
 
     class MissingICN < StandardError; end

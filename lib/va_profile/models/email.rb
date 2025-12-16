@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
 require 'va_profile/concerns/expirable'
 
@@ -12,15 +11,17 @@ module VAProfile
       include VAProfile::Concerns::Expirable
       VALID_EMAIL_REGEX = /.+@.+\..+/i
 
-      attribute :created_at, Common::ISO8601Time
+      attribute :created_at, Vets::Type::ISO8601Time
+      attribute :confirmation_date, Vets::Type::ISO8601Time
       attribute :email_address, String
-      attribute :effective_end_date, Common::ISO8601Time
-      attribute :effective_start_date, Common::ISO8601Time
+      attribute :effective_end_date, Vets::Type::ISO8601Time
+      attribute :effective_start_date, Vets::Type::ISO8601Time
       attribute :id, Integer
-      attribute :source_date, Common::ISO8601Time
+      attribute :source_date, Vets::Type::ISO8601Time
       attribute :source_system_user, String
       attribute :transaction_id, String
-      attribute :updated_at, Common::ISO8601Time
+      attribute :updated_at, Vets::Type::ISO8601Time
+      attribute :verification_date, Vets::Type::ISO8601Time
       attribute :vet360_id, String
       attribute :va_profile_id, String
 
@@ -37,30 +38,15 @@ module VAProfile
       def in_json
         {
           bio: {
-            emailAddressText: @email_address,
-            emailId: @id,
+            emailAddressText: email_address,
+            emailId: id,
             originatingSourceSystem: SOURCE_SYSTEM,
-            sourceSystemUser: @source_system_user,
-            sourceDate: @source_date,
-            vet360Id: @vet360_id || @vaProfileId,
-            effectiveStartDate: @effective_start_date,
-            effectiveEndDate: @effective_end_date
-          }
-        }.to_json
-      end
-
-      # Contact Information V2 requests do not need the vet360Id
-      # in_json_v2 will replace in_json when Contact Information V1 Service has depreciated
-      def in_json_v2
-        {
-          bio: {
-            emailAddressText: @email_address,
-            emailId: @id,
-            originatingSourceSystem: SOURCE_SYSTEM,
-            sourceSystemUser: @source_system_user,
-            sourceDate: @source_date,
-            effectiveStartDate: @effective_start_date,
-            effectiveEndDate: @effective_end_date
+            sourceSystemUser: source_system_user,
+            sourceDate: source_date,
+            effectiveStartDate: effective_start_date,
+            effectiveEndDate: effective_end_date,
+            confirmationDate: confirmation_date,
+            verificationDate: verification_date
           }
         }.to_json
       end
@@ -71,6 +57,7 @@ module VAProfile
       def self.build_from(body)
         VAProfile::Models::Email.new(
           created_at: body['create_date'],
+          confirmation_date: body['confirmation_date'],
           email_address: body['email_address_text'],
           effective_end_date: body['effective_end_date'],
           effective_start_date: body['effective_start_date'],
@@ -78,9 +65,49 @@ module VAProfile
           source_date: body['source_date'],
           transaction_id: body['tx_audit_id'],
           updated_at: body['update_date'],
+          verification_date: body['verification_date'],
           vet360_id: body['vet360_id'] || body['va_profile_id'],
           va_profile_id: body['va_profile_id'] || body['vet360_id']
         )
+      end
+
+      # Override the confirmation_date setter to correct it if it's after source_date.
+      # This prevents issues where client-provided dates may be ahead due to time differences.
+      # Uses the framework's type casting to ensure consistency with Vets::Type::ISO8601Time.
+      # @param value [Time, String, nil] the confirmation date to set
+      # @return [Time] the corrected confirmation date
+      def confirmation_date=(value)
+        @confirmation_date = Vets::Attributes::Value.cast(:confirmation_date, Vets::Type::ISO8601Time, value)
+        correct_confirmation_date_if_needed
+      end
+
+      # Override the source_date setter to correct confirmation_date when source_date is set.
+      # This handles the case where confirmation_date is set before source_date during initialization.
+      # Uses the framework's type casting to ensure consistency with Vets::Type::ISO8601Time.
+      # @param value [Time, String, nil] the source date to set
+      # @return [Time] the source date
+      def source_date=(value)
+        @source_date = Vets::Attributes::Value.cast(:source_date, Vets::Type::ISO8601Time, value)
+        correct_confirmation_date_if_needed
+      end
+
+      # Computed property for email verification status
+      # @return [Boolean] true if verification_date is present and within the last year, false otherwise
+      def contact_email_verified?
+        return false if @verification_date.blank?
+
+        @verification_date > 1.year.ago
+      end
+
+      private
+
+      # Corrects confirmation_date if it's after source_date.
+      # Both values are guaranteed to be Time objects (or nil) at this point.
+      # @return [void]
+      def correct_confirmation_date_if_needed
+        return if @confirmation_date.blank? || @source_date.blank?
+
+        @confirmation_date = @source_date if @confirmation_date > @source_date
       end
     end
   end

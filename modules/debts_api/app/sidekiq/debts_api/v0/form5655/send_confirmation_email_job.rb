@@ -1,19 +1,32 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/financial_status_report_service'
+require 'debts_api/v0/digital_dispute_submission_service'
+require 'sidekiq/attr_package'
 
 module DebtsApi
   class V0::Form5655::SendConfirmationEmailJob
     include Sidekiq::Job
 
+    FSR_STATS_KEY = 'api.form5655.send_confirmation_email'
+    DIGITAL_DISPUTE_STATS_KEY = 'api.digital_dispute.send_confirmation_email'
+
     sidekiq_options retry: 5
 
     sidekiq_retries_exhausted do |job, ex|
-      StatsD.increment("#{STATS_KEY}.retries_exhausted")
-      user_uuid = job['args'][0]['user_uuid']
+      args = job['args'][0]
+      submission_type = args['submission_type'] || 'fsr'
+      stats_key = if submission_type == 'fsr'
+                    FSR_STATS_KEY
+                  else
+                    DIGITAL_DISPUTE_STATS_KEY
+                  end
+
+      StatsD.increment("#{stats_key}.retries_exhausted")
+      user_uuid = args['user_uuid']
 
       Rails.logger.error <<~LOG
-        V0::Form5655::SendConfirmationEmailJob retries exhausted:
+        V0::Form5655::SendConfirmationEmailJob (#{submission_type}) retries exhausted:
         user_id: #{user_uuid}
         Exception: #{ex.class} - #{ex.message}
         Backtrace: #{ex.backtrace.join("\n")}
@@ -21,35 +34,66 @@ module DebtsApi
     end
 
     def perform(args)
-      form_submissions = submissions(args['user_uuid'])
-      if form_submissions.blank?
+      submission_type = args['submission_type'] || 'fsr'
+      cache_key = args['cache_key']
+      pii = retrieve_pii(args, cache_key)
+
+      submissions_data = find_submissions(args['user_uuid'], submission_type)
+
+      if submissions_data.blank?
         Rails.logger.warn(
-          "DebtsApi::SendConfirmationEmailJob - No submissions found for user_uuid: #{args['user_uuid']}"
+          "DebtsApi::SendConfirmationEmailJob (#{submission_type}) - " \
+          "No submissions found for user_uuid: #{args['user_uuid']}"
         )
         return
       end
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        args['email'], args['template_id'], email_personalization_info(args, form_submissions), { id_type: 'email' }
+        pii[:email], args['template_id'], email_personalization_info(pii, submissions_data,
+                                                                     submission_type), { id_type: 'email' }
       )
+
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue => e
-      Rails.logger.error("DebtsApi::SendConfirmationEmailJob - Error sending email: #{e.message}")
+      Rails.logger.error("DebtsApi::SendConfirmationEmailJob (#{submission_type}) - Error sending email: #{e.message}")
       raise e
     end
 
     private
 
-    def email_personalization_info(args, form_submissions)
-      confirmation_numbers = form_submissions.map(&:id)
+    def retrieve_pii(args, cache_key)
+      if cache_key
+        attributes = Sidekiq::AttrPackage.find(cache_key)
+        return { email: attributes[:email], first_name: attributes[:first_name] } if attributes
+      end
+
+      # Fallback for backward compatibility (FSR still passes PII directly)
+      { email: args['email'], first_name: args['first_name'] }
+    end
+
+    def email_personalization_info(pii, submissions_data, submission_type)
+      confirmation_number = if submission_type == 'fsr'
+                              submissions_data.map(&:id)
+                            else
+                              submissions_data.guid
+                            end
+
       {
-        'first_name' => args['first_name'],
+        'first_name' => pii[:first_name],
         'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
-        'confirmation_number' => confirmation_numbers
+        'confirmation_number' => confirmation_number
       }
     end
 
-    def submissions(user_uuid)
-      DebtsApi::V0::Form5655Submission.where(user_uuid:, state: 1)
+    def find_submissions(user_uuid, submission_type)
+      case submission_type
+      when 'digital_dispute'
+        # Fix: Add explicit ordering to get most recent submission
+        DebtsApi::V0::DigitalDisputeSubmission.where(user_uuid:, state: 1)
+                                              .order(created_at: :desc).first
+      else
+        DebtsApi::V0::Form5655Submission.where(user_uuid:, state: 1)
+      end
     end
   end
 end

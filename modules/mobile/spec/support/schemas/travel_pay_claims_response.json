@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "data", "meta"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "travel_pay_claim_summary.json"
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": [
+        "status", "pageNumber", "totalRecordCount"
+      ],
+      "properties": {
+        "status": {
+          "type": "integer",
+          "enum": [200, 206]
+        },
+        "pageNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "totalRecordCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+} 

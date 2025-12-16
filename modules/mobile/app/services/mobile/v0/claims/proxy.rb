@@ -19,8 +19,9 @@ module Mobile
           serializable_resource[:id] = appeal['id']
           serializable_resource[:type] = appeal['type']
           serializable_resource
-        rescue EVSS::ErrorMiddleware::EVSSError => e
-          # TODO: Determine if EVSS errors can even be raised here (Caseflow)
+        rescue => e
+          raise if e.is_a?(Common::Exceptions::RecordNotFound)
+
           handle_middleware_error(e)
         end
 

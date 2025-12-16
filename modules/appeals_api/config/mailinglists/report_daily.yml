@@ -1,14 +1,15 @@
 common:
-  - michael.hobson@adhocteam.us
-  - kristen.brown@adhocteam.us
-  - mmcdonald@technatomy.com
-  - pstevens@technatomy.com
+  - eshvimmer@deloitte.com
+  - slamsal@deloitte.com
+  - mughumman@deloitte.com
+  - mbavanaka@deloitte.com
+  - mihobson@deloitte.com
+  - alan.lattimore@pingwind.com
 development:
 staging:
 sandbox:
 production:
   - cory.sohrakoff@va.gov
-  - drew.fisher@adhocteam.us
   - jacob.worrell@va.gov
   - janet.coutinho@va.gov
   - matthew.self2@va.gov
@@ -16,4 +17,3 @@ production:
   - premal.shah@va.gov
   - steve.albers@va.gov
   - zachary.goldfine@va.gov
-  - heather.roy@zerodelta365.com

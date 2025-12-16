@@ -2,19 +2,15 @@
 
 module FormAttachmentCreate
   extend ActiveSupport::Concern
-  include SentryLogging
 
   def create
     debug_timestamp = Time.current.iso8601
-    if Flipper.enabled?(:hca_log_form_attachment_create)
-      log_message_to_sentry(
-        'begin form attachment creation',
-        :info,
-        file_data_present: filtered_params[:file_data].present?,
-        klass: filtered_params[:file_data]&.class&.name,
-        debug_timestamp:
-      )
-    end
+    Rails.logger.info('begin form attachment creation',
+                      {
+                        file_data_present: filtered_params[:file_data].present?,
+                        klass: filtered_params[:file_data]&.class&.name,
+                        debug_timestamp:
+                      })
 
     validate_file_upload_class!
     save_attachment_to_cloud!
@@ -22,9 +18,9 @@ module FormAttachmentCreate
 
     serialized = serializer_klass.new(form_attachment)
 
-    if Flipper.enabled?(:hca_log_form_attachment_create)
-      log_message_to_sentry('finish form attachment creation', :info, serialized: serialized.present?, debug_timestamp:)
-    end
+    Rails.logger.info('finish form attachment creation',
+                      { serialized: serialized.present?,
+                        debug_timestamp: })
 
     render json: serialized
   end
@@ -41,40 +37,31 @@ module FormAttachmentCreate
       raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
     end
   rescue => e
-    log_message_to_sentry(
-      'form attachment error 1 - validate class',
-      :info,
-      phase: 'FAC_validate',
-      klass: filtered_params[:file_data].class.name,
-      exception: e.message
-    )
+    Rails.logger.info('form attachment error 1 - validate class',
+                      { phase: 'FAC_validate',
+                        klass: filtered_params[:file_data].class.name,
+                        exception: e.message })
     raise e
   end
 
   def save_attachment_to_cloud!
     form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
   rescue => e
-    log_message_to_sentry(
-      'form attachment error 2 - save to cloud',
-      :info,
-      has_pass: filtered_params[:password].present?,
-      ext: File.extname(filtered_params[:file_data]).last(5),
-      phase: 'FAC_cloud',
-      exception: e.message
-    )
+    Rails.logger.info('form attachment error 2 - save to cloud',
+                      { has_pass: filtered_params[:password].present?,
+                        ext: File.extname(filtered_params[:file_data]).last(5),
+                        phase: 'FAC_cloud',
+                        exception: e.message })
     raise e
   end
 
   def save_attachment_to_db!
     form_attachment.save!
   rescue => e
-    log_message_to_sentry(
-      'form attachment error 3 - save to db',
-      :info,
-      phase: 'FAC_db',
-      errors: form_attachment.errors,
-      exception: e.message
-    )
+    Rails.logger.info('form attachment error 3 - save to db',
+                      { phase: 'FAC_db',
+                        errors: form_attachment.errors,
+                        exception: e.message })
 
     raise e
   end

@@ -14,13 +14,14 @@ RSpec.describe UnifiedHealthData::LabsRefreshJob, type: :job do
     allow(User).to receive(:find).with(user.uuid).and_return(user)
     allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
     allow(uhd_service).to receive(:get_labs).and_return(labs_data)
+    allow(StatsD).to receive(:gauge)
   end
 
   describe '#perform' do
     context 'when the user exists' do
       it 'fetches labs data using the configured date range' do
         end_date = Date.current
-        days_back = Settings.mhv.uhd.labs_logging_date_range_days
+        days_back = Settings.mhv.uhd.labs_logging_date_range_days.to_i
         start_date = end_date - days_back.days
 
         expect(uhd_service).to receive(:get_labs).with(
@@ -59,6 +60,12 @@ RSpec.describe UnifiedHealthData::LabsRefreshJob, type: :job do
       it 'returns the count of records fetched' do
         result = described_class.new.perform(user.uuid)
         expect(result).to eq(labs_data.size)
+      end
+
+      it 'sends labs count metric to StatsD' do
+        described_class.new.perform(user.uuid)
+
+        expect(StatsD).to have_received(:gauge).with('unified_health_data.labs_refresh_job.labs_count', labs_data.size)
       end
     end
 

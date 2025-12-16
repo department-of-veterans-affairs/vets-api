@@ -92,5 +92,37 @@ module AccreditedRepresentativePortal
 
     class Expired < self
     end
+
+    class FailedClaimant < self
+      def generate
+        {
+          'first_name' => first_name
+        }
+      end
+
+      private
+
+      def poa_request_url
+        base = Settings.accredited_representative_portal.frontend_base_url
+        uri  = URI.parse(base)
+        uri.path = File.join(uri.path.presence || '/', 'poa_requests', @notification.power_of_attorney_request.id.to_s)
+        uri.to_s
+      end
+    end
+
+    class FailedRep < FailedClaimant
+      def generate
+        {
+          'first_name' => rep_first_name,
+          'poa_request_url' => poa_request_url
+        }
+      end
+
+      private
+
+      def rep_first_name
+        @notification&.power_of_attorney_request&.resolution&.resolving&.accredited_individual&.first_name
+      end
+    end
   end
 end

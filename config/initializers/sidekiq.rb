@@ -51,6 +51,20 @@ Rails.application.reloader.to_prepare do
       Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
     end
 
+    config.on(:startup) do
+      if Flipper.enabled?(:kafka_producer)
+        # Initialize and start the long-lived Kafka producer
+        begin
+          Kafka.submit_test_event({ 'startup' => 'true' })
+        rescue => e
+          Rails.logger.error(
+            "Kafka.submit_test_event failed during Sidekiq startup: \
+            #{e.message}\n#{e.backtrace.join('\n')}"
+          )
+        end
+      end
+    end
+
     config.on(:shutdown) do
       Kafka::ProducerManager.instance.producer&.close
     end

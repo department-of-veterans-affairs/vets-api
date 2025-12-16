@@ -125,7 +125,22 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
         sign_in_as(create(:user, :loa3))
       end
 
-      it 'returns 400 bad request' do
+      it 'returns 400 bad request and logs the error' do
+        allow(Rails.logger).to receive(:error)
+
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_provider_service',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VA900',
+            upstream_status: 401,
+            upstream_body: '{\n  \"name\": \"Unauthorized\"\n}'
+          )
+        )
+
         VCR.use_cassette('vaos/eps/providers/data_401', match_requests_on: %i[method path],
                                                         erb: { provider_id: }) do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do

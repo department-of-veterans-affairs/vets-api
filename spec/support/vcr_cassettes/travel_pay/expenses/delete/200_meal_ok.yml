@@ -1,0 +1,38 @@
+---
+http_interactions:
+  - request:
+      method: delete
+      uri: "<TRAVEL_PAY_BASE_URL>/api/v1/expenses/meal/123e4567-e89b-12d3-a456-426614174500"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Authorization:
+          - Bearer string
+        BTSSS-Access-Token:
+          - string
+        X-Correlation-ID:
+          - f68936c3-1cac-4a07-a1f3-9347c5541914
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: >-
+          {
+            "correlationId": "abc-123",
+            "timeStamp": "2025-09-10T17:26:28.867Z",
+            "statusCode": 200,
+            "message": "Expense deleted successfully",
+            "success": true,
+            "data": {
+              "id": "123e4567-e89b-12d3-a456-426614174500",
+              "modifiedOn": "2025-09-10T17:26:28.867Z"
+            }
+          }
+    recorded_at: Wed, 10 Sep 2025 00:00:00 GMT
+recorded_with: VCR 6.1.0

@@ -5,7 +5,7 @@ module AccreditedRepresentativePortal
     self.inheritance_column = nil
     include PowerOfAttorneyRequestResolution::Resolving
 
-    enum declination_reason: {
+    enum :declination_reason, {
       HEALTH_RECORDS_WITHHELD: 0,
       ADDRESS_CHANGE_WITHHELD: 1,
       BOTH_WITHHELD: 2,
@@ -40,25 +40,43 @@ module AccreditedRepresentativePortal
     end
 
     belongs_to :creator, class_name: 'UserAccount'
+    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative',
+                                       foreign_key: :accredited_individual_registration_number,
+                                       primary_key: :representative_id,
+                                       optional: true,
+                                       inverse_of: false
 
     validates :type, inclusion: { in: Types::ALL }
 
     class << self
-      def create_acceptance!(creator:, power_of_attorney_request:, **attrs)
+      def create_acceptance!(
+        creator_id:,
+        power_of_attorney_holder_memberships:,
+        power_of_attorney_request:,
+        **attrs
+      )
         create_with_resolution!(
           type: Types::ACCEPTANCE,
-          creator:,
+          creator_id:,
+          power_of_attorney_holder_memberships:,
           power_of_attorney_request:,
           **attrs
         )
       end
 
-      def create_declination!(creator:, power_of_attorney_request:, declination_reason:, **attrs)
+      def create_declination!(
+        creator_id:,
+        power_of_attorney_holder_memberships:,
+        power_of_attorney_request:,
+        declination_reason:,
+        **attrs
+      )
         reason_key = declination_reason.to_s.gsub('DECLINATION_', '')
 
         create_with_resolution!(
           type: Types::DECLINATION,
-          creator:,
+          creator_id:,
+          power_of_attorney_holder_memberships:,
           power_of_attorney_request:,
           declination_reason: reason_key,
           **attrs
@@ -67,27 +85,26 @@ module AccreditedRepresentativePortal
 
       private
 
-      def create_with_resolution!(
-        creator:,
+      def create_with_resolution!( # rubocop:disable Metrics/ParameterLists
         type:,
+        creator_id:,
+        power_of_attorney_holder_memberships:,
         power_of_attorney_request:,
         declination_reason: nil,
         **attrs
       )
         PowerOfAttorneyRequestResolution.transaction do
+          poa_code = power_of_attorney_request.power_of_attorney_holder_poa_code
+          membership = power_of_attorney_holder_memberships.find(poa_code)
+          poa_holder = membership.power_of_attorney_holder
+
           decision = build_decision(
-            creator:,
+            creator_id:,
             type:,
             declination_reason:,
-            power_of_attorney_holder_type: power_of_attorney_request.power_of_attorney_holder_type,
-            power_of_attorney_holder_poa_code:
-              creator&.active_power_of_attorney_holders&.find do |h|
-                h.poa_code == power_of_attorney_request.power_of_attorney_holder_poa_code
-              end&.poa_code,
-            accredited_individual_registration_number:
-              creator&.get_registration_number(
-                power_of_attorney_request.power_of_attorney_holder_type
-              )
+            power_of_attorney_holder_type: poa_holder.type,
+            power_of_attorney_holder_poa_code: poa_holder.poa_code,
+            accredited_individual_registration_number: membership.registration_number
           )
 
           create_resolution(decision:, power_of_attorney_request:, **attrs)

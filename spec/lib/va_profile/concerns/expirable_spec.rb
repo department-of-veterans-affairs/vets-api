@@ -4,10 +4,9 @@ require 'rails_helper'
 require 'va_profile/concerns/expirable'
 
 class TestModel < VAProfile::Models::Base
-  include ActiveModel::Validations
   include VAProfile::Concerns::Expirable
 
-  attribute :effective_end_date, Common::ISO8601Time
+  attribute :effective_end_date, Vets::Type::ISO8601Time
 end
 
 describe VAProfile::Concerns::Expirable do

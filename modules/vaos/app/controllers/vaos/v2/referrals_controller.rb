@@ -5,8 +5,10 @@ module VAOS
     # ReferralsController provides endpoints for fetching CCRA referrals
     # It uses the Ccra::ReferralService to interact with the underlying CCRA API
     class ReferralsController < VAOS::BaseController
-      REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
-      REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
+      include VAOS::CommunityCareConstants
+
+      REFERRAL_DETAIL_VIEW_METRIC = "#{STATSD_PREFIX}.referral_detail.access".freeze
+      REFERRAL_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_station_id.access".freeze
       REFERRING_FACILITY_CODE_FIELD = 'referring_facility_code'
       REFERRAL_PROVIDER_NPI_FIELD = 'referral_provider_npi'
 
@@ -18,6 +20,8 @@ module VAOS
           current_user.icn,
           referral_status_param
         )
+
+        log_referral_count(response)
 
         # Filter out expired referrals
         response = filter_expired_referrals(response)
@@ -35,12 +39,48 @@ module VAOS
         response = referral_service.get_referral(decrypted_id, current_user.icn)
         response.uuid = referral_uuid
 
-        log_referral_provider_metrics(response)
+        log_referral_metrics(response)
+        add_appointment_data_to_referral(response)
 
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
 
       private
+
+      def add_appointment_data_to_referral(referral)
+        result = appointments_service.get_active_appointments_for_referral(referral.referral_number)
+
+        eps_appointments = result[:EPS][:data]
+        vaos_appointments = result[:VAOS][:data]
+
+        referral.appointments = {
+          EPS: {
+            data: eps_appointments.map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+          },
+          VAOS: {
+            data: vaos_appointments.map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+          }
+        }
+
+        # Only set has_appointments to true if there are appointments with status "active"
+        eps_has_active = eps_appointments.any? { |appt| appt[:status] == 'active' }
+        vaos_has_active = vaos_appointments.any? { |appt| appt[:status] == 'active' }
+        referral.has_appointments = eps_has_active || vaos_has_active
+      end
+
+      def appointments_service
+        @appointments_service ||= VAOS::V2::AppointmentsService.new(current_user)
+      end
+
+      # Logs the count of referrals returned from CCRA
+      #
+      # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
+      # @return [void]
+      def log_referral_count(referrals)
+        count = referrals&.size || 0
+        Rails.logger.info("CCRA referrals retrieved: #{count}", { referral_count: count }.to_json)
+        StatsD.gauge('api.vaos.referrals.retrieved', count, tags: ["has_referrals:#{count.positive?}"])
+      end
 
       # Adds encrypted UUIDs to referrals for use in URLs to prevent PII in logs
       #
@@ -83,6 +123,7 @@ module VAOS
       # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
       # @return [Array<Ccra::ReferralListEntry>] Filtered collection without expired referrals
       def filter_expired_referrals(referrals)
+        return [] if referrals.nil?
         raise ArgumentError, 'referrals must be an enumerable collection' unless referrals.respond_to?(:each)
 
         today = Date.current
@@ -106,16 +147,17 @@ module VAOS
 
       # Logs referral provider metrics and errors for missing provider IDs
       # @param response [Ccra::ReferralDetail] the referral response object
-      def log_referral_provider_metrics(response)
+      def log_referral_metrics(response)
         referring_facility_code = sanitize_log_value(response&.referring_facility_code)
         provider_npi = sanitize_log_value(response&.provider_npi)
         station_id = sanitize_log_value(response&.station_id)
+        type_of_care = sanitize_log_value(response&.category_of_care)
 
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
-                           'service:community_care_appointments',
+                           COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
-                           "referral_provider_npi:#{provider_npi}",
-                           "station_id:#{station_id}"
+                           "station_id:#{station_id}",
+                           "type_of_care:#{type_of_care}"
                          ])
 
         log_missing_provider_ids(referring_facility_code, provider_npi, station_id)

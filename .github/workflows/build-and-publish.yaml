@@ -9,7 +9,7 @@ jobs:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0 # max depth
@@ -17,14 +17,14 @@ jobs:
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
       - name: Git Version
         id: version
-        uses: codacy/git-version@2.8.3
+        uses: codacy/git-version@2.8.6
         with:
           release-branch: master
       - name: Echo the version
         run: |
           echo ${{ steps.version.outputs.version }}
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: us-gov-west-1
           role-to-assume: arn:aws-us-gov:iam::008577686731:role/prt-gha-oidc-role

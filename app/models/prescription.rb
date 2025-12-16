@@ -22,7 +22,7 @@ require 'vets/model'
 # @!attribute ordered_date
 #   @return [Vets::Type::UTCTime]
 # @!attribute quantity
-#   @return [Integer]
+#   @return [String]
 # @!attribute expiration_date
 #   @return [Vets::Type::UTCTime]
 # @!attribute prescription_number
@@ -34,9 +34,9 @@ require 'vets/model'
 # @!attribute station_number
 #   @return [String]
 # @!attribute is_refillable
-#   @return [Boolean]
+#   @return [Bool]
 # @!attribute is_trackable
-#   @return [Boolean]
+#   @return [Bool]
 # @!attribute metadata
 #   @return [Hash]
 #
@@ -52,7 +52,7 @@ class Prescription
   attribute :facility_name, String, filterable: %w[eq not_eq]
   attribute :facility_api_name, String
   attribute :ordered_date, Vets::Type::UTCTime
-  attribute :quantity, Integer
+  attribute :quantity, String
   attribute :expiration_date, Vets::Type::UTCTime, filterable: %w[eq lteq gteq]
   attribute :prescription_number, String
   attribute :sig, String

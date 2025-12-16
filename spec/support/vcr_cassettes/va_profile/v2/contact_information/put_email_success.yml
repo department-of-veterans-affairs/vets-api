@@ -5,7 +5,7 @@ http_interactions:
     uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/emails
     body:
       encoding: UTF-8
-      string: '{"bio":{"emailAddressText":"person43@example.com","emailId":318927,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.000Z","effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
+      string: '{"bio":{"emailAddressText":"person43@example.com","emailId":318927,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.000Z","effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null,"confirmationDate":null,"verificationDate":null}}'
     headers:
       User-Agent:
       - Vets.gov Agent

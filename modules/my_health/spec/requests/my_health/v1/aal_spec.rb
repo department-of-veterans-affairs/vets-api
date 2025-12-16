@@ -44,7 +44,6 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     end
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(true)
 
       aal_client = AAL::MRClient.new(
