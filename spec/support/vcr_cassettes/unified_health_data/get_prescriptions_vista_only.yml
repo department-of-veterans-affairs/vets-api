@@ -245,6 +245,8 @@ http_interactions:
         01 Nov 2024 00:00:00 EDT","quantity":"30","expirationDate":null,"prescriptionNumber":"2721173","prescriptionName":"ABACAVIR
         SO4 600MG/LAMIVUDINE 300MG TAB","dispensedDate":"Sat, 02 Nov 2024 00:00:00
         EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25804849,"userId":24618603,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"00173-0742-00","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false}]},"errors":[],"infoMessages":[]},"oracle-health":{}}'
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false}]},"errors":[],"infoMessages":[]},"oracle-health":{"resourceType":"Bundle","type":"transaction-response","entry":[{"resource":{"resourceType":"OperationOutcome","id":"6d76e4c3-d16d-4c50-a5d6-e0ba5bee15df","issue":[{"severity":"error","code":"exception","diagnostics":"Exhausted
+        retry attempts...giving up"},{"severity":"information","code":"informational","diagnostics":"Overall
+        message outcome"}]}}]}}'
   recorded_at: Fri, 19 Sep 2025 22:40:19 GMT
 recorded_with: VCR 6.3.1
