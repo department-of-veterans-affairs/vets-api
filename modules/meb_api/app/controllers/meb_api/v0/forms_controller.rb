@@ -71,6 +71,9 @@ module MebApi
             status: response.status
           }
         }
+      rescue => e
+        Rails.logger.error("MEB Forms submit_claim failed: #{e.class} - #{e.message}")
+        raise
       end
 
       def send_confirmation_email
