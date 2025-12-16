@@ -41,11 +41,8 @@ module V0
                 disposition: 'attachment'
     rescue ActiveRecord::RecordNotFound
       raise Common::Exceptions::RecordNotFound, params[:guid]
-    rescue => e
-      Rails.logger.error('Form210779: Error in download_pdf', error: e.message, backtrace: e.backtrace)
-      raise
     ensure
-      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
+      File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
 
     private
