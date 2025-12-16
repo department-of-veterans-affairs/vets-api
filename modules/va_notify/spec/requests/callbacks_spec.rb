@@ -84,7 +84,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
           before do
             allow(Flipper).to receive(:enabled?).with(:vanotify_delivery_status_update_job).and_return(true)
             allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_package_params_cache_key)
-            allow(VANotify::NotificationLookupJob).to receive(:perform_async)
+            allow(VANotify::DeliveryStatusUpdateJob).to receive(:perform_async)
           end
 
           it 'stores notification params in AttrPackage with 1 day TTL' do
@@ -101,12 +101,12 @@ RSpec.describe 'VANotify Callbacks', type: :request do
             )
           end
 
-          it 'passes cache key to NotificationLookupJob' do
+          it 'passes cache key to DeliveryStatusUpdateJob' do
             post(callback_route,
                  params: callback_params.to_json,
                  headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
 
-            expect(VANotify::NotificationLookupJob).to have_received(:perform_async).with(
+            expect(VANotify::DeliveryStatusUpdateJob).to have_received(:perform_async).with(
               notification_id,
               attr_package_params_cache_key
             )
@@ -120,7 +120,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
                  headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
 
             expect(Rails.logger).to have_received(:info).with(
-              'va_notify callbacks - Enqueued NotificationLookupJob',
+              'va_notify callbacks - Enqueued DeliveryStatusUpdateJob',
               { notification_id:, attr_package_params_cache_key: }
             )
           end

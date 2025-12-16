@@ -3,7 +3,7 @@
 require 'sidekiq/attr_package'
 
 module VANotify
-  class NotificationLookupJob
+  class DeliveryStatusUpdateJob
     include Sidekiq::Job
     include Vets::SharedLogging
 
@@ -52,10 +52,10 @@ module VANotify
 
       unless notification_params_hash
         Rails.logger.error(
-          'va_notify notification_lookup_job - Cached params not found for cache key',
+          'va_notify delivery_status_update_job - Cached params not found for cache key',
           { notification_id:, attr_package_params_cache_key: }
         )
-        StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.cached_params_not_found')
+        StatsD.increment('sidekiq.jobs.va_notify_delivery_status_update_job.cached_params_not_found')
         return
       end
 
@@ -77,7 +77,7 @@ module VANotify
         VANotify::CustomCallback.new(notification_params_hash.merge(id: notification_id)).call
 
         Sidekiq::AttrPackage.delete(attr_package_params_cache_key)
-        StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.success')
+        StatsD.increment('sidekiq.jobs.va_notify_delivery_status_update_job.success')
       else
         raise NotificationNotFound, "Notification #{notification_id} not found; retrying until exhaustion"
       end

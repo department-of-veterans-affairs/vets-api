@@ -29,8 +29,8 @@ module VANotify
           expires_in: 1.day,
           **notification_params.to_h.symbolize_keys
         )
-        VANotify::NotificationLookupJob.perform_async(notification_id, attr_package_params_cache_key)
-        Rails.logger.info('va_notify callbacks - Enqueued NotificationLookupJob',
+        VANotify::DeliveryStatusUpdateJob.perform_async(notification_id, attr_package_params_cache_key)
+        Rails.logger.info('va_notify callbacks - Enqueued DeliveryStatusUpdateJob',
                           { notification_id:, attr_package_params_cache_key: })
       elsif @notification
         @notification.update(notification_params)
