@@ -65,6 +65,8 @@ module MebApi
             camelized_keys
           end
 
+          # Replace masked account numbers (with asterisks) with actual values from dd_params.
+          # Sets to nil if dd_params unavailable to prevent submitting masked values.
           def update_dd_params(params, dd_params)
             check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number)&.include?('*')
             if check_masking
