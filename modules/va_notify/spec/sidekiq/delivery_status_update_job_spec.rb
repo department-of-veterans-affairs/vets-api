@@ -77,8 +77,10 @@ RSpec.describe VANotify::DeliveryStatusUpdateJob, type: :worker do
       it 'does not increment success or not_found metrics' do
         described_class.new.perform(notification_id, attr_package_params_cache_key)
 
-        expect(StatsD).not_to have_received(:increment).with('sidekiq.jobs.va_notify_delivery_status_update_job.success')
-        expect(StatsD).not_to have_received(:increment).with('sidekiq.jobs.va_notify_delivery_status_update_job.not_found')
+        expect(StatsD).not_to have_received(:increment)
+          .with('sidekiq.jobs.va_notify_delivery_status_update_job.success')
+        expect(StatsD).not_to have_received(:increment)
+          .with('sidekiq.jobs.va_notify_delivery_status_update_job.not_found')
       end
 
       it 'increments cache_miss metric' do

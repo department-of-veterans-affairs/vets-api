@@ -63,15 +63,8 @@ module VANotify
 
       if notification
         notification.update(notification_params_hash)
-        Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
-                          {
-                            notification_id: notification.id,
-                            source_location: notification.source_location,
-                            template_id: notification.template_id,
-                            callback_metadata: notification.callback_metadata,
-                            status: notification.status,
-                            status_reason: notification.status_reason
-                          })
+
+        log_successful_update(notification)
 
         VANotify::DefaultCallback.new(notification).call
         VANotify::CustomCallback.new(notification_params_hash.merge(id: notification_id)).call
@@ -81,6 +74,18 @@ module VANotify
       else
         raise NotificationNotFound, "Notification #{notification_id} not found; retrying until exhaustion"
       end
+    end
+
+    def log_successful_update(notification)
+      Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
+                        {
+                          notification_id: notification.id,
+                          source_location: notification.source_location,
+                          template_id: notification.template_id,
+                          callback_metadata: notification.callback_metadata,
+                          status: notification.status,
+                          status_reason: notification.status_reason
+                        })
     end
   end
 end

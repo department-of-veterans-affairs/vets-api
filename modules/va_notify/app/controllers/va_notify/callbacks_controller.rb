@@ -34,15 +34,8 @@ module VANotify
                           { notification_id:, attr_package_params_cache_key: })
       elsif @notification
         @notification.update(notification_params)
-        Rails.logger.info("va_notify callbacks - Updating notification: #{@notification.id}",
-                          {
-                            notification_id: @notification.id,
-                            source_location: @notification.source_location,
-                            template_id: @notification.template_id,
-                            callback_metadata: @notification.callback_metadata,
-                            status: @notification.status,
-                            status_reason: @notification.status_reason
-                          })
+
+        log_successful_update(@notification)
 
         VANotify::DefaultCallback.new(@notification).call
         VANotify::CustomCallback.new(notification_params.merge(id: notification_id)).call
@@ -56,6 +49,18 @@ module VANotify
     end
 
     private
+
+    def log_successful_update(notification)
+      Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
+                        {
+                          notification_id: notification.id,
+                          source_location: notification.source_location,
+                          template_id: notification.template_id,
+                          callback_metadata: notification.callback_metadata,
+                          status: notification.status,
+                          status_reason: notification.status_reason
+                        })
+    end
 
     def set_notification
       notification_id = params[:id]
