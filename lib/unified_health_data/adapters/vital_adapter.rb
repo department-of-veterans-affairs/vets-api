@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../models/vital'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
