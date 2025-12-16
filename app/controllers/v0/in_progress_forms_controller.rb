@@ -51,8 +51,7 @@ module V0
 
       form.update!(
         form_data: params[:form_data] || params[:formData],
-        metadata: params[:metadata],
-        expires_at: Time.current + form.expires_after
+        metadata: params[:metadata]
       )
       form.reset_expires_at!
 
