@@ -963,6 +963,7 @@ mhv:
   oh_facility_checks:
     facilities_ready_for_info_alert: 612, 555
     pretransitioned_oh_facilities: 612, 357, 555, 757
+    facilities_migrating_to_oh: 555, 001
   rx:
     app_token: ~
     base_path: mhv-api/patient/v1/
