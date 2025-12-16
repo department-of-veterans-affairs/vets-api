@@ -114,6 +114,7 @@ class InProgressForm < ApplicationRecord
     return if skippable_forms.include?(form_id)
 
     self.expires_at = Time.current + expires_after
+    save unless new_record?
   end
 
   private
