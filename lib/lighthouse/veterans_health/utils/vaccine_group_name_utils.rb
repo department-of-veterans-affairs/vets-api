@@ -18,10 +18,10 @@ module Lighthouse
             return nil if vaccine_code.nil?
 
             coding = extract_coding(vaccine_code)
-            
+
             # Log processing even if coding is nil (for monitoring)
             log_vaccine_code_processing(coding) if Flipper.enabled?(:mhv_vaccine_lighthouse_name_logging)
-            
+
             return nil if coding.nil?
 
             extract_group_name_from_codes(coding)
@@ -48,7 +48,7 @@ module Lighthouse
 
           def anonymized_display_hashes(coding)
             return [] if coding.nil?
-            
+
             coding.map do |v|
               display = v[:display] || v['display']
               display ? Digest::SHA256.hexdigest(display.to_s)[0..7] : nil
@@ -57,7 +57,7 @@ module Lighthouse
 
           def calculate_vaccine_group_lengths(coding)
             return [] if coding.nil?
-            
+
             coding.filter_map do |v|
               display = v[:display] || v['display']
               next unless display&.start_with?('VACCINE GROUP:')
@@ -91,50 +91,64 @@ module Lighthouse
             # Return coding entry based on system priority (excluding VACCINE GROUP entries)
             return nil if coding.nil?
 
-            # Filter out VACCINE GROUP entries
-            non_prefixed = coding.reject do |v|
+            non_prefixed = filter_vaccine_group_entries(coding)
+
+            find_cvx_entry(non_prefixed) ||
+              find_cerner_entry(non_prefixed) ||
+              find_ndc_entry(non_prefixed) ||
+              find_first_display_entry(non_prefixed)
+          end
+
+          def filter_vaccine_group_entries(coding)
+            coding.reject do |v|
               display = v[:display] || v['display']
               display&.start_with?('VACCINE GROUP:')
             end
+          end
 
-            # Priority 1: system = "http://hl7.org/fhir/sid/cvx"
-            cvx_entry = non_prefixed.find do |v|
+          def find_cvx_entry(entries)
+            entry = entries.find do |v|
               system = v[:system] || v['system']
               display = v[:display] || v['display']
               system == 'http://hl7.org/fhir/sid/cvx' && display.present?
             end
-            return cvx_entry[:display] || cvx_entry['display'] if cvx_entry
+            entry ? (entry[:display] || entry['display']) : nil
+          end
 
-            # Priority 2: system host is fhir.cerner.com or subdomain
-            cerner_entry = non_prefixed.find do |v|
+          def find_cerner_entry(entries)
+            entry = entries.find do |v|
               display = v[:display] || v['display']
               system = v[:system] || v['system']
               next false unless display.present? && system.present?
 
-              begin
-                uri = URI.parse(system)
-                host = uri.host
-                host == 'fhir.cerner.com' || host&.end_with?('.fhir.cerner.com')
-              rescue URI::InvalidURIError
-                false
-              end
+              cerner_system?(system)
             end
-            return cerner_entry[:display] || cerner_entry['display'] if cerner_entry
+            entry ? (entry[:display] || entry['display']) : nil
+          end
 
-            # Priority 3: system = "http://hl7.org/fhir/sid/ndc"
-            ndc_entry = non_prefixed.find do |v|
+          def cerner_system?(system)
+            uri = URI.parse(system)
+            host = uri.host
+            host == 'fhir.cerner.com' || host&.end_with?('.fhir.cerner.com')
+          rescue URI::InvalidURIError
+            false
+          end
+
+          def find_ndc_entry(entries)
+            entry = entries.find do |v|
               system = v[:system] || v['system']
               display = v[:display] || v['display']
               system == 'http://hl7.org/fhir/sid/ndc' && display.present?
             end
-            return ndc_entry[:display] || ndc_entry['display'] if ndc_entry
+            entry ? (entry[:display] || entry['display']) : nil
+          end
 
-            # Priority 4: First entry without VACCINE GROUP and with a display value
-            first_entry = non_prefixed.find do |v|
+          def find_first_display_entry(entries)
+            entry = entries.find do |v|
               display = v[:display] || v['display']
               display.present?
             end
-            first_entry&.dig(:display) || first_entry&.dig('display')
+            entry&.dig(:display) || entry&.dig('display')
           end
 
           def extract_prefixed_group_name(filtered_codes)
