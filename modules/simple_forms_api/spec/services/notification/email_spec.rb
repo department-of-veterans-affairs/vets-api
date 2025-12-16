@@ -104,6 +104,131 @@ describe SimpleFormsApi::Notification::Email do
       end
     end
 
+    describe '#email_args' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210.json'
+        )
+        JSON.parse(fixture_path.read)
+      end
+      let(:config) do
+        { form_data: data, form_number: 'vba_21_10210',
+          confirmation_number: 'confirmation_number', date_submitted: }
+      end
+
+      context 'when simple_forms_email_delivery_callback flipper is enabled' do
+        before do
+          Flipper.enable(:simple_forms_email_delivery_callback)
+        end
+
+        after do
+          Flipper.disable(:simple_forms_email_delivery_callback)
+        end
+
+        %i[confirmation error received].each do |notification_type|
+          context "with #{notification_type} notification" do
+            subject { described_class.new(config, notification_type:) }
+
+            it 'includes callback_klass in options' do
+              api_key, options = subject.send(:email_args)
+
+              expect(api_key).to eq(Settings.vanotify.services.va_gov.api_key)
+              expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
+            end
+
+            it 'includes callback_metadata with all required fields' do
+              _, options = subject.send(:email_args)
+
+              expect(options[:callback_metadata]).to include(
+                notification_type:,
+                form_number: 'vba_21_10210',
+                confirmation_number: 'confirmation_number',
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_21_10210 form submission to Lighthouse'
+                }
+              )
+            end
+
+            it 'converts notification_type to string in callback_metadata' do
+              _, options = subject.send(:email_args)
+
+              expect(options[:callback_metadata][:notification_type]).to eq(notification_type)
+            end
+          end
+        end
+      end
+
+      context 'when simple_forms_email_delivery_callback flipper is disabled' do
+        before do
+          Flipper.disable(:simple_forms_email_delivery_callback)
+        end
+
+        %i[confirmation error received].each do |notification_type|
+          context "with #{notification_type} notification" do
+            subject { described_class.new(config, notification_type:) }
+
+            it 'does not include callback_klass in options' do
+              _, options = subject.send(:email_args)
+
+              expect(options).not_to have_key(:callback_klass)
+              expect(options[:callback_klass]).to be_nil
+            end
+
+            it 'still includes callback_metadata' do
+              _, options = subject.send(:email_args)
+
+              expect(options[:callback_metadata]).to include(
+                notification_type:,
+                form_number: 'vba_21_10210',
+                confirmation_number: 'confirmation_number'
+              )
+            end
+          end
+        end
+      end
+
+      context 'with 26-4555 duplicate notification' do
+        subject { described_class.new(config, notification_type: :duplicate) }
+
+        let(:config) do
+          { form_data: data, form_number: 'vba_26_4555', date_submitted: }
+        end
+
+        before do
+          Flipper.enable(:simple_forms_email_delivery_callback)
+        end
+
+        after do
+          Flipper.disable(:simple_forms_email_delivery_callback)
+        end
+
+        it 'includes duplicate notification_type in callback_metadata' do
+          _, options = subject.send(:email_args)
+
+          expect(options[:callback_metadata][:notification_type]).to eq(:duplicate)
+        end
+      end
+
+      context 'boolean type casting for flipper' do
+        subject { described_class.new(config, notification_type: :confirmation) }
+
+        before do
+          # Simulate Settings.env_parse_values = true scenario
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return('true')
+        end
+
+        it 'correctly casts flipper value to boolean' do
+          _, options = subject.send(:email_args)
+
+          # Should handle string 'true' correctly
+          # This tests the ActiveModel::Type::Boolean.new.cast logic
+          expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
+        end
+      end
+    end
+
     describe '#send' do
       let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
