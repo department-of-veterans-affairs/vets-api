@@ -229,7 +229,7 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       it 'calls DirectDeposit::Client when feature flag is disabled' do
         expect(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
         expect(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
-        
+
         post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
         expect(response).to have_http_status(:ok)
       end
@@ -268,9 +268,9 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
 
       it 'logs error message as "Lighthouse direct deposit service error" when service fails' do
         allow(direct_deposit_client).to receive(:get_payment_info).and_raise(StandardError.new('Connection timeout'))
-        
+
         expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Connection timeout')
-        
+
         post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
         expect(response).to have_http_status(:ok)
       end
@@ -292,7 +292,7 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
 
       it 'does not call DirectDeposit::Client when feature flag is enabled' do
         expect(DirectDeposit::Client).not_to receive(:new)
-        
+
         post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
         expect(response).to have_http_status(:ok)
       end
