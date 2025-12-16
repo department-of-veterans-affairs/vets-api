@@ -80,11 +80,7 @@ module V0
 
         ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
-        form.update!(
-          form_data:,
-          metadata: params[:metadata],
-          expires_at: Time.current + form.expires_after
-        )
+        form.update!(form_data:, metadata: params[:metadata], expires_at: Time.current + form.expires_after)
 
         render json: InProgressFormSerializer.new(form)
       end
