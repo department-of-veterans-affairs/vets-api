@@ -99,6 +99,31 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
         job_instance.send(:send_push_notification, mpi_profile.icn, template_id)
       end.to change(EventBusGatewayPushNotification, :count).by(1)
     end
+
+    context 'when user_account is nil' do
+      before do
+        allow_any_instance_of(described_class).to receive(:user_account).and_return(nil)
+      end
+
+      it 'successfully creates notification record without user_account' do
+        job_instance = subject.new
+
+        expect do
+          job_instance.send(:send_push_notification, mpi_profile.icn, template_id)
+        end.to change(EventBusGatewayPushNotification, :count).by(1)
+
+        notification = EventBusGatewayPushNotification.last
+        expect(notification.user_account).to be_nil
+        expect(notification.template_id).to eq(template_id)
+      end
+
+      it 'still sends push notification successfully' do
+        job_instance = subject.new
+
+        expect(va_notify_service).to receive(:send_push).with(expected_push_args)
+        job_instance.send(:send_push_notification, mpi_profile.icn, template_id)
+      end
+    end
   end
 
   describe 'PII protection with AttrPackage' do
