@@ -5,6 +5,7 @@
 .github/ @department-of-veterans-affairs/backend-review-group
 .rubocop.yml @department-of-veterans-affairs/backend-review-group
 .rubocop_todo.yml @department-of-veterans-affairs/backend-review-group
+.vscode/mcp.json @department-of-veterans-affairs/backend-review-group
 app/concerns/retriable_concern.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
@@ -1838,6 +1839,9 @@ spec/rswag/v0/form21p530a_spec.rb @department-of-veterans-affairs/benefits-optim
 spec/rswag/v0/shared_schemas @department-of-veterans-affairs/backend-review-group
 spec/rswag_override.rb @department-of-veterans-affairs/backend-review-group
 spec/scripts/import_va_certs_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/scripts/vcr_inspector @department-of-veterans-affairs/backend-review-group
+spec/scripts/vcr_mcp @department-of-veterans-affairs/backend-review-group
+spec/serializers/appointment_serializer_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 spec/serializers/async_transaction/base_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/serializers/backend_statuses_serializer_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/serializers/benefits_intake_submission_serializer_spec.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
