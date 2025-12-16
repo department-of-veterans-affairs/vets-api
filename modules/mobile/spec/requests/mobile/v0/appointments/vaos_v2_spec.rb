@@ -224,6 +224,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             .to receive(:new)
             .and_return(double('AuthManager', authorize: tokens))
           allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+          # Keep Travel Pay claims using v2 to match VCR cassettes
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
         end
 
         it 'appends claim info when travel_pay_claims flag is passed' do
