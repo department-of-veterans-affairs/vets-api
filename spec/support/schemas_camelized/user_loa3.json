@@ -364,6 +364,9 @@
                     "userFacilityReadyForInfoAlert": {
                       "type": "boolean"
                     },
+                    "userFacilityMigratingToOh": {
+                      "type": "boolean"
+                    },
                     "givenNames": {
                       "type": "array"
                     },
