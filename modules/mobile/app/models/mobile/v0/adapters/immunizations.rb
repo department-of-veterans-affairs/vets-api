@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'uri'
-require 'digest'
+require 'lighthouse/veterans_health/utils/vaccine_group_name_utils'
 
 module Mobile
   module V0
@@ -55,100 +54,7 @@ module Mobile
         end
 
         def group_name(vaccine_codes)
-          return nil if vaccine_codes.nil?
-
-          log_vaccine_code_processing(vaccine_codes)
-          extract_group_name_from_codes(vaccine_codes)
-        end
-
-        def log_vaccine_code_processing(vaccine_codes)
-          return unless Flipper.enabled?(:mhv_vaccine_lighthouse_name_logging)
-
-          coding_count = vaccine_codes[:coding]&.length || 0
-          display_hashes = anonymized_display_hashes(vaccine_codes)
-          vaccine_group_lengths = calculate_vaccine_group_lengths(vaccine_codes)
-
-          Rails.logger.info(
-            'Immunizations group_name processing',
-            coding_count:,
-            display_hashes:,
-            vaccine_group_lengths:
-          )
-        end
-
-        def anonymized_display_hashes(vaccine_codes)
-          vaccine_codes[:coding]&.map { |v| Digest::SHA256.hexdigest(v[:display].to_s)[0..7] } || []
-        end
-
-        def calculate_vaccine_group_lengths(vaccine_codes)
-          vaccine_codes[:coding]&.map do |v|
-            next unless v[:display]&.start_with?('VACCINE GROUP:')
-
-            # Count characters after "VACCINE GROUP:" including any whitespace (before stripping)
-            text_after_group = v[:display].split('VACCINE GROUP').last
-            text_after_colon = text_after_group&.sub(/^:/, '')
-            text_after_colon&.length || 0
-          end&.compact || []
-        end
-
-        def extract_group_name_from_codes(vaccine_codes)
-          coding = vaccine_codes[:coding]
-          return nil if coding.nil?
-
-          # Look for entries that start with the vaccine group prefix
-          filtered_codes = coding.select do |v|
-            v[:display]&.start_with?('VACCINE GROUP:')
-          end
-
-          group_name = if filtered_codes.empty?
-                         fallback_group_name(vaccine_codes)
-                       else
-                         extracted = extract_prefixed_group_name(filtered_codes)
-                         # If extraction results in blank/nil, fall back to first non-prefixed display
-                         extracted.presence || fallback_group_name(vaccine_codes)
-                       end
-
-          group_name.presence
-        end
-
-        def fallback_group_name(vaccine_codes)
-          # Return coding entry based on system priority (excluding VACCINE GROUP entries)
-          coding = vaccine_codes[:coding]
-          return nil if coding.nil?
-
-          # Filter out VACCINE GROUP entries
-          non_prefixed = coding.reject { |v| v[:display]&.start_with?('VACCINE GROUP:') }
-
-          # Priority 1: system = "http://hl7.org/fhir/sid/cvx"
-          cvx_entry = non_prefixed.find { |v| v[:system] == 'http://hl7.org/fhir/sid/cvx' && v[:display].present? }
-          return cvx_entry[:display] if cvx_entry
-
-          # Priority 2: system host is fhir.cerner.com or subdomain
-          cerner_entry = non_prefixed.find do |v|
-            next false unless v[:display].present? && v[:system].present?
-
-            begin
-              uri = URI.parse(v[:system])
-              host = uri.host
-              host == 'fhir.cerner.com' || host&.end_with?('.fhir.cerner.com')
-            rescue URI::InvalidURIError
-              false
-            end
-          end
-          return cerner_entry[:display] if cerner_entry
-
-          # Priority 3: system = "http://hl7.org/fhir/sid/ndc"
-          ndc_entry = non_prefixed.find { |v| v[:system] == 'http://hl7.org/fhir/sid/ndc' && v[:display].present? }
-          return ndc_entry[:display] if ndc_entry
-
-          # Priority 4: First entry without VACCINE GROUP and with a display value
-          non_prefixed.find { |v| v[:display].present? }&.dig(:display)
-        end
-
-        def extract_prefixed_group_name(filtered_codes)
-          # Remove the prefix and clean up whitespace
-          group_name = filtered_codes.dig(0, :display)
-          group_name&.delete_prefix('VACCINE GROUP:')&.strip
+          Lighthouse::VeteransHealth::Utils::VaccineGroupNameUtils.extract_group_name(vaccine_codes)
         end
 
         def date(immunization)
