@@ -23,7 +23,30 @@
       ],
       "note": "Variables are set from trusted CI environment variables (GITHUB_HEAD_REF, GITHUB_BASE_REF) in Dangerfile, not user input"
     },
-        {
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "e9cc61a1a90740bc6ea533b2c9b8815d3644689ea001a107abf0d2cf428178c0",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "script/vcr_mcp/validator.rb",
+      "line": 301,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "Open3.capture3(\"git\", \"cat-file\", \"-p\", \"HEAD:#{rel_path}\", :chdir => (VETS_API_ROOT))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "VcrMcp::Validator",
+        "method": "fetch_git_original"
+      },
+      "user_input": "rel_path",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "rel_path is derived from relative_path() which removes VETS_API_ROOT prefix from validated cassette file paths - not user input. Using Open3.capture3 with argument array prevents shell injection."
+    },
+    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "c6be575b25f7d0b6a3a83da81c1680f867bc8262b47ae4edd92b93b0bd770667",

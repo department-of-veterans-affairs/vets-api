@@ -5,7 +5,7 @@ require 'dependents_benefits/sidekiq/dependent_backup_job'
 
 RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(pdf_stamper_instance).at_least(:once)
     allow(pdf_stamper_instance).to receive(:run).and_return('/tmp/stamped_1.pdf', '/tmp/stamped_2.pdf',
                                                             '/tmp/final_stamped.pdf')
