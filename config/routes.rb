@@ -3,6 +3,15 @@
 require 'flipper/route_authorization_constraint'
 
 Rails.application.routes.draw do
+  # Admin routes
+  namespace :admin do
+    resources :personal_information_logs, only: %i[index show] do
+      collection do
+        get :export
+      end
+    end
+  end
+
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
