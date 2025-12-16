@@ -17,11 +17,19 @@ module BenefitsClaims
     class TrackedItem
       include Vets::Model
 
+      # Core fields from Lighthouse API
       attribute :id, Integer
       attribute :display_name, String
       attribute :status, String
       attribute :suspense_date, String
       attribute :type, String
+
+      # Friendly language fields added by Lighthouse service transformation
+      attribute :can_upload_file, Bool
+      attribute :friendly_name, String
+      attribute :activity_description, String
+      attribute :short_description, String
+      attribute :support_aliases, Array
     end
 
     class SupportingDocument

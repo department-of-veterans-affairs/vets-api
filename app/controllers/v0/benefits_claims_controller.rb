@@ -49,7 +49,7 @@ module V0
     end
 
     def show
-      claim = service.get_claim(params[:id])
+      claim = get_claim_from_providers(params[:id])
       update_claim_type_language(claim['data'])
 
       # Manual status override for certain tracked items
@@ -156,6 +156,22 @@ module V0
           'provider_errors' => provider_errors.presence
         }.compact
       }
+    end
+
+    def get_claim_from_providers(claim_id)
+      if configured_providers.count == 1
+        provider = configured_providers.first.new(@current_user)
+        return provider.get_claim(claim_id)
+      end
+
+      configured_providers.each do |provider_class|
+        provider = provider_class.new(@current_user)
+        return provider.get_claim(claim_id)
+      rescue => e
+        ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}: #{e.message}")
+      end
+
+      raise Common::Exceptions::RecordNotFound, claim_id
     end
 
     def check_for_birls_id

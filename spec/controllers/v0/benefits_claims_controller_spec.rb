@@ -680,7 +680,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         expect(parsed_body['data'].count).to eq(1)
-        expect(parsed_body['data'].first['id']).to eq('provider1_claim1')
+        expect(parsed_body['data'].first['id']).to eq('provider_one_claim_one')
         expect(parsed_body['meta']['provider_errors']).to be_present
         expect(parsed_body['meta']['provider_errors'].first['error']).to eq('Provider failed')
       end
@@ -694,7 +694,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         allow(BenefitsClaims::Providers::ProviderRegistry)
           .to receive(:enabled_provider_classes)
-          .and_return([failing_provider, mock_provider_class_1])
+          .and_return([failing_provider, mock_provider_class_one])
 
         expect(Rails.logger).to receive(:error).with(/Provider.*failed/)
         expect(StatsD).to receive(:increment).with(
