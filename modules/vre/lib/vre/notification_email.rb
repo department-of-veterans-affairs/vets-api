@@ -15,7 +15,11 @@ module VRE
     end
 
     def personalization
-      default = super
+      default = super.merge({
+        'date_submitted' => claim.submitted_at,
+        'confirmation_number' => claim.confirmation_number
+      })
+
       data = case @email_type
              when :error
                {
@@ -29,6 +33,7 @@ module VRE
                  'date' => Time.zone.today.strftime('%B %d, %Y')
                }
              end
+
       default.merge(data)
     end
 

@@ -33,7 +33,10 @@ module EmploymentQuestionnaires
     #   'confirmation_number' => claim.confirmation_number
     # }
     def personalization
-      default = super
+      default = super.merge({
+        'date_submitted' => claim.submitted_at,
+        'confirmation_number' => claim.confirmation_number
+      })
 
       template = {
         # confirmation, error

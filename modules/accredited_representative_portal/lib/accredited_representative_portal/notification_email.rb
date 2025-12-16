@@ -32,7 +32,10 @@ module AccreditedRepresentativePortal
     end
 
     def personalization
-      default = super
+      default = super.merge({
+        'date_submitted' => claim.submitted_at,
+        'confirmation_number' => claim.confirmation_number
+      })
 
       {
         'form_id' => form_id,

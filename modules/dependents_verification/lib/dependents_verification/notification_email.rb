@@ -20,7 +20,10 @@ module DependentsVerification
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#personalization
     def personalization
-      default = super
+      default = super.merge({
+        'date_submitted' => claim.submitted_at,
+        'confirmation_number' => claim.confirmation_number
+      })
 
       # confirmation, error
       dependents_verification = {
