@@ -3,7 +3,6 @@
 module V1
   class MedicalCopaysController < ApplicationController
     service_tag 'debt-resolution'
-    before_action { authorize :medical_copays, :access? }
 
     def index
       invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
