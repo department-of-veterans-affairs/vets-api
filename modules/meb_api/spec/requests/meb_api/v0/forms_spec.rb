@@ -207,56 +207,57 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       end
     end
 
-    context 'when direct deposit feature is enabled' do
-      let(:direct_deposit_client) { instance_double(DirectDeposit::Client) }
-      let(:payment_info) { { account_number: '1234', routing_number: '5678' } }
-
-      before do
-        allow(DirectDeposit::Client).to receive(:new).and_return(direct_deposit_client)
-        allow(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
-      end
-
-      it 'includes direct deposit information in submission' do
-        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
-        expect(submission_service).to have_received(:submit_claim).with(
-          hash_including(test_param: 'value'),
-          payment_info
-        )
-        expect(response).to have_http_status(:ok)
-      end
-
-      context 'when direct deposit service returns nil' do
-        before do
-          allow(direct_deposit_client).to receive(:get_payment_info).and_return(nil)
-        end
-
-        it 'proceeds without direct deposit info and logs warning' do
-          expect(Rails.logger).to receive(:warn).with(
-            'DirectDeposit::Client returned nil response, proceeding without direct deposit info'
-          )
-          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
-          expect(submission_service).to have_received(:submit_claim).with(
-            hash_including(test_param: 'value'),
-            nil
-          )
-        end
-      end
-
-      context 'when direct deposit service raises an error' do
-        before do
-          allow(direct_deposit_client).to receive(:get_payment_info).and_raise(StandardError.new('Service error'))
-        end
-
-        it 'logs error and proceeds without direct deposit info' do
-          expect(Rails.logger).to receive(:error).with('BIS service error: Service error')
-          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
-          expect(submission_service).to have_received(:submit_claim).with(
-            hash_including(test_param: 'value'),
-            nil
-          )
-        end
-      end
-    end
+    # Direct deposit feature temporarily disabled
+    # context 'when direct deposit feature is enabled' do
+    #   let(:direct_deposit_client) { instance_double(DirectDeposit::Client) }
+    #   let(:payment_info) { { account_number: '1234', routing_number: '5678' } }
+    #
+    #   before do
+    #     allow(DirectDeposit::Client).to receive(:new).and_return(direct_deposit_client)
+    #     allow(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
+    #   end
+    #
+    #   it 'includes direct deposit information in submission' do
+    #     post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+    #     expect(submission_service).to have_received(:submit_claim).with(
+    #       hash_including(test_param: 'value'),
+    #       payment_info
+    #     )
+    #     expect(response).to have_http_status(:ok)
+    #   end
+    #
+    #   context 'when direct deposit service returns nil' do
+    #     before do
+    #       allow(direct_deposit_client).to receive(:get_payment_info).and_return(nil)
+    #     end
+    #
+    #     it 'proceeds without direct deposit info and logs warning' do
+    #       expect(Rails.logger).to receive(:warn).with(
+    #         'DirectDeposit::Client returned nil response, proceeding without direct deposit info'
+    #       )
+    #       post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+    #       expect(submission_service).to have_received(:submit_claim).with(
+    #         hash_including(test_param: 'value'),
+    #         nil
+    #       )
+    #     end
+    #   end
+    #
+    #   context 'when direct deposit service raises an error' do
+    #     before do
+    #       allow(direct_deposit_client).to receive(:get_payment_info).and_raise(StandardError.new('Service error'))
+    #     end
+    #
+    #     it 'logs error and proceeds without direct deposit info' do
+    #       expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Service error')
+    #       post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+    #       expect(submission_service).to have_received(:submit_claim).with(
+    #         hash_including(test_param: 'value'),
+    #         nil
+    #       )
+    #     end
+    #   end
+    # end
   end
 
   describe 'GET /meb_api/v0/forms_claim_status with error cases' do

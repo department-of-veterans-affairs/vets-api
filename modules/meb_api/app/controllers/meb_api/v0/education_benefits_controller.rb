@@ -65,15 +65,16 @@ module MebApi
       def submit_claim
         response_data = nil
 
-        unless Rails.env.development?
-          begin
-            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
-          rescue => e
-            Rails.logger.error("BGS service error: #{e}")
-            head :internal_server_error
-            return
-          end
-        end
+        # Skip direct deposit client call - temporarily disabled due to bad responses
+        # unless Rails.env.development?
+        #   begin
+        #     response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
+        #   rescue => e
+        #     Rails.logger.error("Lighthouse direct deposit service error: #{e}")
+        #     head :internal_server_error
+        #     return
+        #   end
+        # end
 
         response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 

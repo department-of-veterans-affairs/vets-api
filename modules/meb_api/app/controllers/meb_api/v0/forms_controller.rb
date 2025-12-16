@@ -63,16 +63,17 @@ module MebApi
       def submit_claim
         response_data = nil
 
-        unless Rails.env.development?
-          begin
-            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
-            if response_data.nil?
-              Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
-            end
-          rescue => e
-            Rails.logger.error("BIS service error: #{e}")
-          end
-        end
+        # Skip direct deposit client call - temporarily disabled due to bad responses
+        # unless Rails.env.development?
+        #   begin
+        #     response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
+        #     if response_data.nil?
+        #       Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
+        #     end
+        #   rescue => e
+        #     Rails.logger.error("Lighthouse direct deposit service error: #{e}")
+        #   end
+        # end
 
         response = submission_service.submit_claim(params, response_data)
 

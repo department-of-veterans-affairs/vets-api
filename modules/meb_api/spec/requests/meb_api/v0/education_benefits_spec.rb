@@ -231,11 +231,21 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       }
     end
 
-    context 'direct deposit' do
-      it 'successfully submits with new lighthouse api' do
+    # Direct deposit feature temporarily disabled
+    # context 'direct deposit' do
+    #   it 'successfully submits with new lighthouse api' do
+    #     VCR.use_cassette('dgi/submit_claim_lighthouse') do
+    #       Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
+    #       Settings.lighthouse.direct_deposit.use_mocks = true
+    #       post '/meb_api/v0/submit_claim', params: claimant_params
+    #       expect(response).to have_http_status(:ok)
+    #     end
+    #   end
+    # end
+
+    context 'submit claim' do
+      it 'successfully submits without direct deposit' do
         VCR.use_cassette('dgi/submit_claim_lighthouse') do
-          Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
-          Settings.lighthouse.direct_deposit.use_mocks = true
           post '/meb_api/v0/submit_claim', params: claimant_params
           expect(response).to have_http_status(:ok)
         end
