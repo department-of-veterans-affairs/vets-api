@@ -241,11 +241,51 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
           expect(response).to have_http_status(:ok)
         end
       end
+
+      it 'calls DirectDeposit::Client when feature flag is disabled' do
+        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(false)
+        direct_deposit_client = instance_double(DirectDeposit::Client)
+        payment_info = { account_number: '1234', routing_number: '5678' }
+        
+        expect(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
+        expect(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
+        
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
+          Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
+          Settings.lighthouse.direct_deposit.use_mocks = true
+          post '/meb_api/v0/submit_claim', params: claimant_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      it 'returns internal server error with Lighthouse error message when DirectDeposit service fails' do
+        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(false)
+        direct_deposit_client = instance_double(DirectDeposit::Client)
+        
+        allow(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
+        allow(direct_deposit_client).to receive(:get_payment_info).and_raise(StandardError.new('Service failure'))
+        
+        expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Service failure')
+        
+        post '/meb_api/v0/submit_claim', params: claimant_params
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
 
     context 'when skip feature flag is enabled (direct deposit disabled)' do
       it 'successfully submits without direct deposit call' do
         allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(true)
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
+          post '/meb_api/v0/submit_claim', params: claimant_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      it 'does not call DirectDeposit::Client when feature flag is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(true)
+        
+        expect(DirectDeposit::Client).not_to receive(:new)
+        
         VCR.use_cassette('dgi/submit_claim_lighthouse') do
           post '/meb_api/v0/submit_claim', params: claimant_params
           expect(response).to have_http_status(:ok)
