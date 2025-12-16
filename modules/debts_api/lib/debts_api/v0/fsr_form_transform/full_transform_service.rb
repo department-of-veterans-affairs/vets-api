@@ -36,6 +36,7 @@ module DebtsApi
 
         def transform
           report_form_types
+
           {
             'income' => @income,
             'assets' => @assets,
@@ -60,7 +61,7 @@ module DebtsApi
           StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.#{tracking_label}")
           StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.#{streamlined_type}_streamlined_data")
         rescue => e
-          Rails.logger("FsrFormTransform::FullTransformService::#report_form_types error: #{e.message}")
+          Rails.logger.error("FsrFormTransform::FullTransformService::#report_form_types error: #{e.message}")
           nil
         end
 
