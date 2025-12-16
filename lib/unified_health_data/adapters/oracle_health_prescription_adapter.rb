@@ -40,10 +40,11 @@ module UnifiedHealthData
       # This allows refill_metadata to be computed after dispenses_data is available
       # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
+        refill_status = extract_refill_status(resource, dispenses_data)
         {
           id: resource['id'],
           type: 'Prescription',
-          refill_status: extract_refill_status(resource, dispenses_data),
+          refill_status:,
           refill_submit_date: nil,
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
@@ -55,7 +56,7 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource),
+          is_refillable: extract_is_refillable(resource, refill_status),
           cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
@@ -72,7 +73,7 @@ module UnifiedHealthData
         prescription_source = extract_prescription_source(resource)
         {
           instructions: extract_instructions(resource),
-          facility_phone_number: extract_facility_phone_number(resource),
+          facility_phone_number: nil, # Not typically available in standard FHIR MedicationRequest
           cmop_division_phone: nil,
           dial_cmop_division_phone: nil,
           prescription_source:,
@@ -514,21 +515,16 @@ module UnifiedHealthData
         end
       end
 
-      def extract_is_refillable(resource)
+      def extract_is_refillable(resource, refill_status)
         refillable = true
 
-        # non VA meds are never refillable
-        refillable = false if non_va_med?(resource)
-        # must be active
-        refillable = false unless resource['status'] == 'active'
-        # must not be expired
-        refillable = false unless prescription_not_expired?(resource)
-        # must have refills remaining
-        refillable = false unless extract_refill_remaining(resource).positive?
-        # must have at least one dispense record
+        refillable = false if non_va_med?(resource) # non VA meds are never refillable
+        refillable = false unless resource['status'] == 'active' # must be active
+        refillable = false unless prescription_not_expired?(resource) # must not be expired
+        refillable = false unless extract_refill_remaining(resource).positive? # must have refills remaining
         refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
-        # must not have an in-progress dispense
-        refillable = false if most_recent_dispense_in_progress?(resource)
+        refillable = false if most_recent_dispense_in_progress?(resource) # must not have in-progress dispense
+        refillable = false if refill_status == 'submitted' # must not have pending refill request
 
         refillable
       end
@@ -547,16 +543,6 @@ module UnifiedHealthData
 
         # Build from components
         build_instruction_text(first_instruction)
-      end
-
-      def extract_facility_phone_number(resource)
-        # Try to extract from performer contact info if available
-        performer = resource.dig('dispenseRequest', 'performer')
-        return nil unless performer
-
-        # This might be in an extension or contained Organization resource
-        # For now, return nil as it's not typically in standard FHIR
-        nil
       end
 
       def extract_prescription_source(resource)

@@ -156,7 +156,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     context 'with all conditions met for refillable prescription' do
       it 'returns true' do
-        expect(subject.send(:extract_is_refillable, base_refillable_resource)).to be true
+        expect(subject.send(:extract_is_refillable, base_refillable_resource, 'active')).to be true
       end
     end
 
@@ -166,7 +166,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false for non-VA medications' do
-        expect(subject.send(:extract_is_refillable, non_va_resource)).to be false
+        expect(subject.send(:extract_is_refillable, non_va_resource, 'active')).to be false
       end
     end
 
@@ -176,7 +176,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when status is not active' do
-        expect(subject.send(:extract_is_refillable, inactive_resource)).to be false
+        expect(subject.send(:extract_is_refillable, inactive_resource, 'active')).to be false
       end
     end
 
@@ -186,7 +186,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when status is null' do
-        expect(subject.send(:extract_is_refillable, null_status_resource)).to be false
+        expect(subject.send(:extract_is_refillable, null_status_resource, 'active')).to be false
       end
     end
 
@@ -203,7 +203,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when prescription is expired' do
-        expect(subject.send(:extract_is_refillable, expired_resource)).to be false
+        expect(subject.send(:extract_is_refillable, expired_resource, 'active')).to be false
       end
     end
 
@@ -215,7 +215,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when no expiration date (safety default)' do
-        expect(subject.send(:extract_is_refillable, no_expiration_resource)).to be false
+        expect(subject.send(:extract_is_refillable, no_expiration_resource, 'active')).to be false
       end
     end
 
@@ -235,7 +235,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false and logs warning for invalid dates' do
-        expect(subject.send(:extract_is_refillable, invalid_expiration_resource)).to be false
+        expect(subject.send(:extract_is_refillable, invalid_expiration_resource, 'active')).to be false
         expect(Rails.logger).to have_received(:warn).with(
           /Invalid expiration date for prescription.*: invalid-date/
         )
@@ -255,7 +255,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when no refills remaining' do
-        expect(subject.send(:extract_is_refillable, no_refills_resource)).to be false
+        expect(subject.send(:extract_is_refillable, no_refills_resource, 'active')).to be false
       end
     end
 
@@ -274,7 +274,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when multiple conditions fail' do
-        expect(subject.send(:extract_is_refillable, multiple_fail_resource)).to be false
+        expect(subject.send(:extract_is_refillable, multiple_fail_resource, 'active')).to be false
       end
     end
 
@@ -303,7 +303,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns true when exactly one refill remains' do
-        expect(subject.send(:extract_is_refillable, one_refill_resource)).to be true
+        expect(subject.send(:extract_is_refillable, one_refill_resource, 'active')).to be true
       end
     end
 
@@ -328,7 +328,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when most recent dispense is in-progress' do
-        expect(subject.send(:extract_is_refillable, in_progress_dispense_resource)).to be false
+        expect(subject.send(:extract_is_refillable, in_progress_dispense_resource, 'active')).to be false
       end
     end
 
@@ -347,7 +347,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when most recent dispense is preparation' do
-        expect(subject.send(:extract_is_refillable, preparation_dispense_resource)).to be false
+        expect(subject.send(:extract_is_refillable, preparation_dispense_resource, 'active')).to be false
       end
     end
 
@@ -366,7 +366,13 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when most recent dispense is on-hold' do
-        expect(subject.send(:extract_is_refillable, on_hold_dispense_resource)).to be false
+        expect(subject.send(:extract_is_refillable, on_hold_dispense_resource, 'active')).to be false
+      end
+    end
+
+    context 'with submitted refill status' do
+      it 'returns false when refill_status is submitted' do
+        expect(subject.send(:extract_is_refillable, base_refillable_resource, 'submitted')).to be false
       end
     end
   end
