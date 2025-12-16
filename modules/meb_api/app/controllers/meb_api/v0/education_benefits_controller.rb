@@ -65,11 +65,11 @@ module MebApi
       def submit_claim
         response_data = nil
 
-        unless Rails.env.development?
+        unless Rails.env.development? || Flipper.enabled?(:skip_meb_direct_deposit_call)
           begin
             response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
           rescue => e
-            Rails.logger.error("BGS service error: #{e}")
+            Rails.logger.error("Lighthouse direct deposit service error: #{e}")
             head :internal_server_error
             return
           end

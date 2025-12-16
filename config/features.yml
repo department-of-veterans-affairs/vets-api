@@ -1090,6 +1090,10 @@ features:
     actor_type: user
     description: Enables form 1990e MEB email submission confirmation (VaNotify)
     enable_in_development: true
+  skip_meb_direct_deposit_call:
+    actor_type: user
+    description: Skips DirectDeposit::Client call in MEB API submit_claim actions to prevent bad responses from blocking submissions
+    enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)

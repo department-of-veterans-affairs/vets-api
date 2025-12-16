@@ -207,11 +207,12 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       end
     end
 
-    context 'when direct deposit feature is enabled' do
+    context 'when skip feature flag is disabled (direct deposit enabled)' do
       let(:direct_deposit_client) { instance_double(DirectDeposit::Client) }
       let(:payment_info) { { account_number: '1234', routing_number: '5678' } }
 
       before do
+        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(false)
         allow(DirectDeposit::Client).to receive(:new).and_return(direct_deposit_client)
         allow(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
       end
@@ -248,13 +249,28 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
         end
 
         it 'logs error and proceeds without direct deposit info' do
-          expect(Rails.logger).to receive(:error).with('BIS service error: Service error')
+          expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Service error')
           post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
           expect(submission_service).to have_received(:submit_claim).with(
             hash_including(test_param: 'value'),
             nil
           )
         end
+      end
+    end
+
+    context 'when skip feature flag is enabled (direct deposit disabled)' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(true)
+      end
+
+      it 'skips direct deposit call and submits without payment info' do
+        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        expect(submission_service).to have_received(:submit_claim).with(
+          hash_including(test_param: 'value'),
+          nil
+        )
+        expect(response).to have_http_status(:ok)
       end
     end
   end

@@ -63,14 +63,14 @@ module MebApi
       def submit_claim
         response_data = nil
 
-        unless Rails.env.development?
+        unless Rails.env.development? || Flipper.enabled?(:skip_meb_direct_deposit_call)
           begin
             response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
             if response_data.nil?
               Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
             end
           rescue => e
-            Rails.logger.error("BIS service error: #{e}")
+            Rails.logger.error("Lighthouse direct deposit service error: #{e}")
           end
         end
 

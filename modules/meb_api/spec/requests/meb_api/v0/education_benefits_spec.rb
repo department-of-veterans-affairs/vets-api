@@ -231,11 +231,22 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       }
     end
 
-    context 'direct deposit' do
+    context 'when skip feature flag is disabled (direct deposit enabled)' do
       it 'successfully submits with new lighthouse api' do
+        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(false)
         VCR.use_cassette('dgi/submit_claim_lighthouse') do
           Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
           Settings.lighthouse.direct_deposit.use_mocks = true
+          post '/meb_api/v0/submit_claim', params: claimant_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'when skip feature flag is enabled (direct deposit disabled)' do
+      it 'successfully submits without direct deposit call' do
+        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(true)
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
           post '/meb_api/v0/submit_claim', params: claimant_params
           expect(response).to have_http_status(:ok)
         end
