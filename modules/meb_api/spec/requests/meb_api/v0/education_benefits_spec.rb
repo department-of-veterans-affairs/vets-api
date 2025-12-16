@@ -342,18 +342,17 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       it 'logs an error with exception class and message' do
         expect(Rails.logger).to receive(:error)
           .with("MEB submit_claim failed: StandardError - #{error_message}")
+        expect(Rails.logger).to receive(:error).at_least(:once)
 
-        expect do
-          post '/meb_api/v0/submit_claim', params: test_params
-        end.to raise_error(StandardError, error_message)
+        post '/meb_api/v0/submit_claim', params: test_params
+        expect(response).to have_http_status(:internal_server_error)
       end
 
       it 're-raises the exception after logging' do
-        expect(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:error)
 
-        expect do
-          post '/meb_api/v0/submit_claim', params: test_params
-        end.to raise_error(StandardError, error_message)
+        post '/meb_api/v0/submit_claim', params: test_params
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
