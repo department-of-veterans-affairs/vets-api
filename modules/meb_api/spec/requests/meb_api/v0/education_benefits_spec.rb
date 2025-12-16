@@ -328,6 +328,11 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
     context 'when an exception occurs in submit_claim' do
       let(:submission_service) { instance_double(MebApi::DGI::Submission::Service) }
       let(:error_message) { 'Submission failed' }
+      let(:test_params) do
+        claimant_params.deep_dup.tap do |p|
+          p[:education_benefit].delete(:direct_deposit)
+        end
+      end
 
       before do
         allow(MebApi::DGI::Submission::Service).to receive(:new).and_return(submission_service)
@@ -339,7 +344,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
           .with("MEB submit_claim failed: StandardError - #{error_message}")
 
         expect do
-          post '/meb_api/v0/submit_claim', params: claimant_params
+          post '/meb_api/v0/submit_claim', params: test_params
         end.to raise_error(StandardError, error_message)
       end
 
@@ -347,7 +352,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
         expect(Rails.logger).to receive(:error)
 
         expect do
-          post '/meb_api/v0/submit_claim', params: claimant_params
+          post '/meb_api/v0/submit_claim', params: test_params
         end.to raise_error(StandardError, error_message)
       end
     end
