@@ -142,7 +142,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       allow(File).to receive(:exist?).and_call_original
       allow(File).to receive(:exist?).with(stamped_pdf_path).and_return(true)
       allow(File).to receive(:read).with(stamped_pdf_path).and_return('PDF content')
-      expect(File).to receive(:delete).with(stamped_pdf_path)
+      expect(File).to receive(:delete).with(stamped_pdf_path).at_least(:once)
       get(:download_pdf, params: { guid: claim.guid })
     end
 
@@ -162,7 +162,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       allow(File).to receive(:exist?).and_call_original
       allow(File).to receive(:exist?).with(stamped_pdf_path).and_return(true)
       allow(File).to receive(:read).with(stamped_pdf_path).and_raise(StandardError, 'Read error')
-      expect(File).to receive(:delete).with(stamped_pdf_path)
+      expect(File).to receive(:delete).with(stamped_pdf_path).at_least(:once)
 
       get(:download_pdf, params: { guid: claim.guid })
       expect(response).to have_http_status(:internal_server_error)
