@@ -107,7 +107,7 @@ describe Ccra::ReferralService do
         it 'logs detailed error information with scrubbed PHI' do
           # Expect the Rails logger to receive the error with scrubbed data
           expect(Rails.logger).to receive(:error) do |message, data|
-            expect(message).to eq('CCRA: Failed to fetch VAOS referral list')
+            expect(message).to eq('Community Care Appointments: Failed to fetch VAOS referral list')
             expect(data[:referral_status]).to eq(referral_status)
             expect(data[:service]).to eq('ccra')
             expect(data[:method]).to eq('get_vaos_referral_list')
@@ -127,7 +127,7 @@ describe Ccra::ReferralService do
           # Verify the logged message does not contain the actual ICN
           # The scrub method should automatically replace ICN with [REDACTED]
           expect(Rails.logger).to receive(:error) do |message, data|
-            expect(message).to eq('CCRA: Failed to fetch VAOS referral list')
+            expect(message).to eq('Community Care Appointments: Failed to fetch VAOS referral list')
             expect(data[:error_message]).not_to include(icn)
             expect(data[:error_message]).to include('[REDACTED]')
             # Verify the error message contains the scrubbed detail
