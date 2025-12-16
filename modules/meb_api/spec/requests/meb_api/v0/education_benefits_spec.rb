@@ -207,6 +207,11 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
               state_code: 'VA'
             },
             notification_method: 'EMAIL'
+          },
+          direct_deposit: {
+            direct_deposit_account_number: '********3123',
+            account_type: 'savings',
+            direct_deposit_routing_number: '*******3123'
           }
         },
         relinquished_benefit: {
@@ -222,18 +227,12 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
         },
         comments: {
           disagree_with_service_period: false
-        },
-        direct_deposit: {
-          account_number: '********3123',
-          account_type: 'savings',
-          routing_number: '*******3123'
         }
       }
     end
 
-    context 'when skip feature flag is disabled (direct deposit enabled)' do
+    context 'with direct deposit' do
       it 'successfully submits with new lighthouse api' do
-        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(false)
         VCR.use_cassette('dgi/submit_claim_lighthouse') do
           Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
           Settings.lighthouse.direct_deposit.use_mocks = true
@@ -242,24 +241,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
         end
       end
 
-      it 'calls DirectDeposit::Client when feature flag is disabled' do
-        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(false)
-        direct_deposit_client = instance_double(DirectDeposit::Client)
-        payment_info = { account_number: '1234', routing_number: '5678' }
-
-        expect(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
-        expect(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
-
-        VCR.use_cassette('dgi/submit_claim_lighthouse') do
-          Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
-          Settings.lighthouse.direct_deposit.use_mocks = true
-          post '/meb_api/v0/submit_claim', params: claimant_params
-          expect(response).to have_http_status(:ok)
-        end
-      end
-
-      it 'returns internal server error with Lighthouse error message when DirectDeposit service fails' do
-        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(false)
+      it 'proceeds with submission and logs error when DirectDeposit service fails' do
         direct_deposit_client = instance_double(DirectDeposit::Client)
 
         allow(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
@@ -267,23 +249,73 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
 
         expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Service failure')
 
-        post '/meb_api/v0/submit_claim', params: claimant_params
-        expect(response).to have_http_status(:internal_server_error)
-      end
-    end
-
-    context 'when skip feature flag is enabled (direct deposit disabled)' do
-      it 'successfully submits without direct deposit call' do
-        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(true)
         VCR.use_cassette('dgi/submit_claim_lighthouse') do
           post '/meb_api/v0/submit_claim', params: claimant_params
           expect(response).to have_http_status(:ok)
         end
       end
 
-      it 'does not call DirectDeposit::Client when feature flag is enabled' do
-        allow(Flipper).to receive(:enabled?).with(:skip_meb_direct_deposit_call).and_return(true)
+      it 'proceeds with submission and logs warning when DirectDeposit service returns nil' do
+        direct_deposit_client = instance_double(DirectDeposit::Client)
 
+        allow(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
+        allow(direct_deposit_client).to receive(:get_payment_info).and_return(nil)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'DirectDeposit::Client returned nil response, proceeding without direct deposit info'
+        )
+
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
+          post '/meb_api/v0/submit_claim', params: claimant_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when account number does not contain asterisks' do
+        let(:params_without_asterisks) do
+          claimant_params.deep_dup.tap do |p|
+            p[:education_benefit][:direct_deposit] = {
+              direct_deposit_account_number: '1234567890',
+              account_type: 'checking',
+              direct_deposit_routing_number: '031000503'
+            }
+          end
+        end
+
+        it 'does not call DirectDeposit service (optimization)' do
+          expect(DirectDeposit::Client).not_to receive(:new)
+
+          VCR.use_cassette('dgi/submit_claim_lighthouse') do
+            post '/meb_api/v0/submit_claim', params: params_without_asterisks
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when direct_deposit fields are not present' do
+        let(:params_without_dd) do
+          claimant_params.deep_dup.tap do |p|
+            p[:education_benefit].delete(:direct_deposit)
+          end
+        end
+
+        it 'does not call DirectDeposit service' do
+          expect(DirectDeposit::Client).not_to receive(:new)
+
+          VCR.use_cassette('dgi/submit_claim_lighthouse') do
+            post '/meb_api/v0/submit_claim', params: params_without_dd
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
+
+    context 'in development environment' do
+      before do
+        allow(Rails.env).to receive(:development?).and_return(true)
+      end
+
+      it 'skips DirectDeposit call even with asterisks present' do
         expect(DirectDeposit::Client).not_to receive(:new)
 
         VCR.use_cassette('dgi/submit_claim_lighthouse') do

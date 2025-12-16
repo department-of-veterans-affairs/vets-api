@@ -61,19 +61,7 @@ module MebApi
       end
 
       def submit_claim
-        response_data = nil
-
-        unless Rails.env.development? || Flipper.enabled?(:skip_meb_direct_deposit_call)
-          begin
-            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
-            if response_data.nil?
-              Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
-            end
-          rescue => e
-            Rails.logger.error("Lighthouse direct deposit service error: #{e}")
-          end
-        end
-
+        response_data = fetch_direct_deposit_info
         response = submission_service.submit_claim(params, response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
@@ -138,6 +126,23 @@ module MebApi
 
       def submission_service
         MebApi::DGI::Forms::Submission::Service.new(@current_user)
+      end
+
+      # Fetch unmasked direct deposit if asterisks present. Gracefully handles failures.
+      def fetch_direct_deposit_info
+        return nil if Rails.env.development?
+
+        account_number = params.dig(:form, :direct_deposit, :direct_deposit_account_number)
+        return nil unless account_number&.include?('*')
+
+        DirectDeposit::Client.new(@current_user&.icn).get_payment_info.tap do |response_data|
+          if response_data.nil?
+            Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
+          end
+        end
+      rescue => e
+        Rails.logger.error("Lighthouse direct deposit service error: #{e}")
+        nil
       end
     end
   end
