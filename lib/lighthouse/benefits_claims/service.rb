@@ -305,10 +305,11 @@ module BenefitsClaims
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      names_to_override = ['PMR Pending', 'Proof of service (DD214, etc.)', 'NG1 - National Guard Records Request']
-      tracked_items.select { |i| names_to_override.include?(i['displayName']) }.each do |i|
-        i['status'] = 'NEEDED_FROM_OTHERS'
-      end
+      tracked_items
+        .select { |i| BenefitsClaims::Constants::FIRST_PARTY_AS_THIRD_PARTY_OVERRIDES.include?(i['displayName']) }
+        .each do |i|
+          i['status'] = 'NEEDED_FROM_OTHERS'
+        end
 
       tracked_items
     end
