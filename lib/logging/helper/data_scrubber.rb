@@ -18,12 +18,6 @@ module Logging
     #   Logging::DataScrubber.scrub(data)
     #   # => ["Call me at [REDACTED]", { credit_card: "[REDACTED]" }]
     #
-    # @example Flipper feature toggle
-    #   # If the :logging_data_scrubber flipper is disabled, data is returned unchanged
-    #   Flipper.disable(:logging_data_scrubber)
-    #   Logging::DataScrubber.scrub({ ssn: "123-45-6789" })
-    #   # => { ssn: "123-45-6789" } (unchanged)
-    #
     module DataScrubber
       # uuid matcher
       UUID_REGEX = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i
@@ -111,8 +105,7 @@ module Logging
 
       # Recursively scrubs PII from any data structure (Hash, Array, String, or other types).
       #
-      # This method serves as the main entry point for data scrubbing. It respects the
-      # :logging_data_scrubber Flipper feature flag - if disabled, data is returned unchanged.
+      # This method serves as the main entry point for data scrubbing.
       #
       # @param data [Object] The data to scrub. Can be a Hash, Array, String, or any other type.
       # @return [Object] A new data structure with PII replaced by '[REDACTED]'.
@@ -129,8 +122,6 @@ module Logging
       #   # => { name: "John", contact: ["[REDACTED]", "[REDACTED]"] }
       #
       def scrub(data)
-        return data unless Flipper.enabled?(:logging_data_scrubber)
-
         scrub_value(data)
       rescue => e
         Rails.logger.error("DataScrubber failed: #{e.class} - #{e.message}")

@@ -1259,10 +1259,6 @@ features:
     actor_type: user
     description: Allows log_eligible_benefits_job.rb to run in background.
     enable_in_development: true
-  logging_data_scrubber:
-    actor_type: user
-    description: Enable/disable data scrubbing for sensitive information
-    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
