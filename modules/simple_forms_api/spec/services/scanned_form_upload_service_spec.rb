@@ -77,6 +77,7 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
         expect(SimpleFormsApi::PdfStamper).to have_received(:new).with(
           stamped_template_path: pdf_path,
           current_loa: user.loa[:current],
+          form_number:,
           timestamp: instance_of(ActiveSupport::TimeWithZone)
         )
         expect(pdf_stamper).to have_received(:stamp_pdf)

@@ -1588,7 +1588,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'Event Bus Gateway' do
-      include_context 'with service account authentication', 'eventbus', ['http://www.example.com/v0/event_bus_gateway/send_email'], { user_attributes: { participant_id: '1234' } }
+      include_context 'with service account authentication', 'eventbus',
+                      ['http://www.example.com/v0/event_bus_gateway/send_email',
+                       'http://www.example.com/v0/event_bus_gateway/send_push',
+                       'http://www.example.com/v0/event_bus_gateway/send_notifications'], { user_attributes: { participant_id: '1234' } }
 
       context 'when sending emails' do
         let(:params) do
@@ -1605,6 +1608,51 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           expect(subject).to validate(
             :post,
             '/v0/event_bus_gateway/send_email',
+            200,
+            '_headers' => service_account_auth_header,
+            '_data' => params
+          )
+        end
+      end
+
+      context 'when sending push notifications' do
+        let(:params) do
+          {
+            template_id: '9999'
+          }
+        end
+
+        it 'documents an unauthenticated request' do
+          expect(subject).to validate(:post, '/v0/event_bus_gateway/send_push', 401)
+        end
+
+        it 'documents a success' do
+          expect(subject).to validate(
+            :post,
+            '/v0/event_bus_gateway/send_push',
+            200,
+            '_headers' => service_account_auth_header,
+            '_data' => params
+          )
+        end
+      end
+
+      context 'when sending notifications' do
+        let(:params) do
+          {
+            email_template_id: '1111',
+            push_template_id: '2222'
+          }
+        end
+
+        it 'documents an unauthenticated request' do
+          expect(subject).to validate(:post, '/v0/event_bus_gateway/send_notifications', 401)
+        end
+
+        it 'documents a success' do
+          expect(subject).to validate(
+            :post,
+            '/v0/event_bus_gateway/send_notifications',
             200,
             '_headers' => service_account_auth_header,
             '_data' => params
@@ -1645,44 +1693,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       it 'documents appeals 502' do
         VCR.use_cassette('/caseflow/server_error') do
           expect(subject).to validate(:get, '/v0/appeals', 502, headers)
-        end
-      end
-    end
-
-    describe 'appointments' do
-      before do
-        allow_any_instance_of(User).to receive(:icn).and_return('1234')
-      end
-
-      context 'when successful' do
-        it 'supports getting appointments data' do
-          VCR.use_cassette('ihub/appointments/simple_success') do
-            expect(subject).to validate(:get, '/v0/appointments', 200, headers)
-          end
-        end
-      end
-
-      context 'when not signed in' do
-        it 'returns a 401 with error details' do
-          expect(subject).to validate(:get, '/v0/appointments', 401)
-        end
-      end
-
-      context 'when iHub experiences an error' do
-        it 'returns a 400 with error details' do
-          VCR.use_cassette('ihub/appointments/error_occurred') do
-            expect(subject).to validate(:get, '/v0/appointments', 400, headers)
-          end
-        end
-      end
-
-      context 'the user does not have an ICN' do
-        before do
-          allow_any_instance_of(User).to receive(:icn).and_return(nil)
-        end
-
-        it 'returns a 502 with error details' do
-          expect(subject).to validate(:get, '/v0/appointments', 502, headers)
         end
       end
     end
@@ -2580,55 +2590,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'dependents applications' do
-      context 'when :va_dependents_v2 is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-        end
-
-        let!(:user) { build(:user, ssn: '796043735') }
-
-        it 'supports getting dependent information' do
-          expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
-          VCR.use_cassette('bgs/claimant_web_service/dependents') do
-            expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
-          end
-        end
-
-        it 'supports adding a dependency claim' do
-          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
-          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
-          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
-          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-            expect(subject).to validate(
-              :post,
-              '/v0/dependents_applications',
-              200,
-              headers.merge(
-                '_data' => build(:dependency_claim).parsed_form
-              )
-            )
-          end
-
-          expect(subject).to validate(
-            :post,
-            '/v0/dependents_applications',
-            422,
-            headers.merge(
-              '_data' => {
-                'dependency_claim' => {
-                  'invalid-form' => { invalid: true }.to_json
-                }
-              }
-            )
-          )
-        end
-      end
-
-      context 'when :va_dependents_v2 is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-        end
-
+      context 'default v2 form' do
         let!(:user) { build(:user, ssn: '796043735') }
 
         it 'supports getting dependent information' do

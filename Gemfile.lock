@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7e2c6209a14ba77402609055866b3923acf9c70f
+  revision: 08ac4c4679af2ea03824fe1029a17f89f6c5aa0a
   branch: master
   specs:
-    vets_json_schema (25.2.32)
+    vets_json_schema (25.2.36)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -107,6 +107,7 @@ PATH
     dependents_benefits (0.1.0)
     dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
+    digital_forms_api (0.1.0)
     employment_questionnaires (0.1.0)
     facilities_api (0.1.0)
     income_and_assets (0.1.0)
@@ -459,7 +460,7 @@ GEM
     factory_bot_rails (6.5.1)
       factory_bot (~> 6.5)
       railties (>= 6.1.0)
-    faker (3.5.2)
+    faker (3.5.3)
       i18n (>= 1.8.11, < 2)
     faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
@@ -1154,7 +1155,7 @@ GEM
       activerecord (>= 7.1)
     strscan (3.1.5)
     strscan (3.1.5-java)
-    super_diff (0.17.0)
+    super_diff (0.18.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -1235,7 +1236,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
-    yard (0.9.37)
+    yard (0.9.38)
     zeitwerk (2.7.3)
 
 PLATFORMS
@@ -1298,6 +1299,7 @@ DEPENDENCIES
   dependents_benefits!
   dependents_verification!
   dhp_connected_devices!
+  digital_forms_api!
   dogstatsd-ruby
   dry-struct
   dry-types

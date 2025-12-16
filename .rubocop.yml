@@ -108,8 +108,6 @@ Metrics/MethodLength:
 
 Metrics/ClassLength:
   Max: 400
-  Exclude:
-    - 'lib/sm/client.rb'
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
@@ -195,7 +193,6 @@ RSpec/SpecFilePathFormat:
     - 'modules/**/*'
     - 'spec/lib/common/models/**/*'
     - 'spec/lib/saml/*_user_spec.rb'
-    - 'spec/lib/ihub/appointments/service_spec.rb'
     - 'spec/requests/in_progress_forms_request_spec.rb'
     - 'spec/sidekiq/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'

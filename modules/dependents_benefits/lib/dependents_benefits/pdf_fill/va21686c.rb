@@ -2060,7 +2060,7 @@ module DependentsBenefits
       def add_dependent_income(dependent_name, dependent_income)
         return '' if dependent_name.blank?
 
-        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_boolean(dependent_income)}"
+        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_radio_yes_no(dependent_income)}"
       end
 
       ##
