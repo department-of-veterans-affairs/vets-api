@@ -106,7 +106,6 @@ describe Ccra::ReferralService do
           # Expect the Rails logger to receive the error with scrubbed data
           expect(Rails.logger).to receive(:error) do |message, data|
             expect(message).to eq('CCRA: Failed to fetch VAOS referral list')
-            expect(data[:icn]).to eq(icn)
             expect(data[:referral_status]).to eq(referral_status)
             expect(data[:service]).to eq('ccra')
             expect(data[:method]).to eq('get_vaos_referral_list')

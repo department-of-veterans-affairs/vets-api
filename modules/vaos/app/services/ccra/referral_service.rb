@@ -30,7 +30,6 @@ module Ccra
     rescue => e
       if Flipper.enabled?(:va_online_scheduling_ccra_error_logging, user)
         Rails.logger.error('CCRA: Failed to fetch VAOS referral list', {
-                             icn:,
                              referral_status:,
                              service: 'ccra',
                              method: 'get_vaos_referral_list',
