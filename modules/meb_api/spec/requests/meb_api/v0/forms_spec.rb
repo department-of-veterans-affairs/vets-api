@@ -395,21 +395,27 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
     end
 
     context 'when an exception occurs in submit_claim' do
+      let(:error_message) { 'Submission failed' }
+
       before do
-        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new('Submission failed'))
+        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
       end
 
-      it 'logs an error' do
+      it 'logs an error with exception class and message' do
         expect(Rails.logger).to receive(:error)
-          .with('MEB Forms submit_claim failed: StandardError - Submission failed')
-        expect { post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' } }
-          .to raise_error(StandardError)
+          .with("MEB Forms submit_claim failed: StandardError - #{error_message}")
+
+        expect do
+          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        end.to raise_error(StandardError, error_message)
       end
 
-      it 're-raises the exception' do
-        allow(Rails.logger).to receive(:error)
-        expect { post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' } }
-          .to raise_error(StandardError, 'Submission failed')
+      it 're-raises the exception after logging' do
+        expect(Rails.logger).to receive(:error)
+
+        expect do
+          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        end.to raise_error(StandardError, error_message)
       end
     end
   end

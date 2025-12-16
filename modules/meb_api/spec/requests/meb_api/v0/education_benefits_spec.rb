@@ -327,22 +327,28 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
 
     context 'when an exception occurs in submit_claim' do
       let(:submission_service) { instance_double(MebApi::DGI::Submission::Service) }
+      let(:error_message) { 'Submission failed' }
 
       before do
         allow(MebApi::DGI::Submission::Service).to receive(:new).and_return(submission_service)
-        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new('Submission failed'))
+        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
       end
 
-      it 'logs an error' do
+      it 'logs an error with exception class and message' do
         expect(Rails.logger).to receive(:error)
-          .with('MEB submit_claim failed: StandardError - Submission failed')
-        expect { post '/meb_api/v0/submit_claim', params: claimant_params }.to raise_error(StandardError)
+          .with("MEB submit_claim failed: StandardError - #{error_message}")
+
+        expect do
+          post '/meb_api/v0/submit_claim', params: claimant_params
+        end.to raise_error(StandardError, error_message)
       end
 
-      it 're-raises the exception' do
-        allow(Rails.logger).to receive(:error)
-        expect { post '/meb_api/v0/submit_claim', params: claimant_params }
-          .to raise_error(StandardError, 'Submission failed')
+      it 're-raises the exception after logging' do
+        expect(Rails.logger).to receive(:error)
+
+        expect do
+          post '/meb_api/v0/submit_claim', params: claimant_params
+        end.to raise_error(StandardError, error_message)
       end
     end
   end
