@@ -11,11 +11,13 @@ describe Ccra::ReferralService do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:referral_cache) { instance_double(Ccra::RedisClient) }
 
+  let(:user_service) { instance_double(VAOS::UserService, session: session_token) }
+
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return(request_id)
 
     # Mock the session token from UserService
-    allow_any_instance_of(VAOS::UserService).to receive(:session).with(user).and_return(session_token)
+    allow(VAOS::UserService).to receive(:new).and_return(user_service)
 
     # Set up memory store for caching in tests
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -97,12 +99,12 @@ describe Ccra::ReferralService do
           allow(Flipper).to receive(:enabled?)
             .with(:va_online_scheduling_ccra_error_logging, user)
             .and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:logging_data_scrubber)
+            .and_return(true)
         end
 
         it 'logs detailed error information with scrubbed PHI' do
-          # Allow the scrub method to work normally
-          allow_any_instance_of(described_class).to receive(:scrub).and_call_original
-
           # Expect the Rails logger to receive the error with scrubbed data
           expect(Rails.logger).to receive(:error) do |message, data|
             expect(message).to eq('CCRA: Failed to fetch VAOS referral list')
@@ -122,19 +124,14 @@ describe Ccra::ReferralService do
         end
 
         it 'ensures PHI like ICN numbers are scrubbed from error messages' do
-          # Stub scrub to verify it's called and returns scrubbed value
-          scrubbed_message = 'Connection failed for patient [REDACTED] with invalid status'
-          allow_any_instance_of(described_class).to receive(:scrub) do |_instance, message|
-            expect(message).to include(icn)
-            scrubbed_message
-          end
-
           # Verify the logged message does not contain the actual ICN
+          # The scrub method should automatically replace ICN with [REDACTED]
           expect(Rails.logger).to receive(:error) do |message, data|
             expect(message).to eq('CCRA: Failed to fetch VAOS referral list')
-            expect(data[:error_message]).to eq(scrubbed_message)
             expect(data[:error_message]).not_to include(icn)
             expect(data[:error_message]).to include('[REDACTED]')
+            # Verify the error message contains the scrubbed detail
+            expect(data[:error_message]).to match(/Connection failed for patient \[REDACTED\]/)
           end
 
           expect do
