@@ -296,11 +296,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     it 'supports adding a claim document', :skip_va_profile_user do
-      # Note: This test validates the 200 response. The 422 response is excluded
-      # because it requires the pdfinfo binary for PDF validation, which is a system
-      # dependency. The test is skipped when pdfinfo is not available.
-      skip 'pdfinfo not available' unless system('which pdfinfo > /dev/null 2>&1')
-      
       VCR.use_cassette('uploads/validate_document') do
         expect(subject).to validate(
           :post,
@@ -309,6 +304,16 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           '_data' => {
             'form_id' => '21P-530EZ',
             file: fixture_file_upload('spec/fixtures/files/doctors-note.pdf')
+          }
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/claim_attachments',
+          422,
+          '_data' => {
+            'form_id' => '21P-530EZ',
+            file: fixture_file_upload('spec/fixtures/files/empty_file.txt')
           }
         )
       end
@@ -1403,7 +1408,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'supporting evidence upload' do
       it 'supports uploading a file' do
-        allow(PdfInfo::Metadata).to receive(:read).and_return(double(encrypted?: false))
         expect(subject).to validate(
           :post,
           '/v0/upload_supporting_evidence',
@@ -1428,8 +1432,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       it 'returns a 422 if a file is corrupted or invalid' do
-        allow(PdfInfo::Metadata).to receive(:read)
-          .and_raise(PdfInfo::MetadataReadError.new(1, 'invalid pdf'))
         expect(subject).to validate(
           :post,
           '/v0/upload_supporting_evidence',
@@ -2939,7 +2941,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       it 'uploads a document to support a claim' do
-        allow(PdfInfo::Metadata).to receive(:read).and_return(double(encrypted?: false))
         expect(subject).to validate(
           :post,
           '/v0/evss_claims/{evss_claim_id}/documents',
@@ -2951,8 +2952,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       it 'rejects a malformed document' do
-        allow(PdfInfo::Metadata).to receive(:read)
-          .and_raise(PdfInfo::MetadataReadError.new(1, 'invalid pdf'))
         expect(subject).to validate(
           :post,
           '/v0/evss_claims/{evss_claim_id}/documents',
@@ -3148,7 +3147,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
     end
-    
+
     context 'index' do
       let(:mhv_user) { build(:user, :loa3) }
 
@@ -3398,9 +3397,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings['/v0/form212680/download_pdf/{guid}']['get'].delete('200')
       subject.untested_mappings.delete('/v0/form0969')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
-
-      # Claim attachments requires pdfinfo binary for PDF validation (system dependency)
-      subject.untested_mappings.delete('/v0/claim_attachments')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
