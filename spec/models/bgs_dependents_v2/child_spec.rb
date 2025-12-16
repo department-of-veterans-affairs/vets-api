@@ -65,11 +65,11 @@ RSpec.describe BGSDependentsV2::Child do
         described_class.new(child_info).format_info
       end
       expect(children).to match([a_hash_including('family_relationship_type' => 'Biological'),
-                                  a_hash_including('family_relationship_type' => 'Stepchild'),
-                                  a_hash_including('family_relationship_type' => 'Adopted Child'),
-                                  a_hash_including('family_relationship_type' => 'Biological'),
-                                  a_hash_including('family_relationship_type' => 'Adopted Child'),
-                                  a_hash_including('family_relationship_type' => 'Biological')])
+                                 a_hash_including('family_relationship_type' => 'Stepchild'),
+                                 a_hash_including('family_relationship_type' => 'Adopted Child'),
+                                 a_hash_including('family_relationship_type' => 'Biological'),
+                                 a_hash_including('family_relationship_type' => 'Adopted Child'),
+                                 a_hash_including('family_relationship_type' => 'Biological')])
     end
   end
 
