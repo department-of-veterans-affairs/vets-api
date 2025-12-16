@@ -970,10 +970,6 @@ features:
     actor_type: user
     description: Enables Representative Status widget 2.0 features for frontend and backend
     enable_in_development: true
-  accredited_representative_portal_id_me:
-    actor_type: user
-    description: Enables ID.me authentication feature for frontend and backend
-    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -1220,6 +1216,10 @@ features:
   in_progress_form_reminder_526ez:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
+    enable_in_development: true
+  identity_ial2_enforcement:
+    actor_type: user
+    description: Enforces IAL2 for newly verified users
     enable_in_development: true
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
@@ -1699,6 +1699,10 @@ features:
   profile_health_care_settings_page:
     actor_type: user
     description: Enables the new Health Care Settings page within the Profile on VA.gov
+    enable_in_development: true
+  profile_scheduling_preferences:
+    actor_type: user
+    description: Enables the API call to retrieve Scheduling Preferences within the Health Care Settings page in Profile on VA.gov
     enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
