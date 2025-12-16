@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -761,9 +761,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "pdf_uploaded_at"
+    t.string "vbms_file_uuid"
+    t.integer "pdf_upload_attempt_count", default: 0
+    t.text "pdf_upload_error"
     t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_16518323ec"
     t.index ["notification_id"], name: "idx_on_notification_id_e2314be616"
     t.index ["reference"], name: "index_decision_review_notification_audit_logs_on_reference"
+    t.index ["vbms_file_uuid"], name: "idx_on_vbms_file_uuid_b00c6bc3b9"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -860,6 +865,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
     t.index ["created_at"], name: "index_education_benefits_claims_on_created_at"
     t.index ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id"
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
+    t.index ["token"], name: "index_education_benefits_claims_on_token", unique: true
   end
 
   create_table "education_benefits_submissions", id: :serial, force: :cascade do |t|
