@@ -142,7 +142,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
   describe '#user_facility_migrating_to_oh?' do
     context 'when user has a facility in migrating OH facilities list' do
-      let(:facilities_migrating_to_oh) { %w[516 999] }
+      let(:va_treatment_facility_ids) { %w[516 554] }
 
       it 'returns true' do
         expect(service.user_facility_migrating_to_oh?).to be true
@@ -150,7 +150,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     end
 
     context 'when user has no facilities in pretransitioned OH facilities list' do
-      let(:facilities_migrating_to_oh) { %w[999 888] }
+      let(:va_treatment_facility_ids) { %w[999 888] }
 
       it 'returns false' do
         expect(service.user_facility_migrating_to_oh?).to be false
@@ -158,7 +158,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     end
 
     context 'when user has nil va_treatment_facility_ids' do
-      let(:facilities_migrating_to_oh) { nil }
+      let(:va_treatment_facility_ids) { nil }
 
       it 'returns false' do
         expect(service.user_facility_migrating_to_oh?).to be false
@@ -166,7 +166,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     end
 
     context 'when user has empty va_treatment_facility_ids' do
-      let(:facilities_migrating_to_oh) { [] }
+      let(:va_treatment_facility_ids) { [] }
 
       it 'returns false' do
         expect(service.user_facility_migrating_to_oh?).to be false
@@ -174,7 +174,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     end
 
     context 'when facility id is numeric and matches string in settings' do
-      let(:facilities_migrating_to_oh) { [516, 999] }
+      let(:va_treatment_facility_ids) { [516, 554] }
 
       it 'returns true' do
         expect(service.user_facility_migrating_to_oh?).to be true
