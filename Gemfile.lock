@@ -1317,7 +1317,7 @@ DEPENDENCIES
   faraday_curl
   fastimage
   fhir_client!
-  fitbit_api (~> 1.1.0)
+  fitbit_api
   flipper
   flipper-active_record
   flipper-active_support_cache_store
@@ -1452,7 +1452,7 @@ DEPENDENCIES
   timecop
   travel_pay!
   ttfunk (~> 1.7.0)
-  tzinfo-data (~> 1.2025.2)
+  tzinfo-data
   utf8-cleaner
   va_notify!
   vaos!
