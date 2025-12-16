@@ -84,6 +84,34 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    context 'InProgressForm cleanup' do
+      let(:user) { create(:user, :loa3) }
+      let!(:in_progress_form) { create(:in_progress_form, form_id:, user_account: user.user_account) }
+
+      before do
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(true)
+      end
+
+      it 'deletes the InProgressForm after successful submission' do
+        expect do
+          post(:create, body: form_data, as: :json)
+        end.to change(InProgressForm, :count).by(-1)
+
+        expect(response).to have_http_status(:ok)
+        expect(InProgressForm.find_by(id: in_progress_form.id)).to be_nil
+      end
+
+      it 'does not delete IPF if submission fails' do
+        allow_any_instance_of(SavedClaim::Form212680).to receive(:save)
+          .and_return(false)
+
+        expect do
+          post(:create, body: form_data, as: :json)
+        end.not_to change(InProgressForm, :count)
+      end
+    end
   end
 
   describe 'get #download_pdf' do

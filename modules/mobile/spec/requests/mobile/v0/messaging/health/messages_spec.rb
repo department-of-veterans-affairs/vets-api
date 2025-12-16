@@ -235,6 +235,87 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           end
         end
 
+        context 'multipart form data with is_oh_triage_group inside stringified JSON message' do
+          # This tests the fix for the mobile app behavior where multipart/form-data requests
+          # send `message` as a JSON string containing `is_oh_triage_group` inside it,
+          # rather than as a separate top-level form field or query parameter.
+          let(:attachment_type) { 'image/jpg' }
+          let(:uploads) { [Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type)] }
+          let(:message_params) { attributes_for(:message, subject: 'OH Multipart Test', body: 'Body') }
+
+          it 'correctly detects is_oh_triage_group when inside stringified JSON on create with attachments' do
+            # Simulate mobile app behavior: message is a JSON string with is_oh_triage_group inside
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: true)
+            stringified_message = message_with_oh_flag.to_json
+
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            # NOTE: NO query param is_oh_triage_group - it's only inside the JSON string
+            post '/mobile/v0/messaging/health/messages',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
+
+            expect(response).to be_successful
+          end
+
+          it 'correctly detects is_oh_triage_group when inside stringified JSON on reply with attachments' do
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: true)
+            stringified_message = message_with_oh_flag.to_json
+
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_reply_with_attachment)
+              .with(kind_of(String), kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages/674838/reply',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
+
+            expect(response).to be_successful
+          end
+
+          it 'extends timeout when is_oh_triage_group is inside stringified JSON on create' do
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: true)
+            stringified_message = message_with_oh_flag.to_json
+
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
+
+            expect(response).to be_successful
+            expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+          end
+
+          it 'does not trigger polling when is_oh_triage_group is false inside stringified JSON' do
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: false)
+            stringified_message = message_with_oh_flag.to_json
+
+            # Should NOT receive poll_for_status: true
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: false)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
+
+            expect(response).to be_successful
+          end
+        end
+
         context 'timeout extension for OH triage groups' do
           let(:message_params) { attributes_for(:message, subject: 'OH Group Subject', body: 'Body') }
           let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
