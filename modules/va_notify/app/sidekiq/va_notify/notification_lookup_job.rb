@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq/attr_package'
-require 'va_notify/callback_processor'
 
 module VANotify
   class NotificationLookupJob
@@ -63,12 +62,24 @@ module VANotify
       notification = VANotify::Notification.find_by(notification_id:)
 
       if notification
-        VANotify::CallbackProcessor.new(notification, notification_params_hash).call
+        notification.update(notification_params_hash)
+        Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
+                          {
+                            notification_id: notification.id,
+                            source_location: notification.source_location,
+                            template_id: notification.template_id,
+                            callback_metadata: notification.callback_metadata,
+                            status: notification.status,
+                            status_reason: notification.status_reason
+                          })
+
+        VANotify::DefaultCallback.new(notification).call
+        VANotify::CustomCallback.new(notification_params_hash.merge(id: notification_id)).call
 
         Sidekiq::AttrPackage.delete(attr_package_params_cache_key)
         StatsD.increment('sidekiq.jobs.va_notify_notification_lookup_job.success')
       else
-        raise NotificationNotFound, "Notification #{notification_id} not found"
+        raise NotificationNotFound, "Notification #{notification_id} not found; retrying until exhaustion"
       end
     end
   end

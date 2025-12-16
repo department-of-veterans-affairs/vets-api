@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'sidekiq/testing'
 require 'sidekiq/attr_package'
 require 'va_notify/default_callback'
-require 'va_notify/callback_processor'
 
 RSpec.describe VANotify::NotificationLookupJob, type: :worker do
   let(:notification_id) { SecureRandom.uuid }
@@ -100,30 +99,6 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
         )
       end
 
-      it 'instantiates CallbackProcessor with notification and params' do
-        callback_processor = VANotify::CallbackProcessor.new(notification, {})
-        allow(callback_processor).to receive(:call)
-        allow(VANotify::CallbackProcessor).to receive(:new).and_return(callback_processor)
-
-        described_class.new.perform(notification_id, attr_package_params_cache_key)
-
-        expect(VANotify::CallbackProcessor).to have_received(:new).with(
-          notification,
-          hash_including('status' => 'delivered', 'notification_type' => 'email')
-        )
-        expect(callback_processor).to have_received(:call)
-      end
-
-      it 'updates the notification via CallbackProcessor' do
-        expect(notification.status).to be_nil
-
-        described_class.new.perform(notification_id, attr_package_params_cache_key)
-
-        notification.reload
-        expect(notification.status).to eq('delivered')
-        expect(notification.source_location).to eq('some_location')
-      end
-
       it 'increments success metric' do
         described_class.new.perform(notification_id, attr_package_params_cache_key)
 
@@ -141,7 +116,10 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
       it 'raises an error to trigger Sidekiq retry' do
         expect do
           described_class.new.perform(notification_id, attr_package_params_cache_key)
-        end.to raise_error(VANotify::NotificationLookupJob::NotificationNotFound)
+        end.to raise_error(
+          VANotify::NotificationLookupJob::NotificationNotFound,
+          "Notification #{notification_id} not found; retrying until exhaustion"
+        )
       end
 
       it 'does not call callbacks' do
@@ -176,7 +154,7 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
           'jid' => 123,
           'class' => described_class.to_s,
           'error_class' => 'VANotify::NotificationLookupJob::NotificationNotFound',
-          'error_message' => "Notification #{notification_id} not found",
+          'error_message' => "Notification #{notification_id} not found; retrying until exhaustion",
           'args' => [notification_id, attr_package_params_cache_key]
         }
       end
@@ -192,7 +170,7 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
             job_id: 123,
             job_class: described_class.to_s,
             error_class: 'VANotify::NotificationLookupJob::NotificationNotFound',
-            error_message: "Notification #{notification_id} not found",
+            error_message: "Notification #{notification_id} not found; retrying until exhaustion",
             notification_id:,
             attr_package_params_cache_key:
           }
@@ -222,7 +200,7 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
           'jid' => 'job123',
           'class' => 'VANotify::NotificationLookupJob',
           'error_class' => 'VANotify::NotificationLookupJob::NotificationNotFound',
-          'error_message' => "Notification #{notification_id} not found",
+          'error_message' => "Notification #{notification_id} not found; retrying until exhaustion",
           'args' => [notification_id, attr_package_params_cache_key]
         }
       end
@@ -248,7 +226,7 @@ RSpec.describe VANotify::NotificationLookupJob, type: :worker do
             job_id: 'job123',
             job_class: 'VANotify::NotificationLookupJob',
             error_class: 'VANotify::NotificationLookupJob::NotificationNotFound',
-            error_message: "Notification #{notification_id} not found",
+            error_message: "Notification #{notification_id} not found; retrying until exhaustion",
             notification_id:,
             attr_package_params_cache_key:,
             notification_type: 'email',
