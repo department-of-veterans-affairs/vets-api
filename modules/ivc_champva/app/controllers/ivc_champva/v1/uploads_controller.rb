@@ -325,7 +325,7 @@ module IvcChampva
           # pre-validation logging to help debug issues
           Rails.logger.info "attachment.file class: #{attachment.file.class}"
           Rails.logger.info "attachment.file present: #{attachment.file.present?}"
-          Rails.logger.info "attachment.file size: #{attachment.file.size}"
+          Rails.logger.info "attachment.file size: #{attachment.file&.size}"
 
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
