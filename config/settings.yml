@@ -320,6 +320,7 @@ dgi:
     url: <%= ENV['dgi__vets__url'] %>
   vye:
     jwt:
+      kid: <%= ENV['dgi__vye__jwt__kid'] %>
       private_key_path: <%= ENV['dgi__vye__jwt__private_key_path'] %>
       public_ica11_rca2_key_path: <%= ENV['dgi__vye__jwt__public_ica11_rca2_key_path'] %>
       public_key_path: <%= ENV['dgi__vye__jwt__public_key_path'] %>
@@ -1036,6 +1037,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
+    s3:
+      bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: true
     url: <%= ENV['ogc__form21a_service_url__url'] %>
 oidc:
   isolated_audience:
@@ -1922,6 +1928,7 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: <%= ENV['veteran_readiness_and_employment__duplicate_submission_threshold_hours'] || 24 %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:

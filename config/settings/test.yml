@@ -319,6 +319,7 @@ dgi:
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
   vye:
     jwt:
+      kid: vye
       private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
       public_ica11_rca2_key_path: modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
@@ -1049,6 +1050,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: fake_key
+    s3:
+      bucket: fake_bucket
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: false
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
 oidc:
   isolated_audience:
@@ -1942,6 +1948,7 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: 24
 vetext:
   mock: ~
 vetext_push:
