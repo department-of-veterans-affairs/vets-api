@@ -2144,12 +2144,18 @@ features:
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
+  vre_prefill_name:
+    actor_type: user
+    description: Enables prefill transformation for veteran name fields in the Chapter 31 form
   vre_use_new_vfs_notification_library:
     actor_type: user
     description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  vre_send_icn_to_res:
+    actor_type: user
+    description: Enables sending ICN to RES service
   vre_track_submissions:
     actor_type: user
     description: In VRE application, create form submission/attempt records
