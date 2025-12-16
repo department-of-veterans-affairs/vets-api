@@ -166,6 +166,8 @@ module VaNotify
         end
 
         span.set_tag('notification_id', response.id)
+
+        service_id = set_service_id(response)
         # when the class is used directly we can pass symbols as keys
         # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
         notification = VANotify::Notification.new(
@@ -174,7 +176,7 @@ module VaNotify
           callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
           callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
           template_id:,
-          service_api_key_path: retrieve_service_api_key_path
+          service_id:
         )
 
         if notification.save
@@ -229,26 +231,11 @@ module VaNotify
       end
     end
 
-    def retrieve_service_api_key_path
-      if Flipper.enabled?(:va_notify_request_level_callbacks)
-        service_config = Settings.vanotify.services.find do |_service, options|
-          # multiple services may be using same options.api_key
-          api_key_secret_token = extracted_token(options.api_key)
+    def set_service_id(response)
+      return nil unless Flipper.enabled?(:va_notify_request_level_callbacks)
 
-          api_key_secret_token == @notify_client.secret_token
-        end
-
-        if service_config.blank?
-          Rails.logger.error("api key path not found for template #{@template_id}")
-          nil
-        else
-          "Settings.vanotify.services.#{service_config[0]}.api_key"
-        end
-      end
-    end
-
-    def extracted_token(computed_api_key)
-      computed_api_key[(computed_api_key.length - UUID_LENGTH)..computed_api_key.length]
+      parsed_template_uri = response.template['uri']&.split('/')
+      parsed_template_uri[4]
     end
   end
 end

@@ -9,6 +9,11 @@ describe UnifiedHealthData::Service, type: :service do
   let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
   let(:service) { described_class.new(user) }
 
+  before do
+    # Disable V2 status mapping globally for all tests since the feature is not yet enabled
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, anything).and_return(false)
+  end
+
   describe '#get_labs' do
     context 'with valid lab responses', :vcr do
       it 'returns all labs/tests with encodedData and/or observations' do
@@ -486,6 +491,22 @@ describe UnifiedHealthData::Service, type: :service do
                                     'notes' => be_an(Array)
                                   }
                                 ))
+        end
+
+        it 'returns vitals sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(sample_client_response)
+
+          vitals = service.get_vitals.sort
+
+          vitals_with_dates = vitals.select { |v| v.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = vitals_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          vitals_without_dates = vitals.select { |v| v.date.nil? }
+          expect(vitals.last(vitals_without_dates.size)).to eq(vitals_without_dates) if vitals_without_dates.any?
         end
       end
 
@@ -1146,7 +1167,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [18g])')
           expect(oracle_prescription.dispensed_date).to be_nil
           expect(oracle_prescription.station_number).to eq('668')
-          expect(oracle_prescription.is_refillable).to be true
+          expect(oracle_prescription.is_refillable).to be false # false because refill_status is 'submitted'
           expect(oracle_prescription.is_trackable).to be false
           expect(oracle_prescription.tracking).to eq([])
           expect(oracle_prescription.prescription_source).to eq('VA')

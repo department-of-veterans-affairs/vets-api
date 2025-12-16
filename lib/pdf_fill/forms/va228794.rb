@@ -99,7 +99,9 @@ module PdfFill
         form_data = JSON.parse(JSON.generate(@form_data))
 
         form_data['designatingOfficial']['signatureName'] =
-          combine_full_name(@form_data['designatingOfficial']['fullName'])
+          combine_full_name(form_data['designatingOfficial']['fullName']) +
+          ", #{form_data['designatingOfficial']['title']}"
+        form_data['designatingOfficial']['phoneNumber'] = combine_phone_numbers(form_data['designatingOfficial'])
         form_data['institutionNameAndAddress'] = <<~TEXT
           #{form_data.dig('institutionDetails', 'institutionName')}
           #{combine_full_address(form_data.dig('institutionDetails', 'institutionAddress')) || ''}
@@ -117,6 +119,7 @@ module PdfFill
       def format_primary_official(form_data)
         form_data['primaryOfficialDetails']['fullName'] =
           combine_full_name(form_data['primaryOfficialDetails']['fullName'])
+        form_data['primaryOfficialDetails']['phoneNumber'] = combine_phone_numbers(form_data['primaryOfficialDetails'])
         form_data['primaryOfficialDetails']['signature'] = 'Online submission - no signature required'
         form_data['primaryOfficialDetails']['receivesBenefits'] =
           form_data.dig('primaryOfficialBenefitStatus', 'hasVaEducationBenefits') ? 'Yes' : 'No'
@@ -133,7 +136,7 @@ module PdfFill
           data['signature'] = 'Online submission - no signature required'
           data['receivesBenefits'] = details['hasVaEducationBenefits'] ? 'Yes' : 'No'
           data['title'] = details['title']
-          data['phoneNumber'] = details['internationalPhoneNumber'].presence || details['phoneNumber']
+          data['phoneNumber'] = combine_phone_numbers(details)
           data['emailAddress'] = details['emailAddress']
           data['trainingCompletionDate'] = details['trainingExempt'] ? 'EXEMPT' : details['trainingCompletionDate']
         end
@@ -143,6 +146,10 @@ module PdfFill
         (form_data['readOnlyCertifyingOfficial'] || []).each do |data|
           data['name'] = combine_full_name(data['fullName'])
         end
+      end
+
+      def combine_phone_numbers(data)
+        data['internationalPhoneNumber'].presence || data['phoneNumber']
       end
     end
   end

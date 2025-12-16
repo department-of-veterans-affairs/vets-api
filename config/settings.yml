@@ -1037,6 +1037,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
+    s3:
+      bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: true
     url: <%= ENV['ogc__form21a_service_url__url'] %>
 oidc:
   isolated_audience:
@@ -1923,6 +1928,7 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: <%= ENV['veteran_readiness_and_employment__duplicate_submission_threshold_hours'] || 24 %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:
