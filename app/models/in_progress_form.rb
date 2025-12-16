@@ -110,11 +110,7 @@ class InProgressForm < ApplicationRecord
   end
 
   def reset_expires_at!
-<<<<<<< HEAD
     skippable_forms = %w[21P-527EZ 21-526EZ 5655]
-=======
-    skippable_forms = %w[21-526EZ 21P-527EZ 21P-530EZ 686C-674-V2 5655]
->>>>>>> 5ea409eecb14d286aacff92fae155ce5c6c567b6
     return if skippable_forms.include?(form_id)
 
     self.expires_at = Time.current + expires_after
