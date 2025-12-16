@@ -324,7 +324,6 @@ dgi:
       private_key_path: <%= ENV['dgi__vye__jwt__private_key_path'] %>
       public_ica11_rca2_key_path: <%= ENV['dgi__vye__jwt__public_ica11_rca2_key_path'] %>
       public_key_path: <%= ENV['dgi__vye__jwt__public_key_path'] %>
-      kid: <%= ENV['dgi__vye__jwt__kid'] %>
     vets:
       mock: <%= ENV['dgi__vye__vets__mock'] %>
       url: <%= ENV['dgi__vye__vets__url'] %>
@@ -1205,8 +1204,6 @@ res:
   ch_31_eligibility:
     mock: <%= ENV['res__ch_31_eligibility__mock']%>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
-  ch_31_eligibility:
-    mock: <%= ENV['res__ch_31_eligibility__mock']%>
 review_instance_slug: <%= ENV['review_instance_slug'] %>
 rrd:
   alerts:

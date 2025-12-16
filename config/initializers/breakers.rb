@@ -32,6 +32,7 @@ require 'search/configuration'
 require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
+require 'sob/dgi/configuration'
 require 'va_profile/address_validation/v3/configuration'
 require 'va_profile/contact_information/v2/configuration'
 require 'va_profile/communication/configuration'
@@ -80,6 +81,7 @@ Rails.application.reloader.to_prepare do
     SearchGsa::Configuration.instance.breakers_service,
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
+    SOB::DGI::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
     Vye::DGIB::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,

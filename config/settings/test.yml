@@ -323,7 +323,6 @@ dgi:
       private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
       public_ica11_rca2_key_path: modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
-      kid: vye
     vets:
       mock: false
       url: ''
@@ -1220,8 +1219,6 @@ res:
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
-  ch_31_eligibility:
-    mock: ~
 review_instance_slug: ~
 rrd:
   alerts:
