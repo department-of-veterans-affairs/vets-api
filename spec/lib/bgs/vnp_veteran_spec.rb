@@ -68,7 +68,7 @@ RSpec.describe BGS::VnpVeteran do
     }
   end
 
-  context 'with va_dependents_v2 off' do
+  context 'processing a v1 payload scenario' do
     describe '#create' do
       context 'married veteran' do
         it 'returns a VnpPersonAddressPhone object' do
@@ -311,7 +311,7 @@ RSpec.describe BGS::VnpVeteran do
     end
   end
 
-  context 'with va_dependents_v2 on' do
+  context 'processing a v2 payload scenario' do
     describe '#create' do
       context 'married veteran' do
         it 'returns a VnpPersonAddressPhone object' do

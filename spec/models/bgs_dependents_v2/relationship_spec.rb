@@ -25,14 +25,12 @@ RSpec.describe BGSDependentsV2::Relationship do
     }
   end
 
-  context 'with va_dependents_v2 on' do
-    describe 'params for 686c' do
-      it 'formats relationship params for submission' do
-        expect(
-          described_class.new('1234')
-            .params_for_686c('1234', dependent)
-        ).to include(params_response)
-      end
+  describe 'params for 686c' do
+    it 'formats relationship params for submission' do
+      expect(
+        described_class.new('1234')
+          .params_for_686c('1234', dependent)
+      ).to include(params_response)
     end
   end
 end

@@ -34,52 +34,50 @@ RSpec.describe BGSDependentsV2::Child do
   end
   let(:multiple_children_v2) { build(:dependency_claim_v2) }
 
-  context 'with va_dependents_v2 on' do
-    describe '#format_info' do
-      let(:format_info_output) do
-        {
-          'ssn' => '987654321',
-          'family_relationship_type' => 'Biological',
-          'place_of_birth_state' => 'NH',
-          'place_of_birth_city' => 'Concord',
-          'reason_marriage_ended' => 'annulment',
-          'ever_married_ind' => 'Y',
-          'birth_date' => '2005-01-01',
-          'place_of_birth_country' => nil,
-          'first' => 'first',
-          'middle' => 'middle',
-          'last' => 'last',
-          'suffix' => nil,
-          'child_income' => 'N',
-          'not_self_sufficient' => 'N'
-        }
-      end
-
-      it 'formats relationship params for submission' do
-        formatted_info = described_class.new(child_info_v2).format_info
-
-        expect(formatted_info).to eq(format_info_output)
-      end
-
-      it 'handles multiple formats of child relationships' do
-        children = multiple_children_v2.parsed_form['dependents_application']['children_to_add'].map do |child_info|
-          described_class.new(child_info).format_info
-        end
-        expect(children).to match([a_hash_including('family_relationship_type' => 'Biological'),
-                                   a_hash_including('family_relationship_type' => 'Stepchild'),
-                                   a_hash_including('family_relationship_type' => 'Adopted Child'),
-                                   a_hash_including('family_relationship_type' => 'Biological'),
-                                   a_hash_including('family_relationship_type' => 'Adopted Child'),
-                                   a_hash_including('family_relationship_type' => 'Biological')])
-      end
+  describe '#format_info' do
+    let(:format_info_output) do
+      {
+        'ssn' => '987654321',
+        'family_relationship_type' => 'Biological',
+        'place_of_birth_state' => 'NH',
+        'place_of_birth_city' => 'Concord',
+        'reason_marriage_ended' => 'annulment',
+        'ever_married_ind' => 'Y',
+        'birth_date' => '2005-01-01',
+        'place_of_birth_country' => nil,
+        'first' => 'first',
+        'middle' => 'middle',
+        'last' => 'last',
+        'suffix' => nil,
+        'child_income' => 'N',
+        'not_self_sufficient' => 'N'
+      }
     end
 
-    describe '#address' do
-      it 'formats address' do
-        address = described_class.new(child_info_v2).address(all_flows_payload_v2['dependents_application'])
+    it 'formats relationship params for submission' do
+      formatted_info = described_class.new(child_info_v2).format_info
 
-        expect(address).to eq(address_result_v2)
+      expect(formatted_info).to eq(format_info_output)
+    end
+
+    it 'handles multiple formats of child relationships' do
+      children = multiple_children_v2.parsed_form['dependents_application']['children_to_add'].map do |child_info|
+        described_class.new(child_info).format_info
       end
+      expect(children).to match([a_hash_including('family_relationship_type' => 'Biological'),
+                                  a_hash_including('family_relationship_type' => 'Stepchild'),
+                                  a_hash_including('family_relationship_type' => 'Adopted Child'),
+                                  a_hash_including('family_relationship_type' => 'Biological'),
+                                  a_hash_including('family_relationship_type' => 'Adopted Child'),
+                                  a_hash_including('family_relationship_type' => 'Biological')])
+    end
+  end
+
+  describe '#address' do
+    it 'formats address' do
+      address = described_class.new(child_info_v2).address(all_flows_payload_v2['dependents_application'])
+
+      expect(address).to eq(address_result_v2)
     end
   end
 end

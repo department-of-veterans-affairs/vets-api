@@ -27,13 +27,11 @@ RSpec.describe BGSDependents::ChildMarriage do
     }
   end
 
-  context 'default v2 form' do
-    describe '#format_info' do
-      it 'formats child marriage params for submission' do
-        formatted_info = described_class.new(child_marriage_info).format_info
+  describe '#format_info' do
+    it 'formats child marriage params for submission' do
+      formatted_info = described_class.new(child_marriage_info).format_info
 
-        expect(formatted_info).to eq(formatted_params_result)
-      end
+      expect(formatted_info).to eq(formatted_params_result)
     end
   end
 end

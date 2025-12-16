@@ -32,21 +32,19 @@ RSpec.describe BGSDependentsV2::AdultChildAttendingSchool do
     }
   end
 
-  context 'with va_dependents_v2 on' do
-    describe '#format_info' do
-      it 'formats info' do
-        formatted_info = adult_child_attending_school_v2.format_info
+  describe '#format_info' do
+    it 'formats info' do
+      formatted_info = adult_child_attending_school_v2.format_info
 
-        expect(formatted_info).to eq(formatted_info_response_v2)
-      end
+      expect(formatted_info).to eq(formatted_info_response_v2)
     end
+  end
 
-    describe '#address' do
-      it 'formats info' do
-        address = adult_child_attending_school_v2.address
+  describe '#address' do
+    it 'formats info' do
+      address = adult_child_attending_school_v2.address
 
-        expect(address).to eq(address_response_v2)
-      end
+      expect(address).to eq(address_response_v2)
     end
   end
 end

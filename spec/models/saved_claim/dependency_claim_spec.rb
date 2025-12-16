@@ -66,7 +66,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   describe 'both forms' do
-    context 'va_dependents_v2 is disabled' do
+    context 'processing a v1 payload' do
       subject { described_class.new(form: all_flows_payload.to_json) }
 
       describe '#formatted_686_data' do
@@ -97,7 +97,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
 
-    context 'va_dependents_v2 is enabled' do
+    context 'processing a v2 payload' do
       subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
 
       describe '#formatted_686_data' do
@@ -130,7 +130,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   describe '674 form only' do
-    context 'va_dependents_v2 is disabled' do
+    context 'processing a v1 payload' do
       subject { described_class.new(form: form_674_only.to_json) }
 
       describe '#submittable_686?' do
@@ -140,7 +140,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
 
-    context 'va_dependents_v2 is enabled' do
+    context 'processing a v2 payload' do
       subject { described_class.new(form: form_674_only_v2.to_json, use_v2: true) }
 
       describe '#submittable_686?' do
@@ -152,7 +152,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   describe 'with adopted child' do
-    context 'va_dependents_v2 is disabled' do
+    context 'processing a v1 payload' do
       subject { described_class.new(form: adopted_child.to_json) }
 
       describe '#submittable_674?' do
@@ -168,7 +168,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
 
-    context 'va_dependents_v2 is enabled' do
+    context 'processing a v2 payload' do
       subject { described_class.new(form: adopted_child_v2.to_json, use_v2: true) }
 
       describe '#submittable_674?' do

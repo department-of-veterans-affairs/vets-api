@@ -25,13 +25,11 @@ RSpec.describe BGSDependentsV2::ChildStoppedAttendingSchool do
     }
   end
 
-  context 'va_dependents_v2 is on' do
-    describe '#format_info' do
-      it 'formats child stopped attending school params for submission' do
-        formatted_info = described_class.new(child_info).format_info
+  describe '#format_info' do
+    it 'formats child stopped attending school params for submission' do
+      formatted_info = described_class.new(child_info).format_info
 
-        expect(formatted_info).to eq(formatted_params_result)
-      end
+      expect(formatted_info).to eq(formatted_params_result)
     end
   end
 end
