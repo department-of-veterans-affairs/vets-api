@@ -111,6 +111,19 @@ RSpec.describe 'VANotify Callbacks', type: :request do
               attr_package_params_cache_key
             )
           end
+
+          it 'logs enqueued job with notification_id and cache key' do
+            allow(Rails.logger).to receive(:info)
+
+            post(callback_route,
+                 params: callback_params.to_json,
+                 headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
+
+            expect(Rails.logger).to have_received(:info).with(
+              'va_notify callbacks - Enqueued NotificationLookupJob',
+              { notification_id:, attr_package_params_cache_key: }
+            )
+          end
         end
       end
     end
