@@ -149,7 +149,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       end
     end
 
-    context 'when user has no facilities in pretransitioned OH facilities list' do
+    context 'when user has no facilities in migrating OH facilities list' do
       let(:va_treatment_facility_ids) { %w[999 888] }
 
       it 'returns false' do
