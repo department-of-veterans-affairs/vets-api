@@ -107,6 +107,7 @@ PATH
     dependents_benefits (0.1.0)
     dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
+    digital_forms_api (0.1.0)
     employment_questionnaires (0.1.0)
     facilities_api (0.1.0)
     income_and_assets (0.1.0)
@@ -1298,6 +1299,7 @@ DEPENDENCIES
   dependents_benefits!
   dependents_verification!
   dhp_connected_devices!
+  digital_forms_api!
   dogstatsd-ruby
   dry-struct
   dry-types

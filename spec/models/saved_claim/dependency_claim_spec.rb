@@ -66,12 +66,8 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   describe 'both forms' do
-    context 'va_dependents_v2 is disabled' do
+    context 'processing a v1 payload' do
       subject { described_class.new(form: all_flows_payload.to_json) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-      end
 
       describe '#formatted_686_data' do
         it 'returns all data for 686 submissions' do
@@ -101,12 +97,8 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
 
-    context 'va_dependents_v2 is enabled' do
+    context 'processing a v2 payload' do
       subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-      end
 
       describe '#formatted_686_data' do
         it 'returns all data for 686 submissions' do
@@ -138,12 +130,8 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   describe '674 form only' do
-    context 'va_dependents_v2 is disabled' do
+    context 'processing a v1 payload' do
       subject { described_class.new(form: form_674_only.to_json) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-      end
 
       describe '#submittable_686?' do
         it 'returns false if there is no 686 to process' do
@@ -152,12 +140,8 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
 
-    context 'va_dependents_v2 is enabled' do
+    context 'processing a v2 payload' do
       subject { described_class.new(form: form_674_only_v2.to_json, use_v2: true) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-      end
 
       describe '#submittable_686?' do
         it 'returns false if there is no 686 to process' do
@@ -168,12 +152,8 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   describe 'with adopted child' do
-    context 'va_dependents_v2 is disabled' do
+    context 'processing a v1 payload' do
       subject { described_class.new(form: adopted_child.to_json) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-      end
 
       describe '#submittable_674?' do
         it 'returns false if there is no 674 to process' do
@@ -188,12 +168,8 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
 
-    context 'va_dependents_v2 is enabled' do
+    context 'processing a v2 payload' do
       subject { described_class.new(form: adopted_child_v2.to_json, use_v2: true) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-      end
 
       describe '#submittable_674?' do
         it 'returns false if there is no 674 to process' do
@@ -213,7 +189,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:dependents_bypass_schema_validation).and_return(false)
     end
@@ -257,7 +232,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:dependents_bypass_schema_validation).and_return(true)
     end
@@ -467,9 +441,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when form 686 only' do
       subject { described_class.new(form: adopted_child.to_json) }
 
-      # test with form 686 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
-
       it 'delivers a 686 submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
         expect(Dependents::NotificationEmail)
@@ -485,9 +456,6 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     context 'when form 674 only' do
       subject { described_class.new(form: form_674_only.to_json) }
-
-      # test with form 674 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a 674 submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -505,8 +473,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when form 686 and 674' do
       subject { described_class.new(form: all_flows_payload.to_json) }
 
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
-
       it 'delivers a combo submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
         expect(Dependents::NotificationEmail)
@@ -522,8 +488,6 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     context 'when neither 686 nor 674 (an error)' do
       subject { described_class.new }
-
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a combo submitted email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -546,7 +510,6 @@ RSpec.describe SavedClaim::DependencyClaim do
       let(:standard_error) { StandardError.new('test error') }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
         allow(Dependents::NotificationEmail).to receive(:new).and_raise(standard_error)
       end
 
@@ -560,9 +523,6 @@ RSpec.describe SavedClaim::DependencyClaim do
   context 'sending received email' do
     context 'when form 686 only' do
       subject { described_class.new(form: adopted_child.to_json) }
-
-      # test with form 686 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a 686 received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -580,9 +540,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when form 674 only' do
       subject { described_class.new(form: form_674_only.to_json) }
 
-      # test with form 674 for now.
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
-
       it 'delivers a 674 received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
         expect(Dependents::NotificationEmail)
@@ -599,8 +556,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when form 686 and 674' do
       subject { described_class.new(form: all_flows_payload.to_json) }
 
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
-
       it 'delivers a combo received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
         expect(Dependents::NotificationEmail)
@@ -616,8 +571,6 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     context 'when neither 686 nor 674 (an error)' do
       subject { described_class.new }
-
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true) }
 
       it 'delivers a combo received email' do
         notification_email = instance_double(Dependents::NotificationEmail)
@@ -640,7 +593,6 @@ RSpec.describe SavedClaim::DependencyClaim do
       let(:standard_error) { StandardError.new('test error') }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
         allow(Dependents::NotificationEmail).to receive(:new).and_raise(standard_error)
       end
 

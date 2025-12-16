@@ -910,7 +910,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
   end
 
   create_table "event_bus_gateway_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "va_notify_id", null: false
     t.string "template_id", null: false
     t.datetime "created_at", null: false
@@ -920,7 +920,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
   end
 
   create_table "event_bus_gateway_push_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "template_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
