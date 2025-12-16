@@ -34,9 +34,10 @@ module VRE
       submissions_count = submissions.count
       duplicates_detected = submissions_count > 1
       log_payload = { user_account_id: user_account.id,
-                      submission_count: submissions_count,
-                      duplicates_detected:,
-                      threshold_hours: }
+                      submissions_count:, duplicates_detected:, threshold_hours:,
+                      submissions_data: submissions.pluck(:id, :created_at).map do |id, created_at|
+                        { id:, created_at: }
+                      end }
 
       log_message = 'VRE::VRESubmit1900Job - Duplicate Submission Check'
 
