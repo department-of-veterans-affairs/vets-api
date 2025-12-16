@@ -7,7 +7,6 @@
 require 'sidekiq/attr_package'
 require 'va_notify/default_callback'
 require 'va_notify/callback_signature_generator'
-require 'va_notify/callback_processor'
 
 module VANotify
   class CallbacksController < VANotify::ApplicationController
@@ -17,19 +16,31 @@ module VANotify
 
     service_tag 'va-notify'
 
-    skip_before_action :verify_authenticity_token, only: [:update]
-    skip_before_action :authenticate, only: [:update]
+    skip_before_action :verify_authenticity_token, only: [:create]
+    skip_before_action :authenticate, only: [:create]
 
-    before_action :set_notification, only: [:update]
-    before_action :authenticate_callback!, only: [:update]
+    before_action :set_notification, only: [:create]
+    before_action :authenticate_callback!, only: [:create]
 
-    def update
+    def create
       notification_id = params[:id]
       if @notification
-        VANotify::CallbackProcessor.new(@notification, notification_params).call
+        @notification.update(notification_params)
+        Rails.logger.info("va_notify callbacks - Updating notification: #{@notification.id}",
+                          {
+                            notification_id: @notification.id,
+                            source_location: @notification.source_location,
+                            template_id: @notification.template_id,
+                            callback_metadata: @notification.callback_metadata,
+                            status: @notification.status,
+                            status_reason: @notification.status_reason
+                          })
+
+        VANotify::DefaultCallback.new(@notification).call
+        VANotify::CustomCallback.new(notification_params.merge(id: notification_id)).call
       else
         Rails.logger.info(
-          "va_notify callbacks - Received update for unknown notification #{notification_id}, enqueuing retry job"
+          "va_notify callbacks - Received update for unknown notification #{notification_id}"
         )
         attr_package_params_cache_key = Sidekiq::AttrPackage.create(
           expires_in: 1.day,
