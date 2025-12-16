@@ -34,37 +34,31 @@ RSpec.describe BGSDependentsV2::Veteran do
     }
   end
 
-  context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+  describe '#formatted_params' do
+    it 'formats params given a veteran that is separated' do
+      expect(vet.formatted_params(all_flows_payload_v2)).to include(formatted_params_result_v2)
     end
 
-    describe '#formatted_params' do
-      it 'formats params given a veteran that is separated' do
-        expect(vet.formatted_params(all_flows_payload_v2)).to include(formatted_params_result_v2)
-      end
+    it 'formats params given a veteran that is married' do
+      formatted_params_result_v2['martl_status_type_cd'] = 'Married'
+      all_flows_payload_v2['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = true
 
-      it 'formats params given a veteran that is married' do
-        formatted_params_result_v2['martl_status_type_cd'] = 'Married'
-        all_flows_payload_v2['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = true
-
-        expect(vet.formatted_params(all_flows_payload_v2)).to include(formatted_params_result_v2)
-      end
+      expect(vet.formatted_params(all_flows_payload_v2)).to include(formatted_params_result_v2)
     end
+  end
 
-    describe '#veteran_response' do
-      it 'formats params veteran response' do
-        expect(
-          vet.veteran_response(
-            { vnp_ptcpnt_id: '149500' },
-            address,
-            { va_file_number: '1234',
-              claim_type_end_product: '134',
-              location_id: '310',
-              net_worth_over_limit_ind: 'Y' }
-          )
-        ).to include(veteran_response_result_sample)
-      end
+  describe '#veteran_response' do
+    it 'formats params veteran response' do
+      expect(
+        vet.veteran_response(
+          { vnp_ptcpnt_id: '149500' },
+          address,
+          { va_file_number: '1234',
+            claim_type_end_product: '134',
+            location_id: '310',
+            net_worth_over_limit_ind: 'Y' }
+        )
+      ).to include(veteran_response_result_sample)
     end
   end
 end
