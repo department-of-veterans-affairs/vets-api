@@ -174,7 +174,7 @@ gem 'swagger-blocks'
 gem 'ttfunk', '~> 1.7.0'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+gem 'tzinfo-data', '~> 1.2025.2', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'

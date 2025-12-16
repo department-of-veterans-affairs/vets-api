@@ -1175,7 +1175,7 @@ GEM
       ethon (>= 0.9.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2024.1)
+    tzinfo-data (1.2025.2)
       tzinfo (>= 1.0.0)
     uber (0.1.0)
     unicode-display_width (3.2.0)
@@ -1452,7 +1452,7 @@ DEPENDENCIES
   timecop
   travel_pay!
   ttfunk (~> 1.7.0)
-  tzinfo-data
+  tzinfo-data (~> 1.2025.2)
   utf8-cleaner
   va_notify!
   vaos!
