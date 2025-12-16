@@ -2150,6 +2150,9 @@ features:
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  vre_send_icn_to_res:
+    actor_type: user
+    description: Enables sending ICN to RES service
   vre_track_submissions:
     actor_type: user
     description: In VRE application, create form submission/attempt records
