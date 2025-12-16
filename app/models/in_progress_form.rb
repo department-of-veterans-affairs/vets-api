@@ -45,6 +45,7 @@ class InProgressForm < ApplicationRecord
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
 
+  before_create :reset_expires_at!
   # https://guides.rubyonrails.org/active_record_callbacks.html
   before_save :serialize_form_data
   after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
@@ -108,7 +109,10 @@ class InProgressForm < ApplicationRecord
                        end
   end
 
-  def update_expires_at!
+  def reset_expires_at!
+    skippable_forms = %w[21-526EZ 21P-527EZ 21P-530EZ 686C-674-V2]
+    return if skippable_forms.include?(form_id)
+
     update!(expires_at: Time.current + expires_after)
   end
 

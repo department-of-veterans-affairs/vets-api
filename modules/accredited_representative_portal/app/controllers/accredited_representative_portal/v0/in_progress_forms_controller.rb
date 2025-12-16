@@ -15,9 +15,9 @@ module AccreditedRepresentativePortal
         form = find_form || build_form
         form.update!(
           form_data: params[:formData],
-          metadata: params[:metadata],
-          expires_at: Time.current + form.expires_after
+          metadata: params[:metadata]
         )
+        form.reset_expires_at!
 
         render json: InProgressFormSerializer.new(form)
       end
