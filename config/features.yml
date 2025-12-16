@@ -1929,7 +1929,7 @@ features:
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
   vre_prefill_name:
     actor_type: user
-    description: Enables prefill transformation for veteran name fields the Chapter 31 form
+    description: Enables prefill transformation for veteran name fields in the Chapter 31 form
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
