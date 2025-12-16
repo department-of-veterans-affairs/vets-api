@@ -73,7 +73,7 @@ module UnifiedHealthData
         prescription_source = extract_prescription_source(resource)
         {
           instructions: extract_instructions(resource),
-          facility_phone_number: extract_facility_phone_number(resource),
+          facility_phone_number: nil, # Not typically available in standard FHIR MedicationRequest
           cmop_division_phone: nil,
           dial_cmop_division_phone: nil,
           prescription_source:,
@@ -518,20 +518,13 @@ module UnifiedHealthData
       def extract_is_refillable(resource, refill_status)
         refillable = true
 
-        # non VA meds are never refillable
-        refillable = false if non_va_med?(resource)
-        # must be active
-        refillable = false unless resource['status'] == 'active'
-        # must not be expired
-        refillable = false unless prescription_not_expired?(resource)
-        # must have refills remaining
-        refillable = false unless extract_refill_remaining(resource).positive?
-        # must have at least one dispense record
+        refillable = false if non_va_med?(resource) # non VA meds are never refillable
+        refillable = false unless resource['status'] == 'active' # must be active
+        refillable = false unless prescription_not_expired?(resource) # must not be expired
+        refillable = false unless extract_refill_remaining(resource).positive? # must have refills remaining
         refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
-        # must not have an in-progress dispense
-        refillable = false if most_recent_dispense_in_progress?(resource)
-        # must not have a pending refill request (refill_status is 'submitted')
-        refillable = false if refill_status == 'submitted'
+        refillable = false if most_recent_dispense_in_progress?(resource) # must not have in-progress dispense
+        refillable = false if refill_status == 'submitted' # must not have pending refill request
 
         refillable
       end
@@ -550,16 +543,6 @@ module UnifiedHealthData
 
         # Build from components
         build_instruction_text(first_instruction)
-      end
-
-      def extract_facility_phone_number(resource)
-        # Try to extract from performer contact info if available
-        performer = resource.dig('dispenseRequest', 'performer')
-        return nil unless performer
-
-        # This might be in an extension or contained Organization resource
-        # For now, return nil as it's not typically in standard FHIR
-        nil
       end
 
       def extract_prescription_source(resource)
