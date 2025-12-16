@@ -40,10 +40,11 @@ module UnifiedHealthData
       # This allows refill_metadata to be computed after dispenses_data is available
       # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
+        refill_status = extract_refill_status(resource, dispenses_data)
         {
           id: resource['id'],
           type: 'Prescription',
-          refill_status: extract_refill_status(resource, dispenses_data),
+          refill_status:,
           refill_submit_date: nil,
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
@@ -55,7 +56,7 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource),
+          is_refillable: extract_is_refillable(resource, refill_status),
           cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
@@ -514,7 +515,7 @@ module UnifiedHealthData
         end
       end
 
-      def extract_is_refillable(resource)
+      def extract_is_refillable(resource, refill_status)
         refillable = true
 
         # non VA meds are never refillable
@@ -529,6 +530,8 @@ module UnifiedHealthData
         refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
         # must not have an in-progress dispense
         refillable = false if most_recent_dispense_in_progress?(resource)
+        # must not have a pending refill request (refill_status is 'submitted')
+        refillable = false if refill_status == 'submitted'
 
         refillable
       end
