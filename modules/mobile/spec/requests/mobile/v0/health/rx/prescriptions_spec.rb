@@ -159,7 +159,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: false))
       end
 
-
       it 'returns a 403 forbidden response' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
