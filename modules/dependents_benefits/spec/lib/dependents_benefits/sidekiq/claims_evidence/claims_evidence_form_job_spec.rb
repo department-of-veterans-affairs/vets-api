@@ -6,20 +6,7 @@ require 'dependents_benefits/user_data'
 
 RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJob, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
-  end
-
-  # Create a concrete test subclass to test the abstract base class
-  let(:test_job_class) do
-    Class.new(described_class) do
-      def invalid_claim_error_class
-        DependentsBenefits::Sidekiq::DependentSubmissionError
-      end
-
-      def form_id
-        '21-674'
-      end
-    end
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 
   let(:user) { create(:evss_user) }
@@ -28,62 +15,9 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
   let(:user_data) { DependentsBenefits::UserData.new(user, saved_claim.parsed_form).get_user_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
-  let(:job) { test_job_class.new }
+  let(:job) { described_class.new }
   let(:claims_evidence_uploader) { instance_double(ClaimsEvidenceApi::Uploader) }
   let(:lighthouse_submission) { instance_double(DependentsBenefits::BenefitsIntake::LighthouseSubmission) }
-
-  describe '#form_id' do
-    context 'when not implemented by subclass' do
-      it 'raises NotImplementedError' do
-        direct_job = described_class.new
-        expect { direct_job.form_id }.to raise_error(NotImplementedError, 'Subclasses must implement form_id method')
-      end
-    end
-
-    context 'when implemented by subclass' do
-      it 'returns the form id' do
-        expect(job.form_id).to eq('21-674')
-      end
-    end
-  end
-
-  describe '#submit_to_service' do
-    before do
-      allow(job).to receive_messages(saved_claim:, claims_evidence_uploader:,
-                                     lighthouse_submission:)
-      allow(claims_evidence_uploader).to receive(:upload_evidence).and_return(true)
-      allow(lighthouse_submission).to receive(:process_pdf).and_return('file_path')
-      allow(saved_claim).to receive(:to_pdf).with(form_id: '21-674').and_return('tmp/pdfs/mock_form_final.pdf')
-    end
-
-    it 'processes PDF and uploads evidence' do
-      expect(lighthouse_submission).to receive(:process_pdf).with(
-        'tmp/pdfs/mock_form_final.pdf',
-        saved_claim.created_at,
-        '21-674'
-      )
-      expect(claims_evidence_uploader).to receive(:upload_evidence).with(
-        saved_claim.id,
-        file_path: 'file_path',
-        form_id: '21-674',
-        doctype: saved_claim.document_type
-      )
-
-      result = job.submit_to_service
-      expect(result).to be_a(DependentsBenefits::ServiceResponse)
-      expect(result.status).to be true
-    end
-
-    it 'returns error response when exception occurs' do
-      error = StandardError.new('Test error')
-      allow(lighthouse_submission).to receive(:process_pdf).and_raise(error)
-
-      result = job.submit_to_service
-      expect(result).to be_a(DependentsBenefits::ServiceResponse)
-      expect(result.status).to be false
-      expect(result.error).to eq(error)
-    end
-  end
 
   describe '#submit_to_claims_evidence_api' do
     before do

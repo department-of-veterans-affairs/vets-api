@@ -76,6 +76,50 @@ RSpec.describe DependentsVerification::V0::ClaimsController, type: :request do
             expect(response).to have_http_status(:success)
           end
         end
+
+        context 'when VA Profile Email is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:lifestage_va_profile_email).and_return(true)
+          end
+
+          it 'adds the VA profile email to the claim form data' do
+            allow(SavedClaim).to receive(:new).and_return(claim)
+            expect(monitor).to receive(:track_create_attempt).once
+            expect(monitor).to receive(:track_create_success).once
+            request
+            expect(response).to have_http_status(:success)
+            expect(claim.parsed_form['va_profile_email']).to eq(user.va_profile_email)
+          end
+
+          it 'logs an error but succeeds when adding VA profile email fails' do
+            allow_any_instance_of(User).to receive(:va_profile_email).and_raise(StandardError.new('Mock profile error'))
+
+            expect(monitor).to receive(:track_create_attempt).once
+            expect(monitor).to receive(:track_add_va_profile_email_error).once
+            expect(monitor).to receive(:track_create_success).once
+
+            request
+
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context 'when VA Profile Email is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:lifestage_va_profile_email).and_return(false)
+          end
+
+          it 'does not add the VA profile email to the claim form data' do
+            expect(monitor).to receive(:track_create_attempt).once
+            expect(monitor).to receive(:track_create_success).once
+            allow(SavedClaim).to receive(:new).and_return(claim)
+
+            request
+
+            expect(response).to have_http_status(:success)
+            expect(claim.parsed_form['va_profile_email']).to be_nil
+          end
+        end
       end
     end
   end
