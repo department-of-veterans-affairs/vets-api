@@ -121,8 +121,9 @@ module Logging
       #   scrub({ name: "John", contact: ["john@email.com", "555-1234"] })
       #   # => { name: "John", contact: ["[REDACTED]", "[REDACTED]"] }
       #
-      def scrub(data)
-        scrub_value(data)
+      def scrub(data, safe_keys: [])
+        keys_to_skip = SAFE_KEYS + safe_keys.map(&:to_s)
+        scrub_value(data, keys_to_skip)
       rescue => e
         Rails.logger.error("DataScrubber failed: #{e.class} - #{e.message}")
         data # Return original data on failure to avoid blocking logging
@@ -133,18 +134,18 @@ module Logging
       # @param value [Object] The value to scrub
       # @return [Object] The scrubbed value
       # @api private
-      def scrub_value(value)
+      def scrub_value(value, keys_to_skip)
         case value
         when String
           scrub_string(value)
         when Hash
-          # Recursively scrub hash values while preserving keys, except for SAFE_KEYS
+          # Recursively scrub hash values while preserving keys, except for keys_to_skip
           value.each_with_object({}) do |(k, v), result|
-            result[k] = SAFE_KEYS.include?(k.to_s) ? v : scrub_value(v)
+            result[k] = keys_to_skip.include?(k.to_s) ? v : scrub_value(v, keys_to_skip)
           end
         when Array
           # Recursively scrub each array element
-          value.map { |item| scrub_value(item) }
+          value.map { |item| scrub_value(item, keys_to_skip) }
         when NilClass, TrueClass, FalseClass
           # Preserve nil and boolean values as-is
           value

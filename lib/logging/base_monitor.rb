@@ -31,11 +31,13 @@ module Logging
     #
     # @param service [String] the service name for this monitor; will be included with each log message
     # @param allowlist [Array<String>] the list of allowed parameters
-    def initialize(service, allowlist: [])
+    # @param safe_keys [Array<String>] the list of safe keys whose values can be logged without redaction
+    def initialize(service, allowlist: [], safe_keys: [])
       @tags = ["form_id:#{form_id}"]
       @allowlist = ALLOWLIST + allowlist
+      @safe_keys = safe_keys
 
-      super(service, allowlist: @allowlist)
+      super(service, allowlist: @allowlist, safe_keys: @safe_keys)
     end
 
     private

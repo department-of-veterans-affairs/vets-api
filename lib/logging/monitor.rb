@@ -42,9 +42,11 @@ module Logging
     #
     # @param service [String] the service name for this monitor; will be included with each log message
     # @param allowlist [Array<String>] the list of allowed parameters
-    def initialize(service, allowlist: [])
+    # @param safe_keys [Array<String>] the list of safe keys whose values can be logged without redaction
+    def initialize(service, allowlist: [], safe_keys: [])
       @service = service
       @allowlist = (ALLOWLIST + allowlist.map(&:to_s)).uniq - BLOCKLIST
+      @safe_keys = safe_keys
     end
 
     # perform monitoring actions - StatsD.increment and Rails.logger
@@ -60,7 +62,7 @@ module Logging
       tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
       StatsD.increment(metric, tags:)
 
-      filtered_context = scrub(filter_params(context, allowlist:))
+      filtered_context = scrub(filter_params(context, allowlist:), safe_keys: @safe_keys)
 
       unless %w[debug info warn error fatal unknown].include?(level.to_s)
         Rails.logger.error("#{self.class} Invalid log level: #{level}", service:, function:, file:, line:)

@@ -89,6 +89,131 @@ RSpec.describe Logging::Helper::DataScrubber do
       end
     end
 
+    context 'with safe_keys parameter' do
+      let(:input_with_safe_keys) do
+        {
+          claim_id: '123-45-6789',
+          user_email: 'test@example.com',
+          custom_safe_field: '555-123-4567',
+          unsafe_field: '123-45-6789',
+          nested: {
+            claim_id: '987-65-4321',
+            custom_safe_field: 'jane@example.com',
+            unsafe_nested: '555-987-6543'
+          }
+        }
+      end
+
+      context 'when safe_keys are not passed' do
+        it 'scrubs PII in default safe keys but scrubs custom fields' do
+          expected = {
+            claim_id: '123-45-6789', # Protected by SAFE_KEYS
+            user_email: redaction,
+            custom_safe_field: redaction,
+            unsafe_field: redaction,
+            nested: {
+              claim_id: '987-65-4321', # Protected by SAFE_KEYS
+              custom_safe_field: redaction,
+              unsafe_nested: redaction
+            }
+          }
+          expect(described_class.scrub(input_with_safe_keys)).to eq(expected)
+        end
+      end
+
+      context 'when safe_keys are passed' do
+        it 'protects additional keys from scrubbing' do
+          expected = {
+            claim_id: '123-45-6789', # Protected by SAFE_KEYS
+            user_email: redaction,
+            custom_safe_field: '555-123-4567', # Protected by safe_keys param
+            unsafe_field: redaction,
+            nested: {
+              claim_id: '987-65-4321', # Protected by SAFE_KEYS
+              custom_safe_field: 'jane@example.com', # Protected by safe_keys param
+              unsafe_nested: redaction
+            }
+          }
+          result = described_class.scrub(input_with_safe_keys, safe_keys: ['custom_safe_field'])
+          expect(result).to eq(expected)
+        end
+
+        it 'accepts safe_keys as symbols' do
+          expected = {
+            claim_id: '123-45-6789',
+            user_email: redaction,
+            custom_safe_field: '555-123-4567',
+            unsafe_field: redaction,
+            nested: {
+              claim_id: '987-65-4321',
+              custom_safe_field: 'jane@example.com',
+              unsafe_nested: redaction
+            }
+          }
+          result = described_class.scrub(input_with_safe_keys, safe_keys: [:custom_safe_field])
+          expect(result).to eq(expected)
+        end
+
+        it 'handles multiple safe_keys' do
+          expected = {
+            claim_id: '123-45-6789',
+            user_email: 'test@example.com', # Protected by safe_keys param
+            custom_safe_field: '555-123-4567', # Protected by safe_keys param
+            unsafe_field: redaction,
+            nested: {
+              claim_id: '987-65-4321',
+              custom_safe_field: 'jane@example.com',
+              unsafe_nested: redaction
+            }
+          }
+          result = described_class.scrub(input_with_safe_keys, safe_keys: %i[custom_safe_field user_email])
+          expect(result).to eq(expected)
+        end
+
+        it 'handles empty safe_keys array' do
+          expected = {
+            claim_id: '123-45-6789', # Still protected by SAFE_KEYS
+            user_email: redaction,
+            custom_safe_field: redaction,
+            unsafe_field: redaction,
+            nested: {
+              claim_id: '987-65-4321',
+              custom_safe_field: redaction,
+              unsafe_nested: redaction
+            }
+          }
+          result = described_class.scrub(input_with_safe_keys, safe_keys: [])
+          expect(result).to eq(expected)
+        end
+      end
+
+      context 'with default SAFE_KEYS' do
+        it 'protects all default safe keys from scrubbing' do
+          input = {
+            claim_id: '123-45-6789',
+            confirmation_number: '555-123-4567',
+            form_id: 'test@example.com',
+            id: '12345',
+            submission_id: '1234567890',
+            user_account_uuid: '12345678-1234-1234-1234-123456789012',
+            unsafe: '123-45-6789'
+          }
+
+          expected = {
+            claim_id: '123-45-6789',
+            confirmation_number: '555-123-4567',
+            form_id: 'test@example.com',
+            id: '12345',
+            submission_id: '1234567890',
+            user_account_uuid: '12345678-1234-1234-1234-123456789012',
+            unsafe: redaction
+          }
+
+          expect(described_class.scrub(input)).to eq(expected)
+        end
+      end
+    end
+
     context 'with array data' do
       it 'scrubs PII in array elements and nested structures' do
         input = ['Contact: john@example.com', 'Safe data', '42', [['email@test.com'], [123, 'ssn: 123-45-6789']]]
