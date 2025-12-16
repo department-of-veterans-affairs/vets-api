@@ -8,6 +8,9 @@ Rails.application.routes.draw do
     resources :personal_information_logs, only: %i[index show] do
       collection do
         get :export
+        get :login
+        get :logout
+        get 'auth/github/callback', action: :auth_callback
       end
     end
   end

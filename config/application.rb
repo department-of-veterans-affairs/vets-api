@@ -116,6 +116,13 @@ module VetsAPI
         redirect_uri: 'flipper/auth/github/callback'
       }
 
+      config.scope_defaults :pii_log_dashboard, config: {
+        client_id: Settings.pii_log_dashboard&.github_oauth_key,
+        client_secret: Settings.pii_log_dashboard&.github_oauth_secret,
+        scope: 'read:org',
+        redirect_uri: 'admin/personal_information_logs/auth/github/callback'
+      }
+
       config.serialize_from_session { |key| Warden::GitHub::Verifier.load(key) }
       config.serialize_into_session { |user| Warden::GitHub::Verifier.dump(user) }
     end

@@ -1073,6 +1073,14 @@ pension_burial:
     relative_path: "../VETSGOV_PENSION"
 pension_ipf_vanotify_status_callback:
   bearer_token: ~
+# PII Log Dashboard - disabled in development by default (no GitHub OAuth)
+# Set github_oauth_key to enable authentication
+pii_log_dashboard:
+  github_oauth_key: ~
+  github_oauth_secret: ~
+  github_organization: ~
+  admin_github_team: ~
+  team_access: ~
 ppms:
   api_keys:
     Ocp-Apim-Subscription-Key-E: ~
