@@ -9,7 +9,7 @@ module VRE
 
     STATSD_KEY_PREFIX = 'worker.vre.vre_submit_1900_job'
     # retry for  2d 1h 47m 12s
-    # https://github.com/sidekiq/sidekiq/wiki/Error-Han :dling
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     RETRY = 16
 
     FORM_TYPE = '28-1900'
