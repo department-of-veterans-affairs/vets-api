@@ -165,8 +165,9 @@ module MebApi
       def fetch_direct_deposit_info
         return nil if Rails.env.development?
 
-        account_number = params.dig(:education_benefit, :direct_deposit, :direct_deposit_account_number)
-        return nil unless account_number&.include?('*')
+        account_number = params.dig(:form, :direct_deposit, :direct_deposit_account_number)
+        routing_number = params.dig(:form, :direct_deposit, :direct_deposit_routing_number)
+        return nil unless account_number&.include?('*') || routing_number&.include?('*')
 
         DirectDeposit::Client.new(@current_user&.icn).get_payment_info.tap do |response_data|
           if response_data.nil?
