@@ -37,7 +37,7 @@ describe PdfFill::Processors::VA228794Processor do
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-8794_abc.pdf')
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
-        expect(get_field_value(fields, 'signature_name')).to eq 'John A Doe'
+        expect(get_field_value(fields, 'signature_name')).to eq 'John A Doe, Designating Official'
         expect(get_field_value(fields, 'additional_certifying_officials_0_phone')).to eq '5556071235'
         expect(get_field_value(fields,
                                'additional_certifying_officials_0_signature')).to eq sub_str
