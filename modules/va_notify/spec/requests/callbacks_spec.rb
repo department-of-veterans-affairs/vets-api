@@ -65,12 +65,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
         end
 
         context 'with missing notification' do
-          before do
-            allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_package_params_cache_key)
-            allow(VANotify::NotificationLookupJob).to receive(:perform_in)
-          end
-
-          it 'logs info and enqueues retry job' do
+          it 'logs info' do
             allow(Rails.logger).to receive(:info)
 
             post(callback_route,
@@ -82,6 +77,14 @@ RSpec.describe 'VANotify Callbacks', type: :request do
             )
 
             expect(response.body).to include('success')
+          end
+        end
+
+        context 'when :vanotify_delivery_status_update_job enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:vanotify_delivery_status_update_job).and_return(true)
+            allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_package_params_cache_key)
+            allow(VANotify::NotificationLookupJob).to receive(:perform_async)
           end
 
           it 'stores notification params in AttrPackage with 1 day TTL' do
@@ -103,8 +106,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
                  params: callback_params.to_json,
                  headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
 
-            expect(VANotify::NotificationLookupJob).to have_received(:perform_in).with(
-              5.seconds,
+            expect(VANotify::NotificationLookupJob).to have_received(:perform_async).with(
               notification_id,
               attr_package_params_cache_key
             )
