@@ -334,13 +334,15 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       end
 
       it 'logs an error' do
-        expect(Rails.logger).to receive(:error).with('MEB submit_claim failed: StandardError - Submission failed')
+        expect(Rails.logger).to receive(:error)
+          .with('MEB submit_claim failed: StandardError - Submission failed')
         expect { post '/meb_api/v0/submit_claim', params: claimant_params }.to raise_error(StandardError)
       end
 
       it 're-raises the exception' do
         allow(Rails.logger).to receive(:error)
-        expect { post '/meb_api/v0/submit_claim', params: claimant_params }.to raise_error(StandardError, 'Submission failed')
+        expect { post '/meb_api/v0/submit_claim', params: claimant_params }
+          .to raise_error(StandardError, 'Submission failed')
       end
     end
   end
