@@ -29,25 +29,19 @@ RSpec.describe BGSDependentsV2::Spouse do
     }
   end
 
-  context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+  describe '#format_info' do
+    it 'formats relationship params for submission' do
+      formatted_info = spouse_v2.format_info
+
+      expect(formatted_info).to include(format_info_output)
     end
+  end
 
-    describe '#format_info' do
-      it 'formats relationship params for submission' do
-        formatted_info = spouse_v2.format_info
+  describe '#address' do
+    it 'returns an address for vet or spouse if separated' do
+      address = spouse_v2.address
 
-        expect(formatted_info).to include(format_info_output)
-      end
-    end
-
-    describe '#address' do
-      it 'returns an address for vet or spouse if separated' do
-        address = spouse_v2.address
-
-        expect(address).to eq(address_output_v2)
-      end
+      expect(address).to eq(address_output_v2)
     end
   end
 end
