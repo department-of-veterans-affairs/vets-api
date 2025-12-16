@@ -12,7 +12,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
   let(:vcr_options) do
     {
       record: :none,
-      allow_unused_http_interactions: true,
+      allow_unused_http_interactions: false,
       match_requests_on: %i[method host body]
     }
   end
