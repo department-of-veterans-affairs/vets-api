@@ -3145,6 +3145,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
   end
 
   describe 'travel pay' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+    end
+    
     context 'index' do
       let(:mhv_user) { build(:user, :loa3) }
 
