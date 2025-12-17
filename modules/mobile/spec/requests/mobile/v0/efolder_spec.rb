@@ -67,7 +67,7 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
       end
 
       context 'with working upstream service' do
-        response_body_1 = {
+        response_body1 = {
           data: {
             documents: [
               {
@@ -96,7 +96,7 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
           }
         }
 
-        response_body_2 = {
+        response_body2 = {
           data: {
             documents: [
               {
@@ -125,7 +125,7 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
           }
         }
 
-        response_body_3 = {
+        response_body3 = {
           data: {
             documents: [
               {
@@ -150,13 +150,13 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
           expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
           expect(benefits_document_service_double).to receive(:participant_documents_search).and_return(
             Faraday::Response.new(
-              status: 200, body: response_body_1.as_json
+              status: 200, body: response_body1.as_json
             ),
             Faraday::Response.new(
-              status: 200, body: response_body_2.as_json
+              status: 200, body: response_body2.as_json
             ),
             Faraday::Response.new(
-              status: 200, body: response_body_3.as_json
+              status: 200, body: response_body3.as_json
             )
           )
         end
@@ -172,10 +172,14 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
           expect(response.parsed_body['data'].size).to eq(5)
           expect(response.parsed_body['data'].first['id']).to eq('{12345678-ABCD-0123-cdef-124345679ABC}')
           expect(response.parsed_body['data'].first['attributes']['docType']).to eq('137')
-          expect(response.parsed_body['data'].first['attributes']['typeDescription']).to eq('VA 21-526 Veterans Application for Compensation or Pension 1')
+          expect(response.parsed_body['data'].first['attributes']['typeDescription']).to eq(
+            'VA 21-526 Veterans Application for Compensation or Pension 1'
+          )
           expect(response.parsed_body['data'].first['attributes']['receivedAt']).to eq('2016-02-04')
           expect(response.parsed_body['data'].last['id']).to eq('{12345678-ABCD-0123-cdef-124345679ABG}')
-          expect(response.parsed_body['data'].last['attributes']['typeDescription']).to eq('VA 21-526 Veterans Application for Compensation or Pension 5')
+          expect(response.parsed_body['data'].last['attributes']['typeDescription']).to eq(
+            'VA 21-526 Veterans Application for Compensation or Pension 5'
+          )
         end
       end
 
