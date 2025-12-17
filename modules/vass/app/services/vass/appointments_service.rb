@@ -199,37 +199,35 @@ module Vass
     # Used for OTC flow where we only have the UUID from the welcome email.
     #
     # @param veteran_id [String] Veteran ID (UUID) in VASS system
-    # @param last_name [String, nil] Optional: Veteran's last name for validation
-    # @param date_of_birth [String, nil] Optional: Veteran's date of birth for validation
     #
     # @return [Hash] Veteran data including firstName, lastName, dateOfBirth, edipi, notificationEmail
-    #   If validation params provided, also includes 'contact_method' and 'contact_value' keys
     #
     # @raise [Vass::Errors::VassApiError] if VASS API call fails
-    # @raise [Vass::Errors::IdentityValidationError] if validation params provided and identity doesn't match
-    # @raise [Vass::Errors::MissingContactInfoError] if validation params provided and no contact info available
     #
-    # @example Basic usage (no validation)
+    # @example Basic usage
     #   service.get_veteran_info(veteran_id: 'da1e1a40-1e63-f011-bec2-001dd80351ea')
     #
-    # @example With identity validation
-    #   service.get_veteran_info(
-    #     veteran_id: 'da1e1a40-1e63-f011-bec2-001dd80351ea',
-    #     last_name: 'Smith',
-    #     date_of_birth: '1990-01-15'
-    #   )
-    #
-    def get_veteran_info(veteran_id:, last_name: nil, date_of_birth: nil)
+    def get_veteran_info(veteran_id:)
       response = client.get_veteran(veteran_id:)
       veteran_data = parse_response(response)
 
-      # If validation params provided, validate identity and extract contact info
-      if last_name.present? && date_of_birth.present?
-        validate_and_enrich_veteran_data(veteran_data, last_name, date_of_birth)
-      else
-        veteran_data
+      # Validate we have the required data structure
+      unless veteran_data && veteran_data['success'] && veteran_data['data']
+        raise Vass::Errors::VassApiError,
+              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
       end
-    rescue Vass::Errors::IdentityValidationError, Vass::Errors::MissingContactInfoError
+
+      # Extract and add contact info for OTC flow
+      contact_method, contact_value = extract_contact_info(veteran_data)
+      unless contact_method && contact_value
+        raise Vass::Errors::MissingContactInfoError, 'Veteran contact information not found'
+      end
+
+      veteran_data.merge(
+        'contact_method' => contact_method,
+        'contact_value' => contact_value
+      )
+    rescue Vass::Errors::MissingContactInfoError
       raise
     rescue => e
       handle_error(e, 'get_veteran_info')
