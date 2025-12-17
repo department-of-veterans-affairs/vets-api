@@ -33,7 +33,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     # Restore original dummy form created_at/form_uuid props in case we've adjusted them
     forms.each_with_index do |form, index|
       next if form.destroyed?
-      
+
       form.update(created_at: @original_creation_times[index])
       form.update(form_uuid: @original_uuids[index])
     end
@@ -185,7 +185,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
   it 'sends form metrics with key tags to DataDog' do
     allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
-    
+
     job.perform
 
     forms.each do |form|
@@ -201,10 +201,10 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
     it 'logs detailed form information when verbose logging is enabled and batch count is <= 10' do
       allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(true)
-      
+
       # Ensure we have a small batch
       forms[0].update(form_uuid: 'unique-uuid-1')
-      forms[1].update(form_uuid: 'unique-uuid-2') 
+      forms[1].update(form_uuid: 'unique-uuid-2')
       forms[2].update(form_uuid: 'unique-uuid-3')
 
       expect(Rails.logger).to receive(:info).exactly(3).times do |message|
@@ -219,7 +219,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     end
 
     it 'does not log detailed information when verbose logging is disabled' do
-      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging,
+                                                @current_user).and_return(false)
 
       expect(Rails.logger).not_to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/)
 
@@ -228,10 +229,10 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
     it 'does not log detailed information when batch count > 10 even with verbose logging enabled' do
       allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(true)
-      
+
       # Remove the original forms so they don't interfere with our test
       forms.each(&:destroy)
-      
+
       # Create a large batch with the same UUID (11 forms total)
       shared_uuid = SecureRandom.uuid
       large_batch_forms = create_list(:ivc_champva_form, 11, pega_status: nil, created_at: one_week_ago)
@@ -240,7 +241,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
       expect(Rails.logger).not_to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/)
 
       job.perform
-      
+
       # Clean up the forms we created for this test
       large_batch_forms.each(&:destroy)
     end

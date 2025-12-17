@@ -25,8 +25,6 @@ module IvcChampva
       verbose_logging = Flipper.enabled?(:champva_missing_status_verbose_logging, @current_user)
       form_count = count_forms(batches)
 
-      puts "form_count: #{form_count}"
-
       current_time = Time.now.utc
 
       batches.each_value do |batch|
@@ -54,7 +52,6 @@ module IvcChampva
         key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
         StatsD.increment('ivc_champva.form_missing_status', tags: ["key:#{key}"])
 
-        puts "batch.count: #{batch.count}"
         if verbose_logging
           if form_count <= 10
             Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
