@@ -47,7 +47,7 @@ class InProgressForm < ApplicationRecord
 
   # https://guides.rubyonrails.org/active_record_callbacks.html
   before_save :serialize_form_data
-  before_create :reset_expires_at!
+  before_create :set_expires_at
   after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy ->(ipf) { StatsD.increment('in_progress_form.destroy', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy lambda { |ipf|
@@ -109,15 +109,16 @@ class InProgressForm < ApplicationRecord
                        end
   end
 
-  def reset_expires_at!
+  def next_expires_at
     skippable_forms = %w[21P-527EZ 21-526EZ 5655]
-    return if skippable_forms.include?(form_id)
-
-    self.expires_at = Time.current + expires_after
-    save unless new_record?
+    skippable_forms.include?(form_id) ? (expires_at || expires_after) : (Time.current + expires_after)
   end
 
   private
+
+  def set_expires_at
+    self.expires_at ||= Time.current + expires_after
+  end
 
   def log_hca_email_diff
     HCA::LogEmailDiffJob.perform_async(id, real_user_uuid, user_account_id) if form_id == '1010ez'

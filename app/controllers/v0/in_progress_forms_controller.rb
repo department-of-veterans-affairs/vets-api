@@ -51,9 +51,9 @@ module V0
 
       form.update!(
         form_data: params[:form_data] || params[:formData],
-        metadata: params[:metadata]
+        metadata: params[:metadata],
+        expires_at: form.next_expires_at
       )
-      form.reset_expires_at!
 
       render json: InProgressFormSerializer.new(form)
     end
@@ -80,8 +80,7 @@ module V0
 
         ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
-        form.update!(form_data:, metadata: params[:metadata])
-        form.reset_expires_at!
+        form.update!(form_data:, metadata: params[:metadata], expires_at: form.next_expires_at)
 
         render json: InProgressFormSerializer.new(form)
       end
