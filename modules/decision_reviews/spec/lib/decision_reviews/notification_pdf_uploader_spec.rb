@@ -26,8 +26,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
       reference: "SC-form-#{submitted_appeal_uuid}",
       status: 'delivered',
       payload: {
-        'to' => 'veteran@example.com',
-        'sent_at' => '2025-11-01T10:00:00Z'
+        'completed_at' => '2025-11-01T10:00:00Z'
       }.to_json
     )
   end
@@ -78,7 +77,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
           notification_id:,
           reference: "SC-evidence-#{lighthouse_upload_id}",
           status: 'delivered',
-          payload: { 'to' => 'veteran@example.com', 'sent_at' => '2025-11-01T10:00:00Z' }.to_json
+          payload: { 'completed_at' => '2025-11-01T10:00:00Z' }.to_json
         )
       end
 
@@ -103,7 +102,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
           notification_id:,
           reference: "SC-secondary_form-#{guid}",
           status: 'delivered',
-          payload: { 'to' => 'veteran@example.com', 'sent_at' => '2025-11-01T10:00:00Z' }.to_json
+          payload: { 'completed_at' => '2025-11-01T10:00:00Z' }.to_json
         )
       end
 
@@ -332,7 +331,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
             notification_id:,
             reference: "#{appeal_type}-form-#{submitted_appeal_uuid}",
             status: 'delivered',
-            payload: { 'to' => 'veteran@example.com', 'sent_at' => '2025-11-01T10:00:00Z' }.to_json
+            payload: { 'completed_at' => '2025-11-01T10:00:00Z' }.to_json
           )
         end
 

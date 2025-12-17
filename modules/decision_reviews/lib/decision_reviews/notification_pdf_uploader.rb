@@ -111,10 +111,9 @@ module DecisionReviews
     end
 
     def update_audit_log_failure(error)
-      @audit_log.update!(
-        pdf_upload_attempt_count: (@audit_log.pdf_upload_attempt_count || 0) + 1,
-        pdf_upload_error: error.message
-      )
+      # Use update_counters for atomic increment that handles NULL values via COALESCE
+      DecisionReviewNotificationAuditLog.update_counters(@audit_log.id, pdf_upload_attempt_count: 1) # rubocop:disable Rails/SkipsModelValidations
+      @audit_log.update!(pdf_upload_error: error.message)
     end
 
     def cleanup_pdf(pdf_path)
