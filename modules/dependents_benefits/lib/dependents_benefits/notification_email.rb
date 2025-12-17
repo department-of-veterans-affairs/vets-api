@@ -105,10 +105,7 @@ module DependentsBenefits
 
     # assemble details for personalization in the emails
     def personalization
-      default = super.merge({
-        'date_submitted' => claim.submitted_at,
-        'confirmation_number' => claim.confirmation_number
-      })
+      default = super
 
       submission_date = claim.submitted_at || Time.zone.today
       vet_info = claim.parsed_form.dig('dependents_application', 'veteran_information') ||

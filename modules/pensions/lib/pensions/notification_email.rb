@@ -20,10 +20,7 @@ module Pensions
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#personalization
     def personalization
-      default = super.merge({
-        'date_submitted' => claim.submitted_at,
-        'confirmation_number' => claim.confirmation_number
-      })
+      default = super
 
       # confirmation, error
       pensions = {

@@ -136,7 +136,10 @@ module VeteranFacingServices
 
       # assemble details for personalization in the email
       def personalization
-        { }
+        {
+          'date_submitted' => claim.submitted_at,
+          'confirmation_number' => claim.confirmation_number
+        }
       end
 
       # assign the callback class to be used for the notification

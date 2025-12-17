@@ -20,10 +20,7 @@ module Burials
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#personalization
     def personalization
-      default = super.merge({
-        'date_submitted' => claim.submitted_at,
-        'confirmation_number' => claim.confirmation_number
-      })
+      default = super
 
       facility_name, street_address, city_state_zip = claim.regional_office
       veteran_name = "#{claim.veteran_first_name} #{claim.veteran_last_name&.first}"
