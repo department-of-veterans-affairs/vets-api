@@ -8,7 +8,7 @@ detectors:
   # === HIGH SIGNAL / CONFIGURABLE ===
 
   TooManyStatements:
-    max_statements: 50
+    enabled: false
 
   DuplicateMethodCall:
     max_calls: 5
@@ -68,29 +68,13 @@ detectors:
 
 # Rails directories overrides
 directories:
-  app/models:
-    TooManyStatements:
-      enabled: false
-
   app/controllers:
-    TooManyStatements:
-      max_statements: 35
     DuplicateMethodCall:
       max_calls: 8
 
   modules/*/app/controllers:
-    TooManyStatements:
-      max_statements: 35
     DuplicateMethodCall:
       max_calls: 8
-
-  app/helpers:
-    TooManyStatements:
-      enabled: false
-
-  modules/*/app/helpers:
-    TooManyStatements:
-      enabled: false
 
 # original, closer-to-vanilla reek config can be found below (~17k+ smells)
 # directories:
