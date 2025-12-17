@@ -373,7 +373,7 @@
                     "user_facility_ready_for_info_alert": {
                       "type": "boolean"
                     },
-                    "healthcare_settings_pilot_eligible": {
+                    "scheduling_preferences_pilot_eligible": {
                       "type": "boolean"
                     }
                   }

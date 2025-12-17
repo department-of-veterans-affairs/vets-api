@@ -376,7 +376,7 @@
                     "activeMHVIds": {
                       "type": "array"
                     },
-                    "healthcareSettingsPilotEligible": {
+                    "schedulingPreferencesPilotEligible": {
                       "type": "boolean"
                     }
                   }
