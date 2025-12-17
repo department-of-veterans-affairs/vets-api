@@ -1346,7 +1346,7 @@ describe UnifiedHealthData::Service, type: :service do
             end
           end
 
-          it 'returns false when dispense is in-progress (Gate 7 - active processing)' do
+          it 'returns false when dispense is in-progress (Gate 7 - no active processing)' do
             VCR.use_cassette('unified_health_data/get_prescriptions_success') do
               prescriptions = service.get_prescriptions
 
