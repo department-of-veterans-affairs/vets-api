@@ -7,10 +7,12 @@ module MyHealth
   module V2
     class VitalsController < ApplicationController
       include MyHealth::V2::Concerns::ErrorHandler
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       def index
-        vitals = service.get_vitals
+        vitals = sort_records(service.get_vitals, params[:sort])
+
         serialized_vitals = UnifiedHealthData::VitalSerializer.new(vitals)
         render json: serialized_vitals,
                status: :ok
