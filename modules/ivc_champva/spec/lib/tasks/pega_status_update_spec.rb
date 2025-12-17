@@ -170,6 +170,9 @@ RSpec.describe 'ivc_champva:pega_status_update rake tasks', type: :task do
         it 'skips records that already have a pega_status' do
           expect { task.invoke }.not_to(change { @record3.reload.pega_status })
           expect(@record3.reload.pega_status).to eq('Processed')
+
+          # Record created "now" (should be ignored by missing status cleanup)
+          expect { task.invoke }.not_to(change { @record4.reload.pega_status })
         end
 
         it 'outputs skip messages for records with existing status' do
