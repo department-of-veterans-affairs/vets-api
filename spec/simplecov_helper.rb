@@ -104,6 +104,7 @@ class SimpleCovHelper
     add_group 'DependentsBenefits', 'modules/dependents_benefits/'
     add_group 'DependentsVerification', 'modules/dependents_verification/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
+    add_group 'DigitalFormsApi', 'modules/digital_forms_api/'
     add_group 'EmploymentQuestionnaires', 'modules/employment_questionnaires/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
     add_group 'IncomeAndAssets', 'modules/income_and_assets/'
