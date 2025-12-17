@@ -17,10 +17,10 @@ module Mobile
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
         # Log unique user event for inbox accessed
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+        # )
 
         options = { meta: resource.metadata }
         render json: MyHealth::V1::ThreadsSerializer.new(resource.data, options)

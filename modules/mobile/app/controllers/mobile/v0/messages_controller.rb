@@ -22,10 +22,10 @@ module Mobile
         resource.metadata.merge!(total_entries(resource.size))
 
         # Log unique user event for inbox accessed
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+        # )
 
         options = { meta: resource.metadata, links: }
         render json: Mobile::V0::MessagesSerializer.new(resource.data, options)
@@ -57,10 +57,10 @@ module Mobile
         client_response = build_create_client_response(message, create_message_params)
 
         # Log unique user event for message sent
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        # )
 
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
@@ -92,10 +92,10 @@ module Mobile
         client_response = build_reply_client_response(message, create_message_params)
 
         # Log unique user event for message sent
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        # )
 
         options = {}
         options[:include] = [:attachments] if client_response.attachment

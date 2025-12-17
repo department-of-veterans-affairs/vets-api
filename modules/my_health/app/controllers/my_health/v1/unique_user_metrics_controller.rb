@@ -56,7 +56,7 @@ module MyHealth
             next [UniqueUserEvents::Service.build_invalid_result(event_name)]
           end
 
-          UniqueUserEvents.log_event(user: current_user, event_name:)
+          # UniqueUserEvents.log_event(user: current_user, event_name:)
         end
 
         # Return 201 if any new events were logged, otherwise 200

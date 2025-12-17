@@ -24,10 +24,10 @@ module MyHealth
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
 
         # Log unique user event for prescription refill requested
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        # )
 
         render json: response.serializable_hash
       end
@@ -133,10 +133,10 @@ module MyHealth
       end
 
       def log_prescriptions_access
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        # )
       end
 
       def get_recently_requested_prescriptions(prescriptions)

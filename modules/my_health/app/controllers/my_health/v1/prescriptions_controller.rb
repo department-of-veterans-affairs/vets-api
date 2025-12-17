@@ -33,10 +33,10 @@ module MyHealth
         options[:links] = pagination_links(resource) if is_using_pagination
 
         # Log unique user event for prescriptions accessed
-        UniqueUserEvents.log_event(
-          user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        # )
 
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
@@ -54,10 +54,10 @@ module MyHealth
         client.post_refill_rx(params[:id])
 
         # Log unique user event for prescription refill requested
-        UniqueUserEvents.log_event(
-          user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        # )
 
         head :no_content
       end
@@ -87,10 +87,10 @@ module MyHealth
         end
 
         # Log unique user event for prescription refill requested
-        UniqueUserEvents.log_event(
-          user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        # )
 
         render json: { successful_ids:, failed_ids: }
       end

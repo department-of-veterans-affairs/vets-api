@@ -32,18 +32,20 @@ module UniqueUserEvents
   #     user: current_user,
   #     event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
   #   )
-  def self.log_event(user:, event_name:)
-    return [Service.build_disabled_result(event_name)] unless Flipper.enabled?(:unique_user_metrics_logging)
+  def self.log_event(user:, event_name:) # rubocop:disable Lint/UnusedMethodArgument
+    # return [Service.build_disabled_result(event_name)] unless Flipper.enabled?(:unique_user_metrics_logging)
 
-    start_time = Time.current
-    result = Service.log_event(user:, event_name:)
-    duration = (Time.current - start_time) * 1000.0 # Convert to milliseconds
+    # start_time = Time.current
+    # result = Service.log_event(user:, event_name:)
+    # duration = (Time.current - start_time) * 1000.0 # Convert to milliseconds
 
-    StatsD.measure('uum.unique_user_metrics.log_event.duration', duration, tags: ["event_name:#{event_name}"])
-    result
-  rescue => e
-    Rails.logger.error("UUM: Failed during log_event - Event: #{event_name}, Error: #{e.message}")
-    [Service.build_error_result(event_name)]
+    # StatsD.measure('uum.unique_user_metrics.log_event.duration', duration, tags: ["event_name:#{event_name}"])
+    # result
+    ''
+
+    # rescue => e
+    #   Rails.logger.error("UUM: Failed during log_event - Event: #{event_name}, Error: #{e.message}")
+    #   [Service.build_error_result(event_name)]
   end
 
   # Log multiple unique user events with DataDog metrics

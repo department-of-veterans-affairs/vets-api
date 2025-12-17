@@ -21,10 +21,10 @@ module Mobile
         build_page_metadata(page_meta_data, appointments, partial_errors)
 
         # Log unique user event for appointments accessed
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+        # )
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end

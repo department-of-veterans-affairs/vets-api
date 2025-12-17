@@ -19,10 +19,10 @@ module Mobile
         meta = build_meta(full_list: pruned, page_meta:, originals: all_prescriptions)
 
         # Log unique user event for prescriptions accessed
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        # )
 
         serialized = UnifiedHealthData::Serializers::PrescriptionSerializer.new(paged).serializable_hash
         render json: { **serialized, meta: }
@@ -36,10 +36,10 @@ module Mobile
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
 
         # Log unique user event for prescription refill requested
-        UniqueUserEvents.log_event(
-          user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
-        )
+        # UniqueUserEvents.log_event(
+        #   user: @current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        # )
 
         render json: response.serializable_hash
       end

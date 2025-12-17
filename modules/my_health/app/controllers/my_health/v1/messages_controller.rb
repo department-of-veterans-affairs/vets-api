@@ -29,10 +29,10 @@ module MyHealth
         client_response = create_client_response(message, message_params_h, create_message_params)
 
         # Log unique user event for message sent
-        UniqueUserEvents.log_event(
-          user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
-        )
+        # UniqueUserEvents.log_event(
+        #   user: current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        # )
 
         options = build_response_options(client_response)
         render json: MessageSerializer.new(client_response, options)
@@ -68,10 +68,10 @@ module MyHealth
         client_response = reply_client_response(message, message_params_h, create_message_params)
 
         # Log unique user event for message sent
-        UniqueUserEvents.log_event(
-          user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
-        )
+        # UniqueUserEvents.log_event(
+        #   user: current_user,
+        #   event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        # )
 
         options = build_response_options(client_response)
         render json: MessageSerializer.new(client_response, options), status: :created
