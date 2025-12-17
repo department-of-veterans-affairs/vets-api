@@ -10,7 +10,7 @@ RSpec.describe Pensions::NotificationEmail do
 
   describe '#deliver' do
     it 'successfully sends an email' do
-      allow(Pensions::SavedClaim).to receive(:find).with(23).and_return claim
+      expect(Pensions::SavedClaim).to receive(:find).with(23).and_return claim
       expect(Settings.vanotify.services).to receive(:pensions).and_call_original
 
       api_key = Settings.vanotify.services['21p_527ez'].api_key

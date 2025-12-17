@@ -8,7 +8,7 @@ RSpec.describe Burials::NotificationEmail do
 
   describe '#deliver' do
     it 'successfully sends an email' do
-      allow(Burials::SavedClaim).to receive(:find).with(23).and_return saved_claim
+      expect(Burials::SavedClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:burials).and_call_original
 
       api_key = Settings.vanotify.services['21p_530ez'].api_key

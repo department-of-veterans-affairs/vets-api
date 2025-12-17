@@ -31,8 +31,6 @@ module VeteranFacingServices
         @saved_claim_id = saved_claim_id
         @vanotify_service = service_name
         @service_config = Config::Options.new(service_config) if service_config
-
-        @claim = claim_class.find(saved_claim_id) if saved_claim_id
       end
 
       # deliver a notification for _claim_
@@ -151,7 +149,7 @@ module VeteranFacingServices
         {
           form_id: claim&.form_id,
           claim_id: claim&.id,
-          saved_claim_id: saved_claim_id,
+          saved_claim_id:,
           service_name: vanotify_service,
           email_type:,
           email_template_id:

@@ -9,7 +9,7 @@ RSpec.describe IncomeAndAssets::NotificationEmail do
 
   describe '#deliver' do
     it 'successfully sends an email' do
-      allow(IncomeAndAssets::SavedClaim).to receive(:find).with(23).and_return saved_claim
+      expect(IncomeAndAssets::SavedClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:income_and_assets).and_call_original
 
       api_key = Settings.vanotify.services['21p_0969'].api_key

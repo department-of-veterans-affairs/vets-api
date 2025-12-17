@@ -69,6 +69,16 @@ class MyFormSubmissionJob
 end
 ```
 
+### Bulk Notification
+
+```ruby
+# All the claims MUST be able to use the same personalization and template
+notifier = VeteranFacingServices::NotificationEmail::SavedClaim.new
+claims.each do |claim|
+  notifier.deliver(:confirmation, claim.id)
+end
+```
+
 ## API Reference
 
 ### NotificationEmail::SavedClaim

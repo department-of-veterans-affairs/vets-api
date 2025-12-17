@@ -10,7 +10,7 @@ RSpec.describe DependentsVerification::NotificationEmail do
 
   describe '#deliver' do
     it 'successfully sends an email' do
-      allow(DependentsVerification::SavedClaim).to receive(:find).with(23).and_return saved_claim
+      expect(DependentsVerification::SavedClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:dependents_verification).and_call_original
 
       api_key = Settings.vanotify.services[210_538].api_key
