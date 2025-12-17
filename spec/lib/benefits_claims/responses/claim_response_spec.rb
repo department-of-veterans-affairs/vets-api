@@ -236,7 +236,9 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.tracked_items.first.uploads_allowed).to be(true)
       expect(claim.tracked_items.first.uploaded).to be(false)
       expect(claim.tracked_items.first.friendly_name).to eq('Private Medical Records')
-      expect(claim.tracked_items.first.friendly_description).to eq('We need your medical records from private providers')
+      expect(claim.tracked_items.first.friendly_description).to(
+        eq('We need your medical records from private providers')
+      )
       expect(claim.tracked_items.first.can_upload_file).to be(true)
       expect(claim.tracked_items.first.support_aliases).to eq(['PMR', 'Medical Records'])
       expect(claim.tracked_items.first.documents).to eq('[]')
