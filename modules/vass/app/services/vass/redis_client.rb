@@ -12,10 +12,6 @@ module Vass
   class RedisClient
     attr_reader :settings
 
-    # Rate limiting defaults
-    RATE_LIMIT_MAX_ATTEMPTS = 5
-    RATE_LIMIT_EXPIRY = 15.minutes
-
     ##
     # Factory method to create a new RedisClient instance.
     #
@@ -322,6 +318,76 @@ module Vass
       )
     end
 
+    # ------------ Validation Rate Limiting ------------
+
+    ##
+    # Retrieves the current validation rate limit count for an identifier.
+    #
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
+    # @return [Integer] Current attempt count
+    #
+    def validation_rate_limit_count(identifier:)
+      Rails.cache.read(
+        validation_rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      ).to_i
+    end
+
+    ##
+    # Increments the validation rate limit counter for an identifier.
+    #
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
+    # @return [Integer] New attempt count
+    #
+    def increment_validation_rate_limit(identifier:)
+      current = validation_rate_limit_count(identifier:)
+      new_count = current + 1
+
+      Rails.cache.write(
+        validation_rate_limit_key(identifier),
+        new_count,
+        namespace: 'vass-rate-limit-cache',
+        expires_in: rate_limit_expiry
+      )
+
+      new_count
+    end
+
+    ##
+    # Checks if the identifier has exceeded the validation rate limit.
+    #
+    # @param identifier [String] UUID to check (rate limited per veteran)
+    # @return [Boolean] true if rate limit exceeded
+    #
+    def validation_rate_limit_exceeded?(identifier:)
+      validation_rate_limit_count(identifier:) >= rate_limit_max_attempts
+    end
+
+    ##
+    # Resets the validation rate limit counter for an identifier.
+    #
+    # @param identifier [String] UUID to reset (rate limited per veteran)
+    # @return [void]
+    #
+    def reset_validation_rate_limit(identifier:)
+      Rails.cache.delete(
+        validation_rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      )
+    end
+
+    ##
+    # Gets the remaining validation attempts for an identifier.
+    #
+    # @param identifier [String] UUID to check (rate limited per veteran)
+    # @return [Integer] Number of attempts remaining (0 if limit exceeded)
+    #
+    def validation_attempts_remaining(identifier:)
+      current = validation_rate_limit_count(identifier:)
+      remaining = rate_limit_max_attempts - current
+      [remaining, 0].max
+    end
+
     private
 
     ##
@@ -365,21 +431,31 @@ module Vass
     end
 
     ##
+    # Generates a cache key for validation rate limiting.
+    #
+    # @param identifier [String] UUID for rate limiting
+    # @return [String] Cache key
+    #
+    def validation_rate_limit_key(identifier)
+      "validation_rate_limit_#{identifier}"
+    end
+
+    ##
     # Returns the maximum number of attempts allowed.
     #
     # @return [Integer] Max attempts
     #
     def rate_limit_max_attempts
-      RATE_LIMIT_MAX_ATTEMPTS
+      @settings.rate_limit_max_attempts
     end
 
     ##
-    # Returns the rate limit expiry time.
+    # Returns the rate limit expiry time in seconds.
     #
-    # @return [ActiveSupport::Duration] Expiry duration
+    # @return [Integer] Expiry duration in seconds
     #
     def rate_limit_expiry
-      RATE_LIMIT_EXPIRY
+      @settings.rate_limit_expiry
     end
   end
 end

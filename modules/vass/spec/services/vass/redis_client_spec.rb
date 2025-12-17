@@ -462,7 +462,7 @@ describe Vass::RedisClient do
       expect(redis_client.rate_limit_count(identifier:)).to eq(1)
 
       # After expiry, count should reset to 0
-      Timecop.travel(Vass::RedisClient::RATE_LIMIT_EXPIRY.from_now) do
+      Timecop.travel(redis_client.send(:rate_limit_expiry).seconds.from_now) do
         expect(redis_client.rate_limit_count(identifier:)).to eq(0)
       end
     end
@@ -483,7 +483,8 @@ describe Vass::RedisClient do
 
     context 'when count equals limit' do
       before do
-        Vass::RedisClient::RATE_LIMIT_MAX_ATTEMPTS.times do
+        # Use the settings value
+        redis_client.send(:rate_limit_max_attempts).times do
           redis_client.increment_rate_limit(identifier:)
         end
       end
@@ -495,7 +496,8 @@ describe Vass::RedisClient do
 
     context 'when count exceeds limit' do
       before do
-        (Vass::RedisClient::RATE_LIMIT_MAX_ATTEMPTS + 2).times do
+        # Use the settings value + 2
+        (redis_client.send(:rate_limit_max_attempts) + 2).times do
           redis_client.increment_rate_limit(identifier:)
         end
       end
@@ -576,16 +578,6 @@ describe Vass::RedisClient do
 
       expect(redis_client.rate_limit_count(identifier: '  test-uuid-123  ')).to eq(1)
       expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(1)
-    end
-  end
-
-  describe 'rate limiting constants' do
-    it 'defines RATE_LIMIT_MAX_ATTEMPTS' do
-      expect(Vass::RedisClient::RATE_LIMIT_MAX_ATTEMPTS).to eq(5)
-    end
-
-    it 'defines RATE_LIMIT_EXPIRY' do
-      expect(Vass::RedisClient::RATE_LIMIT_EXPIRY).to eq(15.minutes)
     end
   end
 end
