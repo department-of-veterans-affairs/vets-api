@@ -2,6 +2,7 @@
 
 class SavedClaim::Form21p530a < SavedClaim
   FORM = '21P-530a'
+  DEFAULT_ZIP_CODE = '00000'
 
   validates :form, presence: true
 
@@ -67,7 +68,22 @@ class SavedClaim::Form21p530a < SavedClaim
     # PdfFill::Forms::Va21p530a.stamp_signature(pdf_path, parsed_form)
   end
 
+  # Required metadata format for Lighthouse Benefits Intake API submission
+  # This method extracts veteran identity information and organization address
+  # to ensure proper routing and indexing in VBMS
+  def metadata_for_benefits_intake
+    { veteranFirstName: parsed_form.dig('veteranInformation', 'fullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranInformation', 'fullName', 'last'),
+      fileNumber: parsed_form.dig('veteranInformation', 'vaFileNumber') || parsed_form.dig('veteranInformation', 'ssn'),
+      zipCode: zip_code_for_metadata,
+      businessLine: business_line }
+  end
+
   private
+
+  def zip_code_for_metadata
+    parsed_form.dig('burialInformation', 'recipientOrganization', 'address', 'postalCode') || DEFAULT_ZIP_CODE
+  end
 
   def organization_name
     parsed_form.dig('burialInformation', 'recipientOrganization', 'name') ||

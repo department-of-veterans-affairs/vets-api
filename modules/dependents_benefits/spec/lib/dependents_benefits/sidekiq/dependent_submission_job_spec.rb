@@ -7,9 +7,20 @@ require 'dependents_benefits/notification_email'
 require 'sidekiq/job_retry'
 
 RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('/tmp/dummy.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+    allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_submission_info)
+    allow(monitor).to receive(:track_submission_error)
+    allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
+    allow(claim_processor).to receive(:collect_child_claims).and_return([child_claim])
+    allow(claim_processor).to receive(:handle_successful_submission)
+    allow(claim_processor).to receive(:handle_permanent_failure)
+  end
+
   let(:saved_claim) { create(:dependents_claim) }
   let(:claim_id) { saved_claim.id }
-  let(:proc_id) { 'test-proc-123' }
   let(:job) { described_class.new }
   let(:parent_claim) { create(:dependents_claim) }
   let(:child_claim) { create(:add_remove_dependents_claim) }
@@ -17,17 +28,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
   let(:failed_response) { double('ServiceResponse', success?: false, error: 'Service unavailable') }
   let(:successful_response) { double('ServiceResponse', success?: true) }
   let(:monitor) { instance_double(DependentsBenefits::Monitor) }
-  let(:notification_email) { instance_double(DependentsBenefits::NotificationEmail) }
-
-  before do
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-    allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
-    allow(monitor).to receive(:track_submission_info)
-    allow(DependentsBenefits::NotificationEmail).to receive(:new).and_return(notification_email)
-    allow(notification_email).to receive(:deliver)
-    allow(job).to receive(:create_form_submission_attempt)
-    allow(job).to receive(:find_or_create_form_submission)
-  end
+  let(:claim_processor) { instance_double(DependentsBenefits::ClaimProcessor) }
 
   describe '#perform' do
     context 'when claim group has already failed' do
@@ -35,8 +36,8 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
       let!(:child_claim_group) { create(:saved_claim_group, saved_claim: child_claim, parent_claim:) }
 
       it 'skips submission without creating form submission attempt' do
-        expect(job).not_to receive(:submit_to_service)
-        job.perform(child_claim.id)
+        expect(job).not_to receive(:submit_claims_to_service)
+        job.perform(parent_claim.id)
       end
     end
 
@@ -44,29 +45,27 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
       create(:parent_claim_group, parent_claim:)
       create(:saved_claim_group, saved_claim: child_claim, parent_claim:)
 
-      allow(job).to receive(:submit_to_service).and_return(successful_response)
+      allow(job).to receive(:submit_claims_to_service).and_return(successful_response)
       allow(job).to receive(:handle_job_success)
 
-      job.perform(child_claim.id)
+      job.perform(parent_claim.id)
 
-      expect(job.instance_variable_get(:@claim_id)).to eq(child_claim.id)
+      expect(job.instance_variable_get(:@claim_id)).to eq(parent_claim.id)
     end
 
     context 'when all validations pass' do
-      let(:mock_response) { double('ServiceResponse', success?: true) }
-
       before do
-        allow(job).to receive(:submit_to_service).and_return(mock_response)
+        allow(job).to receive(:submit_claims_to_service).and_return(successful_response)
         allow(job).to receive(:handle_job_success)
       end
 
       it 'follows expected execution order' do
         create(:parent_claim_group, parent_claim:)
         create(:saved_claim_group, saved_claim: child_claim, parent_claim:)
-        expect(job).to receive(:submit_to_service).ordered
+        expect(job).to receive(:submit_claims_to_service).ordered
         expect(job).to receive(:handle_job_success).ordered
 
-        job.perform(child_claim.id)
+        job.perform(parent_claim.id)
       end
     end
 
@@ -76,54 +75,56 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
       it 'skips processing if the parent group failed' do
         parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
-        expect(job).not_to receive(:submit_to_service)
-        job.perform(child_claim.id)
+        expect(job).not_to receive(:submit_claims_to_service)
+        job.perform(parent_claim.id)
       end
 
       it 'handles successful submissions' do
-        allow(job).to receive(:submit_to_service).and_return(successful_response)
+        allow(job).to receive(:submit_claims_to_service).and_return(successful_response)
         expect(job).to receive(:handle_job_success)
-        job.perform(child_claim.id)
+        job.perform(parent_claim.id)
       end
 
-      it 'handles failed submissions' do
-        allow(job).to receive(:submit_to_service).and_return(failed_response)
-        expect(job).to receive(:handle_job_failure).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError))
-        job.perform(child_claim.id)
+      it 'handles failed submissions when submit_claims_to_service raises error' do
+        error = DependentsBenefits::Sidekiq::DependentSubmissionError.new('Service failed')
+        allow(job).to receive(:submit_claims_to_service).and_raise(error)
+        expect(job).to receive(:handle_job_failure).with(error)
+        job.perform(parent_claim.id)
       end
 
       it 'handles errors' do
-        allow(job).to receive(:submit_to_service).and_raise(StandardError, 'Unexpected error')
-        expect(job).to receive(:handle_job_failure).with(instance_of(StandardError))
-        job.perform(child_claim.id)
+        error = StandardError.new('Unexpected error')
+        allow(job).to receive(:submit_claims_to_service).and_raise(error)
+        expect(job).to receive(:handle_job_failure).with(error)
+        job.perform(parent_claim.id)
       end
     end
   end
 
   describe 'exception handling' do
-    context 'when submit_to_service raises exception with message' do
+    context 'when submit_claims_to_service raises exception with message' do
       let(:exception) { StandardError.new('BGS Error: SSN 123-45-6789 invalid') }
       let!(:parent_claim_group) { create(:parent_claim_group, parent_claim:) }
       let!(:child_claim_group) { create(:saved_claim_group, saved_claim: child_claim, parent_claim:) }
 
       before do
-        allow(job).to receive(:submit_to_service).and_raise(exception)
+        allow(job).to receive(:submit_claims_to_service).and_raise(exception)
       end
 
       it 'passes exception object to handle_job_failure, not string' do
         expect(job).to receive(:handle_job_failure).with(exception)
-        job.perform(child_claim.id)
+        job.perform(parent_claim.id)
       end
     end
   end
 
   describe 'sidekiq_retries_exhausted callback' do
     it 'calls handle_permanent_failure' do
-      msg = { 'args' => [claim_id, proc_id], 'class' => job.class.name }
+      msg = { 'args' => [parent_claim.id], 'class' => described_class.name }
       exception = StandardError.new('Service failed')
 
       expect_any_instance_of(described_class).to receive(:handle_permanent_failure)
-        .with(claim_id, exception)
+        .with(parent_claim.id, exception)
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end
@@ -140,209 +141,162 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
   end
 
   describe 'error handling edge cases' do
-    context 'when submit_to_service raises unexpected error' do
+    context 'when submit_claims_to_service raises unexpected error' do
       let(:timeout_error) { Timeout::Error.new }
       let!(:parent_claim_group) { create(:parent_claim_group, parent_claim:) }
       let!(:child_claim_group) { create(:saved_claim_group, saved_claim: child_claim, parent_claim:) }
 
       before do
-        allow(job).to receive(:submit_to_service).and_raise(timeout_error)
+        allow(job).to receive(:submit_claims_to_service).and_raise(timeout_error)
       end
 
       it 'catches and handles timeout errors' do
         expect(job).to receive(:handle_job_failure).with(timeout_error)
-        job.perform(child_claim.id)
+        job.perform(parent_claim.id)
       end
     end
   end
 
   describe 'abstract method enforcement' do
-    it 'raises NotImplementedError for submit_to_service' do
+    it 'raises NotImplementedError for submit_claims_to_service' do
       expect do
-        job.send(:submit_to_service)
-      end.to raise_error(NotImplementedError, 'Subclasses must implement submit_to_service')
+        job.send(:submit_claims_to_service)
+      end.to raise_error(NotImplementedError, 'Subclasses must implement submit_claims_to_service method')
+    end
+
+    it 'raises NotImplementedError for submit_686c_form' do
+      expect do
+        job.send(:submit_686c_form, nil)
+      end.to raise_error(NotImplementedError, 'Subclasses must implement submit_686c_form method')
+    end
+
+    it 'raises NotImplementedError for submit_674_form' do
+      expect do
+        job.send(:submit_674_form, nil)
+      end.to raise_error(NotImplementedError, 'Subclasses must implement submit_674_form method')
+    end
+
+    it 'raises NotImplementedError for submission_previously_succeeded?' do
+      expect do
+        job.send(:submission_previously_succeeded?, nil)
+      end.to raise_error(NotImplementedError, 'Subclasses must implement submission_previously_succeeded?')
     end
 
     it 'raises NotImplementedError for find_or_create_form_submission' do
-      allow(job).to receive(:find_or_create_form_submission).and_call_original
       expect do
-        job.send(:find_or_create_form_submission)
+        job.send(:find_or_create_form_submission, nil)
       end.to raise_error(NotImplementedError, 'Subclasses must implement find_or_create_form_submission')
     end
 
     it 'raises NotImplementedError for create_form_submission_attempt' do
-      # Remove the stub for this specific test
-      allow(job).to receive(:create_form_submission_attempt).and_call_original
       expect do
-        job.send(:create_form_submission_attempt)
+        job.send(:create_form_submission_attempt, nil)
       end.to raise_error(NotImplementedError, 'Subclasses must implement create_form_submission_attempt')
+    end
+
+    it 'raises NotImplementedError for mark_submission_attempt_succeeded' do
+      expect do
+        job.send(:mark_submission_attempt_succeeded, nil)
+      end.to raise_error(NotImplementedError, 'Subclasses must implement mark_submission_attempt_succeeded')
+    end
+
+    it 'raises NotImplementedError for mark_submission_attempt_failed' do
+      expect do
+        job.send(:mark_submission_attempt_failed, nil, nil)
+      end.to raise_error(NotImplementedError, 'Subclasses must implement mark_submission_attempt_failed')
     end
   end
 
   describe '#handle_job_success' do
     let!(:parent_claim_group) { create(:parent_claim_group, parent_claim:) }
-    let!(:child_claim_group) { create(:saved_claim_group, saved_claim: child_claim, parent_claim:) }
-    let!(:sibling_claim_group) { create(:saved_claim_group, saved_claim: sibling_claim, parent_claim:) }
 
     before do
-      allow(job).to receive(:claim_id).and_return(child_claim.id)
+      allow(job).to receive(:parent_claim_id).and_return(parent_claim.id)
     end
 
-    it 'marks the submission attempt and submission as succeeded' do
-      allow(job).to receive(:all_current_group_submissions_succeeded?).and_return(false)
-      expect(job).to receive(:mark_submission_succeeded)
+    it 'delegates to claim_processor' do
+      expect(claim_processor).to receive(:handle_successful_submission)
       job.send(:handle_job_success)
     end
 
-    context 'when current_groups are pending' do
-      it 'does not mark claim group as succeeded' do
-        allow(job).to receive(:all_current_group_submissions_succeeded?).and_return(false)
-        allow(job).to receive(:mark_submission_succeeded)
-        expect(job).not_to receive(:mark_current_group_succeeded)
-        job.send(:handle_job_success)
-      end
-    end
-
-    context 'when all current_groups are successful' do
-      before do
-        allow(job).to receive(:all_current_group_submissions_succeeded?).and_return(true)
-        allow(job).to receive(:mark_submission_succeeded)
-      end
-
-      it 'marks the claim group as succeeded' do
-        expect(job).to receive(:mark_current_group_succeeded)
-        job.send(:handle_job_success)
-      end
-
-      context 'when any group is still pending' do
-        it 'does not mark the parent claim group as succeeded' do
-          expect(job).not_to receive(:mark_parent_group_succeeded)
-          expect(notification_email).not_to receive(:send_received_notification)
-          job.send(:handle_job_success)
-        end
-      end
-
-      context 'when all claim jobs have succeeded' do
-        it 'marks the parent claim group as succeeded and notifies user' do
-          sibling_claim_group.update!(status: SavedClaimGroup::STATUSES[:SUCCESS])
-          expect(job).to receive(:mark_parent_group_succeeded).and_call_original
-          expect(notification_email).to receive(:send_received_notification)
-          job.send(:handle_job_success)
-        end
-      end
-    end
-
-    context 'when the parent has failed' do
-      it 'does not mark the claim group or parent claim group as succeeded' do
-        parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
-        allow(job).to receive(:mark_submission_succeeded)
-        expect(job).not_to receive(:mark_parent_group_succeeded)
-        expect(notification_email).not_to receive(:send_received_notification)
-        job.send(:handle_job_success)
-      end
+    it 'logs submission info' do
+      expect(monitor).to receive(:track_submission_info).with(
+        match(/Successfully submitted/),
+        'success',
+        parent_claim_id: parent_claim.id
+      )
+      job.send(:handle_job_success)
     end
   end
 
   describe '#handle_job_failure' do
     let!(:parent_claim_group) { create(:parent_claim_group, parent_claim:) }
-    let!(:child_claim_group) { create(:saved_claim_group, saved_claim: child_claim, parent_claim:) }
-    let!(:sibling_claim_group) { create(:saved_claim_group, saved_claim: sibling_claim, parent_claim:) }
 
     before do
-      allow(job).to receive(:claim_id).and_return(child_claim.id)
-      allow(monitor).to receive(:track_submission_error)
+      job.instance_variable_set(:@claim_id, parent_claim.id)
     end
 
     context 'when the failure is permanent' do
+      let(:error) { StandardError.new('Service destroyed') }
+
       before do
         allow(job).to receive(:permanent_failure?).and_return(true)
-        allow(job).to receive(:mark_submission_attempt_failed)
       end
 
-      it 'calls #handle_permanent_failure' do
-        expect(job).to receive(:mark_submission_attempt_failed)
-        expect(job).to receive(:handle_permanent_failure)
-        expect { job.send(:handle_job_failure, 'Service destroyed') }.to raise_error(Sidekiq::JobRetry::Skip)
+      it 'calls handle_permanent_failure and skips retry' do
+        expect(job).to receive(:handle_permanent_failure).with(parent_claim.id, error)
+        expect { job.send(:handle_job_failure, error) }.to raise_error(Sidekiq::JobRetry::Skip)
       end
     end
 
     context 'when the failure is transient' do
+      let(:error) { StandardError.new('Service unavailable') }
+
       before do
         allow(job).to receive(:permanent_failure?).and_return(false)
-        allow(job).to receive(:mark_submission_attempt_failed)
       end
 
-      it 'raises the error' do
-        expect(job).to receive(:mark_submission_attempt_failed)
-        expect { job.send(:handle_job_failure, 'Service destroyed') }.to raise_error('Service destroyed')
+      it 'raises DependentSubmissionError to trigger retry' do
+        expect { job.send(:handle_job_failure, error) }.to raise_error(
+          DependentsBenefits::Sidekiq::DependentSubmissionError,
+          error.message
+        )
       end
     end
   end
 
   describe '#handle_permanent_failure' do
     let!(:parent_claim_group) { create(:parent_claim_group, parent_claim:) }
-    let!(:child_claim_group) { create(:saved_claim_group, saved_claim: child_claim, parent_claim:) }
-    let!(:sibling_claim_group) { create(:saved_claim_group, saved_claim: sibling_claim, parent_claim:) }
+    let(:exception) { StandardError.new('Service destroyed') }
 
     before do
-      allow(job).to receive(:claim_id).and_return(child_claim.id)
-      allow(monitor).to receive(:track_submission_error)
+      allow(job).to receive(:parent_claim_id).and_return(parent_claim.id)
     end
 
-    it 'marks the submission and claim group as failed' do
-      expect(job).to receive(:mark_submission_failed)
-      expect(job).to receive(:mark_current_group_failed)
-      job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
+    it 'delegates to claim_processor' do
+      expect(claim_processor).to receive(:handle_permanent_failure).with(exception)
+      job.send(:handle_permanent_failure, parent_claim.id, exception)
     end
 
-    context 'when the parent claim is already failed' do
-      before do
-        allow(job).to receive(:mark_submission_failed)
-        parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
-      end
-
-      it 'does not notify the user' do
-        expect(job).not_to receive(:mark_parent_group_failed)
-        expect(notification_email).not_to receive(:send_error_notification)
-        expect(monitor).not_to receive(:log_silent_failure_avoided)
-        job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
-      end
-    end
-
-    context 'when the parent claim is pending' do
-      before do
-        allow(job).to receive(:mark_submission_failed)
-      end
-
-      it 'sends the backup job' do
-        expect(job).to receive(:send_backup_job)
-        job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
-      end
-    end
-
-    context 'when there is an error in the process' do
-      it 'notifies the user' do
-        allow(job).to receive(:mark_submission_failed)
-        allow(job).to receive(:send_backup_job).and_raise(StandardError, 'Submission not found')
-        expect(monitor).to receive(:log_silent_failure_avoided)
-        expect(notification_email).to receive(:send_error_notification)
-        job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
-      end
-
-      it 'logs a silent failure if notification fails' do
-        allow(job).to receive(:mark_submission_failed).and_raise(StandardError, 'Submission not found')
-        allow(notification_email).to receive(:send_error_notification).and_raise(StandardError, 'Email service down')
-        expect(monitor).to receive(:log_silent_failure)
-        job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
-      end
+    it 'logs the permanent failure' do
+      expect(monitor).to receive(:track_submission_error).with(
+        match(/Error submitting/),
+        'error.permanent',
+        error: exception,
+        parent_claim_id: parent_claim.id,
+        claim_id: parent_claim.id
+      )
+      job.send(:handle_permanent_failure, parent_claim.id, exception)
     end
   end
 
   describe '#sidekiq_retries_exhausted' do
-    it 'logs a distinct error when no claim_id provided' do
-      described_class.within_sidekiq_retries_exhausted_block({ 'args' => [child_claim.id, 'proc_id'] }, 'Failure!') do
+    it 'handles retries exhausted with parent_claim_id' do
+      described_class.within_sidekiq_retries_exhausted_block(
+        { 'args' => [parent_claim.id], 'class' => described_class.name }, 'Failure!'
+      ) do
         allow(described_class).to receive(:new).and_return(job)
-        expect(job).to receive(:handle_permanent_failure).with(child_claim.id, 'Failure!')
+        expect(job).to receive(:handle_permanent_failure).with(parent_claim.id, 'Failure!')
       end
     end
   end

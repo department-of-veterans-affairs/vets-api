@@ -25,6 +25,8 @@ describe BBInternal::Client do
     before do
       allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
       allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
+      allow(redis).to receive(:set).with(/study_map_lock:/, 1, any_args).and_return(true)
+      allow(redis).to receive(:del).with(/study_map_lock:/)
     end
   end
 
@@ -60,7 +62,7 @@ describe BBInternal::Client do
     include_context 'redis setup'
 
     before do
-      allow(redis).to receive(:set)
+      allow(redis).to receive(:set).with(study_data_key, any_args)
       allow(Rails.logger).to receive(:info)
     end
 
@@ -487,6 +489,50 @@ describe BBInternal::Client do
         expect(first_record['permCity']).to be_a(String)
         expect(first_record).to have_key('permState')
         expect(first_record['permState']).to be_a(String)
+      end
+    end
+  end
+
+  describe '#with_study_map_lock' do
+    include_context 'redis setup'
+
+    let(:lock_key) { "study_map_lock:#{client.session.patient_id}" }
+
+    before do
+      allow(Rails.logger).to receive(:error)
+      allow(client).to receive(:sleep)
+    end
+
+    context 'when lock is acquired successfully' do
+      it 'yields the block and releases the lock' do
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: BBInternal::Client::LOCK_TTL_SECONDS).and_return(true)
+        expect(redis).to receive(:del).with(lock_key)
+
+        expect { |b| client.send(:with_study_map_lock, &b) }.to yield_control
+      end
+    end
+
+    context 'when lock is not acquired immediately' do
+      it 'retries and eventually acquires the lock' do
+        # Fail first time, succeed second time
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: BBInternal::Client::LOCK_TTL_SECONDS).and_return(
+          false, true
+        )
+        expect(redis).to receive(:del).with(lock_key)
+        expect(client).to receive(:sleep).with(BBInternal::Client::LOCK_RETRY_DELAY).once
+
+        expect { |b| client.send(:with_study_map_lock, &b) }.to yield_control
+      end
+    end
+
+    context 'when lock cannot be acquired' do
+      it 'logs an error and raises ServiceError' do
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: BBInternal::Client::LOCK_TTL_SECONDS).exactly(BBInternal::Client::LOCK_RETRY_COUNT).times.and_return(false)
+        expect(redis).not_to receive(:del).with(lock_key)
+        expect(client).to receive(:sleep).with(BBInternal::Client::LOCK_RETRY_DELAY).exactly(BBInternal::Client::LOCK_RETRY_COUNT).times
+
+        expect { client.send(:with_study_map_lock) { 'block content' } }
+          .to raise_error(Common::Exceptions::ServiceError)
       end
     end
   end

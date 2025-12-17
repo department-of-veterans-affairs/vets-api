@@ -20,8 +20,31 @@ RSpec.describe DependentsVerification::SavedClaim do
   end
 
   describe '#email' do
-    it 'returns the users email' do
-      expect(instance.email).to eq('maximal@example.com')
+    context 'with va_profile_email feature disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lifestage_va_profile_email).and_return(false)
+      end
+
+      it 'returns the users email' do
+        expect(instance.email).to eq('maximal@example.com')
+      end
+    end
+
+    context 'with va_profile_email feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lifestage_va_profile_email).and_return(true)
+      end
+
+      it 'returns the va_profile_email if present' do
+        form_data = instance.parsed_form
+        form_data['va_profile_email'] = 'va_profile@example.com'
+        allow(instance).to receive(:parsed_form).and_return(form_data)
+        expect(instance.email).to eq('va_profile@example.com')
+      end
+
+      it 'returns the users email if va_profile_email is not present' do
+        expect(instance.email).to eq('maximal@example.com')
+      end
     end
   end
 

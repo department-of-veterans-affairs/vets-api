@@ -2,6 +2,18 @@
 
 module SimpleFormsApi
   class ScannedFormUploadService
+    class UploadError < StandardError
+      attr_reader :errors, :http_status
+
+      def initialize(message = 'Upload failed', errors: nil, http_status: :bad_gateway)
+        super(message)
+        normalized_errors = Array(errors)
+        normalized_errors = [{ title: 'Upload failed', detail: message }] if normalized_errors.empty?
+        @errors = normalized_errors
+        @http_status = http_status
+      end
+    end
+
     attr_reader :params, :current_user, :lighthouse_service
 
     def initialize(params:, current_user:, lighthouse_service:)
@@ -20,6 +32,16 @@ module SimpleFormsApi
       log_upload_result(main_file_path, status, confirmation_number)
 
       [status, confirmation_number]
+    rescue Common::Client::Errors::Error, Timeout::Error, Faraday::Error => e
+      Rails.logger.error('Simple forms api - supporting document upload failed', { error: e.message })
+      raise UploadError.new(
+        'Supporting document submission failed',
+        errors: [{
+          title: 'Submission failed',
+          detail: 'We could not submit your documents. Please try again later.'
+        }],
+        http_status: error_status(e)
+      )
     end
 
     private
@@ -41,6 +63,7 @@ module SimpleFormsApi
       file_path = find_main_attachment_path(attachment)
       stamper = SimpleFormsApi::PdfStamper.new(
         stamped_template_path: file_path,
+        form_number: params[:form_number],
         current_loa: current_user.loa[:current],
         timestamp: Time.current
       )
@@ -114,6 +137,12 @@ module SimpleFormsApi
         { form_number: params[:form_number], status:, confirmation_number:,
           file_size: }
       )
+    end
+
+    def error_status(error)
+      return error.status if error.respond_to?(:status) && error.status
+
+      :bad_gateway
     end
   end
 end

@@ -1793,8 +1793,10 @@ module PdfFill
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
-          stepchild['address']['postal_code'] = split_postal_code(stepchild['address'])
-          stepchild['address']['country'] = extract_country(stepchild['address'])
+          if stepchild['address'].present?
+            stepchild['address']['postal_code'] = split_postal_code(stepchild['address'])
+            stepchild['address']['country'] = extract_country(stepchild['address'])
+          end
 
           # expand living_expenses_paid
           living_expenses_paid = stepchild['living_expenses_paid']
@@ -1961,7 +1963,7 @@ module PdfFill
       def add_dependent_income(dependent_name, dependent_income)
         return '' if dependent_name.blank?
 
-        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_boolean(dependent_income)}"
+        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_radio_yes_no(dependent_income)}"
       end
 
       def add_dependents(dependents_hash, income_attr)

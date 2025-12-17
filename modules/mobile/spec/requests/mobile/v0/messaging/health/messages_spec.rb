@@ -55,17 +55,15 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         expect(response).to match_camelized_response_schema('category')
       end
 
-      it 'responds to GET #show' do
+      it 'responds to GET #show with inactive triage group' do
         VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
-          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
         end
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        response_hash = JSON.parse(response.body)
-        response_hash.delete('meta')
-        response.body = response_hash.to_json
+        expect(response.parsed_body['meta']['userInTriageTeam']).to be(false)
         expect(response).to match_camelized_response_schema('message', strict: false)
         link = response.parsed_body.dig('data', 'links', 'self')
         expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/573059')
@@ -79,16 +77,16 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                             '/health/messages/573059/attachments/674847' } })
       end
 
-      it 'generates mobile-specific metadata links' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+      it 'responds to GET #show with active triage group' do
+        VCR.use_cassette('mobile/messages/gets_a_message_active_triage_team') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
         end
-
-        result = JSON.parse(response.body)
-        expect(result['data']['links']['self']).to match(%r{/mobile/v0})
-        expect(result['meta']['userInTriageTeam?']).to be(false)
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['meta']['userInTriageTeam']).to be(true)
+        expect(response).to match_camelized_response_schema('message', strict: false)
       end
 
       it 'returns message signature preferences' do
@@ -140,7 +138,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-            expect(response).to match_camelized_response_schema('message')
+            expect(response).to match_camelized_response_schema('message', strict: false)
             included = response.parsed_body.dig('included', 0)
             expect(included).to be_nil
 
@@ -180,7 +178,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-            expect(response).to match_camelized_response_schema('message')
+            expect(response).to match_camelized_response_schema('message', strict: false)
 
             # Verify event logging was called
             expect(UniqueUserEvents).to have_received(:log_event).with(
@@ -232,6 +230,87 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                    headers: sis_headers,
                    params: { message: params }
             end
+
+            expect(response).to be_successful
+          end
+        end
+
+        context 'multipart form data with is_oh_triage_group inside stringified JSON message' do
+          # This tests the fix for the mobile app behavior where multipart/form-data requests
+          # send `message` as a JSON string containing `is_oh_triage_group` inside it,
+          # rather than as a separate top-level form field or query parameter.
+          let(:attachment_type) { 'image/jpg' }
+          let(:uploads) { [Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type)] }
+          let(:message_params) { attributes_for(:message, subject: 'OH Multipart Test', body: 'Body') }
+
+          it 'correctly detects is_oh_triage_group when inside stringified JSON on create with attachments' do
+            # Simulate mobile app behavior: message is a JSON string with is_oh_triage_group inside
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: true)
+            stringified_message = message_with_oh_flag.to_json
+
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            # NOTE: NO query param is_oh_triage_group - it's only inside the JSON string
+            post '/mobile/v0/messaging/health/messages',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
+
+            expect(response).to be_successful
+          end
+
+          it 'correctly detects is_oh_triage_group when inside stringified JSON on reply with attachments' do
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: true)
+            stringified_message = message_with_oh_flag.to_json
+
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_reply_with_attachment)
+              .with(kind_of(String), kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages/674838/reply',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
+
+            expect(response).to be_successful
+          end
+
+          it 'extends timeout when is_oh_triage_group is inside stringified JSON on create' do
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: true)
+            stringified_message = message_with_oh_flag.to_json
+
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
+
+            expect(response).to be_successful
+            expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+          end
+
+          it 'does not trigger polling when is_oh_triage_group is false inside stringified JSON' do
+            message_with_oh_flag = message_params.slice(:subject, :category, :recipient_id, :body)
+                                                 .merge(is_oh_triage_group: false)
+            stringified_message = message_with_oh_flag.to_json
+
+            # Should NOT receive poll_for_status: true
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: false)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages',
+                 headers: sis_headers,
+                 params: { message: stringified_message, uploads: }
 
             expect(response).to be_successful
           end
@@ -304,7 +383,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
           it 'does not extend timeout for non-create/reply actions like show' do
             VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
                 get "/mobile/v0/messaging/health/messages/#{message_id}?is_oh_triage_group=true",
                     headers: sis_headers
 

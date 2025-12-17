@@ -5,6 +5,8 @@ require 'base64'
 
 module TravelPay
   class ExpensesService
+    include ExpenseNormalizer
+
     def initialize(auth_manager)
       @auth_manager = auth_manager
     end
@@ -32,7 +34,6 @@ module TravelPay
       raise ArgumentError, 'You must provide a claim ID to create an expense.' unless params['claim_id']
 
       Rails.logger.info("Creating expense of type: #{params['expense_type']}")
-
       # Build the request body for the API
       request_body = build_expense_request_body(params)
 
@@ -54,7 +55,10 @@ module TravelPay
       Rails.logger.info("Getting expense of type: #{expense_type} with ID: #{expense_id}")
 
       response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
-      response.body['data']
+      expense = response.body['data']
+
+      # Normalize expense type
+      normalize_expense(expense)
     rescue Faraday::Error => e
       Rails.logger.error("Failed to get expense via API: #{e.message}")
       TravelPay::ServiceError.raise_mapped_error(e)
@@ -92,44 +96,48 @@ module TravelPay
 
     ##
     # Builds the request body for the expense API call
+    # Transforms snake_case params to camelCase for the API
     #
     # @param params [Hash] The expense parameters
     # @return [Hash] The formatted request body
     #
     def build_expense_request_body(params)
-      request_body = {
-        'dateIncurred' => params['purchase_date'],
-        'description' => params['description'],
-        'costRequested' => params['cost_requested'],
-        'expenseType' => params['expense_type']
+      # Map of special cases where the API field name doesn't follow simple camelCase conversion
+      special_mappings = {
+        'purchase_date' => 'dateIncurred',
+        'receipt' => 'expenseReceipt'
       }
 
-      # Only add claimId if it exists in params
-      request_body['claimId'] = params['claim_id'] if params['claim_id'].present?
+      request_body = {}
 
-      # Include placeholder receipt unless feature flag is enabled to exclude it
-      unless Flipper.enabled?(:travel_pay_exclude_expense_placeholder_receipt)
-        request_body['expenseReceipt'] = build_placeholder_receipt
+      params.each do |key, value|
+        next if value.nil?
+
+        # Use special mapping if it exists, otherwise convert to camelCase
+        key_str = key.to_s
+        api_key = special_mappings[key_str] || key_str.camelize(:lower)
+
+        # Transform hashes (like receipt)
+        request_body[api_key] = camelize_hash_keys(value)
       end
 
       request_body
     end
 
     ##
-    # Builds the smallest possible placeholder receipt that satisfies the client contract
+    # Transforms hash values to camelCase
+    # For receipt parameter which is a hash with properties
     #
-    # @return [Hash] The minimal placeholder receipt data
+    # @param value [Object] The value to transform
+    # @return [Object] The transformed value
     #
-    def build_placeholder_receipt
-      # Minimal valid BMP (1x1 white pixel) - 58 bytes
-      bmp_base64 = 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
-
-      {
-        'contentType' => 'image/bmp',
-        'length' => 58,
-        'fileName' => 'placeholder.bmp',
-        'fileData' => bmp_base64
-      }
+    def camelize_hash_keys(value)
+      case value
+      when Hash
+        value.transform_keys { |k| k.to_s.camelize(:lower) }
+      else
+        value
+      end
     end
 
     def client

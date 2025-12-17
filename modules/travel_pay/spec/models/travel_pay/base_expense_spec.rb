@@ -71,13 +71,19 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     context 'description validation' do
-      it 'requires description to be present' do
+      it 'allows description to be nil' do
         subject.description = nil
-        expect(subject).not_to be_valid
-        expect(subject.errors[:description]).to include("can't be blank")
+        expect(subject).to be_valid
+        expect(subject.errors[:description]).to be_empty
       end
 
-      it 'requires description to be 255 characters or less' do
+      it 'allows description to be blank/empty string' do
+        subject.description = ''
+        expect(subject).to be_valid
+        expect(subject.errors[:description]).to be_empty
+      end
+
+      it 'requires description to be 255 characters or less when present' do
         subject.description = 'a' * 256
         expect(subject).not_to be_valid
         expect(subject.errors[:description]).to include('is too long (maximum is 255 characters)')
@@ -227,16 +233,18 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     it 'includes has_receipt flag when receipt is present' do
-      subject.receipt = double('Receipt')
+      subject.receipt = { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
       json = subject.to_h
       expect(json['has_receipt']).to be true
     end
 
     it 'includes receipt when receipt is present' do
-      mock_receipt = double('Receipt')
+      mock_receipt = { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
+      expected_receipt_data = { fileName: 'test', fileData: 'data', contentType: 'type',
+                                length: 123 }.with_indifferent_access
       subject.receipt = mock_receipt
       json = subject.to_h
-      expect(json['receipt']).to eq(mock_receipt)
+      expect(json['receipt']).to eq(expected_receipt_data)
     end
   end
 
@@ -310,7 +318,8 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     it 'inherits all validations' do
       custom_expense = custom_expense_class.new
       custom_expense.valid?
-      expect(custom_expense.errors[:description]).to include("can't be blank")
+      # description allows nil, so no error when nil
+      expect(custom_expense.errors[:description]).to be_empty
       expect(custom_expense.errors[:cost_requested]).to include("can't be blank")
       expect(custom_expense.errors[:purchase_date]).to include("can't be blank")
     end
@@ -359,7 +368,7 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     context 'creating an expense with receipt' do
-      let(:mock_receipt) { double('Receipt', id: 'receipt-123') }
+      let(:mock_receipt) { { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 } }
       let(:expense) do
         described_class.new(
           description: 'Expense with receipt',
@@ -385,6 +394,137 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
         expect(Rails.logger).to receive(:debug)
         result = subject.send(:find_claim_by_id, 'test-id')
         expect(result).to be_nil
+      end
+    end
+
+    describe '#format_date' do
+      it 'formats Date objects as ISO8601 strings' do
+        date = Date.new(2024, 3, 15)
+        result = subject.send(:format_date, date)
+        expect(result).to eq('2024-03-15')
+      end
+
+      it 'formats DateTime objects as ISO8601 strings' do
+        datetime = DateTime.new(2024, 3, 15, 14, 30, 0)
+        result = subject.send(:format_date, datetime)
+        expect(result).to eq('2024-03-15T14:30:00+00:00')
+      end
+
+      it 'formats Time objects as ISO8601 strings' do
+        time = Time.utc(2024, 3, 15, 14, 30, 0)
+        result = subject.send(:format_date, time)
+        expect(result).to eq('2024-03-15T14:30:00Z')
+      end
+
+      it 'formats valid ISO8601 string inputs' do
+        date_string = '2024-03-15'
+        result = subject.send(:format_date, date_string)
+        expect(result).to eq('2024-03-15')
+      end
+
+      it 'returns nil for invalid date strings' do
+        result = subject.send(:format_date, 'not-a-date')
+        expect(result).to be_nil
+      end
+
+      it 'returns nil for nil input' do
+        result = subject.send(:format_date, nil)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil for unsupported types' do
+        result = subject.send(:format_date, 12_345)
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '.permitted_params' do
+    it 'returns base expense permitted parameters' do
+      params = described_class.permitted_params
+      expect(params).to eq(%i[purchase_date description cost_requested receipt])
+    end
+
+    it 'returns an array of symbols' do
+      params = described_class.permitted_params
+      expect(params).to be_an(Array)
+      expect(params).to all(be_a(Symbol))
+    end
+  end
+
+  describe '#to_service_params' do
+    subject { described_class.new(valid_attributes.merge(claim_id: 'claim-uuid-123')) }
+
+    it 'returns a hash with expense_type' do
+      params = subject.to_service_params
+      expect(params['expense_type']).to eq('other')
+    end
+
+    it 'includes formatted purchase_date' do
+      params = subject.to_service_params
+      expect(params['purchase_date']).to be_a(String)
+      expect(params['purchase_date']).to match(/\d{4}-\d{2}-\d{2}/)
+    end
+
+    it 'includes description' do
+      params = subject.to_service_params
+      expect(params['description']).to eq('General expense')
+    end
+
+    it 'includes cost_requested' do
+      params = subject.to_service_params
+      expect(params['cost_requested']).to eq(100.00)
+    end
+
+    it 'includes claim_id when present' do
+      params = subject.to_service_params
+      expect(params['claim_id']).to eq('claim-uuid-123')
+    end
+
+    it 'excludes claim_id when nil' do
+      subject.claim_id = nil
+      params = subject.to_service_params
+      expect(params).not_to have_key('claim_id')
+    end
+
+    it 'excludes claim_id when blank' do
+      subject.claim_id = ''
+      params = subject.to_service_params
+      expect(params).not_to have_key('claim_id')
+    end
+
+    it 'handles nil purchase_date gracefully' do
+      subject.purchase_date = nil
+      params = subject.to_service_params
+      expect(params['purchase_date']).to be_nil
+    end
+
+    context 'with receipt' do
+      let(:receipt_data) do
+        { file_name: 'receipt.pdf', content_type: 'application/pdf', file_data: 'contents',
+          length: 120 }.with_indifferent_access
+      end
+      let(:expected_receipt_data) do
+        { fileName: 'receipt.pdf', contentType: 'application/pdf', fileData: 'contents',
+          length: 120 }.with_indifferent_access
+      end
+
+      it 'includes receipt when present' do
+        subject.receipt = receipt_data
+        params = subject.to_service_params
+        expect(params['receipt']).to eq(expected_receipt_data)
+      end
+
+      it 'excludes receipt when nil' do
+        subject.receipt = nil
+        params = subject.to_service_params
+        expect(params).not_to have_key('receipt')
+      end
+
+      it 'excludes receipt when blank' do
+        subject.receipt = ''
+        params = subject.to_service_params
+        expect(params).not_to have_key('receipt')
       end
     end
   end

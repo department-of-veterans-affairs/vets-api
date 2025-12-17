@@ -2,11 +2,11 @@
 
 require_relative 'service'
 require_relative 'errors/ch31_errors'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module RES
   class Ch31Form < RES::Service
-    include SentryLogging
+    include Vets::SharedLogging
     configuration RES::Configuration
     STATSD_KEY_PREFIX = 'api.res'
 
@@ -95,6 +95,10 @@ module RES
       vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
       vet_info['regionalOffice'] = vet_info['regionalOfficeName']
       vet_info.delete(:regionalOfficeName)
+
+      if Flipper.enabled?(:vre_send_icn_to_res)
+        vet_info['icn'] = @user&.icn.present? ? @user.icn : nil
+      end
 
       vet_info
     end

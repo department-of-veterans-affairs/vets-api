@@ -14,20 +14,30 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
           response = subject.get_enrollment_periods(icn:)
 
           expect(response).to eq([
-                                   {
-                                     'startDate' => '2024-03-05',
-                                     'endDate' => '2024-03-05'
-                                   }
+                                   { 'startDate' => '2024-03-05',
+                                     'endDate' => '2024-03-05' },
+                                   { 'startDate' => '2019-03-05',
+                                     'endDate' => '2022-03-05' },
+                                   { 'startDate' => '2010-03-05',
+                                     'endDate' => '2015-03-05' }
                                  ])
         end
       end
     end
 
     context 'when an error status is received' do
-      it 'raises an error' do
+      it 'increments StatsD and raises the appropriate error' do
         VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
                          { match_requests_on: %i[method uri] }) do
-          expect { subject.get_enrollment_periods(icn:) }.to raise_error(Common::Client::Errors::ClientError)
+          expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.fail',
+                                                     { tags: ['error:CommonExceptionsResourceNotFound'] })
+          expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.total')
+          expect { subject.get_enrollment_periods(icn:) }.to \
+            raise_error(Common::Exceptions::ResourceNotFound, 'Resource not found') do |error|
+            expect(error.errors.first.detail).to eq(
+              'No enrollments found for the provided ICN [REDACTED] with tax year 2024.'
+            )
+          end
         end
       end
     end

@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module TravelClaim
   ##
   # A service client for handling HTTP requests to the Travel Reimbursement API.
   #
   class Client
     extend Forwardable
-    include SentryLogging
+    include Vets::SharedLogging
 
     GRANT_TYPE = 'client_credentials'
     CLAIMANT_ID_TYPE = 'icn'
@@ -14,8 +16,8 @@ module TravelClaim
 
     attr_reader :settings, :check_in, :client_number
 
-    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
-                   :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
+    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :claims_url, :claims_base_path,
+                   :subscription_key, :e_subscription_key, :s_subscription_key, :scope, :service_name
 
     ##
     # Builds a Client instance
@@ -50,6 +52,8 @@ module TravelClaim
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
+
+      log_message_to_rails(e.original_body, :error)
       raise e
     end
 
@@ -76,6 +80,8 @@ module TravelClaim
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
+
+      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -101,6 +107,8 @@ module TravelClaim
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
+
+      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -123,6 +131,8 @@ module TravelClaim
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
+
+      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 

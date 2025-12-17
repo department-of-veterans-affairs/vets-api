@@ -116,6 +116,7 @@
                 "birls_id",
                 "edipi",
                 "sec_id",
+                "npi_id",
                 "logingov_uuid",
                 "idme_uuid",
                 "id_theft_flag"
@@ -227,6 +228,9 @@
                     "string",
                     null
                   ]
+                },
+                "npi_id": {
+                  "type": ["string", "null"]
                 },
                 "logingov_uuid": {
                   "type": [
@@ -362,6 +366,15 @@
                     },
                     "active_mhv_ids": {
                       "type": "array"
+                    },
+                    "user_at_pretransitioned_oh_facility": {
+                      "type": "boolean"
+                    },
+                    "user_facility_ready_for_info_alert": {
+                      "type": "boolean"
+                    },
+                    "healthcare_settings_pilot_eligible": {
+                      "type": "boolean"
                     }
                   }
                 }
