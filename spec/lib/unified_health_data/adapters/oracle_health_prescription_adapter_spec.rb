@@ -553,8 +553,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    # Gate 4: Must have zero refills remaining
-    context 'Gate 4: with refills remaining' do
+    # Gate 6: Refills exhausted OR prescription expired
+    # Note: If prescription is expired (validity period ended), it IS renewable even with refills remaining
+    context 'Gate 6: with refills remaining but prescription expired' do
       let(:refills_remaining_resource) do
         base_renewable_resource.merge(
           'dispenseRequest' => {
@@ -566,13 +567,13 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'returns false when refills are remaining' do
-        expect(subject.send(:extract_is_renewable, refills_remaining_resource)).to be false
+      it 'returns true when refills remain but prescription is expired' do
+        expect(subject.send(:extract_is_renewable, refills_remaining_resource)).to be true
       end
     end
 
-    # Gate 5: No active processing
-    context 'Gate 5: with in-progress dispense' do
+    # Gate 7: No active processing
+    context 'Gate 7: with in-progress dispense' do
       let(:in_progress_resource) do
         base_renewable_resource.merge(
           'contained' => [
@@ -597,7 +598,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 5: with preparation dispense' do
+    context 'Gate 7: with preparation dispense' do
       let(:preparation_resource) do
         base_renewable_resource.merge(
           'contained' => [
@@ -622,7 +623,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'Gate 5: with web/mobile refill request extension' do
+    context 'Gate 7: with web/mobile refill request extension' do
       let(:refill_requested_resource) do
         base_renewable_resource.merge(
           'extension' => [
@@ -639,8 +640,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    # Gate 6: Within 120 days of validity period end
-    context 'Gate 6: expired more than 120 days ago' do
+    # Gate 5: Within 120 days of validity period end
+    context 'Gate 5: expired more than 120 days ago' do
       let(:old_expired_resource) do
         base_renewable_resource.merge(
           'dispenseRequest' => {
@@ -2505,11 +2506,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'maps "refillinprocess" to "Active: Refill in Process"' do
         result = subject.send(:map_refill_status_to_disp_status, 'refillinprocess', 'VA')
         expect(result).to eq('Active: Refill in Process')
-      end
-
-        result = subject.send(:extract_refill_status, resource, dispenses_data)
-
-        expect(result).to eq('submitted')
       end
 
       it 'returns "submitted" with multiple tasks when most recent has no subsequent dispense' do

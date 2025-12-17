@@ -28,14 +28,19 @@ module UnifiedHealthData
         # Gate 3: Must have at least one dispense
         return false unless dispenses?(resource)
 
-        # Gate 4: Must have zero refills remaining
-        return false if extract_refill_remaining(resource).positive?
+        # Gate 4: Validity period end date must exist
+        return false unless validity_period_end_exists?(resource)
 
-        # Gate 5: No active processing (no in-progress/preparation dispense, no web/mobile refill request)
-        return false if active_processing?(resource)
-
-        # Gate 6: Must be within 120 days of validity period end
+        # Gate 5: Must be within 120 days of validity period end
         return false unless within_renewal_window?(resource)
+
+        # Gate 6: Refills remaining must be zero OR prescription is expired
+        # If prescription is expired, renewal is appropriate even with refills remaining
+        # because refills cannot be processed on an expired prescription
+        return false unless refills_exhausted_or_expired?(resource)
+
+        # Gate 7: No active processing (no in-progress/preparation dispense, no web/mobile refill request)
+        return false if active_processing?(resource)
 
         true
       end
@@ -105,7 +110,49 @@ module UnifiedHealthData
         contained_resources.any? { |c| c['resourceType'] == 'MedicationDispense' }
       end
 
-      # Gate 5: Checks if there is any active processing on the medication
+      # Gate 4: Checks if the validity period end date exists
+      # A prescription without a validity period end date cannot be evaluated for renewal
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] true if validity period end date exists
+      def validity_period_end_exists?(resource)
+        resource.dig('dispenseRequest', 'validityPeriod', 'end').present?
+      end
+
+      # Gate 6: Checks if refills are exhausted OR prescription is expired
+      # A prescription is eligible for renewal if:
+      # - Refills remaining == 0 AND prescription is NOT expired, OR
+      # - Prescription IS expired (regardless of refills remaining)
+      #
+      # Rationale: If refills are available AND prescription is still valid,
+      # patient should use the refill process. However, if expired, renewal
+      # is the appropriate path since refills cannot be processed on an expired prescription.
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] true if eligible based on refills/expiration logic
+      def refills_exhausted_or_expired?(resource)
+        refills_remaining = extract_refill_remaining(resource)
+        expired = prescription_expired?(resource)
+
+        # Expired prescriptions are always eligible (within the 120-day window checked in Gate 5)
+        return true if expired
+
+        # Non-expired prescriptions must have zero refills remaining
+        refills_remaining.zero?
+      end
+
+      # Checks if the prescription's validity period has ended
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] true if validity period end date is in the past
+      def prescription_expired?(resource)
+        expiration_date = parse_expiration_date_utc(resource)
+        return false if expiration_date.nil?
+
+        expiration_date < Time.current.utc
+      end
+
+      # Gate 7: Checks if there is any active processing on the medication
       # Active processing includes:
       # - A refill requested via web or mobile
       # - Any dispense with status 'in-progress' or 'preparation'
@@ -136,17 +183,20 @@ module UnifiedHealthData
         end
       end
 
-      # Gate 6: Checks if the medication is within the 120-day renewal window
-      # A medication is within the window if current_date - validity_period_end <= 120 days
+      # Gate 5: Checks if the medication is within the 120-day renewal window
+      # A prescription is within the renewal window if:
+      # - The validity period has not yet ended (prescription is not expired), OR
+      # - The validity period ended within the last 120 days
       #
       # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] true if within 120 days of validity period end
+      # @return [Boolean] true if within renewal window
       def within_renewal_window?(resource)
         expiration_date = parse_expiration_date_utc(resource)
         return false if expiration_date.nil?
 
-        # Allow renewal if within 120 days after expiration
-        # (current_date - expiration_date) <= 120 days
+        # Allow renewal if:
+        # 1. Prescription is not yet expired (expiration_date is in the future), OR
+        # 2. Prescription expired within the last 120 days
         days_since_expiration = (Time.current.utc - expiration_date) / 1.day
         days_since_expiration <= 120
       end
