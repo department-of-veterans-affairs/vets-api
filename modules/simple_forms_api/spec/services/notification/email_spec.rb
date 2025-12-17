@@ -131,17 +131,17 @@ describe SimpleFormsApi::Notification::Email do
             subject { described_class.new(config, notification_type:) }
 
             it 'includes callback_klass in options' do
-              api_key, options = subject.send(:email_args)
+              api_key, options = subject.__send__(:email_args)
 
               expect(api_key).to eq(Settings.vanotify.services.va_gov.api_key)
               expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
             end
 
             it 'includes callback_metadata with all required fields' do
-              _, options = subject.send(:email_args)
+              _, options = subject.__send__(:email_args)
 
               expect(options[:callback_metadata]).to include(
-                notification_type:,
+                notification_type: notification_type.to_s,
                 form_number: 'vba_21_10210',
                 confirmation_number: 'confirmation_number',
                 statsd_tags: {
@@ -152,9 +152,9 @@ describe SimpleFormsApi::Notification::Email do
             end
 
             it 'converts notification_type to string in callback_metadata' do
-              _, options = subject.send(:email_args)
+              _, options = subject.__send__(:email_args)
 
-              expect(options[:callback_metadata][:notification_type]).to eq(notification_type)
+              expect(options[:callback_metadata][:notification_type]).to eq(notification_type.to_s)
             end
           end
         end
@@ -170,17 +170,17 @@ describe SimpleFormsApi::Notification::Email do
             subject { described_class.new(config, notification_type:) }
 
             it 'does not include callback_klass in options' do
-              _, options = subject.send(:email_args)
+              _, options = subject.__send__(:email_args)
 
               expect(options).not_to have_key(:callback_klass)
               expect(options[:callback_klass]).to be_nil
             end
 
             it 'still includes callback_metadata' do
-              _, options = subject.send(:email_args)
+              _, options = subject.__send__(:email_args)
 
               expect(options[:callback_metadata]).to include(
-                notification_type:,
+                notification_type: notification_type.to_s,
                 form_number: 'vba_21_10210',
                 confirmation_number: 'confirmation_number'
               )
@@ -205,9 +205,9 @@ describe SimpleFormsApi::Notification::Email do
         end
 
         it 'includes duplicate notification_type in callback_metadata' do
-          _, options = subject.send(:email_args)
+          _, options = subject.__send__(:email_args)
 
-          expect(options[:callback_metadata][:notification_type]).to eq(:duplicate)
+          expect(options[:callback_metadata][:notification_type]).to eq('duplicate')
         end
       end
 
@@ -215,15 +215,11 @@ describe SimpleFormsApi::Notification::Email do
         subject { described_class.new(config, notification_type: :confirmation) }
 
         before do
-          # Simulate Settings.env_parse_values = true scenario
           allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return('true')
         end
 
-        it 'correctly casts flipper value to boolean' do
-          _, options = subject.send(:email_args)
-
-          # Should handle string 'true' correctly
-          # This tests the ActiveModel::Type::Boolean.new.cast logic
+        it 'handles truthy values correctly' do
+          _, options = subject.__send__(:email_args)
           expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
         end
       end
@@ -272,6 +268,7 @@ describe SimpleFormsApi::Notification::Email do
             allow(vanotify_settings).to receive(:services).and_return(vanotify_services)
             allow(vanotify_services).to receive(:va_gov).and_return(va_gov)
             allow(va_gov).to receive(:template_id).and_return({ template_id_suffix => template_id })
+            allow(va_gov).to receive(:api_key).and_return('fake_secret')
           end
 
           it 'gets the correct template id' do
@@ -280,7 +277,7 @@ describe SimpleFormsApi::Notification::Email do
 
             subject.send
 
-            expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything)
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything, anything, anything)
           end
 
           describe 'form 20-10207 point of contact', if: notification_type == :error do
@@ -310,6 +307,8 @@ describe SimpleFormsApi::Notification::Email do
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
                   point_of_contact_email,
                   template_id,
+                  anything,
+                  anything,
                   anything
                 )
               end
@@ -444,8 +443,8 @@ describe SimpleFormsApi::Notification::Email do
               {
                 callback_metadata: {
                   form_number: 'vba_21_10210',
-                  notification_type:,
-                  confirmation_number:,
+                  notification_type: notification_type.to_s,
+                  confirmation_number: confirmation_number,
                   statsd_tags: {
                     'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
                   }
@@ -504,7 +503,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => date_submitted,
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -526,7 +527,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -551,7 +554,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -563,7 +568,6 @@ describe SimpleFormsApi::Notification::Email do
               data['claimant_type'] = 'non-veteran'
 
               subject = described_class.new(config, notification_type:)
-
               subject.send
 
               expect(VANotify::EmailJob).to have_received(:perform_async).with(
@@ -574,7 +578,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -611,7 +617,9 @@ describe SimpleFormsApi::Notification::Email do
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
-                  }
+                  },
+                  anything,
+                  anything
                 )
               end
             end
@@ -653,7 +661,9 @@ describe SimpleFormsApi::Notification::Email do
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
-                  }
+                  },
+                  anything,
+                  anything
                 )
               end
             end
@@ -707,7 +717,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -878,7 +890,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
 
@@ -899,7 +913,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -922,7 +938,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
 
@@ -959,7 +977,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1012,7 +1032,9 @@ describe SimpleFormsApi::Notification::Email do
             'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
             'itf_api_expiration_date' => nil
-          }
+          },
+          anything,
+          anything
         )
       end
 
@@ -1041,7 +1063,9 @@ describe SimpleFormsApi::Notification::Email do
               'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                  '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
               'itf_api_expiration_date' => nil
-            }
+            },
+            anything,
+            anything
           )
         end
       end
@@ -1083,7 +1107,9 @@ describe SimpleFormsApi::Notification::Email do
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => expiration_date
-              }
+              },
+              anything,
+              anything
             )
           end
 
@@ -1111,7 +1137,9 @@ describe SimpleFormsApi::Notification::Email do
                   'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                      '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                   'itf_api_expiration_date' => expiration_date
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -1181,7 +1209,9 @@ describe SimpleFormsApi::Notification::Email do
             'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => lighthouse_updated_at
-          }
+          },
+          anything,
+          anything
         )
       end
     end
@@ -1221,7 +1251,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1240,7 +1272,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1261,7 +1295,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1280,7 +1316,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1301,7 +1339,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1320,7 +1360,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1341,7 +1383,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -1360,7 +1404,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end

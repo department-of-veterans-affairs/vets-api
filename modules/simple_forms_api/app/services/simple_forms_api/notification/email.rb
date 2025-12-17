@@ -135,7 +135,8 @@ module SimpleFormsApi
           VANotify::EmailJob.perform_async(
             email_address,
             template_id,
-            personalization
+            personalization,
+            *email_args
           )
         end
       end
@@ -160,10 +161,20 @@ module SimpleFormsApi
       end
 
       def email_args
+        options = {
+          callback_metadata: {
+            notification_type: notification_type.to_s,
+            form_number:,
+            confirmation_number:,
+            statsd_tags:
+          }
+        }
+
+        if Flipper.enabled?(:simple_forms_email_delivery_callback)
+          options[:callback_klass] = 'SimpleFormsApi::EmailDeliveryStatusCallback'
+        end
         [
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, confirmation_number:, statsd_tags: } }
-        ]
+          Settings.vanotify.services.va_gov.api_key, options]
       end
 
       def statsd_tags
