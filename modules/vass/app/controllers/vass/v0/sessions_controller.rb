@@ -3,72 +3,45 @@
 module Vass
   module V0
     ##
-    # Controller for OTP-based session management.
+    # Controller for OTC-based session management (One-Time Code).
     #
-    # Handles the generation and validation of One-Time Passcodes (OTP)
-    # for non-authenticated users who need to verify their contact information
+    # Handles the generation and validation of One-Time Codes (OTC)
+    # for non-authenticated users who need to verify their identity
     # before scheduling appointments.
     #
     class SessionsController < Vass::ApplicationController
       ##
-      # GET /vass/v0/sessions/:id
+      # POST /vass/v0/request-otc
       #
-      # Validates the OTP code provided by the user.
-      # On success, generates a session token for authenticated access.
-      #
-      # @param id [String] Session UUID (from URL)
-      # @param otp_code [String] User-provided OTP code
-      #
-      # @return [JSON] Session token and success message
-      #
-      def show
-        session = Vass::V0::Session.build(
-          uuid: params[:id],
-          otp_code: params[:otp_code]
-        )
-
-        return unless validate_otp_session(session)
-
-        session_token = session.validate_and_process_otp
-        session.create_authenticated_session(session_token:)
-
-        log_vass_event(action: 'otp_validated', uuid: session.uuid)
-        increment_statsd('otp_validation_success')
-        render json: session.validation_response(session_token:), status: :ok
-      rescue *vass_api_exceptions => e
-        log_vass_event(action: 'vass_api_error', uuid: session.uuid, level: :error, error_class: e.class.name)
-        render json: { error: true, message: 'VASS service error' }, status: :bad_gateway
-      end
-
-      ##
-      # POST /vass/v0/sessions
-      #
-      # Validates veteran identity and generates an OTP code.
+      # Validates veteran identity and generates an OTC.
       #
       # Flow:
-      # 1. Accepts UUID (veteran_id from welcome email), last_name, and date_of_birth
-      # 2. Calls VASS GetVeteran to fetch veteran info
-      # 3. Validates last_name and date_of_birth match VASS response
+      # 1. Accepts UUID (veteran_id from welcome email), last_name, and dob
+      # 2. Calls VASS GetVeteran to fetch veteran info using UUID
+      # 3. Validates last_name and dob match VASS response
       # 4. Extracts contact info (email) from VASS response
-      # 5. Generates OTP and sends via VANotify
+      # 5. Generates OTC and sends via VANotify
       #
       # @param uuid [String] Veteran UUID from welcome email
       # @param last_name [String] Veteran's last name for validation
-      # @param date_of_birth [String] Veteran's date of birth for validation
+      # @param dob [String] Veteran's date of birth for validation (YYYY-MM-DD)
       #
-      # @return [JSON] Session UUID and success message
+      # @return [JSON] Success message and expiration time per spec
       #
-      def create
+      def request_otc
         session = Vass::V0::Session.build(data: permitted_params)
 
         return unless validate_session_for_creation(session)
 
-        check_rate_limit(session.uuid)
-        process_otp_creation(session)
-        complete_otp_creation(session)
+        check_all_rate_limits(session.uuid)
+        process_otc_creation(session)
+        complete_otc_creation(session)
 
-        render json: session.creation_response, status: :ok
+        render_otc_success_response
+      rescue Vass::Errors::RateLimitError => e
+        handle_rate_limit_error_for_generation(session, e)
       rescue Vass::Errors::IdentityValidationError => e
+        increment_rate_limit(session.uuid)
         handle_identity_validation_error(session, e)
       rescue Vass::Errors::MissingContactInfoError => e
         handle_missing_contact_info_error(session, e)
@@ -95,13 +68,14 @@ module Vass
       end
 
       ##
-      # Permitted parameters for session creation.
+      # Permitted parameters for OTC request.
       #
       # @return [Hash] Permitted params
       #
       def permitted_params
-        params.require(:session).permit(:uuid, :last_name, :date_of_birth)
+        params.require(:session).permit(:uuid, :last_name, :dob)
       end
+
 
       ##
       # Returns the appointments service instance.
@@ -122,44 +96,46 @@ module Vass
       end
 
       ##
-      # Processes OTP creation: validates veteran, sets contact info, generates and sends OTP.
+      # Processes OTC creation: fetches veteran info, validates identity, sets contact info, generates and sends OTC.
       #
       # @param session [Vass::V0::Session] Session instance
       #
-      def process_otp_creation(session)
-        veteran_data = appointments_service.get_veteran_info(
-          veteran_id: session.uuid,
-          last_name: session.last_name,
-          date_of_birth: session.date_of_birth
-        )
+      def process_otc_creation(session)
+        # Fetch veteran info using only UUID
+        veteran_data = appointments_service.get_veteran_info(veteran_id: session.uuid)
+
+        # Validate submitted last_name and dob against fetched veteran data
+        session.validate_identity_against_veteran_data(veteran_data)
+
         session.set_contact_from_veteran_data(veteran_data)
-        otp_code = session.generate_and_save_otp
-        send_otp_via_vanotify(session, otp_code)
+        otc_code = session.generate_and_save_otc
+        Rails.logger.info("VASS OTC Generated for UUID #{session.uuid}: #{otc_code}") if Rails.env.development?
+        send_otc_via_vanotify(session, otc_code)
       end
 
       ##
-      # Sends OTP via VANotify service.
+      # Sends OTC via VANotify service.
       #
       # @param session [Vass::V0::Session] Session instance
-      # @param otp_code [String] OTP code to send
+      # @param otc_code [String] OTC code to send
       #
-      def send_otp_via_vanotify(session, otp_code)
+      def send_otc_via_vanotify(session, otc_code)
         vanotify_service.send_otp(
           contact_method: session.contact_method,
           contact_value: session.contact_value,
-          otp_code:
+          otp_code: otc_code
         )
       end
 
       ##
-      # Completes OTP creation: increments rate limit, logs, and increments stats.
+      # Completes OTC creation: increments rate limit, logs, and increments stats.
       #
       # @param session [Vass::V0::Session] Session instance
       #
-      def complete_otp_creation(session)
+      def complete_otc_creation(session)
         increment_rate_limit(session.uuid)
-        log_vass_event(action: 'otp_generated', uuid: session.uuid)
-        increment_statsd('otp_generated')
+        log_vass_event(action: 'otc_generated', uuid: session.uuid)
+        increment_statsd('otc_generated')
       end
 
       ##
@@ -168,9 +144,13 @@ module Vass
       # @param session [Vass::V0::Session] Session instance
       # @param error [Vass::Errors::IdentityValidationError] Error
       #
-      def handle_identity_validation_error(session, error)
+      def handle_identity_validation_error(session, _error)
         log_vass_event(action: 'identity_validation_failed', uuid: session.uuid, level: :warn)
-        render json: { error: true, message: error.message }, status: :unauthorized
+        render_error_response(
+          code: 'invalid_credentials',
+          detail: 'Unable to verify identity. Please check your information.',
+          status: :unauthorized
+        )
       end
 
       ##
@@ -179,9 +159,13 @@ module Vass
       # @param session [Vass::V0::Session] Session instance
       # @param error [Vass::Errors::MissingContactInfoError] Error
       #
-      def handle_missing_contact_info_error(session, error)
+      def handle_missing_contact_info_error(session, _error)
         log_vass_event(action: 'missing_contact_info', uuid: session.uuid, level: :error)
-        render json: { error: true, message: error.message }, status: :unprocessable_entity
+        render_error_response(
+          code: 'missing_contact_info',
+          detail: 'No contact information available for this veteran.',
+          status: :unprocessable_entity
+        )
       end
 
       ##
@@ -193,11 +177,15 @@ module Vass
       def handle_vass_api_error(session, error)
         log_vass_event(action: 'vass_api_error', uuid: session.uuid, level: :error,
                        error_class: error.class.name)
-        render json: { error: true, message: 'VASS service error' }, status: :bad_gateway
+        render_error_response(
+          code: 'service_error',
+          detail: 'VASS service error',
+          status: :bad_gateway
+        )
       end
 
       ##
-      # Handles VANotify errors in create action.
+      # Handles VANotify errors in request_otc action.
       #
       # @param session [Vass::V0::Session] Session instance
       # @param error [VANotify::Error] VANotify error
@@ -211,11 +199,11 @@ module Vass
           status_code: error.status_code,
           contact_method: session.contact_method
         )
-        increment_statsd('otp_send_failed')
+        increment_statsd('otc_send_failed')
         status = map_vanotify_status_to_http_status(error.status_code)
         render_error_response(
-          title: 'Notification Service Error',
-          detail: 'Unable to send notification. Please try again later',
+          code: 'notification_error',
+          detail: 'Unable to send notification. Please try again later.',
           status:
         )
       end
@@ -244,6 +232,17 @@ module Vass
       end
 
       ##
+      # Checks both generation and validation rate limits.
+      #
+      # @param identifier [String] UUID to check (rate limited per veteran)
+      # @raise [Vass::Errors::RateLimitError] if either limit exceeded
+      #
+      def check_all_rate_limits(identifier)
+        check_rate_limit(identifier)
+        check_validation_rate_limit(identifier)
+      end
+
+      ##
       # Checks if rate limit has been exceeded for the identifier.
       #
       # @param identifier [String] UUID to check (rate limited per veteran)
@@ -254,7 +253,7 @@ module Vass
 
         log_rate_limit_exceeded
         increment_statsd('rate_limit_exceeded')
-        raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTP generation'
+        raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC generation'
       end
 
       ##
@@ -285,32 +284,30 @@ module Vass
         return true if session.valid_for_creation?
 
         log_validation_error
-        render json: session.validation_error_response, status: :unprocessable_entity
+        render_error_response(
+          code: 'invalid_request',
+          detail: 'Missing required parameters.',
+          status: :unprocessable_entity
+        )
         false
       end
 
+
       ##
-      # Validates OTP session.
+      # Handles invalid request (missing parameters).
       #
-      # @param session [Vass::V0::Session] Session instance
-      # @return [Boolean] true if valid, false otherwise
+      # @return [Boolean] false
       #
-      def validate_otp_session(session)
-        unless session.valid_for_validation?
-          log_validation_error
-          render json: session.validation_error_response, status: :unprocessable_entity
-          return false
-        end
-
-        unless session.valid_otp?
-          log_invalid_otp(session.uuid)
-          increment_statsd('otp_validation_failed')
-          render json: session.invalid_otp_response, status: :unauthorized
-          return false
-        end
-
-        true
+      def handle_invalid_request
+        log_validation_error
+        render_error_response(
+          code: 'invalid_request',
+          detail: 'Missing required parameters.',
+          status: :unprocessable_entity
+        )
+        false
       end
+
 
       ##
       # Logs validation error (no PHI).
@@ -319,13 +316,22 @@ module Vass
         log_vass_event(action: 'validation_error', level: :warn)
       end
 
+
       ##
-      # Logs invalid OTP attempt (no PHI).
+      # Renders error response in API spec format.
       #
-      # @param uuid [String] Session UUID
+      # @param code [String] Error code
+      # @param detail [String] Error detail message
+      # @param status [Symbol] HTTP status symbol
+      # @param retry_after [Integer, nil] Retry after seconds (optional)
+      # @param attempts_remaining [Integer, nil] Attempts remaining (optional)
       #
-      def log_invalid_otp(uuid)
-        log_vass_event(action: 'invalid_otp', uuid:, level: :warn)
+      def render_error_response(code:, detail:, status:, retry_after: nil, attempts_remaining: nil)
+        error = { code:, detail: }
+        error[:retryAfter] = retry_after if retry_after
+        error[:attemptsRemaining] = attempts_remaining if attempts_remaining
+
+        render json: { errors: [error] }, status:
       end
 
       ##
@@ -333,6 +339,86 @@ module Vass
       #
       def log_rate_limit_exceeded
         log_vass_event(action: 'rate_limit_exceeded', level: :warn)
+      end
+
+      ##
+      # Checks if validation rate limit has been exceeded for the identifier.
+      #
+      # @param identifier [String] UUID to check (rate limited per veteran)
+      # @raise [Vass::Errors::RateLimitError] if limit exceeded
+      #
+      def check_validation_rate_limit(identifier)
+        return unless redis_client.validation_rate_limit_exceeded?(identifier:)
+
+        log_validation_rate_limit_exceeded
+        increment_statsd('validation_rate_limit_exceeded')
+        raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC validation attempts'
+      end
+
+
+
+      ##
+      # Renders success response for OTC generation.
+      #
+      def render_otc_success_response
+        otc_expiry_seconds = redis_client.redis_otc_expiry.to_i
+        render json: { data: { message: 'OTC sent to registered email address', expiresIn: otc_expiry_seconds } },
+               status: :ok
+      end
+
+      ##
+      # Handles rate limit errors in request_otc, determining which limit was hit.
+      #
+      # @param session [Vass::V0::Session] Session instance
+      # @param error [Vass::Errors::RateLimitError] Error
+      #
+      def handle_rate_limit_error_for_generation(session, error)
+        if redis_client.validation_rate_limit_exceeded?(identifier: session.uuid)
+          handle_validation_rate_limit_error(session, error)
+        else
+          handle_generation_rate_limit_error(session, error)
+        end
+      end
+
+      ##
+      # Handles generation rate limit errors.
+      #
+      # @param _session [Vass::V0::Session] Session instance (unused)
+      # @param _error [Vass::Errors::RateLimitError] Error (unused)
+      #
+      def handle_generation_rate_limit_error(_session, _error)
+        log_rate_limit_exceeded
+        retry_after = Settings.vass.rate_limit_expiry.to_i
+        render_error_response(
+          code: 'rate_limit_exceeded',
+          detail: 'Too many OTC requests. Please try again later.',
+          status: :too_many_requests,
+          retry_after:
+        )
+      end
+
+      ##
+      # Handles validation rate limit errors.
+      #
+      # @param _session [Vass::V0::Session] Session instance (unused)
+      # @param _error [Vass::Errors::RateLimitError] Error (unused)
+      #
+      def handle_validation_rate_limit_error(_session, _error)
+        log_validation_rate_limit_exceeded
+        retry_after = Settings.vass.rate_limit_expiry.to_i
+        render_error_response(
+          code: 'account_locked',
+          detail: 'Too many failed attempts. Please request a new OTC.',
+          status: :too_many_requests,
+          retry_after:
+        )
+      end
+
+      ##
+      # Logs validation rate limit exceeded (no PHI).
+      #
+      def log_validation_rate_limit_exceeded
+        log_vass_event(action: 'validation_rate_limit_exceeded', level: :warn)
       end
 
       ##
