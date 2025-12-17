@@ -700,7 +700,7 @@ features:
     description: Enables the Nov 2025 Supplemental Claims redesign
   decision_review_upload_notification_pdfs_enabled:
     actor_type: user
-    description: Enables job to generate and upload PDF copies of failure notification emails to VBMS..
+    description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
     enable_in_development: true
   dependency_verification_browser_monitoring_enabled:
     actor_type: user

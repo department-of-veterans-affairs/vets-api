@@ -18,9 +18,12 @@ module DecisionReviews
     FINAL_STATUSES = %w[delivered permanent-failure].freeze
 
     # Initialize with a DecisionReviewNotificationAuditLog record
-    def initialize(audit_log)
+    # @param audit_log [DecisionReviewNotificationAuditLog] required
+    # @param appeal_submission [AppealSubmission] optional, to avoid duplicate query if already loaded
+    def initialize(audit_log, appeal_submission: nil)
       raise ArgumentError, 'audit_log is required' if audit_log.nil?
 
+      @appeal_submission = appeal_submission
       extract_from_audit_log(audit_log)
       validate_template_type!
     end
@@ -58,7 +61,6 @@ module DecisionReviews
       # Extract email delivered/failed to deliver timestamp from payload
       @sent_date = parse_date(payload['completed_at'] || payload[:completed_at])
 
-      # Look up submission to get first_name, submission_date, and evidence_filename
       submission_data = fetch_submission_data(reference)
       @first_name = submission_data[:first_name]
       @submission_date = submission_data[:submission_date]
@@ -97,19 +99,13 @@ module DecisionReviews
     end
 
     def fetch_submission_data(reference)
-      # Extract UUID from reference (format: "HLR-form-uuid" or "SC-evidence-uuid")
-      uuid = reference.split('-', 3).last
-
-      # Find the submission (required)
-      submission = AppealSubmission.find_by(submitted_appeal_uuid: uuid)
-      raise ArgumentError, "AppealSubmission not found for UUID: #{uuid}" unless submission
+      raise ArgumentError, 'appeal_submission is required' unless @appeal_submission
 
       {
-        first_name: submission.get_mpi_profile&.given_names&.first || 'Veteran',
-        # first_name: 'LOCAL TEST VETERAN', # Uncomment for local testing
-        submission_date: submission.created_at,
-        evidence_filename: extract_evidence_filename(reference, submission),
-        email_address: submission.current_email_address
+        first_name: @appeal_submission.get_mpi_profile&.given_names&.first || 'Veteran',
+        submission_date: @appeal_submission.created_at,
+        evidence_filename: extract_evidence_filename(reference, @appeal_submission),
+        email_address: @appeal_submission.current_email_address
       }
     end
 

@@ -43,7 +43,6 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
   before do
     allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile,
                                                  current_email_address: 'veteran@example.com')
-    allow(AppealSubmission).to receive(:find_by).with(submitted_appeal_uuid:).and_return(appeal_submission)
   end
 
   describe '#initialize' do
@@ -51,39 +50,39 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
 
       it 'initializes successfully' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service).to be_instance_of(described_class)
       end
 
       it 'extracts template_type correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@template_type)).to eq('sc_form_failure')
       end
 
       it 'extracts email_address correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@email_address)).to eq('veteran@example.com')
       end
 
       it 'extracts sent_date correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         sent_date = service.instance_variable_get(:@sent_date)
         expect(sent_date).to be_a(Time)
         expect(sent_date.strftime('%Y-%m-%d')).to eq('2025-11-01')
       end
 
       it 'extracts first_name from MPI profile' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@first_name)).to eq('John')
       end
 
       it 'sets evidence_filename to nil for form failures' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@evidence_filename)).to be_nil
       end
 
       it 'sets email_delivery_failure to false when status is delivered' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@email_delivery_failure)).to be false
       end
     end
@@ -100,7 +99,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'sets email_delivery_failure to true when status is permanent-failure' do
-        service = described_class.new(failed_audit_log)
+        service = described_class.new(failed_audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@email_delivery_failure)).to be true
       end
     end
@@ -145,7 +144,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       let(:reference) { "HLR-form-#{submitted_appeal_uuid}" }
 
       it 'extracts template_type correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@template_type)).to eq('hlr_form_failure')
       end
     end
@@ -154,7 +153,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       let(:reference) { "NOD-form-#{submitted_appeal_uuid}" }
 
       it 'extracts template_type correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@template_type)).to eq('nod_form_failure')
       end
     end
@@ -163,7 +162,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       let(:reference) { "SC-secondary_form-#{submitted_appeal_uuid}" }
 
       it 'extracts template_type correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@template_type)).to eq('sc_4142_failure')
       end
     end
@@ -194,12 +193,12 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'extracts template_type correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@template_type)).to eq('sc_evidence_failure')
       end
 
       it 'extracts evidence_filename for evidence failures' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@evidence_filename)).to eq('vetXXXXXXXXXXXXXXXXXXXXXXXXXent.pdf')
       end
     end
@@ -230,12 +229,12 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'extracts template_type correctly' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@template_type)).to eq('nod_evidence_failure')
       end
 
       it 'extracts evidence_filename for evidence failures' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@evidence_filename)).to eq('boaXXXXXXXXXXXXXXXXXXXXXXXXXent.pdf')
       end
     end
@@ -252,7 +251,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'parses hash payload correctly' do
-        service = described_class.new(audit_log_with_hash_payload)
+        service = described_class.new(audit_log_with_hash_payload, appeal_submission:)
         sent_date = service.instance_variable_get(:@sent_date)
         expect(sent_date).to be_a(Time)
         expect(sent_date.strftime('%Y-%m-%d')).to eq('2025-11-01')
@@ -276,7 +275,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'handles symbol keys in payload' do
-        service = described_class.new(audit_log_with_symbols)
+        service = described_class.new(audit_log_with_symbols, appeal_submission:)
         sent_date = service.instance_variable_get(:@sent_date)
         expect(sent_date).to be_a(Time)
         expect(sent_date.strftime('%Y-%m-%d')).to eq('2025-11-01')
@@ -297,7 +296,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'defaults first_name to "Veteran"' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@first_name)).to eq('Veteran')
       end
     end
@@ -310,7 +309,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'defaults first_name to "Veteran"' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         expect(service.instance_variable_get(:@first_name)).to eq('Veteran')
       end
     end
@@ -326,22 +325,18 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
       it 'raises ArgumentError' do
         expect do
-          described_class.new(audit_log)
+          described_class.new(audit_log, appeal_submission:)
         end.to raise_error(ArgumentError, /Unable to determine template type from reference/)
       end
     end
 
-    context 'when AppealSubmission not found' do
+    context 'when appeal_submission is nil' do
       let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
-
-      before do
-        allow(AppealSubmission).to receive(:find_by).with(submitted_appeal_uuid:).and_return(nil)
-      end
 
       it 'raises ArgumentError' do
         expect do
-          described_class.new(audit_log)
-        end.to raise_error(ArgumentError, /AppealSubmission not found for UUID/)
+          described_class.new(audit_log, appeal_submission: nil)
+        end.to raise_error(ArgumentError, /appeal_submission is required/)
       end
     end
 
@@ -355,7 +350,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
       it 'raises ArgumentError' do
         expect do
-          described_class.new(audit_log)
+          described_class.new(audit_log, appeal_submission:)
         end.to raise_error(ArgumentError, /Evidence filename not found for submission UUID/)
       end
     end
@@ -375,14 +370,14 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
     end
 
     it 'creates a PdfTemplateStamper with correct template_type' do
-      service = described_class.new(audit_log)
+      service = described_class.new(audit_log, appeal_submission:)
       service.generate_pdf
 
       expect(DecisionReviews::PdfTemplateStamper).to have_received(:new).with(template_type: 'sc_form_failure')
     end
 
     it 'calls stamp_personalized_data with correct parameters' do
-      service = described_class.new(audit_log)
+      service = described_class.new(audit_log, appeal_submission:)
       service.generate_pdf
 
       expect(stamper).to have_received(:stamp_personalized_data).with(
@@ -396,21 +391,21 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
     end
 
     it 'creates the tmp/pdfs directory' do
-      service = described_class.new(audit_log)
+      service = described_class.new(audit_log, appeal_submission:)
       service.generate_pdf
 
       expect(FileUtils).to have_received(:mkdir_p).with('tmp/pdfs')
     end
 
     it 'saves the PDF to a file' do
-      service = described_class.new(audit_log)
+      service = described_class.new(audit_log, appeal_submission:)
       service.generate_pdf
 
       expect(File).to have_received(:binwrite).with('tmp/pdfs/dr_email_ABC123.pdf', pdf_binary)
     end
 
     it 'returns the file path' do
-      service = described_class.new(audit_log)
+      service = described_class.new(audit_log, appeal_submission:)
       file_path = service.generate_pdf
 
       expect(file_path).to eq('tmp/pdfs/dr_email_ABC123.pdf')
@@ -442,7 +437,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'passes evidence_filename to stamper' do
-        service = described_class.new(audit_log)
+        service = described_class.new(audit_log, appeal_submission:)
         service.generate_pdf
 
         expect(stamper).to have_received(:stamp_personalized_data).with(
@@ -467,7 +462,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       end
 
       it 'passes email_delivery_failure: true to stamper' do
-        service = described_class.new(failed_audit_log)
+        service = described_class.new(failed_audit_log, appeal_submission:)
         service.generate_pdf
 
         expect(stamper).to have_received(:stamp_personalized_data).with(
@@ -499,7 +494,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
     end
 
     it 'generates a real PDF file that can be inspected' do
-      service = described_class.new(audit_log)
+      service = described_class.new(audit_log, appeal_submission:)
       file_path = service.generate_pdf
 
       expect(File.exist?(file_path)).to be true
@@ -547,7 +542,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
     end
 
     it 'generates a real PDF file with evidence filename that can be inspected' do
-      service = described_class.new(audit_log)
+      service = described_class.new(audit_log, appeal_submission:)
       file_path = service.generate_pdf
 
       expect(File.exist?(file_path)).to be true

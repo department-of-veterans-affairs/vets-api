@@ -55,7 +55,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
       expect(uploader.appeal_submission).to eq(appeal_submission)
     end
 
-    context 'when AppealSubmission not found' do
+    context 'when AppealSubmission not found for form reference' do
       before do
         allow(AppealSubmission).to receive(:find_by!)
           .with(submitted_appeal_uuid:)
@@ -66,6 +66,56 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
         expect do
           described_class.new(audit_log)
         end.to raise_error(DecisionReviews::NotificationPdfUploader::UploadError, /AppealSubmission not found/)
+      end
+    end
+
+    context 'with evidence reference format' do
+      let(:lighthouse_upload_id) { '12345' }
+      let(:appeal_submission_upload) { instance_double(AppealSubmissionUpload, appeal_submission:) }
+
+      let(:audit_log) do
+        DecisionReviewNotificationAuditLog.create!(
+          notification_id:,
+          reference: "SC-evidence-#{lighthouse_upload_id}",
+          status: 'delivered',
+          payload: { 'to' => 'veteran@example.com', 'sent_at' => '2025-11-01T10:00:00Z' }.to_json
+        )
+      end
+
+      before do
+        allow(AppealSubmissionUpload).to receive(:find_by!)
+          .with(lighthouse_upload_id:)
+          .and_return(appeal_submission_upload)
+      end
+
+      it 'finds appeal submission via AppealSubmissionUpload' do
+        uploader = described_class.new(audit_log)
+        expect(uploader.appeal_submission).to eq(appeal_submission)
+      end
+    end
+
+    context 'with secondary_form reference format' do
+      let(:guid) { SecureRandom.uuid }
+      let(:secondary_appeal_form) { instance_double(SecondaryAppealForm, appeal_submission:) }
+
+      let(:audit_log) do
+        DecisionReviewNotificationAuditLog.create!(
+          notification_id:,
+          reference: "SC-secondary_form-#{guid}",
+          status: 'delivered',
+          payload: { 'to' => 'veteran@example.com', 'sent_at' => '2025-11-01T10:00:00Z' }.to_json
+        )
+      end
+
+      before do
+        allow(SecondaryAppealForm).to receive(:find_by!)
+          .with(guid:)
+          .and_return(secondary_appeal_form)
+      end
+
+      it 'finds appeal submission via SecondaryAppealForm' do
+        uploader = described_class.new(audit_log)
+        expect(uploader.appeal_submission).to eq(appeal_submission)
       end
     end
   end
@@ -84,7 +134,8 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
       file_uuid = uploader.upload_to_vbms
 
       expect(file_uuid).to eq(vbms_file_uuid)
-      expect(DecisionReviews::NotificationEmailToPdfService).to have_received(:new).with(audit_log)
+      expect(DecisionReviews::NotificationEmailToPdfService).to have_received(:new)
+        .with(audit_log, appeal_submission:)
       expect(pdf_service).to have_received(:generate_pdf)
     end
 
@@ -104,7 +155,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
         provider_data: {
           contentSource: ClaimsEvidenceApi::CONTENT_SOURCE,
           dateVaReceivedDocument: kind_of(String),
-          documentTypeId: 10
+          documentTypeId: described_class::NOTIFICATION_EMAIL_DOCTYPE
         }
       )
     end
@@ -248,7 +299,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
 
       expect(provider_data).to include(
         contentSource: ClaimsEvidenceApi::CONTENT_SOURCE,
-        documentTypeId: 10
+        documentTypeId: described_class::NOTIFICATION_EMAIL_DOCTYPE
       )
       expect(provider_data[:dateVaReceivedDocument]).to match(/\d{4}-\d{2}-\d{2}/)
     end
@@ -302,8 +353,8 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
   end
 
   describe 'NOTIFICATION_EMAIL_DOCTYPE constant' do
-    it 'is set to default doctype' do
-      expect(described_class::NOTIFICATION_EMAIL_DOCTYPE).to eq(10)
+    it 'is set to Email Correspondence doctype' do
+      expect(described_class::NOTIFICATION_EMAIL_DOCTYPE).to eq(40)
     end
   end
 end

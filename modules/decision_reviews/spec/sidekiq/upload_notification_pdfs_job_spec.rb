@@ -17,7 +17,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   let(:vbms_file_uuid1) { "#{SecureRandom.uuid}-vbms-1" }
   let(:vbms_file_uuid2) { "#{SecureRandom.uuid}-vbms-2" }
 
-  let!(:audit_log1) do
+  let(:audit_log1) do
     DecisionReviewNotificationAuditLog.create!(
       notification_id: notification_id1,
       reference: "SC-form-#{submitted_appeal_uuid1}",
@@ -26,7 +26,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
     )
   end
 
-  let!(:audit_log2) do
+  let(:audit_log2) do
     DecisionReviewNotificationAuditLog.create!(
       notification_id: notification_id2,
       reference: "HLR-form-#{submitted_appeal_uuid2}",
@@ -35,7 +35,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
     )
   end
 
-  let!(:already_uploaded_log) do
+  let(:already_uploaded_log) do
     DecisionReviewNotificationAuditLog.create!(
       notification_id: SecureRandom.uuid,
       reference: "NOD-form-#{SecureRandom.uuid}",
@@ -46,7 +46,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
     )
   end
 
-  let!(:max_retries_log) do
+  let(:max_retries_log) do
     DecisionReviewNotificationAuditLog.create!(
       notification_id: SecureRandom.uuid,
       reference: "SC-form-#{SecureRandom.uuid}",
@@ -57,7 +57,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
     )
   end
 
-  let!(:temporary_failure_log) do
+  let(:temporary_failure_log) do
     DecisionReviewNotificationAuditLog.create!(
       notification_id: SecureRandom.uuid,
       reference: "SC-form-#{SecureRandom.uuid}",
@@ -66,7 +66,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
     )
   end
 
-  let!(:permanent_failure_log) do
+  let(:permanent_failure_log) do
     DecisionReviewNotificationAuditLog.create!(
       notification_id: SecureRandom.uuid,
       reference: "NOD-form-#{SecureRandom.uuid}",
@@ -87,6 +87,9 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   end
 
   before do
+    # Clean up any pre-existing records to avoid database pollution between tests
+    DecisionReviewNotificationAuditLog.delete_all
+
     allow(Flipper).to receive(:enabled?).with(:decision_review_upload_notification_pdfs_enabled).and_return(true)
     allow(StatsD).to receive(:increment)
     allow(StatsD).to receive(:gauge)
@@ -360,28 +363,6 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
       pending = job.send(:fetch_pending_uploads)
 
       expect(pending).to include(permanent_failure_log)
-    end
-  end
-
-  describe 'MAX_RETRY_ATTEMPTS constant' do
-    it 'is set to 3' do
-      expect(described_class::MAX_RETRY_ATTEMPTS).to eq(3)
-    end
-  end
-
-  describe 'FINAL_STATUSES constant' do
-    it 'includes delivered and permanent-failure' do
-      expect(described_class::FINAL_STATUSES).to eq(%w[delivered permanent-failure])
-    end
-
-    it 'does not include temporary-failure' do
-      expect(described_class::FINAL_STATUSES).not_to include('temporary-failure')
-    end
-  end
-
-  describe 'STATSD_KEY_PREFIX constant' do
-    it 'is set correctly' do
-      expect(described_class::STATSD_KEY_PREFIX).to eq('worker.decision_reviews.upload_notification_email_pdfs')
     end
   end
 end

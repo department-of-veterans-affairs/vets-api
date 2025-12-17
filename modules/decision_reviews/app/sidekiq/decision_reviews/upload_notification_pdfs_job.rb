@@ -45,6 +45,8 @@ module DecisionReviews
       Flipper.enabled?(:decision_review_upload_notification_pdfs_enabled)
     end
 
+    # NOTE: This query is optimized for current volume (~300 records/month).
+    # Consider adding a composite index if volume significantly increases.
     def fetch_pending_uploads
       DecisionReviewNotificationAuditLog
         .where(pdf_uploaded_at: nil)

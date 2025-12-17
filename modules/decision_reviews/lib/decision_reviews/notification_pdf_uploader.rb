@@ -8,8 +8,7 @@ module DecisionReviews
   # Service to generate and upload notification email PDFs to VBMS
   class NotificationPdfUploader
     # Document type for notification email PDFs
-    # TODO: Confirm correct doctype code with VBMS team
-    NOTIFICATION_EMAIL_DOCTYPE = 10 # Using default doctype for now
+    NOTIFICATION_EMAIL_DOCTYPE = 400 # Email Correspondence
 
     class UploadError < StandardError; end
 
@@ -39,7 +38,7 @@ module DecisionReviews
     private
 
     def generate_pdf
-      pdf_service = NotificationEmailToPdfService.new(@audit_log)
+      pdf_service = NotificationEmailToPdfService.new(@audit_log, appeal_submission: @appeal_submission)
       pdf_service.generate_pdf
     end
 
@@ -64,8 +63,6 @@ module DecisionReviews
 
     def build_folder_identifier
       icn = @appeal_submission.user_account.icn
-      # icn = "1012667122V019349" # DO NOT COMMIT, FOR LOCAL TESTING ONLY
-      # binding.pry
       ClaimsEvidenceApi::FolderIdentifier.generate('VETERAN', 'ICN', icn)
     end
 
@@ -81,11 +78,28 @@ module DecisionReviews
       DateTime.parse(datetime.to_s).in_time_zone(ClaimsEvidenceApi::TIMEZONE).strftime('%Y-%m-%d')
     end
 
+    # Find AppealSubmission based on reference format:
+    # - forms: AppealSubmission.find_by!(submitted_appeal_uuid:)
+    # - evidence: AppealSubmissionUpload.find_by!(lighthouse_upload_id:).appeal_submission
+    # - SC 4142: -> SecondaryAppealForm.find_by!(guid:).appeal_submission
     def find_appeal_submission
-      uuid = @audit_log.reference.split('-', 3).last
-      AppealSubmission.find_by!(submitted_appeal_uuid: uuid)
+      reference = @audit_log.reference
+      parts = reference.split('-', 3)
+      failure_type = parts[1]
+      identifier = parts[2]
+
+      case failure_type
+      when 'form'
+        AppealSubmission.find_by!(submitted_appeal_uuid: identifier)
+      when 'evidence'
+        AppealSubmissionUpload.find_by!(lighthouse_upload_id: identifier).appeal_submission
+      when 'secondary_form'
+        SecondaryAppealForm.find_by!(guid: identifier).appeal_submission
+      else
+        raise UploadError, "Unknown reference format: #{reference}"
+      end
     rescue ActiveRecord::RecordNotFound => e
-      raise UploadError, "AppealSubmission not found for UUID: #{uuid} - #{e.message}"
+      raise UploadError, "AppealSubmission not found for reference: #{reference} - #{e.message}"
     end
 
     def update_audit_log_success(file_uuid)
