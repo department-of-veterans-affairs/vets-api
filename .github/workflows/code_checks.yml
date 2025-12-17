@@ -53,6 +53,12 @@ jobs:
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
+      - name: reek
+        uses: reviewdog/action-reek
+        with:
+          reek_version: gemfile
+          reporter: github-pr-review
+
       # Always add the "lint-failure" label on failure and remove it on success
       - name: Add Lint Failure label
         if: ${{ failure() && github.event_name == 'pull_request' }}
