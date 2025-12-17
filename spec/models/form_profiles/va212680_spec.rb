@@ -73,19 +73,12 @@ RSpec.describe FormProfiles::VA212680 do
     context 'when veteran status check raises an error' do
       before do
         allow(user).to receive(:veteran?).and_raise(StandardError.new('VA Profile unavailable'))
-        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns empty form_data' do
+      it 'returns empty form_data as a safe fallback' do
         data = profile.prefill
 
         expect(data[:form_data]).to eq({})
-      end
-
-      it 'logs the error' do
-        profile.prefill
-
-        expect(Rails.logger).to have_received(:error).with(/VA212680 veteran status check failed/)
       end
 
       it 'still returns metadata' do

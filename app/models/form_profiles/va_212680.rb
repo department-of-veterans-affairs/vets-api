@@ -31,7 +31,7 @@ class FormProfiles::VA212680 < FormProfile
   def user_is_veteran?
     user.veteran?
   rescue => e
-    Rails.logger.error("VA212680 veteran status check failed: #{e.message}")
+    log_exception_to_rails(e)
     false
   end
 end
