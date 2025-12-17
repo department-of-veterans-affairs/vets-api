@@ -6,20 +6,7 @@ require 'dependents_benefits/user_data'
 
 RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJob, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
-  end
-
-  # Create a concrete test subclass to test the abstract base class
-  let(:test_job_class) do
-    Class.new(described_class) do
-      def invalid_claim_error_class
-        DependentsBenefits::Sidekiq::DependentSubmissionError
-      end
-
-      def form_id
-        '21-674'
-      end
-    end
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 
   let(:user) { create(:evss_user) }
@@ -28,88 +15,92 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
   let(:user_data) { DependentsBenefits::UserData.new(user, saved_claim.parsed_form).get_user_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
-  let(:job) { test_job_class.new }
+  let(:job) { described_class.new }
   let(:claims_evidence_uploader) { instance_double(ClaimsEvidenceApi::Uploader) }
   let(:lighthouse_submission) { instance_double(DependentsBenefits::BenefitsIntake::LighthouseSubmission) }
 
-  describe '#form_id' do
-    context 'when not implemented by subclass' do
-      it 'raises NotImplementedError' do
-        direct_job = described_class.new
-        expect { direct_job.form_id }.to raise_error(NotImplementedError, 'Subclasses must implement form_id method')
-      end
-    end
-
-    context 'when implemented by subclass' do
-      it 'returns the form id' do
-        expect(job.form_id).to eq('21-674')
-      end
-    end
-  end
-
-  describe '#submit_to_service' do
+  describe '#submit_to_claims_evidence_api' do
     before do
-      allow(job).to receive_messages(saved_claim:, claims_evidence_uploader:,
-                                     lighthouse_submission:)
+      allow(job).to receive(:claims_evidence_uploader).with(saved_claim).and_return(claims_evidence_uploader)
+      allow(job).to receive(:lighthouse_submission).with(saved_claim).and_return(lighthouse_submission)
       allow(claims_evidence_uploader).to receive(:upload_evidence).and_return(true)
       allow(lighthouse_submission).to receive(:process_pdf).and_return('file_path')
-      allow(saved_claim).to receive(:to_pdf).with(form_id: '21-674').and_return('tmp/pdfs/mock_form_final.pdf')
+      allow(saved_claim).to receive(:to_pdf).with(form_id: saved_claim.form_id).and_return(
+        'tmp/pdfs/mock_form_final.pdf'
+      )
     end
 
     it 'processes PDF and uploads evidence' do
       expect(lighthouse_submission).to receive(:process_pdf).with(
         'tmp/pdfs/mock_form_final.pdf',
         saved_claim.created_at,
-        '21-674'
+        saved_claim.form_id
       )
       expect(claims_evidence_uploader).to receive(:upload_evidence).with(
         saved_claim.id,
         file_path: 'file_path',
-        form_id: '21-674',
+        form_id: saved_claim.form_id,
         doctype: saved_claim.document_type
       )
 
-      result = job.submit_to_service
-      expect(result).to be_a(DependentsBenefits::ServiceResponse)
-      expect(result.status).to be true
+      job.submit_to_claims_evidence_api(saved_claim)
     end
 
-    it 'returns error response when exception occurs' do
+    it 'raises exception when error occurs' do
       error = StandardError.new('Test error')
       allow(lighthouse_submission).to receive(:process_pdf).and_raise(error)
 
-      result = job.submit_to_service
-      expect(result).to be_a(DependentsBenefits::ServiceResponse)
-      expect(result.status).to be false
-      expect(result.error).to eq(error)
+      expect { job.submit_to_claims_evidence_api(saved_claim) }.to raise_error(StandardError, 'Test error')
     end
   end
 
   describe '#find_or_create_form_submission' do
-    before do
-      allow(job).to receive(:saved_claim).and_return(saved_claim)
-    end
-
     it 'creates a ClaimsEvidenceApi::Submission record' do
       expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(
         form_id: '21-674',
         saved_claim_id: saved_claim.id
       )
-      job.find_or_create_form_submission
+      job.find_or_create_form_submission(saved_claim)
     end
   end
 
   describe '#create_form_submission_attempt' do
     let(:submission) { create(:claims_evidence_submission, saved_claim:, form_id: '21-674') }
 
-    before do
-      allow(job).to receive(:submission).and_return(submission)
+    it 'creates a new ClaimsEvidenceApi::SubmissionAttempt' do
+      expect do
+        job.send(:create_form_submission_attempt, submission)
+      end.to change(ClaimsEvidenceApi::SubmissionAttempt, :count).by(1)
+    end
+  end
+
+  describe '#submission_previously_succeeded?' do
+    let(:submission) { create(:claims_evidence_submission, saved_claim:, form_id: '21-674') }
+
+    context 'when submission has an accepted attempt' do
+      before do
+        create(:claims_evidence_submission_attempt, submission:, status: 'accepted')
+      end
+
+      it 'returns true' do
+        expect(job.send(:submission_previously_succeeded?, submission)).to be true
+      end
     end
 
-    it 'creates a ClaimsEvidenceApi::SubmissionAttempt record' do
-      expect do
-        job.send(:create_form_submission_attempt)
-      end.to change(ClaimsEvidenceApi::SubmissionAttempt, :count).by(1)
+    context 'when submission has only failed attempts' do
+      before do
+        create(:claims_evidence_submission_attempt, submission:, status: 'failed')
+      end
+
+      it 'returns false' do
+        expect(job.send(:submission_previously_succeeded?, submission)).to be false
+      end
+    end
+
+    context 'when submission is nil' do
+      it 'returns falsy value' do
+        expect(job.send(:submission_previously_succeeded?, nil)).to be_falsy
+      end
     end
   end
 
@@ -122,7 +113,7 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
     end
 
     it 'marks attempt as accepted' do
-      expect { job.send(:mark_submission_succeeded) }
+      expect { job.send(:mark_submission_attempt_succeeded, submission_attempt) }
         .to change { submission_attempt.reload.status }.from('pending').to('accepted')
     end
   end
@@ -132,21 +123,20 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
     let(:submission_attempt) { create(:claims_evidence_submission_attempt, submission:, status: 'pending') }
     let(:error) { StandardError.new('Test error') }
 
-    before do
-      allow(job).to receive(:submission_attempt).and_return(submission_attempt)
+    it 'marks the submission attempt as failed' do
+      expect { job.send(:mark_submission_attempt_failed, submission_attempt, error) }
+        .to change { submission_attempt.reload.status }.from('pending').to('failed')
     end
 
-    it 'marks attempt as failed with error' do
-      expect(submission_attempt).to receive(:fail!).with(error:)
-      job.mark_submission_attempt_failed(error)
-    end
-  end
+    it 'records the error message' do
+      job.send(:mark_submission_attempt_failed, submission_attempt, error)
+      submission_attempt.reload
 
-  describe '#mark_submission_failed' do
-    it 'is a no-op that returns nil' do
-      error = StandardError.new('Test error')
-      result = job.mark_submission_failed(error)
-      expect(result).to be_nil
+      expect(submission_attempt.error_message).to eq('Test error')
+    end
+
+    it 'handles nil submission_attempt gracefully' do
+      expect { job.send(:mark_submission_attempt_failed, nil, error) }.not_to raise_error
     end
   end
 
@@ -194,32 +184,20 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
 
   describe 'private methods' do
     before do
-      allow(job).to receive_messages(saved_claim:, user_data:)
+      allow(job).to receive(:user_data).and_return(user_data)
     end
 
     describe '#claims_evidence_uploader' do
       it 'creates uploader with folder identifier' do
         expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(saved_claim.folder_identifier)
-        job.send(:claims_evidence_uploader)
-      end
-
-      it 'memoizes the uploader instance' do
-        uploader1 = job.send(:claims_evidence_uploader)
-        uploader2 = job.send(:claims_evidence_uploader)
-        expect(uploader1).to be(uploader2)
+        job.send(:claims_evidence_uploader, saved_claim)
       end
     end
 
     describe '#lighthouse_submission' do
       it 'creates lighthouse submission with claim and user data' do
         expect(DependentsBenefits::BenefitsIntake::LighthouseSubmission).to receive(:new).with(saved_claim, user_data)
-        job.send(:lighthouse_submission)
-      end
-
-      it 'memoizes the submission instance' do
-        submission1 = job.send(:lighthouse_submission)
-        submission2 = job.send(:lighthouse_submission)
-        expect(submission1).to be(submission2)
+        job.send(:lighthouse_submission, saved_claim)
       end
     end
   end

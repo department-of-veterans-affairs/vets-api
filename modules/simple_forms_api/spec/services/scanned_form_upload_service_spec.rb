@@ -77,6 +77,7 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
         expect(SimpleFormsApi::PdfStamper).to have_received(:new).with(
           stamped_template_path: pdf_path,
           current_loa: user.loa[:current],
+          form_number:,
           timestamp: instance_of(ActiveSupport::TimeWithZone)
         )
         expect(pdf_stamper).to have_received(:stamp_pdf)
@@ -209,6 +210,23 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
         expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate).with(
           hash_including('fileNumber' => 'VA123456')
         )
+      end
+    end
+
+    context 'when Lighthouse upload raises a client error' do
+      before do
+        allow(lighthouse_service).to receive(:perform_upload)
+          .and_raise(Common::Client::Errors::ClientError.new('Boom', 502))
+      end
+
+      it 'raises an UploadError with a user-friendly message' do
+        expect do
+          service.upload_with_supporting_documents
+        rescue SimpleFormsApi::ScannedFormUploadService::UploadError => e
+          expect(e.errors.first[:title]).to eq('Submission failed')
+          expect(e.http_status).to eq(502)
+          raise
+        end.to raise_error(SimpleFormsApi::ScannedFormUploadService::UploadError)
       end
     end
   end

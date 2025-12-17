@@ -27,17 +27,11 @@ RSpec.describe BGSDependentsV2::ChildMarriage do
     }
   end
 
-  context 'va_dependents_v2 is on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
+  describe '#format_info' do
+    it 'formats child marriage params for submission' do
+      formatted_info = described_class.new(child_marriage_info).format_info
 
-    describe '#format_info' do
-      it 'formats child marriage params for submission' do
-        formatted_info = described_class.new(child_marriage_info).format_info
-
-        expect(formatted_info).to eq(formatted_params_result)
-      end
+      expect(formatted_info).to eq(formatted_params_result)
     end
   end
 end

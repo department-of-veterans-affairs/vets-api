@@ -65,8 +65,18 @@ module TravelPay
       result = attributes.dup
       result['claim_id'] = claim_id
       result['has_receipt'] = receipt?
-      result['receipt'] = receipt if receipt?
+      result['receipt'] = hashify_receipt(receipt) if receipt?
       result['expense_type'] = expense_type
+      result
+    end
+
+    ### TODO Clean this up
+    def hashify_receipt(r)
+      result = {}
+      result['contentType'] = r['content_type'] || r[:content_type]
+      result['length'] = r['length'] || r[:length]
+      result['fileName'] = r['file_name'] || r[:file_name]
+      result['fileData'] = r['file_data'] || r[:file_data]
       result
     end
 
@@ -90,6 +100,7 @@ module TravelPay
         'cost_requested' => cost_requested
       }
       params['claim_id'] = claim_id if claim_id.present?
+      params['receipt'] = hashify_receipt(receipt) if receipt.present?
       params
     end
 

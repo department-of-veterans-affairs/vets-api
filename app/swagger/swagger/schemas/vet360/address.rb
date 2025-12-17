@@ -66,7 +66,7 @@ module Swagger
           PutVet360MilitaryOverseasAddress
         ].each do |schema|
           swagger_schema schema do
-            property :validation_key, type: :integer
+            property :override_validation_key, type: :integer
             property :address_line1,
                      type: :string,
                      example: '1493 Martin Luther King Rd',

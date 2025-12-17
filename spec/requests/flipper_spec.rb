@@ -393,4 +393,27 @@ RSpec.describe 'flipper', type: :request do
       end
     end
   end
+
+  context 'Flipper UI placeholder text for actors' do
+    before do
+      allow_any_instance_of(ActionDispatch::Request).to receive(:session) { { flipper_user: user } }
+      allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
+      allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
+    end
+
+    it 'displays placeholder text indicating case sensitivity and comma-separated values are supported' do
+      feature = Flipper[:this_is_only_a_test]
+      allow(feature).to receive_messages(boolean_value: false, actors_value: [])
+
+      get '/flipper/features/this_is_only_a_test'
+      assert_response :success
+
+      body = Nokogiri::HTML(response.body)
+      actor_input = body.at_css('input[name="value"][placeholder*="CASE SENSITIVE"]')
+      expect(actor_input).not_to be_nil
+      expect(actor_input['placeholder']).to include('CASE SENSITIVE')
+      expect(actor_input['placeholder']).to include('lowercase email')
+      expect(actor_input['placeholder']).to include('comma-separated')
+    end
+  end
 end

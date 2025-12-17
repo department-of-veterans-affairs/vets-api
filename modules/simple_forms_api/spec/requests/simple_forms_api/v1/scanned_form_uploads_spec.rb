@@ -39,7 +39,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         original_method.call(args[0], random_string)
       end
 
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s,
+                                                              current_loa: 3, form_number:,
                                                               timestamp: anything).and_return(pdf_stamper)
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
@@ -101,6 +102,33 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    context 'when supporting document submission fails at Lighthouse' do
+      let(:upload_error) do
+        SimpleFormsApi::ScannedFormUploadService::UploadError.new(
+          'Supporting document submission failed',
+          errors: [{ title: 'Submission failed', detail: 'Try again later.' }],
+          http_status: :bad_gateway
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+        service_instance = instance_double(SimpleFormsApi::ScannedFormUploadService)
+        allow(SimpleFormsApi::ScannedFormUploadService).to receive(:new).and_return(service_instance)
+        allow(service_instance).to receive(:upload_with_supporting_documents).and_raise(upload_error)
+      end
+
+      it 'returns the error response from the service' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(response).to have_http_status(:bad_gateway)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to eq('Submission failed')
+        expect(resp['errors'].first['detail']).to eq('Try again later.')
+      end
+    end
   end
 
   describe '#upload_scanned_form' do
@@ -158,6 +186,69 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+    end
+
+    context 'when file parameter is missing' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns a bad request error without processing the upload' do
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params: { form_id: form_number }
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:bad_request)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to eq('File missing')
+      end
+    end
+
+    context 'when file parameter is invalid' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns an unprocessable entity error' do
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params: { form_id: form_number, file: 'invalid' }
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to eq('Invalid file')
+      end
+    end
+
+    context 'when the processor cannot persist the attachment' do
+      let(:persistence_error) do
+        SimpleFormsApi::ScannedFormProcessor::PersistenceError.new(
+          'File upload failed',
+          [{ title: 'File upload failed', detail: 'Database unavailable' }]
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+        processor_instance = instance_double(SimpleFormsApi::ScannedFormProcessor)
+        allow(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor_instance)
+        allow(processor_instance).to receive(:process!).and_raise(persistence_error)
+      end
+
+      it 'renders a 500 error response' do
+        params = { form_id: form_number, file: valid_pdf_file }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:internal_server_error)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['detail']).to eq('Database unavailable')
       end
     end
 
@@ -331,7 +422,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
 
       allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
-                                                              timestamp: anything).and_return(pdf_stamper)
+                                                              form_number:, timestamp: anything).and_return(pdf_stamper)
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
 

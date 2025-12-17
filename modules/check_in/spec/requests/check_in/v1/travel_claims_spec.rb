@@ -344,9 +344,12 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           expect(response).to have_http_status(:bad_request)
         end
 
-        it 'logs existing claim error when 400 status is received' do
+        it 'logs duplicate claim error when 400 status is received' do
           # Mock Rails.logger to capture log calls
           allow(Rails.logger).to receive(:error)
+          # Enable detailed error logging to see the BTSSS error message
+          allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_log_api_error_details)
+                                              .and_return(true)
 
           VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
             VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
@@ -359,11 +362,21 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify that the specific error log was called
+          # Verify client-level logging: external API error with details
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient existing claim error',
             hash_including(
-              message: 'Validation failed: A claim has already been created for this appointment.'
+              message: 'TravelPayClient: BTSSS API Error',
+              operation: 'create_claim',
+              http_status: 400,
+              api_error_message: 'Validation failed: A claim has already been created for this appointment.'
+            )
+          )
+
+          # Verify service-level logging: step failure with context
+          expect(Rails.logger).to have_received(:error).with(
+            hash_including(
+              message: 'Travel Claim Submission: FAILURE',
+              failed_step: 'create_claim'
             )
           )
         end

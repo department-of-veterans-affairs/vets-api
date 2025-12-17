@@ -300,7 +300,9 @@ module V1
     end
 
     def check_cerner_eligibility
-      value = ActiveModel::Type::Boolean.new.cast(cookies.signed[CERNER_ELIGIBLE_COOKIE_NAME])
+      cookie = cookies.signed[CERNER_ELIGIBLE_COOKIE_NAME] || cookies[CERNER_ELIGIBLE_COOKIE_NAME]
+
+      value = ActiveModel::Type::Boolean.new.cast(cookie)
 
       Rails.logger.info('[SessionsController] Cerner Eligibility',
                         eligible: value.nil? ? :unknown : value,

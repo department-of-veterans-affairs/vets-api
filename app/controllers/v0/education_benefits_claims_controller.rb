@@ -33,7 +33,7 @@ module V0
     end
 
     def download_pdf
-      education_claim = EducationBenefitsClaim.find(params[:id].to_i)
+      education_claim = EducationBenefitsClaim.find_by!(token: params[:id])
       saved_claim = SavedClaim.find(education_claim.saved_claim_id)
 
       source_file_path = PdfFill::Filler.fill_form(
@@ -52,7 +52,7 @@ module V0
       StatsD.increment("#{stats_key('pdf_download')}.22#{education_claim.form_type}.success")
     rescue => e
       StatsD.increment("#{stats_key('pdf_download')}.failure")
-      Rails.logger.error "EBCC::download_pdf Failed to download pdf ClaimID=#{params[:id].to_i} #{e.message}"
+      Rails.logger.error "EBCC::download_pdf Failed to download pdf ClaimID=#{params[:id]} #{e.message}"
       raise e
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
