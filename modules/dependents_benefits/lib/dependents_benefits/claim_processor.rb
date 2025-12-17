@@ -126,6 +126,9 @@ module DependentsBenefits
             monitor.track_processor_info('All claim submissions succeeded', 'success', parent_claim_id:)
             mark_parent_claim_group_succeeded
             notification_email.send_received_notification
+            if child_claims.any?(&:pension_related_submission?)
+              monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id:)
+            end
           end
         end
       end

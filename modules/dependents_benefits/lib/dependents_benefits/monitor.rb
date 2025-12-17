@@ -28,6 +28,9 @@ module DependentsBenefits
     # statsd key for form prefill operations
     PREFILL_STATS_KEY = 'api.dependents_benefits.prefill'
 
+    # statsd key for pension-related submissions
+    PENSION_SUBMISSION_STATS_KEY = 'app.dependents_benefits.submit_dependents_pension'
+
     # Allowed context keys for logging
     ALLOWLIST = %w[
       tags
@@ -198,6 +201,15 @@ module DependentsBenefits
     def track_user_data_warning(message, action, **context)
       context = append_tags(context, action:)
       track_warning_event(message, CLAIM_STATS_KEY, **context)
+    end
+
+    ##
+    # Tracks a pension-related submission event
+    #
+    # @return [void]
+    def track_pension_related_submission(message, **context)
+      context = append_tags(context)
+      track_info_event(message, PENSION_SUBMISSION_STATS_KEY, **context)
     end
 
     private

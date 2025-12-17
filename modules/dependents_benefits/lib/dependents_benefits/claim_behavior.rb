@@ -109,6 +109,22 @@ module DependentsBenefits
       parsed_form.merge!(user_data)
     end
 
+    # Checks if claim is pension related submission
+    #
+    # @return [Boolean] true if the submission is pension related, false otherwise
+    def pension_related_submission?
+      return false unless Flipper.enabled?(:va_dependents_net_worth_and_pension)
+
+      # We can determine pension-related submission by checking if
+      # household income or student income info was asked on the form
+      household_income_present = parsed_form['dependents_application']&.key?('household_income')
+      student_income_present = parsed_form.dig('dependents_application', 'student_information')&.any? do |student|
+        student&.key?('student_networth_information')
+      end
+
+      !!(household_income_present || student_income_present)
+    end
+
     # Generates a folder identifier string for organizing veteran claims
     #
     # Creates an identifier starting with 'VETERAN' and appends the first available

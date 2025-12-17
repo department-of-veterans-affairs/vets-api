@@ -111,6 +111,40 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
     end
   end
 
+  describe '#pension_related_submission?' do
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(child_claim.pension_related_submission?).to be false
+      end
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(true)
+      end
+
+      context 'when the claim is pension related' do
+        it 'returns true' do
+          expect(child_claim.pension_related_submission?).to be true
+        end
+      end
+
+      context 'when the claim is not pension related' do
+        before do
+          child_claim.parsed_form['dependents_application'].delete('household_income')
+        end
+
+        it 'returns false' do
+          expect(child_claim.pension_related_submission?).to be false
+        end
+      end
+    end
+  end
+
   describe '#folder_identifier' do
     context 'when ssn is present' do
       before do
