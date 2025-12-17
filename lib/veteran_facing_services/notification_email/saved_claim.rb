@@ -43,6 +43,7 @@ module VeteranFacingServices
       # @return [ClaimVANotification] db record of notification sent
       def deliver(email_type, saved_claim_id = @saved_claim_id, personalization: nil, resend: false)
         @saved_claim_id = saved_claim_id
+        @claim = claim_class.find(saved_claim_id) # will raise ActiveRecord::RecordNotFound
         return unless valid_attempt?(email_type, resend:)
 
         callback_options = { callback_klass:, callback_metadata: }
@@ -84,8 +85,6 @@ module VeteranFacingServices
 
       # check prerequisites before attempting to send the email
       def valid_attempt?(email_type, resend: false)
-        @claim = claim_class.find(saved_claim_id) # will raise ActiveRecord::RecordNotFound
-
         raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless service_config
 
         @email_type = email_type
@@ -150,7 +149,7 @@ module VeteranFacingServices
         {
           form_id: claim&.form_id,
           claim_id: claim&.id,
-          saved_claim_id: claim&.id,
+          saved_claim_id: saved_claim_id,
           service_name: vanotify_service,
           email_type:,
           email_template_id:
