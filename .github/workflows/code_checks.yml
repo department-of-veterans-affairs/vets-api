@@ -270,7 +270,7 @@ jobs:
     runs-on: ubuntu-16-cores-latest
 
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
 
       - name: Publish Test Results to GitHub
         if: always()
@@ -301,7 +301,7 @@ jobs:
 
       - name: Download coverage artifacts
         if: needs.tests.result == 'success'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: simplecov-resultset-*
           path: .

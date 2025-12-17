@@ -230,7 +230,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
         it 'invalidates signature mis-match' do
           signature = 'mismatched signature'
           notification = instance_double(VANotify::Notification,
-                                         service_api_key_path: 'Settings.vanotify.services.check_in.api_key')
+                                         service_id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
           allow(VANotify::Notification).to receive(:find_by).and_return(notification)
 
           post(callback_route,
@@ -244,11 +244,11 @@ RSpec.describe 'VANotify Callbacks', type: :request do
         end
 
         it 'validates header signature' do
-          service_api_key_path = 'Settings.vanotify.services.check_in.api_key'
+          service_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
           template_id = SecureRandom.uuid
           notification = VANotify::Notification.create(notification_id:,
                                                        template_id:,
-                                                       service_api_key_path:)
+                                                       service_id:)
 
           params = {
             id: notification.notification_id,

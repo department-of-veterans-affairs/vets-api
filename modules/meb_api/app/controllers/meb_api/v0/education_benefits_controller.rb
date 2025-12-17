@@ -73,6 +73,9 @@ module MebApi
             status: response.status
           }
         }
+      rescue => e
+        Rails.logger.error("MEB submit_claim failed: #{e.class} - #{e.message}")
+        raise
       end
 
       def enrollment
