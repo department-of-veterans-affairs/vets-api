@@ -1316,7 +1316,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         context 'Oracle Health prescriptions' do
-          it 'returns false when refills remaining > 0 (Gate 4)' do
+          it 'returns false when refills remaining > 0 (Gate 6)' do
             VCR.use_cassette('unified_health_data/get_prescriptions_success') do
               prescriptions = service.get_prescriptions
 
@@ -1346,7 +1346,7 @@ describe UnifiedHealthData::Service, type: :service do
             end
           end
 
-          it 'returns false when dispense is in-progress (Gate 5 - active processing)' do
+          it 'returns false when dispense is in-progress (Gate 7 - active processing)' do
             VCR.use_cassette('unified_health_data/get_prescriptions_success') do
               prescriptions = service.get_prescriptions
 
