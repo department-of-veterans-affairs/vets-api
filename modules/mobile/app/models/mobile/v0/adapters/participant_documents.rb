@@ -8,7 +8,7 @@ module Mobile
           return [] if documents.empty?
 
           documents.map do |document|
-            Mobile::V0::ClaimLetterDocument.new(
+            Mobile::V0::ParticipantDocument.new(
               id: document['documentUuid'],
               doc_type: document['docTypeId'].to_s,
               type_description: document['documentTypeLabel'],
