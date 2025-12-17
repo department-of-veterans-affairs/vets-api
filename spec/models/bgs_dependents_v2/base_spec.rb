@@ -41,10 +41,6 @@ RSpec.describe BGSDependentsV2::Base do
     }
   end
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-  end
-
   describe '#dependent_address' do
     it 'returns the vet\'s address' do
       address = base.dependent_address(

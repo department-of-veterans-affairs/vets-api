@@ -2,12 +2,18 @@
 
 require 'rails_helper'
 require 'dependents_benefits/claim_processor'
-require 'dependents_benefits/sidekiq/bgs/bgs_674_job'
-require 'dependents_benefits/sidekiq/bgs/bgs_686c_job'
-require 'dependents_benefits/sidekiq/claims_evidence/claims_686c_job'
-require 'dependents_benefits/sidekiq/claims_evidence/claims_674_job'
 
 RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
+    allow(mock_monitor).to receive(:track_processor_info)
+    allow(mock_monitor).to receive(:track_processor_error)
+
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+    allow(processor).to receive(:collect_child_claims).and_return([form_686_claim, form_674_claim])
+  end
+
   let(:parent_claim) { create(:dependents_claim) }
   let(:form_674_claim) { create(:student_claim) }
   let(:form_686_claim) { create(:add_remove_dependents_claim) }
@@ -16,19 +22,11 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   let(:processor) { described_class.new(parent_claim_id) }
   let(:mock_monitor) { instance_double(DependentsBenefits::Monitor) }
 
-  before do
-    allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
-    allow(mock_monitor).to receive(:track_processor_info)
-    allow(mock_monitor).to receive(:track_processor_error)
-
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-  end
-
   describe '.enqueue_submissions' do
     it 'creates processor instance and delegates to instance method' do
-      expect(described_class).to receive(:new).with(parent_claim_id, nil).and_return(processor)
+      expect(described_class).to receive(:new).with(parent_claim_id).and_return(processor)
       expect(processor).to receive(:enqueue_submissions)
-      described_class.enqueue_submissions(parent_claim_id, nil)
+      described_class.enqueue_submissions(parent_claim_id)
     end
   end
 
@@ -72,6 +70,10 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   end
 
   describe '#collect_child_claims' do
+    before do
+      allow(processor).to receive(:collect_child_claims).and_call_original
+    end
+
     let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
 
     it 'tracks and returns child claims' do
@@ -93,22 +95,6 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     end
   end
 
-  describe '#enqueue_686c_submissions and #enqueue_674_submissions' do
-    let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
-
-    it 'tracks enqueued submissions for both form types' do
-      processor.send(:enqueue_686c_submission, form_686_claim)
-      processor.send(:enqueue_674_submission, form_674_claim)
-
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Enqueued 686c submission jobs', 'enqueue_686c', { parent_claim_id:, claim_id: form_686_claim.id }
-      )
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Enqueued 674 submission jobs', 'enqueue_674', { parent_claim_id:, claim_id: form_674_claim.id }
-      )
-    end
-  end
-
   describe '#handle_enqueue_failure' do
     let(:claim_group) { create(:saved_claim_group, saved_claim: form_686_claim, parent_claim:) }
 
@@ -123,6 +109,170 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
       processor.send(:handle_enqueue_failure, error)
       expect(claim_group.status).to eq('failure')
+    end
+
+    it 'logs any errors during failure handling' do
+      error = StandardError.new('Original error')
+      allow(SavedClaimGroup).to receive(:find_by).and_raise(StandardError.new('DB error'))
+      allow(mock_monitor).to receive(:track_processor_error)
+
+      expect(mock_monitor).to receive(:track_processor_error).with(
+        'Failed to enqueue submission jobs', 'enqueue_failure', { parent_claim_id:, error: 'Original error' }
+      )
+      expect(mock_monitor).to receive(:track_processor_error).with(
+        'Failed to update ClaimGroup status', 'status_update', { parent_claim_id:, error: 'DB error' }
+      )
+
+      processor.send(:handle_enqueue_failure, error)
+    end
+  end
+
+  describe 'handle_permanent_failure' do
+    let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
+
+    it 'logs error' do
+      processor.send(:handle_permanent_failure, 'Some error message')
+      expect(mock_monitor).to have_received(:track_processor_error).with(
+        'Error submitting DependentsBenefits::ClaimProcessor', 'error.permanent', { parent_claim_id:, error: 'Some error message' }
+      )
+    end
+
+    context 'when parent claim group is not completed' do
+      it 'marks parent claim group as failed and sends backup job' do
+        parent_group.update(status: SavedClaimGroup::STATUSES[:PROCESSING])
+        expect(processor).to receive(:mark_parent_claim_group_failed)
+        expect(processor).to receive(:send_backup_job)
+        processor.send(:handle_permanent_failure, 'Some error message')
+      end
+    end
+
+    context 'when parent claim group is already completed' do
+      it 'does not mark parent claim group or send backup job' do
+        parent_group.update(status: SavedClaimGroup::STATUSES[:SUCCESS])
+        expect(processor).not_to receive(:mark_parent_claim_group_failed)
+        expect(processor).not_to receive(:send_backup_job)
+        processor.send(:handle_permanent_failure, 'Some error message')
+      end
+    end
+
+    it 'sends error notification email on rescue' do
+      allow(processor).to receive(:mark_parent_claim_group_failed).and_raise(StandardError.new('DB error'))
+      allow_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_error_notification)
+      expect_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_error_notification)
+      expect(mock_monitor).to receive(:log_silent_failure_avoided).with(
+        { parent_claim_id:, error: instance_of(StandardError) }
+      )
+      processor.send(:handle_permanent_failure, 'Some error message')
+    end
+
+    it 'logs silent failure if notification email fails' do
+      allow(processor).to receive(:mark_parent_claim_group_failed).and_raise(StandardError.new('DB error'))
+      allow_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_error_notification).and_raise(
+        StandardError.new('Email error')
+      )
+      expect(mock_monitor).to receive(:log_silent_failure).with(
+        { parent_claim_id:, error: instance_of(StandardError) }
+      )
+      processor.send(:handle_permanent_failure, 'Some error message')
+    end
+  end
+
+  describe '#handle_successful_submission' do
+    let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
+
+    it 'logs start of success check' do
+      processor.send(:handle_successful_submission)
+      expect(mock_monitor).to have_received(:track_processor_info).with(
+        'Checking if claim submissions succeeded', 'success_check', { parent_claim_id: }
+      )
+    end
+
+    it 'handles errors during success handling' do
+      allow(processor).to receive(:parent_claim_group).and_raise(StandardError.new('DB error'))
+      expect(mock_monitor).to receive(:track_processor_error).with(
+        'Error handling successful submission for DependentsBenefits::ClaimProcessor', 'success.error',
+        { parent_claim_id:, error: instance_of(StandardError) }
+      )
+      processor.send(:handle_successful_submission)
+    end
+
+    context 'when all child claims succeeded' do
+      before do
+        allow_any_instance_of(DependentsBenefits::ClaimBehavior).to receive(:submissions_succeeded?).and_return(true)
+      end
+
+      context 'and parent claim group not completed' do
+        before do
+          parent_group.update(status: SavedClaimGroup::STATUSES[:PROCESSING])
+        end
+
+        it 'marks parent claim group as succeeded and sends received notification' do
+          expect(processor).to receive(:mark_parent_claim_group_succeeded)
+          expect_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_received_notification)
+          processor.send(:handle_successful_submission)
+        end
+      end
+
+      context 'and parent claim group already completed' do
+        before do
+          parent_group.update(status: SavedClaimGroup::STATUSES[:SUCCESS])
+        end
+
+        it 'does not mark parent claim group or send notification' do
+          expect(processor).not_to receive(:mark_parent_claim_group_succeeded)
+          expect_any_instance_of(DependentsBenefits::NotificationEmail).not_to receive(:send_received_notification)
+          processor.send(:handle_successful_submission)
+        end
+      end
+    end
+
+    context 'when not all child claims succeeded' do
+      before do
+        allow(form_674_claim).to receive(:submissions_succeeded?).and_return(true)
+        allow(form_686_claim).to receive(:submissions_succeeded?).and_return(false)
+      end
+
+      it 'does not mark parent claim group or send notification' do
+        expect(processor).not_to receive(:mark_parent_claim_group_succeeded)
+        expect_any_instance_of(DependentsBenefits::NotificationEmail).not_to receive(:send_received_notification)
+        processor.send(:handle_successful_submission)
+      end
+    end
+  end
+
+  describe '#send_backup_job' do
+    it 'enqueues backup submission job' do
+      expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim_id)
+      processor.send(:send_backup_job)
+    end
+  end
+
+  describe '#notification_email' do
+    it 'returns a DependentsBenefits::NotificationEmail instance' do
+      email_instance = processor.send(:notification_email)
+      expect(email_instance).to be_a(DependentsBenefits::NotificationEmail)
+    end
+
+    it 'memoizes the instance' do
+      email_instance1 = processor.send(:notification_email)
+      email_instance2 = processor.send(:notification_email)
+      expect(email_instance1).to equal(email_instance2)
+    end
+  end
+
+  describe '#mark_parent_claim_group_succeeded' do
+    it 'marks the parent claim group as succeeded' do
+      parent_group = create(:parent_claim_group, parent_claim:)
+      processor.send(:mark_parent_claim_group_succeeded)
+      expect(parent_group.reload.status).to eq(SavedClaimGroup::STATUSES[:SUCCESS])
+    end
+  end
+
+  describe '#mark_parent_claim_group_failed' do
+    it 'marks the parent claim group as failed' do
+      parent_group = create(:parent_claim_group, parent_claim:)
+      processor.send(:mark_parent_claim_group_failed)
+      expect(parent_group.reload.status).to eq(SavedClaimGroup::STATUSES[:FAILURE])
     end
   end
 end

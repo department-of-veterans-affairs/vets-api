@@ -13,33 +13,13 @@ module DependentsBenefits
   # Tracks submission status and handles failures during the enqueueing process.
   #
   class ClaimProcessor
-    attr_reader :parent_claim_id, :proc_id, :child_claims
+    attr_reader :parent_claim_id
 
     # Initializes a new ClaimProcessor
     #
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
-    # @param proc_id [String, nil] Optional processing ID for job tracking
-    def initialize(parent_claim_id, proc_id = nil)
+    def initialize(parent_claim_id)
       @parent_claim_id = parent_claim_id
-      @proc_id = proc_id
-    end
-
-    # Creates processing forms for a parent claim
-    #
-    # Factory method that instantiates a processor and triggers form creation.
-    #
-    # @param parent_claim_id [Integer] ID of the parent SavedClaim
-    # @return [String] Sidekiq job ID
-    def self.create_proc_forms(parent_claim_id)
-      processor = new(parent_claim_id, nil)
-      processor.create_proc_forms
-    end
-
-    # Enqueues a BGS processing job for the parent claim
-    #
-    # @return [String] Sidekiq job ID
-    def create_proc_forms
-      DependentsBenefits::Sidekiq::BGS::BGSProcJob.perform_async(parent_claim_id)
     end
 
     # Synchronously enqueues all (async) submission jobs for 686c and 674 claims
@@ -48,11 +28,10 @@ module DependentsBenefits
     # enqueueing for a parent claim and its child claims.
     #
     # @param parent_claim_id [Integer] ID of the parent SavedClaim
-    # @param proc_id [String] Processing ID for job tracking
     # @return [Hash] Success result with :jobs_enqueued count and :error nil
     # @raise [StandardError] If any submission job fails to enqueue
-    def self.enqueue_submissions(parent_claim_id, proc_id = nil)
-      processor = new(parent_claim_id, proc_id)
+    def self.enqueue_submissions(parent_claim_id)
+      processor = new(parent_claim_id)
       processor.enqueue_submissions
     end
 
@@ -75,6 +54,7 @@ module DependentsBenefits
 
       monitor.track_processor_info('Successfully enqueued all submission jobs', 'enqueue_success',
                                    parent_claim_id:, jobs_count: jobs_enqueued)
+      record_enqueue_completion
       { data: { jobs_enqueued: }, error: nil }
     rescue => e
       handle_enqueue_failure(e)
@@ -101,52 +81,6 @@ module DependentsBenefits
                                    parent_claim_id:, child_claims_count: child_claims.count)
 
       @child_claims
-    end
-
-    # Enqueues submission jobs for a 686c claim
-    #
-    # Enqueues both BGS and Claims submission jobs for the 686c form.
-    #
-    # @param claim [SavedClaim] The 686c claim to submit
-    # @return [Integer] Number of jobs enqueued (currently 2)
-    def enqueue_686c_submission(claim)
-      jobs_count = 0
-
-      # Enqueue primary 686c submission jobs
-      DependentsBenefits::Sidekiq::BGS::BGS686cJob.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      DependentsBenefits::Sidekiq::ClaimsEvidence::Claims686cJob.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      # @todo Add calls to submission jobs here as they are implemented
-
-      monitor.track_processor_info('Enqueued 686c submission jobs', 'enqueue_686c',
-                                   parent_claim_id:, claim_id: claim.id)
-
-      jobs_count
-    end
-
-    # Enqueues submission jobs for a 674 claim
-    #
-    # Enqueues both BGS and Claims submission jobs for the 674 form.
-    #
-    # @param claim [SavedClaim] The 674 claim to submit
-    # @return [Integer] Number of jobs enqueued (currently 2)
-    def enqueue_674_submission(claim)
-      jobs_count = 0
-
-      # Enqueue primary 674 submission job
-      DependentsBenefits::Sidekiq::BGS::BGS674Job.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      DependentsBenefits::Sidekiq::ClaimsEvidence::Claims674Job.perform_async(claim.id, proc_id)
-      jobs_count += 1
-
-      monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',
-                                   parent_claim_id:, claim_id: claim.id)
-
-      jobs_count
     end
 
     # Handle permanent submission failure
@@ -188,7 +122,7 @@ module DependentsBenefits
 
       ActiveRecord::Base.transaction do
         parent_claim_group.with_lock do
-          if child_claims.all?(&:submissions_succeeded?)
+          if child_claims.all?(&:submissions_succeeded?) && !parent_claim_group.completed?
             monitor.track_processor_info('All claim submissions succeeded', 'success', parent_claim_id:)
             mark_parent_claim_group_succeeded
             notification_email.send_received_notification
@@ -269,6 +203,12 @@ module DependentsBenefits
     # @return [Boolean] result of the update operation
     def mark_parent_claim_group_failed
       parent_claim_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
+    end
+
+    # Collects a memoized list of child claims
+    # @return [Array<DependentClaim>]
+    def child_claims
+      @child_claims ||= collect_child_claims
     end
   end
 end

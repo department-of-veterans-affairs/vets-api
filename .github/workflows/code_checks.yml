@@ -270,7 +270,7 @@ jobs:
     runs-on: ubuntu-16-cores-latest
 
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
 
       - name: Publish Test Results to GitHub
         if: always()
@@ -301,7 +301,7 @@ jobs:
 
       - name: Download coverage artifacts
         if: needs.tests.result == 'success'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: simplecov-resultset-*
           path: .
@@ -362,9 +362,17 @@ jobs:
           name: Coverage Report
           path: vets-api/coverage
           if-no-files-found: ignore
+
       - name: Fix up coverage report to work with coverage-check-action
+        id: coverage
         if: needs.tests.result == 'success'
-        run: sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+        run: |
+          echo "=== Fixing coverage report format ==="
+          sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+          echo "=== Verifying modified format ==="
+          pct=$(cat vets-api/coverage/.last_run.json | jq '.result.covered_percent')
+          echo "percent=$pct" >> $GITHUB_OUTPUT
+          echo "Extracted coverage: $pct"
 
       - name: Publish Coverage Report
         if: needs.tests.result == 'success'
@@ -374,3 +382,213 @@ jobs:
           result_path: vets-api/coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS Credentials
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: us-gov-west-1
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request'
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Checkout VSP actions
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request'
+        uses: actions/checkout@v6
+        with:
+          repository: department-of-veterans-affairs/vsp-github-actions
+          ref: refs/heads/main
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          persist-credentials: false
+          path: ./.github/actions/vsp-github-actions
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request'
+        with:
+          ssm_parameter: /devops/github_actions_slack_socket_token
+          env_variable_name: SLACK_APP_TOKEN
+
+      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request'
+        with:
+          ssm_parameter: /devops/github_actions_slack_bot_user_token
+          env_variable_name: SLACK_BOT_TOKEN
+
+      - name: Slack notify - critical coverage alert
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Critical: Vets-API Testing Coverage Below 90% - Deployment Blocked"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": ":rotating_light: CRITICAL: Test Coverage Too Low",
+                  "emoji": true
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Vets-API deployment is BLOCKED until coverage reaches 90%*"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": ":chart_with_downwards_trend: *Current Coverage*: ${{ steps.coverage.outputs.percent }}%"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ":dart: *Required Minimum*: 90%"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ":x: *Status*: Deployment Blocked"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":bust_in_silhouette: *Author:* ${{ github.actor }}"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": ":mag_right: View Test Run",
+                      "emoji": true
+                    },
+                    "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "style": "danger"
+                  }
+                ]
+              },
+              {
+                "type": "context",
+                "elements": [
+                  {
+                    "type": "mrkdwn",
+                    "text": ":bulb: *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open *index.html*"
+                  }
+                ]
+              },
+              { "type": "divider" }
+            ]
+          channel_id: "C039HRTHXDH"
+
+      - name: Slack notify - warning low coverage alert
+        if: needs.tests.result == 'success' && github.event_name != 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Warning: Vets-API Testing Coverage Below 93%"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": ":warning: Warning: Vets-API Coverage Below Target",
+                  "emoji": true
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": ":chart_with_downwards_trend: *Current Coverage*: ${{ steps.coverage.outputs.percent }}%"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ":dart: *Required Minimum*: 90%"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ":large_green_circle: *Status*: Deployment Allowed"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":bust_in_silhouette: *Author:* ${{ github.actor }}"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": ":mag_right: View Test Run",
+                      "emoji": true
+                    },
+                    "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "style": "danger"
+                  }
+                ]
+              },
+              {
+                "type": "context",
+                "elements": [
+                  {
+                    "type": "mrkdwn",
+                    "text": ":bulb: *View detailed coverage:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open test run> → Scroll to *Artifacts* → Download *Coverage Report* → Open *index.html*"
+                  }
+                ]
+              },
+              { "type": "divider" }
+            ]
+          channel_id: "C039HRTHXDH"
+
+      - name: Comment Coverage on PR
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) < 90
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+              ## :x: Critical: Test Coverage Too Low
+              **Coverage:** ${{ steps.coverage.outputs.percent }}%
+              Your test coverage is **below the required minimum of 90%**.
+              Please add additional tests before this PR can be considered for merge.
+              Once coverage is improved, push another commit or rerun the workflow to update this report.
+              **View detailed coverage:** [Open test run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) → Scroll to **Artifacts** → Download **Coverage Report** → Open **index.html**
+
+      - name: Comment Coverage on PR
+        if: needs.tests.result == 'success' && github.event_name == 'pull_request' && fromJSON(steps.coverage.outputs.percent) >= 90 && fromJSON(steps.coverage.outputs.percent) < 93
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+            ## :warning: Warning: Low Coverage Report
+            **Coverage:** ${{ steps.coverage.outputs.percent }}%
+
+            Please add or expand tests to improve coverage before merging.
+
+            **View detailed coverage:** [Open test run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) → Scroll to **Artifacts** → Download **Coverage Report** → Open **index.html**

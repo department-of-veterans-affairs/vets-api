@@ -68,6 +68,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
                 'submittedDate' => saved_claim_claimant_representative_a.created_at.to_date.iso8601,
                 'firstName' => 'John',
                 'lastName' => 'Doe',
+                'benefitType' => nil,
                 'formType' => '21-686c',
                 'packet' => false,
                 'confirmationNumber' =>
@@ -81,6 +82,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
                 'firstName' => 'John',
                 'lastName' => 'Doe',
                 'formType' => '21-686c',
+                'benefitType' => nil,
                 'packet' => false,
                 'confirmationNumber' =>
                   saved_claim_claimant_representative_b.saved_claim.latest_submission_attempt.benefits_intake_uuid,

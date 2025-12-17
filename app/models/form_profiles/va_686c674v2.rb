@@ -57,12 +57,12 @@ class FormProfiles::VA686c674v2 < FormProfile
 
     return if mailing_address.blank?
 
+    zip_code = mailing_address.zip_code.presence || mailing_address.international_postal_code.presence
     @form_address = FormAddress.new(
       mailing_address.to_h.slice(
         :address_line1, :address_line2, :address_line3,
-        :city, :state_code, :province,
-        :zip_code, :international_postal_code
-      ).merge(country_name: mailing_address.country_code_iso3)
+        :city, :state_code, :province
+      ).merge(country_name: mailing_address.country_code_iso3, zip_code:)
     )
   end
 
