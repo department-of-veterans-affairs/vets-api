@@ -111,7 +111,7 @@ class InProgressForm < ApplicationRecord
 
   def next_expires_at
     skippable_forms = %w[21P-527EZ 21-526EZ 5655]
-    skippable_forms.include?(form_id) ? (expires_at || expires_after) : (Time.current + expires_after)
+    skippable_forms.include?(form_id) ? expires_at : (Time.current + expires_after)
   end
 
   private
