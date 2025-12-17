@@ -128,7 +128,7 @@ module VeteranFacingServices
       # retrieve the email from the _claim_
       # - specific claim models should have an `email` method defined
       def email
-        claim.email
+        claim.try(:email)
       end
 
       # assemble details for personalization in the email
