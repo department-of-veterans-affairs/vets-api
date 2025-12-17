@@ -199,5 +199,65 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         expect(response).to have_http_status(:internal_server_error)
       end
     end
+
+    it 'maps upstream 502 Bad Gateway correctly' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+      error_response = { status: 502, body: { 'message' => 'bad gateway' } }
+      allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
+        .and_raise(Faraday::ServerError.new(nil, error_response))
+
+      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+        headers = { 'Authorization' => 'Bearer vagov_token' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
+
+        post('/travel_pay/v0/claims', headers:, params:)
+
+        expect(response).to have_http_status(:bad_gateway)
+      end
+    end
+
+    it 'maps upstream 503 Service Unavailable correctly' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+      error_response = { status: 503, body: { 'message' => 'service unavailable' } }
+      allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
+        .and_raise(Faraday::ServerError.new(nil, error_response))
+
+      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+        headers = { 'Authorization' => 'Bearer vagov_token' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
+
+        post('/travel_pay/v0/claims', headers:, params:)
+
+        expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+
+    it 'maps upstream 504 Gateway Timeout correctly' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+      error_response = { status: 504, body: { 'message' => 'gateway timeout' } }
+      allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
+        .and_raise(Faraday::ServerError.new(nil, error_response))
+
+      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+        headers = { 'Authorization' => 'Bearer vagov_token' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
+
+        post('/travel_pay/v0/claims', headers:, params:)
+
+        expect(response).to have_http_status(:gateway_timeout)
+      end
+    end
   end
 end
