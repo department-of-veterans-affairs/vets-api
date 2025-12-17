@@ -104,6 +104,41 @@ RSpec.describe V0::DependentsApplicationsController do
 
         expect(response).to have_http_status(:ok)
       end
+
+      context 'when claim is pension related' do
+        it 'tracks pension related submission' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(true)
+
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+          allow(monitor_double).to receive(:track_pension_related_submission)
+
+          expect(monitor_double).to receive(:track_pension_related_submission).with('686C-674-V2')
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
+        end
+      end
+
+      context 'when claim is not pension related' do
+        it 'does not track pension related submission' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(false)
+
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+
+          expect(monitor_double).not_to receive(:track_pension_related_submission)
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
+        end
+      end
     end
 
     context 'with v1 submitting with a v2 user' do

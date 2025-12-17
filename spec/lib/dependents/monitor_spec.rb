@@ -536,6 +536,20 @@ RSpec.describe Dependents::Monitor do
       end
     end
 
+    describe '#track_pension_related_submission' do
+      it 'tracks pension related submission with correct tags' do
+        form_id = '686C-674-V2'
+        metric = "#{described_class::PENSION_SUBMISSION_STATS_KEY}.submitted"
+
+        # Allow any StatsD calls to happen for test setup or the test will fail
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with(metric, tags: ["form_id:#{form_id}"])
+
+        monitor_v2.track_pension_related_submission(form_id)
+      end
+    end
+
     describe '#claim' do
       context 'when claim is not found' do
         it 'logs warning and returns nil' do
