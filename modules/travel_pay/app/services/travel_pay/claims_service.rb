@@ -73,8 +73,10 @@ module TravelPay
         # Normalize expense types
         expenses = normalize_expenses(claim['expenses']) if claim['expenses']
 
-        # finish transposing document/expense ids
-        expenses = transpose_doc_exp_ids(expenses, documents)
+        if Flipper.enabled?(:travel_pay_enable_complex_claims, @user)
+          # finish transposing document/expense ids
+          expenses = transpose_doc_exp_ids(expenses, documents)
+        end
 
         claim['expenses'] = expenses
 
