@@ -11,6 +11,8 @@ module IvcChampva
     class UploadsController < ApplicationController
       skip_after_action :set_csrf_header
 
+      include ActionView::Helpers::NumberHelper
+
       FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
         '10-10D-EXTENDED' => 'vha_10_10d',
@@ -323,9 +325,11 @@ module IvcChampva
           attachment.file = params['password'] ? unlocked : params['file']
 
           # pre-validation logging to help debug issues
-          Rails.logger.info "attachment.file class: #{attachment.file.class}"
-          Rails.logger.info "attachment.file present: #{attachment.file.present?}"
-          Rails.logger.info "attachment.file size: #{attachment.file&.size}"
+          Rails.logger.info "submit_supporting_documents attachment.file class: #{attachment.file.class}"
+          Rails.logger.info "submit_supporting_documents attachment.file present: #{attachment.file.present?}"
+          Rails.logger.info(
+            "submit_supporting_documents attachment.file size: #{number_to_human_size(attachment.file&.size)}"
+          )
 
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
