@@ -154,10 +154,7 @@ module V0
           identifier: icn
         )&.profile
       rescue => e
-        # sanitize using ::Chatbot::RequiresEdipi.sanitize_icn
-        Rails.logger.error(
-          "Error fetching MPI profile for ICN #{sanitize_icn(@icn) || 'unknown'}: #{e.message}"
-        )
+        Rails.logger.error("Error fetching MPI profile for ICN: #{e.message}")
         nil
       end
     end
