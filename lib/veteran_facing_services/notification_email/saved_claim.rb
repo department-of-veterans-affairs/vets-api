@@ -37,8 +37,10 @@ module VeteranFacingServices
       # @see VaNotify::Service
       # @see ClaimVANotification
       #
-      # @param email_type [Symbol] one defined in Settings
+      # @param email_type [Symbol] the type of email to deliver; one defined in Settings
       # @param saved_claim_id [Integer] the claim id for which to send a notification
+      # @param personalization [Hash] the fields to populate in the email tempate; @see #personalization
+      # @param resend [Boolean] if the email should be resent, overrided duplicate_attempt check
       #
       # @return [ClaimVANotification] db record of notification sent
       def deliver(email_type, saved_claim_id = @saved_claim_id, personalization: nil, resend: false)
@@ -80,10 +82,13 @@ module VeteranFacingServices
       # flipper exists and is enabled
       # @param flipper_id [String] the flipper id
       def flipper_enabled?(flipper_id)
-        !flipper_id || (flipper_id && Flipper.enabled?(:"#{flipper_id}"))
+        !flipper_id || (flipper_id && Flipper.enabled?(flipper_id.to_sym))
       end
 
       # check prerequisites before attempting to send the email
+      #
+      # @param email_type [Symbol] the type of email to deliver; one defined in Settings
+      # @param resend [Boolean] if the email should be resent, overrided duplicate_attempt check
       def valid_attempt?(email_type, resend: false)
         raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless service_config
 

@@ -11,8 +11,9 @@ module DependentsBenefits
     def initialize(saved_claim_id, user = nil)
       @va_profile_email = user&.va_profile_email
       @user_first_name = user&.first_name
-      # Not sure if this service can be this
+
       super(saved_claim_id, service_name: 'dependents_benefits')
+      @claim = claim_class.find(saved_claim_id)
     end
 
     ##
