@@ -12,7 +12,7 @@ module Chatbot
 
       Rails.logger.warn(
         'Chatbot::RequiresEdipi missing EDIPI, responding with empty payload ' \
-        "icn=#{safe_icn_for_logging}, mpi=#{profile.inspect}"
+        "icn_last4=#{safe_icn_for_logging || 'unknown'}"
       )
       render json: empty_edipi_payload_for(action_name), status: :ok
     end
@@ -28,7 +28,8 @@ module Chatbot
     def empty_edipi_payload_for(action_name)
       base_meta = { sync_status: 'SUCCESS' }
 
-      # if needed, can pass in the response structure
+      # if needed, the response structure can be passed in from upstream
+      # controller instead of hardcoding like this
       case action_name.to_s
       when 'index'
         { data: [], meta: base_meta }
@@ -40,11 +41,19 @@ module Chatbot
     end
 
     def safe_icn_for_logging
-      if respond_to?(:icn, true)
-        send(:icn)
-      elsif instance_variable_defined?(:@icn)
-        instance_variable_get(:@icn)
-      end
+      raw_icn = if respond_to?(:icn, true)
+                  send(:icn)
+                elsif instance_variable_defined?(:@icn)
+                  instance_variable_get(:@icn)
+                end
+
+      sanitize_icn(raw_icn)
+    end
+
+    def sanitize_icn(raw_icn)
+      return if raw_icn.blank?
+
+      raw_icn.to_s[-4, 4]
     end
   end
 end
