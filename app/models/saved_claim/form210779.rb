@@ -31,6 +31,12 @@ class SavedClaim::Form210779 < SavedClaim
     # )
   end
 
+  # Override to_pdf to add nursing home official signature stamp
+  def to_pdf(file_name = nil, fill_options = {})
+    pdf_path = PdfFill::Filler.fill_form(self, file_name, fill_options)
+    PdfFill::Forms::Va210779.stamp_signature(pdf_path, parsed_form)
+  end
+
   def veteran_name
     first = parsed_form.dig('veteranInformation', 'fullName', 'first')
     last = parsed_form.dig('veteranInformation', 'fullName', 'last')

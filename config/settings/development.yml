@@ -90,6 +90,13 @@ binaries:
   pdftk: pdftk
 bing:
   key: ~
+bio:
+  medical_expense_reports:
+    bucket: ~
+    region: ~
+  survivors_benefits:
+    bucket: ~
+    region: ~
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -150,6 +157,7 @@ check_in:
     auth_url: https://fake.service.us
     auth_url_v2: ~
     claims_base_path: ~
+    claims_base_path_v2: eis/api/btsss/travelclaim
     claims_url: https://fake.dev.va.gov
     claims_url_v2: https://fake.dev.va.gov
     client_id: ~
@@ -312,6 +320,7 @@ dgi:
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
   vye:
     jwt:
+      kid: vye
       private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
       public_ica11_rca2_key_path: modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
@@ -848,6 +857,8 @@ maintenance:
     form107959c: ~
     form107959f1: ~
     form107959f2: ~
+    form21p0537: ~
+    form21p601: ~
     global: PLPSIB0
     hcq: PWGA814
     idme: PVWB4R8
@@ -912,6 +923,8 @@ mdot:
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
+memorials:
+  prefill: true
 mhv:
   account:
     mock: false
@@ -1038,6 +1051,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: fake_key
+    s3:
+      bucket: fake_bucket
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: false
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
 oidc:
   isolated_audience:
@@ -1594,7 +1612,6 @@ vanotify:
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
-      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: fake_email_address
       template_id:
         form_10_10d_email: form_10_10d_email
@@ -1932,6 +1949,7 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: 24
 vetext:
   mock: ~
 vetext_push:

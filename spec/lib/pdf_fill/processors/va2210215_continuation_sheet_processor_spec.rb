@@ -127,4 +127,45 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
       end
     end
   end
+
+  describe '#initialize' do
+    it 'sorts programs by programName alphabetically' do
+      unsorted_programs = [
+        { 'programName' => 'Zebra Program', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple Program', 'studentsEnrolled' => 50 },
+        { 'programName' => 'Banana Program', 'studentsEnrolled' => 75 }
+      ]
+      form_data['programs'] = unsorted_programs
+      processor = described_class.new(form_data, file_name_extension, fill_options, main_form_filler_mock)
+
+      sorted_names = processor.instance_variable_get(:@programs).map { |p| p['programName'] }
+      expect(sorted_names).to eq(['Apple Program', 'Banana Program', 'Zebra Program'])
+    end
+
+    it 'updates form_data with sorted programs' do
+      unsorted_programs = [
+        { 'programName' => 'Zebra Program', 'studentsEnrolled' => 100 },
+        { 'programName' => 'Apple Program', 'studentsEnrolled' => 50 }
+      ]
+      form_data['programs'] = unsorted_programs
+      described_class.new(form_data, file_name_extension, fill_options, main_form_filler_mock)
+
+      sorted_names = form_data['programs'].map { |p| p['programName'] }
+      expect(sorted_names).to eq(['Apple Program', 'Zebra Program'])
+    end
+
+    it 'handles nil programs gracefully' do
+      form_data['programs'] = nil
+      expect do
+        processor = described_class.new(form_data, file_name_extension, fill_options, main_form_filler_mock)
+        expect(processor.instance_variable_get(:@programs)).to eq([])
+      end.not_to raise_error
+    end
+
+    it 'handles empty programs array gracefully' do
+      form_data['programs'] = []
+      processor = described_class.new(form_data, file_name_extension, fill_options, main_form_filler_mock)
+      expect(processor.instance_variable_get(:@programs)).to eq([])
+    end
+  end
 end
