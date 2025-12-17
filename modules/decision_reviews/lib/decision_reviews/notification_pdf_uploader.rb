@@ -50,7 +50,9 @@ module DecisionReviews
       service.folder_identifier = folder_identifier
 
       response = service.upload(pdf_path, provider_data:)
-      file_uuid = response.body['uuid']
+      file_uuid = response.body&.fetch('uuid') do
+        raise UploadError, 'Missing uuid in Claims Evidence API response'
+      end
 
       Rails.logger.info('DecisionReviews::NotificationPdfUploader uploaded PDF',
                         notification_id: @audit_log.notification_id,

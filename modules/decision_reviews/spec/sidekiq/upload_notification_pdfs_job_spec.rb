@@ -130,9 +130,10 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
       it 'fetches only pending uploads' do
         subject.new.perform
 
-        # Should create uploaders for the 2 pending logs
+        # Should create uploaders for the 3 pending logs
         expect(DecisionReviews::NotificationPdfUploader).to have_received(:new).with(audit_log1)
         expect(DecisionReviews::NotificationPdfUploader).to have_received(:new).with(audit_log2)
+        expect(DecisionReviews::NotificationPdfUploader).to have_received(:new).with(permanent_failure_log)
 
         # Should not create uploaders for already uploaded or max retries logs
         expect(DecisionReviews::NotificationPdfUploader).not_to have_received(:new)
