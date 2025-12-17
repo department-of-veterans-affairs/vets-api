@@ -28,10 +28,7 @@ module Dependents
 
     # assemble details for personalization in the emails
     def personalization
-      default = super.merge({
-        'date_submitted' => claim.submitted_at,
-        'confirmation_number' => claim.confirmation_number
-      })
+      default = super
 
       submission_date = claim.submitted_at || Time.zone.today
       first_name = @user_first_name || claim.parsed_form.dig('veteran_information', 'full_name', 'first')
