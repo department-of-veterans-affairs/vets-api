@@ -46,7 +46,7 @@ module IvcChampva
         end
 
         # Send each form UUID to DataDog
-        StatsD.increment('ivc_champva.form_missing_status', tags: ["id:#{form.id}"])
+        StatsD.increment('ivc_champva.form_missing_status', tags: ["uuid:#{form[:form_uuid]}"])
       end
     rescue => e
       Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
