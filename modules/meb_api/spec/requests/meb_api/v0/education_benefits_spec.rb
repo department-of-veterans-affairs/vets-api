@@ -324,6 +324,37 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
         end
       end
     end
+
+    context 'when an exception occurs in submit_claim' do
+      let(:submission_service) { instance_double(MebApi::DGI::Submission::Service) }
+      let(:error_message) { 'Submission failed' }
+      let(:test_params) do
+        claimant_params.deep_dup.tap do |p|
+          p[:education_benefit].delete(:direct_deposit)
+        end
+      end
+
+      before do
+        allow(MebApi::DGI::Submission::Service).to receive(:new).and_return(submission_service)
+        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
+      end
+
+      it 'logs an error with exception class and message' do
+        expect(Rails.logger).to receive(:error)
+          .with("MEB submit_claim failed: StandardError - #{error_message}")
+        expect(Rails.logger).to receive(:error).at_least(:once)
+
+        post '/meb_api/v0/submit_claim', params: test_params
+        expect(response).to have_http_status(:internal_server_error)
+      end
+
+      it 're-raises the exception after logging' do
+        allow(Rails.logger).to receive(:error)
+
+        post '/meb_api/v0/submit_claim', params: test_params
+        expect(response).to have_http_status(:internal_server_error)
+      end
+    end
   end
 
   describe 'POST /meb_api/v0/send_confirmation_email' do

@@ -492,6 +492,22 @@ describe UnifiedHealthData::Service, type: :service do
                                   }
                                 ))
         end
+
+        it 'returns vitals sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(sample_client_response)
+
+          vitals = service.get_vitals.sort
+
+          vitals_with_dates = vitals.select { |v| v.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = vitals_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          vitals_without_dates = vitals.select { |v| v.date.nil? }
+          expect(vitals.last(vitals_without_dates.size)).to eq(vitals_without_dates) if vitals_without_dates.any?
+        end
       end
 
       context 'when data exists for only VistA or OH' do
