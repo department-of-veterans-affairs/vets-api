@@ -55,12 +55,16 @@ module IvcChampva
         StatsD.increment('ivc_champva.form_missing_status', tags: ["key:#{key}"])
 
         puts "batch.count: #{batch.count}"
-        if verbose_logging && form_count <= 10
-          Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
-                              - Elapsed days: #{elapsed_days} \
-                              - File name: #{form.file_name} \
-                              - S3 status: #{form.s3_status} \
-                              - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+        if verbose_logging
+          if form_count <= 10
+            Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
+                                - Elapsed days: #{elapsed_days} \
+                                - File name: #{form.file_name} \
+                                - S3 status: #{form.s3_status} \
+                                - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+          else
+            Rails.logger.info "IVC Forms MissingFormStatusJob - Too many forms to log details (#{form_count} forms)"
+          end
         end
       end
     rescue => e
