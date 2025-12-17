@@ -144,7 +144,7 @@ RSpec.describe SignIn::AcrTranslator do
 
         context 'and uplevel is true' do
           let(:uplevel) { true }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL0 } }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
 
           it 'returns expected translated acr value' do
             expect(subject).to eq(expected_translated_acr)
