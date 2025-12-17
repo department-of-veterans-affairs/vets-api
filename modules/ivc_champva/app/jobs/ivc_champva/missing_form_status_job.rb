@@ -22,6 +22,11 @@ module IvcChampva
       # Send the count of forms to DataDog
       StatsD.gauge('ivc_champva.forms_missing_status.count', batches.count)
 
+      verbose_logging = Flipper.enabled?(:champva_missing_status_verbose_logging, @current_user)
+      form_count = count_forms(batches)
+
+      puts "form_count: #{form_count}"
+
       current_time = Time.now.utc
 
       batches.each_value do |batch|
@@ -46,11 +51,25 @@ module IvcChampva
         end
 
         # Send each form UUID to DataDog
-        StatsD.increment('ivc_champva.form_missing_status', tags: ["id:#{form.id}"])
+        key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+        StatsD.increment('ivc_champva.form_missing_status', tags: ["key:#{key}"])
+
+        puts "batch.count: #{batch.count}"
+        if verbose_logging && form_count <= 10
+          Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
+                              - Elapsed days: #{elapsed_days} \
+                              - File name: #{form.file_name} \
+                              - S3 status: #{form.s3_status} \
+                              - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+        end
       end
     rescue => e
       Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
+    end
+
+    def count_forms(batches)
+      batches.values.sum(&:count)
     end
 
     def construct_email_payload(form, template_id)
