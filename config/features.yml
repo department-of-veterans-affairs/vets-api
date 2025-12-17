@@ -2666,10 +2666,6 @@ features:
     actor_type: user
     description: Enables PCMHI as care related to mental health appointments with new codes
     enable_in_development: true
-  va_online_scheduling_hide_service_type:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to hide service type in the appointments API response.
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing

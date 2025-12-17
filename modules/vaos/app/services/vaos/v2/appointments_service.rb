@@ -19,7 +19,6 @@ module VAOS
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
       APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
-      APPOINTMENTS_HIDE_SERVICE_TYPE = :va_online_scheduling_hide_service_type
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -243,7 +242,8 @@ module VAOS
           set_type(new_appointment)
           set_modality(new_appointment)
           set_derived_appointment_date_fields(new_appointment)
-          hide_service_type(new_appointment)
+          # Remove covid service type per GH#128004
+          remove_service_type(new_appointment) if covid?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -286,7 +286,8 @@ module VAOS
             set_modality(appointment)
             set_derived_appointment_date_fields(appointment)
             appointment[:show_schedule_link] = schedulable?(appointment)
-            hide_service_type(appointment)
+            # Remove covid service type per GH#128004
+            remove_service_type(appointment) if covid?(appointment)
             OpenStruct.new(appointment)
           end
         end
@@ -400,10 +401,6 @@ module VAOS
       end
 
       private
-
-      def hide_service_type(appointment)
-        remove_service_type(appointment) if Flipper.enabled?(APPOINTMENTS_HIDE_SERVICE_TYPE, user)
-      end
 
       def fetch_and_normalize_eps_appointments(referral_number)
         raw_appointments = eps_appointments_service.get_appointments(referral_number:)
@@ -762,7 +759,8 @@ module VAOS
 
         log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
 
-        hide_service_type(appointment)
+        # Remove covid service type per GH#128004
+        remove_service_type(appointment) if covid?(appointment)
       end
       # rubocop:enable Metrics/MethodLength
 

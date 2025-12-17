@@ -470,16 +470,16 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when requesting a list of appointments containing a non-Med non-CnP non-CC appointment' do
-        it 'removes the service type(s) from only the non-med non-cnp non-covid appointment' do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_hide_service_type,
-                                                    instance_of(User)).and_return(false)
+        it 'removes the service type(s) from only the non-med non-cnp appointment and covid appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_non_med',
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
             expect(response[:data][0][:service_type]).to be_nil
             expect(response[:data][0][:service_types]).to be_nil
-            expect(response[:data][1][:service_type]).not_to be_nil
-            expect(response[:data][1][:service_types]).not_to be_nil
+            expect(response[:data][1][:service_type]).to be_nil
+            expect(response[:data][1][:service_types]).to be_nil
+            expect(response[:data][2][:service_type]).not_to be_nil
+            expect(response[:data][2][:service_types]).not_to be_nil
           end
         end
       end
@@ -2985,24 +2985,6 @@ describe VAOS::V2::AppointmentsService do
           expect(subject.send(:schedulable?, appt)).to be(false)
         end
       end
-    end
-  end
-
-  describe 'hide_service_type' do
-    it 'hides service type when va_online_scheduling_hide_service_type is true' do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_hide_service_type,
-                                                instance_of(User)).and_return(true)
-      appt = build(:appointment_form_v2, :va_proposed_base).attributes
-      subject.send(:hide_service_type, appt)
-      expect(appt[:service_type]).to be_nil
-    end
-
-    it 'does not hide service type when va_online_scheduling_hide_service_type is false' do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_hide_service_type,
-                                                instance_of(User)).and_return(false)
-      appt = build(:appointment_form_v2, :va_proposed_base).attributes
-      subject.send(:hide_service_type, appt)
-      expect(appt[:service_type]).to eq('audiology')
     end
   end
 end
