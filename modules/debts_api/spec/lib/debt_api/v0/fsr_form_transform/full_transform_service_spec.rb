@@ -17,7 +17,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::FullTransformService, type: :serv
       end
 
       it 'reports streamlined and type' do
-        expect(StatsD).to receive(:increment).with('api.fsr_submission.full_transform.has_streamlined_data')
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.full_transform.no_streamlined_data')
         expect(StatsD).to receive(:increment).with('api.fsr_submission.none_streamlined_type')
 
         transformed
