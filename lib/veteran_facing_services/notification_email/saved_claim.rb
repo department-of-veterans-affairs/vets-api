@@ -42,7 +42,7 @@ module VeteranFacingServices
       #
       # @return [ClaimVANotification] db record of notification sent
       def deliver(email_type, saved_claim_id = @saved_claim_id, personalization: nil, resend: false)
-        @saved_claim_id = saved_claim_id if saved_claim_id
+        @saved_claim_id = saved_claim_id
         return unless valid_attempt?(email_type, resend:)
 
         callback_options = { callback_klass:, callback_metadata: }
