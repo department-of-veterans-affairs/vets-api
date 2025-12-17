@@ -25,8 +25,6 @@ module IvcChampva
       verbose_logging = Flipper.enabled?(:champva_missing_status_verbose_logging, @current_user)
       form_count = count_forms(batches)
 
-      puts "form_count: #{form_count}"
-
       current_time = Time.now.utc
 
       batches.each_value do |batch|
