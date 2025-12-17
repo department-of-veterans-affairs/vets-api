@@ -18,7 +18,6 @@ module AccreditedRepresentativePortal
           metadata: params[:metadata],
           expires_at: form.next_expires_at
         )
-        form.reset_expires_at!
 
         render json: InProgressFormSerializer.new(form)
       end
