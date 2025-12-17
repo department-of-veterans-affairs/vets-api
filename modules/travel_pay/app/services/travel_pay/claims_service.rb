@@ -71,10 +71,12 @@ module TravelPay
         claim['documents'] = documents
 
         # Normalize expense types
-        normalize_expenses(claim['expenses']) if claim['expenses']
+        expenses = normalize_expenses(claim['expenses']) if claim['expenses']
 
         # finish transposing document/expense ids
-        claim['expenses'] = transpose_doc_exp_ids(claim['expenses'], documents)
+        expenses = transpose_doc_exp_ids(expenses, documents)
+
+        claim['expenses'] = expenses
 
         # Add decision letter reason for denied or partial payment claims
         add_decision_letter_reason(claim, claim_id) if include_decision_reason?
@@ -264,21 +266,56 @@ module TravelPay
       end
     end
 
-    # Switches from documents having an expense ID to 
-    # expenses having a document ID
+    # Switches from documents having an expense ID to expenses having a document object
+    # - Takes the first document if multiple exist for one expense (logs a warning)
+    # - Logs orphaned documents (documents with expenseId not matching any expense)
+    # - Skips documents with missing/nil/empty expenseId or documentId (logs a debug message)
     def transpose_doc_exp_ids(expenses, documents)
-      expenses_with_docids = extract_doc_ids(documents)
+      return expenses if expenses.blank? || documents.blank?
 
-      expenses.map do |exp|
-        # Our current approach results in a single document with a single expense
-        exp.merge('document_id' => expenses_with_docids[exp['id']]&.first)
+      expenses_with_docs = extract_docs_by_expense_id(documents)
+      expense_ids = expenses.map { |e| e['id'] }.compact
+
+      result = expenses.map do |exp|
+        docs_for_expense = expenses_with_docs[exp['id']]
+
+        # Log if multiple documents exist for this expense
+        if docs_for_expense&.length.to_i > 1
+          Rails.logger.warn(
+            message: 'Multiple documents found for expense',
+            expense_id: exp['id'],
+            document_count: docs_for_expense.length,
+            taking_first: true
+          )
+        end
+
+        exp.merge('document' => docs_for_expense&.first)
       end
+
+      # Log orphaned documents (documents referencing non-existent expenses)
+      orphaned_exp_ids = expenses_with_docs.keys.reject { |expense_id| expense_ids.include?(expense_id) }
+      orphaned_exp_ids.each do |orphaned_exp_id|
+        Rails.logger.info(
+          message: 'Orphaned document(s) found - no matching expense',
+          expense_id: orphaned_exp_id,
+          document_count: expenses_with_docs[orphaned_exp_id].length
+        )
+      end
+
+      result
     end
 
-    # Returns a hash of expenseId => array of document_ids
-    def extract_doc_ids(documents)
+    # Returns a hash of expenseId => array of document objects
+    # - Skips documents with missing/nil/empty expenseId or documentId
+    def extract_docs_by_expense_id(documents)
       documents.each_with_object({}) do |doc, acc|
-        acc[doc['expenseId']] = (acc[doc['expenseId']] || []).push(doc['documentId'])
+        expense_id = doc['expenseId']
+        document_id = doc['documentId']
+
+        # Skip documents with missing/nil/empty IDs and log
+        next if (!expense_id || expense_id.blank?) || document_id.blank?
+
+        acc[expense_id] = (acc[expense_id] || []).push(doc)
         acc
       end
     end

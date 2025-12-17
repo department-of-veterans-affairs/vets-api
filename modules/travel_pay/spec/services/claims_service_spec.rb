@@ -375,30 +375,384 @@ describe TravelPay::ClaimsService do
     context 'expense ID comes back on document summaries' do
       let(:documents_with_expense_ids) do
         Faraday::Response.new(body: {
-          'data' => [
-            {
-              'documentId' => 'uuid1',
-              'filename' => 'DecisionLetter.pdf',
-              'mimetype' => 'application/pdf',
-              'createdon' => '2025-03-24T14:00:52.893Z',
-              'expenseId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
-            }
-          ]
-        })
+                                'data' => [
+                                  {
+                                    'documentId' => 'uuid1',
+                                    'filename' => 'DecisionLetter.pdf',
+                                    'mimetype' => 'application/pdf',
+                                    'createdon' => '2025-03-24T14:00:52.893Z',
+                                    'expenseId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                                  }
+                                ]
+                              })
       end
 
       before do
         allow_any_instance_of(TravelPay::DocumentsClient)
-        .to receive(:get_document_ids)
-        .and_return(documents_with_expense_ids)
+          .to receive(:get_document_ids)
+          .and_return(documents_with_expense_ids)
       end
 
-      it 'transposes expense IDs and document IDs so that document ids are on expenses' do
+      it 'transposes expense IDs and document IDs so that documents are on expenses' do
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
         actual_claim = service.get_claim_details(claim_id)
         actual_expense = actual_claim['expenses'].first
 
-        expect(actual_expense['document_id']).to eq('uuid1')
+        expect(actual_expense['document']).to eq(
+          {
+            'documentId' => 'uuid1',
+            'filename' => 'DecisionLetter.pdf',
+            'mimetype' => 'application/pdf',
+            'createdon' => '2025-03-24T14:00:52.893Z',
+            'expenseId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          }
+        )
+      end
+    end
+
+    context 'transpose edge cases' do
+      let(:user) { build(:user) }
+      let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+      let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
+      let(:service) { TravelPay::ClaimsService.new(auth_manager, user) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, user).and_return(true)
+      end
+
+      it 'logs warning when multiple documents exist for single expense' do
+        claim_data_with_multi_docs = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => [
+              {
+                'id' => 'exp1',
+                'expenseType' => 'Mileage',
+                'costRequested' => 10.00
+              }
+            ]
+          }
+        }
+
+        documents_multi = {
+          'data' => [
+            { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' },
+            { 'documentId' => 'uuid2', 'expenseId' => 'exp1', 'filename' => 'doc2.pdf' }
+          ]
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data_with_multi_docs))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_multi))
+
+        expect(Rails.logger).to receive(:warn).with(
+          hash_including(
+            message: 'Multiple documents found for expense',
+            expense_id: 'exp1',
+            document_count: 2,
+            taking_first: true
+          )
+        )
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        # Should take the first document as a full object
+        expect(actual_claim['expenses'].first['document']).to eq(
+          { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' }
+        )
+      end
+
+      it 'logs info when documents reference non-existent expenses (orphaned documents)' do
+        claim_data = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => [
+              {
+                'id' => 'exp1',
+                'expenseType' => 'Mileage',
+                'costRequested' => 10.00
+              }
+            ]
+          }
+        }
+
+        documents_orphaned = {
+          'data' => [
+            { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' },
+            { 'documentId' => 'uuid2', 'expenseId' => 'non-existent-exp', 'filename' => 'orphan.pdf' }
+          ]
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_orphaned))
+
+        expect(Rails.logger).to receive(:info).with(
+          hash_including(
+            message: 'Orphaned document(s) found - no matching expense',
+            expense_id: 'non-existent-exp',
+            document_count: 1
+          )
+        )
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        # Orphaned document should not affect valid expense
+        expect(actual_claim['expenses'].first['document']).to eq(
+          { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' }
+        )
+      end
+
+      it 'skips documents with missing expenseId and logs debug message' do
+        claim_data = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => [
+              {
+                'id' => 'exp1',
+                'expenseType' => 'Mileage',
+                'costRequested' => 10.00
+              }
+            ]
+          }
+        }
+
+        documents_missing_expense_id = {
+          'data' => [
+            { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' },
+            { 'documentId' => 'uuid2', 'expenseId' => nil, 'filename' => 'no_expense_id.pdf' },
+            { 'documentId' => 'uuid3', 'filename' => 'just_gone.bmp' }
+          ]
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_missing_expense_id))
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        expect(actual_claim['expenses'].length).to eq(1)
+        expect(actual_claim['expenses'].first['document']).to eq(
+          { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' }
+        )
+      end
+
+      it 'skips documents with missing documentId and logs debug message' do
+        claim_data = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => [
+              {
+                'id' => 'exp1',
+                'expenseType' => 'Mileage',
+                'costRequested' => 10.00
+              }
+            ]
+          }
+        }
+
+        documents_missing_doc_id = {
+          'data' => [
+            { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' },
+            { 'documentId' => nil, 'expenseId' => 'exp1', 'filename' => 'no_doc_id.pdf' }
+          ]
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_missing_doc_id))
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        expect(actual_claim['expenses'].first['document']).to eq(
+          { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' }
+        )
+      end
+
+      it 'handles empty string expenseId by skipping document' do
+        claim_data = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => [
+              {
+                'id' => 'exp1',
+                'expenseType' => 'Mileage',
+                'costRequested' => 10.00
+              }
+            ]
+          }
+        }
+
+        documents_empty_strings = {
+          'data' => [
+            { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' },
+            { 'documentId' => 'uuid2', 'expenseId' => '', 'filename' => 'empty_exp_id.pdf' }
+          ]
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_empty_strings))
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        # Should only have the valid document
+        expect(actual_claim['expenses'].first['document']).to eq(
+          { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' }
+        )
+      end
+
+      it 'handles nil expenses array gracefully' do
+        claim_data = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => nil
+          }
+        }
+
+        documents_data = {
+          'data' => [
+            { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'doc1.pdf' }
+          ]
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_data))
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        # Should not crash and expenses should remain nil
+        expect(actual_claim['expenses']).to be_nil
+      end
+
+      it 'handles empty documents array gracefully' do
+        claim_data = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => [
+              {
+                'id' => 'exp1',
+                'expenseType' => 'Mileage',
+                'costRequested' => 10.00
+              }
+            ]
+          }
+        }
+
+        documents_empty = { 'data' => [] }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_empty))
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        # Should not crash and expenses should have nil document
+        expect(actual_claim['expenses'].first['document']).to be_nil
+      end
+
+      it 'handles mixed valid and invalid documents in same claim' do
+        claim_data = {
+          'data' => {
+            'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'Approved',
+            'expenses' => [
+              {
+                'id' => 'exp1',
+                'expenseType' => 'Mileage',
+                'costRequested' => 10.00
+              },
+              {
+                'id' => 'exp2',
+                'expenseType' => 'Parking',
+                'costRequested' => 5.00
+              }
+            ]
+          }
+        }
+
+        documents_mixed = {
+          'data' => [
+            { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'valid_doc.pdf' },
+            { 'documentId' => nil, 'expenseId' => 'exp1', 'filename' => 'missing_doc_id.pdf' },
+            { 'documentId' => 'uuid2', 'expenseId' => 'non-existent', 'filename' => 'orphan.pdf' },
+            { 'documentId' => 'uuid3', 'expenseId' => 'exp2', 'filename' => 'valid_doc2.pdf' }
+          ]
+        }
+
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(Faraday::Response.new(body: claim_data))
+
+        allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(Faraday::Response.new(body: documents_mixed))
+
+        expect(Rails.logger).to receive(:info).with(
+          hash_including(message: 'Orphaned document(s) found - no matching expense')
+        )
+
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = service.get_claim_details(claim_id)
+
+        # Valid mappings should work
+        expect(actual_claim['expenses'][0]['document']).to eq(
+          { 'documentId' => 'uuid1', 'expenseId' => 'exp1', 'filename' => 'valid_doc.pdf' }
+        )
+        expect(actual_claim['expenses'][1]['document']).to eq(
+          { 'documentId' => 'uuid3', 'expenseId' => 'exp2', 'filename' => 'valid_doc2.pdf' }
+        )
       end
     end
   end
