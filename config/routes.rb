@@ -43,8 +43,6 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
-
-    resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
@@ -219,6 +217,8 @@ Rails.application.routes.draw do
     mount Rswag::Ui::Engine => 'swagger'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
+    post 'event_bus_gateway/send_push', to: 'event_bus_gateway#send_push'
+    post 'event_bus_gateway/send_notifications', to: 'event_bus_gateway#send_notifications'
 
     resources :maintenance_windows, only: [:index]
 
