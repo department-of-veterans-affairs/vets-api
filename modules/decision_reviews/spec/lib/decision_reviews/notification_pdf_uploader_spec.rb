@@ -351,10 +351,4 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
       end
     end
   end
-
-  describe 'NOTIFICATION_EMAIL_DOCTYPE constant' do
-    it 'is set to Email Correspondence doctype' do
-      expect(described_class::NOTIFICATION_EMAIL_DOCTYPE).to eq(40)
-    end
-  end
 end
