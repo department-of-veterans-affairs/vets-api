@@ -3,10 +3,10 @@
 module Vass
   module V0
     ##
-    # Session model for managing OTP-based authentication flow.
+    # Session model for managing OTC-based authentication flow.
     #
-    # This model handles the generation and validation of One-Time Passcodes (OTP)
-    # for non-authenticated users who need to verify their contact information
+    # This model handles the generation and validation of One-Time Codes (OTC)
+    # for non-authenticated users who need to verify their identity
     # before scheduling appointments.
     #
     # @!attribute uuid
@@ -16,19 +16,20 @@ module Vass
     # @!attribute contact_value
     #   @return [String] Email address or phone number
     # @!attribute otp_code
-    #   @return [String] User-provided OTP code for validation
+    #   @return [String] User-provided OTC for validation (aliased as otc)
     # @!attribute redis_client
     #   @return [Vass::RedisClient] Redis client for storage operations
     #
     class Session
-      # Valid contact methods for OTP delivery
+      # Valid contact methods for OTC delivery
       VALID_CONTACT_METHODS = %w[email].freeze
 
       # Email validation regex (basic RFC 5322 compliant)
       EMAIL_REGEX = /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/
 
-      # OTP code length
-      OTP_LENGTH = 6
+      # OTC code length
+      OTC_LENGTH = 6
+      OTP_LENGTH = 6 # Alias for backwards compatibility
 
       attr_accessor :contact_method, :contact_value, :edipi, :veteran_id
       attr_reader :uuid, :last_name, :date_of_birth, :otp_code, :redis_client
@@ -39,8 +40,8 @@ module Vass
       # @param opts [Hash] Options to create the session
       # @option opts [String] :uuid Veteran UUID (veteran_id from welcome email)
       # @option opts [String] :last_name Veteran's last name for validation
-      # @option opts [String] :date_of_birth Veteran's date of birth for validation
-      # @option opts [String] :otp_code User-provided OTP for validation
+      # @option opts [String] :dob Veteran's date of birth for validation (YYYY-MM-DD)
+      # @option opts [String] :otc User-provided OTC for validation
       # @option opts [Vass::RedisClient] :redis_client Optional Redis client
       #
       # @return [Vass::V0::Session] An instance of this class
@@ -54,27 +55,29 @@ module Vass
       #
       # @param opts [Hash] Options for initialization
       # @option opts [String] :uuid Veteran UUID (veteran_id from welcome email)
-      # @option opts [Hash] :data Data hash containing uuid, last_name, date_of_birth
+      # @option opts [Hash] :data Data hash containing uuid, last_name, dob
       # @option opts [String] :last_name Veteran's last name
-      # @option opts [String] :date_of_birth Veteran's date of birth
-      # @option opts [String] :otp_code User-provided OTP for validation
+      # @option opts [String] :dob Veteran's date of birth (YYYY-MM-DD)
+      # @option opts [String] :date_of_birth Veteran's date of birth (YYYY-MM-DD) - alias for dob
+      # @option opts [String] :otc User-provided OTC for validation
+      # @option opts [String] :otp_code User-provided OTP for validation - alias for otc
       # @option opts [Vass::RedisClient] :redis_client Optional Redis client
       #
       def initialize(opts = {})
         data = opts[:data] || {}
         @uuid = opts[:uuid] || data[:uuid] || SecureRandom.uuid
         @last_name = opts[:last_name] || data[:last_name]
-        @date_of_birth = opts[:date_of_birth] || data[:date_of_birth]
+        @date_of_birth = opts[:date_of_birth] || opts[:dob] || data[:date_of_birth] || data[:dob]
         @contact_method = opts[:contact_method] || data[:contact_method]
         @contact_value = opts[:contact_value] || data[:contact_value]
-        @otp_code = opts[:otp_code]
+        @otp_code = opts[:otp_code] || opts[:otc] || data[:otp_code] || data[:otc]
         @edipi = opts[:edipi] || data[:edipi]
         @veteran_id = opts[:veteran_id] || data[:veteran_id]
         @redis_client = opts[:redis_client] || Vass::RedisClient.build
       end
 
       ##
-      # Validates session parameters for OTP generation.
+      # Validates session parameters for OTC generation.
       #
       # @return [Boolean] true if valid, false otherwise
       #
@@ -111,18 +114,37 @@ module Vass
       end
 
       ##
-      # Validates the provided OTP against the stored value.
+      # Validates the provided OTC against the stored value.
+      #
+      # @return [Boolean] true if OTC matches, false otherwise
+      #
+      def valid_otc?
+        return false unless valid_for_validation?
+
+        stored_otc = redis_client.otc(uuid:)
+        return false if stored_otc.nil?
+
+        # Constant-time comparison to prevent timing attacks
+        ActiveSupport::SecurityUtils.secure_compare(stored_otc, otp_code)
+      end
+
+      ##
+      # Checks if OTC has expired (not found in Redis).
+      #
+      # @return [Boolean] true if OTC is expired/not found
+      #
+      def otc_expired?
+        stored_otc = redis_client.otc(uuid:)
+        stored_otc.nil?
+      end
+
+      ##
+      # Alias for backwards compatibility.
       #
       # @return [Boolean] true if OTP matches, false otherwise
       #
       def valid_otp?
-        return false unless valid_for_validation?
-
-        stored_otp = redis_client.otc(uuid:)
-        return false if stored_otp.nil?
-
-        # Constant-time comparison to prevent timing attacks
-        ActiveSupport::SecurityUtils.secure_compare(stored_otp, otp_code)
+        valid_otc?
       end
 
       ##
@@ -229,14 +251,23 @@ module Vass
       end
 
       ##
-      # Generates and saves an OTP code.
+      # Generates and saves an OTC.
+      #
+      # @return [String] Generated OTC
+      #
+      def generate_and_save_otc
+        otc_code = generate_otp
+        save_otp(otc_code)
+        otc_code
+      end
+
+      ##
+      # Alias for backwards compatibility.
       #
       # @return [String] Generated OTP code
       #
       def generate_and_save_otp
-        otp_code = generate_otp
-        save_otp(otp_code)
-        otp_code
+        generate_and_save_otc
       end
 
       ##
@@ -253,29 +284,128 @@ module Vass
       end
 
       ##
-      # Creates an authenticated session after OTP validation.
+      # Creates an authenticated session after OTC validation.
       #
       # Retrieves veteran metadata from Redis (stored during create flow) and saves it
-      # to a session keyed by the session token.
+      # to a session keyed by the token.
       #
-      # @param session_token [String] Generated session token
+      # @param token [String] Generated JWT token
+      # @param session_token [String] Deprecated: use token instead
       # @return [Boolean] true if session created successfully, false if metadata not found
       #
-      def create_authenticated_session(session_token:)
+      def create_authenticated_session(token: nil, session_token: nil)
+        # Support both token and session_token for backwards compatibility
+        auth_token = token || session_token
+
         # Retrieve veteran metadata from Redis (stored during create flow)
         metadata = redis_client.veteran_metadata(uuid:)
 
         return false unless metadata
 
         redis_client.save_session(
-          session_token:,
+          session_token: auth_token,
           edipi: metadata[:edipi],
           veteran_id: metadata[:veteran_id],
           uuid:
         )
       end
 
+      ##
+      # Validates identity against veteran data from VASS.
+      #
+      # @param veteran_data [Hash] Veteran data from VASS API
+      # @raise [Vass::Errors::IdentityValidationError] if identity doesn't match
+      #
+      def validate_identity_against_veteran_data(veteran_data)
+        vass_last_name = veteran_data.dig('data', 'lastName')
+        vass_dob = veteran_data.dig('data', 'dateOfBirth')
+
+        unless matches_identity?(vass_last_name, vass_dob)
+          raise Vass::Errors::IdentityValidationError, 'Identity validation failed'
+        end
+
+        true
+      end
+
+      ##
+      # Validates OTC, deletes it, and generates a JWT token.
+      #
+      # @return [String] Generated JWT token
+      # @raise [Vass::Errors::AuthenticationError] if OTC is invalid
+      #
+      def validate_and_generate_jwt
+        raise Vass::Errors::AuthenticationError, 'Invalid OTC' unless valid_otc?
+
+        delete_otp
+        generate_jwt_token
+      end
+
+      ##
+      # Generates a JWT token for authenticated access.
+      #
+      # @return [String] JWT token
+      #
+      def generate_jwt_token
+        payload = {
+          sub: uuid,
+          jti: SecureRandom.uuid,
+          iat: Time.now.to_i,
+          exp: Time.now.to_i + 3600 # 1 hour expiration
+        }
+
+        # Use RS256 signing - assumes JWT secret is configured
+        JWT.encode(payload, jwt_secret, 'HS256')
+      end
+
       private
+
+      ##
+      # Checks if submitted identity matches veteran data.
+      #
+      # @param vass_last_name [String] Last name from VASS
+      # @param vass_dob [String] Date of birth from VASS (M/D/YYYY format)
+      # @return [Boolean] true if matches
+      #
+      def matches_identity?(vass_last_name, vass_dob)
+        return false if vass_last_name.blank? || vass_dob.blank?
+
+        # Case-insensitive comparison for names
+        last_name_matches = vass_last_name.downcase == last_name.downcase
+
+        # Normalize dates to Date objects for comparison
+        dob_matches = normalize_date(vass_dob) == normalize_date(date_of_birth)
+
+        last_name_matches && dob_matches
+      end
+
+      ##
+      # Normalizes a date string to a Date object for comparison.
+      #
+      # @param date_str [String] Date string in various formats
+      # @return [Date, nil] Parsed date object or nil if invalid
+      #
+      def normalize_date(date_str)
+        return nil if date_str.blank?
+
+        # Try M/D/YYYY format first (VASS format)
+        Date.strptime(date_str, '%m/%d/%Y')
+      rescue ArgumentError
+        # Fall back to standard date parsing (handles YYYY-MM-DD, etc.)
+        begin
+          Date.parse(date_str)
+        rescue ArgumentError, TypeError
+          nil
+        end
+      end
+
+      ##
+      # Returns JWT secret for token generation.
+      #
+      # @return [String] JWT secret
+      #
+      def jwt_secret
+        Rails.application.secret_key_base
+      end
 
       ##
       # Validates contact method is one of the allowed values.
