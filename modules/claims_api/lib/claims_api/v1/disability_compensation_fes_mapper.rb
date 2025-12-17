@@ -116,6 +116,7 @@ module ClaimsApi
           addressLine1: line1,
           addressLine2: addr[:addressLine2],
           addressLine3: addr[:addressLine3],
+          city: addr[:city],
           country: addr[:country] || 'USA',
           zipFirstFive: addr[:zipFirstFive],
           zipLastFour: addr[:zipLastFour],
@@ -124,7 +125,6 @@ module ClaimsApi
         if type == 'INTERNATIONAL'
           formatted[:internationalPostalCode] = addr[:internationalPostalCode]
         else
-          formatted[:city] = addr[:city]
           formatted[:state] = addr[:state]
         end
         @fes_claim[:veteran] ||= {}
@@ -165,6 +165,7 @@ module ClaimsApi
           addressLine1: line1,
           addressLine2: change_data[:addressLine2],
           addressLine3: change_data[:addressLine3],
+          city: change_data[:city],
           country: change_data[:country] || 'USA'
         }.compact_blank
       end
@@ -183,7 +184,6 @@ module ClaimsApi
           )
         else
           addr.merge!(
-            city: change_data[:city],
             state: change_data[:state],
             addressType: 'DOMESTIC'
           )

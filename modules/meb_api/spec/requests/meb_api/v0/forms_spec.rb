@@ -393,6 +393,30 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
         expect(response).to have_http_status(:ok)
       end
     end
+
+    context 'when an exception occurs in submit_claim' do
+      let(:error_message) { 'Submission failed' }
+
+      before do
+        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
+      end
+
+      it 'logs an error with exception class and message' do
+        expect(Rails.logger).to receive(:error)
+          .with("MEB Forms submit_claim failed: StandardError - #{error_message}")
+        expect(Rails.logger).to receive(:error).at_least(:once)
+
+        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        expect(response).to have_http_status(:internal_server_error)
+      end
+
+      it 're-raises the exception after logging' do
+        allow(Rails.logger).to receive(:error)
+
+        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        expect(response).to have_http_status(:internal_server_error)
+      end
+    end
   end
 
   describe 'GET /meb_api/v0/forms_claim_status with error cases' do
