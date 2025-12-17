@@ -24,8 +24,8 @@ module Lighthouse
       attribute :interest_paid, Float
       attribute :administrative_cost_paid, Float
 
-      attribute :line_items, Array
-      attribute :payments, Array
+      attribute :line_items, Hash, array: true
+      attribute :payments, Hash, array: true
 
       def initialize(attrs = {})
         @invoice_data = attrs[:invoice_data]
