@@ -54,7 +54,7 @@ jobs:
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
       - name: reek
-        uses: reviewdog/action-reek
+        uses: reviewdog/action-reek@v1.20.0
         with:
           reek_version: gemfile
           reporter: github-pr-review
