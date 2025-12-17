@@ -75,7 +75,7 @@ module SignIn
       when 'ial2'
         Constants::Auth::LOGIN_GOV_IAL2
       when 'min'
-        Constants::Auth::LOGIN_GOV_IAL0
+        uplevel ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL0
       else
         raise Errors::InvalidAcrError.new message: 'Invalid ACR for logingov'
       end
