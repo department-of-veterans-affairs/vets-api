@@ -349,7 +349,7 @@ describe TravelPay::DocumentsClient do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
       end
 
-      it 'upgrades /documents endpoint' do
+      it 'does not upgrade /documents endpoint' do
         claim_id = 'uuid1'
         @stubs.get("/api/v2/claims/#{claim_id}/documents") do
           [200, {}, { 'data' => { 'documentId' => 'doc-uuid' } }]
@@ -361,7 +361,7 @@ describe TravelPay::DocumentsClient do
         expect { @stubs.verify_stubbed_calls }.not_to raise_error
       end
 
-      it 'upgrades /documents/:docid endpoint' do
+      it 'does not upgrade /documents/:docid endpoint' do
         params = {
           'claim_id' => 'uuid1',
           'doc_id' => 'docid1'
