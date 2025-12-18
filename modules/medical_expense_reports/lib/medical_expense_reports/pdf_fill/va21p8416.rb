@@ -85,9 +85,13 @@ module MedicalExpenseReports
       # Form configuration hash
       KEY = key.freeze
 
+      # Name of the AcroForm field that contains the signature widget
       SIGNATURE_FIELD_NAME = Section7::KEY.dig('statementOfTruthSignature', :key)
+      # Font size (points) used when stamping the signature
       SIGNATURE_FONT_SIZE = 10
+      # Horizontal padding (points) applied to the derived signature x coordinate
       SIGNATURE_PADDING_X = 2
+      # Vertical padding (points) applied to the derived signature y coordinate
       SIGNATURE_PADDING_Y = 1
       # Fallback coordinates if runtime extraction fails
       STATIC_SIGNATURE_COORDINATES = {
@@ -140,6 +144,12 @@ module MedicalExpenseReports
         form_data
       end
 
+      # Derive signature widget coordinates from the PDF template so the stamped
+      # signature text can be positioned correctly.
+      #
+      # @param pdf_path [String] Path to the PDF template
+      # @return [Hash, nil] Coordinates hash of the form
+      #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
       def self.signature_overlay_coordinates(pdf_path)
         doc = HexaPDF::Document.open(pdf_path)
         field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
@@ -151,7 +161,7 @@ module MedicalExpenseReports
         page_index = doc.pages.each_with_index.find { |page_obj, _i| page_obj == page }&.last
         return unless rect && page_index
 
-        llx, lly, urx, ury = rect
+        llx, lly, _urx, ury = rect
         height = ury - lly
         y = lly + [((height - SIGNATURE_FONT_SIZE) / 2.0), 0].max + SIGNATURE_PADDING_Y
 
