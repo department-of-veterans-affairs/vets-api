@@ -416,4 +416,168 @@ describe Vass::RedisClient do
       expect(redis_client.edipi(session_token: token2)).to eq(edipi2)
     end
   end
+
+  # ------------ Rate Limiting Tests ------------
+
+  describe '#rate_limit_count' do
+    let(:identifier) { 'test@example.com' }
+
+    context 'when no rate limit has been set' do
+      it 'returns 0' do
+        expect(redis_client.rate_limit_count(identifier:)).to eq(0)
+      end
+    end
+
+    context 'when rate limit counter exists' do
+      before do
+        redis_client.increment_rate_limit(identifier:)
+        redis_client.increment_rate_limit(identifier:)
+      end
+
+      it 'returns the current count' do
+        expect(redis_client.rate_limit_count(identifier:)).to eq(2)
+      end
+    end
+  end
+
+  describe '#increment_rate_limit' do
+    let(:identifier) { 'test@example.com' }
+
+    it 'increments the counter from 0 to 1' do
+      count = redis_client.increment_rate_limit(identifier:)
+      expect(count).to eq(1)
+    end
+
+    it 'increments the counter multiple times' do
+      redis_client.increment_rate_limit(identifier:)
+      redis_client.increment_rate_limit(identifier:)
+      count = redis_client.increment_rate_limit(identifier:)
+      expect(count).to eq(3)
+    end
+
+    it 'sets expiration on the counter' do
+      redis_client.increment_rate_limit(identifier:)
+
+      # Before expiry, count should be present
+      expect(redis_client.rate_limit_count(identifier:)).to eq(1)
+
+      # After expiry, count should reset to 0
+      Timecop.travel(redis_client.send(:rate_limit_expiry).seconds.from_now) do
+        expect(redis_client.rate_limit_count(identifier:)).to eq(0)
+      end
+    end
+  end
+
+  describe '#rate_limit_exceeded?' do
+    let(:identifier) { 'test@example.com' }
+
+    context 'when count is below limit' do
+      before do
+        3.times { redis_client.increment_rate_limit(identifier:) }
+      end
+
+      it 'returns false' do
+        expect(redis_client.rate_limit_exceeded?(identifier:)).to be false
+      end
+    end
+
+    context 'when count equals limit' do
+      before do
+        # Use the settings value
+        redis_client.send(:rate_limit_max_attempts).times do
+          redis_client.increment_rate_limit(identifier:)
+        end
+      end
+
+      it 'returns true' do
+        expect(redis_client.rate_limit_exceeded?(identifier:)).to be true
+      end
+    end
+
+    context 'when count exceeds limit' do
+      before do
+        # Use the settings value + 2
+        (redis_client.send(:rate_limit_max_attempts) + 2).times do
+          redis_client.increment_rate_limit(identifier:)
+        end
+      end
+
+      it 'returns true' do
+        expect(redis_client.rate_limit_exceeded?(identifier:)).to be true
+      end
+    end
+  end
+
+  describe '#reset_rate_limit' do
+    let(:identifier) { 'test@example.com' }
+
+    before do
+      3.times { redis_client.increment_rate_limit(identifier:) }
+    end
+
+    it 'resets the counter to 0' do
+      expect(redis_client.rate_limit_count(identifier:)).to eq(3)
+
+      redis_client.reset_rate_limit(identifier:)
+
+      expect(redis_client.rate_limit_count(identifier:)).to eq(0)
+    end
+
+    it 'does not error when resetting non-existent counter' do
+      expect { redis_client.reset_rate_limit(identifier: 'nonexistent@example.com') }.not_to raise_error
+    end
+  end
+
+  describe 'rate limit isolation by identifier' do
+    let(:identifier1) { 'user1@example.com' }
+    let(:identifier2) { 'user2@example.com' }
+
+    it 'tracks rate limits separately for different identifiers' do
+      2.times { redis_client.increment_rate_limit(identifier: identifier1) }
+      3.times { redis_client.increment_rate_limit(identifier: identifier2) }
+
+      expect(redis_client.rate_limit_count(identifier: identifier1)).to eq(2)
+      expect(redis_client.rate_limit_count(identifier: identifier2)).to eq(3)
+    end
+
+    it 'resets rate limit for one identifier without affecting others' do
+      2.times { redis_client.increment_rate_limit(identifier: identifier1) }
+      3.times { redis_client.increment_rate_limit(identifier: identifier2) }
+
+      redis_client.reset_rate_limit(identifier: identifier1)
+
+      expect(redis_client.rate_limit_count(identifier: identifier1)).to eq(0)
+      expect(redis_client.rate_limit_count(identifier: identifier2)).to eq(3)
+    end
+  end
+
+  describe 'rate limit key generation' do
+    it 'uses identifier directly in cache key' do
+      identifier = 'da1e1a40-1e63-f011-bec2-001dd80351ea'
+      redis_client.increment_rate_limit(identifier:)
+
+      expect(
+        Rails.cache.exist?(
+          "rate_limit_#{identifier}",
+          namespace: 'vass-rate-limit-cache'
+        )
+      ).to be true
+    end
+
+    it 'treats identifiers as case-sensitive' do
+      redis_client.increment_rate_limit(identifier: 'TEST-UUID-123')
+      redis_client.increment_rate_limit(identifier: 'test-uuid-123')
+
+      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(1)
+      expect(redis_client.rate_limit_count(identifier: 'TEST-UUID-123')).to eq(1)
+    end
+
+    it 'preserves whitespace in identifiers' do
+      redis_client.increment_rate_limit(identifier: '  test-uuid-123  ')
+      redis_client.increment_rate_limit(identifier: 'test-uuid-123')
+
+      expect(redis_client.rate_limit_count(identifier: '  test-uuid-123  ')).to eq(1)
+      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(1)
+    end
+  end
 end

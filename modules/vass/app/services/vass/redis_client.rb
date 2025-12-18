@@ -25,6 +25,29 @@ module Vass
       @settings = Settings.vass
     end
 
+    # ------------ Settings Accessors ------------
+    # Note: Using explicit methods instead of delegate to avoid Ruby 3.3 warnings
+    # about forwarding to private OpenStruct methods
+
+    ##
+    # Returns the OTC expiry time from settings.
+    #
+    # @return [ActiveSupport::Duration] OTC expiry duration
+    #
+    # rubocop:disable Rails/Delegate
+    def redis_token_expiry
+      @settings.redis_token_expiry
+    end
+
+    def redis_otc_expiry
+      @settings.redis_otc_expiry
+    end
+
+    def redis_session_expiry
+      @settings.redis_session_expiry
+    end
+    # rubocop:enable Rails/Delegate
+
     # ------------ OAuth Token Management ------------
 
     ##
@@ -50,7 +73,7 @@ module Vass
         'oauth_token',
         token,
         namespace: 'vass-auth-cache',
-        expires_in: settings.redis_token_expiry
+        expires_in: redis_token_expiry
       )
     end
 
@@ -81,7 +104,7 @@ module Vass
         otc_key(uuid),
         code,
         namespace: 'vass-otc-cache',
-        expires_in: settings.redis_otc_expiry
+        expires_in: redis_otc_expiry
       )
     end
 
@@ -96,6 +119,51 @@ module Vass
         otc_key(uuid),
         namespace: 'vass-otc-cache'
       )
+    end
+
+    ##
+    # Saves veteran metadata (edipi, veteran_id) keyed by UUID.
+    # Used to avoid fetching veteran data again in the show flow.
+    #
+    # @param uuid [String] Veteran UUID
+    # @param edipi [String] Veteran EDIPI
+    # @param veteran_id [String] Veteran ID
+    # @return [Boolean] true if write succeeds
+    #
+    def save_veteran_metadata(uuid:, edipi:, veteran_id:)
+      metadata = {
+        edipi:,
+        veteran_id:
+      }
+
+      Rails.cache.write(
+        veteran_metadata_key(uuid),
+        Oj.dump(metadata),
+        namespace: 'vass-otc-cache',
+        expires_in: redis_otc_expiry
+      )
+    end
+
+    ##
+    # Retrieves veteran metadata by UUID.
+    #
+    # @param uuid [String] Veteran UUID
+    # @return [Hash, nil] Metadata hash with edipi and veteran_id, or nil if not found/expired
+    #
+    def veteran_metadata(uuid:)
+      cached = Rails.cache.read(
+        veteran_metadata_key(uuid),
+        namespace: 'vass-otc-cache'
+      )
+
+      return nil if cached.nil?
+
+      begin
+        Oj.load(cached).with_indifferent_access
+      rescue Oj::ParseError
+        Rails.logger.error('VASS RedisClient failed to parse veteran metadata from cache')
+        nil
+      end
     end
 
     # ------------ Session Management ------------
@@ -121,7 +189,7 @@ module Vass
         session_key(session_token),
         Oj.dump(session_data),
         namespace: 'vass-session-cache',
-        expires_in: settings.redis_session_expiry
+        expires_in: redis_session_expiry
       )
     end
 
@@ -182,6 +250,134 @@ module Vass
       )
     end
 
+    # ------------ Rate Limiting ------------
+
+    ##
+    # Retrieves the current rate limit count for an identifier.
+    #
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
+    # @return [Integer] Current attempt count
+    #
+    def rate_limit_count(identifier:)
+      Rails.cache.read(
+        rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      ).to_i
+    end
+
+    ##
+    # Increments the rate limit counter for an identifier.
+    #
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
+    # @return [Integer] New attempt count
+    #
+    def increment_rate_limit(identifier:)
+      current = rate_limit_count(identifier:)
+      new_count = current + 1
+
+      Rails.cache.write(
+        rate_limit_key(identifier),
+        new_count,
+        namespace: 'vass-rate-limit-cache',
+        expires_in: rate_limit_expiry
+      )
+
+      new_count
+    end
+
+    ##
+    # Checks if the identifier has exceeded the rate limit.
+    #
+    # @param identifier [String] UUID to check (rate limited per veteran)
+    # @return [Boolean] true if rate limit exceeded
+    #
+    def rate_limit_exceeded?(identifier:)
+      rate_limit_count(identifier:) >= rate_limit_max_attempts
+    end
+
+    ##
+    # Resets the rate limit counter for an identifier.
+    #
+    # @param identifier [String] UUID to reset (rate limited per veteran)
+    # @return [void]
+    #
+    def reset_rate_limit(identifier:)
+      Rails.cache.delete(
+        rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      )
+    end
+
+    # ------------ Validation Rate Limiting ------------
+
+    ##
+    # Retrieves the current validation rate limit count for an identifier.
+    #
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
+    # @return [Integer] Current attempt count
+    #
+    def validation_rate_limit_count(identifier:)
+      Rails.cache.read(
+        validation_rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      ).to_i
+    end
+
+    ##
+    # Increments the validation rate limit counter for an identifier.
+    #
+    # @param identifier [String] UUID to rate limit (rate limited per veteran)
+    # @return [Integer] New attempt count
+    #
+    def increment_validation_rate_limit(identifier:)
+      current = validation_rate_limit_count(identifier:)
+      new_count = current + 1
+
+      Rails.cache.write(
+        validation_rate_limit_key(identifier),
+        new_count,
+        namespace: 'vass-rate-limit-cache',
+        expires_in: rate_limit_expiry
+      )
+
+      new_count
+    end
+
+    ##
+    # Checks if the identifier has exceeded the validation rate limit.
+    #
+    # @param identifier [String] UUID to check (rate limited per veteran)
+    # @return [Boolean] true if rate limit exceeded
+    #
+    def validation_rate_limit_exceeded?(identifier:)
+      validation_rate_limit_count(identifier:) >= rate_limit_max_attempts
+    end
+
+    ##
+    # Resets the validation rate limit counter for an identifier.
+    #
+    # @param identifier [String] UUID to reset (rate limited per veteran)
+    # @return [void]
+    #
+    def reset_validation_rate_limit(identifier:)
+      Rails.cache.delete(
+        validation_rate_limit_key(identifier),
+        namespace: 'vass-rate-limit-cache'
+      )
+    end
+
+    ##
+    # Gets the remaining validation attempts for an identifier.
+    #
+    # @param identifier [String] UUID to check (rate limited per veteran)
+    # @return [Integer] Number of attempts remaining (0 if limit exceeded)
+    #
+    def validation_attempts_remaining(identifier:)
+      current = validation_rate_limit_count(identifier:)
+      remaining = rate_limit_max_attempts - current
+      [remaining, 0].max
+    end
+
     private
 
     ##
@@ -195,6 +391,16 @@ module Vass
     end
 
     ##
+    # Generates a cache key for veteran metadata storage.
+    #
+    # @param uuid [String] Veteran UUID
+    # @return [String] Cache key
+    #
+    def veteran_metadata_key(uuid)
+      "veteran_metadata_#{uuid}"
+    end
+
+    ##
     # Generates a cache key for session storage.
     #
     # @param session_token [String] Session token
@@ -202,6 +408,44 @@ module Vass
     #
     def session_key(session_token)
       "session_#{session_token}"
+    end
+
+    ##
+    # Generates a cache key for rate limiting.
+    #
+    # @param identifier [String] UUID for rate limiting
+    # @return [String] Cache key
+    #
+    def rate_limit_key(identifier)
+      "rate_limit_#{identifier}"
+    end
+
+    ##
+    # Generates a cache key for validation rate limiting.
+    #
+    # @param identifier [String] UUID for rate limiting
+    # @return [String] Cache key
+    #
+    def validation_rate_limit_key(identifier)
+      "validation_rate_limit_#{identifier}"
+    end
+
+    ##
+    # Returns the maximum number of attempts allowed.
+    #
+    # @return [Integer] Max attempts
+    #
+    def rate_limit_max_attempts
+      @settings.rate_limit_max_attempts
+    end
+
+    ##
+    # Returns the rate limit expiry time in seconds.
+    #
+    # @return [Integer] Expiry duration in seconds
+    #
+    def rate_limit_expiry
+      @settings.rate_limit_expiry
     end
   end
 end

@@ -92,6 +92,8 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_HCC_HOST>') do
     Settings.lighthouse.healthcare_cost_and_coverage.host
   end
+  c.filter_sensitive_data('<VASS_AUTH_URL>') { Settings.vass.auth_url }
+  c.filter_sensitive_data('<VASS_API_URL>') { Settings.vass.api_url }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
