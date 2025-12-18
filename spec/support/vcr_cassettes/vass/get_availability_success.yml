@@ -1,31 +1,57 @@
 ---
 http_interactions:
-  - request:
-      method: post
-      uri: <VASS_API_URL>/api/AppointmentAvailability
-      body:
-        encoding: UTF-8
-        string: '{"correlationId":"test-correlation-id","veteranId":"vet-123","dtStartUtc":"2025-11-27T00:00:00Z","dtEndUtc":"2025-12-04T23:59:59Z"}'
-      headers:
-        Content-Type:
-          - application/json
-        Authorization:
-          - Bearer test-token
-        Correlationid:
-          - test-correlation-id
-        Edipi:
-          - "1234567890"
-        Ocp-Apim-Subscription-Key:
-          - test-subscription-key
-    response:
-      status:
-        code: 200
-        message: OK
-      headers:
-        Content-Type:
-          - application/json; charset=utf-8
-      body:
-        encoding: UTF-8
-        string: '{"success":true,"message":"Availability retrieved successfully","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z","data":{"appointmentDuration":30,"availableTimeSlots":[{"timeStartUTC":"2025-11-27T10:00:00Z","timeEndUTC":"2025-11-27T10:30:00Z","capacity":5},{"timeStartUTC":"2025-11-27T11:00:00Z","timeEndUTC":"2025-11-27T11:30:00Z","capacity":3},{"timeStartUTC":"2025-11-28T14:00:00Z","timeEndUTC":"2025-11-28T14:30:00Z","capacity":4}]}}'
-    recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+- request:
+    method: post
+    uri: https://login.microsoftonline.us/test-tenant-id/oauth2/v2.0/token
+    body:
+      encoding: UTF-8
+      string: client_id=test-client-id&client_secret=test-client-secret&scope=https://api.va.gov/.default&grant_type=client_credentials
+    headers:
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - no-store, no-cache
+      Pragma:
+      - no-cache
+    body:
+      encoding: UTF-8
+      string: '{"token_type":"Bearer","expires_in":3599,"ext_expires_in":3599,"access_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6InRlc3QifQ.eyJhdWQiOiJ0ZXN0IiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvdGVzdC8iLCJpYXQiOjE2MzAwMDAwMDAsIm5iZiI6MTYzMDAwMDAwMCwiZXhwIjoxNjMwMDAzNjAwfQ.test-signature"}'
+  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+- request:
+    method: post
+    uri: https://api.vass.va.gov/api/AppointmentAvailability
+    body:
+      encoding: UTF-8
+      string: '{"correlationId":"test-correlation-id","veteranId":"vet-123","dtStartUtc":"2025-11-27T00:00:00Z","dtEndUtc":"2025-12-04T23:59:59Z"}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-token
+      Correlationid:
+      - test-correlation-id
+      Edipi:
+      - '1234567890'
+      Ocp-Apim-Subscription-Key:
+      - test-subscription-key
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: '{"success":true,"message":"Availability retrieved successfully","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z","data":{"appointmentDuration":30,"availableTimeSlots":[{"timeStartUTC":"2025-11-27T10:00:00Z","timeEndUTC":"2025-11-27T10:30:00Z","capacity":5},{"timeStartUTC":"2025-11-27T11:00:00Z","timeEndUTC":"2025-11-27T11:30:00Z","capacity":3},{"timeStartUTC":"2025-11-28T14:00:00Z","timeEndUTC":"2025-11-28T14:30:00Z","capacity":4}]}}'
+  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
 recorded_with: VCR 6.0.0
