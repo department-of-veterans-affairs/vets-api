@@ -90,6 +90,13 @@ binaries:
   pdftk: pdftk
 bing:
   key: <%= ENV['bing__key'] %>
+bio:
+  medical_expense_reports:
+    bucket: <%= ENV['bio__medical_expense_reports__s3__bucket'] %>
+    region: us-gov-west-1
+  survivors_benefits:
+    bucket: <%= ENV['bio__survivors_benefits__s3__bucket'] %>
+    region: us-gov-west-1
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
   mock: false
@@ -313,6 +320,7 @@ dgi:
     url: <%= ENV['dgi__vets__url'] %>
   vye:
     jwt:
+      kid: <%= ENV['dgi__vye__jwt__kid'] %>
       private_key_path: <%= ENV['dgi__vye__jwt__private_key_path'] %>
       public_ica11_rca2_key_path: <%= ENV['dgi__vye__jwt__public_ica11_rca2_key_path'] %>
       public_key_path: <%= ENV['dgi__vye__jwt__public_key_path'] %>
@@ -841,6 +849,8 @@ maintenance:
     form107959c: <%= ENV['maintenance__services__form107959c'] %>
     form107959f1: <%= ENV['maintenance__services__form107959f1'] %>
     form107959f2: <%= ENV['maintenance__services__form107959f2'] %>
+    form21p0537: <%= ENV['maintenance__services__form21p0537'] %>
+    form21p601: <%= ENV['maintenance__services__form21p601'] %>
     global: <%= ENV['maintenance__services__global'] %>
     hcq: <%= ENV['maintenance__services__hcq'] %>
     idme: <%= ENV['maintenance__services__idme'] %>
@@ -905,6 +915,8 @@ mdot:
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
+memorials:
+  prefill: true
 mhv:
   account:
     mock: <%= ENV['mhv__account__mock'] %>
@@ -935,8 +947,9 @@ mhv:
     x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   oh_facility_checks:
-    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] || '612, 555' %>
-    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] || '612, 357, 555' %>
+    facilities_migrating_to_oh: <%= ENV['mhv__facilities_migrating_to_oh'] %>
+    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] %>
+    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
@@ -1025,6 +1038,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
+    s3:
+      bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: true
     url: <%= ENV['ogc__form21a_service_url__url'] %>
 oidc:
   isolated_audience:
@@ -1911,6 +1929,7 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: <%= ENV['veteran_readiness_and_employment__duplicate_submission_threshold_hours'] || 24 %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:

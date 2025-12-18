@@ -242,6 +242,8 @@ module VAOS
           set_type(new_appointment)
           set_modality(new_appointment)
           set_derived_appointment_date_fields(new_appointment)
+          # Remove covid service type per GH#128004
+          remove_service_type(new_appointment) if covid?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -284,6 +286,8 @@ module VAOS
             set_modality(appointment)
             set_derived_appointment_date_fields(appointment)
             appointment[:show_schedule_link] = schedulable?(appointment)
+            # Remove covid service type per GH#128004
+            remove_service_type(appointment) if covid?(appointment)
             OpenStruct.new(appointment)
           end
         end
@@ -754,6 +758,9 @@ module VAOS
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
 
         log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
+
+        # Remove covid service type per GH#128004
+        remove_service_type(appointment) if covid?(appointment)
       end
       # rubocop:enable Metrics/MethodLength
 

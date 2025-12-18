@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/veterans_health/models/immunization'
+require 'lighthouse/veterans_health/utils/vaccine_group_name_utils'
 
 module Lighthouse
   module VeteransHealth
@@ -120,16 +121,7 @@ module Lighthouse
         end
 
         def self.extract_group_name(vaccine_code)
-          coding = vaccine_code['coding'] || []
-          filtered = coding.select { |v| v['display']&.include?('VACCINE GROUP: ') }
-
-          if filtered.empty?
-            group_name = vaccine_code.dig('coding', 1, 'display') || vaccine_code.dig('coding', 0, 'display')
-          else
-            group_name = filtered.dig(0, 'display')
-            group_name&.slice!('VACCINE GROUP: ')
-          end
-          group_name.presence
+          Lighthouse::VeteransHealth::Utils::VaccineGroupNameUtils.extract_group_name(vaccine_code)
         end
 
         def self.extract_manufacturer(resource, group_name)

@@ -364,6 +364,9 @@
                     "userFacilityReadyForInfoAlert": {
                       "type": "boolean"
                     },
+                    "userFacilityMigratingToOh": {
+                      "type": "boolean"
+                    },
                     "givenNames": {
                       "type": "array"
                     },
@@ -375,6 +378,9 @@
                     },
                     "activeMHVIds": {
                       "type": "array"
+                    },
+                    "healthcareSettingsPilotEligible": {
+                      "type": "boolean"
                     }
                   }
                 }
