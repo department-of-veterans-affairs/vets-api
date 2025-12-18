@@ -17,6 +17,46 @@ describe SM::Client do
 
   let(:client) { @client }
 
+  describe '#mobile_client?' do
+    context 'when client is SM::Client' do
+      it 'returns false' do
+        expect(client.mobile_client?).to be false
+      end
+    end
+
+    context 'when client is Mobile::V0::Messaging::Client' do
+      let(:mobile_client) { instance_double(Mobile::V0::Messaging::Client) }
+
+      before do
+        allow(mobile_client).to receive(:instance_of?).with(Mobile::V0::Messaging::Client).and_return(true)
+      end
+
+      it 'returns true for mobile client instance' do
+        expect(mobile_client.instance_of?(Mobile::V0::Messaging::Client)).to be true
+      end
+    end
+  end
+
+  describe '#my_health_client?' do
+    context 'when client is SM::Client' do
+      it 'returns true' do
+        expect(client.my_health_client?).to be true
+      end
+    end
+
+    context 'when client is Mobile::V0::Messaging::Client' do
+      let(:mobile_client) { instance_double(Mobile::V0::Messaging::Client) }
+
+      before do
+        allow(mobile_client).to receive(:instance_of?).with(SM::Client).and_return(false)
+      end
+
+      it 'returns false for mobile client instance' do
+        expect(mobile_client.instance_of?(SM::Client)).to be false
+      end
+    end
+  end
+
   describe '#oh_pilot_user?' do
     let(:user) { build(:user, :mhv) }
 

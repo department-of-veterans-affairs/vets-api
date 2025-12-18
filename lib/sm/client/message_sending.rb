@@ -156,7 +156,8 @@ module SM
                              {
                                message_id: message&.id,
                                recipient_id: message&.recipient_id.to_s[-6..],
-                               is_oh_message: message&.is_oh_message
+                               is_oh_message: message&.is_oh_message,
+                               client_type: client_type_name
                              }, 'info')
       end
     end

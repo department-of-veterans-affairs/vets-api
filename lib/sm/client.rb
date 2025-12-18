@@ -49,6 +49,13 @@ module SM
       instance_of?(::SM::Client)
     end
 
+    def client_type_name
+      return 'mobile' if mobile_client?
+      return 'my_health' if my_health_client?
+
+      'unknown'
+    end
+
     def oh_pilot_user?
       current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
     end
