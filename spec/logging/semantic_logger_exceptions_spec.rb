@@ -7,7 +7,7 @@ RSpec.describe SemanticLogger do
     SemanticLogger.default_level = :info
   end
 
-  it 'emits an appender failure when exception is a String' do
+  it 'does not emit an appender failure when exception is a String' do
     messages = []
     allow_any_instance_of(SemanticLogger::Appender::File).to receive(:error) do |_appender, message, _error|
       messages << message
