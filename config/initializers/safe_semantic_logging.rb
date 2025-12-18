@@ -11,15 +11,22 @@
 # is passed as the :exception key in log payloads
 module SafeSemanticLogging
   def error(message = nil, payload = nil, &)
-    if payload.is_a?(Hash)
+    if SafeSemanticLogging.safe_log_enabled? && payload.is_a?(Hash)
       ex = payload[:exception]
       payload = payload.merge(exception: RuntimeError.new(ex.to_s)) if ex && !ex.respond_to?(:backtrace)
+
+      # Maybe worthwhile to see if coverage can help us here?
+      # if Rails.env.test? && ex && !ex.is_a?(Exception)
+      #   raise 'SafeSemanticLogging enabled - non-exception logged as exception'
+      # end
 
       # Handle nil exception too
       payload = payload.merge(exception: RuntimeError.new('No exception provided')) if ex.nil?
     end
     super
   end
+
+  def self.safe_log_enabled? = Flipper.enabled?(:safe_semantic_logging)
 end
 
 Rails.logger.singleton_class.prepend(SafeSemanticLogging)
