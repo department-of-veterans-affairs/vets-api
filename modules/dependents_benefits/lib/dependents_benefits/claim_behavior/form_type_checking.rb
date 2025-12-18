@@ -21,8 +21,12 @@ module DependentsBenefits
         add_disabled_child
       ].freeze
 
+      # Constants for form IDs
+      # 686c only
       FORM686 = '21-686c'
+      # 674 only
       FORM674 = '21-674'
+      # Both 686c and 674
       FORM_COMBO = '686c-674'
 
       # Checks if the claim contains a submittable 686 form
