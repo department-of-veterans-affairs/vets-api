@@ -768,6 +768,7 @@ config/initializers/renderers.rb @department-of-veterans-affairs/vfs-facilities-
 config/initializers/rgeo.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/rswag-ui.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/rubyzip.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/safe_semantic_logging.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/saml.rb @department-of-veterans-affairs/octo-identity
 config/initializers/sentry.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/session_store.rb @department-of-veterans-affairs/backend-review-group
