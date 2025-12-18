@@ -35,7 +35,7 @@ module VANotify
 
     def callback_info_missing?
       if notification.callback_klass.blank?
-        Rails.logger.info(message: "VANotify - no callback provided for notification: #{notification.id}")
+        Rails.logger.info(message: "VANotify - no custom callback provided for notification: #{notification.id}")
         true
       else
         false
