@@ -21,6 +21,10 @@ module DependentsBenefits
         add_disabled_child
       ].freeze
 
+      FORM686 = '21-686c'
+      FORM674 = '21-674'
+      FORM_COMBO = '686c-674'
+
       # Checks if the claim contains a submittable 686 form
       #
       # Determines whether any of the dependent claim flows selected in the form
@@ -39,6 +43,19 @@ module DependentsBenefits
       # @return [Boolean, nil] true if report674 is selected, false/nil otherwise
       def submittable_674?
         parsed_form.dig('view:selectable686_options', 'report674')
+      end
+
+      # Determines the claim form type based on included submittable forms
+      #
+      # @return [String, nil] the form type: '21-686c', '21-674', or '686c-674'; nil if unknown
+      def claim_form_type
+        return FORM_COMBO if submittable_686? && submittable_674?
+        return FORM686 if submittable_686?
+
+        FORM674 if submittable_674?
+      rescue => e
+        monitor.track_unknown_claim_type(e)
+        nil
       end
 
       # Checks if claim is pension related submission

@@ -10,6 +10,7 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
 
   let(:claim) { create(:dependents_claim) }
   let(:child_claim) { create(:add_remove_dependents_claim) }
+  let(:student_claim) { create(:student_claim) }
 
   describe '#submissions_succeeded?' do
     it 'returns true when both BGS and Claims Evidence submissions succeeded' do
@@ -179,6 +180,26 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
 
       it 'includes icn in the folder identifier' do
         expect(claim.folder_identifier).to eq('VETERAN:ICN:ICN123456789')
+      end
+    end
+  end
+
+  describe '#claim_form_type' do
+    context 'when both 686 and 674 forms are submittable' do
+      it 'returns 686c-674' do
+        expect(claim.claim_form_type).to eq('686c-674')
+      end
+    end
+
+    context 'when only 686 form is submittable' do
+      it 'returns 21-686c' do
+        expect(child_claim.claim_form_type).to eq('21-686c')
+      end
+    end
+
+    context 'when only 674 form is submittable' do
+      it 'returns 21-674' do
+        expect(student_claim.claim_form_type).to eq('21-674')
       end
     end
   end
