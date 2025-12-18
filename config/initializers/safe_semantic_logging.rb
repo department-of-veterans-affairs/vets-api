@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Patch SemanticLogger to handle non-exception 'exception' values gracefully
 module SafeSemanticLogging
   def error(message = nil, payload = nil, &)
     if payload.is_a?(Hash)
