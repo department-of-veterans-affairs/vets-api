@@ -14,7 +14,6 @@ RSpec.describe 'VRE::V0::Ch31CaseDetails', type: :request do
       it 'returns 200 response' do
         VCR.use_cassette('vre/ch31_case_details/200') do
           get '/vre/v0/ch31_case_details'
-          byebug
           expect(response).to match_response_schema('vre/ch31_case_details')
           assert_response :success
         end
