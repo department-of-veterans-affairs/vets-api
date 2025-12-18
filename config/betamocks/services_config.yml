@@ -581,15 +581,6 @@
       :uid_location: header
       :uid_locator: X-VA-SSN
 
-# IHUB
-- :name: 'IHub'
-  :base_uri: <%= "#{URI(Settings.ihub.url).host}:#{URI(Settings.ihub.url).port}" %>
-  :endpoints:
-  # Appointments
-  - :method: :get
-    :path: "/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/*"
-    :file_path: "ihub/appointments/default"
-
 # Search
 - :name: 'Search'
   :base_uri: <%= "#{URI(Settings.search.url).host}:#{URI(Settings.search.url).port}" %>
@@ -923,11 +914,6 @@
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator: patient
-
-# Lighthouse Healthcare Cost and Coverage API
-- :name: "Lighthouse Healthcare Costs and Coverage API"
-  :base_uri: <%= "#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).host}:#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).port}" %>
-  :endpoints:
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/ChargeItem"
       :file_path: "/lighthouse/health_care_costs_and_coverage/charge_item/default"
@@ -1140,3 +1126,14 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'icn":"(\w+)"'
+
+# SOB/DGI
+- :name: "SOB"
+  :base_uri: <%= "#{URI(Settings.dgi.sob.claimants.url).host}:#{URI(Settings.dgi.sob.claimants.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/external-api-service/api/v1/claimants"
+      :file_path: "dgi/sob"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'ssn":"(\w+)"'

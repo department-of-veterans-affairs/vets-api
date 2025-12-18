@@ -1,0 +1,57 @@
+# Generates SBOM for ATO compliance using Datadog's sbom-generator
+# Datadog GovCloud doesn't yet support Code Security SCA uploads
+# See: https://github.com/department-of-veterans-affairs/vets-api/pull/25424
+
+name: Datadog Software Composition Analysis
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom-generation:
+    runs-on: ubuntu-latest
+    name: Generate SBOM
+    env:
+      # Pinned for reproducibility - update after testing new versions
+      DD_SBOM_VERSION: v1.2.2
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Download and verify datadog-sbom-generator
+      run: |
+        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/download/${DD_SBOM_VERSION}/datadog-sbom-generator_linux_amd64.zip" -o datadog-sbom-generator_linux_amd64.zip
+        curl -sL "https://github.com/DataDog/datadog-sbom-generator/releases/download/${DD_SBOM_VERSION}/datadog-sbom-generator_SHA256SUMS" -o checksums.txt
+        if ! grep "datadog-sbom-generator_linux_amd64.zip" checksums.txt | sha256sum -c -; then
+          echo "::error::Checksum verification failed"
+          exit 1
+        fi
+        unzip -q datadog-sbom-generator_linux_amd64.zip -d sbom-generator
+        chmod +x sbom-generator/datadog-sbom-generator
+
+    - name: Generate SBOM
+      run: |
+        if ! ./sbom-generator/datadog-sbom-generator scan -o sbom.json . 2>&1 | tee scan.log; then
+          echo "::error::Failed to generate SBOM"
+          cat scan.log
+          exit 1
+        fi
+        if ! jq empty sbom.json 2>/dev/null; then
+          echo "::error::Generated SBOM is not valid JSON"
+          exit 1
+        fi
+        echo "Generated SBOM with $(jq '.components | length' sbom.json) components"
+
+    - name: Upload SBOM artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom-${{ github.sha }}
+        path: sbom.json
+        retention-days: 90

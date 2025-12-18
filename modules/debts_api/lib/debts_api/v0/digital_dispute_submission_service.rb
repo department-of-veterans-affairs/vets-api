@@ -36,6 +36,7 @@ module DebtsApi
 
         success_result(submission)
       rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.error("DigitalDisputeSubmissionService ActiveRecord error: #{e.message}")
         failure_result(e)
       rescue => e
         submission&.register_failure(e.message)
@@ -96,6 +97,7 @@ module DebtsApi
 
           # Extract and store debt identifiers for duplicate checking
           disputes = @metadata[:disputes] || []
+
           submission.store_debt_identifiers(disputes)
 
           # Store non-PII data in public_metadata
