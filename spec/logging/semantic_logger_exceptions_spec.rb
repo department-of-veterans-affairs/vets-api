@@ -14,7 +14,6 @@ RSpec.describe SemanticLogger do
     it 'emits an appender failure' do
       log_failure_messages = []
       allow_any_instance_of(SemanticLogger::Appender::File).to receive(:error) do |_appender, message, _error|
-        # debugger
         log_failure_messages << message
       end
 
