@@ -107,11 +107,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def submittable_686?
-    submitted_flows = DEPENDENT_CLAIM_FLOWS.map { |flow| parsed_form['view:selectable686_options'].include?(flow) }
-
-    return true if submitted_flows.include?(true)
-
-    false
+    # checking key and value just avoids inconsistencies in the mock data or from FE submission
+    DEPENDENT_CLAIM_FLOWS.any? do |flow|
+      parsed_form['view:selectable686_options'].include?(flow) && parsed_form['view:selectable686_options'][flow]
+    end
   end
 
   def submittable_674?

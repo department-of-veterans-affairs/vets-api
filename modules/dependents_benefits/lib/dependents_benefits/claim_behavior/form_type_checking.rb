@@ -32,7 +32,10 @@ module DependentsBenefits
       #
       # @return [Boolean] true if the form includes valid 686 claim flows, false otherwise
       def submittable_686?
-        DEPENDENT_CLAIM_FLOWS.any? { |flow| parsed_form['view:selectable686_options'].include?(flow) }
+        # checking key and value just avoids inconsistencies in the mock data or from FE submission
+        DEPENDENT_CLAIM_FLOWS.any? do |flow|
+          parsed_form['view:selectable686_options'].include?(flow) && parsed_form['view:selectable686_options'][flow]
+        end
       end
 
       # Checks if the claim contains a submittable 674 form
@@ -42,7 +45,8 @@ module DependentsBenefits
       #
       # @return [Boolean, nil] true if report674 is selected, false/nil otherwise
       def submittable_674?
-        parsed_form.dig('view:selectable686_options', 'report674')
+        parsed_form['view:selectable686_options'].include?('report674') &&
+          parsed_form['view:selectable686_options']['report674']
       end
 
       # Determines the claim form type based on included submittable forms

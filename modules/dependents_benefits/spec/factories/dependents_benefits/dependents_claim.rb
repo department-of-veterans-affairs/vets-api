@@ -521,15 +521,7 @@ FactoryBot.define do
             'report_child18_or_older_is_not_attending_school' => true
           },
           'view:selectable686_options' => {
-            'add_spouse' => true,
-            'add_child' => true,
-            'report674' => true,
-            'add_disabled_child' => true,
-            'report_divorce' => true,
-            'report_death' => true,
-            'report_stepchild_not_in_household' => true,
-            'report_marriage_of_child_under18' => true,
-            'report_child18_or_older_is_not_attending_school' => true
+            'report674' => true
           },
           'child_stopped_attending_school' => [{
             'dependent_income' => false,

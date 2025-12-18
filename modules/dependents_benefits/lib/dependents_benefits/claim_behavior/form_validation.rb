@@ -30,7 +30,8 @@ module DependentsBenefits
         end
 
         unless validation_errors.empty?
-          monitor.track_error_event('Dependents Benefits form did not pass validation.', "#{stats_key}.validation_error",
+          monitor.track_error_event('Dependents Benefits form did not pass validation.',
+                                    "#{stats_key}.validation_error",
                                     form_id:, guid:, errors: validation_errors)
         end
 
