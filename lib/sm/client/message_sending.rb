@@ -124,13 +124,13 @@ module SM
         perform(method, path, args.to_h, headers).body
       rescue => e
         if oh_pilot_user?
-          log_message_to_rails('MHV SM OH Pilot User: Message Send Failed', {
+          log_message_to_rails('MHV SM OH Pilot User: Message Send Failed', 'error', {
                                  error: e.message,
-                                 recipient_id: args[:recipient_id]&.to_s&.last(6),
+                                 recipient_id: "***#{args[:recipient_id]&.to_s&.last(6)}",
                                  path:,
-                                 mhv_correlation_id: "****#{current_user&.mhv_correlation_id.to_s[-6..]}",
+                                 mhv_correlation_id: "****#{current_user&.mhv_correlation_id.to_s.last(6)}",
                                  client_type: client_type_name
-                               }, 'error')
+                               })
         end
         raise e
       end
@@ -154,14 +154,13 @@ module SM
       def log_oh_pilot_message(message, method_name)
         return unless oh_pilot_user?
 
-        log_message_to_rails("MHV SM OH Pilot User: #{method_name}",
-                             {
+        log_message_to_rails("MHV SM OH Pilot User: #{method_name}", 'info', {
                                message_id: message&.id,
-                               recipient_id: message&.recipient_id&.to_s&.last(6),
+                               recipient_id: "***#{message&.recipient_id&.to_s&.last(6)}",
                                is_oh_message: message&.is_oh_message,
                                mhv_correlation_id: "****#{current_user&.mhv_correlation_id.to_s.last(6)}",
                                client_type: client_type_name
-                             }, 'info')
+                             })
       end
     end
   end
