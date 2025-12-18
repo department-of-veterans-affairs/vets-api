@@ -5,9 +5,10 @@ module TravelPay
     include ExpenseNormalizer
     include IdValidation
 
-    def initialize(auth_manager, user)
+    def initialize(auth_manager, user, version_map = nil)
       @auth_manager = auth_manager
       @user = user
+      @version_map = version_map
     end
 
     DEFAULT_PAGE_SIZE = 50
@@ -266,7 +267,7 @@ module TravelPay
     end
 
     def client
-      TravelPay::ClaimsClient.new
+      TravelPay::ClaimsClient.new(@version_map)
     end
 
     def documents_client

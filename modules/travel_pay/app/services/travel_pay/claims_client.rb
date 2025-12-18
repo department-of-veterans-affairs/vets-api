@@ -5,6 +5,10 @@ require_relative './base_client'
 
 module TravelPay
   class ClaimsClient < TravelPay::BaseClient
+    def initialize(version_map = nil)
+      @version_map = version_map
+    end
+
     ##
     # HTTP GET call to the BTSSS 'claims' endpoint
     # API responds with travel pay claims including status

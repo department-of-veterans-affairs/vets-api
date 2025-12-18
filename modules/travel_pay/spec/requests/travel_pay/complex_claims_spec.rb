@@ -179,6 +179,58 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
+
+    context 'endpoint version routing' do
+      let(:claims_client) { instance_double(TravelPay::ClaimsClient) }
+      let(:appts_service_double) { instance_double(TravelPay::AppointmentsService) }
+      let(:claims_service) { TravelPay::ClaimsService }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
+
+        # Stub appointment service
+        allow(appts_service_double).to receive(:find_or_create_appointment)
+          .and_return({ data: { 'id' => appointment_id } })
+        allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+          .to receive(:appts_service).and_return(appts_service_double)
+
+        # Stub claims client
+        allow(TravelPay::ClaimsClient).to receive(:new).and_return(claims_client)
+        allow(claims_client).to receive(:create_claim)
+          .and_return(double(status: 201, body: { 'claimId' => claim_id }))
+      end
+
+      context 'when travel_pay_claims_api_v3_upgrade is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(true)
+        end
+
+        it 'version_map returns v3 for create_claim endpoint' do
+          controller = TravelPay::V0::ComplexClaimsController.new
+          allow(controller).to receive(:current_user).and_return(user)
+
+          expect(controller.send(:version_map)[:create_claim]).to eq('v3')
+        end
+      end
+
+      context 'when travel_pay_claims_api_v3_upgrade is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(false)
+        end
+
+        it 'version_map returns v2 for create_claim endpoint' do
+          controller = TravelPay::V0::ComplexClaimsController.new
+          allow(controller).to receive(:current_user).and_return(user)
+
+          expect(controller.send(:version_map)[:create_claim]).to eq('v2')
+        end
+      end
+    end
   end
 
   # PATCH /travel_pay/v0/complex_claims/#{claim_id}/submit
@@ -353,6 +405,49 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         body = JSON.parse(response.body)
         expect(body['errors'].first['detail'])
           .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
+      end
+    end
+
+    context 'endpoint version routing' do
+      let(:claims_client) { instance_double(TravelPay::ClaimsClient) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+
+        # Stub claims client
+        allow(TravelPay::ClaimsClient).to receive(:new).and_return(claims_client)
+        allow(claims_client).to receive(:submit_claim)
+          .and_return(double(status: 200, body: { 'claimId' => claim_id }))
+      end
+
+      context 'when travel_pay_claims_api_v3_upgrade is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(true)
+        end
+
+        it 'version_map returns v3 for submit_claim endpoint' do
+          controller = TravelPay::V0::ComplexClaimsController.new
+          allow(controller).to receive(:current_user).and_return(user)
+
+          expect(controller.send(:version_map)[:submit_claim]).to eq('v3')
+        end
+      end
+
+      context 'when travel_pay_claims_api_v3_upgrade is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(false)
+        end
+
+        it 'version_map returns v2 for submit_claim endpoint' do
+          controller = TravelPay::V0::ComplexClaimsController.new
+          allow(controller).to receive(:current_user).and_return(user)
+
+          expect(controller.send(:version_map)[:submit_claim]).to eq('v2')
+        end
       end
     end
   end
