@@ -1704,6 +1704,10 @@ features:
     actor_type: user
     description: Enables the API call to retrieve Scheduling Preferences within the Health Care Settings page in Profile on VA.gov
     enable_in_development: true
+  profile_hide_health_care_contacts:
+    actor_type: user
+    description: Hides the health care contacts section on the Profile
+    enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
     description: Use single-logout (SLO) paths for Public Websites-managed EHR CTAs
