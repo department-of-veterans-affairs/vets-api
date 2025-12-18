@@ -30,7 +30,8 @@ RSpec.describe SemanticLogger do
         e.is_a?(RuntimeError) && e.message == 'not an exception'
       end).to be true
 
-      # In particular we could test for absence of these specific failure messages but 'they are empty' is equivalent here
+      # In particular we could test for absence of these specific failure messages
+      # ...but 'they are empty' is equivalent here
       # messages.each do |msg|
       #   expect(msg).not_to include("NoMethodError: undefined method `message' for an instance of String")
       #   expect(msg).not_to include('Failed to log to appender')
