@@ -84,7 +84,7 @@ module DependentsBenefits
           @proc_id
         rescue => e
           monitor.track_submission_error('Error generating proc ID', 'proc_id_failure', error: e, parent_claim_id:)
-          raise DependentsBenefits::DependentSubmissionError, e
+          raise DependentsBenefits::Sidekiq::DependentSubmissionError, e
         end
 
         ##

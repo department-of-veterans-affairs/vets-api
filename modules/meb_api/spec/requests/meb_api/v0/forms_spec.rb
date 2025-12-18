@@ -207,7 +207,7 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       end
     end
 
-    context 'when direct deposit feature is enabled' do
+    context 'with direct deposit' do
       let(:direct_deposit_client) { instance_double(DirectDeposit::Client) }
       let(:payment_info) { { account_number: '1234', routing_number: '5678' } }
 
@@ -217,26 +217,62 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       end
 
       it 'includes direct deposit information in submission' do
-        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        post '/meb_api/v0/forms_submit_claim', params: {
+          form: {
+            direct_deposit: {
+              direct_deposit_account_number: '*********1234',
+              direct_deposit_routing_number: '*****5678'
+            }
+          }
+        }
         expect(submission_service).to have_received(:submit_claim).with(
-          hash_including(test_param: 'value'),
+          hash_including(form: hash_including(direct_deposit: hash_including(
+            direct_deposit_account_number: '*********1234'
+          ))),
           payment_info
         )
         expect(response).to have_http_status(:ok)
       end
 
+      it 'calls DirectDeposit::Client when asterisks present' do
+        expect(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
+        expect(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
+
+        post '/meb_api/v0/forms_submit_claim', params: {
+          form: {
+            direct_deposit: {
+              direct_deposit_account_number: '*********1234',
+              direct_deposit_routing_number: '*****5678'
+            }
+          }
+        }
+        expect(response).to have_http_status(:ok)
+      end
+
+      # DirectDeposit service errors should not block claim submission.
+      # Masked values are unmasked via DirectDeposit, but failures are handled gracefully.
       context 'when direct deposit service returns nil' do
         before do
           allow(direct_deposit_client).to receive(:get_payment_info).and_return(nil)
         end
 
-        it 'proceeds without direct deposit info and logs warning' do
+        it 'proceeds with 200 OK status and logs warning' do
           expect(Rails.logger).to receive(:warn).with(
             'DirectDeposit::Client returned nil response, proceeding without direct deposit info'
           )
-          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+          post '/meb_api/v0/forms_submit_claim', params: {
+            form: {
+              direct_deposit: {
+                direct_deposit_account_number: '*********1234',
+                direct_deposit_routing_number: '*****5678'
+              }
+            }
+          }
+          expect(response).to have_http_status(:ok)
           expect(submission_service).to have_received(:submit_claim).with(
-            hash_including(test_param: 'value'),
+            hash_including(form: hash_including(direct_deposit: hash_including(
+              direct_deposit_account_number: '*********1234'
+            ))),
             nil
           )
         end
@@ -247,14 +283,138 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
           allow(direct_deposit_client).to receive(:get_payment_info).and_raise(StandardError.new('Service error'))
         end
 
-        it 'logs error and proceeds without direct deposit info' do
-          expect(Rails.logger).to receive(:error).with('BIS service error: Service error')
-          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        it 'proceeds with 200 OK status and logs error' do
+          expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Service error')
+          post '/meb_api/v0/forms_submit_claim', params: {
+            form: {
+              direct_deposit: {
+                direct_deposit_account_number: '*********1234',
+                direct_deposit_routing_number: '*****5678'
+              }
+            }
+          }
+          expect(response).to have_http_status(:ok)
           expect(submission_service).to have_received(:submit_claim).with(
-            hash_including(test_param: 'value'),
+            hash_including(form: hash_including(direct_deposit: hash_including(
+              direct_deposit_account_number: '*********1234'
+            ))),
             nil
           )
         end
+      end
+
+      it 'logs error message as "Lighthouse direct deposit service error" when service fails' do
+        allow(direct_deposit_client).to receive(:get_payment_info).and_raise(StandardError.new('Connection timeout'))
+
+        expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Connection timeout')
+
+        post '/meb_api/v0/forms_submit_claim', params: {
+          form: {
+            direct_deposit: {
+              direct_deposit_account_number: '*********1234',
+              direct_deposit_routing_number: '*****5678'
+            }
+          }
+        }
+        expect(response).to have_http_status(:ok)
+      end
+
+      context 'when account number does not contain asterisks' do
+        it 'does not call DirectDeposit service (optimization)' do
+          expect(DirectDeposit::Client).not_to receive(:new)
+
+          post '/meb_api/v0/forms_submit_claim', params: {
+            form: {
+              direct_deposit: {
+                direct_deposit_account_number: '1234567890',
+                direct_deposit_routing_number: '031000503'
+              }
+            }
+          }
+          expect(response).to have_http_status(:ok)
+          expect(submission_service).to have_received(:submit_claim).with(
+            hash_including(form: hash_including(direct_deposit: hash_including(
+              direct_deposit_account_number: '1234567890'
+            ))),
+            nil
+          )
+        end
+      end
+
+      context 'when account number contains asterisks' do
+        it 'calls DirectDeposit service to fetch unmasked values' do
+          expect(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
+          expect(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
+
+          post '/meb_api/v0/forms_submit_claim', params: {
+            form: {
+              direct_deposit: {
+                direct_deposit_account_number: '*********1234',
+                direct_deposit_routing_number: '*****0503'
+              }
+            }
+          }
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when direct_deposit fields are not present' do
+        it 'does not call DirectDeposit service' do
+          expect(DirectDeposit::Client).not_to receive(:new)
+
+          post '/meb_api/v0/forms_submit_claim', params: {
+            form: {
+              claimant: {
+                first_name: 'John'
+              }
+            }
+          }
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'in development environment' do
+      before do
+        allow(Rails.env).to receive(:development?).and_return(true)
+      end
+
+      it 'skips DirectDeposit call even with asterisks present' do
+        expect(DirectDeposit::Client).not_to receive(:new)
+
+        post '/meb_api/v0/forms_submit_claim', params: {
+          form: {
+            direct_deposit: {
+              direct_deposit_account_number: '*********1234',
+              direct_deposit_routing_number: '*****5678'
+            }
+          }
+        }
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when an exception occurs in submit_claim' do
+      let(:error_message) { 'Submission failed' }
+
+      before do
+        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
+      end
+
+      it 'logs an error with exception class and message' do
+        expect(Rails.logger).to receive(:error)
+          .with("MEB Forms submit_claim failed: StandardError - #{error_message}")
+        expect(Rails.logger).to receive(:error).at_least(:once)
+
+        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        expect(response).to have_http_status(:internal_server_error)
+      end
+
+      it 're-raises the exception after logging' do
+        allow(Rails.logger).to receive(:error)
+
+        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end

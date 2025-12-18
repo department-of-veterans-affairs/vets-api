@@ -63,7 +63,7 @@
           "state": "AL",
           "postal_code": "12345"
         },
-        "student_income": false,
+        "student_income": "N",
         "ssn": "000000000",
         "full_name": {
           "first": "Student",
@@ -82,7 +82,7 @@
     ],
     "child_stopped_attending_school": [
       {
-        "dependent_income": false,
+        "dependent_income": "N",
         "date_child_left_school": "2020-05-19",
         "full_name": {
           "first": "Jane",
@@ -94,7 +94,7 @@
     ],
     "child_marriage": [
       {
-        "dependent_income": false,
+        "dependent_income": "N",
         "date_married": "2020-01-01",
         "full_name": {
           "first": "Child",

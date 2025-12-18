@@ -34,8 +34,9 @@ The script will:
 1. Use devops/utilities/ssm-parameters.sh to fetch parameters
 2. Detect forward proxy URLs and set up local tunneling  
 3. Update settings.local.yml with the new values
-4. Use devops/utilities/ssm-portforwarding.sh for proxy tunnels
-5. Prompt for confirmation before overwriting existing values (unless --force)
+4. Update config/settings/test.local.yml for test environment
+5. Use devops/utilities/ssm-portforwarding.sh for proxy tunnels
+6. Prompt for confirmation before overwriting existing values (unless --force)
 
 Forward proxy URLs (fwdproxy-*.vfs.va.gov:*) will be automatically detected
 and replaced with localhost URLs. Tunnel startup scripts will be generated.
