@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'hexapdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
@@ -83,8 +85,47 @@ module MedicalExpenseReports
       # Form configuration hash
       KEY = key.freeze
 
+      SIGNATURE_FIELD_NAME = Section7::KEY.dig('statementOfTruthSignature', :key)
+      SIGNATURE_FONT_SIZE = 10
+      SIGNATURE_PADDING_X = 2
+      SIGNATURE_PADDING_Y = 1
+      # Fallback coordinates if runtime extraction fails
+      STATIC_SIGNATURE_COORDINATES = {
+        x: 40.8,
+        y: 295.3,
+        page_number: 4 # zero-indexed; 4 == page 5
+      }.freeze
+
       # Default label column width (points) for redesigned extras in this form
       DEFAULT_LABEL_WIDTH = 130
+
+      # Stamp a typed signature string onto the PDF using DatestampPdf.
+      #
+      # @param pdf_path [String] Path to the PDF to stamp
+      # @param form_data [Hash] The form data containing the signature
+      # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
+      def self.stamp_signature(pdf_path, form_data)
+        signature_text = form_data['statementOfTruthSignature']
+        return pdf_path if signature_text.blank?
+
+        coordinates = signature_overlay_coordinates(pdf_path) || STATIC_SIGNATURE_COORDINATES
+
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: signature_text,
+          x: coordinates[:x],
+          y: coordinates[:y],
+          page_number: coordinates[:page_number],
+          size: SIGNATURE_FONT_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        )
+      rescue => e
+        Rails.logger.error('MedicalExpenseReports 21P-8416: Error stamping signature',
+                           error: e.message, backtrace: e.backtrace)
+        pdf_path
+      end
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.
@@ -97,6 +138,28 @@ module MedicalExpenseReports
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         form_data
+      end
+
+      def self.signature_overlay_coordinates(pdf_path)
+        doc = HexaPDF::Document.open(pdf_path)
+        field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
+        widget = field&.each_widget&.first
+        return unless widget
+
+        rect = widget[:Rect]
+        page = doc.object(widget[:P])
+        page_index = doc.pages.each_with_index.find { |page_obj, _i| page_obj == page }&.last
+        return unless rect && page_index
+
+        llx, lly, urx, ury = rect
+        height = ury - lly
+        y = lly + [((height - SIGNATURE_FONT_SIZE) / 2.0), 0].max + SIGNATURE_PADDING_Y
+
+        { x: llx + SIGNATURE_PADDING_X, y:, page_number: page_index }
+      rescue => e
+        Rails.logger.error('MedicalExpenseReports 21P-8416: Error deriving signature coordinates',
+                           error: e.message, backtrace: e.backtrace)
+        nil
       end
     end
   end
