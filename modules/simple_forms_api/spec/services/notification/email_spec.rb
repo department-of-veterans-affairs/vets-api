@@ -277,8 +277,13 @@ describe SimpleFormsApi::Notification::Email do
 
             subject.send
 
-            expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything, anything,
-                                                                             anything)
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              a_string_matching(/@/),
+              template_id,
+              a_hash_including('confirmation_number'),
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
+            )
           end
 
           describe 'form 20-10207 point of contact', if: notification_type == :error do
@@ -308,9 +313,9 @@ describe SimpleFormsApi::Notification::Email do
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
                   point_of_contact_email,
                   template_id,
-                  anything,
-                  anything,
-                  anything
+                  a_hash_including('confirmation_number'),
+                  a_string_matching(/\S+/),
+                  a_hash_including(:callback_metadata)
                 )
               end
             end
@@ -344,7 +349,7 @@ describe SimpleFormsApi::Notification::Email do
             expect(Rails.logger).to have_received(:info).with(
               'Simple Forms - Email job enqueued',
               email_job_id:,
-              confirmation_number: anything
+              confirmation_number: a_string_matching(/\S+/)
             )
           end
         end
@@ -377,7 +382,7 @@ describe SimpleFormsApi::Notification::Email do
 
               expect(VANotify::EmailJob).not_to have_received(:perform_async)
               expect(Rails.logger).to have_received(:error).with('Simple Forms - Error email job failed to enqueue',
-                                                                 confirmation_number: anything)
+                                                                 confirmation_number: a_string_matching(/\S+/))
             end
           end
 
@@ -388,7 +393,7 @@ describe SimpleFormsApi::Notification::Email do
 
               expect(VANotify::EmailJob).not_to have_received(:perform_async)
               expect(Rails.logger).to have_received(:error).with('Simple Forms - Non-error email job failed to enqueue',
-                                                                 confirmation_number: anything)
+                                                                 confirmation_number: a_string_matching(/\S+/))
             end
           end
         end
@@ -463,8 +468,14 @@ describe SimpleFormsApi::Notification::Email do
 
             subject.send(at: time)
 
-            expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything, anything,
-                                                                          anything)
+            expect(VANotify::EmailJob).to have_received(:perform_at).with(
+              time,
+              a_string_matching(/@/),
+              a_string_matching(/\S+/),
+              a_hash_including('confirmation_number'),
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
+            )
           end
         end
       end
@@ -505,8 +516,8 @@ describe SimpleFormsApi::Notification::Email do
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
                 },
-                anything,
-                anything
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -529,8 +540,8 @@ describe SimpleFormsApi::Notification::Email do
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
                 },
-                anything,
-                anything
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -556,8 +567,8 @@ describe SimpleFormsApi::Notification::Email do
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
                 },
-                anything,
-                anything
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -580,8 +591,8 @@ describe SimpleFormsApi::Notification::Email do
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
                 },
-                anything,
-                anything
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -619,8 +630,8 @@ describe SimpleFormsApi::Notification::Email do
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
                   },
-                  anything,
-                  anything
+                  a_string_matching(/\S+/),
+                  a_hash_including(:callback_metadata)
                 )
               end
             end
@@ -663,8 +674,8 @@ describe SimpleFormsApi::Notification::Email do
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
                   },
-                  anything,
-                  anything
+                  a_string_matching(/\S+/),
+                  a_hash_including(:callback_metadata)
                 )
               end
             end
@@ -719,8 +730,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -892,8 +903,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
 
@@ -915,8 +926,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -940,8 +951,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
 
@@ -979,8 +990,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1034,8 +1045,8 @@ describe SimpleFormsApi::Notification::Email do
                                                '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
             'itf_api_expiration_date' => nil
           },
-          anything,
-          anything
+          a_string_matching(/\S+/),
+          a_hash_including(:callback_metadata)
         )
       end
 
@@ -1065,8 +1076,8 @@ describe SimpleFormsApi::Notification::Email do
                                                  '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
               'itf_api_expiration_date' => nil
             },
-            anything,
-            anything
+            a_string_matching(/\S+/),
+            a_hash_including(:callback_metadata)
           )
         end
       end
@@ -1109,8 +1120,8 @@ describe SimpleFormsApi::Notification::Email do
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => expiration_date
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
 
@@ -1139,8 +1150,8 @@ describe SimpleFormsApi::Notification::Email do
                                                      '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                   'itf_api_expiration_date' => expiration_date
                 },
-                anything,
-                anything
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -1211,8 +1222,8 @@ describe SimpleFormsApi::Notification::Email do
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => lighthouse_updated_at
           },
-          anything,
-          anything
+          a_string_matching(/\S+/),
+          a_hash_including(:callback_metadata)
         )
       end
     end
@@ -1253,8 +1264,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1274,8 +1285,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1297,8 +1308,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1318,8 +1329,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1341,8 +1352,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1362,8 +1373,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1385,8 +1396,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1406,8 +1417,8 @@ describe SimpleFormsApi::Notification::Email do
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
-              anything,
-              anything
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
