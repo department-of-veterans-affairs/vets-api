@@ -1659,6 +1659,10 @@ features:
     actor_type: user
     description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
+  profile_hide_health_care_contacts:
+    actor_type: user
+    description: Hides the health care contacts section on the Profile
+    enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
     description: Limits the Direct Deposit page functionality based on the veteranStatus property.
@@ -1703,10 +1707,6 @@ features:
   profile_scheduling_preferences:
     actor_type: user
     description: Enables the API call to retrieve Scheduling Preferences within the Health Care Settings page in Profile on VA.gov
-    enable_in_development: true
-  profile_hide_health_care_contacts:
-    actor_type: user
-    description: Hides the health care contacts section on the Profile
     enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
