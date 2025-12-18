@@ -16,6 +16,7 @@ module V0
         StatsD.increment("#{stats_key}.success")
         Rails.logger.info "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} " \
                           "UserID=#{current_user&.uuid}"
+        clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")
