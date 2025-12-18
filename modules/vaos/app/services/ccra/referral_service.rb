@@ -44,6 +44,10 @@ module Ccra
       unless referral
         with_monitoring do
           response = perform(:get, "/#{config.base_path}/#{icn}/referrals/#{id}", {}, request_headers)
+          
+          # Log both NPI fields from raw CCRA response
+          log_ccra_npi_fields(response.body, id)
+          
           referral = ReferralDetail.new(response.body)
         end
         cache_referral_data(referral, id, icn)
@@ -130,6 +134,26 @@ module Ccra
         referral_number:,
         booking_start_time: Time.current.to_f
       )
+    end
+
+    # Logs both top-level and nested providerNpi fields from CCRA response
+    #
+    # @param response_body [Hash] The raw CCRA API response body
+    # @param referral_id [String] The referral ID for context
+    # @return [void]
+    def log_ccra_npi_fields(response_body, referral_id)
+      top_level_npi = response_body[:provider_npi]
+      nested_npi = response_body.dig(:treating_provider_info, :provider_npi)
+
+      log_data = {
+        referral_id:,
+        top_level_npi_present: top_level_npi.present?,
+        top_level_npi_last3: top_level_npi.present? ? top_level_npi.to_s.last(3) : nil,
+        nested_npi_present: nested_npi.present?,
+        nested_npi_last3: nested_npi.present? ? nested_npi.to_s.last(3) : nil
+      }.compact
+
+      Rails.logger.info("#{CC_APPOINTMENTS}: CCRA referral NPI fields", log_data)
     end
   end
 end
