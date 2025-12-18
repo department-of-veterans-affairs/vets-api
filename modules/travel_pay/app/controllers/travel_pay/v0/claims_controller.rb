@@ -6,6 +6,17 @@ module TravelPay
       include AppointmentHelper
       include ClaimHelper
 
+      def version_map
+        should_upgrade = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade)
+        {
+          get_claims: should_upgrade ? 'v3' : 'v2',
+          get_claim_by_id: should_upgrade ? 'v3' : 'v2',
+          get_claims_by_date: should_upgrade ? 'v3' : 'v2',
+          create_claim: should_upgrade ? 'v3' : 'v2',
+          submit_claim: should_upgrade ? 'v3' : 'v2'
+        }
+      end
+
       after_action :scrub_logs, only: [:show]
 
       def index
@@ -74,10 +85,6 @@ module TravelPay
 
       def auth_manager
         @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
-      end
-
-      def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
       end
 
       def appts_service

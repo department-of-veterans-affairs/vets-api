@@ -200,4 +200,81 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
     end
   end
+
+  describe 'endpoint version routing' do
+    context 'index (get_claims_by_date)' do
+      context 'when travel_pay_claims_api_v3_upgrade is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(true)
+        end
+
+        it 'uses v3 endpoint for get_claims_by_date' do
+          params = { 'start_date' => '2025-01-01T00.00.00Z', 'end_date' => '2025-03-01T00.00.00Z' }
+
+          VCR.use_cassette('travel_pay/claims_v3/200_search_claims_by_appt_date_range',
+                           match_requests_on: %i[method path]) do
+            get '/travel_pay/v0/claims', params:, headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when travel_pay_claims_api_v3_upgrade is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(false)
+        end
+
+        it 'uses v2 endpoint for get_claims_by_date' do
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
+
+    context 'show (get_claim_by_id)' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
+      end
+
+      let(:claim_id) { '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+
+      context 'when travel_pay_claims_api_v3_upgrade is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(true)
+        end
+
+        it 'uses v3 endpoint for get_claim_by_id' do
+          VCR.use_cassette('travel_pay/claims_v3/success_details', match_requests_on: %i[method path]) do
+            get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when travel_pay_claims_api_v3_upgrade is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(false)
+        end
+
+        it 'uses v2 endpoint for get_claim_by_id' do
+          VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+            get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
+  end
 end
