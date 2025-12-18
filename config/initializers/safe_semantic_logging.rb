@@ -14,6 +14,9 @@ module SafeSemanticLogging
     if payload.is_a?(Hash)
       ex = payload[:exception]
       payload = payload.merge(exception: RuntimeError.new(ex.to_s)) if ex && !ex.respond_to?(:backtrace)
+
+      # Handle nil exception too
+      payload = payload.merge(exception: RuntimeError.new('No exception provided')) if ex.nil?
     end
     super
   end
