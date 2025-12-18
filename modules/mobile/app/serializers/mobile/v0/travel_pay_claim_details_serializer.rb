@@ -25,6 +25,10 @@ module Mobile
                  :documents,
                  :createdOn,
                  :modifiedOn
+
+      attribute :appointmentDate do |object|
+        object.appointmentDate&.chomp('Z')
+      end
     end
   end
 end

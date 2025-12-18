@@ -10,13 +10,16 @@ module Mobile
       attributes :id,
                  :claimNumber,
                  :claimStatus,
-                 :appointmentDateTime,
                  :facilityId,
                  :facilityName,
                  :totalCostRequested,
                  :reimbursementAmount,
                  :createdOn,
                  :modifiedOn
+
+      attribute :appointmentDateTime do |object|
+        object.appointmentDateTime&.chomp('Z')
+      end
     end
   end
 end
