@@ -64,6 +64,15 @@ module MedicalExpenseReports
       parsed_form.dig('claimantFullName', 'first')
     end
 
+    # Safely parse the stored form JSON, returning an empty hash when blank.
+    #
+    # @return [Hash]
+    def parsed_form
+      return {} if form.blank?
+
+      super
+    end
+
     ##
     # claim attachment list
     #
@@ -93,7 +102,9 @@ module MedicalExpenseReports
     #
     def to_pdf(file_name = nil, fill_options = {})
       pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
-      MedicalExpenseReports::PdfFill::Va21p8416.stamp_signature(pdf_path, parsed_form)
+      form_data = form.present? ? parsed_form : {}
+
+      MedicalExpenseReports::PdfFill::Va21p8416.stamp_signature(pdf_path, form_data)
     end
 
     ##
