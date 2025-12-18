@@ -5,6 +5,11 @@ require_relative './base_client'
 
 module TravelPay
   class DocumentsClient < TravelPay::BaseClient
+    def initialize(version_map = nil)
+      super()
+      @version_map = version_map
+    end
+
     ##
     # HTTP GET call to the BTSSS 'claims/:id/documents' endpoint
     # API responds with array of documents related to the claim:
@@ -19,8 +24,12 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
+
+      has_version_override = @version_map.present? && @version_map.key?(__method__)
+      version = has_version_override ? @version_map[__method__] : 'v2'
+
       log_to_statsd('documents', 'get_document_ids') do
-        connection(server_url: btsss_url).get("api/v2/claims/#{claim_id}/documents") do |req|
+        connection(server_url: btsss_url).get("api/#{version}/claims/#{claim_id}/documents") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -40,8 +49,12 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       params.symbolize_keys => { claim_id:, doc_id: }
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+
+      has_version_override = @version_map.present? && @version_map.key?(__method__)
+      version = has_version_override ? @version_map[__method__] : 'v2'
+
       log_to_statsd('documents', 'get_document_binary') do
-        connection(server_url: btsss_url).get("api/v2/claims/#{claim_id}/documents/#{doc_id}") do |req|
+        connection(server_url: btsss_url).get("api/#{version}/claims/#{claim_id}/documents/#{doc_id}") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id

@@ -13,7 +13,8 @@ module TravelPay
           get_claim_by_id: should_upgrade ? 'v3' : 'v2',
           get_claims_by_date: should_upgrade ? 'v3' : 'v2',
           create_claim: should_upgrade ? 'v3' : 'v2',
-          submit_claim: should_upgrade ? 'v3' : 'v2'
+          submit_claim: should_upgrade ? 'v3' : 'v2',
+          get_document_ids: should_upgrade ? 'v3' : 'v2'
         }
       end
 

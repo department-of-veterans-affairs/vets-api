@@ -22,7 +22,7 @@ module TravelPay
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
-      has_version_override = @version_map || @version_map.key?(__method__)
+      has_version_override = @version_map.present? && @version_map.key?(__method__)
       version = has_version_override ? @version_map[__method__] : 'v2'
 
       log_to_statsd('claims', 'get_all') do
@@ -50,7 +50,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      has_version_override = @version_map || @version_map.key?(__method__)
+      has_version_override = @version_map.present? && @version_map.key?(__method__)
       version = has_version_override ? @version_map[__method__] : 'v2'
 
       log_to_statsd('claims', 'get_by_id') do
@@ -83,7 +83,7 @@ module TravelPay
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
-      has_version_override = @version_map || @version_map.key?(__method__)
+      has_version_override = @version_map.present? && @version_map.key?(__method__)
       version = has_version_override ? @version_map[__method__] : 'v2'
 
       log_to_statsd('claims', 'get_by_date') do
@@ -114,7 +114,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      has_version_override = @version_map || @version_map.key?(__method__)
+      has_version_override = @version_map.present? && @version_map.key?(__method__)
       version = has_version_override ? @version_map[__method__] : 'v2'
 
       log_to_statsd('claims', 'create') do
@@ -147,7 +147,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      has_version_override = @version_map || @version_map.key?(__method__)
+      has_version_override = @version_map.present? && @version_map.key?(__method__)
       version = has_version_override ? @version_map[__method__] : 'v2'
 
       log_to_statsd('claims', 'submit') do

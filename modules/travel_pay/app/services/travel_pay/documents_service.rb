@@ -2,8 +2,9 @@
 
 module TravelPay
   class DocumentsService
-    def initialize(auth_manager)
+    def initialize(auth_manager, version_map = nil)
       @auth_manager = auth_manager
+      @version_map = version_map
     end
 
     def get_document_summaries(claim_id)
@@ -69,7 +70,7 @@ module TravelPay
     private
 
     def client
-      TravelPay::DocumentsClient.new
+      TravelPay::DocumentsClient.new(@version_map)
     end
 
     def validate_document_extension!(document)

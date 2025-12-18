@@ -241,7 +241,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(true)
       end
 
       let(:claim_id) { '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
@@ -255,8 +255,12 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
         it 'uses v3 endpoint for get_claim_by_id' do
           VCR.use_cassette('travel_pay/claims_v3/success_details', match_requests_on: %i[method path]) do
-            get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
-            expect(response).to have_http_status(:ok)
+            VCR.use_cassette('travel_pay/documents_v3/get_list_success', match_requests_on: %i[method path]) do
+              get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+              expect(response).to have_http_status(:ok)
+              body = JSON.parse(response.body)
+              expect(body['documents'].length).to be_positive
+            end
           end
         end
       end

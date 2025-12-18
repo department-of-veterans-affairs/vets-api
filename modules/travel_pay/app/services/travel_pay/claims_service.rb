@@ -62,7 +62,6 @@ module TravelPay
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       claim_response = client.get_claim_by_id(veis_token, btsss_token, claim_id)
-
       documents = get_document_summaries(veis_token, btsss_token, claim_id)
 
       claim = claim_response.body['data']
@@ -271,7 +270,7 @@ module TravelPay
     end
 
     def documents_client
-      TravelPay::DocumentsClient.new
+      TravelPay::DocumentsClient.new(@version_map)
     end
   end
 end
