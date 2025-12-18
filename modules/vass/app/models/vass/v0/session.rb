@@ -16,7 +16,7 @@ module Vass
     # @!attribute contact_value
     #   @return [String] Email address or phone number
     # @!attribute otp_code
-    #   @return [String] User-provided OTC for validation (aliased as otc)
+    #   @return [String] User-provided one-time code (OTC) for validation (aliased as otc)
     # @!attribute redis_client
     #   @return [Vass::RedisClient] Redis client for storage operations
     #
@@ -95,9 +95,9 @@ module Vass
       end
 
       ##
-      # Generates a new 6-digit OTP code.
+      # Generates a new 6-digit one-time code (OTC).
       #
-      # @return [String] Generated OTP code
+      # @return [String] Generated one-time code
       #
       def generate_otp
         SecureRandom.random_number(999_999).to_s.rjust(OTP_LENGTH, '0')
@@ -353,7 +353,7 @@ module Vass
           exp: Time.now.to_i + 3600 # 1 hour expiration
         }
 
-        # Use RS256 signing - assumes JWT secret is configured
+        # Use HS256 signing with shared secret - assumes JWT secret is configured
         JWT.encode(payload, jwt_secret, 'HS256')
       end
 

@@ -125,7 +125,9 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException,
+           Common::Exceptions::GatewayTimeout,
+           Common::Client::Errors::ClientError => e
       handle_error(e, 'save_appointment')
     end
 
@@ -146,7 +148,9 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException,
+           Common::Exceptions::GatewayTimeout,
+           Common::Client::Errors::ClientError => e
       handle_error(e, 'cancel_appointment')
     end
 
@@ -167,7 +171,9 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException,
+           Common::Exceptions::GatewayTimeout,
+           Common::Client::Errors::ClientError => e
       handle_error(e, 'get_appointment')
     end
 
@@ -188,7 +194,9 @@ module Vass
       )
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException,
+           Common::Exceptions::GatewayTimeout,
+           Common::Client::Errors::ClientError => e
       handle_error(e, 'get_appointments')
     end
 
@@ -229,7 +237,9 @@ module Vass
       )
     rescue Vass::Errors::MissingContactInfoError
       raise
-    rescue => e
+    rescue Vass::ServiceException,
+           Common::Exceptions::GatewayTimeout,
+           Common::Client::Errors::ClientError => e
       handle_error(e, 'get_veteran_info')
     end
 
@@ -245,7 +255,9 @@ module Vass
       response = client.get_agent_skills
 
       parse_response(response)
-    rescue => e
+    rescue Vass::ServiceException,
+           Common::Exceptions::GatewayTimeout,
+           Common::Client::Errors::ClientError => e
       handle_error(e, 'get_agent_skills')
     end
 
@@ -304,16 +316,28 @@ module Vass
       log_error(error, method_name)
 
       case error
-      when Common::Exceptions::BackendServiceException
+      when Vass::ServiceException
+        # VASS-specific service exceptions (inherits from BackendServiceException)
         if error.original_status == 401
           raise Vass::Errors::AuthenticationError, 'Authentication failed'
         elsif error.original_status == 404
           raise Vass::Errors::NotFoundError, 'Resource not found'
         else
-          raise Vass::Errors::VassApiError, "VASS API error: #{error.class.name}"
+          raise Vass::Errors::VassApiError, "VASS API error: #{error.original_status}"
         end
+      when Common::Exceptions::GatewayTimeout
+        # Timeout errors from Faraday or Ruby's Timeout
+        raise Vass::Errors::ServiceError, "Request timeout in #{method_name}"
+      when Common::Client::Errors::ParsingError
+        # JSON parsing errors from malformed responses
+        raise Vass::Errors::ServiceError, "Response parsing error in #{method_name}"
+      when Common::Client::Errors::ClientError
+        # Network/HTTP errors (connection failures, SSL errors, etc.)
+        status = error.status || 'unknown'
+        raise Vass::Errors::ServiceError, "HTTP error (#{status}) in #{method_name}"
       else
-        raise Vass::Errors::ServiceError, "Service error in #{method_name}: #{error.class.name}"
+        # This should not be reached given our explicit rescue clauses
+        raise Vass::Errors::ServiceError, "Unexpected error in #{method_name}: #{error.class.name}"
       end
     end
 
