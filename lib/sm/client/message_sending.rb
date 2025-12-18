@@ -127,7 +127,9 @@ module SM
           log_exception_to_rails('MHV SM OH Pilot User: Message Send Failed', {
                                    error: e.message,
                                    recipient_id: args[:recipient_id].to_s[-6..],
-                                   path:
+                                   path:,
+                                   mhv_correlation_id: "****#{current_user&.mhv_correlation_id.to_s[-6..]}",
+                                   client_type: client_type_name
                                  })
         end
         raise e
@@ -143,9 +145,9 @@ module SM
       end
 
       def build_lg_message_response(message, poll_for_status, method_name)
+        log_oh_pilot_message(message, method_name)
         return poll_status(message) if poll_for_status
 
-        log_oh_pilot_message(message, method_name)
         message
       end
 
@@ -157,6 +159,7 @@ module SM
                                message_id: message&.id,
                                recipient_id: message&.recipient_id.to_s[-6..],
                                is_oh_message: message&.is_oh_message,
+                               mhv_correlation_id: "****#{current_user&.mhv_correlation_id.to_s[-6..]}",
                                client_type: client_type_name
                              }, 'info')
       end
