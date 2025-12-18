@@ -54,6 +54,8 @@ module DependentsBenefits
 
       monitor.track_processor_info('Successfully enqueued all submission jobs', 'enqueue_success',
                                    parent_claim_id:, jobs_count: jobs_enqueued)
+
+      # Records successful enqueueing by updating claim group status
       record_enqueue_completion
 
       # notify user that processing has started
