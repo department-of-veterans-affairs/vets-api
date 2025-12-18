@@ -179,58 +179,6 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
-
-    context 'endpoint version routing' do
-      let(:claims_client) { instance_double(TravelPay::ClaimsClient) }
-      let(:appts_service_double) { instance_double(TravelPay::AppointmentsService) }
-      let(:claims_service) { TravelPay::ClaimsService }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
-
-        # Stub appointment service
-        allow(appts_service_double).to receive(:find_or_create_appointment)
-          .and_return({ data: { 'id' => appointment_id } })
-        allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-          .to receive(:appts_service).and_return(appts_service_double)
-
-        # Stub claims client
-        allow(TravelPay::ClaimsClient).to receive(:new).and_return(claims_client)
-        allow(claims_client).to receive(:create_claim)
-          .and_return(double(status: 201, body: { 'claimId' => claim_id }))
-      end
-
-      context 'when travel_pay_claims_api_v3_upgrade is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:travel_pay_claims_api_v3_upgrade)
-            .and_return(true)
-        end
-
-        it 'version_map returns v3 for create_claim endpoint' do
-          controller = TravelPay::V0::ComplexClaimsController.new
-          allow(controller).to receive(:current_user).and_return(user)
-
-          expect(controller.send(:version_map)[:create_claim]).to eq('v3')
-        end
-      end
-
-      context 'when travel_pay_claims_api_v3_upgrade is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:travel_pay_claims_api_v3_upgrade)
-            .and_return(false)
-        end
-
-        it 'version_map returns v2 for create_claim endpoint' do
-          controller = TravelPay::V0::ComplexClaimsController.new
-          allow(controller).to receive(:current_user).and_return(user)
-
-          expect(controller.send(:version_map)[:create_claim]).to eq('v2')
-        end
-      end
-    end
   end
 
   # PATCH /travel_pay/v0/complex_claims/#{claim_id}/submit
@@ -407,46 +355,66 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
+  end
 
-    context 'endpoint version routing' do
-      let(:claims_client) { instance_double(TravelPay::ClaimsClient) }
+  describe 'endpoint version routing' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
+    end
 
+    context 'when travel_pay_claims_api_v3_upgrade is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
-
-        # Stub claims client
-        allow(TravelPay::ClaimsClient).to receive(:new).and_return(claims_client)
-        allow(claims_client).to receive(:submit_claim)
-          .and_return(double(status: 200, body: { 'claimId' => claim_id }))
+        allow(Flipper).to receive(:enabled?)
+          .with(:travel_pay_claims_api_v3_upgrade)
+          .and_return(true)
       end
 
-      context 'when travel_pay_claims_api_v3_upgrade is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:travel_pay_claims_api_v3_upgrade)
-            .and_return(true)
-        end
+      it 'uses v3 endpoint for create_claim' do
+        VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+          VCR.use_cassette('travel_pay/claims_v3/200_create_claim', match_requests_on: %i[method path]) do
+            post('/travel_pay/v0/complex_claims', params:, as: :json)
 
-        it 'version_map returns v3 for submit_claim endpoint' do
-          controller = TravelPay::V0::ComplexClaimsController.new
-          allow(controller).to receive(:current_user).and_return(user)
-
-          expect(controller.send(:version_map)[:submit_claim]).to eq('v3')
+            expect(response).to have_http_status(:created)
+            expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
+          end
         end
       end
 
-      context 'when travel_pay_claims_api_v3_upgrade is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:travel_pay_claims_api_v3_upgrade)
-            .and_return(false)
+      it 'uses v3 endpoint for submit_claim' do
+        VCR.use_cassette('travel_pay/claims_v3/200_submit_claim', match_requests_on: %i[method path]) do
+          patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
         end
+      end
+    end
 
-        it 'version_map returns v2 for submit_claim endpoint' do
-          controller = TravelPay::V0::ComplexClaimsController.new
-          allow(controller).to receive(:current_user).and_return(user)
+    context 'when travel_pay_claims_api_v3_upgrade is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:travel_pay_claims_api_v3_upgrade)
+          .and_return(false)
+      end
 
-          expect(controller.send(:version_map)[:submit_claim]).to eq('v2')
+      it 'uses v2 endpoint for create_claim' do
+        VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+          VCR.use_cassette('travel_pay/submit/200_create_claim', match_requests_on: %i[method path]) do
+            post('/travel_pay/v0/complex_claims', params:, as: :json)
+
+            expect(response).to have_http_status(:created)
+            expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
+          end
+        end
+      end
+
+      it 'uses v2 endpoint for submit_claim' do
+        VCR.use_cassette('travel_pay/submit/200_submit_claim', match_requests_on: %i[method path]) do
+          patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
         end
       end
     end

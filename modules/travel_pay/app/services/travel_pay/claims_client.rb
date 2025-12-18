@@ -6,6 +6,7 @@ require_relative './base_client'
 module TravelPay
   class ClaimsClient < TravelPay::BaseClient
     def initialize(version_map = nil)
+      super()
       @version_map = version_map
     end
 
@@ -22,7 +23,7 @@ module TravelPay
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
       log_to_statsd('claims', 'get_all') do
-        connection(server_url: btsss_url).get('api/v2/claims', url_params) do |req|
+        connection(server_url: btsss_url).get("api/#{version}/claims", url_params) do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -101,8 +102,12 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
+
+      has_version_override = @version_map || @version_map.key?(__method__)
+      version = has_version_override ? @version_map[__method__] : 'v2'
+
       log_to_statsd('claims', 'create') do
-        connection(server_url: btsss_url).post('api/v2/claims') do |req|
+        connection(server_url: btsss_url).post("api/#{version}/claims") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -130,8 +135,12 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
+
+      has_version_override = @version_map || @version_map.key?(__method__)
+      version = has_version_override ? @version_map[__method__] : 'v2'
+
       log_to_statsd('claims', 'submit') do
-        connection(server_url: btsss_url).patch("api/v2/claims/#{claim_id}/submit") do |req|
+        connection(server_url: btsss_url).patch("api/#{version}/claims/#{claim_id}/submit") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id

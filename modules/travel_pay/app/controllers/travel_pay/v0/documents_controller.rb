@@ -114,7 +114,15 @@ module TravelPay
       end
 
       def service
-        @service ||= TravelPay::DocumentsService.new(auth_manager)
+        @service ||= TravelPay::DocumentsService.new(auth_manager, version_map)
+      end
+
+      def version_map
+        should_upgrade = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade)
+        {
+          get_document_ids: should_upgrade ? 'v3' : 'v2',
+          get_document_binary: should_upgrade ? 'v3' : 'v2'
+        }
       end
 
       def handle_resource_not_found_error(e)
