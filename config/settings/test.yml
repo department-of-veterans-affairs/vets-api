@@ -960,6 +960,7 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
+    facilities_migrating_to_oh: 555, 001
     facilities_ready_for_info_alert: 612, 555
     pretransitioned_oh_facilities: 612, 357, 555
   rx:
@@ -1050,6 +1051,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: fake_key
+    s3:
+      bucket: fake_bucket
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: false
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
 oidc:
   isolated_audience:
@@ -1943,6 +1949,7 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: 24
 vetext:
   mock: ~
 vetext_push:

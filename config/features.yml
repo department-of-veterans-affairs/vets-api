@@ -379,7 +379,11 @@ features:
     enable_in_development: true
   check_in_experience_travel_claim_logging:
     actor_type: user
-    description: Enables detailed logging for travel claim submission operations
+    description: Enables logging for travel claim submission operations
+    enable_in_development: true
+  check_in_experience_travel_claim_log_api_error_details:
+    actor_type: user
+    description: Enables detailed logging of external request error responses in client
     enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
@@ -850,6 +854,10 @@ features:
     actor_type: user
     description: enables sending the claim date to Lighthouse when submitting a Form 526EZ when present
     enable_in_development: true
+  disability_526_extra_bdd_pages_enabled:
+    actor_type: user
+    description: Enables extra pages during a BDD claim
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -965,10 +973,6 @@ features:
   representative_status_enable_v2_features:
     actor_type: user
     description: Enables Representative Status widget 2.0 features for frontend and backend
-    enable_in_development: true
-  accredited_representative_portal_id_me:
-    actor_type: user
-    description: Enables ID.me authentication feature for frontend and backend
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -1217,6 +1221,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  identity_ial2_enforcement:
+    actor_type: user
+    description: Enforces IAL2 for newly verified users
+    enable_in_development: true
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
@@ -1254,10 +1262,6 @@ features:
   log_eligible_benefits:
     actor_type: user
     description: Allows log_eligible_benefits_job.rb to run in background.
-    enable_in_development: true
-  logging_data_scrubber:
-    actor_type: user
-    description: Enable/disable data scrubbing for sensitive information
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -1546,6 +1550,10 @@ features:
   mhv_medications_new_policy:
     actor_type: user
     description: Updates MHV Medications policy based on recent updates to MHV Account Creation API
+  mhv_medications_v2_status_mapping:
+    actor_type: user
+    description: Enables V2 status mapping for prescriptions (consolidates VistA/Oracle Health statuses into simplified groups)
+    enable_in_development: false
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
@@ -1655,6 +1663,10 @@ features:
     actor_type: user
     description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
+  profile_hide_health_care_contacts:
+    actor_type: user
+    description: Hides the health care contacts section on the Profile
+    enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
     description: Limits the Direct Deposit page functionality based on the veteranStatus property.
@@ -1695,6 +1707,10 @@ features:
   profile_health_care_settings_page:
     actor_type: user
     description: Enables the new Health Care Settings page within the Profile on VA.gov
+    enable_in_development: true
+  profile_scheduling_preferences:
+    actor_type: user
+    description: Enables the API call to retrieve Scheduling Preferences within the Health Care Settings page in Profile on VA.gov
     enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
@@ -1804,10 +1820,6 @@ features:
     actor_type: user
     description: Enables the internationalization features for forms
     enable_in_development: true
-  show_dgi_direct_deposit_1990EZ:
-    actor_type: user
-    description: Displays prefill enabled direct deposit component on 1990EZ form.
-    enable_in_development: false
   show_meb_1990EZ_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
@@ -1877,6 +1889,10 @@ features:
   meb_auto_populate_relinquishment_date:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
+    enable_in_development: true
+  meb_bank_info_confirmation_field:
+    actor_type: user
+    description: Enables additional confirmation field for bank information pages across MEB applications
     enable_in_development: true
   meb_1995_re_reroute:
     actor_type: user
@@ -2136,12 +2152,21 @@ features:
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
+  vre_prefill_name:
+    actor_type: user
+    description: Enables prefill transformation for veteran name fields in the Chapter 31 form
   vre_use_new_vfs_notification_library:
     actor_type: user
     description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  vre_send_icn_to_res:
+    actor_type: user
+    description: Enables sending ICN to RES service
+  vre_track_submissions:
+    actor_type: user
+    description: In VRE application, create form submission/attempt records
   priority_processing_request_apply_vsi_flash:
     actor_type: user
     description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
@@ -2209,10 +2234,6 @@ features:
   toe_high_school_info_change:
     actor_type: user
     description: Flag to change order of high school info page
-    enable_in_development: false
-  toe_light_house_dgi_direct_deposit:
-    actor_type: user
-    description: Uses lighthouse api for direct deposit information in TOE.
     enable_in_development: false
   move_form_back_button:
     actor_type: user
@@ -2390,6 +2411,9 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  income_and_assets_bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service for Income and Assets
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user

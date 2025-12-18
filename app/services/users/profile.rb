@@ -125,17 +125,19 @@ module Users
       person = user.vet360_contact_info
       return {} if person.blank?
 
+      email_object = person.email
       {
         vet360_id: user.vet360_id,
         va_profile_id: user.vet360_id,
-        email: person.email,
+        email: email_object,
         residential_address: person.residential_address,
         mailing_address: person.mailing_address,
         mobile_phone: person.mobile_phone,
         home_phone: person.home_phone,
         work_phone: person.work_phone,
         temporary_phone: person.temporary_phone,
-        fax_number: person.fax_number
+        fax_number: person.fax_number,
+        contact_email_verified: email_object&.contact_email_verified?
       }
     rescue => e
       handle_service_error(e, 'VAProfile', 'vet360_contact_information')
@@ -170,9 +172,11 @@ module Users
           facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
           user_at_pretransitioned_oh_facility: oh_facilities_helper.user_at_pretransitioned_oh_facility?,
           user_facility_ready_for_info_alert: oh_facilities_helper.user_facility_ready_for_info_alert?,
+          user_facility_migrating_to_oh: oh_facilities_helper.user_facility_migrating_to_oh?,
           va_patient: user.va_patient?,
           mhv_account_state: user.mhv_account_state,
-          active_mhv_ids: user.active_mhv_ids
+          active_mhv_ids: user.active_mhv_ids,
+          healthcare_settings_pilot_eligible:
         }
       else
         handle_service_error(user.mpi_error, 'MVI', 'mpi_profile')
@@ -278,6 +282,15 @@ module Users
       error_hash[:method] = method_name
       scaffold.errors << error_hash
       log_external_service_error(error_hash)
+    end
+
+    def healthcare_settings_pilot_eligible
+      return false unless Flipper.enabled?(:profile_health_care_settings_page, user)
+
+      UserVisnService.new(user).in_pilot_visn?
+    rescue => e
+      Rails.logger.error("Error checking healthcare settings pilot eligibility: #{e.message}")
+      false
     end
   end
 end
