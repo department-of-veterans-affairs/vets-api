@@ -62,6 +62,34 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           expect(total_count).to be > returned_count
         end
       end
+
+      it 'strips the Z from appointmentDateTime in claim summaries' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+          params = {
+            'start_date' => '2024-01-01T00:00:00',
+            'end_date' => '2024-03-31T23:59:59',
+            'page_number' => 1
+          }
+
+          get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claims = json['data']
+
+          expect(claims).not_to be_empty
+
+          claims.each do |claim|
+            claim_attributes = claim['attributes']
+            expect(claim_attributes['appointmentDateTime']).to be_present
+            expect(claim_attributes['appointmentDateTime']).not_to end_with('Z')
+          end
+        end
+      end
     end
 
     context 'failure paths' do
@@ -167,6 +195,25 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           expect(claim_data).to have_key('documents')
           expect(claim_data['documents']).to be_an(Array)
+        end
+      end
+
+      it 'strips the Z from appointmentDate in the response' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+          claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+          get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claim_data = json['data']['attributes']
+
+          expect(claim_data['appointmentDate']).to be_present
+          expect(claim_data['appointmentDate']).not_to end_with('Z')
         end
       end
 
