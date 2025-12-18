@@ -177,9 +177,9 @@ module Dependents
       StatsD.increment(metric, tags:)
     end
 
-    def track_pension_related_submission(form_id)
+    def track_pension_related_submission(form_id:, form_type:)
       tags = ["form_id:#{form_id}"]
-      metric = "#{PENSION_SUBMISSION_STATS_KEY}.submitted"
+      metric = "#{PENSION_SUBMISSION_STATS_KEY}.#{form_type}.submitted"
       StatsD.increment(metric, tags:)
     end
 

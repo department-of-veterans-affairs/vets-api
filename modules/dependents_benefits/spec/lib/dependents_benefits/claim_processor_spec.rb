@@ -198,8 +198,18 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     end
 
     context 'when all child claims succeeded' do
+      let(:pension_claim) { create(:student_claim) }
+      let(:regular_claim) do
+        claim = create(:add_remove_dependents_claim)
+        claim.parsed_form['dependents_application'].delete('household_income')
+        claim
+      end
+
       before do
-        allow_any_instance_of(DependentsBenefits::ClaimBehavior).to receive(:submissions_succeeded?).and_return(true)
+        allow(form_686_claim).to receive(:submissions_succeeded?).and_return(true)
+        allow(form_674_claim).to receive(:submissions_succeeded?).and_return(true)
+        allow(regular_claim).to receive(:submissions_succeeded?).and_return(true)
+        allow(pension_claim).to receive(:submissions_succeeded?).and_return(true)
       end
 
       context 'and parent claim group not completed' do
@@ -214,13 +224,6 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
         end
 
         context 'with pension-related claims' do
-          let(:pension_claim) { create(:student_claim) }
-          let(:regular_claim) do
-            claim = create(:add_remove_dependents_claim)
-            claim.parsed_form['dependents_application'].delete('household_income')
-            claim
-          end
-
           before do
             allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(true)
           end
@@ -228,7 +231,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
           it 'tracks pension-related submission when any child claim is pension-related' do
             allow(processor).to receive(:child_claims).and_return([pension_claim, regular_claim])
             expect(mock_monitor).to receive(:track_pension_related_submission).with(
-              'Submitted pension-related claim', parent_claim_id:
+              'Submitted pension-related claim', parent_claim_id:, form_type: '686c-674'
             )
             processor.send(:handle_successful_submission)
           end

@@ -539,14 +539,14 @@ RSpec.describe Dependents::Monitor do
     describe '#track_pension_related_submission' do
       it 'tracks pension related submission with correct tags' do
         form_id = '686C-674-V2'
-        metric = "#{described_class::PENSION_SUBMISSION_STATS_KEY}.submitted"
+        metric = "#{described_class::PENSION_SUBMISSION_STATS_KEY}.686c-674.submitted"
 
         # Allow any StatsD calls to happen for test setup or the test will fail
         allow(StatsD).to receive(:increment)
 
         expect(StatsD).to receive(:increment).with(metric, tags: ["form_id:#{form_id}"])
 
-        monitor_v2.track_pension_related_submission(form_id)
+        monitor_v2.track_pension_related_submission(form_id:, form_type: '686c-674')
       end
     end
 

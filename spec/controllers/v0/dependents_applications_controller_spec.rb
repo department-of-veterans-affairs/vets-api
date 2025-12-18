@@ -115,7 +115,9 @@ RSpec.describe V0::DependentsApplicationsController do
           allow(monitor_double).to receive(:track_create_success)
           allow(monitor_double).to receive(:track_pension_related_submission)
 
-          expect(monitor_double).to receive(:track_pension_related_submission).with('686C-674-V2')
+          expect(monitor_double)
+            .to receive(:track_pension_related_submission)
+            .with(form_id: '686C-674-V2', form_type: '686c-674')
 
           VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
             post(:create, params: test_form_v2, as: :json)

@@ -90,7 +90,9 @@ module V0
 
     def log_submitted(in_progress_form, claim)
       monitor.track_create_success(in_progress_form, claim, current_user)
-      monitor.track_pension_related_submission(claim.form_id) if claim.pension_related_submission?
+      if claim.pension_related_submission?
+        monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
+      end
     end
 
     def create_dependent_service
