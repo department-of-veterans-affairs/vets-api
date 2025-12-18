@@ -21,7 +21,7 @@ module VRE
       private
 
       def mock_enabled?
-        Settings.res.ch31_case_details.mock || false
+        Settings.res.ch_31_case_details.mock || false
       end
     end
   end

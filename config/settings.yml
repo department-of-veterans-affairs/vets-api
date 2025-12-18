@@ -1201,6 +1201,8 @@ reports:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  ch_31_case_details:
+    mock: <%= ENV['res__ch_31_case_details__mock']%>
   ch_31_eligibility:
     mock: <%= ENV['res__ch_31_eligibility__mock']%>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
