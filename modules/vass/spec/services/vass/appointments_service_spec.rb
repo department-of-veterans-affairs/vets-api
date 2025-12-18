@@ -243,13 +243,10 @@ describe Vass::AppointmentsService do
           )
         end
 
-        it 'raises ServiceError with wrapped VassApiError' do
+        it 'raises VassApiError' do
           expect do
             service_with_mock_client.get_veteran_info(veteran_id:)
-          end.to raise_error(
-            Vass::Errors::ServiceError,
-            /Service error in get_veteran_info: Vass::Errors::VassApiError/
-          )
+          end.to raise_error(Vass::Errors::VassApiError)
         end
       end
     end
