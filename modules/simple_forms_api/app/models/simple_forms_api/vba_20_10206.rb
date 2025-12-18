@@ -98,11 +98,15 @@ module SimpleFormsApi
       return [] unless selections.is_a?(Hash)
 
       selections.each_with_object([]) do |(selection, selected), tags|
-        next unless ActiveModel::Type::Boolean.new.cast(selected)
+        next unless active_model_boolean.cast(selected)
 
         record_type = RECORD_TYPE_TAGS[selection.to_s.downcase]
         tags << record_type if record_type.present?
       end
+    end
+
+    def active_model_boolean
+      @active_model_boolean ||= ActiveModel::Type::Boolean.new
     end
 
     def citizen_ssn
