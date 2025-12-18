@@ -17,6 +17,44 @@ describe SM::Client do
 
   let(:client) { @client }
 
+  describe '#oh_pilot_user?' do
+    let(:user) { build(:user, :mhv) }
+
+    before do
+      allow(client).to receive(:current_user).and_return(user)
+    end
+
+    context 'when user has cerner pilot feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, user).and_return(true)
+      end
+
+      it 'returns true' do
+        expect(client.oh_pilot_user?).to be true
+      end
+    end
+
+    context 'when user does not have cerner pilot feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, user).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(client.oh_pilot_user?).to be false
+      end
+    end
+
+    context 'when current_user is nil' do
+      before do
+        allow(client).to receive(:current_user).and_return(nil)
+      end
+
+      it 'returns false' do
+        expect(client.oh_pilot_user?).to be false
+      end
+    end
+  end
+
   describe 'Test new API gateway methods' do
     let(:config) { SM::Configuration.instance }
 
