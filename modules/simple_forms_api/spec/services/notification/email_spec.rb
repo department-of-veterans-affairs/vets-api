@@ -267,8 +267,8 @@ describe SimpleFormsApi::Notification::Email do
             allow(Settings).to receive(:vanotify).and_return(vanotify_settings)
             allow(vanotify_settings).to receive(:services).and_return(vanotify_services)
             allow(vanotify_services).to receive(:va_gov).and_return(va_gov)
-            allow(va_gov).to receive(:template_id).and_return({ template_id_suffix => template_id })
-            allow(va_gov).to receive(:api_key).and_return('fake_secret')
+            allow(va_gov).to receive_messages(template_id: { template_id_suffix => template_id },
+                                              api_key: 'fake_secret')
           end
 
           it 'gets the correct template id' do
@@ -277,7 +277,8 @@ describe SimpleFormsApi::Notification::Email do
 
             subject.send
 
-            expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything, anything, anything)
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything, anything,
+                                                                             anything)
           end
 
           describe 'form 20-10207 point of contact', if: notification_type == :error do
@@ -444,7 +445,7 @@ describe SimpleFormsApi::Notification::Email do
                 callback_metadata: {
                   form_number: 'vba_21_10210',
                   notification_type: notification_type.to_s,
-                  confirmation_number: confirmation_number,
+                  confirmation_number:,
                   statsd_tags: {
                     'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
                   }

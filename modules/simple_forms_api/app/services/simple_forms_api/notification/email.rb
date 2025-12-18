@@ -174,7 +174,8 @@ module SimpleFormsApi
           options[:callback_klass] = 'SimpleFormsApi::EmailDeliveryStatusCallback'
         end
         [
-          Settings.vanotify.services.va_gov.api_key, options]
+          Settings.vanotify.services.va_gov.api_key, options
+        ]
       end
 
       def statsd_tags
