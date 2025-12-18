@@ -436,7 +436,7 @@ module Vass
     # @return [Integer] Max attempts
     #
     def rate_limit_max_attempts
-      @settings.rate_limit_max_attempts
+      @settings.rate_limit_max_attempts.to_i
     end
 
     ##
@@ -445,7 +445,7 @@ module Vass
     # @return [Integer] Expiry duration in seconds
     #
     def rate_limit_expiry
-      @settings.rate_limit_expiry
+      @settings.rate_limit_expiry.to_i
     end
   end
 end
