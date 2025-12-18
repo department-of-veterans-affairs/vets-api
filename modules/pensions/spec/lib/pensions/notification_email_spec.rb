@@ -32,7 +32,7 @@ RSpec.describe Pensions::NotificationEmail do
       subject { described_class.new(claim.id) }
 
       before do
-        subject.instance_variable_set(:@claim, claim)
+        allow(subject).to receive(:claim).and_return(claim)
       end
 
       it 'uses lighthouse_updated_at when available' do

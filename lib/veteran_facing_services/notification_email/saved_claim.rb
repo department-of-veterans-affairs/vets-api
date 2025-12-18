@@ -26,7 +26,7 @@ module VeteranFacingServices
       attr_accessor :saved_claim_id
 
       # @param saved_claim_id [Integer] the claim id for which to send a notification
-      # @param service_name [String] alternative serivce name listed in Settings; default is formatted claim.form_id
+      # @param service_name [String] alternative service name listed in Settings; default is formatted claim.form_id
       def initialize(saved_claim_id = nil, service_name: nil, service_config: nil)
         @saved_claim_id = saved_claim_id
         @vanotify_service = service_name
@@ -38,9 +38,9 @@ module VeteranFacingServices
       # @see ClaimVANotification
       #
       # @param email_type [Symbol] the type of email to deliver; one defined in Settings
-      # @param saved_claim_id [Integer] the claim id for which to send a notification
-      # @param personalization [Hash] the fields to populate in the email tempate; @see #personalization
-      # @param resend [Boolean] if the email should be resent, overrided duplicate_attempt check
+      # @param saved_claim_id [Integer] the claim id for which to send a notification; overrides the id provided at initialization
+      # @param personalization [Hash] the fields to populate in the email template; @see #personalization
+      # @param resend [Boolean] if the email should be resent, overrides duplicate_attempt check
       #
       # @return [ClaimVANotification] db record of notification sent
       def deliver(email_type, saved_claim_id = @saved_claim_id, personalization: nil, resend: false)
@@ -88,7 +88,7 @@ module VeteranFacingServices
       # check prerequisites before attempting to send the email
       #
       # @param email_type [Symbol] the type of email to deliver; one defined in Settings
-      # @param resend [Boolean] if the email should be resent, overrided duplicate_attempt check
+      # @param resend [Boolean] if the email should be resent, overrides duplicate_attempt check
       def valid_attempt?(email_type, resend: false)
         raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless service_config
 
@@ -100,10 +100,10 @@ module VeteranFacingServices
         raise VeteranFacingServices::NotificationEmail::FailureToSend, 'Invalid template' unless email_template_id
         raise VeteranFacingServices::NotificationEmail::FailureToSend, 'Missing email' if email.blank?
 
-        is_enabled = flipper_enabled?(email_config.flipper_id)
         already_sent = claim.va_notification?(email_config.template_id)
         monitor.duplicate_attempt(tags:, context:) if already_sent && !resend
 
+        is_enabled = flipper_enabled?(email_config.flipper_id)
         email_template_id if is_enabled && (!already_sent || resend)
       end
 
@@ -152,8 +152,8 @@ module VeteranFacingServices
       # assemble the metadata to be sent with the notification
       def callback_metadata
         {
-          form_id: claim&.form_id,
-          claim_id: claim&.id,
+          form_id: claim.form_id,
+          claim_id: claim.id,
           saved_claim_id:,
           service_name: vanotify_service,
           email_type:,

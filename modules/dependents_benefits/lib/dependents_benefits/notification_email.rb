@@ -13,7 +13,6 @@ module DependentsBenefits
       @user_first_name = user&.first_name
 
       super(saved_claim_id, service_name: 'dependents_benefits')
-      @claim = claim_class.find(saved_claim_id)
     end
 
     ##
@@ -77,6 +76,7 @@ module DependentsBenefits
     # @raise [StandardError] If email delivery fails, logs error to monitor and re-raises
     # @return [void]
     def deliver_status_email_by_claim_type(status, claim_type_options)
+      @claim = claim_class.find(saved_claim_id)
       key = if claim.submittable_686? && claim.submittable_674?
               claim_type_options[FORM_ID]
             elsif claim.submittable_686?

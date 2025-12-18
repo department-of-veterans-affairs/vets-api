@@ -75,7 +75,7 @@ end
 # All the claims MUST be able to use the same personalization and template
 notifier = VeteranFacingServices::NotificationEmail::SavedClaim.new
 claims.each do |claim|
-  notifier.deliver(:confirmation, claim.id)
+  notifier.deliver(:confirmation, claim.id) # claim.id is the saved_claim_id
 end
 ```
 

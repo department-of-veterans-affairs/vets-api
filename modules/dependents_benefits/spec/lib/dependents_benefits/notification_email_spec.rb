@@ -17,7 +17,7 @@ RSpec.describe DependentsBenefits::NotificationEmail do
       api_key = Settings.vanotify.services.dependents_benefits.api_key
       callback_options = { callback_klass: DependentsBenefits::NotificationCallback.to_s, callback_metadata: be_a(Hash) }
 
-      allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:find).with(23).and_return saved_claim
+      expect(DependentsBenefits::PrimaryDependencyClaim).to receive(:find).at_least(:once).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:dependents_benefits).and_call_original
       expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
       expect(vanotify).to receive(:send_email).with(
