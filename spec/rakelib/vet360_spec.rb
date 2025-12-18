@@ -120,7 +120,7 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:put_address' do
     let :run_rake_task do
       data = '{"address_id":437,"address_line1":"1494 Martin Luther King Rd","address_line2":null,' \
-             '"address_line3":null,"address_pou":"RESIDENCE/CHOICE","address_type":"domestic","city_name":"Fulton",' \
+             '"address_line3":null,"address_pou":"RESIDENCE","address_type":"domestic","city_name":"Fulton",' \
              '"country_code_ios2":null,"country_code_iso3":null,"country_name":"USA","county":{"county_code":null,' \
              '"county_name":null},"int_postal_code":null,"province_name":null,"state_code":"MS","zip_code5":"38843",' \
              '"zip_code4":null,"originating_source_system":"VETSGOV","source_date":"2018-04-09T11:52:03.000-06:00",' \
