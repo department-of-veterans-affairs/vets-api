@@ -831,6 +831,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Veteran',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21_4142',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21_4142 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -872,6 +884,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Jack',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21_10210',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21_10210 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -919,6 +943,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Arthur',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21p_0847',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21p_0847 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -961,6 +997,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Prepare',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21_0972',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21_0972 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -1022,6 +1070,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => 'January 14, 2026'
+              },
+              'fake_secret',
+              {
+                callback_metadata: {
+                  notification_type: 'received',
+                  form_number: 'vba_21_0966_intent_api',
+                  confirmation_number:,
+                  statsd_tags: {
+                    'service' => 'veteran-facing-forms',
+                    'function' => 'vba_21_0966_intent_api form submission to Lighthouse'
+                  }
+                }
               }
             )
           end
@@ -1047,6 +1107,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => nil
+              },
+              'fake_secret',
+              {
+                callback_metadata: {
+                  notification_type: 'confirmation',
+                  form_number: 'vba_21_0966',
+                  confirmation_number:,
+                  statsd_tags: {
+                    'service' => 'veteran-facing-forms',
+                    'function' => 'vba_21_0966 form submission to Lighthouse'
+                  }
+                }
               }
             )
           end
@@ -1117,6 +1189,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'first_name' => 'Veteran',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
               'confirmation_number' => reference_number
+            },
+            'fake_secret',
+            {
+              callback_metadata: {
+                notification_type: 'confirmation',
+                form_number: 'vba_26_4555',
+                confirmation_number: reference_number,
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_26_4555 form submission to Lighthouse'
+                }
+              }
             }
           )
         end
@@ -1148,6 +1232,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'first_name' => 'Veteran',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
               'confirmation_number' => reference_number
+            },
+            'fake_secret',
+            {
+              callback_metadata: {
+                notification_type: 'rejected',
+                form_number: 'vba_26_4555',
+                confirmation_number: reference_number,
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_26_4555 form submission to Lighthouse'
+                }
+              }
             }
           )
         end
@@ -1177,6 +1273,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             {
               'first_name' => 'Veteran',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+            },
+            'fake_secret',
+            {
+              callback_metadata: {
+                notification_type: 'duplicate',
+                form_number: 'vba_26_4555',
+                confirmation_number: nil,
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_26_4555 form submission to Lighthouse'
+                }
+              }
             }
           )
         end
