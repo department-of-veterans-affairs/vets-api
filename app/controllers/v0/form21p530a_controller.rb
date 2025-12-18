@@ -10,7 +10,8 @@ module V0
     before_action :load_user, :check_feature_enabled
 
     def create
-      claim = build_and_save_claim!
+      claim = build_claim
+      claim.save!
       handle_successful_claim(claim)
 
       clear_saved_form(claim.form_id)
@@ -22,17 +23,15 @@ module V0
     end
 
     def download_pdf
-      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
-      raw_payload = request.raw_post
-      transformed_payload = transform_country_codes(raw_payload)
-      parsed_form = JSON.parse(transformed_payload)
+      # When we have time to change the front end, we should reference the claim created in in the create action
+      claim = build_claim
 
       source_file_path = with_retries('Generate 21P-530A PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530a')
+        PdfFill::Filler.fill_ancillary_form(claim.parsed_form, SecureRandom.uuid, '21P-530a')
       end
 
       # Stamp signature (SignatureStamper returns original path if signature is blank)
-      source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, parsed_form)
+      source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, claim.parsed_form)
 
       client_file_name = "21P-530a_#{SecureRandom.uuid}.pdf"
 
@@ -94,13 +93,12 @@ module V0
       raise Common::Exceptions::ValidationErrors, claim
     end
 
-    def build_and_save_claim!
+    def build_claim
       # Body parsed by Rails,schema validated by committee before hitting here.
       payload = request.raw_post
       transformed_payload = transform_country_codes(payload)
       claim = SavedClaim::Form21p530a.new(form: transformed_payload)
-
-      raise Common::Exceptions::ValidationErrors, claim unless claim.save
+      raise Common::Exceptions::ValidationErrors, claim unless claim.valid?
 
       claim
     end
