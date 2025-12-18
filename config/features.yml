@@ -2633,6 +2633,9 @@ features:
   my_va_display_decision_reviews_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Decision Reviews forms in My VA for form status.
+  my_va_browser_monitoring:
+    actor_type: user
+    description: Enables Datadog Real-Time User Monitoring in the MyVA dashboard application.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true
