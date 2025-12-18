@@ -44,10 +44,10 @@ module Ccra
       unless referral
         with_monitoring do
           response = perform(:get, "/#{config.base_path}/#{icn}/referrals/#{id}", {}, request_headers)
-          
+
           # Log both NPI fields from raw CCRA response
           log_ccra_npi_fields(response.body, id)
-          
+
           referral = ReferralDetail.new(response.body)
         end
         cache_referral_data(referral, id, icn)
