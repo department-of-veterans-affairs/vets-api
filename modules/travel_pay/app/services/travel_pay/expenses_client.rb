@@ -55,6 +55,7 @@ module TravelPay
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Getting #{expense_type} expense from endpoint: #{endpoint}")
+
       log_to_statsd('expense', "get_#{expense_type}") do
         connection(server_url: btsss_url).get(endpoint) do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
