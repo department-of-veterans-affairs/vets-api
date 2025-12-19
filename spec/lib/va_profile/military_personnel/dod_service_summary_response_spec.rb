@@ -22,7 +22,7 @@ describe VAProfile::MilitaryPersonnel::DodServiceSummaryResponse do
       }
     }
   end
-  let(:raw_response) { double('RawResponse', status: status, body: body) }
+  let(:raw_response) { double('RawResponse', status:, body:) }
 
   describe '.from' do
     context 'when successful' do

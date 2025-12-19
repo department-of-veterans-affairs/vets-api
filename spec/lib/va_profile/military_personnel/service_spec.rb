@@ -123,7 +123,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
       it 'logs exception to sentry with 404' do
         VCR.use_cassette('va_profile/military_personnel/dod_service_summary_404') do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '384759483' },
             { va_profile: :dod_service_summary_not_found },
