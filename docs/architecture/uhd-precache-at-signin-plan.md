@@ -5,7 +5,7 @@
 This document outlines the architecture and implementation plan for asynchronously pre-caching Unified Health Data (UHD) resources when veterans sign in to VA.gov or the VA Health and Benefits mobile app. By fetching health data (labs, medications, vitals, conditions, allergies, clinical notes) at sign-in time, we can leverage the 20-minute TTL cache in the upstream SCDF service to provide near-instant data availability when users navigate to health pages.
 
 **Status**: Architecture & Planning Phase (NOT YET IMPLEMENTED)  
-**Target Feature Flag**: `mhv_accelerated_delivery_labs` (as per new requirement)  
+**Target Feature Flag**: `mhv_accelerated_delivery_precache_scdf_data` (new)  
 **Upstream Cache**: SCDF has a 20-minute TTL cache for EHR data
 
 ---
@@ -33,7 +33,7 @@ This results in:
 1. **Reduce perceived latency** for health data pages by pre-warming SCDF cache
 2. **Improve user experience** with near-instant data availability
 3. **Leverage existing infrastructure** (Sidekiq, UHD service, SCDF cache)
-4. **Enable gradual rollout** via feature flag (`mhv_accelerated_delivery_labs`)
+4. **Enable gradual rollout** via feature flag (`mhv_accelerated_delivery_precache_scdf_data`)
 5. **Maintain system stability** with proper error handling and monitoring
 
 ### Non-Goals
@@ -115,7 +115,7 @@ This results in:
 #### 1. **Trigger Point: After Sign-In Hook**
 - **Location**: `app/services/login/after_login_actions.rb` or `app/services/sign_in/session_creator.rb`
 - **Responsibility**: Enqueue async job after successful authentication
-- **Feature Flag Check**: `Flipper.enabled?(:mhv_accelerated_delivery_labs, user)`
+- **Feature Flag Check**: `Flipper.enabled?(:mhv_accelerated_delivery_precache_scdf_data, user)`
 
 #### 2. **Sidekiq Job: UnifiedHealthData::PrecacheJob**
 - **Location**: `app/sidekiq/unified_health_data/precache_job.rb`
@@ -284,11 +284,11 @@ end
 
 ### 6. Feature Flag Gating
 
-**New Requirement**: Job should be conditioned on `mhv_accelerated_delivery_labs` toggle.
+**New Requirement**: Job should be conditioned on a new feature flag `mhv_accelerated_delivery_precache_scdf_data` toggle.
 
 \`\`\`ruby
 def enabled_for_user?(user)
-  Flipper.enabled?(:mhv_accelerated_delivery_labs, user)
+  Flipper.enabled?(:mhv_accelerated_delivery_precache_scdf_data, user)
 end
 \`\`\`
 
@@ -317,6 +317,8 @@ end
 **Files to Modify**:
 1. `app/services/login/after_login_actions.rb`
    - Add job trigger: `UnifiedHealthData::PrecacheJob.perform_async(current_user.uuid)`
+1. `features.yaml`
+   - Add new feature toggle `mhv_accelerated_delivery_precache_scdf_data`
 
 **Testing**:
 1. `spec/sidekiq/unified_health_data/precache_job_spec.rb`
@@ -382,7 +384,7 @@ Rails.logger.error(
 - Check Sidekiq queue depth
 
 **Week 2**: Production canary (1%)
-- Enable for 1% via `mhv_accelerated_delivery_labs` actor flag
+- Enable for 1% via `mhv_accelerated_delivery_precache_scdf_data` actor flag
 - Monitor:
   - Job success rate
   - UHD/SCDF error rates
