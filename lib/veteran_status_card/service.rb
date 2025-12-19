@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'veteran_status_card/constants'
+
 module VeteranStatusCard
   ##
   # Service class for generating Veteran Status Card data
@@ -12,14 +14,18 @@ module VeteranStatusCard
     VET_STATUS_MORE_RESEARCH_REQUIRED_TEXT = 'MORE_RESEARCH_REQUIRED'
     VET_STATUS_NOT_TITLE_38_TEXT = 'NOT_TITLE_38'
 
-    CONFIRMED_SSC_CODES = %w[A1 A2 A3 A4 A5- A1+ A3+ A4+ A5+ A3* A4* B1 B2 B3 B4 B5- B1+ B3+ B4+ B5+ B3* B4* B5* G1 G2 G1+ R1 R2
-                             R3 R4 R1+ R3+ R4+ R3* R4*].freeze
-    DISHONORABLE_SSC_CODES = %w[A5 A5* B5].freeze # TODO: Unsure of what the messaging is for these
-    INELIGIBLE_SERVICE_SSC_CODES = %w[G3 G4 G5 G3* G4* G5* R5 R5*].freeze
-    TBD_SSC_CODES = %w[G3+ G4+ G5+ R5+].freeze
+    CONFIRMED_SSC_CODES = %w[A1 A2 A3 A4 A5- A1+ A3+ A4+ A3* A4* B1 B2 B3 B4 B5- B1+ B3+ B4+ B5+ B3* B4* B5* G1 G1+ G3+
+                             G4+ G5+ R1 R2 R3 R4 R1+ R3+ R4+ R3* R4* D+].freeze
+
+    # Active duty + dishonorable
+    DISHONORABLE_SSC_CODES = %w[A5 A5+ A5* B5 G5 G5* R5 R5+ R5*].freeze # TODO: Unsure of what the messaging is for these
+
+    # No active duty + discharge other than dishonorable
+    INELIGIBLE_SERVICE_SSC_CODES = %w[G2 G3 G4 G3* G4*].freeze
+
     UNKNOWN_SERVICE_SSC_CODE = 'U'
     EDIPI_NO_PNL_CODE = 'X'
-    CURRENTLY_SERVING_CODES = %w[D D+ D*].freeze
+    CURRENTLY_SERVING_CODES = %w[D D*].freeze
     ERROR_SSC_CODES = %w[VNA DVN DVU CVI].freeze
 
     ##
@@ -41,6 +47,9 @@ module VeteranStatusCard
     #   - When not eligible: { confirmed: false, title: String, message: String/Array, status: String }
     #
     def status_card
+      # Validate required user data
+      return error_response_hash(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE) if @user.nil?
+
       if eligible?
         {
           confirmed: true,
@@ -57,6 +66,9 @@ module VeteranStatusCard
           status: error_details[:status]
         }
       end
+    rescue => e
+      Rails.logger.error("VeteranStatusCard::Service error: #{e.message}", backtrace: e.backtrace)
+      error_response_hash(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE)
     end
 
     private
@@ -94,22 +106,22 @@ module VeteranStatusCard
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38, so we
       # don't need to explicitly check for those reasons
 
-      return Constants::DISHONORABLE_RESPONSE if DISHONORABLE_SSC_CODES.include?(ssc_code)
+      return VeteranStatusCard::Constants::DISHONORABLE_RESPONSE if DISHONORABLE_SSC_CODES.include?(ssc_code)
 
-      return Constants::INELIGIBLE_SERVICE_RESPONSE if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
+      if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
+        return VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
+      end
 
-      return Constants::TBD_RESPONSE if TBD_SSC_CODES.include?(ssc_code)
+      return VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE if ssc_code == UNKNOWN_SERVICE_SSC_CODE
 
-      return Constants::UNKNOWN_SERVICE_RESPONSE if ssc_code == UNKNOWN_SERVICE_SSC_CODE
+      return VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE if ssc_code == EDIPI_NO_PNL_CODE
 
-      return Constants::EDIPI_NO_PNL_RESPONSE if ssc_code == EDIPI_NO_PNL_CODE
+      return VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE if CURRENTLY_SERVING_CODES.include?(ssc_code)
 
-      return Constants::CURRENTLY_SERVING_RESPONSE if CURRENTLY_SERVING_CODES.include?(ssc_code)
-
-      return Constants::ERROR_RESPONSE if ERROR_SSC_CODES.include?(ssc_code)
+      return VeteranStatusCard::Constants::ERROR_RESPONSE if ERROR_SSC_CODES.include?(ssc_code)
 
       # Default fallback
-      Constants::ERROR_RESPONSE
+      VeteranStatusCard::Constants::ERROR_RESPONSE
     end
 
     ##
@@ -124,11 +136,15 @@ module VeteranStatusCard
     ##
     # Gets the user's combined disability rating percentage
     # Uses Lighthouse API if enabled, otherwise falls back to EVSS
+    # Returns nil if both services fail
     #
-    # @return [Integer] the combined disability rating percentage
+    # @return [Integer, nil] the combined disability rating percentage or nil on error
     #
     def disability_rating
       lighthouse? ? lighthouse_rating : evss_rating
+    rescue => e
+      Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
+      nil
     end
 
     ##
@@ -142,11 +158,17 @@ module VeteranStatusCard
 
     ##
     # Gets the disability rating from Lighthouse API
+    # Returns nil if service call fails or user missing ICN
     #
-    # @return [Integer] the combined disability rating percentage from Lighthouse
+    # @return [Integer, nil] the combined disability rating percentage from Lighthouse or nil on error
     #
     def lighthouse_rating
+      return nil if @user.icn.blank?
+
       lighthouse_disabilities_provider.get_combined_disability_rating
+    rescue => e
+      Rails.logger.error("Lighthouse disabilities error: #{e.message}", backtrace: e.backtrace)
+      nil
     end
 
     ##
@@ -160,11 +182,17 @@ module VeteranStatusCard
 
     ##
     # Gets the disability rating from EVSS API
+    # Returns nil if service call fails
     #
-    # @return [Integer] the combined disability rating percentage from EVSS
+    # @return [Integer, nil] the combined disability rating percentage from EVSS or nil on error
     #
     def evss_rating
+      return nil if auth_headers.nil?
+
       evss_service.get_rating_info
+    rescue => e
+      Rails.logger.error("EVSS rating error: #{e.message}", backtrace: e.backtrace)
+      nil
     end
 
     ##
@@ -178,30 +206,40 @@ module VeteranStatusCard
 
     ##
     # Builds the authentication headers required for EVSS API calls
+    # Returns nil if header generation fails
     #
-    # @return [Hash] the combined authentication headers
+    # @return [Hash, nil] the combined authentication headers or nil on error
     #
     def auth_headers
       EVSS::DisabilityCompensationAuthHeaders.new(@user).add_headers(EVSS::AuthHeaders.new(@user).to_h)
+    rescue => e
+      Rails.logger.error("EVSS auth headers error: #{e.message}", backtrace: e.backtrace)
+      nil
     end
 
     ##
     # Gets the user's most recent military service history
+    # Returns hash with nil values if service call fails
     #
     # @return [Hash] service history with keys :branch_of_service, :latest_service_date_range
     #   - :branch_of_service [String, nil] the branch of service (e.g., 'Army')
     #   - :latest_service_date_range [Hash, nil] with :begin_date and :end_date
     #
     def latest_service_history
+      return { branch_of_service: nil, latest_service_date_range: nil } if @user.edipi.blank?
+
       response = military_personnel_service.get_service_history
 
       # Get the most recent service episode (episodes are sorted by begin_date, oldest first)
-      last_service = response.episodes.last
+      last_service = response&.episodes&.last
 
       {
         branch_of_service: last_service&.branch_of_service,
         latest_service_date_range: format_service_date_range(last_service)
       }
+    rescue => e
+      Rails.logger.error("VAProfile::MilitaryPersonnel (Service History) error: #{e.message}", backtrace: e.backtrace)
+      { branch_of_service: nil, latest_service_date_range: nil }
     end
 
     ##
@@ -242,25 +280,43 @@ module VeteranStatusCard
 
     ##
     # Gets the DoD service summary data (memoized)
+    # Returns hash with empty strings if response unavailable
     #
     # @return [Hash] service summary with keys :dod_service_summary_code,
     #   :calculation_model_version, :effective_start_date
     #
     def dod_service_summary
-      @dod_service_summary ||= {
-        dod_service_summary_code: military_personnel_response.dod_service_summary&.dod_service_summary_code || '',
-        calculation_model_version: military_personnel_response.dod_service_summary&.calculation_model_version || '',
-        effective_start_date: military_personnel_response.dod_service_summary&.effective_start_date || ''
-      }
+      @dod_service_summary ||= begin
+        response = military_personnel_response
+        if response.nil?
+          { dod_service_summary_code: '', calculation_model_version: '', effective_start_date: '' }
+        else
+          {
+            dod_service_summary_code: response.dod_service_summary&.dod_service_summary_code || '',
+            calculation_model_version: response.dod_service_summary&.calculation_model_version || '',
+            effective_start_date: response.dod_service_summary&.effective_start_date || ''
+          }
+        end
+      end
     end
 
     ##
     # Gets the military personnel response for DoD service summary (memoized)
+    # Returns nil if service call fails or user missing required data
     #
-    # @return [VAProfile::MilitaryPersonnel::DodServiceSummaryResponse] the API response
+    # @return [VAProfile::MilitaryPersonnel::DodServiceSummaryResponse, nil] the API response or nil on error
     #
     def military_personnel_response
-      @military_personnel_response ||= military_personnel_service.get_dod_service_summary
+      return @military_personnel_response if defined?(@military_personnel_response)
+
+      @military_personnel_response = begin
+        return nil if @user.edipi.blank?
+
+        military_personnel_service.get_dod_service_summary
+      rescue => e
+        Rails.logger.error("VAProfile::MilitaryPersonnel (DoD Summary) error: #{e.message}", backtrace: e.backtrace)
+        nil
+      end
     end
 
     ##
@@ -292,26 +348,50 @@ module VeteranStatusCard
 
     ##
     # Gets the parsed vet verification status data (memoized)
+    # Returns hash with nil values if verification response is unavailable
     #
     # @return [Hash] verification status with keys :veteran_status, :reason, :message, :title, :status
     #
     def vet_verification_status
-      @vet_verification_status ||= {
-        veteran_status: vet_verification_response.dig('data', 'attributes', 'veteran_status'),
-        reason: vet_verification_response.dig('data', 'attributes', 'not_confirmed_reason'),
-        message: vet_verification_response.dig('data', 'message'),
-        title: vet_verification_response.dig('data', 'title'),
-        status: vet_verification_response.dig('data', 'status')
-      }
+      @vet_verification_status ||= begin
+        response = vet_verification_response
+        if response.nil?
+          {
+            veteran_status: nil,
+            reason: VET_STATUS_ERROR_TEXT,
+            message: VeteranVerification::Constants::ERROR_MESSAGE,
+            title: VeteranVerification::Constants::ERROR_MESSAGE_TITLE,
+            status: VeteranVerification::Constants::ERROR_MESSAGE_STATUS
+          }
+        else
+          {
+            veteran_status: response.dig('data', 'attributes', 'veteran_status'),
+            reason: response.dig('data', 'attributes', 'not_confirmed_reason'),
+            message: response.dig('data', 'message'),
+            title: response.dig('data', 'title'),
+            status: response.dig('data', 'status')
+          }
+        end
+      end
     end
 
     ##
     # Gets the raw vet verification response from the API (memoized)
+    # Returns nil if service call fails or user missing required data
     #
-    # @return [Hash] the raw API response
+    # @return [Hash, nil] the raw API response or nil on error
     #
     def vet_verification_response
-      @vet_verification_response ||= vet_verification_service.get_vet_verification_status(@user.icn)
+      return @vet_verification_response if defined?(@vet_verification_response)
+
+      @vet_verification_response = begin
+        return nil if @user.icn.blank?
+
+        vet_verification_service.get_vet_verification_status(@user.icn)
+      rescue => e
+        Rails.logger.error("VeteranVerification::Service error: #{e.message}", backtrace: e.backtrace)
+        nil
+      end
     end
 
     ##
@@ -321,6 +401,21 @@ module VeteranStatusCard
     #
     def vet_verification_service
       @vet_verification_service ||= VeteranVerification::Service.new
+    end
+
+    ##
+    # Converts a Constants response to the expected hash format
+    #
+    # @param response [Hash] the Constants response
+    # @return [Hash] formatted error response with :confirmed, :title, :message, :status
+    #
+    def error_response_hash(response)
+      {
+        confirmed: false,
+        title: response[:title],
+        message: response[:message],
+        status: response[:status]
+      }
     end
   end
 end

@@ -138,6 +138,155 @@ RSpec.describe VeteranStatusCard::Service do
           end
         end
       end
+
+      context 'disability rating scenarios' do
+        let(:veteran_status) { 'confirmed' }
+
+        context 'when using Lighthouse (feature flag enabled)' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
+          end
+
+          it 'returns disability rating from Lighthouse' do
+            expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(75)
+            expect(evss_service).not_to receive(:get_rating_info)
+
+            result = subject.status_card
+
+            expect(result[:confirmed]).to be true
+            expect(result[:user_percent_of_disability]).to eq(75)
+          end
+
+          it 'returns nil when Lighthouse rating is nil' do
+            allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(nil)
+
+            result = subject.status_card
+
+            expect(result[:confirmed]).to be true
+            expect(result[:user_percent_of_disability]).to be_nil
+          end
+        end
+
+        context 'when using EVSS (feature flag disabled)' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
+          end
+
+          it 'returns disability rating from EVSS' do
+            expect(evss_service).to receive(:get_rating_info).and_return(60)
+            expect(lighthouse_disabilities_provider).not_to receive(:get_combined_disability_rating)
+
+            result = subject.status_card
+
+            expect(result[:confirmed]).to be true
+            expect(result[:user_percent_of_disability]).to eq(60)
+          end
+
+          it 'returns nil when EVSS rating is nil' do
+            allow(evss_service).to receive(:get_rating_info).and_return(nil)
+
+            result = subject.status_card
+
+            expect(result[:confirmed]).to be true
+            expect(result[:user_percent_of_disability]).to be_nil
+          end
+        end
+      end
+
+      context 'service history scenarios' do
+        let(:veteran_status) { 'confirmed' }
+
+        it 'returns complete service history with date range' do
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be true
+          expect(result[:latest_service_history]).to be_present
+          expect(result[:latest_service_history][:branch_of_service]).to eq('Army')
+          expect(result[:latest_service_history][:latest_service_date_range]).to be_present
+          expect(result[:latest_service_history][:latest_service_date_range][:begin_date]).to eq('2010-01-01')
+          expect(result[:latest_service_history][:latest_service_date_range][:end_date]).to eq('2015-12-31')
+        end
+
+        context 'with multiple service episodes' do
+          let(:service_episodes) do
+            [
+              VAProfile::Models::ServiceHistory.new(
+                branch_of_service: 'Army',
+                begin_date: '2000-01-01',
+                end_date: '2005-12-31'
+              ),
+              VAProfile::Models::ServiceHistory.new(
+                branch_of_service: 'Navy',
+                begin_date: '2010-01-01',
+                end_date: '2015-12-31'
+              ),
+              VAProfile::Models::ServiceHistory.new(
+                branch_of_service: 'Air Force',
+                begin_date: '2018-01-01',
+                end_date: '2023-12-31'
+              )
+            ]
+          end
+
+          it 'returns the most recent service episode' do
+            result = subject.status_card
+
+            expect(result[:confirmed]).to be true
+            expect(result[:latest_service_history][:branch_of_service]).to eq('Air Force')
+            expect(result[:latest_service_history][:latest_service_date_range][:begin_date]).to eq('2018-01-01')
+            expect(result[:latest_service_history][:latest_service_date_range][:end_date]).to eq('2023-12-31')
+          end
+        end
+
+        context 'with empty episodes array' do
+          let(:service_episodes) { [] }
+
+          it 'returns nil values for service history' do
+            result = subject.status_card
+
+            expect(result[:confirmed]).to be true
+            expect(result[:latest_service_history][:branch_of_service]).to be_nil
+            expect(result[:latest_service_history][:latest_service_date_range]).to be_nil
+          end
+        end
+
+        context 'when user is missing EDIPI' do
+          before do
+            allow(user).to receive(:edipi).and_return(nil)
+          end
+
+          it 'returns nil values for service history' do
+            result = subject.status_card
+
+            expect(result[:confirmed]).to be true
+            expect(result[:latest_service_history][:branch_of_service]).to be_nil
+            expect(result[:latest_service_history][:latest_service_date_range]).to be_nil
+          end
+        end
+      end
+
+      context 'complete data structure validation' do
+        let(:veteran_status) { 'confirmed' }
+
+        it 'returns all expected fields with correct types' do
+          result = subject.status_card
+
+          expect(result).to be_a(Hash)
+          expect(result.keys).to contain_exactly(:confirmed, :full_name, :user_percent_of_disability, :latest_service_history)
+
+          expect(result[:confirmed]).to eq(true)
+          expect(result[:full_name]).to be_a(Hash)
+          expect(result[:full_name].keys).to include(:first, :last)
+          expect(result[:user_percent_of_disability]).to be_a(Integer)
+
+          expect(result[:latest_service_history]).to be_a(Hash)
+          expect(result[:latest_service_history].keys).to contain_exactly(:branch_of_service, :latest_service_date_range)
+          expect(result[:latest_service_history][:branch_of_service]).to be_a(String)
+
+          expect(result[:latest_service_history][:latest_service_date_range]).to be_a(Hash)
+          expect(result[:latest_service_history][:latest_service_date_range].keys).to contain_exactly(:begin_date, :end_date)
+        end
+      end
     end
 
     context 'when veteran is not eligible' do
@@ -175,44 +324,6 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'with MORE_RESEARCH_REQUIRED reason and TBD SSC codes' do
-        let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
-
-        described_class::TBD_SSC_CODES.each do |code|
-          context "with SSC code #{code}" do
-            let(:ssc_code) { code }
-
-            it 'returns error response with default messaging' do
-              result = subject.status_card
-
-              expect(result[:confirmed]).to be false
-              expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-              expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-              expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
-            end
-          end
-        end
-      end
-
-      context 'with NOT_TITLE_38 reason and TBD SSC codes' do
-        let(:not_confirmed_reason) { 'NOT_TITLE_38' }
-
-        described_class::TBD_SSC_CODES.each do |code|
-          context "with SSC code #{code}" do
-            let(:ssc_code) { code }
-
-            it 'returns error response with default messaging' do
-              result = subject.status_card
-
-              expect(result[:confirmed]).to be false
-              expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-              expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-              expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
-            end
-          end
-        end
-      end
-
       context 'with DISHONORABLE SSC codes' do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
 
@@ -224,9 +335,28 @@ RSpec.describe VeteranStatusCard::Service do
               result = subject.status_card
 
               expect(result[:confirmed]).to be false
-              expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-              expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-              expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+              expect(result[:title]).to eq(VeteranStatusCard::Constants::DISHONORABLE_TITLE)
+              expect(result[:message]).to eq(VeteranStatusCard::Constants::DISHONORABLE_MESSAGE)
+              expect(result[:status]).to eq(VeteranStatusCard::Constants::DISHONORABLE_STATUS)
+            end
+          end
+        end
+      end
+
+      context 'with INELIGIBLE_SERVICE SSC codes' do
+        let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+
+        described_class::INELIGIBLE_SERVICE_SSC_CODES.each do |code|
+          context "with SSC code #{code}" do
+            let(:ssc_code) { code }
+
+            it 'returns error response for ineligible service' do
+              result = subject.status_card
+
+              expect(result[:confirmed]).to be false
+              expect(result[:title]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_TITLE)
+              expect(result[:message]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_MESSAGE)
+              expect(result[:status]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_STATUS)
             end
           end
         end
@@ -240,9 +370,9 @@ RSpec.describe VeteranStatusCard::Service do
           result = subject.status_card
 
           expect(result[:confirmed]).to be false
-          expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-          expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-          expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+          expect(result[:title]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_TITLE)
+          expect(result[:message]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_MESSAGE)
+          expect(result[:status]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_STATUS)
         end
       end
 
@@ -254,23 +384,28 @@ RSpec.describe VeteranStatusCard::Service do
           result = subject.status_card
 
           expect(result[:confirmed]).to be false
-          expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-          expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-          expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+          expect(result[:title]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_TITLE)
+          expect(result[:message]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_MESSAGE)
+          expect(result[:status]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_STATUS)
         end
       end
 
-      context 'with CURRENTLY_SERVING SSC code' do
+      context 'with CURRENTLY_SERVING SSC codes' do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
-        let(:ssc_code) { 'D^' }
 
-        it 'returns error response for currently serving' do
-          result = subject.status_card
+        described_class::CURRENTLY_SERVING_CODES.each do |code|
+          context "with SSC code #{code}" do
+            let(:ssc_code) { code }
 
-          expect(result[:confirmed]).to be false
-          expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-          expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-          expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+            it 'returns error response for currently serving' do
+              result = subject.status_card
+
+              expect(result[:confirmed]).to be false
+              expect(result[:title]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_TITLE)
+              expect(result[:message]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_MESSAGE)
+              expect(result[:status]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_STATUS)
+            end
+          end
         end
       end
 
@@ -285,9 +420,9 @@ RSpec.describe VeteranStatusCard::Service do
               result = subject.status_card
 
               expect(result[:confirmed]).to be false
-              expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-              expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-              expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+              expect(result[:title]).to eq(VeteranStatusCard::Constants::ERROR_TITLE)
+              expect(result[:message]).to eq(VeteranStatusCard::Constants::ERROR_MESSAGE)
+              expect(result[:status]).to eq(VeteranStatusCard::Constants::ERROR_STATUS)
             end
           end
         end
@@ -588,6 +723,349 @@ RSpec.describe VeteranStatusCard::Service do
 
       # ssc_code depends on dod_service_summary which should only be called once
       expect(military_personnel_service).to have_received(:get_dod_service_summary).once
+    end
+  end
+
+  describe 'error scenarios' do
+    describe 'service exceptions' do
+      context 'when VeteranVerification::Service raises exception' do
+        before do
+          allow(vet_verification_service).to receive(:get_vet_verification_status)
+            .and_raise(StandardError.new('Vet verification failed'))
+        end
+
+        it 'logs the error and returns error response' do
+          expect(Rails.logger).to receive(:error).with(/VeteranVerification::Service error/, anything)
+
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be false
+          expect(result[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
+          expect(result[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
+          expect(result[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+        end
+      end
+
+      context 'when VAProfile MilitaryPersonnel (DoD Summary) raises exception' do
+        before do
+          allow(military_personnel_service).to receive(:get_dod_service_summary)
+            .and_raise(StandardError.new('DoD summary failed'))
+        end
+
+        it 'logs the error and returns empty SSC code' do
+          expect(Rails.logger).to receive(:error).with(/VAProfile::MilitaryPersonnel \(DoD Summary\) error/, anything)
+
+          ssc = subject.send(:ssc_code)
+
+          expect(ssc).to eq('')
+        end
+      end
+
+      context 'when VAProfile MilitaryPersonnel (Service History) raises exception' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(military_personnel_service).to receive(:get_service_history)
+            .and_raise(StandardError.new('Service history failed'))
+        end
+
+        it 'logs the error and returns nil service history' do
+          expect(Rails.logger).to receive(:error).with(/VAProfile::MilitaryPersonnel \(Service History\) error/, anything)
+
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be true
+          expect(result[:latest_service_history][:branch_of_service]).to be_nil
+          expect(result[:latest_service_history][:latest_service_date_range]).to be_nil
+        end
+      end
+
+      context 'when Lighthouse disabilities provider raises exception' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
+          allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating)
+            .and_raise(StandardError.new('Lighthouse failed'))
+        end
+
+        it 'logs the error and returns nil rating' do
+          expect(Rails.logger).to receive(:error).with(/Lighthouse disabilities error/, anything)
+
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be true
+          expect(result[:user_percent_of_disability]).to be_nil
+        end
+      end
+
+      context 'when EVSS service raises exception' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
+          allow(evss_service).to receive(:get_rating_info)
+            .and_raise(StandardError.new('EVSS failed'))
+        end
+
+        it 'logs the error and returns nil rating' do
+          expect(Rails.logger).to receive(:error).with(/EVSS rating error/, anything)
+
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be true
+          expect(result[:user_percent_of_disability]).to be_nil
+        end
+      end
+
+      context 'when EVSS auth headers generation fails' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
+          allow(EVSS::DisabilityCompensationAuthHeaders).to receive(:new)
+            .and_raise(StandardError.new('Auth headers failed'))
+        end
+
+        it 'logs the error and returns nil rating' do
+          expect(Rails.logger).to receive(:error).with(/EVSS auth headers error/, anything)
+
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be true
+          expect(result[:user_percent_of_disability]).to be_nil
+        end
+      end
+
+      context 'when top-level exception occurs' do
+        before do
+          allow(subject).to receive(:eligible?).and_raise(StandardError.new('Unexpected error'))
+        end
+
+        it 'logs the error and returns SOMETHING_WENT_WRONG_RESPONSE' do
+          expect(Rails.logger).to receive(:error).with(/VeteranStatusCard::Service error/, anything)
+
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be false
+          expect(result[:title]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
+          expect(result[:message]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
+          expect(result[:status]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
+        end
+      end
+    end
+
+    describe 'missing user data' do
+      context 'when user is nil' do
+        subject { described_class.new(nil) }
+
+        it 'returns SOMETHING_WENT_WRONG_RESPONSE' do
+          result = subject.status_card
+
+          expect(result[:confirmed]).to be false
+          expect(result[:title]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
+          expect(result[:message]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
+          expect(result[:status]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
+        end
+      end
+
+      context 'when user missing ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'vet_verification_response returns nil' do
+          expect(subject.send(:vet_verification_response)).to be_nil
+        end
+
+        it 'vet_verification_status has ERROR reason' do
+          status = subject.send(:vet_verification_status)
+
+          expect(status[:veteran_status]).to be_nil
+          expect(status[:reason]).to eq('ERROR')
+        end
+
+        it 'lighthouse_rating returns nil' do
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
+
+          expect(subject.send(:lighthouse_rating)).to be_nil
+        end
+      end
+
+      context 'when user missing EDIPI' do
+        before do
+          allow(user).to receive(:edipi).and_return(nil)
+        end
+
+        it 'military_personnel_response returns nil' do
+          expect(subject.send(:military_personnel_response)).to be_nil
+        end
+
+        it 'dod_service_summary returns empty strings' do
+          summary = subject.send(:dod_service_summary)
+
+          expect(summary[:dod_service_summary_code]).to eq('')
+          expect(summary[:calculation_model_version]).to eq('')
+          expect(summary[:effective_start_date]).to eq('')
+        end
+
+        it 'latest_service_history returns nil values' do
+          history = subject.send(:latest_service_history)
+
+          expect(history[:branch_of_service]).to be_nil
+          expect(history[:latest_service_date_range]).to be_nil
+        end
+      end
+    end
+
+    describe 'nil responses from services' do
+      context 'when vet_verification_service returns nil' do
+        before do
+          allow(vet_verification_service).to receive(:get_vet_verification_status).and_return(nil)
+        end
+
+        it 'vet_verification_status handles nil gracefully' do
+          status = subject.send(:vet_verification_status)
+
+          expect(status[:veteran_status]).to be_nil
+          expect(status[:reason]).to eq('ERROR')
+          expect(status[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
+          expect(status[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
+          expect(status[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+        end
+      end
+
+      context 'when military_personnel_service.get_dod_service_summary returns nil' do
+        before do
+          allow(military_personnel_service).to receive(:get_dod_service_summary).and_return(nil)
+        end
+
+        it 'dod_service_summary returns empty strings' do
+          summary = subject.send(:dod_service_summary)
+
+          expect(summary[:dod_service_summary_code]).to eq('')
+        end
+      end
+
+      context 'when military_personnel_service.get_service_history returns nil' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(military_personnel_service).to receive(:get_service_history).and_return(nil)
+        end
+
+        it 'latest_service_history returns nil values' do
+          result = subject.status_card
+
+          expect(result[:latest_service_history][:branch_of_service]).to be_nil
+          expect(result[:latest_service_history][:latest_service_date_range]).to be_nil
+        end
+      end
+
+      context 'when service_history response has nil episodes' do
+        let(:veteran_status) { 'confirmed' }
+        let(:service_history_response) do
+          instance_double(
+            VAProfile::MilitaryPersonnel::ServiceHistoryResponse,
+            episodes: nil
+          )
+        end
+
+        it 'latest_service_history handles nil episodes' do
+          result = subject.status_card
+
+          expect(result[:latest_service_history][:branch_of_service]).to be_nil
+        end
+      end
+
+      context 'when lighthouse returns nil rating' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
+          allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(nil)
+        end
+
+        it 'disability_rating is nil' do
+          result = subject.status_card
+
+          expect(result[:user_percent_of_disability]).to be_nil
+        end
+      end
+
+      context 'when EVSS returns nil rating' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
+          allow(evss_service).to receive(:get_rating_info).and_return(nil)
+        end
+
+        it 'disability_rating is nil' do
+          result = subject.status_card
+
+          expect(result[:user_percent_of_disability]).to be_nil
+        end
+      end
+    end
+
+    describe 'malformed responses' do
+      context 'when vet_verification_response missing data key' do
+        before do
+          allow(vet_verification_service).to receive(:get_vet_verification_status)
+            .and_return({ 'error' => 'something went wrong' })
+        end
+
+        it 'handles missing keys gracefully with dig' do
+          status = subject.send(:vet_verification_status)
+
+          expect(status[:veteran_status]).to be_nil
+          expect(status[:reason]).to be_nil
+        end
+      end
+
+      context 'when dod_service_summary_response missing dod_service_summary' do
+        let(:dod_service_summary_model) { nil }
+
+        it 'returns empty strings for all fields' do
+          summary = subject.send(:dod_service_summary)
+
+          expect(summary[:dod_service_summary_code]).to eq('')
+          expect(summary[:calculation_model_version]).to eq('')
+          expect(summary[:effective_start_date]).to eq('')
+        end
+      end
+
+      context 'when service episodes are empty array' do
+        let(:veteran_status) { 'confirmed' }
+        let(:service_episodes) { [] }
+
+        it 'returns nil service history values' do
+          result = subject.status_card
+
+          expect(result[:latest_service_history][:branch_of_service]).to be_nil
+          expect(result[:latest_service_history][:latest_service_date_range]).to be_nil
+        end
+      end
+    end
+
+    describe 'error response formatting' do
+      it 'error_response_hash formats Constants response correctly' do
+        constants_response = {
+          title: 'Test Title',
+          message: ['Test Message'],
+          status: 'error'
+        }
+
+        result = subject.send(:error_response_hash, constants_response)
+
+        expect(result).to eq({
+          confirmed: false,
+          title: 'Test Title',
+          message: ['Test Message'],
+          status: 'error'
+        })
+      end
     end
   end
 end

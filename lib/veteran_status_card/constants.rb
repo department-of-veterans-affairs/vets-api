@@ -34,15 +34,6 @@ module VeteranStatusCard
       status: INELIGIBLE_SERVICE_STATUS
     }.freeze
 
-    TBD_TITLE = ''
-    TBD_MESSAGE = [].freeze
-    TBD_STATUS = 'warning'
-    TBD_RESPONSE = {
-      title: TBD_TITLE,
-      message: TBD_MESSAGE,
-      status: TBD_STATUS
-    }.freeze
-
     UNKNOWN_SERVICE_TITLE = STANDARD_ERROR_TITLE
     UNKNOWN_SERVICE_MESSAGE = [
       'Your record is missing information about your service history or discharge status.',
@@ -101,6 +92,21 @@ module VeteranStatusCard
       title: ERROR_TITLE,
       message: ERROR_MESSAGE,
       status: ERROR_STATUS
+    }.freeze
+
+    SOMETHING_WENT_WRONG_TITLE = "We're sorry, something went wrong."
+    SOMETHING_WENT_WRONG_MESSAGE = [
+      'Something went wrong on our end. Please try again later.',
+      "If this problem persists, contact VA.gov technical support. We're open Monday through Friday, 8:00 a.m. to \
+      8:00 p.m. E.T.",
+      '866-279-3677',
+      'TTY: 711'
+    ].freeze
+    SOMETHING_WENT_WRONG_STATUS = 'error'
+    SOMETHING_WENT_WRONG_RESPONSE = {
+      title: SOMETHING_WENT_WRONG_TITLE,
+      message: SOMETHING_WENT_WRONG_MESSAGE,
+      status: SOMETHING_WENT_WRONG_STATUS
     }.freeze
   end
 end
