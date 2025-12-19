@@ -30,7 +30,7 @@ module SafeSemanticLogging
     return false unless database_exists?
 
     Flipper.enabled?(:safe_semantic_logging)
-  rescue StandardError => e
+  rescue => e
     Rails.logger.warn("SafeSemanticLogging: Error checking feature flag - #{e.message}")
     false
   end
