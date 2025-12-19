@@ -38,7 +38,7 @@ module VeteranFacingServices
       # @see ClaimVANotification
       #
       # @param email_type [Symbol] the type of email to deliver; one defined in Settings
-      # @param saved_claim_id [Integer] the claim id for which to send a notification; overrides the id provided at initialization
+      # @param saved_claim_id [Integer] the claim id; overrides the id provided at initialization
       # @param personalization [Hash] the fields to populate in the email template; @see #personalization
       # @param resend [Boolean] if the email should be resent, overrides duplicate_attempt check
       #
