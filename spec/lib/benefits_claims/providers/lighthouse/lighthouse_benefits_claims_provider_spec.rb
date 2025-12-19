@@ -3,10 +3,12 @@
 require 'rails_helper'
 require 'benefits_claims/providers/lighthouse/lighthouse_benefits_claims_provider'
 require 'benefits_claims/responses/claim_response'
+require 'support/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider do
   let(:current_user) { build(:user, :loa3, icn: '1234567890V123456') }
   let(:provider) { described_class.new(current_user) }
+  subject { provider }
   let(:mock_service) { instance_double(BenefitsClaims::Service) }
   let(:mock_config) { instance_double(BenefitsClaims::Configuration) }
 
@@ -156,6 +158,9 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
     allow(mock_config).to receive(:base_api_path)
       .and_return("https://sandbox-api.va.gov/#{BenefitsClaims::Configuration::CLAIMS_PATH}")
   end
+
+  # Validate interface contract compliance
+  it_behaves_like 'benefits claims provider'
 
   describe '#initialize' do
     it 'initializes with a user and creates a service' do
