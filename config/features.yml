@@ -207,10 +207,6 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  ezr_download_pdf_enabled:
-    actor_type: user
-    description: Enables the download of a pre-filled 10-10EZR PDF form.
-    enable_in_development: true
   ezr_upload_enabled:
     actor_type: user
     description: Enables Toxic Exposure File Upload for 10-10EZR applicants.
