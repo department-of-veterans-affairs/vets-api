@@ -32,7 +32,7 @@ module BenefitsClaims
       attribute :friendly_name, String
       attribute :friendly_description, String
       attribute :can_upload_file, Bool
-      attribute :support_aliases, Array
+      attribute :support_aliases, String, array: true
       attribute :documents, String
       attribute :date, String
     end
