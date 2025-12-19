@@ -135,7 +135,7 @@ PATH
       sidekiq
     vass (0.0.1)
     vba_documents (1.0.0)
-      aws-sdk-s3 (~> 1)
+      aws-sdk-s3 (>= 1.208.0, < 2)
       sidekiq
     veteran (0.0.1)
     vre (0.1.0)
@@ -270,7 +270,7 @@ GEM
     aws-sdk-kms (1.118.0)
       aws-sdk-core (~> 3, >= 3.239.1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.206.0)
+    aws-sdk-s3 (1.208.0)
       aws-sdk-core (~> 3, >= 3.234.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -1263,7 +1263,7 @@ DEPENDENCIES
   awesome_print
   aws-msk-iam-sasl-signer (~> 0.1.1)
   aws-sdk-kms
-  aws-sdk-s3 (~> 1)
+  aws-sdk-s3 (>= 1.208.0, < 2)
   aws-sdk-sns (~> 1)
   banners!
   betamocks!
