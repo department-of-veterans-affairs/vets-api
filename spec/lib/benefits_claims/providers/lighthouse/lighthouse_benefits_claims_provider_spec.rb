@@ -79,7 +79,20 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
           'displayName' => 'PMR Pending',
           'status' => 'NEEDED_FROM_YOU',
           'suspenseDate' => '2022-12-07',
-          'type' => 'still_need_from_you_list'
+          'type' => 'still_need_from_you_list',
+          'closedDate' => nil,
+          'description' => 'Please submit your private medical records',
+          'overdue' => false,
+          'receivedDate' => nil,
+          'requestedDate' => '2022-11-01',
+          'uploadsAllowed' => true,
+          'uploaded' => false,
+          'friendlyName' => 'Private Medical Records',
+          'friendlyDescription' => 'We need your medical records from private providers',
+          'canUploadFile' => true,
+          'supportAliases' => ['PMR Request', 'General Records Request (Medical)'],
+          'documents' => '[]',
+          'date' => '2022-11-01'
         }
       ]
     }
@@ -124,6 +137,16 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
 
       expect(attrs['trackedItems']).to be_an(Array)
       expect(attrs['trackedItems'].length).to eq(comprehensive_claim_attributes['trackedItems'].length)
+
+      # Verify tracked item fields are preserved
+      tracked_item = attrs['trackedItems'].first
+      expected_tracked_item = comprehensive_claim_attributes['trackedItems'].first
+      expect(tracked_item['id']).to eq(expected_tracked_item['id'])
+      expect(tracked_item['displayName']).to eq(expected_tracked_item['displayName'])
+      expect(tracked_item['status']).to eq(expected_tracked_item['status'])
+      expect(tracked_item['friendlyName']).to eq(expected_tracked_item['friendlyName'])
+      expect(tracked_item['supportAliases']).to eq(expected_tracked_item['supportAliases'])
+      expect(tracked_item['canUploadFile']).to eq(expected_tracked_item['canUploadFile'])
     end
   end
 
