@@ -354,6 +354,15 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
     let(:slug) { 'conviction-details' }
     let(:path) { "/accredited_representative_portal/v0/form21a/#{slug}" }
 
+    let!(:in_progress_form) do
+      create(
+        :in_progress_form,
+        form_id: '21a',
+        user_uuid: representative_user.uuid,
+        form_data: {}.to_json
+      )
+    end
+
     before do
       allow(Flipper).to receive(:enabled?)
         .with(:accredited_representative_portal_form_21a)
@@ -391,10 +400,11 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
       it 'returns 404 and does not process the file' do
         expect(Rails.logger).not_to receive(:info).with(
-          a_string_including('Received Form21a details submission')
+          a_string_including('Form21aController: Received details upload')
         )
 
-        post(path, params: { file: }, headers:)
+        expect { post(path, params: { file: }, headers:) }
+          .not_to change(AccreditedRepresentativePortal::Form21aAttachment, :count)
 
         expect(response).to have_http_status(:not_found)
         expect(parsed_response).to match(
@@ -408,27 +418,90 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       end
     end
 
-    context 'with a valid slug and file' do
-      it 'returns confirmation data and logs receipt' do
-        expect(Rails.logger).to receive(:info).with(
-          a_string_including("Received Form21a details submission for: #{slug}")
-        )
+    context 'when attachment fails validation' do
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::Form21aAttachment)
+          .to receive(:save!)
+          .and_raise(ActiveRecord::RecordInvalid.new(
+                       AccreditedRepresentativePortal::Form21aAttachment.new
+                     ))
+      end
 
+      it 'returns unprocessable entity with generic error message' do
         make_post_request
 
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response['errors']).to eq('Unable to store document')
+      end
+    end
+
+    context 'when file upload fails integrity checks' do
+      let(:file) do
+        fixture_file_upload(
+          Rails.root.join('modules',
+                          'accredited_representative_portal',
+                          'spec',
+                          'fixtures',
+                          'files',
+                          'invalid_21a_extension.png'),
+          'image/png'
+        )
+      end
+
+      it 'returns unprocessable entity with error message' do
+        make_post_request
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response['errors']).to be_present
+      end
+    end
+
+    context 'with a valid slug and file' do
+      it 'creates an attachment, updates the in-progress form, and returns confirmation data' do
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        expect do
+          make_post_request
+        end.to change(AccreditedRepresentativePortal::Form21aAttachment, :count).by(1)
+
+        expect(Rails.logger).to have_received(:info).with(
+          a_string_including(
+            "Form21aController: Received details upload for slug=#{slug} user_uuid=#{representative_user.uuid}"
+          )
+        )
+
         expect(response).to have_http_status(:ok)
-        expect(parsed_response.dig('data', 'attributes', 'confirmationCode')).to be_present
-        expect(parsed_response.dig('data', 'attributes', 'name')).to eq('21_686c_empty_form.pdf')
-        expect(parsed_response.dig('data', 'attributes', 'fileType')).to eq('application/pdf')
+
+        attrs = parsed_response.fetch('data').fetch('attributes')
+        expect(attrs['confirmationCode']).to be_present
+        expect(attrs['name']).to eq('21_686c_empty_form.pdf')
+        expect(attrs['size']).to eq(file.size)
+        expect(attrs['type']).to eq('application/pdf')
+        expect(attrs['errorMessage']).to eq('')
+
+        in_progress_form.reload
+        form_data = JSON.parse(in_progress_form.form_data)
+
+        documents = form_data['imprisonedDetailsDocuments']
+        expect(documents).to be_an(Array)
+        expect(documents.size).to eq(1)
+
+        document = documents.first
+        expect(document['name']).to eq('21_686c_empty_form.pdf')
+        expect(document['size']).to eq(file.size)
+        expect(document['type']).to eq('application/pdf')
+        expect(document['confirmationCode']).to eq(attrs['confirmationCode'])
       end
     end
 
     context 'when file is missing' do
       subject(:make_post_request) { post(path, params: {}, headers:) }
 
-      it 'returns a bad request' do
+      it 'returns a bad request with an error message' do
         make_post_request
+
         expect(response).to have_http_status(:bad_request)
+        expect(parsed_response).to eq('errors' => 'file is required')
       end
     end
 
@@ -450,6 +523,19 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       end
 
       it 'returns 404' do
+        make_post_request
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when there is no in-progress form for the user' do
+      let!(:in_progress_form) { nil }
+
+      before do
+        InProgressForm.where(form_id: '21a', user_uuid: representative_user.uuid).delete_all
+      end
+
+      it 'returns 404 via routing_error' do
         make_post_request
         expect(response).to have_http_status(:not_found)
       end

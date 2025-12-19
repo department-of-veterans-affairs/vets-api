@@ -65,18 +65,18 @@ module IvcChampva
     def track_current_user_loa(current_user)
       current_user_loa = current_user&.loa&.[](:current) || 0
       StatsD.increment("#{STATS_KEY}.#{current_user_loa}")
-      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 rev2025 Current User LOA', current_user_loa:)
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 Current User LOA', current_user_loa:)
     end
 
     def track_email_usage
       email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
       StatsD.increment("#{STATS_KEY}.#{email_used}")
-      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 rev2025 Email Used', email_used:)
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 Email Used', email_used:)
     end
 
     def track_delegate_form(parent_form_id)
       StatsD.increment("#{STATS_KEY}.delegate_form.#{parent_form_id}")
-      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 rev2025 Delegate Form', parent_form_id:)
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 Delegate Form', parent_form_id:)
     end
 
     # rubocop:disable Naming/BlockForwarding

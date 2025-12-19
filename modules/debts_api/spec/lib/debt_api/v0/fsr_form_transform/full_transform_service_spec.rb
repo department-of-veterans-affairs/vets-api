@@ -16,6 +16,13 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::FullTransformService, type: :serv
         described_class.new(pre_transform_fsr_form_data).transform
       end
 
+      it 'reports streamlined and type' do
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.full_transform.no_streamlined_data')
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.none_streamlined_type')
+
+        transformed
+      end
+
       it 'generates personalIdentification' do
         expect(transformed['personalIdentification']).to eq(post_transform_fsr['personalIdentification'])
       end
