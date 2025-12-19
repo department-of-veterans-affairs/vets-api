@@ -2049,4 +2049,287 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
     end
   end
+
+  describe '#get_claims_from_providers' do
+    let(:mock_provider_class) { class_double('BenefitsClaims::Providers::MockProvider') }
+    let(:mock_provider) { instance_double('BenefitsClaims::Providers::MockProvider') }
+    let(:second_provider_class) { class_double('BenefitsClaims::Providers::SecondProvider') }
+    let(:second_provider) { instance_double('BenefitsClaims::Providers::SecondProvider') }
+
+    before do
+      controller.instance_variable_set(:@current_user, user)
+      allow(BenefitsClaims::Providers::ProviderRegistry)
+        .to receive(:enabled_provider_classes)
+        .and_return(providers)
+    end
+
+    context 'with single provider' do
+      let(:providers) { [mock_provider_class] }
+      let(:claims_response) do
+        {
+          'data' => [
+            { 'id' => '123', 'attributes' => { 'claimType' => 'Compensation' } }
+          ]
+        }
+      end
+
+      before do
+        allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+        allow(mock_provider).to receive(:get_claims).and_return(claims_response)
+      end
+
+      it 'returns claims from the single provider' do
+        result = controller.send(:get_claims_from_providers)
+
+        expect(result).to eq(claims_response)
+        expect(mock_provider).to have_received(:get_claims)
+      end
+    end
+
+    context 'with multiple providers' do
+      let(:providers) { [mock_provider_class, second_provider_class] }
+      let(:first_claims) do
+        {
+          'data' => [
+            { 'id' => '123', 'attributes' => { 'claimType' => 'Compensation' } }
+          ]
+        }
+      end
+      let(:second_claims) do
+        {
+          'data' => [
+            { 'id' => '456', 'attributes' => { 'claimType' => 'Pension' } }
+          ]
+        }
+      end
+
+      before do
+        allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+        allow(mock_provider).to receive(:get_claims).and_return(first_claims)
+        allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
+        allow(second_provider).to receive(:get_claims).and_return(second_claims)
+      end
+
+      it 'aggregates claims from all providers' do
+        result = controller.send(:get_claims_from_providers)
+
+        expect(result['data'].length).to eq(2)
+        expect(result['data'].map { |c| c['id'] }).to contain_exactly('123', '456')
+        expect(mock_provider).to have_received(:get_claims)
+        expect(second_provider).to have_received(:get_claims)
+      end
+
+      it 'does not include provider_errors in meta when all succeed' do
+        result = controller.send(:get_claims_from_providers)
+
+        expect(result['meta']).to eq({})
+      end
+    end
+
+    context 'with provider errors' do
+      let(:providers) { [mock_provider_class, second_provider_class] }
+      let(:error_message) { 'Provider temporarily unavailable' }
+      let(:second_claims) do
+        {
+          'data' => [
+            { 'id' => '456', 'attributes' => { 'claimType' => 'Pension' } }
+          ]
+        }
+      end
+
+      before do
+        allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+        allow(mock_provider).to receive(:get_claims).and_raise(StandardError, error_message)
+        allow(mock_provider_class).to receive(:name).and_return('MockProvider')
+        allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
+        allow(second_provider).to receive(:get_claims).and_return(second_claims)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'continues processing other providers' do
+        result = controller.send(:get_claims_from_providers)
+
+        expect(result['data'].length).to eq(1)
+        expect(result['data'].first['id']).to eq('456')
+      end
+
+      it 'includes provider errors in meta' do
+        result = controller.send(:get_claims_from_providers)
+
+        expect(result['meta']['provider_errors']).to be_present
+        expect(result['meta']['provider_errors'].first[:provider]).to eq('MockProvider')
+        expect(result['meta']['provider_errors'].first[:error]).to eq(error_message)
+      end
+
+      it 'logs the error' do
+        controller.send(:get_claims_from_providers)
+
+        expect(Rails.logger).to have_received(:error).with("Provider MockProvider failed: #{error_message}")
+      end
+
+      it 'increments StatsD metric' do
+        controller.send(:get_claims_from_providers)
+
+        expect(StatsD).to have_received(:increment).with(
+          'api.benefits_claims.provider_error',
+          hash_including(tags: array_including('provider:MockProvider'))
+        )
+      end
+    end
+
+    context 'when all providers fail' do
+      let(:providers) { [mock_provider_class, second_provider_class] }
+
+      before do
+        allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+        allow(mock_provider).to receive(:get_claims).and_raise(StandardError, 'Error 1')
+        allow(mock_provider_class).to receive(:name).and_return('MockProvider')
+        allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
+        allow(second_provider).to receive(:get_claims).and_raise(StandardError, 'Error 2')
+        allow(second_provider_class).to receive(:name).and_return('SecondProvider')
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'returns empty data array with errors in meta' do
+        result = controller.send(:get_claims_from_providers)
+
+        expect(result['data']).to eq([])
+        expect(result['meta']['provider_errors']).to be_present
+        expect(result['meta']['provider_errors'].length).to eq(2)
+      end
+    end
+  end
+
+  describe '#get_claim_from_providers' do
+    let(:claim_id) { '123456' }
+    let(:mock_provider_class) { class_double('BenefitsClaims::Providers::MockProvider') }
+    let(:mock_provider) { instance_double('BenefitsClaims::Providers::MockProvider') }
+    let(:second_provider_class) { class_double('BenefitsClaims::Providers::SecondProvider') }
+    let(:second_provider) { instance_double('BenefitsClaims::Providers::SecondProvider') }
+
+    before do
+      controller.instance_variable_set(:@current_user, user)
+      allow(BenefitsClaims::Providers::ProviderRegistry)
+        .to receive(:enabled_provider_classes)
+        .and_return(providers)
+    end
+
+    context 'with single provider' do
+      let(:providers) { [mock_provider_class] }
+      let(:claim_response) do
+        {
+          'data' => {
+            'id' => claim_id,
+            'attributes' => { 'claimType' => 'Compensation' }
+          }
+        }
+      end
+
+      before do
+        allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+        allow(mock_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
+      end
+
+      it 'returns claim from the provider' do
+        result = controller.send(:get_claim_from_providers, claim_id)
+
+        expect(result).to eq(claim_response)
+        expect(mock_provider).to have_received(:get_claim).with(claim_id)
+      end
+    end
+
+    context 'with multiple providers' do
+      let(:providers) { [mock_provider_class, second_provider_class] }
+      let(:claim_response) do
+        {
+          'data' => {
+            'id' => claim_id,
+            'attributes' => { 'claimType' => 'Compensation' }
+          }
+        }
+      end
+
+      context 'when first provider has the claim' do
+        before do
+          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+          allow(mock_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
+        end
+
+        it 'returns claim from first provider' do
+          result = controller.send(:get_claim_from_providers, claim_id)
+
+          expect(result).to eq(claim_response)
+          expect(mock_provider).to have_received(:get_claim).with(claim_id)
+        end
+
+        it 'does not call second provider' do
+          allow(second_provider_class).to receive(:new)
+
+          controller.send(:get_claim_from_providers, claim_id)
+
+          expect(second_provider_class).not_to have_received(:new)
+        end
+      end
+
+      context 'when first provider does not have claim but second does' do
+        before do
+          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+          allow(mock_provider).to receive(:get_claim).with(claim_id)
+                                                      .and_raise(Common::Exceptions::RecordNotFound, claim_id)
+          allow(mock_provider_class).to receive(:name).and_return('MockProvider')
+          allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
+          allow(second_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'returns claim from second provider' do
+          result = controller.send(:get_claim_from_providers, claim_id)
+
+          expect(result).to eq(claim_response)
+          expect(second_provider).to have_received(:get_claim).with(claim_id)
+        end
+
+        it 'logs info about first provider not having claim' do
+          controller.send(:get_claim_from_providers, claim_id)
+
+          expect(Rails.logger).to have_received(:info)
+            .with(a_string_matching(/Provider MockProvider doesn't have claim #{claim_id}/))
+        end
+      end
+
+      context 'when no provider has the claim' do
+        before do
+          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+          allow(mock_provider).to receive(:get_claim).with(claim_id)
+                                                      .and_raise(Common::Exceptions::RecordNotFound, claim_id)
+          allow(mock_provider_class).to receive(:name).and_return('MockProvider')
+          allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
+          allow(second_provider).to receive(:get_claim).with(claim_id)
+                                                       .and_raise(Common::Exceptions::RecordNotFound, claim_id)
+          allow(second_provider_class).to receive(:name).and_return('SecondProvider')
+          allow(Rails.logger).to receive(:info)
+        end
+
+        # TODO:: What happens if both providers have a claim with the same id? 
+
+        it 'raises RecordNotFound exception' do
+          expect do
+            controller.send(:get_claim_from_providers, claim_id)
+          end.to raise_error(Common::Exceptions::RecordNotFound)
+        end
+
+        it 'logs info about both providers not having claim' do
+          begin
+            controller.send(:get_claim_from_providers, claim_id)
+          rescue Common::Exceptions::RecordNotFound
+            # Expected
+          end
+
+          expect(Rails.logger).to have_received(:info).twice
+        end
+      end
+    end
+  end
 end
