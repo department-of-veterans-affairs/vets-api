@@ -19,7 +19,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
-    allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: va_patient))
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end
