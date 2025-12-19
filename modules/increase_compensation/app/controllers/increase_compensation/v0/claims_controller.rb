@@ -154,7 +154,7 @@ module IncreaseCompensation
         FormSubmissionAttempt.where(benefits_intake_uuid:).order(:created_at).last
       end
 
-      # returns a string to append to the filename based on exsistance of overflow pages
+      # returns a string to append to the filename based on existence of overflow pages
       def overflow?(claim, created_at)
         merged_form_data = form_class.new(claim.parsed_form).merge_fields({})
         hash_converter = ::PdfFill::Filler.make_hash_converter(
