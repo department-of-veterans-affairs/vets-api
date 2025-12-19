@@ -22,7 +22,7 @@ module Mobile
         resource.records = resource.records.select(&:preferred_team)
         resource = resource.sort(params[:sort])
 
-        resource.metadata[:care_systems] = if Flipper.enabled?(:mhv_secure_messaging_612_care_systems_fix, @user)
+        resource.metadata[:care_systems] = if Flipper.enabled?(:mhv_secure_messaging_612_care_systems_fix, @current_user)
                                              get_unique_care_systems612_fix(resource.records)
                                            else
                                              get_unique_care_systems(resource.records)
