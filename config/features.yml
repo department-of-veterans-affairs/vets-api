@@ -2744,6 +2744,10 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
+
+  safe_semantic_logging:
+    actor_type: user
+    description: Enables safe semantic logging for sensitive data
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
