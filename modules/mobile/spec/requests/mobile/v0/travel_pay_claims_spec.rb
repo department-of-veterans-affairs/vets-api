@@ -198,7 +198,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
         end
       end
 
-      it 'strips the Z from appointmentDate in the response' do
+      it 'strips the Z from appointment dates in the response' do
         allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
           .and_return({ veis_token: 'vt', btsss_token: 'bt' })
 
