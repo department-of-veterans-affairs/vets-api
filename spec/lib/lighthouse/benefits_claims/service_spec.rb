@@ -46,6 +46,38 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
+        context 'when response is invalid' do
+          let(:config) { instance_double(BenefitsClaims::Configuration) }
+          let(:response) { instance_double(Faraday::Response, status: 200, headers: { 'content-type' => 'text/html' }) }
+
+          before do
+            allow(service).to receive(:config).and_return(config)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'raises 502 and logs error when response is not a Hash' do
+            allow(response).to receive(:body).and_return('<html>Error</html>')
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claims received non-Hash response',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claims }.to raise_error(Common::Exceptions::BadGateway)
+          end
+
+          it 'raises 502 and logs error when data is not an Array' do
+            allow(response).to receive(:body).and_return({ 'data' => 'not an array' })
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claims received invalid data structure',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claims }.to raise_error(Common::Exceptions::BadGateway)
+          end
+        end
+
         # rubocop:disable Naming/VariableNumber
         context 'EP code filtering' do
           # Test with both flags enabled
@@ -216,6 +248,38 @@ RSpec.describe BenefitsClaims::Service do
             expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
             expect(response.dig('data', 'attributes', 'trackedItems', 2,
                                 'displayName')).to eq('NG1 - National Guard Records Request')
+          end
+        end
+
+        context 'when response is invalid' do
+          let(:config) { instance_double(BenefitsClaims::Configuration) }
+          let(:response) { instance_double(Faraday::Response, status: 200, headers: { 'content-type' => 'text/html' }) }
+
+          before do
+            allow(service).to receive(:config).and_return(config)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'raises 502 and logs error when response is not a Hash' do
+            allow(response).to receive(:body).and_return('<html>Error</html>')
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claim received non-Hash response',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claim('123') }.to raise_error(Common::Exceptions::BadGateway)
+          end
+
+          it 'raises 502 and logs error when data is not a Hash' do
+            allow(response).to receive(:body).and_return({ 'data' => %w[not a hash] })
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claim received invalid data structure',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claim('123') }.to raise_error(Common::Exceptions::BadGateway)
           end
         end
       end
