@@ -26,7 +26,7 @@ module Common
 
       # Create the directory if it doesn't exist
       FileUtils.mkdir_p(clamav_directory)
-      file_path = File.join(clamav_directory, file_name)
+      file_path = "clamav_tmp/#{file_name}"
 
       raise 'Cannot write to temporary directory. Check permissions.' unless File.writable?(clamav_directory)
 
