@@ -92,7 +92,6 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
       attributes = JSON.parse(response.body)['data']['attributes']
 
       expect(attributes['guid']).to eq(claim.guid)
-      expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
       expect(attributes['pdf_url']).to eq(MOCK_URL)
       expect(response).to have_http_status(:ok)
     end
