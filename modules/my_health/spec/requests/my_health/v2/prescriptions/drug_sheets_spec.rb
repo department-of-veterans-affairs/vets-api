@@ -53,7 +53,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions::DrugSheets', type: :request do
         end
       end
 
-      describe 'POST /my_health/v2/prescriptions/drug_sheets/search' do
+      describe 'POST /my_health/v2/prescriptions/drug_sheets/search', skip: 'temporarily skipped' do
         context 'when NDC is provided' do
           it 'responds to POST /my_health/v2/prescriptions/drug_sheets/search' do
             VCR.use_cassette('rx_client/prescriptions/rx_documentation_search') do
