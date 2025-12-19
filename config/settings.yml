@@ -947,8 +947,9 @@ mhv:
     x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   oh_facility_checks:
-    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] || '612, 555' %>
-    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] || '612, 357, 555' %>
+    facilities_migrating_to_oh: <%= ENV['mhv__facilities_migrating_to_oh'] %>
+    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] %>
+    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
