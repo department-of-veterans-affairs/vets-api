@@ -310,7 +310,7 @@
         "state_code": "CA",
         "transaction_id": "7139aa82-fd06-45ea-a217-9654869924bd",
         "updated_at": "2020-07-10T20:10:46.000+00:00",
-        "validation_key": null,
+        "override_validation_key": null,
         "vet360_id": "1273780",
         "zip_code": "94608",
         "zip_code_suffix": null

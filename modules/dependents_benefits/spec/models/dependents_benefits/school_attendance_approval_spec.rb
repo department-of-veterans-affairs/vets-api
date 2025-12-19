@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe DependentsBenefits::SchoolAttendanceApproval do
   before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow_any_instance_of(DependentsBenefits::SchoolAttendanceApproval).to receive(:pdf_overflow_tracking)
   end
 

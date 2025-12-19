@@ -98,8 +98,14 @@ module PdfFill
       end
 
       def format_file_number(form_data)
-        form_data['fileNumber'] = form_data['vaFileNumber'] || form_data['ssn']
-        form_data['fileNumber'] += ":#{form_data['payeeNumber']}" if form_data['payeeNumber'].present?
+        if form_data['vaFileNumber'].present? && form_data['vaBenefitProgram'] == 'chapter35'
+          formatted_file_number = [form_data['vaFileNumber'][0..2],
+                                   form_data['vaFileNumber'][3..4],
+                                   form_data['vaFileNumber'][5..]].join('-')
+          form_data['fileNumber'] = "#{formatted_file_number} #{form_data['payeeNumber']}"
+        else
+          form_data['fileNumber'] = ''
+        end
       end
 
       def format_previously_applied(form_data)

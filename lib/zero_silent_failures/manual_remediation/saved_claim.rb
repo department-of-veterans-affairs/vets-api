@@ -171,7 +171,7 @@ module ZeroSilentFailures
       # package all _files_ for _claim_
       # @raise Error if unable to add a file to the zip
       def zip_files
-        Zip::File.open(zipfile, Zip::File::CREATE) do |zip|
+        Zip::File.open(zipfile, create: true) do |zip|
           files.each do |file|
             Rails.logger.info("Adding to zip: #{file}")
             zip.add(file[:name], file[:path])

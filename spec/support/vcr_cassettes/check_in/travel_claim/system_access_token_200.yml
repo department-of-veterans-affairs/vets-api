@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "https://dev.integration.d365.va.gov/api/v4/auth/system-access-token"
+    uri: "https://dev.integration.d365.va.gov/eis/api/btsss/travelclaim/api/v4/auth/system-access-token"
     body:
       encoding: UTF-8
       string: '{"secret":"fake_client_secret","icn":"1234567890V123456"}'

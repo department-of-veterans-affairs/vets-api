@@ -23,7 +23,7 @@ describe VAProfile::Models::AssociatedPerson do
     }
   end
 
-  context 'Virtus::Attribute, Common::TitlecaseString type attributes' do
+  context 'Virtus::Attribute, Vets::Type::TitlecaseString type attributes' do
     it 'titlecases given_name' do
       expect(subject.given_name).to eq('Deborah')
     end

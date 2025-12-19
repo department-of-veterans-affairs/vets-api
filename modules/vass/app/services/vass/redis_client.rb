@@ -10,11 +10,7 @@ module Vass
   # - Session data (EDIPI, veteran_id) after successful OTC verification
   #
   class RedisClient
-    extend Forwardable
-
     attr_reader :settings
-
-    def_delegators :settings, :redis_token_expiry, :redis_otc_expiry, :redis_session_expiry
 
     ##
     # Factory method to create a new RedisClient instance.
@@ -54,7 +50,7 @@ module Vass
         'oauth_token',
         token,
         namespace: 'vass-auth-cache',
-        expires_in: redis_token_expiry
+        expires_in: settings.redis_token_expiry
       )
     end
 
@@ -85,7 +81,7 @@ module Vass
         otc_key(uuid),
         code,
         namespace: 'vass-otc-cache',
-        expires_in: redis_otc_expiry
+        expires_in: settings.redis_otc_expiry
       )
     end
 
@@ -125,7 +121,7 @@ module Vass
         session_key(session_token),
         Oj.dump(session_data),
         namespace: 'vass-session-cache',
-        expires_in: redis_session_expiry
+        expires_in: settings.redis_session_expiry
       )
     end
 

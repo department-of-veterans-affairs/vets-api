@@ -29,15 +29,15 @@ describe Vass::RedisClient do
     end
 
     it 'gets redis_token_expiry from settings' do
-      expect(redis_client.redis_token_expiry).to eq(redis_token_expiry)
+      expect(redis_client.settings.redis_token_expiry).to eq(redis_token_expiry)
     end
 
     it 'gets redis_otc_expiry from settings' do
-      expect(redis_client.redis_otc_expiry).to eq(redis_otc_expiry)
+      expect(redis_client.settings.redis_otc_expiry).to eq(redis_otc_expiry)
     end
 
     it 'gets redis_session_expiry from settings' do
-      expect(redis_client.redis_session_expiry).to eq(redis_session_expiry)
+      expect(redis_client.settings.redis_session_expiry).to eq(redis_session_expiry)
     end
   end
 

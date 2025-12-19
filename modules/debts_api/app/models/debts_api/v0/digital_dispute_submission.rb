@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/attr_package'
+
 module DebtsApi
   module V0
     class DigitalDisputeSubmission < ApplicationRecord
@@ -9,10 +11,13 @@ module DebtsApi
       FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
       self.table_name = 'digital_dispute_submissions'
       belongs_to :user_account, dependent: nil, optional: false
+      has_many :debt_transaction_logs, as: :transactionable, primary_key: :guid, dependent: :destroy
       has_many_attached :files
       has_kms_key
       has_encrypted :form_data, :metadata, key: :kms_key
       validates :user_uuid, presence: true
+      validates :guid, uniqueness: true
+      before_create :set_new_id
       validate :files_present
       validate :files_are_pdfs
       validate :files_size_within_limit
@@ -55,9 +60,11 @@ module DebtsApi
 
       def register_failure(message)
         failed!
+        error_message = message.presence ||
+                        "An unknown error occurred while submitting from call_location: #{caller_locations&.first}"
+        Rails.logger.error("DigitalDisputeSubmission error_message: #{error_message}")
         update(
-          error_message: message.presence ||
-            "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+          error_message:
         )
         begin
           send_failure_email if Settings.vsp_environment == 'production' &&
@@ -111,14 +118,14 @@ module DebtsApi
 
       def send_success_email
         StatsD.increment("#{STATS_KEY}.send_success_email.enqueue")
-        user = User.find(user_uuid)
+        user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
+        cache_key = Sidekiq::AttrPackage.create(email: user.email, first_name: user.first_name)
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(
           {
             'submission_type' => 'digital_dispute',
-            'email' => user.email,
-            'first_name' => user.first_name,
+            'cache_key' => cache_key,
             'user_uuid' => user.uuid,
             'template_id' => CONFIRMATION_TEMPLATE
           }
@@ -131,16 +138,19 @@ module DebtsApi
 
       def send_failure_email
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
-        user = User.find(user_uuid)
+        user = User.find_by(uuid: user_uuid)
         return if user&.email.blank?
 
-        submission_email = user.email.downcase
+        cache_key = Sidekiq::AttrPackage.create(
+          email: user.email.downcase,
+          personalisation: failure_email_personalization_info(user)
+        )
         DebtManagementCenter::VANotifyEmailJob.perform_in(
           24.hours,
-          submission_email,
+          nil,
           FAILURE_TEMPLATE,
-          failure_email_personalization_info(user),
-          { id_type: 'email', failure_mailer: true }
+          nil,
+          { id_type: 'email', failure_mailer: true, cache_key: }
         )
       rescue => e
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.failure")
@@ -153,10 +163,24 @@ module DebtsApi
           'first_name' => user.first_name,
           'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
           'updated_at' => updated_at,
-          'confirmation_number' => id
+          'confirmation_number' => guid
         }
+      end
+
+      def set_new_id
+        return unless self.class.column_names.include?('new_id')
+        return unless sequence_exists?
+
+        self.new_id ||= self.class.connection.select_value(
+          "SELECT nextval('digital_dispute_submissions_new_id_seq')"
+        )
+      end
+
+      def sequence_exists?
+        self.class.connection.select_value(
+          "SELECT 1 FROM pg_class WHERE relkind = 'S' AND relname = 'digital_dispute_submissions_new_id_seq'"
+        ).present?
       end
     end
   end
 end
-# rubocop:enable Rails/Pluck

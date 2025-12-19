@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
+require 'vets/model'
 
 module VAProfile
   module Models
     class GenderIdentity < Base
       include VAProfile::Concerns::Defaultable
+      include Vets::Model
 
       CODES = %w[M F TM TF B N O].freeze
       OPTIONS = {
