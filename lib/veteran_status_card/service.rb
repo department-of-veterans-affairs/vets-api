@@ -18,7 +18,7 @@ module VeteranStatusCard
                              G4+ G5+ R1 R2 R3 R4 R1+ R3+ R4+ R3* R4* D+].freeze
 
     # Active duty + dishonorable
-    DISHONORABLE_SSC_CODES = %w[A5 A5+ A5* B5 G5 G5* R5 R5+ R5*].freeze # TODO: Unsure of what the messaging is for these
+    DISHONORABLE_SSC_CODES = %w[A5 A5+ A5* B5 G5 G5* R5 R5+ R5*].freeze
 
     # No active duty + discharge other than dishonorable
     INELIGIBLE_SERVICE_SSC_CODES = %w[G2 G3 G4 G3* G4*].freeze

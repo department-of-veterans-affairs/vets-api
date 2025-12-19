@@ -76,8 +76,8 @@ RSpec.describe VeteranStatusCard::Service do
     allow(vet_verification_service).to receive(:get_vet_verification_status).and_return(vet_verification_response)
 
     allow(VAProfile::MilitaryPersonnel::Service).to receive(:new).and_return(military_personnel_service)
-    allow(military_personnel_service).to receive(:get_dod_service_summary).and_return(dod_service_summary_response)
-    allow(military_personnel_service).to receive(:get_service_history).and_return(service_history_response)
+    allow(military_personnel_service).to receive_messages(get_dod_service_summary: dod_service_summary_response,
+                                                          get_service_history: service_history_response)
 
     allow(LighthouseRatedDisabilitiesProvider).to receive(:new).and_return(lighthouse_disabilities_provider)
     allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(disability_rating)
@@ -272,19 +272,22 @@ RSpec.describe VeteranStatusCard::Service do
           result = subject.status_card
 
           expect(result).to be_a(Hash)
-          expect(result.keys).to contain_exactly(:confirmed, :full_name, :user_percent_of_disability, :latest_service_history)
+          expect(result.keys).to contain_exactly(:confirmed, :full_name, :user_percent_of_disability,
+                                                 :latest_service_history)
 
-          expect(result[:confirmed]).to eq(true)
+          expect(result[:confirmed]).to be(true)
           expect(result[:full_name]).to be_a(Hash)
           expect(result[:full_name].keys).to include(:first, :last)
           expect(result[:user_percent_of_disability]).to be_a(Integer)
 
           expect(result[:latest_service_history]).to be_a(Hash)
-          expect(result[:latest_service_history].keys).to contain_exactly(:branch_of_service, :latest_service_date_range)
+          expect(result[:latest_service_history].keys).to contain_exactly(:branch_of_service,
+                                                                          :latest_service_date_range)
           expect(result[:latest_service_history][:branch_of_service]).to be_a(String)
 
           expect(result[:latest_service_history][:latest_service_date_range]).to be_a(Hash)
-          expect(result[:latest_service_history][:latest_service_date_range].keys).to contain_exactly(:begin_date, :end_date)
+          expect(result[:latest_service_history][:latest_service_date_range].keys).to contain_exactly(:begin_date,
+                                                                                                      :end_date)
         end
       end
     end
@@ -770,7 +773,8 @@ RSpec.describe VeteranStatusCard::Service do
         end
 
         it 'logs the error and returns nil service history' do
-          expect(Rails.logger).to receive(:error).with(/VAProfile::MilitaryPersonnel \(Service History\) error/, anything)
+          expect(Rails.logger).to receive(:error).with(/VAProfile::MilitaryPersonnel \(Service History\) error/,
+                                                       anything)
 
           result = subject.status_card
 
@@ -838,8 +842,10 @@ RSpec.describe VeteranStatusCard::Service do
       end
 
       context 'when top-level exception occurs' do
+        let(:veteran_status) { 'confirmed' }
+
         before do
-          allow(subject).to receive(:eligible?).and_raise(StandardError.new('Unexpected error'))
+          allow(user).to receive(:full_name_normalized).and_raise(StandardError.new('Unexpected error'))
         end
 
         it 'logs the error and returns SOMETHING_WENT_WRONG_RESPONSE' do
@@ -1060,11 +1066,11 @@ RSpec.describe VeteranStatusCard::Service do
         result = subject.send(:error_response_hash, constants_response)
 
         expect(result).to eq({
-          confirmed: false,
-          title: 'Test Title',
-          message: ['Test Message'],
-          status: 'error'
-        })
+                               confirmed: false,
+                               title: 'Test Title',
+                               message: ['Test Message'],
+                               status: 'error'
+                             })
       end
     end
   end
