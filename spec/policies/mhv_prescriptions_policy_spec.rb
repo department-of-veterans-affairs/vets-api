@@ -58,16 +58,16 @@ describe MHVPrescriptionsPolicy do
         let(:patient) { false }
         let(:champ_va) { false }
 
-          it 'returns false and logs access denial' do
-            expect(Rails.logger).to receive(:info).with(
-              'RX ACCESS DENIED',
-              hash_including(
-                mhv_id: anything,
-                sign_in_service: anything,
-                va_facilities: anything,
-                va_patient: anything
-              )
+        it 'returns false and logs access denial' do
+          expect(Rails.logger).to receive(:info).with(
+            'RX ACCESS DENIED',
+            hash_including(
+              mhv_id: anything,
+              sign_in_service: anything,
+              va_facilities: anything,
+              va_patient: anything
             )
+          )
 
           expect(described_class.new(user, mhv_prescriptions).access?).to be(false)
         end
