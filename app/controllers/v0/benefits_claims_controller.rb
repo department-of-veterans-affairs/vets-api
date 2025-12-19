@@ -25,7 +25,7 @@ module V0
     FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
 
     def index
-      claims = aggregate_claims_from_providers
+      claims = get_claims_from_providers
 
       check_for_birls_id
       check_for_file_number
@@ -131,7 +131,7 @@ module V0
       BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(@current_user)
     end
 
-    def aggregate_claims_from_providers
+    def get_claims_from_providers
       if configured_providers.count == 1
         provider = configured_providers.first.new(@current_user)
         return provider.get_claims
