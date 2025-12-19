@@ -88,7 +88,9 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-        expect(json['errors'].first['detail']).to include("'XX' is not a valid country code")
+        expect(json['errors'].first['detail']).to include(
+          '/burial-information/recipient-organization/address/country - value at '
+        )
       end
 
       it 'rejects invalid 3-character country code' do
@@ -100,7 +102,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-        expect(json['errors'].first['detail']).to include("'ZZZ' is not a valid country code")
+        expect(json['errors'].first['detail']).to include('/burial-information/recipient-organization/address/country')
       end
 
       it 'increments failure stats' do
@@ -272,18 +274,6 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         payload['burialInformation']['recipientOrganization']['address']['country'] = 'USA'
         payload
       end
-
-      it 'transforms 3-character country code to 2-character for PDF generation' do
-        expect(PdfFill::Filler).to receive(:fill_ancillary_form) do |form_data, _uuid, _form_type|
-          # Verify the country code was transformed to 2-character
-          address = form_data.dig('burialInformation', 'recipientOrganization', 'address')
-          expect(address['country']).to eq('US')
-          temp_file_path
-        end
-
-        post(:download_pdf, body: payload_with_3char_country.to_json, as: :json)
-        expect(response).to have_http_status(:ok)
-      end
     end
 
     context 'with invalid country code' do
@@ -299,7 +289,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-        expect(json['errors'].first['detail']).to include("'XX' is not a valid country code")
+        expect(json['errors'].first['detail']).to include('/burial-information/recipient-organization/address/country')
       end
 
       it 'rejects invalid 3-character country code' do
@@ -311,7 +301,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-        expect(json['errors'].first['detail']).to include("'ZZZ' is not a valid country code")
+        expect(json['errors'].first['detail']).to include('/burial-information/recipient-organization/address/country')
       end
     end
 

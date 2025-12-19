@@ -3,6 +3,9 @@
 module Openapi
   module Requests
     class Form21p530a
+      # The exact list the front end uses, addressSchema references the countries constant in vets-json-schema
+      COUNTRIES_3 = VetsJsonSchema::CONSTANTS['countries'].collect { |country| country['value'] }
+
       FORM_SCHEMA = {
         '$schema': 'json-schemer://openapi30/schema',
         type: :object,
@@ -119,7 +122,8 @@ module Openapi
                         type: :string,
                         maxLength: 3,
                         description: 'Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)',
-                        example: 'US'
+                        example: 'US',
+                        enum: COUNTRIES_3
                       },
                       postalCode: {
                         type: :string,

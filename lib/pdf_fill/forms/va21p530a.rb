@@ -28,7 +28,6 @@ module PdfFill
         merge_service_periods
         merge_burial_info
         merge_certification(options)
-        merge_remarks
         @form_data
       end
 
@@ -145,8 +144,6 @@ module PdfFill
       end
 
       def merge_burial_info
-        return unless @form_data['burialInformation']
-
         burial_info = @form_data['burialInformation']
 
         # Format date of burial (expecting MM/DD/YYYY format for this field)
@@ -156,18 +153,22 @@ module PdfFill
         end
 
         # Handle postal code splitting
-        if burial_info.dig('recipientOrganization', 'address', 'postalCode')
+        if burial_info.dig('recipientOrganization', 'address')
           addr = burial_info['recipientOrganization']['address']
-          postal = addr['postalCode'].to_s
+          addr['country'] = extract_country(addr)
 
-          # Split ZIP code into first 5 and extension if present
-          if postal.include?('-')
-            parts = postal.split('-')
-            addr['postalCode'] = parts[0]
-            addr['postalCodeExtension'] = parts[1] if parts[1]
-          elsif postal.length > 5
-            addr['postalCode'] = postal[0..4]
-            addr['postalCodeExtension'] = postal[5..8]
+          if addr['postalCode']
+            postal = addr['postalCode'].to_s
+
+            # Split ZIP code into first 5 and extension if present
+            if postal.include?('-')
+              parts = postal.split('-')
+              addr['postalCode'] = parts[0]
+              addr['postalCodeExtension'] = parts[1] if parts[1]
+            elsif postal.length > 5
+              addr['postalCode'] = postal[0..4]
+              addr['postalCodeExtension'] = postal[5..8]
+            end
           end
         end
       end
@@ -186,10 +187,6 @@ module PdfFill
 
         # Fill the DATE_SIGNED field in the PDF
         @form_data['certification']['dateSigned'] = "#{date[:month]}/#{date[:day]}/#{date[:year]}"
-      end
-
-      def merge_remarks
-        # Remarks is a simple text field, no transformation needed
       end
 
       def parse_date(date_string)

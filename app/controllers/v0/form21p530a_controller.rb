@@ -3,7 +3,6 @@
 module V0
   class Form21p530aController < ApplicationController
     include RetriableConcern
-    include PdfFill::Forms::FormHelper
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
@@ -57,35 +56,10 @@ module V0
       'api.form21p530a'
     end
 
-    def transform_country_codes(payload)
-      parsed = JSON.parse(payload)
-      address = parsed.dig('burialInformation', 'recipientOrganization', 'address')
-      if address&.key?('country')
-        transformed_country = extract_country(address)
-        if transformed_country
-          validate_country_code!(transformed_country)
-          address['country'] = transformed_country
-        end
-      end
-      parsed.to_json
-    end
-
-    def validate_country_code!(country_code)
-      return if country_code.blank?
-
-      IsoCountryCodes.find(country_code)
-    rescue IsoCountryCodes::UnknownCodeError
-      claim = SavedClaim::Form21p530a.new
-      claim.errors.add '/burialInformation/recipientOrganization/address/country',
-                       "'#{country_code}' is not a valid country code"
-      raise Common::Exceptions::ValidationErrors, claim
-    end
-
     def build_claim
       # Body parsed by Rails,schema validated by committee before hitting here.
       payload = request.raw_post
-      transformed_payload = transform_country_codes(payload)
-      claim = SavedClaim::Form21p530a.new(form: transformed_payload)
+      claim = SavedClaim::Form21p530a.new(form: payload)
       raise Common::Exceptions::ValidationErrors, claim unless claim.valid?
 
       claim
