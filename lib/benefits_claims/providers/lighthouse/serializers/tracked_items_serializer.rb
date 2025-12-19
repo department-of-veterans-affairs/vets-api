@@ -27,7 +27,7 @@ module BenefitsClaims
                 'supportAliases' => item.support_aliases,
                 'documents' => item.documents,
                 'date' => item.date
-              }.compact
+              }
             end
           end
           # rubocop:enable Metrics/MethodLength
