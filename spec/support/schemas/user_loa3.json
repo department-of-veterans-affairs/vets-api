@@ -230,7 +230,10 @@
                   ]
                 },
                 "npi_id": {
-                  "type": ["string", "null"]
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "logingov_uuid": {
                   "type": [
@@ -373,7 +376,10 @@
                     "user_facility_ready_for_info_alert": {
                       "type": "boolean"
                     },
-                    "healthcare_settings_pilot_eligible": {
+                    "user_facility_migrating_to_oh": {
+                      "type": "boolean"
+                    },
+                    "scheduling_preferences_pilot_eligible": {
                       "type": "boolean"
                     }
                   }

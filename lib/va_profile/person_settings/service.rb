@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Service layer for interacting with VAProfile Person Settings API. This service is still under
-# development and not fully integrated, gated behind the profile_health_care_settings_page
+# development and not fully integrated, gated behind the profile_scheduling_preferences
 # feature flag via the SchedulingPreferencesController.
 
 require 'va_profile/person_settings/person_options_response'
