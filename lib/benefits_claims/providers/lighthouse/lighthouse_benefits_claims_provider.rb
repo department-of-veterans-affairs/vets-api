@@ -30,6 +30,7 @@ module BenefitsClaims
         def initialize(user)
           @user = user
           @service = BenefitsClaims::Service.new(user.icn)
+          @config = BenefitsClaims::Configuration.instance
         end
 
         def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
@@ -66,16 +67,12 @@ module BenefitsClaims
           ClaimSerializer.to_json_api(dto)
         end
 
-        def config
-          @service.send(:config)
-        end
-
         def handle_error(error, lighthouse_client_id, endpoint)
           ::Lighthouse::ServiceException.send_error(
             error,
             self.class.to_s.underscore,
             lighthouse_client_id,
-            "#{config.base_api_path}/#{endpoint}"
+            "#{@config.base_api_path}/#{endpoint}"
           )
         end
       end
