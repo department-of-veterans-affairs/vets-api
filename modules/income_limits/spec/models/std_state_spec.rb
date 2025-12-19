@@ -45,4 +45,15 @@ RSpec.describe StdState, type: :model do
       expect(state.institution_facilities_mailing).not_to include(street_facility)
     end
   end
+
+  describe '.with_postal_name' do
+    let!(:matching_state) { create(:std_state, postal_name: 'NC') }
+    let!(:other_state) { create(:std_state, postal_name: 'VA') }
+
+    it 'returns only states with the requested postal name' do
+      result = described_class.with_postal_name('NC')
+
+      expect(result).to contain_exactly(matching_state)
+    end
+  end
 end
