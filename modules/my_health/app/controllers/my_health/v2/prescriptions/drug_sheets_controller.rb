@@ -3,13 +3,9 @@
 module MyHealth
   module V2
     module Prescriptions
-      class DrugSheetsController < ApplicationController
-        include JsonApiPaginationLinks
-        service_tag 'mhv-medications'
-
+      class DrugSheetsController < RxController
         # Search for drug sheet documentation by NDC (National Drug Code).
         # Uses Krames API to fetch drug information HTML content.
-
         def search
           ndc = params[:ndc]
           return render_ndc_required_error if ndc.blank?
@@ -25,15 +21,6 @@ module MyHealth
           raise
         rescue
           render_service_unavailable_error
-        end
-
-        protected
-
-        def client
-          @client ||= Rx::Client.new(
-            session: { user_id: current_user.mhv_correlation_id },
-            upstream_request: request
-          )
         end
 
         private
