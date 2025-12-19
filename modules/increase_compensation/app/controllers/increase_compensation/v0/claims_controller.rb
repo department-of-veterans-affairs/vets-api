@@ -2,7 +2,7 @@
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
-require 'increase_compensation/s3_config'
+require 'increase_compensation/zsf_config'
 require 'persistent_attachments/sanitizer'
 require 'simple_forms_api/form_remediation/uploader'
 
@@ -12,8 +12,11 @@ module IncreaseCompensation
     # The Increase Compensation claim controller that handles form submissions
 
     class ClaimsController < ClaimsBaseController
+      include PdfS3Operations
+
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
+      skip_before_action :verify_authenticity_token
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
@@ -32,9 +35,14 @@ module IncreaseCompensation
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-
         form_submission_attempt = get_last_form_submission_attempt(claim.guid)
-        pdf_url = get_signed_url(claim, form_submission_attempt.created_at.to_date)
+        raise Common::Exceptions::RecordNotFound, params[:id] if form_submission_attempt.nil?
+
+        pdf_url = s3_signed_url(
+          claim,
+          form_submission_attempt.created_at.to_date,
+          config: IncreaseCompensation::ZsfConfig.new
+        )
 
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue ActiveRecord::RecordNotFound => e
@@ -68,9 +76,8 @@ module IncreaseCompensation
 
         clear_saved_form(claim.form_id)
 
-        form_submission = FormSubmission.create!(form_type: claim.form_id, saved_claim: claim)
-        form_submission_attempt = FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
-        pdf_url = upload_to_s3(claim, form_submission_attempt.created_at.to_date)
+        # submission attempt is created in the method
+        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
 
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
@@ -126,51 +133,6 @@ module IncreaseCompensation
       #
       def monitor
         @monitor ||= IncreaseCompensation::Monitor.new
-      end
-
-      # upload to S3 and return a download url
-      def upload_to_s3(claim, created_at)
-        File.open(claim.to_pdf(claim.guid)) do |file|
-          directory = dated_directory_name(claim.form_id, created_at)
-          config = IncreaseCompensation::S3Config.new
-          sanitized_file = CarrierWave::SanitizedFile.new(file)
-          s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
-          s3_uploader.store!(sanitized_file)
-          s3_uploader.get_s3_link("#{directory}/#{sanitized_file.filename}")
-        end
-      end
-
-      # returns the url of an already-created PDF
-      def get_signed_url(claim, created_at)
-        directory = dated_directory_name(claim.form_id, created_at)
-        config = IncreaseCompensation::S3Config.new
-        s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
-        final = overflow?(claim, created_at)
-        s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf")
-      end
-
-      # the last submission attempt is used to construct the S3 file path
-      def get_last_form_submission_attempt(benefits_intake_uuid)
-        FormSubmissionAttempt.where(benefits_intake_uuid:).order(:created_at).last
-      end
-
-      # returns a string to append to the filename based on exsistance of overflow pages
-      def overflow?(claim, created_at)
-        merged_form_data = form_class.new(claim.parsed_form).merge_fields({})
-        hash_converter = ::PdfFill::Filler.make_hash_converter(
-          claim.form_id,
-          form_class,
-          created_at,
-          {}
-        )
-        hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-        overflow = hash_converter.extras_generator
-        overflow.text? ? '_final' : ''
-      end
-
-      # returns e.g. `12.11.25-Form21P-8416`
-      def dated_directory_name(form_number, date = Time.now.utc.to_date)
-        "#{date.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
     end
   end
