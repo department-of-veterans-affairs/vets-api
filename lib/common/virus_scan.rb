@@ -9,6 +9,8 @@ module Common
 
     def scan(file_path)
       # `clamd` runs within service group, needs group read
+      raise 'Failed to create temp file' unless File.exist?(file_path)
+
       File.chmod(0o640, file_path)
 
       mock_enabled? || ClamAV::PatchClient.new.safe?(file_path) # patch to call our class
