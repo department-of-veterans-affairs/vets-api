@@ -19,6 +19,92 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
   let(:job) { described_class.new }
 
+  describe '#submit_claims_to_service' do
+    it 'sets @proc_id to the result of generate_proc_id' do
+      allow(job).to receive_messages(child_claims: [saved_claim],
+                                     submit_claim_to_service: DependentsBenefits::ServiceResponse.new(status: true),
+                                     generate_proc_id: 'test-proc-id-123')
+
+      job.submit_claims_to_service
+
+      expect(job.instance_variable_get(:@proc_id)).to eq('test-proc-id-123')
+    end
+
+    it 'raises DependentSubmissionError if any claim submission fails' do
+      allow(job).to receive_messages(
+        child_claims: [saved_claim],
+        submit_claim_to_service: DependentsBenefits::ServiceResponse.new(status: false,
+                                                                         error: 'Submission failed'),
+        generate_proc_id: 'test-proc-id-123'
+      )
+
+      expect do
+        job.submit_claims_to_service
+      end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError, 'Submission failed')
+    end
+
+    it 'returns success ServiceResponse if all submissions succeed' do
+      allow(job).to receive_messages(child_claims: [saved_claim],
+                                     submit_claim_to_service: DependentsBenefits::ServiceResponse.new(status: true),
+                                     generate_proc_id: 'test-proc-id-123')
+
+      response = job.submit_claims_to_service
+
+      expect(response).to be_a(DependentsBenefits::ServiceResponse)
+      expect(response.success?).to be true
+    end
+  end
+
+  describe '#submit_686c_form' do
+    let(:claim_data) { { 'veteran' => { 'first_name' => ' john ', 'last_name' => ' doe ' } } }
+    let(:normalized_data) { { 'veteran' => { 'first_name' => 'JOHN', 'last_name' => 'DOE' } } }
+    let(:user_struct) { { user_key: 'value' } }
+    let(:proc_id) { 'test-proc-id-123' }
+
+    before do
+      allow(saved_claim).to receive(:parsed_form).and_return(claim_data)
+      allow(job).to receive(:generate_user_struct).and_return(user_struct)
+      job.instance_variable_set(:@proc_id, proc_id)
+    end
+
+    it 'normalizes claim data and submits via BGSV2::Form686c' do
+      bgs_job = instance_double(BGS::Job)
+      allow(BGS::Job).to receive(:new).and_return(bgs_job)
+      expect(bgs_job).to receive(:normalize_names_and_addresses!).with(claim_data).and_return(normalized_data)
+
+      form_instance = instance_double(BGSV2::Form686c, submit: nil)
+      expect(BGSV2::Form686c).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
+      expect(form_instance).to receive(:submit).with(normalized_data)
+
+      job.submit_686c_form(saved_claim)
+    end
+  end
+
+  describe '#submit_674_form' do
+    let(:claim_data) { { 'veteran' => { 'first_name' => ' jane ', 'last_name' => ' smith ' } } }
+    let(:normalized_data) { { 'veteran' => { 'first_name' => 'JANE', 'last_name' => 'SMITH' } } }
+    let(:user_struct) { { user_key: 'value' } }
+    let(:proc_id) { 'test-proc-id-456' }
+
+    before do
+      allow(saved_claim).to receive(:parsed_form).and_return(claim_data)
+      allow(job).to receive(:generate_user_struct).and_return(user_struct)
+      job.instance_variable_set(:@proc_id, proc_id)
+    end
+
+    it 'normalizes claim data and submits via BGSV2::Form674' do
+      bgs_job = instance_double(BGS::Job)
+      allow(BGS::Job).to receive(:new).and_return(bgs_job)
+      expect(bgs_job).to receive(:normalize_names_and_addresses!).with(claim_data).and_return(normalized_data)
+
+      form_instance = instance_double(BGSV2::Form674, submit: nil)
+      expect(BGSV2::Form674).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
+      expect(form_instance).to receive(:submit).with(normalized_data)
+
+      job.submit_674_form(saved_claim)
+    end
+  end
+
   describe '#find_or_create_form_submission' do
     it 'creates a new BGS::Submission if one does not exist' do
       expect do
