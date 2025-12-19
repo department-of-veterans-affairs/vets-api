@@ -1375,7 +1375,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles VistA-only data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(9)
+          expect(prescriptions.size).to eq(10)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
             '25804851', '25804852', '25804853', '25804854', '25804855',
             '25804856', '25804858', '25804859', '25804860', '25804848'
