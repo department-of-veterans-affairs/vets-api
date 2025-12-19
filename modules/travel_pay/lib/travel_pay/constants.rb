@@ -6,7 +6,7 @@ module TravelPay
     # TravelPay::Constants::BASE_EXPENSE_PATHS[:meal]
     BASE_EXPENSE_PATHS = {
       airtravel: 'api/v1/expenses/airtravel',
-      common_carrier: 'api/v1/expenses/commoncarrier',
+      commoncarrier: 'api/v1/expenses/commoncarrier',
       lodging: 'api/v1/expenses/lodging',
       meal: 'api/v1/expenses/meal',
       mileage: 'api/v2/expenses/mileage',
