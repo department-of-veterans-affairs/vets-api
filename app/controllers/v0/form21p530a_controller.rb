@@ -21,13 +21,14 @@ module V0
       render json: SavedClaimSerializer.new(claim)
     rescue
       # app/controllers/concerns/exception_handling.rb will log the error and handle error responses
-      # so we can just increment the metric her
+      # so we can just increment the metric here
       StatsD.increment("#{stats_key}.failure")
       raise
     end
 
     def download_pdf
       # When we have time to change the front end, we should reference the claim created in in the create action
+      # and make this a get request that takes the guid of the saved claim
       claim = build_claim
 
       source_file_path = with_retries('Generate 21P-530A PDF') do

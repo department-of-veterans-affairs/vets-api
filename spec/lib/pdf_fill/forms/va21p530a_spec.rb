@@ -90,6 +90,12 @@ RSpec.describe PdfFill::Forms::Va21p530a do
       expect(addr['postalCodeExtension']).to eq('1234')
     end
 
+    it 'reduces the country code to two characters' do
+      merged = form.merge_fields
+
+      expect(merged['burialInformation']['recipientOrganization']['address']['country']).to eq('US')
+    end
+
     it 'preserves certification signature text' do
       merged = form.merge_fields
 
