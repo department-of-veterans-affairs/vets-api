@@ -1051,10 +1051,6 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
-  form22_10275_submission_email:
-    actor_type: user
-    description: Enables form 22-10275 email submission to POE team (VaNotify)
-    enable_in_development: true
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
