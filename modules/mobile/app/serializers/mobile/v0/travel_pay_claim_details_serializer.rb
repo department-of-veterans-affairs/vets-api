@@ -24,6 +24,8 @@ module Mobile
                  :createdOn,
                  :modifiedOn
 
+      # BTSSS incorrectly labels local appointment times with 'Z' (UTC) suffix
+      # Temp fix to remove 'Z' to prevent timezone confusion in travel pay claims list & details pages in mobile app
       attribute :appointmentDate do |object|
         object.appointmentDate&.chomp('Z')
       end
