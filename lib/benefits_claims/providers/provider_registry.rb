@@ -20,7 +20,7 @@ module BenefitsClaims
         end
 
         def enabled_provider_classes(user = nil)
-          registry.each_with_object([]) do |(name, config), result|
+          registry.each.with_object([]) do |(name, config), result|
             result << config[:class] if enabled?(name, user)
           end
         end
