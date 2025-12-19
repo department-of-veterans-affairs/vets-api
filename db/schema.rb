@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -863,6 +863,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
     t.index ["created_at"], name: "index_education_benefits_claims_on_created_at"
     t.index ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id"
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
+    t.index ["token"], name: "index_education_benefits_claims_on_token", unique: true
   end
 
   create_table "education_benefits_submissions", id: :serial, force: :cascade do |t|
@@ -907,7 +908,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
   end
 
   create_table "event_bus_gateway_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "va_notify_id", null: false
     t.string "template_id", null: false
     t.datetime "created_at", null: false
@@ -917,7 +918,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_14_210635) do
   end
 
   create_table "event_bus_gateway_push_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "template_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

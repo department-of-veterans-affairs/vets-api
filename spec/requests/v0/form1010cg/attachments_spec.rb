@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../support/form1010cg_helpers/test_file_helpers'
 
 RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
   let(:endpoint) { 'http://localhost:3000/v0/form1010cg/attachments' }
@@ -24,7 +25,7 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
       headers:,
       params: {
         attachment: {
-          file_data: fixture_file_upload(file_fixture_path, content_type)
+          file_data: Form1010cgHelpers::TestFileHelpers.create_test_uploaded_file(file_fixture_path, content_type)
         }
       }
     }
@@ -46,7 +47,7 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
       end
 
-      it 'accepts a file upload', skip: 'temporarily skip flaky spec' do
+      it 'accepts a file upload' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options do
           make_upload_request_with('doctors-note.jpg', 'image/jpg')
 
@@ -71,7 +72,7 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
       end
 
-      it 'accepts a file upload', skip: 'temporarily skip flaky spec' do
+      it 'accepts a file upload' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.pdf", vcr_options do
           make_upload_request_with('doctors-note.pdf', 'application/pdf')
 
