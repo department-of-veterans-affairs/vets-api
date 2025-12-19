@@ -9,7 +9,6 @@ module Common
 
     def scan(file_path)
       # `clamd` runs within service group, needs group read
-      File.exist?(file_path)
       raise 'Failed to create temp file' unless File.exist?(file_path)
 
       File.chmod(0o640, file_path)
