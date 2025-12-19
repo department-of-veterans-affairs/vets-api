@@ -46,25 +46,41 @@ module AskVAApi
         code_by_lower_name[normalized_name]
       end
 
-      def invalid_zip_result(zipcode)
+      def success_result
+        ZipStateValidationResult.new(valid: true)
+      end
+
+      def error_result(error_code:, error_message:)
         ZipStateValidationResult.new(
           valid: false,
+          error_code:,
+          error_message:
+        )
+      end
+
+      def mismatch_result(zipcode:, state_code:)
+        error_result(
+          error_code: ZIP_STATE_MISMATCH,
+          error_message: "Zip code #{zipcode} does not belong to state #{state_code}."
+        )
+      end
+
+      def invalid_zip_result(zipcode)
+        error_result(
           error_code: INVALID_ZIP + ": #{zipcode}",
           error_message: 'Check Zip Code format.'
         )
       end
 
       def state_not_found_result(state_name)
-        ZipStateValidationResult.new(
-          valid: false,
+        error_result(
           error_code: STATE_NOT_FOUND + ": #{state_name}",
           error_message: 'Check State format.'
         )
       end
 
       def zip_not_found_result(zipcode)
-        ZipStateValidationResult.new(
-          valid: false,
+        error_result(
           error_code: ZIP_NOT_FOUND + ": #{zipcode}",
           error_message: 'Check Zip Code format.'
         )
@@ -72,13 +88,9 @@ module AskVAApi
 
       def validate_match(std_zipcode:, std_state:, zipcode:, state_code:)
         if std_zipcode.state_id == std_state.id
-          ZipStateValidationResult.new(valid: true)
+          success_result
         else
-          ZipStateValidationResult.new(
-            valid: false,
-            error_code: ZIP_STATE_MISMATCH,
-            error_message: "Zip code #{zipcode} does not belong to state #{state_code}."
-          )
+          mismatch_result(zipcode:, state_code:)
         end
       end
     end
