@@ -27,7 +27,7 @@ RSpec.describe FormProfiles::VA0803 do
       VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
         data = profile.prefill
         expect(data[:form_data]['applicantName']).to eq({ 'first' => 'Abraham',
-                                                              'last' => 'Lincoln' })
+                                                          'last' => 'Lincoln' })
         expect(data[:form_data]['ssn']).to eq('796111863')
         expect(data[:form_data]['vaFileNumber']).to eq('796043735')
       end
