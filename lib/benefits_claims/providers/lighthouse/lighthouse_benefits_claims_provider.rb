@@ -33,26 +33,26 @@ module BenefitsClaims
           @config = BenefitsClaims::Configuration.instance
         end
 
-        def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-          response = @service.get_claims(lighthouse_client_id, lighthouse_rsa_key_path, options)
+        def get_claims
+          response = @service.get_claims
 
           # Transform each claim through the DTO
           response['data'] = response['data'].map { |claim_data| transform_to_dto(claim_data) }
 
           response
         rescue Faraday::ClientError, Faraday::ServerError => e
-          handle_error(e, lighthouse_client_id, 'claims')
+          handle_error(e, 'claims')
         end
 
-        def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-          response = @service.get_claim(id, lighthouse_client_id, lighthouse_rsa_key_path, options)
+        def get_claim(id)
+          response = @service.get_claim(id)
 
           # Transform the single claim through the DTO
           response['data'] = transform_to_dto(response['data'])
 
           response
         rescue Faraday::ClientError, Faraday::ServerError => e
-          handle_error(e, lighthouse_client_id, "claims/#{id}")
+          handle_error(e, "claims/#{id}")
         end
 
         private
@@ -67,11 +67,11 @@ module BenefitsClaims
           ClaimSerializer.to_json_api(dto)
         end
 
-        def handle_error(error, lighthouse_client_id, endpoint)
+        def handle_error(error, endpoint)
           ::Lighthouse::ServiceException.send_error(
             error,
             self.class.to_s.underscore,
-            lighthouse_client_id,
+            nil,
             "#{@config.base_api_path}/#{endpoint}"
           )
         end

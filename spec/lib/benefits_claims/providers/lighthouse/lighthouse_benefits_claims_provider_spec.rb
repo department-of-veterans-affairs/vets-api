@@ -166,7 +166,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
 
   describe '#get_claims' do
     before do
-      allow(mock_service).to receive(:get_claims).with(nil, nil, {}).and_return(
+      allow(mock_service).to receive(:get_claims).with(no_args).and_return(
         'data' => [
           { 'id' => '600342023', 'type' => 'claim', 'attributes' => comprehensive_claim_attributes },
           { 'id' => '600141237', 'type' => 'claim', 'attributes' => comprehensive_claim_attributes.slice(
@@ -178,7 +178,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
 
     it 'retrieves claims from the Lighthouse service' do
       provider.get_claims
-      expect(mock_service).to have_received(:get_claims).with(nil, nil, {})
+      expect(mock_service).to have_received(:get_claims).with(no_args)
     end
 
     describe 'claim data transformation' do
@@ -198,7 +198,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
       end
 
       before do
-        allow(mock_service).to receive(:get_claims).with(nil, nil, {}).and_raise(faraday_error)
+        allow(mock_service).to receive(:get_claims).with(no_args).and_raise(faraday_error)
       end
 
       it 'handles the error using Lighthouse::ServiceException' do
@@ -218,14 +218,14 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
     let(:claim_id) { '600342023' }
 
     before do
-      allow(mock_service).to receive(:get_claim).with(claim_id, nil, nil, {}).and_return(
+      allow(mock_service).to receive(:get_claim).with(claim_id).and_return(
         'data' => { 'id' => claim_id, 'type' => 'claim', 'attributes' => comprehensive_claim_attributes }
       )
     end
 
     it 'retrieves a single claim from the Lighthouse service' do
       provider.get_claim(claim_id)
-      expect(mock_service).to have_received(:get_claim).with(claim_id, nil, nil, {})
+      expect(mock_service).to have_received(:get_claim).with(claim_id)
     end
 
     describe 'claim data transformation' do
@@ -245,7 +245,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
       end
 
       before do
-        allow(mock_service).to receive(:get_claim).with(claim_id, nil, nil, {}).and_raise(faraday_error)
+        allow(mock_service).to receive(:get_claim).with(claim_id).and_raise(faraday_error)
       end
 
       it 'handles the error using Lighthouse::ServiceException' do
