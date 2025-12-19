@@ -2,7 +2,7 @@
 
 module AskVAApi
   class ZipStateValidationResult
-    attr_reader :error_code, :error_message, :valid
+    attr_reader :valid, :error_code, :error_message
 
     def initialize(valid:, error_code: nil, error_message: nil)
       @valid = valid
