@@ -22,6 +22,19 @@ module BenefitsClaims
       attribute :status, String
       attribute :suspense_date, String
       attribute :type, String
+      attribute :closed_date, String
+      attribute :description, String
+      attribute :overdue, Bool
+      attribute :received_date, String
+      attribute :requested_date, String
+      attribute :uploads_allowed, Bool
+      attribute :uploaded, Bool
+      attribute :friendly_name, String
+      attribute :friendly_description, String
+      attribute :can_upload_file, Bool
+      attribute :support_aliases, String, array: true
+      attribute :documents, String
+      attribute :date, String
     end
 
     class SupportingDocument
@@ -65,6 +78,25 @@ module BenefitsClaims
       attribute :type, String
     end
 
+    class EvidenceSubmission
+      include Vets::Model
+
+      attribute :acknowledgement_date, String
+      attribute :claim_id, Integer
+      attribute :created_at, String
+      attribute :delete_date, String
+      attribute :document_type, String
+      attribute :failed_date, String
+      attribute :file_name, String
+      attribute :id, Integer
+      attribute :lighthouse_upload, Bool
+      attribute :tracked_item_id, Integer
+      attribute :tracked_item_display_name, String
+      attribute :tracked_item_friendly_name, String
+      attribute :upload_status, String
+      attribute :va_notify_status, String
+    end
+
     # Data Transfer Object for standardized claim responses across all providers
     #
     # This DTO defines the canonical claim structure expected by frontend clients
@@ -94,13 +126,13 @@ module BenefitsClaims
       attribute :evidence_waiver_submitted5103, Bool
       attribute :lighthouse_id, String
       attribute :status, String
-      attribute :supporting_documents, Array
-      attribute :evidence_submissions, Array
-      attribute :contentions, Array
-      attribute :events, Array
-      attribute :issues, Array
-      attribute :evidence, Array
-      attribute :tracked_items, Array
+      attribute :supporting_documents, SupportingDocument, array: true
+      attribute :evidence_submissions, EvidenceSubmission, array: true
+      attribute :contentions, Contention, array: true
+      attribute :events, Event, array: true
+      attribute :issues, Issue, array: true
+      attribute :evidence, Evidence, array: true
+      attribute :tracked_items, TrackedItem, array: true
     end
   end
 end

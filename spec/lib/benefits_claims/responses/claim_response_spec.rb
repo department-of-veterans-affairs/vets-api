@@ -21,7 +21,20 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
         display_name: 'PMR Pending',
         status: 'NEEDED_FROM_YOU',
         suspense_date: '2026-12-01',
-        type: 'other'
+        type: 'other',
+        closed_date: nil,
+        description: 'Please submit your private medical records',
+        overdue: false,
+        received_date: nil,
+        requested_date: '2024-11-01',
+        uploads_allowed: true,
+        uploaded: false,
+        friendly_name: 'Private Medical Records',
+        friendly_description: 'We need your medical records from private providers',
+        can_upload_file: true,
+        support_aliases: ['PMR', 'Medical Records'],
+        documents: '[]',
+        date: '2024-11-01'
       )
     ]
   end
@@ -77,6 +90,27 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
     ]
   end
 
+  let(:evidence_submissions) do
+    [
+      BenefitsClaims::Responses::EvidenceSubmission.new(
+        acknowledgement_date: '2024-10-16',
+        claim_id: 555_555_555,
+        created_at: '2024-10-15T10:00:00.000Z',
+        delete_date: nil,
+        document_type: 'Medical Records',
+        failed_date: nil,
+        file_name: 'medical_records.pdf',
+        id: 12_345,
+        lighthouse_upload: true,
+        tracked_item_id: 1,
+        tracked_item_display_name: 'PMR Pending',
+        tracked_item_friendly_name: 'Private Medical Records',
+        upload_status: 'SUCCESS',
+        va_notify_status: nil
+      )
+    ]
+  end
+
   let(:valid_params) do
     {
       id: '555555555',
@@ -97,7 +131,7 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       lighthouse_id: nil,
       status: 'COMPLETE',
       supporting_documents:,
-      evidence_submissions: [],
+      evidence_submissions:,
       contentions:,
       events:,
       issues:,
@@ -142,7 +176,22 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.supporting_documents.first.upload_date).to eq('2024-10-16')
 
       expect(claim.evidence_submissions).to be_an(Array)
-      expect(claim.evidence_submissions).to be_empty
+      expect(claim.evidence_submissions.length).to eq(1)
+      expect(claim.evidence_submissions.first).to be_a(BenefitsClaims::Responses::EvidenceSubmission)
+      expect(claim.evidence_submissions.first.acknowledgement_date).to eq('2024-10-16')
+      expect(claim.evidence_submissions.first.claim_id).to eq(555_555_555)
+      expect(claim.evidence_submissions.first.created_at).to eq('2024-10-15T10:00:00.000Z')
+      expect(claim.evidence_submissions.first.delete_date).to be_nil
+      expect(claim.evidence_submissions.first.document_type).to eq('Medical Records')
+      expect(claim.evidence_submissions.first.failed_date).to be_nil
+      expect(claim.evidence_submissions.first.file_name).to eq('medical_records.pdf')
+      expect(claim.evidence_submissions.first.id).to eq(12_345)
+      expect(claim.evidence_submissions.first.lighthouse_upload).to be(true)
+      expect(claim.evidence_submissions.first.tracked_item_id).to eq(1)
+      expect(claim.evidence_submissions.first.tracked_item_display_name).to eq('PMR Pending')
+      expect(claim.evidence_submissions.first.tracked_item_friendly_name).to eq('Private Medical Records')
+      expect(claim.evidence_submissions.first.upload_status).to eq('SUCCESS')
+      expect(claim.evidence_submissions.first.va_notify_status).to be_nil
 
       expect(claim.contentions).to be_an(Array)
       expect(claim.contentions.length).to eq(1)
@@ -179,6 +228,21 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.tracked_items.first.status).to eq('NEEDED_FROM_YOU')
       expect(claim.tracked_items.first.suspense_date).to eq('2026-12-01')
       expect(claim.tracked_items.first.type).to eq('other')
+      expect(claim.tracked_items.first.closed_date).to be_nil
+      expect(claim.tracked_items.first.description).to eq('Please submit your private medical records')
+      expect(claim.tracked_items.first.overdue).to be(false)
+      expect(claim.tracked_items.first.received_date).to be_nil
+      expect(claim.tracked_items.first.requested_date).to eq('2024-11-01')
+      expect(claim.tracked_items.first.uploads_allowed).to be(true)
+      expect(claim.tracked_items.first.uploaded).to be(false)
+      expect(claim.tracked_items.first.friendly_name).to eq('Private Medical Records')
+      expect(claim.tracked_items.first.friendly_description).to(
+        eq('We need your medical records from private providers')
+      )
+      expect(claim.tracked_items.first.can_upload_file).to be(true)
+      expect(claim.tracked_items.first.support_aliases).to eq(['PMR', 'Medical Records'])
+      expect(claim.tracked_items.first.documents).to eq('[]')
+      expect(claim.tracked_items.first.date).to eq('2024-11-01')
     end
 
     it 'defaults type to "claim" if not provided' do
@@ -186,6 +250,43 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       claim = described_class.new(params)
 
       expect(claim.type).to eq('claim')
+    end
+
+    it 'accepts empty evidence_submissions array' do
+      params = valid_params.merge(evidence_submissions: [])
+      claim = described_class.new(params)
+
+      expect(claim.evidence_submissions).to be_an(Array)
+      expect(claim.evidence_submissions).to be_empty
+    end
+
+    it 'validates evidence_submissions structure with Hash input' do
+      params = valid_params.merge(
+        evidence_submissions: [
+          {
+            acknowledgement_date: '2024-10-17',
+            claim_id: 555_555_556,
+            created_at: '2024-10-16T10:00:00.000Z',
+            delete_date: nil,
+            document_type: 'Service Records',
+            failed_date: nil,
+            file_name: 'dd214.pdf',
+            id: 12_346,
+            lighthouse_upload: false,
+            tracked_item_id: 2,
+            tracked_item_display_name: 'Service Records',
+            tracked_item_friendly_name: 'DD214',
+            upload_status: 'PENDING',
+            va_notify_status: 'sent'
+          }
+        ]
+      )
+      claim = described_class.new(params)
+
+      expect(claim.evidence_submissions.first).to be_a(BenefitsClaims::Responses::EvidenceSubmission)
+      expect(claim.evidence_submissions.first.document_type).to eq('Service Records')
+      expect(claim.evidence_submissions.first.file_name).to eq('dd214.pdf')
+      expect(claim.evidence_submissions.first.upload_status).to eq('PENDING')
     end
   end
 end
