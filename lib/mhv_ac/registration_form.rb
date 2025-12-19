@@ -59,7 +59,7 @@ module MHVAC
   # @!attribute terms_version
   #   @return [String] the version of terms of agreement that the registrant recieved
   # @!attribute terms_accepted_date
-  #   @return [Common::HTTPDate] date the registrant accepted the terms of agreement
+  #   @return [Vets::Type::HTTPDate] date the registrant accepted the terms of agreement
   #
   class RegistrationForm
     include Vets::Model

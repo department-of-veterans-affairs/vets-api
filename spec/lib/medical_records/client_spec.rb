@@ -13,16 +13,13 @@ describe MedicalRecords::Client do
         .with(:mhv_medical_records_support_new_model_health_condition).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(false)
 
-      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
-        VCR.use_cassette 'mr_client/session' do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-            @client ||= begin
-              client = MedicalRecords::Client.new(session: { user_uuid: '12345', user_id: '22406991' },
-                                                  icn: '1013868614V792025')
-              client.authenticate
-              client
-            end
+      VCR.use_cassette 'mr_client/session' do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
+          @client ||= begin
+            client = MedicalRecords::Client.new(session: { user_uuid: '12345', user_id: '22406991' },
+                                                icn: '1013868614V792025')
+            client.authenticate
+            client
           end
         end
       end
@@ -600,18 +597,15 @@ describe MedicalRecords::Client do
 
   context 'when the patient is not found', :vcr do
     it 'returns :patient_not_found for 202 response', :vcr do
-      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
-        VCR.use_cassette 'mr_client/session' do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
-            partial_client = MedicalRecords::Client.new(session: { user_uuid: '12345',
-                                                                   user_id: '22406991' }, icn: '1013868614V792025')
-            partial_client.authenticate
+      VCR.use_cassette 'mr_client/session' do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
+          partial_client = MedicalRecords::Client.new(session: { user_uuid: '12345',
+                                                                 user_id: '22406991' }, icn: '1013868614V792025')
+          partial_client.authenticate
 
-            VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
-              result = partial_client.list_allergies('uuid')
-              expect(result).to eq(:patient_not_found)
-            end
+          VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
+            result = partial_client.list_allergies('uuid')
+            expect(result).to eq(:patient_not_found)
           end
         end
       end

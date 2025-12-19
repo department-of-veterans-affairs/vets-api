@@ -6,7 +6,6 @@ module Burials
   module PdfFill
     # Section III: Veteran Service Information
     class Section3 < Section
-      # rubocop:disable Layout/LineLength
       # Section configuration hash
       KEY = {
         'toursOfDuty' => {
@@ -65,13 +64,11 @@ module Burials
         'previousNames' => {
           key: 'form1[0].#subform[82].OTHER_NAME_VETERAN_SERVED_UNDER[0]',
           question_num: 15,
-          question_label: 'If Veteran Served Under Name Other Than That Shown In Item 1, Give Full Name And Service Rendered Under That Name',
-          question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
-          limit: 180
+          question_label: 'Other Names Veteran Served Under',
+          question_text: 'OTHER NAMES VETERAN SERVED UNDER',
+          limit: 120
         }
       }.freeze
-      # rubocop:enable Layout/LineLength
-
       ##
       # Expands the form data for Section 3.
       #
@@ -80,6 +77,7 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
+        form_data['previousNames'] = expand_previous_names_and_service(form_data['previousNames'])
         tours_of_duty = form_data['toursOfDuty']
         return if tours_of_duty.blank?
 
@@ -88,8 +86,6 @@ module Burials
           tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank unit], ', ')
           tour_of_duty['militaryServiceNumber'] = form_data['militaryServiceNumber']
         end
-
-        form_data['previousNames'] = expand_previous_names_and_service(form_data['previousNames'])
       end
 
       ##
@@ -101,9 +97,23 @@ module Burials
       def expand_previous_names_and_service(previous_names)
         return if previous_names.blank?
 
-        previous_names.map do |previous_name|
-          "#{combine_full_name(previous_name)} (#{previous_name['serviceBranch']})"
-        end.join('; ')
+        formatted_names = previous_names.map do |previous_name|
+          service_info = previous_name['serviceBranch'].present? ? "(#{previous_name['serviceBranch']})" : ''
+          "#{combine_full_name(previous_name)} #{service_info}"
+        end
+
+        # Join with semicolons for length check
+        semicolon_joined = formatted_names.join('; ')
+
+        # Check against the character limit defined in KEY configuration
+        character_limit = KEY['previousNames'][:limit]
+
+        # If the semicolon-joined string exceeds the limit, use newlines for overflow format
+        if semicolon_joined.length > character_limit
+          formatted_names.join("\n")
+        else
+          semicolon_joined
+        end
       end
     end
   end

@@ -43,8 +43,6 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
-
-    resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
@@ -72,9 +70,9 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :form212680, only: [] do
+    resources :form212680, only: [:create] do
       collection do
-        post :download_pdf
+        get('download_pdf/:guid', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -219,6 +217,8 @@ Rails.application.routes.draw do
     mount Rswag::Ui::Engine => 'swagger'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
+    post 'event_bus_gateway/send_push', to: 'event_bus_gateway#send_push'
+    post 'event_bus_gateway/send_notifications', to: 'event_bus_gateway#send_notifications'
 
     resources :maintenance_windows, only: [:index]
 
@@ -273,6 +273,7 @@ Rails.application.routes.draw do
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
       resource :military_occupations, only: :show
+      resource :scheduling_preferences, only: %i[show create update destroy]
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
@@ -426,6 +427,7 @@ Rails.application.routes.draw do
   mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
+  mount DigitalFormsApi::Engine, at: '/digital_forms_api'
   mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'

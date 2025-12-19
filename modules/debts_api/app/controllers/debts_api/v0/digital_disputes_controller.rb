@@ -10,7 +10,7 @@ module DebtsApi
 
       def create
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
-        Flipper.enabled?(:digital_dmc_dispute_service) ? create_via_dmc! : create_legacy!
+        Flipper.enabled?(:digital_dmc_dispute_service, current_user) ? create_via_dmc! : create_legacy!
       end
 
       private
@@ -88,7 +88,7 @@ module DebtsApi
       end
 
       def email_notifications_enabled?
-        Flipper.enabled?(:digital_dispute_email_notifications) && current_user.email.present?
+        Flipper.enabled?(:digital_dispute_email_notifications, current_user) && current_user.email.present?
       end
 
       def send_submission_email

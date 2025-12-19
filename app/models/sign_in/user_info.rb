@@ -24,7 +24,12 @@ module SignIn
     attribute :birth_date, :string
     attribute :ssn, :string
     attribute :gender, :string
-    attribute :address
+    attribute :address_street1, :string
+    attribute :address_street2, :string
+    attribute :address_city, :string
+    attribute :address_state, :string
+    attribute :address_country, :string
+    attribute :address_postal_code, :string
     attribute :phone_number, :string
     attribute :icn, :string
     attribute :sec_id, :string
@@ -46,7 +51,10 @@ module SignIn
           csp_type: csp_type_from_mpi(user), csp_uuid: user.user_verification.credential_identifier,
           ial: ial_level(user), aal: AAL::LOGIN_GOV_AAL2,
           birth_date: user.birth_date, ssn: user.ssn,
-          gender: user.gender, address: user.address,
+          gender: user.gender,
+          address_street1: user.address[:street], address_street2: user.address[:street2],
+          address_city: user.address[:city], address_state: user.address[:state],
+          address_country: user.address[:country], address_postal_code: user.address[:postal_code],
           phone_number: user.home_phone, icn: user.icn,
           sec_id: user.sec_id, edipi: user.try(:edipi),
           mhv_ien: user.try(:mhv_ien), cerner_id: user.try(:cerner_id),
