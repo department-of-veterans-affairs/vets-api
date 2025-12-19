@@ -2020,7 +2020,7 @@ describe UnifiedHealthData::Service, type: :service do
                                       'short_description' => be_a(String).or(be_nil),
                                       'administration_site' => be_a(String).or(be_nil),
                                       'lot_number' => be_a(String).or(be_nil),
-                                      'status' => be_a(String).or(be_nil) 
+                                      'status' => be_a(String).or(be_nil)
                                     }
                                   ))
         end

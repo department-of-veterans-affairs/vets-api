@@ -25,7 +25,7 @@ RSpec.describe 'ImmunizationAdapter' do
       expect(parsed_immunization).to have_attributes(
         {
           'id' => '431b45a9-9070-4f8c-8de5-ab9cf9403fce',
-          'cvx_code' => 90732,
+          'cvx_code' => 90_732,
           'date' => '2024-11-26T20:35:00Z',
           'dose_number' => 'SERIES 1',
           'dose_series' => 'SERIES 1',

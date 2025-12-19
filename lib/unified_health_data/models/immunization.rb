@@ -23,7 +23,6 @@ module UnifiedHealthData
     attribute :lot_number, String
     attribute :status, String
 
-
     default_sort_by sort_date: :desc
   end
 end
