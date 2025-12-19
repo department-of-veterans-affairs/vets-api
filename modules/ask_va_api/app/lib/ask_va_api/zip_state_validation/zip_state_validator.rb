@@ -2,10 +2,10 @@
 
 module AskVAApi
   class ZipStateValidator
-    ZIP_NOT_FOUND = 'Zip Code not found'
-    STATE_NOT_FOUND = 'State not found'
-    ZIP_STATE_MISMATCH = 'Zip/State mismatch'
-    INVALID_ZIP = 'Invalid Zip Code'
+    ZIP_STATE_MISMATCH = 'ZIP_STATE_MISMATCH'
+    ZIP_NOT_FOUND = 'ZIP_NOT_FOUND'
+    STATE_NOT_FOUND = 'STATE_NOT_FOUND'
+    INVALID_ZIP = 'INVALID_ZIP'
 
     class << self
       def call(zipcode:, state_name:)
