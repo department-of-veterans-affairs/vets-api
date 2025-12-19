@@ -1764,8 +1764,8 @@ vass:
   client_id: fake_client_id
   client_secret: fake_client_secret
   mock: false
-  rate_limit_max_attempts: 5
   rate_limit_expiry: 900
+  rate_limit_max_attempts: 5
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
