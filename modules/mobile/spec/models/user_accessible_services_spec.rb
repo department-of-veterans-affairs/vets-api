@@ -223,10 +223,6 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       context 'when user does have mhv_prescriptions access' do
         let(:user) { build(:user, :mhv) }
 
-        before do
-          allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: true))
-        end
-
         it 'is true' do
           expect(user_services.service_auth_map[:prescriptions]).to be_truthy
         end
