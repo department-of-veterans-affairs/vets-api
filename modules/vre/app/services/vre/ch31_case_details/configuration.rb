@@ -21,7 +21,7 @@ module VRE
       private
 
       def mock_enabled?
-        Settings.res.ch_31_case_details.mock || false
+        ActiveModel::Type::Boolean.new.cast(Settings.res.ch_31_case_details.mock) || false
       end
     end
   end
