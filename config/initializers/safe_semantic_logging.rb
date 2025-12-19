@@ -26,7 +26,15 @@ module SafeSemanticLogging
     super
   end
 
-  def self.safe_log_enabled? = Flipper.enabled?(:safe_semantic_logging)
+  def self.safe_log_enabled? = database_exists? && Flipper.enabled?(:safe_semantic_logging)
+
+  def database_exists?
+    ActiveRecord::Base.connection
+  rescue ActiveRecord::NoDatabaseError
+    false
+  else
+    true
+  end
 end
 
 Rails.logger.singleton_class.prepend(SafeSemanticLogging)
