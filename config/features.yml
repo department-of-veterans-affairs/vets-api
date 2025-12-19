@@ -690,6 +690,10 @@ features:
   decision_review_sc_redesign_nov2025:
     actor_type: user
     description: Enables the Nov 2025 Supplemental Claims redesign
+  decision_review_upload_notification_pdfs_enabled:
+    actor_type: user
+    description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
+    enable_in_development: true
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
