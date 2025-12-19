@@ -73,13 +73,6 @@ RSpec.describe 'V0::form21p530a',
           )
         end
         expect(response).to have_http_status(:unprocessable_entity)
-        # Current response body: (not actionable)
-        # {"errors"=>[{"title"=>"Unprocessable Entity", "detail"=>"Request did not conform to API schema.", "code"=>"422", "status"=>"422", "source"=>"Committee::Middleware::RequestValidation"}]}
-
-        # Actual metrics returned:
-        #  "api.rack.request:1|c|#controller:,action:,source_app:21p-530a-interment-allowance,status:422",
-        #  "api.rack.request.duration:1.57|ms|#controller:,action:,source_app:21p-530a-interment-allowance",
-        #  "api.rack.request.duration.distribution:1.57|d|#controller:,action:,source_app:21p-530a-interment-allowance"
         expect(metrics.collect(&:source)).to include(
           'api.form21p530a.failure:1|c',
           'api.rack.request:1|c|#controller:v0/form21p530a,action:create,source_app:21p-530a-interment-allowance,' \

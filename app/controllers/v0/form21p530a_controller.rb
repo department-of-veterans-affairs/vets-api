@@ -11,15 +11,20 @@ module V0
 
     def create
       claim = build_claim
+
       claim.save!
-      handle_successful_claim(claim)
+      claim.process_attachments!
+
+      Rails.logger.info("ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}")
+      StatsD.increment("#{stats_key}.success")
 
       clear_saved_form(claim.form_id)
       render json: SavedClaimSerializer.new(claim)
-    rescue Common::Exceptions::ValidationErrors => e
-      handle_validation_error(e)
-    rescue => e
-      handle_general_error(e, claim)
+    rescue
+      # app/controllers/concerns/exception_handling.rb will log the error and handle error responses
+      # so we can just increment the metric her
+      StatsD.increment("#{stats_key}.failure")
+      raise
     end
 
     def download_pdf
@@ -38,12 +43,6 @@ module V0
       file_contents = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
-    rescue Common::Exceptions::ValidationErrors
-      # Re-raise validation errors so they're handled by the exception handling concern
-      # This ensures they return 422 instead of 500
-      raise
-    rescue => e
-      handle_pdf_generation_error(e)
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
@@ -52,17 +51,6 @@ module V0
 
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_530a_enabled, current_user)
-    end
-
-    def handle_pdf_generation_error(error)
-      Rails.logger.error('Form21p530a: Error generating PDF', error: error.message, backtrace: error.backtrace)
-      render json: {
-        errors: [{
-          title: 'PDF Generation Failed',
-          detail: 'An error occurred while generating the PDF',
-          status: '500'
-        }]
-      }, status: :internal_server_error
     end
 
     def stats_key
@@ -101,30 +89,6 @@ module V0
       raise Common::Exceptions::ValidationErrors, claim unless claim.valid?
 
       claim
-    end
-
-    def handle_successful_claim(claim)
-      claim.process_attachments!
-      Rails.logger.info("ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}")
-      StatsD.increment("#{stats_key}.success")
-    end
-
-    def handle_validation_error(error)
-      StatsD.increment("#{stats_key}.failure")
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: error.message, claim_errors: error.resource&.errors&.full_messages }
-      )
-      raise
-    end
-
-    def handle_general_error(error, claim)
-      StatsD.increment("#{stats_key}.failure")
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: error.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
-      raise
     end
   end
 end
