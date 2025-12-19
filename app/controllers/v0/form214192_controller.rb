@@ -9,71 +9,55 @@ module V0
     before_action :load_user, :check_feature_enabled
 
     def create
-      # Body parsed by Rails; schema validated by committee before hitting here.
-      payload = request.raw_post
+      claim = build_claim
 
-      claim = SavedClaim::Form214192.new(form: payload)
+      claim.save!
+      claim.process_attachments!
 
-      if claim.save
-        claim.process_attachments!
+      Rails.logger.info("ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}")
+      StatsD.increment("#{stats_key}.success")
 
-        Rails.logger.info(
-          "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        )
-        StatsD.increment("#{stats_key}.success")
-
-        clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
-      else
-        StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
-      end
-    rescue => e
-      # Include validation errors when present; helpful in logs/Sentry.
-      Rails.logger.error(
-        'Form214192: error submitting claim',
-        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
+      clear_saved_form(claim.form_id)
+      render json: SavedClaimSerializer.new(claim)
+    rescue
+      # app/controllers/concerns/exception_handling.rb will log the error and handle error responses
+      # so we can just increment the metric here
+      StatsD.increment("#{stats_key}.failure")
       raise
     end
 
     def download_pdf
-      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
-      parsed_form = JSON.parse(request.raw_post)
+      claim = build_claim
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
+        PdfFill::Filler.fill_ancillary_form(claim.parsed_form, SecureRandom.uuid, '21-4192')
       end
 
       # Stamp signature (SignatureStamper returns original path if signature is blank)
-      source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
+      source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, claim.parsed_form)
 
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
       file_contents = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
-    rescue => e
-      handle_pdf_generation_error(e)
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
     private
 
-    def check_feature_enabled
-      routing_error unless Flipper.enabled?(:form_4192_enabled, current_user)
+    def build_claim
+      # we're bypassing OliveBranch middleware here to preserve camelCase keys
+      payload = request.raw_post
+      claim = SavedClaim::Form214192.new(form: payload)
+      raise Common::Exceptions::ValidationErrors, claim unless claim.valid?
+
+      claim
     end
 
-    def handle_pdf_generation_error(error)
-      Rails.logger.error('Form214192: Error generating PDF', error: error.message, backtrace: error.backtrace)
-      render json: {
-        errors: [{
-          title: 'PDF Generation Failed',
-          detail: 'An error occurred while generating the PDF',
-          status: '500'
-        }]
-      }, status: :internal_server_error
+    def check_feature_enabled
+      routing_error unless Flipper.enabled?(:form_4192_enabled, current_user)
     end
 
     def stats_key

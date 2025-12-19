@@ -162,7 +162,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
 
     it 'deletes temporary file even when PDF generation fails' do
-      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF generation error')
+      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'Internal server error')
       # File.delete should not be called since source_file_path is nil
       expect(File).not_to receive(:delete)
 
@@ -171,7 +171,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
       json = JSON.parse(response.body)
       expect(json['errors']).to be_present
-      expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+      expect(json['errors'].first['title']).to eq('Internal server error')
       expect(json['errors'].first['status']).to eq('500')
     end
 
@@ -184,7 +184,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
       json = JSON.parse(response.body)
       expect(json['errors']).to be_present
-      expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+      expect(json['errors'].first['title']).to eq('Internal server error')
     end
 
     it 'does not require authentication' do
@@ -214,7 +214,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-        expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+        expect(json['errors'].first['title']).to eq('Internal server error')
         expect(json['errors'].first['status']).to eq('500')
       end
     end
