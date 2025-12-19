@@ -214,6 +214,12 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           expect(claim_data['appointmentDate']).to be_present
           expect(claim_data['appointmentDate']).not_to end_with('Z')
+
+          # Also check nested appointmentDateTime in appointment object
+          appointment = claim_data['appointment']
+          expect(appointment).to be_present
+          expect(appointment['appointmentDateTime']).to be_present
+          expect(appointment['appointmentDateTime']).not_to end_with('Z')
         end
       end
 

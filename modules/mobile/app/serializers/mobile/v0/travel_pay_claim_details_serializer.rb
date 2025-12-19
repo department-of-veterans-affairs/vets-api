@@ -19,7 +19,6 @@ module Mobile
                  :reimbursementAmount,
                  :rejectionReason,
                  :decisionLetterReason,
-                 :appointment,
                  :expenses,
                  :documents,
                  :createdOn,
@@ -27,6 +26,15 @@ module Mobile
 
       attribute :appointmentDate do |object|
         object.appointmentDate&.chomp('Z')
+      end
+
+      attribute :appointment do |object|
+        appt = object.appointment
+        if appt && appt['appointmentDateTime']
+          appt.merge('appointmentDateTime' => appt['appointmentDateTime']&.chomp('Z'))
+        else
+          appt
+        end
       end
     end
   end
