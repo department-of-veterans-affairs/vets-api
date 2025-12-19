@@ -1417,7 +1417,8 @@ describe UnifiedHealthData::Service, type: :service do
           result = service.refill_prescription(orders)
 
           expect(result[:success]).to eq([{ id: '20848650695', status: 'Refill Submitted', station_number: '668' }])
-          expect(result[:failed]).to eq([{ id: '0000000000001', error: 'Prescription is not Found', station_number: '570' }])
+          expect(result[:failed]).to eq([{ id: '0000000000001', error: 'Prescription is not Found',
+                                           station_number: '570' }])
         end
       end
 
@@ -1478,7 +1479,8 @@ describe UnifiedHealthData::Service, type: :service do
           result = service.refill_prescription([{ id: '21431810851', stationNumber: '663' }])
 
           expect(result[:success]).to eq([])
-          expect(result[:failed]).to eq([{ id: '21431810851', error: 'Prescription is not Found', station_number: '663' }])
+          expect(result[:failed]).to eq([{ id: '21431810851', error: 'Prescription is not Found',
+                                           station_number: '663' }])
         end
       end
     end
