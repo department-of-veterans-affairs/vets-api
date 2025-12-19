@@ -953,7 +953,7 @@ module VAOS
       def avs_applicable?(appt, avs)
         return false if appt.nil? || appt[:status].nil? || appt[:start].nil? || avs.nil?
 
-        appt[:status] == 'booked' && appt[:start].to_datetime.past? && avs
+        %w[booked fulfilled].include?(appt[:status]) && appt[:start].to_datetime.past? && avs
       end
 
       # Filters out non-ASCII characters from the reason code text field in the request object body.

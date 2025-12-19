@@ -1376,6 +1376,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
     enable_in_development: true
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
   mhv_secure_messaging_recipient_opt_groups:
     actor_type: user
     description: Disables/Enables Secure Messaging optgroups in recipient dropdown on Start a new message page
@@ -2633,6 +2637,9 @@ features:
   my_va_display_decision_reviews_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Decision Reviews forms in My VA for form status.
+  my_va_browser_monitoring:
+    actor_type: user
+    description: Enables Datadog Real-Time User Monitoring in the MyVA dashboard application.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true

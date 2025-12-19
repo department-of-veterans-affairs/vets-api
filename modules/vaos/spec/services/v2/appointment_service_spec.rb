@@ -2157,6 +2157,7 @@ describe VAOS::V2::AppointmentsService do
     after { travel_back }
 
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
+    let(:fulfilled_appointment) { { status: 'fulfilled', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
     let(:avs_param_included) { true }
@@ -2164,6 +2165,10 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns true if the appointment is booked and is in the past and avs is included' do
       expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
+    end
+
+    it 'returns true if the appointment is fulfilled and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, fulfilled_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do
