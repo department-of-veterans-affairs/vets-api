@@ -73,6 +73,38 @@ module BenefitsDocuments
       false
     end
 
+    # Returns a list of all VBMS document names related to participantId.
+    # @param participant_id: integer A unique identifier assigned to each patient entry
+    # in the Master Patient Index linking patients to their records across VA systems.
+    # Example: 999012105
+    # @param page_number: integer 1-based page number to retrieve. Defaults to 1.
+    # Example: 1
+    # @param page_size: integer Number of results per page (1–100). Defaults to 100. Maximum 100.
+    # Example: 100
+    def participant_documents_search(participant_id:, page_number: 1, page_size: 100)
+      config.participant_documents_search(participant_id:, page_number:, page_size:)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/participant/documents/search')
+    end
+
+    # Download the full content of a document (such as a PDF).
+    # The document must be identified by its unique ID, and associated with either a Participant ID or File Number.
+    # @param document_uuid: string The document's unique identifier in VBMS,
+    # obtained by making a Document Service API request to search for documents
+    # that are available to download for the Veteran.
+    # Note that this differs from the document's current version UUID.
+    # @param participant_id: integer A unique identifier assigned to each patient entry
+    # in the Master Patient Index linking patients to their records across VA systems.
+    # Example: 999012105
+    # @param file_number: string The Veteran's VBMS fileNumber used when uploading the document to VBMS.
+    # It indicates the eFolder in which the document resides.
+    # Example: "999012105"
+    def participant_documents_download(document_uuid:, participant_id: nil, file_number: nil)
+      config.participant_documents_download(document_uuid:, participant_id:, file_number:)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/participant/documents/download')
+    end
+
     private
 
     def submit_document(file, file_params, lighthouse_client_id = nil) # rubocop:disable Metrics/MethodLength

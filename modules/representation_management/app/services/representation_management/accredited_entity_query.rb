@@ -8,33 +8,60 @@ module RepresentationManagement
     # Initializes a new instance of AccreditedEntityQuery.
     #
     # @param query_string [String] the string to be used for querying accredited entities.
-    def initialize(query_string)
+    # @param data_source_log [AccreditationDataIngestionLog, nil] optional log to determine data source
+    def initialize(query_string, data_source_log: nil)
       @query_string = query_string
+      @data_source_log = data_source_log || AccreditationDataIngestionLog.most_recent_successful
     end
 
     # Executes the query and returns the results as an array of objects.
     #
-    # @return [Array<AccreditedIndividual, AccreditedOrganization>] an array of accredited entities
-    #   that match the query string, sorted by their similarity distance. The array will be empty
-    #   if the query string is blank.
+    # @return [Array<AccreditedIndividual, AccreditedOrganization, VeteranRepresentativeAdapter>]
+    #   an array of accredited entities that match the query string, sorted by their similarity
+    #   distance. The array will be empty if the query string is blank.
     def results
       return [] if @query_string.blank?
 
-      array_results = ActiveRecord::Base.connection.exec_query(
-        ActiveRecord::Base.send(:sanitize_sql_array, [
-                                  sql_query_to_select_and_sort_accredited_entities,
-                                  {
-                                    query_string: @query_string,
-                                    threshold: WORD_SIMILARITY_THRESHOLD,
-                                    max_results: MAXIMUM_RESULT_COUNT
-                                  }
-                                ])
-      )
+      if use_veteran_tables?
+        # Use OriginalEntityQuery for Veteran models and wrap in adapters
+        results = OriginalEntityQuery.new(@query_string).results
+        wrap_veteran_results(results)
+      else
+        # Use existing AccreditedIndividual/AccreditedOrganization query
+        array_results = ActiveRecord::Base.connection.exec_query(
+          ActiveRecord::Base.send(:sanitize_sql_array, [
+                                    sql_query_to_select_and_sort_accredited_entities,
+                                    {
+                                      query_string: @query_string,
+                                      threshold: WORD_SIMILARITY_THRESHOLD,
+                                      max_results: MAXIMUM_RESULT_COUNT
+                                    }
+                                  ])
+        )
 
-      transform_results_to_objects(array_results)
+        transform_results_to_objects(array_results)
+      end
     end
 
     private
+
+    def use_veteran_tables?
+      return false if @data_source_log.nil?
+
+      @data_source_log.trexler_file?
+    end
+
+    def wrap_veteran_results(results)
+      results.map do |record|
+        if record.is_a?(Veteran::Service::Representative)
+          VeteranRepresentativeAdapter.new(record)
+        elsif record.is_a?(Veteran::Service::Organization)
+          AccreditedOrganizationAdapter.new(record)
+        else
+          record
+        end
+      end
+    end
 
     # rubocop:disable Metrics/MethodLength
     # Generates the SQL query used to search for accredited entities.

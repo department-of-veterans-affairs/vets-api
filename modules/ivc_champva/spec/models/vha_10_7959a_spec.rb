@@ -27,28 +27,58 @@ RSpec.describe IvcChampva::VHA107959a do
   let(:vha_10_7959a) { described_class.new(data) }
 
   describe '#metadata' do
-    it 'returns metadata for the form' do
-      metadata = vha_10_7959a.metadata
+    context 'when champva_update_metadata_keys flipper is enabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(true)
+        metadata = vha_10_7959a.metadata
 
-      expect(metadata).to include(
-        'veteranFirstName' => 'John',
-        'veteranLastName' => 'Doe',
-        'zipCode' => '12345',
-        'country' => 'USA',
-        'source' => 'VA Platform Digital Forms',
-        'docType' => '10-7959A',
-        'ssn_or_tin' => '123456789',
-        'fileNumber' => '123456789',
-        'businessLine' => 'CMP',
-        'primaryContactInfo' => {
-          'name' => {
-            'first' => 'Veteran',
-            'last' => 'Surname'
+        expect(metadata).to include(
+          'sponsorFirstName' => 'John',
+          'sponsorLastName' => 'Doe',
+          'zipCode' => '12345',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959A',
+          'ssn_or_tin' => '123456789',
+          'fileNumber' => '123456789',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => false
           },
-          'email' => false
-        },
-        'primaryContactEmail' => 'false'
-      )
+          'primaryContactEmail' => 'false'
+        )
+      end
+    end
+
+    context 'when champva_update_metadata_keys flipper is disabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+        metadata = vha_10_7959a.metadata
+
+        expect(metadata).to include(
+          'veteranFirstName' => 'John',
+          'veteranLastName' => 'Doe',
+          'zipCode' => '12345',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959A',
+          'ssn_or_tin' => '123456789',
+          'fileNumber' => '123456789',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => false
+          },
+          'primaryContactEmail' => 'false'
+        )
+      end
     end
   end
 
@@ -95,8 +125,20 @@ RSpec.describe IvcChampva::VHA107959a do
     end
 
     context 'when resubmission properties are missing' do
-      it 'does not interfere with metadata creation' do
-        expect(vha_10_7959a.metadata.keys.include?('veteranFirstName')).to be(true)
+      context 'when champva_update_metadata_keys flipper is enabled' do
+        it 'does not interfere with metadata creation' do
+          allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(true)
+
+          expect(vha_10_7959a.metadata.keys.include?('sponsorFirstName')).to be(true)
+        end
+      end
+
+      context 'when champva_update_metadata_keys flipper is disabled' do
+        it 'does not interfere with metadata creation' do
+          allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+
+          expect(vha_10_7959a.metadata.keys.include?('veteranFirstName')).to be(true)
+        end
       end
 
       it 'does not include resubmission property if there is no corresponding value' do

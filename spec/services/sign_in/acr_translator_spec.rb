@@ -14,6 +14,13 @@ RSpec.describe SignIn::AcrTranslator do
 
     context 'when type is idme' do
       let(:type) { SignIn::Constants::Auth::IDME }
+      let(:ial2_feature_flag_enabled) { false }
+      let(:vsp_environment) { 'staging' }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:identity_ial2_enforcement).and_return(ial2_feature_flag_enabled)
+        allow(Settings).to receive(:vsp_environment).and_return(vsp_environment)
+      end
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
@@ -33,12 +40,47 @@ RSpec.describe SignIn::AcrTranslator do
         end
       end
 
+      context 'and acr is ial2' do
+        let(:acr) { 'ial2' }
+
+        context 'when ial2 is enabled' do
+          let(:ial2_feature_flag_enabled) { true }
+          let(:vsp_environment) { 'staging' }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_IAL2 } }
+
+          it 'returns expected translated acr value' do
+            expect(subject).to eq(expected_translated_acr)
+          end
+        end
+
+        context 'when ial2 is disabled' do
+          let(:ial2_feature_flag_enabled) { false }
+          let(:expected_error) { SignIn::Errors::InvalidAcrError }
+          let(:expected_error_message) { 'Invalid ACR for idme' }
+
+          it 'raises invalid acr error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'when ial2 is called in production' do
+          let(:ial2_feature_flag_enabled) { true }
+          let(:vsp_environment) { 'production' }
+          let(:expected_error) { SignIn::Errors::InvalidAcrError }
+          let(:expected_error_message) { 'Invalid ACR for idme' }
+
+          it 'raises invalid acr error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
       context 'and acr is min' do
         let(:acr) { 'min' }
-        let(:acr_comparison) { SignIn::Constants::Auth::IDME_COMPARISON_MINIMUM }
 
         context 'and uplevel is false' do
           let(:uplevel) { false }
+          let(:acr_comparison) { SignIn::Constants::Auth::IDME_COMPARISON_MINIMUM }
           let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA1, acr_comparison: } }
 
           it 'returns expected translated acr value' do
@@ -48,7 +90,7 @@ RSpec.describe SignIn::AcrTranslator do
 
         context 'and uplevel is true' do
           let(:uplevel) { true }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA3, acr_comparison: } }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_LOA3 } }
 
           it 'returns expected translated acr value' do
             expect(subject).to eq(expected_translated_acr)
@@ -102,7 +144,7 @@ RSpec.describe SignIn::AcrTranslator do
 
         context 'and uplevel is true' do
           let(:uplevel) { true }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL0 } }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
 
           it 'returns expected translated acr value' do
             expect(subject).to eq(expected_translated_acr)

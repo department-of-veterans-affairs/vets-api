@@ -1,0 +1,26 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.vass.va.gov/api/AppointmentAvailability
+    body:
+      encoding: UTF-8
+      string: '{"correlationId":"test-correlation-id","veteranId":"da1e1a40-1e63-f011-bec2-001dd80351ea","dtStartUtc":"2025-12-10T00:00:00Z","dtEndUtc":"2025-12-03T00:00:00Z"}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-token
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: '{"data":null,"success":false,"message":"The end date must be later than the start date. Please select a valid date range.","correlationId":"test-correlation-id","timeStamp":"2025-12-02T12:00:00Z"}'
+  recorded_at: Thu, 02 Dec 2025 12:00:00 GMT
+recorded_with: VCR 6.0.0
+

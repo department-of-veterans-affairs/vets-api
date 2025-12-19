@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/documentTypeIdFilter.json",
+  "description" : "Filters results on DocumentTypeId.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "description" : "This is a stringified json array of integers",
+      "example" : "\"[131]\"",
+      "type" : "string"
+    }
+  },
+  "title" : "Document Type Id Filter Request",
+  "type" : "object"
+}

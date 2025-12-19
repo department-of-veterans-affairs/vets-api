@@ -17,6 +17,7 @@ module Mobile
       attribute :totalCostRequested, Types::Decimal.optional
       attribute :reimbursementAmount, Types::Decimal.optional
       attribute :rejectionReason, Types::Hash.optional
+      attribute :decisionLetterReason, Types::String.optional
       attribute :createdOn, Types::DateTime
       attribute :modifiedOn, Types::DateTime
       attribute :appointment, Types::Hash.optional

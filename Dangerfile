@@ -3,6 +3,8 @@
 require 'ostruct'
 require 'open3'
 
+require_relative 'lib/dangerfile/parameter_filtering_allowlist_checker'
+
 module VSPDanger
   HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"
   BASE_SHA = ENV.fetch('GITHUB_BASE_REF', '').empty? ? 'origin/master' : "origin/#{ENV.fetch('GITHUB_BASE_REF')}"
@@ -16,7 +18,8 @@ module VSPDanger
         ChangeLimiter.new.run,
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
-        GemfileLockPlatformChecker.new.run
+        GemfileLockPlatformChecker.new.run,
+        ::Dangerfile::ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
       ]
     end
 
@@ -55,7 +58,8 @@ module VSPDanger
       *.csv *.json *.tsv *.txt *.md Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
       modules/mobile/spec/support/vcr_cassettes/ db/seeds modules/vaos/app/docs modules/meb_api/app/docs
       modules/appeals_api/app/swagger/ *.bru *.pdf modules/*/spec/fixtures/* modules/*/spec/factories/*
-      modules/*/spec/**/*.rb spec/**/*.rb
+      modules/*/spec/**/*.rb spec/**/*.rb modules/*/docs/**/*.yaml modules/*/docs/**/*.yml modules/*/app/docs/**/*.yaml
+      modules/*/app/docs/**/*.yml
     ].freeze
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
@@ -188,9 +192,6 @@ module VSPDanger
     def run
       required_group = '@department-of-veterans-affairs/backend-review-group'
       exception_groups = %w[@department-of-veterans-affairs/octo-identity
-                            @department-of-veterans-affairs/lighthouse-dash
-                            @department-of-veterans-affairs/lighthouse-pivot
-                            @department-of-veterans-affairs/lighthouse-banana-peels
                             @department-of-veterans-affairs/mobile-api-team
                             @department-of-veterans-affairs/fed-eng-admin]
 
@@ -507,7 +508,7 @@ module VSPDanger
   if $PROGRAM_NAME == __FILE__
     require 'minitest/autorun'
 
-    class ChangeLimiterTest < MiniTest::Test
+    class ChangeLimiterTest < Minitest::Test
       def test_rubocop
         assert system('rubocop --format simple')
       end

@@ -213,4 +213,45 @@ describe Ccra::ReferralService do
       end
     end
   end
+
+  describe '#get_cached_referral_data' do
+    let(:id) { '984_646372' }
+    let(:icn) { '1012845331V153043' }
+    let(:referral_detail) do
+      instance_double(Ccra::ReferralDetail,
+                      category_of_care: 'CARDIOLOGY',
+                      referral_number: 'VA0000005681')
+    end
+
+    context 'when cached data exists' do
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data)
+          .with(id:, icn:)
+          .and_return(referral_detail)
+      end
+
+      it 'returns the cached referral detail' do
+        result = subject.get_cached_referral_data(id, icn)
+        expect(result).to eq(referral_detail)
+      end
+
+      it 'calls referral_cache.fetch_referral_data with correct parameters' do
+        expect(referral_cache).to receive(:fetch_referral_data).with(id:, icn:)
+        subject.get_cached_referral_data(id, icn)
+      end
+    end
+
+    context 'when cached data does not exist' do
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data)
+          .with(id:, icn:)
+          .and_return(nil)
+      end
+
+      it 'returns nil' do
+        result = subject.get_cached_referral_data(id, icn)
+        expect(result).to be_nil
+      end
+    end
+  end
 end

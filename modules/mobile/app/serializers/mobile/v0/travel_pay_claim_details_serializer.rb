@@ -19,6 +19,7 @@ module Mobile
                  :totalCostRequested,
                  :reimbursementAmount,
                  :rejectionReason,
+                 :decisionLetterReason,
                  :appointment,
                  :expenses,
                  :documents,

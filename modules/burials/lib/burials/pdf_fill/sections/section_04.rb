@@ -94,6 +94,20 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
+        form_data['hasNationalOrFederal'] = select_radio(form_data['nationalOrFederal'])
+        form_data['hasGovtContributions'] = select_radio(form_data['govtContributions'])
+
+        # special case for transportation being the only option selected.
+        final_resting_place = form_data.dig('finalRestingPlace', 'location')
+        if final_resting_place.present?
+          form_data['finalRestingPlace']['location'] = {
+            'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
+            'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
+            'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
+            'other' => select_checkbox(final_resting_place == 'other')
+          }
+        end
+
         set_state_to_no_if_national(form_data)
         expand_cemetery_location(form_data)
         expand_location_question(form_data)

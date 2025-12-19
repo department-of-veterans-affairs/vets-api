@@ -3,6 +3,7 @@
 require 'dependents_benefits/generators/dependent_claim_generator'
 
 module DependentsBenefits
+  # Generator module for creating dependent benefit claims
   module Generators
     ##
     # Generator for creating VA Form 21-686c claims from combined 686c-674 form data
@@ -16,8 +17,10 @@ module DependentsBenefits
     class Claim686cGenerator < Generators::DependentClaimGenerator
       private
 
+      # Keys relevant to the 21-686c form contained under form_data
       FORM_KEYS = ['veteran_information', 'view:selectable686_options',
                    'statement_of_truth_signature', 'statement_of_truth_certified'].freeze
+      # Keys relevant to the 21-686c form contained under dependents_application
       APPLICATION_KEYS = %w[
         veteran_contact_information
         household_income
@@ -55,6 +58,7 @@ module DependentsBenefits
         form_686c_data
       end
 
+      ## Specifies the claim class for VA Form 21-686c
       def claim_class
         AddRemoveDependent
       end

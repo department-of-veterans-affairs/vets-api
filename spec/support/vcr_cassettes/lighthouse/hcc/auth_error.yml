@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_HCC_HOST>/oauth2/health-care-costs-coverage/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=qfaQdsafdsfaf&scope=system%2FChargeItem.read+system%2FInvoice.read+system%2FPaymentReconciliation.read+system%2FMedicationDispense.read+system%2FEncounter.read+system%2FAccount.read+system%2FMedication.read+launch&launch=<LAUNCH>%3D
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Wed, 05 Nov 2025 14:19:20 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '89'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Reset:
+      - '40'
+      Vary:
+      - Origin
+      Etag:
+      - W/"<ETAG>"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-1814421688"
+      X-Envoy-Upstream-Service-Time:
+      - '306'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"error":"invalid_client","error_description":"Invalid value for ''client_id''
+        parameter."}'
+  recorded_at: Wed, 05 Nov 2025 14:19:20 GMT
+recorded_with: VCR 6.3.1

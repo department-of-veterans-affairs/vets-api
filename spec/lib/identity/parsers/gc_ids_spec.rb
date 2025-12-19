@@ -34,7 +34,8 @@ describe Identity::Parsers::GCIds do
           vet360_id: nil,
           icn_with_aaid: nil,
           birls_id: nil,
-          vha_facility_hash: nil
+          vha_facility_hash: nil,
+          npi_id: nil
         }
       end
       let(:ids) { [] }

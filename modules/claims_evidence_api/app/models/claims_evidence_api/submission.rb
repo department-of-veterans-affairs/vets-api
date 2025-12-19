@@ -4,7 +4,7 @@ require 'claims_evidence_api/monitor'
 require 'claims_evidence_api/folder_identifier'
 
 # Representation of a submission to ClaimsEvidence API
-# https://fwdproxy-dev.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/upload
+# https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/upload
 #
 # create_table "claims_evidence_api_submissions", force: :cascade do |t|
 #   t.string "form_id", null: false, comment: "form type of the submission"

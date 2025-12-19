@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require 'pagerduty/maintenance_client'
 require 'pagerduty/maintenance_windows_uploader'
 
 module PagerDuty
   class CacheGlobalDowntime
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 1, queue: 'critical'
 
     def perform
@@ -22,6 +24,8 @@ module PagerDuty
       PagerDuty::MaintenanceWindowsUploader.upload_file(file_path)
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
+
+      log_exception_to_rails(e)
     end
 
     private

@@ -60,7 +60,15 @@ module Mobile
       # returns a pdf or json representation of the requested letter type given the user has that letter type available
       def download
         if params[:type] == COE_LETTER_TYPE
-          response = lgy_service.get_coe_file.body
+          begin
+            StatsD.increment('mobile.letters.coe_status.download_total')
+            response = lgy_service.get_coe_file.body
+            StatsD.increment('mobile.letters.coe_status.download_success')
+          rescue => e
+            StatsD.increment('mobile.letters.coe_status.download_failure')
+            Rails.logger.error('LGY COE letter download failed', error: e.message)
+            raise e
+          end
         else
           if params[:format] == 'json'
             letter = lighthouse_service.get_letter(icn, params[:type], download_options_hash)
@@ -70,10 +78,7 @@ module Mobile
           response = download_lighthouse_letters(params)
         end
 
-        send_data response,
-                  filename: "#{params[:type]}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'attachment'
+        send_data response, filename: "#{params[:type]}.pdf", type: 'application/pdf', disposition: 'attachment'
       end
 
       private

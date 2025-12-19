@@ -11,7 +11,6 @@ module Lighthouse
   module BenefitsIntake
     class SubmitCentralForm686cV2Job
       include Sidekiq::Job
-      include SentryLogging
 
       FOREIGN_POSTALCODE = '00000'
       FORM_ID_V2 = '686C-674-V2'
@@ -276,10 +275,6 @@ module Lighthouse
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )
-      end
-
-      def log_cmp_response(response)
-        log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
       end
 
       def valid_claim_data(saved_claim_id, vet_info)

@@ -7,6 +7,7 @@ require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
 require 'vets/collection'
+require 'vets/shared_logging'
 
 module BB
   ##
@@ -15,7 +16,7 @@ module BB
   class Client < Common::Client::Base
     include Common::Client::Concerns::MHVSessionBasedClient
     include Common::Client::Concerns::StreamingClient
-    include SentryLogging
+    include Vets::SharedLogging
 
     configuration BB::Configuration
     client_session Rx::ClientSession
@@ -157,6 +158,8 @@ module BB
       if failed.present?
         log_message_to_sentry('Final health record refresh contained one or more error statuses', :warn,
                               refresh_failures: failed.sort)
+
+        log_message_to_rails('Final health record refresh contained one or more error statuses', :warn)
       end
     end
   end

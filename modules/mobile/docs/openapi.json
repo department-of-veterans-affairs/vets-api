@@ -7548,6 +7548,96 @@
         "summary": "/v0/travel-pay/claims/{id}"
       }
     },
+    "/v0/travel-pay/claims/{claim_id}/documents/{document_id}": {
+      "get": {
+        "description": "Download a specific document associated with a travel pay claim.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The unique identifier for the travel pay claim",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "in": "path",
+            "name": "claim_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "The unique identifier for the document to download",
+            "example": "doc1-decision-letter",
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "Document downloaded successfully",
+            "headers": {
+              "Content-Disposition": {
+                "description": "Indicates the file should be downloaded with the specified filename",
+                "schema": {
+                  "type": "string",
+                  "example": "attachment; filename=\"DecisionLetter.pdf\""
+                }
+              },
+              "Content-Type": {
+                "description": "The MIME type of the document",
+                "schema": {
+                  "type": "string",
+                  "example": "application/pdf"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims/{claim_id}/documents/{document_id}"
+      }
+    },
     "/v0/user": {
       "get": {
         "description": "Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.\n",
@@ -10159,6 +10249,49 @@
           }
         }
       },
+      "AvsPdf": {
+        "type": "object",
+        "properties": {
+          "appt_id": {
+            "type": "string",
+            "example": "12345",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "example": "15249638961",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "example": "Ambulatory Visit Summary",
+            "nullable": true
+          },
+          "loinc_codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "4189669"
+            },
+            "nullable": true
+          },
+          "note_type": {
+            "type": "string",
+            "example": "ambulatory_patient_summary",
+            "nullable": true
+          },
+          "content_type": {
+            "type": "string",
+            "example": "application/pdf",
+            "nullable": true
+          },
+          "binary": {
+            "type": "string",
+            "example": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e",
+            "nullable": true
+          }
+        }
+      },
       "Appointment": {
         "type": "object",
         "additionalProperties": false,
@@ -10584,6 +10717,18 @@
                 "type": "boolean",
                 "nullable": true,
                 "example": true
+              },
+              "avsPdf": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AvsPdf"
+                },
+                "nullable": true
+              },
+              "avsError": {
+                "type": "string",
+                "nullable": true,
+                "example": "Error generating AVS PDF"
               }
             }
           }
@@ -15229,7 +15374,8 @@
                     "amountWithheld",
                     "originalAr",
                     "currentAr",
-                    "debtHistory"
+                    "debtHistory",
+                    "fiscalTransactionData"
                   ],
                   "properties": {
                     "fileNumber": {
@@ -15296,6 +15442,69 @@
                           }
                         }
                       }
+                    },
+                    "fiscalTransactionData": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "debtId": {
+                            "type": "integer"
+                          },
+                          "debtIncreaseAmount": {
+                            "type": "float"
+                          },
+                          "hinesCode": {
+                            "type": "string"
+                          },
+                          "offsetAmount": {
+                            "type": "float"
+                          },
+                          "offsetType": {
+                            "type": "string"
+                          },
+                          "paymentType": {
+                            "type": "string"
+                          },
+                          "transactionAdminAmount": {
+                            "type": "float"
+                          },
+                          "transactionCourtAmount": {
+                            "type": "float"
+                          },
+                          "transactionDate": {
+                            "type": "string"
+                          },
+                          "transactionDescription": {
+                            "type": "string"
+                          },
+                          "transactionExplanation": {
+                            "type": "string"
+                          },
+                          "transactionFiscalCode": {
+                            "type": "string"
+                          },
+                          "transactionFiscalSource": {
+                            "type": "string"
+                          },
+                          "transactionFiscalYear": {
+                            "type": "string"
+                          },
+                          "transactionInterestAmount": {
+                            "type": "float"
+                          },
+                          "transactionMarshallAmount": {
+                            "type": "float"
+                          },
+                          "transactionPrincipalAmount": {
+                            "type": "float"
+                          },
+                          "transactionTotalAmount": {
+                            "type": "float"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -15358,7 +15567,8 @@
                   "amountWithheld",
                   "originalAr",
                   "currentAr",
-                  "debtHistory"
+                  "debtHistory",
+                  "fiscalTransactionData"
                 ],
                 "properties": {
                   "fileNumber": {
@@ -15423,6 +15633,69 @@
                         "description": {
                           "type": "string",
                           "example": "Third Demand Letter - Potential Treasury Referral"
+                        }
+                      }
+                    }
+                  },
+                  "fiscalTransactionData": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "debtId": {
+                          "type": "integer"
+                        },
+                        "debtIncreaseAmount": {
+                          "type": "float"
+                        },
+                        "hinesCode": {
+                          "type": "string"
+                        },
+                        "offsetAmount": {
+                          "type": "float"
+                        },
+                        "offsetType": {
+                          "type": "string"
+                        },
+                        "paymentType": {
+                          "type": "string"
+                        },
+                        "transactionAdminAmount": {
+                          "type": "float"
+                        },
+                        "transactionCourtAmount": {
+                          "type": "float"
+                        },
+                        "transactionDate": {
+                          "type": "string"
+                        },
+                        "transactionDescription": {
+                          "type": "string"
+                        },
+                        "transactionExplanation": {
+                          "type": "string"
+                        },
+                        "transactionFiscalCode": {
+                          "type": "string"
+                        },
+                        "transactionFiscalSource": {
+                          "type": "string"
+                        },
+                        "transactionFiscalYear": {
+                          "type": "string"
+                        },
+                        "transactionInterestAmount": {
+                          "type": "float"
+                        },
+                        "transactionMarshallAmount": {
+                          "type": "float"
+                        },
+                        "transactionPrincipalAmount": {
+                          "type": "float"
+                        },
+                        "transactionTotalAmount": {
+                          "type": "float"
                         }
                       }
                     }
@@ -23344,10 +23617,10 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "userInTriageTeam?"
+              "userInTriageTeam"
             ],
             "properties": {
-              "userInTriageTeam?": {
+              "userInTriageTeam": {
                 "type": "boolean",
                 "example": true,
                 "description": "This field is only present if the user is in the triage team for this message. This can be used to determine if the user can reply to the message."
@@ -24764,6 +25037,12 @@
               }
             }
           },
+          "decisionLetterReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decision letter reason extracted from decision letter document for denied or partial payment claims",
+            "example": "Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable."
+          },
           "appointment": {
             "type": "object",
             "nullable": false,
@@ -25198,7 +25477,8 @@
         "required": [
           "id",
           "type",
-          "attributes"
+          "attributes",
+          "meta"
         ],
         "properties": {
           "id": {
@@ -25231,6 +25511,7 @@
                   "directDepositBenefitsUpdate": true,
                   "disabilityRating": true,
                   "genderIdentity": false,
+                  "labsAndTestsEnabled": false,
                   "lettersAndDocuments": true,
                   "militaryServiceHistory": true,
                   "paymentHistory": true,
@@ -25242,6 +25523,32 @@
                   "secureMessagingOracleHealthEnabled": false,
                   "medicationsOracleHealthEnabled": false
                 }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "isUserAtPretransitionedOhFacility",
+              "isUserFacilityReadyForInfoAlert",
+              "isUserFacilityMigratingToOh"
+            ],
+            "properties": {
+              "isUserAtPretransitionedOhFacility": {
+                "type": "boolean",
+                "example": true,
+                "description": "Indicates whether the user is associated with a facility that is pre-transitioned to Oracle Health."
+              },
+              "isUserFacilityReadyForInfoAlert": {
+                "type": "boolean",
+                "example": false,
+                "description": "Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition."
+              },
+              "isUserFacilityMigratingToOh": {
+                "type": "boolean",
+                "example": false,
+                "description": "Indicates whether the user is associated with a facility that is migrating to Oracle Health."
               }
             }
           }

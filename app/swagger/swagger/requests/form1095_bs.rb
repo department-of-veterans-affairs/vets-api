@@ -22,7 +22,7 @@ module Swagger
               property :available_forms, type: :array do
                 items do
                   property :year, type: :integer, example: 2021
-                  property :last_updated, type: :string, example: '2022-08-03T16:08:50.071Z'
+                  property :last_updated, type: %i[string null], example: '2022-08-03T16:08:50.071Z'
                 end
               end
             end

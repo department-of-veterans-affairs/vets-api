@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module EducationForm
   class FormattingError < StandardError
@@ -11,7 +11,7 @@ module EducationForm
 
   class Process10203Submissions
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options queue: 'default', backtrace: true, unique_for: 24.hours
 
     # Get all 10203 submissions that have a row in education_stem_automated_decisions
@@ -160,6 +160,7 @@ module EducationForm
                     FormattingError.new("Could not format #{claim.confirmation_number}")
                   end
       log_exception_to_sentry(exception)
+      log_exception_to_rails(exception)
     end
 
     def log_info(message)

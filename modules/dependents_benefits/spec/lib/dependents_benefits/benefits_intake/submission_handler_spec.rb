@@ -5,15 +5,16 @@ require 'dependents_benefits/benefits_intake/submission_handler'
 require 'dependents_benefits/monitor'
 
 Rspec.describe DependentsBenefits::BenefitsIntake::SubmissionHandler do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:find).and_return claim
+    allow(DependentsBenefits::Monitor).to receive(:new).and_return monitor
+  end
+
   let(:handler) { DependentsBenefits::BenefitsIntake::SubmissionHandler }
   let(:claim) { build(:dependents_claim) }
   let(:monitor) { double(DependentsBenefits::Monitor) }
   let(:instance) { handler.new('fake-claim-id') }
-
-  before do
-    allow(DependentsBenefits::SavedClaim).to receive(:find).and_return claim
-    allow(DependentsBenefits::Monitor).to receive(:new).and_return monitor
-  end
 
   describe '.pending_attempts' do
     let(:submission_attempt) { double('Lighthouse::SubmissionAttempt') }
