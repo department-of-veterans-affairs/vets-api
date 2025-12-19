@@ -13,102 +13,74 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
   let(:delete_date5) { DateTime.new(2024, 1, 5) }
 
   describe 'perform' do
-    context 'when feature flag is enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'when SavedClaim records have a delete_date set' do
+      let(:guid1) { SecureRandom.uuid }
+      let(:guid2) { SecureRandom.uuid }
+      let(:guid3) { SecureRandom.uuid }
+      let(:guid4) { SecureRandom.uuid }
+
       before do
-        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(true)
-        allow(StatsD).to receive(:increment)
+        SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', delete_date: delete_date1)
+        SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}', delete_date: delete_date2)
+        SavedClaim::HigherLevelReview.create(guid: guid3, form: '{}', delete_date: delete_date3)
+        SavedClaim::HigherLevelReview.create(guid: guid4, form: '{}', delete_date: delete_date4)
       end
 
-      context 'when SavedClaim records have a delete_date set' do
-        let(:guid1) { SecureRandom.uuid }
-        let(:guid2) { SecureRandom.uuid }
-        let(:guid3) { SecureRandom.uuid }
-        let(:guid4) { SecureRandom.uuid }
+      it 'deletes only the records with a past or current delete_time' do
+        Timecop.freeze(delete_date2) do
+          subject.new.perform
 
-        before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', delete_date: delete_date1)
-          SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}', delete_date: delete_date2)
-          SavedClaim::HigherLevelReview.create(guid: guid3, form: '{}', delete_date: delete_date3)
-          SavedClaim::HigherLevelReview.create(guid: guid4, form: '{}', delete_date: delete_date4)
+          expect(SavedClaim.pluck(:guid)).to contain_exactly(guid3, guid4)
         end
 
-        it 'deletes only the records with a past or current delete_time' do
-          Timecop.freeze(delete_date2) do
-            subject.new.perform
+        expect(StatsD).to have_received(:increment)
+          .with('worker.decision_review.delete_saved_claim_records.count', 2).exactly(1).time
+      end
+    end
 
-            expect(SavedClaim.pluck(:guid)).to contain_exactly(guid3, guid4)
-          end
+    context 'when SavedClaim records do not have a delete_date set' do
+      let(:guid1) { SecureRandom.uuid }
+      let(:guid2) { SecureRandom.uuid }
+      let(:guid3) { SecureRandom.uuid }
+
+      before do
+        SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
+        SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
+        SavedClaim::HigherLevelReview.create(guid: guid3, form: '{}')
+      end
+
+      it 'does not delete the records' do
+        Timecop.freeze(delete_date4) do
+          subject.new.perform
+
+          expect(SavedClaim.pluck(:guid)).to contain_exactly(guid1, guid2, guid3)
 
           expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.delete_saved_claim_records.count', 2).exactly(1).time
-        end
-      end
-
-      context 'when SavedClaim records do not have a delete_date set' do
-        let(:guid1) { SecureRandom.uuid }
-        let(:guid2) { SecureRandom.uuid }
-        let(:guid3) { SecureRandom.uuid }
-
-        before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
-          SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
-          SavedClaim::HigherLevelReview.create(guid: guid3, form: '{}')
-        end
-
-        it 'does not delete the records' do
-          Timecop.freeze(delete_date4) do
-            subject.new.perform
-
-            expect(SavedClaim.pluck(:guid)).to contain_exactly(guid1, guid2, guid3)
-
-            expect(StatsD).to have_received(:increment)
-              .with('worker.decision_review.delete_saved_claim_records.count', 0).exactly(1).time
-          end
-        end
-      end
-
-      context 'when an exception is thrown' do
-        let(:error_message) { 'Error message' }
-
-        before do
-          allow(SavedClaim).to receive(:where).and_raise(ActiveRecord::ActiveRecordError.new(error_message))
-        end
-
-        it 'rescues and logs the exception' do
-          expect(Rails.logger).to receive(:error).with('DecisionReviews::DeleteSavedClaimRecordsJob perform exception',
-                                                       error_message)
-
-          expect { subject.new.perform }.not_to raise_error
-
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.delete_saved_claim_records.error').exactly(1).time
+            .with('worker.decision_review.delete_saved_claim_records.count', 0).exactly(1).time
         end
       end
     end
 
-    context 'when feature flag is disabled' do
-      let(:guid1) { SecureRandom.uuid }
-      let(:guid2) { SecureRandom.uuid }
+    context 'when an exception is thrown' do
+      let(:error_message) { 'Error message' }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(false)
-        allow(StatsD).to receive(:increment)
-
-        SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', delete_date: delete_date1)
-        SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
+        allow(SavedClaim).to receive(:where).and_raise(ActiveRecord::ActiveRecordError.new(error_message))
       end
 
-      it 'does not delete any records even if delete_date is in the past' do
-        Timecop.freeze(delete_date4) do
-          subject.new.perform
+      it 'rescues and logs the exception' do
+        expect(Rails.logger).to receive(:error).with('DecisionReviews::DeleteSavedClaimRecordsJob perform exception',
+                                                      error_message)
 
-          expect(SavedClaim.pluck(:guid)).to contain_exactly(guid1, guid2)
+        expect { subject.new.perform }.not_to raise_error
 
-          expect(StatsD).not_to have_received(:increment)
-            .with('worker.decision_review.delete_saved_claim_records.count')
-        end
+        expect(StatsD).to have_received(:increment)
+          .with('worker.decision_review.delete_saved_claim_records.error').exactly(1).time
       end
     end
   end

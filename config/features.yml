@@ -655,10 +655,6 @@ features:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::SupplementalClaims
     enable_in_development: true
-  decision_review_delete_saved_claims_job_enabled:
-    actor_type: user
-    description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
-    enable_in_development: true
   decision_review_delete_secondary_appeal_forms_enabled:
     actor_type: user
     description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
