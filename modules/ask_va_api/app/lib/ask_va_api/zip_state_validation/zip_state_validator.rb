@@ -4,16 +4,24 @@ module AskVAApi
   class ZipStateValidator
     ZIP_NOT_FOUND = 'Zip Code not found'
     STATE_NOT_FOUND = 'State not found'
-    ZIP_STATE_MISMATCH = 'Zip/State mistmatch'
-    IVALID_ZIP = 'Invalid Zip Code'
+    ZIP_STATE_MISMATCH = 'Zip/State mismatch'
+    INVALID_ZIP = 'Invalid Zip Code'
 
     class << self
       def call(zipcode:, state_name:)
         zip = normalize_zip(zipcode)
-        return invalid_zip_result unless zip
+        return invalid_zip_result(zipcode) unless zip
 
         state_code = state_code_from_name(state_name)
-        state_not_found_result unless state_code
+        return state_not_found_result(state_name) unless state_code
+
+        std_state = StdState.find_by(postal_name: state_code)
+        return state_not_found_result(state_name) unless std_state
+
+        std_zipcode = StdZipcode.find_by(zip_code: zip)
+        return zip_not_found_result(zipcode) unless std_zipcode
+
+        validate_match(std_zipcode:, std_state:, zipcode:, state_code:)
       end
 
       private
@@ -38,8 +46,40 @@ module AskVAApi
         code_by_lower_name[normalized_name]
       end
 
-      def ivalid_zip(zipcode)
-        ZipStateValidationResult.new(valid: false, error_code: INVALID_ZIP, error_message: 'Check Zip Code format')
+      def invalid_zip_result(zipcode)
+        ZipStateValidationResult.new(
+          valid: false,
+          error_code: INVALID_ZIP + ": #{zipcode}",
+          error_message: 'Check Zip Code format.'
+        )
+      end
+
+      def state_not_found_result(state_name)
+        ZipStateValidationResult.new(
+          valid: false,
+          error_code: STATE_NOT_FOUND + ": #{state_name}",
+          error_message: 'Check State format.'
+        )
+      end
+
+      def zip_not_found_result(zipcode)
+        ZipStateValidationResult.new(
+          valid: false,
+          error_code: ZIP_NOT_FOUND + ": #{zipcode}",
+          error_message: 'Check Zip Code format.'
+        )
+      end
+
+      def validate_match(std_zipcode:, std_state:, zipcode:, state_code:)
+        if std_zipcode.state_id == std_state.id
+          ZipStateValidationResult.new(valid: true)
+        else
+          ZipStateValidationResult.new(
+            valid: false,
+            error_code: ZIP_STATE_MISMATCH,
+            error_message: "Zip code #{zipcode} does not belong to state #{state_code}."
+          )
+        end
       end
     end
   end
