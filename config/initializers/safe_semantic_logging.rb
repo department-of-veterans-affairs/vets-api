@@ -10,7 +10,7 @@
 # This monkey-patch prevents logging failures when a String or other non-exception object
 # is passed as the :exception key in log payloads
 module SafeSemanticLogging
-  # Note: We _could_ override error directly but this breaks RSpec spies on Rails.logger
+  # NOTE: We _could_ override error directly but this breaks RSpec spies on Rails.logger
   # def error(message = nil, payload = nil, &)
   #   if SafeSemanticLogging.safe_log_enabled? && payload.is_a?(Hash)
   #     ex = payload[:exception]
@@ -27,7 +27,7 @@ module SafeSemanticLogging
   #   super
   # end
 
-  def log_internal(level, index, message, payload = nil, exception, &block)
+  def log_internal(level, index, message = nil, payload = nil, exception = nil, &)
     if SafeSemanticLogging.safe_log_enabled? && payload.is_a?(Hash)
       ex = payload[:exception]
       if ex && !ex.respond_to?(:backtrace)
@@ -37,9 +37,8 @@ module SafeSemanticLogging
       end
     end
 
-    super(level, index, message, payload, exception, &block)
+    super(level, index, message, payload, exception, &)
   end
-
 
   def self.safe_log_enabled?
     return false unless database_exists?
