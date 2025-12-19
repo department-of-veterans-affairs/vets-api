@@ -758,18 +758,6 @@ en:
         code: 'FORMS_400'
         detail: The Forms service responded with something other than the expected array of forms
         status: 502
-      IHUB_101:
-        <<: *external_defaults
-        title: Error Occurred
-        code: 'IHUB_101'
-        detail: 'General error received from iHub.  Check sentry logs for details.'
-        status: 400
-      IHUB_102:
-        <<: *external_defaults
-        title: User missing ICN
-        code: 'IHUB_102'
-        detail: 'The user does not have an ICN.'
-        status: 502
       MVI_404:
         <<: *external_defaults
         title: Record not found

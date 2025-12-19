@@ -39,7 +39,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         original_method.call(args[0], random_string)
       end
 
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s,
+                                                              current_loa: 3, form_number:,
                                                               timestamp: anything).and_return(pdf_stamper)
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
@@ -428,7 +429,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
 
       allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
-                                                              timestamp: anything).and_return(pdf_stamper)
+                                                              form_number:, timestamp: anything).and_return(pdf_stamper)
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
 

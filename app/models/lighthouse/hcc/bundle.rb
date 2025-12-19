@@ -60,10 +60,28 @@ module Lighthouse
         self_url = relations['self']&.dig('url')
         query_string = CGI.parse(URI(self_url).query.to_s)
 
-        {
+        base_meta = {
           total: @bundle['total'].to_i,
           page: query_string['page']&.first.to_i,
           per_page: query_string['_count']&.first.to_i
+        }
+
+        base_meta.merge(copay_summary_meta)
+      end
+
+      def copay_summary_meta
+        total_current_balance = @entries.reduce(BigDecimal('0')) do |sum, entry|
+          sum + BigDecimal(entry.current_balance.to_s)
+        end
+        copay_bill_count = @entries.size
+        last_updated_on = @entries.maximum(:last_updated_at)
+
+        {
+          copay_summary: {
+            total_current_balance: total_current_balance.to_f,
+            copay_bill_count:,
+            last_updated_on:
+          }
         }
       end
     end

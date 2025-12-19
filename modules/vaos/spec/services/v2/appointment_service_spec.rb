@@ -470,14 +470,16 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when requesting a list of appointments containing a non-Med non-CnP non-CC appointment' do
-        it 'removes the service type(s) from only the non-med non-cnp non-covid appointment' do
+        it 'removes the service type(s) from only the non-med non-cnp appointment and covid appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_non_med',
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
             expect(response[:data][0][:service_type]).to be_nil
             expect(response[:data][0][:service_types]).to be_nil
-            expect(response[:data][1][:service_type]).not_to be_nil
-            expect(response[:data][1][:service_types]).not_to be_nil
+            expect(response[:data][1][:service_type]).to be_nil
+            expect(response[:data][1][:service_types]).to be_nil
+            expect(response[:data][2][:service_type]).not_to be_nil
+            expect(response[:data][2][:service_types]).not_to be_nil
           end
         end
       end
@@ -2155,6 +2157,7 @@ describe VAOS::V2::AppointmentsService do
     after { travel_back }
 
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
+    let(:fulfilled_appointment) { { status: 'fulfilled', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
     let(:avs_param_included) { true }
@@ -2162,6 +2165,10 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns true if the appointment is booked and is in the past and avs is included' do
       expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
+    end
+
+    it 'returns true if the appointment is fulfilled and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, fulfilled_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do

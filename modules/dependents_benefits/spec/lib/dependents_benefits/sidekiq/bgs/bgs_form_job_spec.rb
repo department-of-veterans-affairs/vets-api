@@ -5,17 +5,10 @@ require 'dependents_benefits/sidekiq/bgs/bgs_form_job'
 require 'bgsv2/service'
 
 RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
-  # Create a concrete test class since BGSFormJob is abstract
-  let(:test_job_class) do
-    Class.new(described_class) do
-      def submit_form(_claim_data)
-        # No-op for testing
-      end
-
-      def form_id
-        '21-686C'
-      end
-    end
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    # Initialize job with current claim context
+    job.instance_variable_set(:@claim_id, parent_claim.id)
   end
 
   let(:user) { create(:evss_user) }
@@ -24,284 +17,168 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   let(:user_data) { { 'veteran_information' => { 'full_name' => { 'first' => 'John', 'last' => 'Doe' } } }.to_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
-  let(:job) { test_job_class.new }
+  let(:job) { described_class.new }
 
-  before do
-    # Initialize job with current claim context
-    job.instance_variable_set(:@claim_id, saved_claim.id)
-  end
+  describe '#submit_claims_to_service' do
+    it 'sets @proc_id to the result of generate_proc_id' do
+      allow(job).to receive_messages(child_claims: [saved_claim],
+                                     submit_claim_to_service: DependentsBenefits::ServiceResponse.new(status: true),
+                                     generate_proc_id: 'test-proc-id-123')
 
-  describe '#active_sibling_ep_codes' do
-    let(:sibling_claim1) { create(:add_remove_dependents_claim) }
-    let(:sibling_claim2) { create(:add_remove_dependents_claim) }
-    let(:sibling_claim3) { create(:add_remove_dependents_claim) }
+      job.submit_claims_to_service
 
-    let!(:sibling_group1) { create(:saved_claim_group, saved_claim: sibling_claim1, parent_claim:) }
-    let!(:sibling_group2) { create(:saved_claim_group, saved_claim: sibling_claim2, parent_claim:) }
-    let!(:sibling_group3) { create(:saved_claim_group, saved_claim: sibling_claim3, parent_claim:) }
-
-    let(:submission1) { create(:bgs_submission, saved_claim: sibling_claim1, form_id: '21-686C') }
-    let(:submission2) { create(:bgs_submission, saved_claim: sibling_claim2, form_id: '21-686C') }
-    let(:submission3) { create(:bgs_submission, saved_claim: sibling_claim3, form_id: '21-686C') }
-
-    context 'when no sibling claims have pending submission attempts' do
-      it 'returns empty array' do
-        # Create only submitted attempts
-        create(:bgs_submission_attempt, submission: submission1, status: 'submitted',
-                                        metadata: { claim_type_end_product: '130' }.to_json)
-        create(:bgs_submission_attempt, submission: submission2, status: 'failure',
-                                        metadata: { claim_type_end_product: '131' }.to_json)
-
-        result = job.send(:active_sibling_ep_codes)
-
-        expect(result).to eq([])
-      end
+      expect(job.instance_variable_get(:@proc_id)).to eq('test-proc-id-123')
     end
 
-    context 'when sibling claims have pending submission attempts with EP codes' do
-      it 'returns unique EP codes from pending attempts' do
-        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
-                                        metadata: { claim_type_end_product: '130' }.to_json)
-        create(:bgs_submission_attempt, submission: submission2, status: 'pending',
-                                        metadata: { claim_type_end_product: '131' }.to_json)
-        create(:bgs_submission_attempt, submission: submission3, status: 'pending',
-                                        metadata: { claim_type_end_product: '132' }.to_json)
+    it 'raises DependentSubmissionError if any claim submission fails' do
+      allow(job).to receive_messages(
+        child_claims: [saved_claim],
+        submit_claim_to_service: DependentsBenefits::ServiceResponse.new(status: false,
+                                                                         error: 'Submission failed'),
+        generate_proc_id: 'test-proc-id-123'
+      )
 
-        result = job.send(:active_sibling_ep_codes)
-
-        expect(result).to contain_exactly('130', '131', '132')
-      end
+      expect do
+        job.submit_claims_to_service
+      end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError, 'Submission failed')
     end
 
-    context 'when multiple pending attempts have the same EP code' do
-      it 'returns unique EP codes (no duplicates)' do
-        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
-                                        metadata: { claim_type_end_product: '130' }.to_json)
-        create(:bgs_submission_attempt, submission: submission2, status: 'pending',
-                                        metadata: { claim_type_end_product: '130' }.to_json)
-        create(:bgs_submission_attempt, submission: submission3, status: 'pending',
-                                        metadata: { claim_type_end_product: '131' }.to_json)
+    it 'returns success ServiceResponse if all submissions succeed' do
+      allow(job).to receive_messages(child_claims: [saved_claim],
+                                     submit_claim_to_service: DependentsBenefits::ServiceResponse.new(status: true),
+                                     generate_proc_id: 'test-proc-id-123')
 
-        result = job.send(:active_sibling_ep_codes)
+      response = job.submit_claims_to_service
 
-        expect(result).to contain_exactly('130', '131')
-      end
-    end
-
-    context 'when pending attempts have nil or missing claim_type_end_product' do
-      it 'excludes nil values and returns only valid EP codes' do
-        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
-                                        metadata: { claim_type_end_product: '130' }.to_json)
-        create(:bgs_submission_attempt, submission: submission2, status: 'pending',
-                                        metadata: { other_field: 'value' }.to_json)
-        create(:bgs_submission_attempt, submission: submission3, status: 'pending', metadata: nil)
-
-        result = job.send(:active_sibling_ep_codes)
-
-        expect(result).to contain_exactly('130')
-      end
-    end
-
-    context 'when mixing pending and non-pending attempts' do
-      it 'returns only EP codes from pending attempts' do
-        create(:bgs_submission_attempt, submission: submission1, status: 'pending',
-                                        metadata: { claim_type_end_product: '130' }.to_json)
-        create(:bgs_submission_attempt, submission: submission2, status: 'submitted',
-                                        metadata: { claim_type_end_product: '131' }.to_json)
-        create(:bgs_submission_attempt, submission: submission3, status: 'failure',
-                                        metadata: { claim_type_end_product: '132' }.to_json)
-
-        result = job.send(:active_sibling_ep_codes)
-
-        expect(result).to eq(['130'])
-      end
-    end
-
-    context 'when parent claim has no child claims' do
-      let(:orphan_claim) { create(:dependents_claim) }
-      let(:orphan_saved_claim) { create(:add_remove_dependents_claim) }
-      let!(:orphan_parent_group) { create(:parent_claim_group, parent_claim: orphan_claim, user_data:) }
-      let!(:orphan_current_group) do
-        create(:saved_claim_group, saved_claim: orphan_saved_claim, parent_claim: orphan_claim)
-      end
-
-      before do
-        job.instance_variable_set(:@claim_id, orphan_saved_claim.id)
-      end
-
-      it 'returns empty array' do
-        result = job.send(:active_sibling_ep_codes)
-
-        expect(result).to eq([])
-      end
+      expect(response).to be_a(DependentsBenefits::ServiceResponse)
+      expect(response.success?).to be true
     end
   end
 
-  describe '#claim_type_end_product' do
-    let(:bgs_service) { instance_double(BGSV2::Service) }
+  describe '#submit_686c_form' do
+    let(:claim_data) { { 'veteran' => { 'first_name' => ' john ', 'last_name' => ' doe ' } } }
+    let(:normalized_data) { { 'veteran' => { 'first_name' => 'JOHN', 'last_name' => 'DOE' } } }
+    let(:user_struct) { { user_key: 'value' } }
+    let(:proc_id) { 'test-proc-id-123' }
 
     before do
-      allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+      allow(saved_claim).to receive(:parsed_form).and_return(claim_data)
+      allow(job).to receive(:generate_user_struct).and_return(user_struct)
+      job.instance_variable_set(:@proc_id, proc_id)
     end
 
-    context 'when claim_type_end_product is already set' do
-      it 'returns memoized value' do
-        job.instance_variable_set(:@claim_type_end_product, '130')
+    it 'normalizes claim data and submits via BGSV2::Form686c' do
+      bgs_job = instance_double(BGS::Job)
+      allow(BGS::Job).to receive(:new).and_return(bgs_job)
+      expect(bgs_job).to receive(:normalize_names_and_addresses!).with(claim_data).and_return(normalized_data)
 
-        expect(bgs_service).not_to receive(:find_active_benefit_claim_type_increments)
-        expect(job.send(:claim_type_end_product)).to eq('130')
-      end
-    end
+      form_instance = instance_double(BGSV2::Form686c, submit: nil)
+      expect(BGSV2::Form686c).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
+      expect(form_instance).to receive(:submit).with(normalized_data)
 
-    context 'when selecting from available EP codes' do
-      let(:sibling_claim) { create(:add_remove_dependents_claim) }
-      let!(:sibling_group) { create(:saved_claim_group, saved_claim: sibling_claim, parent_claim:) }
-      let(:sibling_submission) { create(:bgs_submission, saved_claim: sibling_claim, form_id: '21-686C') }
-
-      before do
-        # Mock active claim EP codes from BGS
-        allow(bgs_service).to receive(:find_active_benefit_claim_type_increments).and_return(%w[131 134])
-      end
-
-      it 'excludes active claim EP codes and active sibling EP codes' do
-        # Sibling has pending attempt with '130'
-        create(:bgs_submission_attempt, submission: sibling_submission, status: 'pending',
-                                        metadata: { claim_type_end_product: '130' }.to_json)
-
-        result = job.send(:claim_type_end_product)
-
-        # Should exclude: 130 (sibling), 131 (active), 134 (active)
-        # Available: 132, 136, 137, 138, 139
-        expect(result).to eq('132')
-      end
-
-      it 'returns first available EP code when all are available' do
-        allow(bgs_service).to receive(:find_active_benefit_claim_type_increments).and_return([])
-
-        result = job.send(:claim_type_end_product)
-
-        expect(result).to eq('130')
-      end
-
-      it 'returns nil when no EP codes are available' do
-        # All codes are active
-        allow(bgs_service).to receive(:find_active_benefit_claim_type_increments)
-          .and_return(%w[130 131 132 134 136 137 138 139])
-
-        result = job.send(:claim_type_end_product)
-
-        expect(result).to be_nil
-      end
+      job.submit_686c_form(saved_claim)
     end
   end
 
-  describe '#record_ep_code_in_submission_attempt' do
-    let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
-    let(:submission_attempt) { create(:bgs_submission_attempt, submission:, metadata: nil) }
+  describe '#submit_674_form' do
+    let(:claim_data) { { 'veteran' => { 'first_name' => ' jane ', 'last_name' => ' smith ' } } }
+    let(:normalized_data) { { 'veteran' => { 'first_name' => 'JANE', 'last_name' => 'SMITH' } } }
+    let(:user_struct) { { user_key: 'value' } }
+    let(:proc_id) { 'test-proc-id-456' }
 
     before do
-      job.instance_variable_set(:@submission_attempt, submission_attempt)
-      job.instance_variable_set(:@claim_type_end_product, '130')
+      allow(saved_claim).to receive(:parsed_form).and_return(claim_data)
+      allow(job).to receive(:generate_user_struct).and_return(user_struct)
+      job.instance_variable_set(:@proc_id, proc_id)
     end
 
-    context 'when metadata is nil' do
-      it 'creates metadata with claim_type_end_product' do
-        job.send(:record_ep_code_in_submission_attempt)
-        submission_attempt.reload
+    it 'normalizes claim data and submits via BGSV2::Form674' do
+      bgs_job = instance_double(BGS::Job)
+      allow(BGS::Job).to receive(:new).and_return(bgs_job)
+      expect(bgs_job).to receive(:normalize_names_and_addresses!).with(claim_data).and_return(normalized_data)
 
-        metadata = JSON.parse(submission_attempt.metadata, symbolize_names: true)
-        expect(metadata[:claim_type_end_product]).to eq('130')
-      end
-    end
+      form_instance = instance_double(BGSV2::Form674, submit: nil)
+      expect(BGSV2::Form674).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
+      expect(form_instance).to receive(:submit).with(normalized_data)
 
-    context 'when metadata already exists' do
-      before do
-        submission_attempt.update(metadata: { other_field: 'value' }.to_json)
-      end
-
-      it 'adds claim_type_end_product to existing metadata' do
-        job.send(:record_ep_code_in_submission_attempt)
-        submission_attempt.reload
-        metadata = JSON.parse(submission_attempt.metadata, symbolize_names: true)
-        expect(metadata[:claim_type_end_product]).to eq('130')
-        expect(metadata[:other_field]).to eq('value')
-      end
-    end
-
-    it 'persists the metadata to the database' do
-      expect { job.send(:record_ep_code_in_submission_attempt) }
-        .to(change { submission_attempt.reload.metadata })
+      job.submit_674_form(saved_claim)
     end
   end
 
   describe '#find_or_create_form_submission' do
     it 'creates a new BGS::Submission if one does not exist' do
       expect do
-        job.send(:find_or_create_form_submission)
+        job.send(:find_or_create_form_submission, saved_claim)
       end.to change(BGS::Submission, :count).by(1)
     end
 
     it 'returns existing BGS::Submission if one already exists' do
       existing_submission = create(:bgs_submission, saved_claim:, form_id: '21-686C')
 
-      result = job.send(:find_or_create_form_submission)
+      result = job.send(:find_or_create_form_submission, saved_claim)
 
       expect(result).to eq(existing_submission)
       expect(BGS::Submission.count).to eq(1)
-    end
-
-    it 'memoizes the submission' do
-      first_call = job.send(:find_or_create_form_submission)
-      second_call = job.send(:find_or_create_form_submission)
-
-      expect(first_call).to be(second_call)
     end
   end
 
   describe '#create_form_submission_attempt' do
     let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
 
-    before do
-      job.instance_variable_set(:@submission, submission)
-    end
-
     it 'creates a new BGS::SubmissionAttempt' do
       expect do
-        job.send(:create_form_submission_attempt)
+        job.send(:create_form_submission_attempt, submission)
       end.to change(BGS::SubmissionAttempt, :count).by(1)
     end
 
     it 'associates the attempt with the submission' do
-      attempt = job.send(:create_form_submission_attempt)
+      attempt = job.send(:create_form_submission_attempt, submission)
 
       expect(attempt.submission).to eq(submission)
     end
+  end
 
-    it 'memoizes the submission attempt' do
-      first_call = job.send(:create_form_submission_attempt)
-      second_call = job.send(:create_form_submission_attempt)
+  describe '#submission_previously_succeeded?' do
+    let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
 
-      expect(first_call).to be(second_call)
+    context 'when submission has a non-failure attempt' do
+      before do
+        create(:bgs_submission_attempt, submission:, status: 'submitted')
+      end
+
+      it 'returns true' do
+        expect(job.send(:submission_previously_succeeded?, submission)).to be true
+      end
+    end
+
+    context 'when submission has only failure attempts' do
+      before do
+        create(:bgs_submission_attempt, submission:, status: 'failure')
+      end
+
+      it 'returns false' do
+        expect(job.send(:submission_previously_succeeded?, submission)).to be false
+      end
+    end
+
+    context 'when submission is nil' do
+      it 'returns false' do
+        expect(job.send(:submission_previously_succeeded?, nil)).to be false
+      end
     end
   end
 
-  describe '#mark_submission_succeeded' do
+  describe '#mark_submission_attempt_succeeded' do
     let(:submission) { create(:bgs_submission, saved_claim:, form_id: '21-686C') }
     let(:submission_attempt) { create(:bgs_submission_attempt, submission:, status: 'pending') }
 
-    before do
-      job.instance_variable_set(:@submission_attempt, submission_attempt)
-    end
-
     it 'marks the submission attempt as submitted' do
-      expect { job.send(:mark_submission_succeeded) }
+      expect { job.send(:mark_submission_attempt_succeeded, submission_attempt) }
         .to change { submission_attempt.reload.status }.from('pending').to('submitted')
     end
 
     it 'handles nil submission_attempt gracefully' do
-      job.instance_variable_set(:@submission_attempt, nil)
-
-      expect { job.send(:mark_submission_succeeded) }.not_to raise_error
+      expect { job.send(:mark_submission_attempt_succeeded, nil) }.not_to raise_error
     end
   end
 
@@ -310,26 +187,20 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
     let(:submission_attempt) { create(:bgs_submission_attempt, submission:, status: 'pending') }
     let(:error) { StandardError.new('Test error') }
 
-    before do
-      job.instance_variable_set(:@submission_attempt, submission_attempt)
-    end
-
     it 'marks the submission attempt as failure' do
-      expect { job.send(:mark_submission_attempt_failed, error) }
+      expect { job.send(:mark_submission_attempt_failed, submission_attempt, error) }
         .to change { submission_attempt.reload.status }.from('pending').to('failure')
     end
 
     it 'records the error message' do
-      job.send(:mark_submission_attempt_failed, error)
+      job.send(:mark_submission_attempt_failed, submission_attempt, error)
       submission_attempt.reload
 
       expect(submission_attempt.error_message).to eq('Test error')
     end
 
     it 'handles nil submission_attempt gracefully' do
-      job.instance_variable_set(:@submission_attempt, nil)
-
-      expect { job.send(:mark_submission_attempt_failed, error) }.not_to raise_error
+      expect { job.send(:mark_submission_attempt_failed, nil, error) }.not_to raise_error
     end
   end
 
@@ -373,6 +244,68 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
         error = StandardError.new('Temporary network error')
 
         expect(job.send(:permanent_failure?, error)).to be false
+      end
+    end
+  end
+
+  describe '#generate_proc_id' do
+    let(:bgs_service) { instance_double(BGSV2::Service) }
+    let(:monitor) { instance_double(DependentsBenefits::Monitor) }
+
+    before do
+      allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+      allow(job).to receive_messages(monitor:, generate_user_struct: {}, saved_claim:)
+    end
+
+    context 'when proc ID generation succeeds' do
+      before do
+        allow(bgs_service).to receive_messages(create_proc: { vnp_proc_id: 'test-proc-id-123' }, create_proc_form: true)
+        allow(saved_claim).to receive_messages(submittable_686?: true, submittable_674?: false)
+      end
+
+      it 'returns the generated proc ID' do
+        proc_id = job.send(:generate_proc_id)
+
+        expect(proc_id).to eq('test-proc-id-123')
+      end
+
+      it 'creates proc forms based on claim type' do
+        expect(bgs_service).to receive(:create_proc_form).with('test-proc-id-123', '21-686c')
+
+        job.send(:generate_proc_id)
+      end
+    end
+
+    context 'when proc ID generation fails' do
+      let(:error) { StandardError.new('BGS service unavailable') }
+
+      before do
+        allow(bgs_service).to receive(:create_proc).and_raise(error)
+        allow(monitor).to receive(:track_submission_error)
+      end
+
+      it 'tracks the error with monitor' do
+        expect(monitor).to receive(:track_submission_error).with(
+          'Error generating proc ID',
+          'proc_id_failure',
+          hash_including(error:, parent_claim_id: parent_claim.id)
+        )
+
+        expect do
+          job.send(:generate_proc_id)
+        end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError)
+      end
+
+      it 'raises DependentSubmissionError' do
+        expect do
+          job.send(:generate_proc_id)
+        end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError)
+      end
+
+      it 'wraps the original error' do
+        job.send(:generate_proc_id)
+      rescue DependentsBenefits::Sidekiq::DependentSubmissionError => e
+        expect(e.message).to eq('BGS service unavailable')
       end
     end
   end
