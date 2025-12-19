@@ -25,7 +25,7 @@ http_interactions:
 
           <env:Body>
             <tns:insertIntentToFile><intentToFileDTO>
-        <itfTypeCd>C</itfTypeCd><ptcpntVetId>1234</ptcpntVetId><rcvdDt>2025-12-19T21:29:28+00:00</rcvdDt><signtrInd/><submtrApplcnTypeCd>LH-B</submtrApplcnTypeCd><ptcpntClmantId>5965096380</ptcpntClmantId></intentToFileDTO>
+        <itfTypeCd>C</itfTypeCd><ptcpntVetId>1234</ptcpntVetId><rcvdDt>2025-12-19T21:29:28+00:00</rcvdDt><signtrInd/><submtrApplcnTypeCd>LH-B</submtrApplcnTypeCd><ptcpntClmantId></ptcpntClmantId></intentToFileDTO>
         </tns:insertIntentToFile>
           </env:Body>
           </env:Envelope>
