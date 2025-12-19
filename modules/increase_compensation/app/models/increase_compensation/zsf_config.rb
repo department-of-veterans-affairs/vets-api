@@ -5,10 +5,9 @@ require 'simple_forms_api/form_remediation/configuration/base'
 module IncreaseCompensation
   ##
   # IncreaseCompensation 21-8940v1 S3 Configuration
-  # @see app/model/config
-  #
 
-  class S3Config < SimpleFormsApi::FormRemediation::Configuration::Base
+  class ZsfConfig < SimpleFormsApi::FormRemediation::Configuration::Base
+    # provides s3 settings to the PDF uploader
     def s3_settings
       Settings.bio.increase_compensation
     end
