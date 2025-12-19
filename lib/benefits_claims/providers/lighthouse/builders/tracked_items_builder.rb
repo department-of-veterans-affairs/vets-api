@@ -5,6 +5,7 @@ module BenefitsClaims
     module Lighthouse
       module Builders
         module TrackedItemsBuilder
+          # rubocop:disable Metrics/MethodLength
           def self.build(tracked_items_data)
             return nil if tracked_items_data.nil?
             return [] if tracked_items_data.empty?
@@ -32,6 +33,7 @@ module BenefitsClaims
               )
             end
           end
+          # rubocop:enable Metrics/MethodLength
         end
       end
     end

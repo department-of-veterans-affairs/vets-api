@@ -5,6 +5,7 @@ module BenefitsClaims
     module Lighthouse
       module Serializers
         module TrackedItemsSerializer
+          # rubocop:disable Metrics/MethodLength
           def self.serialize(tracked_items)
             tracked_items.map do |item|
               {
@@ -29,6 +30,7 @@ module BenefitsClaims
               }.compact
             end
           end
+          # rubocop:enable Metrics/MethodLength
         end
       end
     end
