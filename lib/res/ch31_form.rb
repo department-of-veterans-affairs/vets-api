@@ -96,6 +96,10 @@ module RES
       vet_info['regionalOffice'] = vet_info['regionalOfficeName']
       vet_info.delete(:regionalOfficeName)
 
+      if Flipper.enabled?(:vre_send_icn_to_res)
+        vet_info['icn'] = @user&.icn.present? ? @user.icn : nil
+      end
+
       vet_info
     end
 

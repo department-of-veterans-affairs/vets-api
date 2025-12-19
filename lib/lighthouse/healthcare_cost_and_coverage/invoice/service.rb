@@ -29,22 +29,29 @@ module Lighthouse
         end
 
         def read(id)
+          raise ArgumentError, 'no ID passed in for HCCC Invoice read request' if id.blank?
+
           endpoint = "r4/Invoice/#{id}"
 
           config.get(endpoint, icn: @icn).body
-        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
+        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError, Faraday::ParsingError => e
           handle_error(e, endpoint)
         end
 
         private
 
         def handle_error(error, endpoint)
-          Lighthouse::ServiceException.send_error(
-            error,
-            self.class.to_s.underscore,
-            nil, # lighthouse_client_id not used in HCCC
-            "#{config.base_api_path}/#{endpoint}"
-          )
+          case error
+          when Faraday::ParsingError
+            raise Common::Exceptions::BadGateway.new(errors: [{ title: error.class.to_s, detail: error.message }])
+          else
+            Lighthouse::ServiceException.send_error(
+              error,
+              self.class.to_s.underscore,
+              nil, # lighthouse_client_id not used in HCCC
+              "#{config.base_api_path}/#{endpoint}"
+            )
+          end
         end
       end
     end

@@ -25,12 +25,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ImagingController', type: :request
 
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(bb_internal_client)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     sign_in_as(current_user)
-    VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                        match_requests_on: %i[method sm_user_ignoring_path_param])
   end
-
-  after { VCR.eject_cassette }
 
   RSpec.shared_context 'redis setup' do
     let(:redis) { instance_double(Redis::Namespace) }

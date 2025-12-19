@@ -28,6 +28,7 @@ module AskVAApi
         end
 
         def call
+          log_inquiry_context
           payload = {
             AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
@@ -36,13 +37,6 @@ module AskVAApi
             DependentDOB: family_member_field(:date_of_birth), DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
-          context = {
-            level_of_authentication: inquiry_details[:level_of_authentication],
-            user_loa: user&.loa&.fetch(:current, nil),
-            category: inquiry_details_obj.category, topic: inquiry_details_obj.topic,
-            user_is_authenticated: user.present?
-          }
-          Rails.logger.info('Education Inquiry Context', context)
           if user.nil? && inquiry_details_obj.inquiry_education_related?
             raise InquiryPayloadError, 'Unauthenticated Education inquiry submitted'
           end
@@ -52,6 +46,23 @@ module AskVAApi
         end
 
         private
+
+        def log_inquiry_context
+          context = {
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            user_loa: user&.loa&.fetch(:current, nil),
+            user_is_authenticated: user.present?,
+            category: inquiry_params[:select_category],
+            topic: inquiry_params[:select_topic],
+            subtopic: inquiry_params[:select_subtopic],
+            who: inquiry_params[:who_is_your_question_about],
+            relationship_to_veteran: inquiry_params[:relationship_to_veteran],
+            is_question_about_veteran_or_someone_else: inquiry_params[:is_question_about_veteran_or_someone_else],
+            your_role: inquiry_params[:your_role],
+            attachments: attachment_present?
+          }
+          Rails.logger.info('Inquiry Context', context)
+        end
 
         def additional_payload_fields
           {
