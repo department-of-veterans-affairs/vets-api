@@ -47,12 +47,12 @@ module VRE
 
     def format_payload_for_res
       form_data = claim_form_hash
-
       res_payload = {
         useEva: form_data['useEva'],
         receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
         useTelecounseling: form_data['useTelecounseling'],
         appointmentTimePreferences: form_data['appointmentTimePreferences'],
+        privacyStatementAcknowledged: form_data['privacyAgreementAccepted'],
         yearsOfEducation: form_data['yearsOfEducation'],
         isMoving: form_data['isMoving'],
         mainPhone: form_data['mainPhone'],
@@ -100,6 +100,10 @@ module VRE
       vet_info['regionalOffice'] = vet_info['regionalOfficeName']
       vet_info.delete(:regionalOfficeName)
 
+      if Flipper.enabled?(:vre_send_icn_to_res)
+        vet_info['icn'] = @user&.icn.present? ? @user.icn : nil
+      end
+
       vet_info
     end
 
@@ -120,6 +124,8 @@ module VRE
     end
 
     def mapped_address_hash(client_hash)
+      return nil unless client_hash
+
       {
         country: client_hash['country'],
         street: client_hash['street'],

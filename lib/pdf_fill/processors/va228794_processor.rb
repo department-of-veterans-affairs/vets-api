@@ -92,7 +92,7 @@ module PdfFill
       end
 
       def process_additional_certifying_officials(merged_form_data, hash_converter)
-        extra_certifying_officials = extract_extra_from_array(merged_form_data['additionalCertifyingOfficials'],
+        extra_certifying_officials = extract_extra_from_array(merged_form_data['additionalCertifyingOfficials'] || [],
                                                               DEFAULT_FORM_OFFICIALS_LIMIT)
         extra_certifying_officials.each_with_index do |official_data, i|
           hash_converter.extras_generator.add_text(certifying_official_to_text(official_data), {
@@ -105,7 +105,7 @@ module PdfFill
       end
 
       def process_additional_read_only_officials(merged_form_data, hash_converter, start_i)
-        extra_read_only_officials = extract_extra_from_array(merged_form_data['readOnlyCertifyingOfficial'],
+        extra_read_only_officials = extract_extra_from_array(merged_form_data['readOnlyCertifyingOfficial'] || [],
                                                              DEFAULT_FORM_READ_ONLY_SCO_LIMIT)
         extra_read_only_officials.each_with_index do |rof_data, i|
           hash_converter.extras_generator.add_text(read_only_official_to_text(rof_data), {
