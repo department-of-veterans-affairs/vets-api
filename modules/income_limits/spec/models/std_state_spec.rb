@@ -47,8 +47,8 @@ RSpec.describe StdState, type: :model do
   end
 
   describe '.with_postal_name' do
-    let!(:matching_state) { create(:std_state, postal_name: 'NC') }
-    let!(:other_state) { create(:std_state, postal_name: 'VA') }
+    let!(:matching_state) { create(:std_state, id: 9_001_001, postal_name: 'NC') }
+    let!(:other_state) { create(:std_state, id: 9_001_002, postal_name: 'VA') }
 
     it 'returns only states with the requested postal name' do
       result = described_class.with_postal_name('NC')
