@@ -15,13 +15,13 @@ module AskVAApi
         state_code = state_code_from_name(state_name)
         return state_not_found_result(state_name) unless state_code
 
-        std_state = StdState.find_by(postal_name: state_code)
+        std_state = StdState.with_postal_name(state_code).first
         return state_not_found_result(state_name) unless std_state
 
-        std_zipcode = StdZipcode.find_by(zip_code: zip)
-        return zip_not_found_result(zipcode) unless std_zipcode
+        zip_exists = StdZipcode.with_zip_code(zip).exists?
+        return zip_not_found_result(zipcode) unless zip_exists
 
-        validate_match(std_zipcode:, std_state:, zipcode:, state_code:)
+        validate_match(zip:, state_code:, std_state:)
       end
 
       private
@@ -58,10 +58,10 @@ module AskVAApi
         )
       end
 
-      def mismatch_result(zipcode:, state_code:)
+      def mismatch_result(zip:, state_code:)
         error_result(
           error_code: ZIP_STATE_MISMATCH,
-          error_message: "Zip Code #{zipcode} does not belong to state #{state_code}."
+          error_message: "Zip Code #{zip} does not belong to state #{state_code}."
         )
       end
 
@@ -86,11 +86,11 @@ module AskVAApi
         )
       end
 
-      def validate_match(std_zipcode:, std_state:, zipcode:, state_code:)
-        if std_zipcode.state_id == std_state.id
+      def validate_match(zip:, state_code:, std_state:)
+        if StdZipcode.for_zip_and_state(zip, std_state.id).exists?
           success_result
         else
-          mismatch_result(zipcode:, state_code:)
+          mismatch_result(zip:, state_code:)
         end
       end
     end
