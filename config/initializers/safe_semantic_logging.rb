@@ -45,7 +45,6 @@ module SafeSemanticLogging
 
     Flipper.enabled?(:safe_semantic_logging)
   rescue => e
-    Rails.logger.warn("SafeSemanticLogging: Error checking feature flag - #{e.message}")
     false
   end
 
