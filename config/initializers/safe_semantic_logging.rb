@@ -11,22 +11,6 @@
 # is passed as the :exception key in log payloads
 module SafeSemanticLogging
   # NOTE: We _could_ override error directly but this breaks RSpec spies on Rails.logger
-  # def error(message = nil, payload = nil, &)
-  #   if SafeSemanticLogging.safe_log_enabled? && payload.is_a?(Hash)
-  #     ex = payload[:exception]
-  #     payload = payload.merge(exception: RuntimeError.new(ex.to_s)) if ex && !ex.respond_to?(:backtrace)
-
-  #     # Maybe worthwhile to see if coverage can help us here?
-  #     # if Rails.env.test? && ex && !ex.is_a?(Exception)
-  #     #   raise 'SafeSemanticLogging enabled - non-exception logged as exception'
-  #     # end
-
-  #     # Handle nil exception too
-  #     payload = payload.merge(exception: RuntimeError.new('No exception provided')) if ex.nil?
-  #   end
-  #   super
-  # end
-
   def log_internal(level, index, message = nil, payload = nil, exception = nil, &)
     if SafeSemanticLogging.safe_log_enabled? && payload.is_a?(Hash)
       ex = payload[:exception]
@@ -44,7 +28,7 @@ module SafeSemanticLogging
     return false unless database_exists?
 
     Flipper.enabled?(:safe_semantic_logging)
-  rescue => e
+  rescue
     false
   end
 
