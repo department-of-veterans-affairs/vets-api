@@ -108,19 +108,23 @@ describe VRE::VRESubmit1900Job do
     context 'with user_account and duplicate submissions' do
       it 'increments StatsD metric and logs warning' do
         # Create 2 submissions within threshold (duplicate scenario)
-        create(:form_submission,
-               user_account:,
-               form_type:,
-               created_at: 2.hours.ago)
-        create(:form_submission,
-               user_account:,
-               form_type:,
-               created_at: 1.hour.ago)
+        submission1 = create(:form_submission,
+                             user_account:,
+                             form_type:,
+                             created_at: 2.hours.ago)
+        submission2 = create(:form_submission,
+                             user_account:,
+                             form_type:,
+                             created_at: 1.hour.ago)
 
         expect(Rails.logger).to receive(:warn).with(
           'VRE::VRESubmit1900Job - Duplicate Submission Check',
-          hash_including(user_account_id: user_account.id, submission_count: 2, threshold_hours: 24,
-                         duplicates_detected: true)
+          hash_including(user_account_id: user_account.id, submissions_count: 2, threshold_hours: 24,
+                         duplicates_detected: true,
+                         submissions_data: [
+                           { id: submission1.id, created_at: submission1.created_at },
+                           { id: submission2.id, created_at: submission2.created_at }
+                         ])
         )
 
         subject.send(:duplicate_submission_check, user_account)
