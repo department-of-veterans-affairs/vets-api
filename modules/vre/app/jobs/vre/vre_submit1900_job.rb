@@ -79,7 +79,7 @@ module VRE
       claim_id = msg['args'][0]
       claim = ::SavedClaim.find(claim_id)
 
-      if Flipper.enabled?(:vre_use_new_vfs_notification_library)
+      if Flipper.enabled?(:vre_use_new_vfs_notification_library, claim)
         VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
       else
         VRE::Monitor.new.track_submission_exhaustion(msg, claim.email)

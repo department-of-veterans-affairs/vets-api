@@ -162,7 +162,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_to_res(user)
 
-    Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
+    Flipper.enabled?(:vre_use_new_vfs_notification_library, self) &&
       send_email(@sent_to_lighthouse ? LIGHTHOUSE_CONFIRMATION : VBMS_CONFIRMATION)
   end
 
@@ -190,7 +190,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       end
     end
 
-    !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
+    !Flipper.enabled?(:vre_use_new_vfs_notification_library, self) &&
       send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATES[VBMS_CONFIRMATION])
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
@@ -225,7 +225,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_lighthouse = true
 
-    !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
+    !Flipper.enabled?(:vre_use_new_vfs_notification_library, self) &&
       send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE_CONFIRMATION])
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
@@ -327,6 +327,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def email
     @email ||= parsed_form['email']
+  end
+
+  def flipper_id
+    email
   end
 
   def send_failure_email(email_override = nil)
