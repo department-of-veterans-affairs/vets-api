@@ -50,7 +50,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.2.3'
+gem 'rails', '~> 8.1.1'
 
 gem 'aasm'
 gem 'activerecord-import'
