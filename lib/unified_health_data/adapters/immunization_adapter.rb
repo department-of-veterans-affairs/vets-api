@@ -40,7 +40,10 @@ module UnifiedHealthData
           manufacturer: extract_manufacturer(resource),
           note: extract_note(resource['note']),
           reaction: extract_reaction(resource['reaction']),
-          short_description: vaccine_code['text']
+          short_description: vaccine_code['text'],
+          administration_site: extract_site(resource), # e.g. "left arm"
+          lot_number: resource['lotNumber'] || nil,
+          status: resource['status'] || nil # Status of the record ??
         )
       end # rubocop:enable Metrics/MethodLength
 
@@ -193,6 +196,11 @@ module UnifiedHealthData
 
         # Fall back to location display (VistA data or OH truncated name)
         resource.dig('location', 'display')
+      end
+
+      def extract_site(resource)
+        resource.dig('site', 'text') ||
+          resource.dig('site', 'coding')&.first&.dig('display')
       end
     end
   end
