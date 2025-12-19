@@ -352,10 +352,11 @@ module UnifiedHealthData
       # Parse successful refills from API response array
       successful_refills = refill_items.select { |item| item['success'] == true }
       successful_refills.map do |refill|
+        order = refill['order'] || refill
         {
-          id: refill['orderId'],
+          id: order['orderId'],
           status: refill['message'] || 'submitted',
-          station_number: refill['stationNumber']
+          station_number: order['stationNumber']
         }
       end
     end
@@ -364,10 +365,11 @@ module UnifiedHealthData
       # Parse failed refills from API response array
       failed_refills = refill_items.select { |item| item['success'] == false }
       failed_refills.map do |failure|
+        order = failure['order'] || failure
         {
-          id: failure['orderId'],
+          id: order['orderId'],
           error: failure['message'] || 'Unable to process refill',
-          station_number: failure['stationNumber']
+          station_number: order['stationNumber']
         }
       end
     end
