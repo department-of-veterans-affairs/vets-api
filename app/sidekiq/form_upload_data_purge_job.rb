@@ -93,7 +93,8 @@ class FormUploadDataPurgeJob
       'Failed to purge form submission',
       form_submission_id: form_submission.id,
       form_type: form_submission.form_type,
-      error: e.message
+      benefits_intake_uuid: vbms_attempt&.benefits_intake_uuid,
+      backtrace: e.backtrace&.first(5)
     )
   end
 
@@ -205,7 +206,7 @@ class FormUploadDataPurgeJob
     StatsD.increment("#{STATS_KEY}.failed")
     Rails.logger.error(
       'FormUploadDataPurgeJob failed',
-      error: exception.message
+      backtrace: exception.backtrace&.first(5)
     )
   end
 end
