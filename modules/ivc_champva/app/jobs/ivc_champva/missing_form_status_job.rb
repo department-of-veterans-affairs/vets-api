@@ -72,7 +72,8 @@ module IvcChampva
     end
 
     def construct_email_payload_without_pii(form, template_id)
-      { form_number: form.form_number,
+      { email: nil,
+        form_number: form.form_number,
         file_count: nil,
         pega_status: form.pega_status,
         date_submitted: form.created_at.strftime('%B %d, %Y'),
