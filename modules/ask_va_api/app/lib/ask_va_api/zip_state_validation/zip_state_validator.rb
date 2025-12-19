@@ -61,28 +61,28 @@ module AskVAApi
       def mismatch_result(zipcode:, state_code:)
         error_result(
           error_code: ZIP_STATE_MISMATCH,
-          error_message: "Zip code #{zipcode} does not belong to state #{state_code}."
+          error_message: "Zip Code #{zipcode} does not belong to state #{state_code}."
         )
       end
 
       def invalid_zip_result(zipcode)
         error_result(
-          error_code: INVALID_ZIP + ": #{zipcode}",
-          error_message: 'Check Zip Code format.'
+          error_code: INVALID_ZIP,
+          error_message: "Invalid Zip Code: #{zipcode}."
         )
       end
 
       def state_not_found_result(state_name)
         error_result(
-          error_code: STATE_NOT_FOUND + ": #{state_name}",
-          error_message: 'Check State format.'
+          error_code: STATE_NOT_FOUND,
+          error_message: "Check State format: #{state_name}."
         )
       end
 
       def zip_not_found_result(zipcode)
         error_result(
-          error_code: ZIP_NOT_FOUND + ": #{zipcode}",
-          error_message: 'Check Zip Code format.'
+          error_code: ZIP_NOT_FOUND,
+          error_message: "Zip not found: #{zipcode}."
         )
       end
 
