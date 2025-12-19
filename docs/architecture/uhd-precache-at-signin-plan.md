@@ -536,13 +536,13 @@ Rails.logger.error(
 ## Open Questions
 
 1. **Q**: Should we differentiate between web and mobile app sign-ins?
-   - **A**: Not initially; treat the same. Monitor separately if needed.
+   - **A**: Yes, to start only implement for web sign-ins. Mobile has a different prefetch pattern.
 
 2. **Q**: What if user signs in but has no health data?
    - **A**: UHD will return empty results; job logs success with 0 records.
 
 3. **Q**: Should we pre-cache for users without MHV accounts?
-   - **A**: Check for `user.va_patient?` or MHV account; skip if not eligible.
+   - **A**: Check for `user.va_patient?`; skip if not eligible.
 
 4. **Q**: What about users in multiple facilities (VistA + Oracle Health)?
    - **A**: UHD service already handles this; job remains agnostic.
