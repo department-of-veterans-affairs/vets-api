@@ -16,6 +16,18 @@ module DependentsBenefits::Sidekiq
   # and marks parent as PROCESSING rather than SUCCESS to indicate VBMS pending.
   #
   class DependentBackupJob < DependentSubmissionJob
+    # Submit a claim to Lighthouse Benefits Intake as backup
+    # @return [ServiceResponse]
+    def submit_claims_to_service
+      find_or_create_form_submission
+      create_form_submission_attempt
+
+      saved_claim.add_veteran_info(user_data)
+      raise Invalid686cClaim unless saved_claim.valid?(:run_686_form_jobs)
+
+      submit_to_service
+    end
+
     ##
     # Service-specific submission logic for Lighthouse upload
     # @return [ServiceResponse] Must respond to success? and error methods
@@ -29,7 +41,20 @@ module DependentsBenefits::Sidekiq
     rescue => e
       DependentsBenefits::ServiceResponse.new(status: false, error: e)
     ensure
-      lighthouse_submission.cleanup_file_paths
+      lighthouse_submission&.cleanup_file_paths
+    end
+
+    # Handles job failure by determining if error is permanent or transient
+    # @param error [Exception] The error that caused the job to fail
+    # @return [void]
+    # @raise [::Sidekiq::JobRetry::Skip] for permanent failures to skip retries
+    # @raise [DependentSubmissionError] for transient failures to trigger retries
+    def handle_job_failure(error)
+      monitor.track_submission_error("Error submitting #{self.class}", 'error', error:, claim_id:)
+      mark_submission_attempt_failed(error)
+
+      # raise other errors to trigger Sidekiq retry mechanism
+      raise DependentSubmissionError, error
     end
 
     # Handles permanent failure for backup job
@@ -43,7 +68,7 @@ module DependentsBenefits::Sidekiq
     # @return [void]
     def handle_permanent_failure(claim_id, error)
       @claim_id = claim_id
-      send_failure_notification
+      notification_email.send_error_notification
       monitor.log_silent_failure_avoided({ claim_id:, error: })
     rescue => e
       # Last resort if notification fails
@@ -62,13 +87,11 @@ module DependentsBenefits::Sidekiq
     def handle_job_success
       ActiveRecord::Base.transaction do
         parent_group.with_lock do
-          mark_submission_succeeded # update attempt and submission records (ie FormSubmission)
+          mark_submission_attempt_succeeded # update attempt record
 
           # update parent claim group status - overwrite failure since we're in backup job
           # the parent group is marked as processing to indicate it hasn't reached VBMS yet
           mark_parent_group_processing
-          # notify user of acceptance by the service - final success will be sent after VBMS is reached
-          send_in_progress_notification
         end
       end
     rescue => e
@@ -124,7 +147,7 @@ module DependentsBenefits::Sidekiq
     # Service-specific success logic - updates submission attempt record to success status.
     #
     # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
-    def mark_submission_succeeded = submission_attempt&.success!
+    def mark_submission_attempt_succeeded = submission_attempt&.success!
 
     # Marks the submission attempt as failed
     #

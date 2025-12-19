@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/attr_package'
+
 class EmailVerificationJob
   include Sidekiq::Job
   include Vets::SharedLogging
@@ -15,15 +17,44 @@ class EmailVerificationJob
     args = msg['args']
 
     template_type = args[0] if args&.length&.positive?
+    cache_key = args[1] if args&.length&.>(1)
+
     message = "#{job_class} retries exhausted"
 
     Rails.logger.error(message, { job_id:, error_class:, error_message:, template_type: })
     StatsD.increment("#{STATS_KEY}.retries_exhausted")
+
+    # Clean up the cache key if it exists and retries are exhausted
+    if cache_key.present?
+      begin
+        Sidekiq::AttrPackage.delete(cache_key)
+      rescue Sidekiq::AttrPackageError => e
+        Rails.logger.warn('Failed to clean up AttrPackage after retries exhausted', {
+                            cache_key:,
+                            error: e.message
+                          })
+      end
+    end
   end
 
   # TODO: Add back email_address param when ready to send real emails
-  def perform(template_type, _email_address, personalisation = {})
+  # rubocop:disable Metrics/MethodLength
+  def perform(template_type, cache_key)
     return unless Flipper.enabled?(:auth_exp_email_verification_enabled)
+
+    # Retrieve PII data from Redis using the cache key
+    personalisation_data = Sidekiq::AttrPackage.find(cache_key)
+
+    unless personalisation_data
+      Rails.logger.error('EmailVerificationJob failed: Missing personalisation data in Redis', {
+                           template_type:,
+                           cache_key_present: cache_key.present?
+                         })
+      raise ArgumentError, 'Missing personalisation data in Redis'
+    end
+
+    # Build personalisation hash based on template type and available data
+    personalisation = build_personalisation(template_type, personalisation_data)
 
     validate_personalisation!(template_type, personalisation)
 
@@ -32,17 +63,24 @@ class EmailVerificationJob
     # notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options(template_type))
     # notify_client.send_email(
     #   {
-    #     email_address:,
+    #     email_address: personalisation_data[:email],
     #     template_id: get_template_id(template_type),
     #     personalisation:
     #   }.compact
     # )
 
     StatsD.increment("#{STATS_KEY}.success")
+
+    # Clean up the cache after successful processing
+    Sidekiq::AttrPackage.delete(cache_key)
   rescue ArgumentError => e
     # Log application logic errors for debugging - these go to Sidekiq's Dead Job Queue (no retries)
     Rails.logger.error('EmailVerificationJob validation failed', { error: e.message, template_type: })
     raise e
+  rescue Sidekiq::AttrPackageError => e
+    # Log AttrPackage errors as application logic errors (no retries)
+    Rails.logger.error('EmailVerificationJob AttrPackage error', { error: e.message, template_type: })
+    raise ArgumentError, e.message
   rescue => e
     # Log and count service/operational failures
     # Service failures get retried by Sidekiq (5xx errors), 400s don't retry
@@ -50,8 +88,26 @@ class EmailVerificationJob
     StatsD.increment("#{STATS_KEY}.failure")
     raise e
   end
+  # rubocop:enable Metrics/MethodLength
 
   private
+
+  def build_personalisation(template_type, personalisation_data)
+    case template_type
+    when 'initial_verification', 'annual_verification', 'email_change_verification'
+      {
+        'verification_link' => personalisation_data[:verification_link],
+        'first_name' => personalisation_data[:first_name],
+        'email_address' => personalisation_data[:email]
+      }
+    when 'verification_success'
+      {
+        'first_name' => personalisation_data[:first_name]
+      }
+    else
+      raise ArgumentError, 'Unknown template type'
+    end
+  end
 
   def callback_options(template_type)
     {

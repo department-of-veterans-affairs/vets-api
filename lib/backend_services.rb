@@ -24,6 +24,7 @@ class BackendServices
   ID_CARD = 'id-card'
   IDENTITY_PROOFED = 'identity-proofed'
   VET360 = 'vet360'
+  DGI = 'dgi' # Digital GI Bill
 
   # MHV services
   RX = 'rx'

@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake.sob.com/external-api-service/api/v1/claimants
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"123456789","benefitType":"CH33","enrollment":"NO"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJzb2IiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJuYmYiOjE3NjQ3MTA3NzQsImV4cCI6MTc2NDcxMTA3NCwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIlNPQiJdfX0.0_qOwyxDmJE9BMeNL3q-iaxU46ntAtumDpMz2ZIFO5_dq3SsWuUnvBhhTww9FUwXdmvQmP9cCOSGCpFGwbQf9zME38bGrqnZTv0Rjt7938bf6nDdqosZh2Lt88dAyC2Quj0cwoDhlbnfOh7fK3yUhhLNLkEBWn2I1c7HEhr6tLA2-3SRI0uxu5tibUXtLuet4NnNeZSg2q0yHmOoEsYl-XAowucLoWSYeVn5U9bCGLwvdXPRXMry4DuQTaUnVliPxuOtGAxbOvg9sqpx0ajLLZ46PGVfJ4m5hXgROGHMOYiMDXu2MKSr1_FWui1ebWGeVX8v6lEfVkb-iLWSwIfI_A
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      date:
+      - Tue, 02 Dec 2025 21:26:17 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload, max-age=31536000; includeSubDomains;
+        preload, max-age=31536000; includeSubDomains; preload
+      x-xss-protection:
+      - 1; mode=block, 1; mode=block, 1; mode=block
+      x-frame-options:
+      - SAMEORIGIN, SAMEORIGIN, SAMEORIGIN
+      x-content-type-options:
+      - nosniff, nosniff, nosniff
+      referrer-policy:
+      - strict-origin, strict-origin, strict-origin
+      access-control-allow-origin:
+      - "*"
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, DELETE
+      last-modified:
+      - Tuesday, 02-Dec-2025 21:26:17 GMT
+      cache-control:
+      - no-store, no-cache, no-store, no-cache
+    body:
+      encoding: UTF-8
+      string: '{"status":200,"claimant":{"id":3000000010002241,"vaId":null,"vaFileNumber":"374374377","socialSecurityNumber":"374374377","firstName":"Jane","middleName":"M","lastName":"Smith","cadency":"","sex":"Female","sensitivityLevel":0,"educationLevel":null,"station":"RPO351","dateOfBirth":"19880301","dateOfDeath":null,"fryScholarship":null,"sixCreditHour":"20220801","powerOfAttorneyName":null,"dataSource":null,"requireColmeryWp":false,"benefits":[{"benefitType":"CH33","statusType":"authorized","lastPayableDate":null,"verifiedThroughDate":"20251125","eligibilityResults":[{"id":2000000002004452,"totalServicePeriod":7634,"totAggregatQualifyingDays":7634,"totAggregateTrainingDays":0,"totAggregateExclusionDays":0,"activeDuty":true,"servedAfter09102001":true,"over90AndHonorable":true,"over30ConsecutiveDisabled":false,"veteranIsEligible":true,"percentageBenefit":100,"eligibilityPeriod":{"id":2000000002004752,"eligibilityDate":"20050401","delimitingDate":null},"stemEligibilityPeriod":{"id":300000000000041,"eligibilityDate":"20240203","delimitingDate":"20260410"}}],"entitlementResults":[{"id":3000000010001050,"origEntitledDays":1080,"daysUsed":660,"daysRemaining":0,"exhaustionDate":"20240202","isCurrent":true}],"stemEntitlementResults":[],"entitlementTransferOut":[{"id":300000000001261,"beginDate":"20250101","endDate":null,"transferredDays":420,"benefitType":null,"transferor":3000000010002241,"recipient":1000000000000253,"origTransferPerson":3000000010002241,"relationshipType":"Child"}],"entitlementTransferIn":[],"awards":[{"startPayDate":"20240202","endPayDate":null,"maturationDate":null,"benefitLevel":null,"facilityCode":null,"amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":null,"endPayDate":null,"maturationDate":null,"benefitLevel":null,"facilityCode":null,"amount":0.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220930","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":500.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":500.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":850.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":5000.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220930","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":625.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220930","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":3750.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20240202","endPayDate":null,"maturationDate":null,"benefitLevel":null,"facilityCode":null,"amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220731","maturationDate":null,"benefitLevel":100,"facilityCode":null,"amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":null,"benefitLevel":100,"facilityCode":null,"amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220930","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":500.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":500.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":850.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":5000.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220930","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":625.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220930","maturationDate":null,"benefitLevel":100,"facilityCode":"11000643","amount":3750.0,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20240202","endPayDate":null,"maturationDate":null,"benefitLevel":null,"facilityCode":null,"amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":null,"endPayDate":null,"maturationDate":null,"benefitLevel":null,"facilityCode":null,"amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220101","endPayDate":"20220430","maturationDate":"20251125","benefitLevel":null,"facilityCode":"11000643","amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null},{"startPayDate":"20220601","endPayDate":"20220930","maturationDate":"20251125","benefitLevel":null,"facilityCode":"11000643","amount":null,"ch1606KickerAmount":null,"ch30KickerAmount":null,"ch33KickerAmount":null,"ch33KickerSupplementAmount":null}],"enrollments":null}]}}'
+  recorded_at: Tue, 02 Dec 2025 21:26:17 GMT
+recorded_with: VCR 6.3.1

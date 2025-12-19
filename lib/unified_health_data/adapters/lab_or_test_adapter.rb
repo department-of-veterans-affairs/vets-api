@@ -8,6 +8,9 @@ module UnifiedHealthData
   module Adapters
     class LabOrTestAdapter
       include DateNormalizer
+
+      ALLOWED_STATUSES = %w[final amended corrected appended].freeze
+
       def parse_labs(records)
         return [] if records.blank?
 
@@ -21,17 +24,34 @@ module UnifiedHealthData
       def parse_single_record(record)
         return nil if record.nil? || record['resource'].nil?
 
+        # Filter out DiagnosticReports with disallowed status
+        unless allowed_status?(record['resource']['status'])
+          log_filtered_diagnostic_report(record, 'disallowed_status')
+          return nil
+        end
+
         contained = record['resource']['contained']
         code = get_code(record)
         encoded_data = get_encoded_data(record['resource'])
         observations = get_observations(record)
-        return nil unless code && (encoded_data || observations)
 
+        # Log warnings before filtering out records
         log_warnings(record, encoded_data, observations)
+
+        # Return nil if there's no code, and if there's no encoded data AND no valid observations
+        unless code && (encoded_data.present? || observations.any?)
+          log_filtered_diagnostic_report(record, 'no_valid_data')
+          return nil
+        end
+
         build_lab_or_test(record, code, encoded_data, observations, contained)
       end
 
       private
+
+      def allowed_status?(status)
+        ALLOWED_STATUSES.include?(status)
+      end
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
         date_completed_value = get_date_completed(record['resource'])
@@ -57,6 +77,31 @@ module UnifiedHealthData
       def log_warnings(record, encoded_data, observations)
         log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
         log_missing_date_warning(record)
+      end
+
+      def log_filtered_diagnostic_report(record, reason)
+        resource = record['resource']
+        status = resource['status']
+
+        Rails.logger.info(
+          "Filtered DiagnosticReport: id=#{resource['id']}, status=#{status}, reason=#{reason}",
+          { service: 'unified_health_data', filtering: true }
+        )
+
+        StatsD.increment('unified_health_data.lab_or_test.filtered_diagnostic_report',
+                         tags: ["reason:#{reason}"])
+      end
+
+      def log_filtered_observations(record, filtered_count, total_count)
+        resource = record['resource']
+
+        Rails.logger.info(
+          "Filtered #{filtered_count}/#{total_count} Observations from DiagnosticReport #{resource['id']}",
+          { service: 'unified_health_data', filtering: true }
+        )
+
+        # Increment the counter once per DiagnosticReport that has filtered observations
+        StatsD.increment('unified_health_data.lab_or_test.filtered_observations')
       end
 
       def log_final_status_warning(record, status, encoded_data, observations)
@@ -164,19 +209,39 @@ module UnifiedHealthData
       def get_observations(record)
         return [] if record['resource']['contained'].nil?
 
-        record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
-          sample_tested = get_sample_tested(obs, record['resource']['contained'])
-          body_site = get_body_site(obs, record['resource']['contained'])
-          UnifiedHealthData::Observation.new(
-            test_code: obs['code']['text'],
-            value: format_observation_value(obs),
-            reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
-            status: obs['status'],
-            comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
-            sample_tested:,
-            body_site:
-          )
+        all_observations = record['resource']['contained'].select do |resource|
+          resource['resourceType'] == 'Observation'
         end
+        filtered_count = 0
+
+        valid_observations = all_observations.filter_map do |obs|
+          # Filter out observations with disallowed status
+          unless allowed_status?(obs['status'])
+            filtered_count += 1
+            next
+          end
+
+          build_observation(obs, record['resource']['contained'])
+        end
+
+        # Log and track filtered observations
+        log_filtered_observations(record, filtered_count, all_observations.size) if filtered_count.positive?
+
+        valid_observations
+      end
+
+      def build_observation(obs, contained)
+        sample_tested = get_sample_tested(obs, contained)
+        body_site = get_body_site(obs, contained)
+        UnifiedHealthData::Observation.new(
+          test_code: obs['code']['text'],
+          value: format_observation_value(obs),
+          reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
+          status: obs['status'],
+          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
+          sample_tested:,
+          body_site:
+        )
       end
 
       def format_observation_value(obs)
