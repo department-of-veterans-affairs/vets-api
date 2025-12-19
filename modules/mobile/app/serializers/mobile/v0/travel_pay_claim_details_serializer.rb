@@ -14,7 +14,6 @@ module Mobile
                  :claimantMiddleName,
                  :claimantLastName,
                  :claimStatus,
-                 :appointmentDate,
                  :facilityName,
                  :totalCostRequested,
                  :reimbursementAmount,
