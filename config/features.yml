@@ -1543,6 +1543,9 @@ features:
     actor_type: user
     description: Enables/disables partial fill content
     enable_in_development: true
+  mhv_medications_new_policy:
+    actor_type: user
+    description: Updates MHV Medications policy based on recent updates to MHV Account Creation API
   mhv_medications_v2_status_mapping:
     actor_type: user
     description: Enables V2 status mapping for prescriptions (consolidates VistA/Oracle Health statuses into simplified groups)
