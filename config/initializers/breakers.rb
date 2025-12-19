@@ -82,6 +82,7 @@ Rails.application.reloader.to_prepare do
     SearchGsa::Configuration.instance.breakers_service,
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
+    SOB::DGI::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
     Vye::DGIB::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
